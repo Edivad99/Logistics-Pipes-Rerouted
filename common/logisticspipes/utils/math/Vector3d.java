@@ -1,6 +1,6 @@
 package logisticspipes.utils.math;
 
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -127,7 +127,7 @@ public class Vector3d {
 		z = v1.x * v2.y - v1.y * v2.x;
 	}
 
-	public Vec3d toVec3d() {
-		return new Vec3d(x, y, z);
+	public Vec3 toVec3d() {
+		return new Vec3(x, y, z);
 	}
 }

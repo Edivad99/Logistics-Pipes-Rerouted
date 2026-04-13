@@ -1,25 +1,25 @@
 package logisticspipes.utils;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
 public final class TileBuffer {
 
 	private Block block = null;
-	private TileEntity tile;
+	private BlockEntity tile;
 
 	private final SafeTimeTracker tracker = new SafeTimeTracker(20, 5);
-	private final World world;
+	private final Level world;
 	private final int x, y, z;
 	private final boolean loadUnloaded;
 
-	public TileBuffer(World world, int x, int y, int z, boolean loadUnloaded) {
+	public TileBuffer(Level world, int x, int y, int z, boolean loadUnloaded) {
 		this.world = world;
 		this.x = x;
 		this.y = y;
@@ -31,9 +31,9 @@ public final class TileBuffer {
 
 	public void refresh() {
 		BlockPos pos = new BlockPos(x, y, z);
-		IBlockState blockState = world.getBlockState(pos);
+		BlockState blockState = world.getBlockState(pos);
 		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe != null && ((LogisticsTileGenericPipe) tile).pipe.preventRemove()) {
-			if (blockState.getBlock().isAir(blockState, world, pos)) {
+			if (blockState.isAir()) {
 				return;
 			}
 		}
@@ -46,26 +46,26 @@ public final class TileBuffer {
 
 		block = blockState.getBlock();
 
-		if (block.hasTileEntity(blockState)) {
-			tile = world.getTileEntity(pos);
+		if (blockState.hasBlockEntity()) {
+			tile = world.getBlockEntity(pos);
 		}
 	}
 
-	public void set(Block block, TileEntity tile) {
+	public void set(Block block, BlockEntity tile) {
 		this.block = block;
 		this.tile = tile;
 		tracker.markTime(world);
 	}
 
 	public Block getBlock() {
-		if (tile != null && !tile.isInvalid()) {
+		if (tile != null && !tile.isRemoved()) {
 			return block;
 		}
 
 		if (tracker.markTimeIfDelay(world)) {
 			refresh();
 
-			if (tile != null && !tile.isInvalid()) {
+			if (tile != null && !tile.isRemoved()) {
 				return block;
 			}
 		}
@@ -73,15 +73,15 @@ public final class TileBuffer {
 		return null;
 	}
 
-	public TileEntity getTile() {
-		if (tile != null && !tile.isInvalid()) {
+	public BlockEntity getTile() {
+		if (tile != null && !tile.isRemoved()) {
 			return tile;
 		}
 
 		if (tracker.markTimeIfDelay(world)) {
 			refresh();
 
-			if (tile != null && !tile.isInvalid()) {
+			if (tile != null && !tile.isRemoved()) {
 				return tile;
 			}
 		}
@@ -89,12 +89,12 @@ public final class TileBuffer {
 		return null;
 	}
 
-	public static TileBuffer[] makeBuffer(World world, BlockPos pos, boolean loadUnloaded) {
+	public static TileBuffer[] makeBuffer(Level world, BlockPos pos, boolean loadUnloaded) {
 		TileBuffer[] buffer = new TileBuffer[6];
 
 		for (int i = 0; i < 6; i++) {
-			EnumFacing d = EnumFacing.byIndex(i);
-			buffer[i] = new TileBuffer(world, pos.getX() + d.getXOffset(), pos.getY() + d.getYOffset(), pos.getZ() + d.getZOffset(), loadUnloaded);
+			Direction d = Direction.from3DDataValue(i);
+			buffer[i] = new TileBuffer(world, pos.getX() + d.getStepX(), pos.getY() + d.getStepY(), pos.getZ() + d.getStepZ(), loadUnloaded);
 		}
 
 		return buffer;

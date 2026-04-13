@@ -1,17 +1,18 @@
 package logisticspipes.gui.hud;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
 
-import org.lwjgl.opengl.GL11;
+
+
 
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -33,10 +34,10 @@ public class HudChassisPipe extends BasicHUDGui {
 		pipe = pipeLogisticsChassis;
 		moduleInventory = _moduleInventory;
 		for (int i = 0; i < pipe.getChassisSize(); i++) {
-			addButton(new ItemButton(moduleInventory, i, -45, -35 + ((i % 3) * 27), 20, 25));
+			addRenderableWidget(new ItemButton(moduleInventory, i, -45, -35 + ((i % 3) * 27), 20, 25));
 		}
 
-		addButton(new BasicHUDButton("<", -45, -45, 8, 8) {
+		addRenderableWidget(new BasicHUDButton("<", -45, -45, 8, 8) {
 
 			@Override
 			public boolean shouldRenderButton() {
@@ -53,7 +54,7 @@ public class HudChassisPipe extends BasicHUDGui {
 				return modulePage > 0;
 			}
 		});
-		addButton(new BasicHUDButton(">", -33, -45, 8, 8) {
+		addRenderableWidget(new BasicHUDButton(">", -33, -45, 8, 8) {
 
 			@Override
 			public boolean shouldRenderButton() {
@@ -70,7 +71,7 @@ public class HudChassisPipe extends BasicHUDGui {
 				return modulePage < ((pipe.getChassisSize() - 1) / 3);
 			}
 		});
-		addButton(new BasicHUDButton("x", 37, -45, 8, 8) {
+		addRenderableWidget(new BasicHUDButton("x", 37, -45, 8, 8) {
 
 			@Override
 			public boolean shouldRenderButton() {
@@ -90,32 +91,20 @@ public class HudChassisPipe extends BasicHUDGui {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft mc, IHUDConfig config) {
-		if (day) {
-			GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 64);
-		} else {
-			GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 64);
-		}
-		GuiGraphics.drawGuiBackGround(mc, -50, -50, 50, 50, 0, false);
-		if (day) {
-			GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 127);
-		} else {
-			GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 127);
-		}
-		GL11.glTranslatef(0.0F, 0.0F, (float) (-0.00005F * distance));
-		super.renderHeadUpDisplay(distance, day, shifted, mc, config);
+	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, -50, -50, 50, 50, 0, false);
+		super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
+		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		int textColor = day ? 0xff404040 : 0xff7f7f7f;
 		if (selected != -1) {
 			LogisticsModule selectedmodule = pipe.getSubModule(selected);
 			if (selectedmodule == null) {
 				return;
 			}
 
-			GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 64);
-			GuiGraphics.drawGuiBackGround(mc, -23, -35, 45, 45, 0, false);
-			GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 127);
+			LPGuiGraphics.drawGuiBackGround(minecraft, -23, -35, 45, 45, 0, false);
 
 			if (selectedmodule instanceof IHUDModuleHandler && ((IHUDModuleHandler) selectedmodule).getHUDRenderer() != null) {
-				GL11.glTranslatef(11.0F, 5.0F, (float) (-0.00005F * distance));
 				((IHUDModuleHandler) selectedmodule).getHUDRenderer().renderContent(shifted);
 				if (((IHUDModuleHandler) selectedmodule).getHUDRenderer().getButtons() != null) {
 					for (IHUDButton button : ((IHUDModuleHandler) selectedmodule).getHUDRenderer().getButtons()) {
@@ -138,21 +127,16 @@ public class HudChassisPipe extends BasicHUDGui {
 						}
 					}
 				}
-				GL11.glTranslatef(-11.0F, -5.0F, (float) (0.00005F * distance));
 			} else {
-				GL11.glTranslatef(0.0F, 0.0F, (float) (-0.00005F * distance));
-				mc.fontRenderer.drawString("Nothing", -5, -15, 0);
-				mc.fontRenderer.drawString("to", 9, -5, 0);
-				mc.fontRenderer.drawString("display", -5, 5, 0);
-				GL11.glTranslatef(0.0F, 0.0F, (float) (0.00005F * distance));
+				if (gg != null) {
+					gg.drawString(minecraft.font, "Nothing", -5, -15, textColor, false);
+					gg.drawString(minecraft.font, "to", 9, -5, textColor, false);
+					gg.drawString(minecraft.font, "display", -5, 5, textColor, false);
+				}
 			}
 		} else {
-			GL11.glTranslatef(0.0F, 0.0F, (float) (-0.005F * distance));
-			GL11.glScalef(1.5F, 1.5F, 0.0001F);
-			GL11.glScalef(0.8F, 0.8F, -1F);
 			ItemStackRenderer.renderItemIdentifierStackListIntoGui(pipe.displayList, null, 0, -15, -35, 3, 12, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 		}
-		GL11.glTranslatef(0.0F, 0.0F, (float) (0.00005F * distance));
 	}
 
 	@Override
@@ -160,7 +144,7 @@ public class HudChassisPipe extends BasicHUDGui {
 		if (!config.isChassisHUD()) {
 			return false;
 		}
-		for (int i = 0; i < moduleInventory.getSizeInventory(); i++) {
+		for (int i = 0; i < moduleInventory.getContainerSize(); i++) {
 			if (moduleInventory.getIDStackInSlot(i) != null) {
 				return true;
 			}
@@ -234,24 +218,29 @@ public class HudChassisPipe extends BasicHUDGui {
 
 		@Override
 		public void renderButton(boolean hover, boolean clicked, boolean shifted) {
-			Minecraft mc = FMLClientHandler.instance().getClient();
-			GL11.glEnable(GL11.GL_BLEND);
+			Minecraft mc = Minecraft.getInstance();
+			RenderSystem.enableBlend();
 
 			if (shifted || hover || isSlotSelected(position)) {
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1F);
+				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1F);
 			} else {
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
+				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F);
 			}
 
-			GL11.glTranslatef(0.0F, 0.0F, -0.001F);
-			GL11.glScaled(0.5D, 0.5D, 1.0D);
-			if (isSlotSelected(position)) {
-				GuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2 + 19, (posY + sizeY) * 2, 0, false, true, true, true, false);
-			} else {
-				GuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
+			net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+			if (gg != null) {
+				gg.pose().pushPose();
+				gg.pose().translate(0.0F, 0.0F, -0.001F);
+				gg.pose().scale(0.5F, 0.5F, 1.0F);
 			}
-			GL11.glScaled(2.0D, 2.0D, 1.0D);
-			GL11.glTranslatef(0.0F, 0.0F, 0.001F);
+			if (isSlotSelected(position)) {
+				LPGuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2 + 19, (posY + sizeY) * 2, 0, false, true, true, true, false);
+			} else {
+				LPGuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
+			}
+			if (gg != null) {
+				gg.pose().popPose();
+			}
 
 			ItemIdentifierStack module = inv.getIDStackInSlot(position);
 
@@ -267,15 +256,22 @@ public class HudChassisPipe extends BasicHUDGui {
 		@Override
 		public void renderAlways(boolean shifted) {
 			if (inv.getIDStackInSlot(position) == null && shouldDisplayButton(position)) {
-				GL11.glEnable(GL11.GL_BLEND);
+				RenderSystem.enableBlend();
 				if (shifted) {
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 				} else {
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.3F);
+					RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.3F);
 				}
-				GL11.glScaled(0.5D, 0.5D, 1.0D);
-				Minecraft mc = FMLClientHandler.instance().getClient();
-				GuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
+				Minecraft mc = Minecraft.getInstance();
+				net.minecraft.client.gui.GuiGraphics gg2 = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+				if (gg2 != null) {
+					gg2.pose().pushPose();
+					gg2.pose().scale(0.5F, 0.5F, 1.0F);
+				}
+				LPGuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
+				if (gg2 != null) {
+					gg2.pose().popPose();
+				}
 			}
 		}
 

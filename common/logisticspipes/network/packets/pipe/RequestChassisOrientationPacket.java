@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -18,8 +18,8 @@ public class RequestChassisOrientationPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = this.getPipe(player.world, LTGPCompletionCheck.PIPE);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (pipe.pipe instanceof PipeLogisticsChassis) {
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChassisOrientationPacket.class).setDir(((PipeLogisticsChassis) pipe.pipe).getPointedOrientation()).setPosX(getPosX()).setPosY(getPosY()).setPosZ(getPosZ()), player);
 		}

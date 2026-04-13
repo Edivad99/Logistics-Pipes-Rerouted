@@ -3,7 +3,7 @@ package logisticspipes.blocks.stats;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.blocks.LogisticsSolidTileEntity;
 import logisticspipes.interfaces.IGuiTileEntity;
@@ -18,6 +18,10 @@ import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class LogisticsStatisticsTileEntity extends LogisticsSolidTileEntity implements IGuiTileEntity {
 
+	public LogisticsStatisticsTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(logisticspipes.LPRegistries.BE_STATISTICS_TABLE.get(), pos, state);
+	}
+
 	public List<TrackingTask> tasks = new ArrayList<>();
 	private int tickCount;
 	private CoreRoutedPipe cachedConnectedPipe;
@@ -30,8 +34,7 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidTileEntity impl
 
 	@Override
 	public void update() {
-		tryUpdateBlockFormat();
-		if (MainProxy.isClient(world)) {
+		if (MainProxy.isClient(getWorld())) {
 			return;
 		}
 		tickCount++;
@@ -44,11 +47,11 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidTileEntity impl
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt) {
-		super.readFromNBT(nbt);
-		int size = nbt.getInteger("taskSize");
+	public void load(CompoundTag nbt) {
+		super.load(nbt);
+		int size = nbt.getInt("taskSize");
 		for (int i = 0; i < size; i++) {
-			NBTTagCompound tag = (NBTTagCompound) nbt.getTag("Task_" + i);
+			CompoundTag tag = (CompoundTag) nbt.get("Task_" + i);
 			TrackingTask task = new TrackingTask();
 			task.readFromNBT(tag);
 			tasks.add(task);
@@ -56,17 +59,16 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidTileEntity impl
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		nbt = super.writeToNBT(nbt);
-		nbt.setInteger("taskSize", tasks.size());
+	public void saveAdditional(CompoundTag nbt) {
+		super.saveAdditional(nbt);
+		nbt.putInt("taskSize", tasks.size());
 		int count = 0;
 		for (TrackingTask task : tasks) {
-			NBTTagCompound tag = new NBTTagCompound();
+			CompoundTag tag = new CompoundTag();
 			task.writeToNBT(tag);
-			nbt.setTag("Task_" + count, tag);
+			nbt.put("Task_" + count, tag);
 			count++;
 		}
-		return nbt;
 	}
 
 	@Override

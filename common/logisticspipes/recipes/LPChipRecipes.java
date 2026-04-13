@@ -1,18 +1,12 @@
 package logisticspipes.recipes;
 
-import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.fml.common.registry.GameRegistry;
-
-import logisticspipes.LPItems;
+// Smelting recipes are declared as JSON data files in resources/data/logisticspipes/recipes/.
 
 public class LPChipRecipes implements IRecipeProvider {
 
 	@Override
 	public void loadRecipes() {
-		GameRegistry.addSmelting(new ItemStack(LPItems.chipBasicRaw, 1), new ItemStack(LPItems.chipBasic, 1), 0);
-		GameRegistry.addSmelting(new ItemStack(LPItems.chipAdvancedRaw, 1), new ItemStack(LPItems.chipAdvanced, 1), 0);
-		GameRegistry.addSmelting(new ItemStack(LPItems.chipFPGARaw, 1), new ItemStack(LPItems.chipFPGA, 1), 0);
+		// Chip smelting recipes are data-driven JSON files in resources/data/logisticspipes/recipes/
 	}
 
 }

@@ -2,67 +2,78 @@ package logisticspipes.utils.item;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nonnull;
 
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 
+/**
+ * Identity for a single item tag (the 1.20.1 replacement for an OreDictionary entry).
+ *
+ * <p>The old OreDictionary-based code referred to entries by {@code int} id. We preserve that
+ * shape — so {@link DictItemIdentifier} can keep using {@link java.util.BitSet} — and map each
+ * {@link TagKey} to a stable id on first sight.
+ *
+ * <p>Name format is the tag's full location ({@code "forge:ingots/iron"}). Category is the tag's
+ * namespace + path prefix up to the last {@code '/'}, so {@code "forge:ingots/iron"} has category
+ * {@code "forge:ingots"}, mirroring the old {@code "ingotIron" -> "ingot"} grouping.
+ */
 public class DictIdentifier {
 
-	private static List<DictIdentifier> identifiers = new ArrayList<>();
+	private static final List<DictIdentifier> identifiers = new ArrayList<>();
+	private static final ConcurrentHashMap<ResourceLocation, Integer> tagToId = new ConcurrentHashMap<>();
 
-	static DictIdentifier getForId(int id) {
-		if (DictIdentifier.identifiers.size() <= id) {
-			ArrayList<DictIdentifier> newidentifiers = new ArrayList<>(id + 1);
-			while (newidentifiers.size() <= id) {
-				newidentifiers.add(null);
-			}
-			for (int i = 0; i < DictIdentifier.identifiers.size(); i++) {
-				newidentifiers.set(i, DictIdentifier.identifiers.get(i));
-			}
-			DictIdentifier.identifiers = newidentifiers;
+	static synchronized DictIdentifier getForTag(@Nonnull TagKey<Item> tag) {
+		ResourceLocation loc = tag.location();
+		Integer existing = tagToId.get(loc);
+		if (existing != null) {
+			return identifiers.get(existing);
 		}
-		DictIdentifier ident = DictIdentifier.identifiers.get(id);
-		if (ident == null) {
-			ident = new DictIdentifier(id);
-			DictIdentifier.identifiers.set(id, ident);
-		}
+		int id = identifiers.size();
+		DictIdentifier ident = new DictIdentifier(id, loc);
+		identifiers.add(ident);
+		tagToId.put(loc, id);
 		return ident;
 	}
 
-	private final int id;
-	private String name;
-	private String category;
+	static synchronized DictIdentifier getForId(int id) {
+		return identifiers.get(id);
+	}
 
-	private DictIdentifier(int id) {
+	private final int id;
+	private final String name;
+	private final String category;
+
+	private DictIdentifier(int id, ResourceLocation loc) {
 		this.id = id;
+		this.name = loc.toString();
+		int slash = this.name.lastIndexOf('/');
+		this.category = slash < 0 ? this.name : this.name.substring(0, slash);
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public String getName() {
-		if (name == null) {
-			name = OreDictionary.getOreName(id);
-		}
 		return name;
 	}
 
 	public String getCategory() {
-		if (category == null) {
-			category = Pattern.compile("[A-Z].*").matcher(getName()).replaceFirst("");
-		}
 		return category;
 	}
 
 	public boolean canNameMatch(DictIdentifier ident) {
-		return getName().equals(ident.getName());
+		return name.equals(ident.name);
 	}
 
 	public boolean canCategoryMatch(DictIdentifier ident) {
-		return getCategory().equals(ident.getCategory());
+		return category.equals(ident.category);
 	}
 
 	public void debugDumpData(boolean isClient, StringBuilder builder) {
-		builder.append(id);
-		builder.append("{");
-		builder.append(getName());
-		builder.append("}");
+		builder.append(id).append('{').append(name).append('}');
 	}
 }

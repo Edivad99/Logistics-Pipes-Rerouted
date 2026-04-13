@@ -1,72 +1,25 @@
 package logisticspipes.proxy.side;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.INetHandler;
-import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import logisticspipes.LPConstants;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.gui.GuiCraftingPipe;
-import logisticspipes.gui.modules.ModuleBaseGui;
-import logisticspipes.gui.popup.SelectItemOutOfList;
-import logisticspipes.interfaces.ILogisticsItem;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.DummyContainerSlotClick;
-import logisticspipes.pipefxhandlers.Particles;
-import logisticspipes.pipefxhandlers.PipeFXRenderHandler;
-import logisticspipes.pipefxhandlers.providers.EntityBlueSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityGoldSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityGreenSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityLightGreenSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityLightRedSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityOrangeSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityRedSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityVioletSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityWhiteSparkleFXProvider;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.IProxy;
-import logisticspipes.renderer.FluidContainerRenderer;
-import logisticspipes.renderer.LogisticsRenderPipe;
-import logisticspipes.renderer.newpipe.GLRenderListHandler;
-import logisticspipes.renderer.newpipe.LogisticsBlockModel;
-import logisticspipes.renderer.newpipe.LogisticsNewPipeModel;
-import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
-import logisticspipes.textures.Textures;
-import logisticspipes.utils.FluidIdentifier;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.item.ItemIdentifierStack;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ClientProxy implements IProxy {
 
 	int renderIndex = 0;
@@ -77,34 +30,55 @@ public class ClientProxy implements IProxy {
 	}
 
 	@Override
-	public World getWorld() {
-		return FMLClientHandler.instance().getClient().world;
+	public Level getWorld() {
+		return Minecraft.getInstance().level;
 	}
 
 	@Override
 	public void registerTileEntities() {
-		LogisticsRenderPipe lrp = new LogisticsRenderPipe();
-		ClientRegistry.bindTileEntitySpecialRenderer(LogisticsTileGenericPipe.class, lrp);
-
-		SimpleServiceLocator.setRenderListHandler(new GLRenderListHandler());
+		// BlockEntityRenderer registration is handled via EntityRenderersEvent.RegisterRenderers
+		// in LogisticsPipes.registerRenderers() — nothing to do here except initialise the render list.
+		SimpleServiceLocator.setRenderListHandler(new logisticspipes.renderer.newpipe.GLRenderListHandler());
 	}
 
 	@Override
-	public EntityPlayer getClientPlayer() {
-		return FMLClientHandler.instance().getClient().player;
+	public Player getClientPlayer() {
+		return Minecraft.getInstance().player;
 	}
 
 	@Override
 	public void registerParticles() {
-		PipeFXRenderHandler.registerParticleHandler(Particles.WhiteParticle, new EntityWhiteSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.RedParticle, new EntityRedSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.BlueParticle, new EntityBlueSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.GreenParticle, new EntityGreenSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.GoldParticle, new EntityGoldSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.VioletParticle, new EntityVioletSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.OrangeParticle, new EntityOrangeSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.LightGreenParticle, new EntityLightGreenSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.LightRedParticle, new EntityLightRedSparkleFXProvider());
+		// LP has its own particle pipeline — particles are spawned directly via
+		// mc.particleEngine.add(...) from PipeFXRenderHandler and do not go through
+		// the vanilla ParticleType registry, so RegisterParticleProvidersEvent is
+		// not involved. Wire the color → provider map once at client init.
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.WhiteParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityWhiteSparkleFXProvider());
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.RedParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityRedSparkleFXProvider());
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.BlueParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityBlueSparkleFXProvider());
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.GreenParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityGreenSparkleFXProvider());
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.GoldParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityGoldSparkleFXProvider());
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.VioletParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityVioletSparkleFXProvider());
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.OrangeParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityOrangeSparkleFXProvider());
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.LightGreenParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityLightGreenSparkleFXProvider());
+		logisticspipes.pipefxhandlers.PipeFXRenderHandler.registerParticleHandler(
+			logisticspipes.pipefxhandlers.Particles.LightRedParticle,
+			new logisticspipes.pipefxhandlers.providers.EntityLightRedSparkleFXProvider());
 	}
 
 	@Override
@@ -113,69 +87,49 @@ public class ClientProxy implements IProxy {
 	}
 
 	@Override
-	public void updateNames(ItemIdentifier item, String name) {
-		//Not Client Side
-	}
+	public void updateNames(ItemIdentifier item, String name) {}
 
 	@Override
-	public void tick() {
-		//Not Client Side
-	}
+	public void tick() {}
 
 	@Override
-	public void sendNameUpdateRequest(EntityPlayer player) {
-		//Not Client Side
-	}
+	public void sendNameUpdateRequest(Player player) {}
 
 	@Override
-	public LogisticsTileGenericPipe getPipeInDimensionAt(int dimension, int x, int y, int z, EntityPlayer player) {
-		return ClientProxy.getPipe(DimensionManager.getWorld(dimension), x, y, z);
+	public LogisticsTileGenericPipe getPipeInDimensionAt(int dimension, int x, int y, int z, Player player) {
+		// Dimension encoded as dim.location().hashCode(). On client, only the current level is
+		// accessible, so verify the hash matches before returning the pipe.
+		Level level = Minecraft.getInstance().level;
+		if (level == null) return null;
+		if (level.dimension().location().hashCode() != dimension) return null;
+		return getPipe(level, x, y, z);
 	}
 
-	// BuildCraft method
-
-	/**
-	 * Retrieves pipe at specified coordinates if any.
-	 *
-	 * @param world
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
-	 */
-	private static LogisticsTileGenericPipe getPipe(World world, int x, int y, int z) {
-		if (world == null || world.isAirBlock(new BlockPos(x, y, z))) {
-			return null;
-		}
-
-		final TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
-		if (!(tile instanceof LogisticsTileGenericPipe)) {
-			return null;
-		}
-
-		return (LogisticsTileGenericPipe) tile;
+	private static LogisticsTileGenericPipe getPipe(Level level, int x, int y, int z) {
+		if (level == null) return null;
+		BlockPos pos = new BlockPos(x, y, z);
+		if (level.isEmptyBlock(pos)) return null;
+		BlockEntity tile = level.getBlockEntity(pos);
+		return tile instanceof LogisticsTileGenericPipe ? (LogisticsTileGenericPipe) tile : null;
 	}
-
-	// BuildCraft method end
 
 	@Override
 	public void addLogisticsPipesOverride(Object par1IIconRegister, int index, String override1, String override2, boolean flag) {
-		if (par1IIconRegister != null) {
-			TextureMap par1 = (TextureMap) par1IIconRegister;
-			if ("NewPipeTexture".equals(override2) && !override1.contains("status_overlay")) {
-				Textures.LPnewPipeIconProvider.setIcon(index, par1.registerSprite(new ResourceLocation("logisticspipes", override1.replace("pipes/", "blocks/pipes/new_texture/"))));
-			} else if (flag) {
-				Textures.LPpipeIconProvider.setIcon(index, par1.registerSprite(new ResourceLocation("logisticspipes", "blocks/" + override1)));
-			} else {
-				Textures.LPpipeIconProvider.setIcon(index, par1.registerSprite(new ResourceLocation("logisticspipes", "blocks/" + override1.replace("pipes/", "pipes/overlay_gen/") + "/" + override2.replace("pipes/status_overlay/", ""))));
-			}
+		// Overlay compositing (override2) from 1.12.2 is deferred; record the base sprite only.
+		// override2 == "NewPipeTexture" means this call targets LPnewPipeIconProvider's index
+		// space (newTextureIndex, separate from LPpipeIconProvider's normal index).
+		if ("NewPipeTexture".equals(override2)) {
+			logisticspipes.textures.TextureRegistrar.recordNew(index, override1);
+		} else {
+			logisticspipes.textures.TextureRegistrar.record(index, override1);
 		}
 	}
 
 	@Override
 	public void sendBroadCast(String message) {
-		if (Minecraft.getMinecraft().player != null) {
-			Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[LP] Client: " + message));
+		var player = Minecraft.getInstance().player;
+		if (player != null) {
+			player.sendSystemMessage(Component.literal("[LP] Client: " + message));
 		}
 	}
 
@@ -189,109 +143,52 @@ public class ClientProxy implements IProxy {
 	}
 
 	@Override
-	public EntityPlayer getEntityPlayerFromNetHandler(INetHandler handler) {
-		if (handler instanceof NetHandlerPlayServer) {
-			EntityPlayerMP player = ((NetHandlerPlayServer) handler).player;
-			if (player != null) {
-				return player;
-			}
-		}
-		return Minecraft.getMinecraft().player;
+	public void getPlayerFromNetHandler(Object handler) {
+		// TODO: Connection/ServerGamePacketListenerImpl — deferred to network rewrite
 	}
 
 	@Override
 	public void setIconProviderFromPipe(ItemLogisticsPipe item, CoreUnroutedPipe dummyPipe) {
-		item.setPipesIcons(dummyPipe.getIconProvider());
+		// TODO: IIconProvider → deferred to renderer migration
 	}
 
 	@Override
 	public LogisticsModule getModuleFromGui() {
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof ModuleBaseGui) {
-			return ((ModuleBaseGui) FMLClientHandler.instance().getClient().currentScreen).getModule();
-		}
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiCraftingPipe) {
-			return ((GuiCraftingPipe) FMLClientHandler.instance().getClient().currentScreen).getCraftingModule();
-		}
+		var screen = Minecraft.getInstance().screen;
+		if (screen instanceof logisticspipes.gui.modules.ModuleBaseGui g) return g.getModule();
+		if (screen instanceof logisticspipes.gui.GuiCraftingPipe g)        return g.getCraftingModule();
 		return null;
 	}
 
 	@Override
 	public boolean checkSinglePlayerOwner(String commandSenderName) {
-		return FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer() && FMLCommonHandler.instance().getMinecraftServerInstance() instanceof IntegratedServer && !((IntegratedServer) FMLCommonHandler.instance().getMinecraftServerInstance()).getPublic();
+		var server = Minecraft.getInstance().getSingleplayerServer();
+		return server != null && !server.isPublished();
 	}
 
 	@Override
-	public void openFluidSelectGui(final int slotId) {
-		if (Minecraft.getMinecraft().currentScreen instanceof LogisticsBaseGuiScreen) {
-			final List<ItemIdentifierStack> list = new ArrayList<>();
-			for (FluidIdentifier fluid : FluidIdentifier.all()) {
-				if (fluid == null) {
-					continue;
-				}
-				list.add(fluid.getItemIdentifier().makeStack(1));
-			}
-			SelectItemOutOfList subGui = new SelectItemOutOfList(list, slot -> {
-				if (slot == -1) return;
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(DummyContainerSlotClick.class).setSlotId(slotId).setStack(list.get(slot).makeNormalStack()).setButton(0));
-			});
-			LogisticsBaseGuiScreen gui = (LogisticsBaseGuiScreen) Minecraft.getMinecraft().currentScreen;
-			if (!gui.hasSubGui()) {
-				gui.setSubGui(subGui);
-			} else {
-				SubGuiScreen nextGui = gui.getSubGui();
-				while (nextGui.hasSubGui()) {
-					nextGui = nextGui.getSubGui();
-				}
-				nextGui.setSubGui(subGui);
-			}
-		} else {
-			throw new UnsupportedOperationException(String.valueOf(Minecraft.getMinecraft().currentScreen));
-		}
+	public void openFluidSelectGui(int slotId) {
+		// TODO: fluid select GUI migration deferred to GUI system migration
 	}
 
 	@Override
 	public void registerModels() {
-		ForgeRegistries.ITEMS.getValuesCollection().stream()
-				.filter(item -> item.getRegistryName().getNamespace().equals(LPConstants.LP_MOD_ID))
-				.filter(item -> item instanceof ILogisticsItem)
-				.forEach(item -> registerModels((ILogisticsItem) item));
-	}
-
-	private void registerModels(ILogisticsItem item) {
-		int mc = item.getModelCount();
-		for (int i = 0; i < mc; i++) {
-			String modelPath = item.getModelPath();
-			if (mc > 1) {
-				String resourcePath = item.getItem().getRegistryName().getPath();
-				if (modelPath.matches(String.format(".*%s/%s", resourcePath, resourcePath))) {
-					modelPath = String.format("%s/%d", modelPath.substring(0, modelPath.length() - resourcePath.length() - 1), i);
-				} else {
-					modelPath = String.format("%s.%d", modelPath, i);
-				}
-			}
-			ModelLoader.setCustomModelResourceLocation(item.getItem(), i, new ModelResourceLocation(new ResourceLocation(item.getItem().getRegistryName().getNamespace(), modelPath), "inventory"));
-		}
+		// Model registration migrated to ModelEvent.RegisterAdditional / baked-model system
 	}
 
 	@Override
 	public void registerTextures() {
-		LogisticsPipes.textures.registerBlockIcons(Minecraft.getMinecraft().getTextureMapBlocks());
-		LogisticsNewRenderPipe.registerTextures(Minecraft.getMinecraft().getTextureMapBlocks());
-		LogisticsNewPipeModel.registerTextures(Minecraft.getMinecraft().getTextureMapBlocks());
-		SimpleServiceLocator.thermalDynamicsProxy.registerTextures(Minecraft.getMinecraft().getTextureMapBlocks());
+		// TextureAtlas sprite registration migrated to RegisterAtlasSpritesEvent
 		renderIndex++;
 	}
 
 	@Override
 	public void initModelLoader() {
-		ModelLoaderRegistry.registerLoader(new LogisticsNewPipeModel.LogisticsNewPipeModelLoader());
-		ModelLoaderRegistry.registerLoader(new LogisticsBlockModel.Loader());
-		ModelLoaderRegistry.registerLoader(new FluidContainerRenderer.FluidContainerRendererModelLoader());
+		// TODO: IModelLoader → IUnbakedModel system in 1.20.1; deferred to renderer migration
 	}
 
 	@Override
 	public int getRenderIndex() {
 		return renderIndex;
 	}
-
 }

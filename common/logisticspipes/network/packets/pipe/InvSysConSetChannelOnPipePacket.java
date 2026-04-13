@@ -2,7 +2,7 @@ package logisticspipes.network.packets.pipe;
 
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
@@ -18,8 +18,8 @@ public class InvSysConSetChannelOnPipePacket extends StringCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (pipe.pipe instanceof PipeItemsInvSysConnector) {
 			PipeItemsInvSysConnector conPipe = (PipeItemsInvSysConnector) pipe.pipe;
 			conPipe.setChannelFromClient(UUID.fromString(getString()));

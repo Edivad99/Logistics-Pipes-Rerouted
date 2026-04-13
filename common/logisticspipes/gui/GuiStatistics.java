@@ -1,4 +1,7 @@
+
 package logisticspipes.gui;
+
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,18 +11,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.world.item.ItemStack;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.Math.round;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+
+
 
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
@@ -30,7 +31,7 @@ import logisticspipes.network.packets.block.RequestAmountTaskSubGui;
 import logisticspipes.network.packets.block.RequestRunningCraftingTasks;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -38,6 +39,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.math.Vec2;
 import logisticspipes.utils.string.StringUtils;
 import network.rs485.logisticspipes.util.TextUtil;
+import javax.annotation.Nonnull;
 
 public class GuiStatistics extends LogisticsBaseGuiScreen {
 
@@ -59,11 +61,10 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public void initGui() {
-		Keyboard.enableRepeatEvents(true);
+	public void init() {
+		
 
-		super.initGui();
-		buttonList.clear();
+		super.init();
 
 		tabs.forEach(StatisticsTab::init);
 
@@ -73,7 +74,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	@Override
 	public void closeGui() throws IOException {
 		super.closeGui();
-		Keyboard.enableRepeatEvents(false);
+		
 	}
 
 	@Override
@@ -87,73 +88,67 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) {
-		getActiveTab().actionPerformed(button);
+	public boolean mouseDragged(double mouseX, double mouseY, int clickedMouseButton, double deltaX, double deltaY) {
+		getActiveTab().onMouseDrag((int)mouseX, (int)mouseY, (int)(mouseX - prevMouseDragX), (int)(mouseY - prevMouseDragY));
+		prevMouseDragX = (int)mouseX;
+		prevMouseDragY = (int)mouseY;
+		return super.mouseDragged(mouseX, mouseY, clickedMouseButton, deltaX, deltaY);
 	}
 
 	@Override
-	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
-		getActiveTab().onMouseDrag(mouseX, mouseY, mouseX - prevMouseDragX, mouseY - prevMouseDragY);
-		prevMouseDragX = mouseX;
-		prevMouseDragY = mouseY;
-		super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		getActiveTab().onMouseScroll((int) delta);
+		return super.mouseScrolled(mouseX, mouseY, delta);
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int mouseX, int mouseY) {
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
 		drawBG();
 		getActiveTab().draw(mouseX, mouseY);
 
-		super.drawGuiContainerBackgroundLayer(f, mouseX, mouseY);
+		super.renderBg(guiGraphics, f, mouseX, mouseY);
 	}
 
 	private void drawBG() {
 		// background
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop + 20, right, bottom, zLevel, true);
-		GuiGraphics.drawGuiBackGround(mc, guiLeft + (25 * currentTab) + 2, guiTop - 2, guiLeft + 27 + (25 * currentTab), guiTop + 38, zLevel, true, true, true, false, true);
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos + 20, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos + (25 * currentTab) + 2, topPos - 2, leftPos + 27 + (25 * currentTab), topPos + 38, 0.0f, true, true, true, false, true);
 
 		// tab selector panes
 		for (int i = 0; i < tabs.size(); i++) {
-			GuiGraphics.drawGuiBackGround(mc, guiLeft + (25 * i) + 2, guiTop - 2, guiLeft + 27 + (25 * i), guiTop + 35, zLevel, false, true, true, false, true);
+			LPGuiGraphics.drawGuiBackGround(minecraft, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
 		}
 
 		// First Tab
-		GuiGraphics.drawStatsBackground(mc, guiLeft + 6, guiTop + 3);
+		LPGuiGraphics.drawStatsBackground(minecraft, leftPos + 6, topPos + 3);
 
-		// Second Tab
-		RenderHelper.enableGUIStandardItemLighting();
-		ItemStack stack = new ItemStack(Blocks.CRAFTING_TABLE, 1);
-		GlStateManager.enableDepth();
-		itemRender.renderItemAndEffectIntoGUI(stack, guiLeft + 31, guiTop + 3);
-		GlStateManager.disableDepth();
-		itemRender.zLevel = 0.0F;
+		// Second tab background: item icons drawn lazily by TabCrafting.draw()
 	}
 
 	@Override
-	protected void keyTyped(char c, int i) throws IOException {
-		super.keyTyped(c, i);
-		getActiveTab().keyTyped(c, i);
+	public boolean charTyped(char c, int i) {
+		getActiveTab().charTyped(c, i);
+		return super.charTyped(c, i);
 	}
 
 	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		prevMouseDragX = mouseX;
-		prevMouseDragY = mouseY;
+	public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+		prevMouseDragX = (int)mouseX;
+		prevMouseDragY = (int)mouseY;
 
-		if (mouseButton == 0 && mouseX > guiLeft && mouseX < guiLeft + 220 && mouseY > guiTop && mouseY < guiTop + 20) {
-			mouseX -= guiLeft + 3;
-			currentTab = max(0, min(mouseX / 25, tabs.size() - 1));
+		if (mouseButton == 0 && mouseX > leftPos && mouseX < leftPos + 220 && mouseY > topPos && mouseY < topPos + 20) {
+			double tabX = mouseX - leftPos - 3;
+			currentTab = max(0, min((int)(tabX / 25), tabs.size() - 1));
 		} else {
-			getActiveTab().handleClick(mouseX, mouseY, mouseButton);
-			super.mouseClicked(mouseX, mouseY, mouseButton);
+			getActiveTab().handleClick((int)mouseX, (int)mouseY, mouseButton);
+			return super.mouseClicked(mouseX, mouseY, mouseButton);
 		}
+		return true;
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		super.drawGuiContainerForegroundLayer(mouseX, mouseY);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		getActiveTab().drawForegroundLayer(mouseX, mouseY);
 	}
 
@@ -161,12 +156,6 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	protected void checkButtons() {
 		super.checkButtons();
 		tabs.forEach(StatisticsTab::checkButtons);
-	}
-
-	@Override
-	public void handleMouseInputSub() throws IOException {
-		getActiveTab().onMouseScroll(Mouse.getEventDWheel());
-		super.handleMouseInputSub();
 	}
 
 	public void handlePacket1(List<ItemIdentifierStack> identList) {
@@ -187,9 +176,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		default void checkButtons() {}
 
-		default void actionPerformed(GuiButton button) {}
-
-		default void keyTyped(char c, int i) {}
+		default void charTyped(char c, int i) {}
 
 		default void handleClick(int mouseX, int mouseY, int mouseButton) {}
 
@@ -212,54 +199,70 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 		private boolean isDraggingXBar = false;
 		private boolean isDraggingYBar = false;
 
-		private final List<GuiButton> BUTTONS = new ArrayList<>();
+		private final List<net.minecraft.client.gui.components.AbstractButton> BUTTONS = new ArrayList<>();
 
 		@Override
 		public void init() {
-			BUTTONS.add(addButton(new GuiButton(0, guiLeft + 10, guiTop + 70, 20, 20, "<")));
-			BUTTONS.add(addButton(new GuiButton(1, guiLeft + 150, guiTop + 70, 20, 20, ">")));
-			BUTTONS.add(addButton(new GuiButton(2, guiLeft + 37, guiTop + 70, 40, 20, "Add")));
-			BUTTONS.add(addButton(new GuiButton(3, guiLeft + 83, guiTop + 70, 60, 20, "Remove")));
+			SmallGuiButton b0 = new SmallGuiButton(0, leftPos + 10, topPos + 70, 20, 20, "<");
+			b0.setPressListener(b -> itemDisplay.prevPage());
+			BUTTONS.add(addRenderableWidget(b0));
+			SmallGuiButton b1 = new SmallGuiButton(1, leftPos + 150, topPos + 70, 20, 20, ">");
+			b1.setPressListener(b -> itemDisplay.nextPage());
+			BUTTONS.add(addRenderableWidget(b1));
+			SmallGuiButton b2 = new SmallGuiButton(2, leftPos + 37, topPos + 70, 40, 20, "Add");
+			b2.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestAmountTaskSubGui.class).setTilePos(tile)));
+			BUTTONS.add(addRenderableWidget(b2));
+			SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 83, topPos + 70, 60, 20, "Remove");
+			b3.setPressListener(b -> {
+				if (itemDisplay.getSelectedItem() != null) {
+					MainProxy.sendPacketToServer(PacketHandler.getPacket(RemoveAmoundTask.class).setItem(itemDisplay.getSelectedItem().getItem()).setTilePos(tile));
+					Iterator<TrackingTask> iter = tile.tasks.iterator();
+					while (iter.hasNext()) {
+						TrackingTask task = iter.next();
+						if (task.item == itemDisplay.getSelectedItem().getItem()) {
+							iter.remove();
+							break;
+						}
+					}
+					updateItemList();
+				}
+			});
+			BUTTONS.add(addRenderableWidget(b3));
 
 			if (itemDisplay == null) {
-				itemDisplay = new ItemDisplay(null, fontRenderer, GuiStatistics.this, null, guiLeft + 10, guiTop + 18, xSize - 20, ySize - 100, 0, 0, 0, new int[] { 1, 10, 64, 64 }, true);
+				itemDisplay = new ItemDisplay(null, font, GuiStatistics.this, null, leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, 0, 0, 0, new int[] { 1, 10, 64, 64 }, true);
 			}
-			itemDisplay.reposition(guiLeft + 10, guiTop + 40, xSize - 20, 20, 0, 0);
+			itemDisplay.reposition(leftPos + 10, topPos + 40, imageWidth - 20, 20, 0, 0);
 		}
 
 		@Override
 		public void draw(int mouseX, int mouseY) {
-			itemDisplay.renderItemArea(zLevel);
-			itemDisplay.renderPageNumber(right - 40, guiTop + 28);
+			itemDisplay.renderItemArea(0.0f);
+			itemDisplay.renderPageNumber(right - 40, topPos + 28);
 			if (itemDisplay.getSelectedItem() != null) {
 				TrackingTask task = getSelectedTask();
 
 				if (task != null) {
-					GuiGraphics.drawSlotBackground(mc, guiLeft + 10, guiTop + 99);
-					RenderHelper.enableGUIStandardItemLighting();
-					GlStateManager.enableDepth();
-					itemRender.renderItemAndEffectIntoGUI(task.item.makeNormalStack(1), guiLeft + 11, guiTop + 100);
-					GlStateManager.disableDepth();
-					itemRender.zLevel = 0.0F;
-					mc.fontRenderer.drawString(StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, fontRenderer), guiLeft + 32, guiTop + 104, Color.getValue(Color.DARKER_GREY), false);
+					LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 10, topPos + 99);
+					guiGraphics.renderItem(task.item.unsafeMakeNormalStack(1), leftPos + 12, topPos + 101);
+					guiGraphics.drawString(minecraft.font, StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, font), leftPos + 32, topPos + 104, Color.getValue(Color.DARKER_GREY), false);
 
 					int xOrigo = xCenter - 72;
 					int yOrigo = yCenter + 90;
-					GlStateManager.pushMatrix();
-					GlStateManager.translate(xOrigo, yOrigo, 0);
 
-					drawLine(0, 0, 150, 0, Color.DARKER_GREY);
-					drawLine(0, 0, 0, -80, Color.DARKER_GREY);
+					drawLine(xOrigo + 0, yOrigo + 0, xOrigo + 150, yOrigo + 0, Color.DARKER_GREY);
+					drawLine(xOrigo + 0, yOrigo + 0, xOrigo + 0, yOrigo - 80, Color.DARKER_GREY);
 
-					drawLine(-4, -90 + 50 + -40, 0, -90 + 50 + -40, Color.DARKER_GREY);
+					drawLine(xOrigo - 4, yOrigo - 80, xOrigo + 0, yOrigo - 80, Color.DARKER_GREY);
 
-					drawLine(150, -1, 150, 4, Color.DARKER_GREY);
+					drawLine(xOrigo + 150, yOrigo - 1, xOrigo + 150, yOrigo + 4, Color.DARKER_GREY);
 
 					long[] data = getTaskData(task);
 
 					float xViewportCenter = 75;
 					float yViewportCenter = 40;
 
+					java.util.Set<Integer> labeledYPixels = new java.util.HashSet<>();
 					int rightLimit = 2; // we want to draw one more graph part past the right edge
 					for (int i = 0; i < data.length; i++) {
 						rightLimit--;
@@ -295,26 +298,30 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 							int interval = max(1, (int) (40 / xViewportScale) + 1);
 							if (i % interval == 0) {
 								String s = formatTime(data.length - i - 1);
-								int w = mc.fontRenderer.getStringWidth(s);
-								drawLine((int) x, -1, (int) x, 4, Color.DARKER_GREY);
-								mc.fontRenderer.drawString(s, (int) x - w / 2f, 6, Color.DARKER_GREY.getValue(), false);
+								int w = minecraft.font.width(s);
+								drawLine(xOrigo + (int) x, yOrigo - 1, xOrigo + (int) x, yOrigo + 4, Color.DARKER_GREY);
+								guiGraphics.drawString(minecraft.font, s, xOrigo + (int) x - w / 2f, yOrigo + 6, Color.DARKER_GREY.getValue(), false);
 							}
 						}
 
 						if (y > 0 && y < 80) {
-							drawLine(-4, (int) -y, 0, (int) -y, Color.DARKER_GREY);
-							GlStateManager.pushMatrix();
-							GlStateManager.rotate(90, 0, 0, 1);
-							String s = data[i] + "";
-							int w = mc.fontRenderer.getStringWidth(s);
-							mc.fontRenderer.drawString(s, (int) -y - w / 2f, 6, Color.DARKER_GREY.getValue(), false);
-							GlStateManager.popMatrix();
+							drawLine(xOrigo - 4, yOrigo - (int) y, xOrigo + 0, yOrigo - (int) y, Color.DARKER_GREY);
+							int yPixel = (int) y;
+							boolean tooClose = false;
+							for (int labeled : labeledYPixels) {
+								if (Math.abs(labeled - yPixel) < 10) { tooClose = true; break; }
+							}
+							if (!tooClose) {
+								labeledYPixels.add(yPixel);
+								String label = Long.toString(data[i]);
+								int lw = minecraft.font.width(label);
+								guiGraphics.drawString(minecraft.font, label, xOrigo - 5 - lw, yOrigo - yPixel - 4, Color.DARKER_GREY.getValue(), false);
+							}
 						}
 
-						drawGraphPart((int) prevX, (int) prevY, (int) x, (int) y);
+						drawGraphPart(xOrigo, yOrigo, (int) prevX, (int) prevY, (int) x, (int) y);
 					}
 				}
-				GlStateManager.popMatrix();
 			}
 		}
 
@@ -337,36 +344,14 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		@Override
 		public void drawForegroundLayer(int mouseX, int mouseY) {
-			mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "amount"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
+			guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "amount"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 		}
 
 		@Override
-		public void actionPerformed(GuiButton button) {
-			if (button.id == 0) {
+		public void charTyped(char c, int i) {
+			if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP) { //PgUp
 				itemDisplay.prevPage();
-			} else if (button.id == 1) {
-				itemDisplay.prevPage();
-			} else if (button.id == 2) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestAmountTaskSubGui.class).setTilePos(tile));
-			} else if (button.id == 3 && itemDisplay.getSelectedItem() != null) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RemoveAmoundTask.class).setItem(itemDisplay.getSelectedItem().getItem()).setTilePos(tile));
-				Iterator<TrackingTask> iter = tile.tasks.iterator();
-				while (iter.hasNext()) {
-					TrackingTask task = iter.next();
-					if (task.item == itemDisplay.getSelectedItem().getItem()) {
-						iter.remove();
-						break;
-					}
-				}
-				updateItemList();
-			}
-		}
-
-		@Override
-		public void keyTyped(char c, int i) {
-			if (i == Keyboard.KEY_PRIOR) { //PgUp
-				itemDisplay.prevPage();
-			} else if (i == Keyboard.KEY_NEXT) { //PgDn
+			} else if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
 				itemDisplay.nextPage();
 			}
 		}
@@ -391,10 +376,10 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		@Override
 		public void checkButtons() {
-			for (GuiButton button : BUTTONS) {
+			for (net.minecraft.client.gui.components.AbstractButton button : BUTTONS) {
 				button.visible = getActiveTab() == this;
-				if (button.displayString.equals("Remove")) {
-					button.enabled = itemDisplay.getSelectedItem() != null;
+				if (button.getMessage().getString().equals("Remove")) {
+					button.active = itemDisplay.getSelectedItem() != null;
 				}
 			}
 		}
@@ -420,7 +405,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 			yViewportScale *= mul;
 		}
 
-		private void drawGraphPart(int prevX, int prevY, int x, int y) {
+		private void drawGraphPart(int xOrigo, int yOrigo, int prevX, int prevY, int x, int y) {
 			Vec2 left = new Vec2(prevX, prevY);
 			Vec2 right = new Vec2(x, y);
 
@@ -438,16 +423,16 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 			left = clampCorner(right, left, Vec2.ORIGIN, true);
 			left = clampCorner(right, left, new Vec2(150, 80), false);
 
-			drawLine((int) left.x, (int) -left.y, (int) right.x, (int) -right.y, Color.RED);
+			drawLine(xOrigo + (int) left.x, yOrigo - (int) left.y, xOrigo + (int) right.x, yOrigo - (int) right.y, Color.RED);
 
 			int radius = 2;
 			if (xViewportScale < 4) radius = 1;
 
 			if (prevX >= 0 && prevX <= 150 && prevY >= 0 && prevY <= 80)
-				drawRect(prevX - radius + 1, -prevY - radius + 1, prevX + radius, -prevY + radius, Color.BLACK);
+				guiGraphics.fill(xOrigo + prevX - radius + 1, yOrigo - prevY - radius + 1, xOrigo + prevX + radius, yOrigo - prevY + radius, Color.getValue(Color.BLACK));
 
 			if (x >= 0 && x <= 150 && y >= 0 && y <= 80)
-				drawRect(x - radius + 1, -y - radius + 1, x + radius, -y + radius, Color.BLACK);
+				guiGraphics.fill(xOrigo + x - radius + 1, yOrigo - y - radius + 1, xOrigo + x + radius, yOrigo - y + radius, Color.getValue(Color.BLACK));
 		}
 
 		private Vec2 clampYPlane(Vec2 v, Vec2 toClamp, float x0, boolean greater) {
@@ -511,50 +496,45 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		private ItemDisplay itemDisplay;
 
-		private final List<GuiButton> BUTTONS = new ArrayList<>();
+		private final List<net.minecraft.client.gui.components.AbstractButton> BUTTONS = new ArrayList<>();
 
 		@Override
 		public void init() {
-			BUTTONS.add(addButton(new GuiButton(6, guiLeft + 10, guiTop + 40, 160, 20, TextUtil.translate(PREFIX + "gettasks"))));
-			BUTTONS.add(addButton(new SmallGuiButton(7, guiLeft + 90, guiTop + 65, 10, 10, "<")));
-			BUTTONS.add(addButton(new SmallGuiButton(8, guiLeft + 160, guiTop + 65, 10, 10, ">")));
+			SmallGuiButton b6 = new SmallGuiButton(6, leftPos + 10, topPos + 40, 160, 20, TextUtil.translate(PREFIX + "gettasks"));
+			b6.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRunningCraftingTasks.class).setTilePos(tile)));
+			BUTTONS.add(addRenderableWidget(b6));
+			SmallGuiButton b7 = new SmallGuiButton(7, leftPos + 90, topPos + 65, 10, 10, "<");
+			b7.setPressListener(b -> itemDisplay.prevPage());
+			BUTTONS.add(addRenderableWidget(b7));
+			SmallGuiButton b8 = new SmallGuiButton(8, leftPos + 160, topPos + 65, 10, 10, ">");
+			b8.setPressListener(b -> itemDisplay.nextPage());
+			BUTTONS.add(addRenderableWidget(b8));
 
 			if (itemDisplay == null) {
-				itemDisplay = new ItemDisplay(null, fontRenderer, GuiStatistics.this, null, guiLeft + 10, guiTop + 18, xSize - 20, ySize - 100, 0, 0, 0, new int[] { 1, 10, 64, 64 }, true);
+				itemDisplay = new ItemDisplay(null, font, GuiStatistics.this, null, leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, 0, 0, 0, new int[] { 1, 10, 64, 64 }, true);
 				itemDisplay.setItemList(new ArrayList<>());
 			}
-			itemDisplay.reposition(guiLeft + 10, guiTop + 80, xSize - 20, 125, 0, 0);
+			itemDisplay.reposition(leftPos + 10, topPos + 80, imageWidth - 20, 125, 0, 0);
 
 		}
 
 		@Override
 		public void draw(int mouseX, int mouseY) {
-			itemDisplay.renderItemArea(zLevel);
-			itemDisplay.renderPageNumber(right - 50, guiTop + 66);
+			itemDisplay.renderItemArea(0.0f);
+			itemDisplay.renderPageNumber(right - 50, topPos + 66);
 		}
 
 		@Override
 		public void drawForegroundLayer(int mouseX, int mouseY) {
-			mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "crafting"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
-			GuiGraphics.displayItemToolTip(itemDisplay.getToolTip(), GuiStatistics.this, zLevel, guiLeft, guiTop);
+			guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "crafting"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
+			// Item tooltip omitted — tab has no hovered-item lookup at this point
 		}
 
 		@Override
-		public void actionPerformed(GuiButton button) {
-			if (button.id == 6) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRunningCraftingTasks.class).setTilePos(tile));
-			} else if (button.id == 7) {
+		public void charTyped(char c, int i) {
+			if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP) { //PgUp
 				itemDisplay.prevPage();
-			} else if (button.id == 8) {
-				itemDisplay.prevPage();
-			}
-		}
-
-		@Override
-		public void keyTyped(char c, int i) {
-			if (i == Keyboard.KEY_PRIOR) { //PgUp
-				itemDisplay.prevPage();
-			} else if (i == Keyboard.KEY_NEXT) { //PgDn
+			} else if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
 				itemDisplay.nextPage();
 			}
 		}
@@ -566,7 +546,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		@Override
 		public void checkButtons() {
-			for (GuiButton button : BUTTONS) {
+			for (net.minecraft.client.gui.components.AbstractButton button : BUTTONS) {
 				button.visible = getActiveTab() == this;
 			}
 		}

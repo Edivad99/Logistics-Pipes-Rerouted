@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import org.jetbrains.annotations.NotNull;
 

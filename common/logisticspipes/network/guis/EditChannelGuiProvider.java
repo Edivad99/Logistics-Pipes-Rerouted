@@ -2,7 +2,7 @@ package logisticspipes.network.guis;
 
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -45,7 +45,7 @@ public class EditChannelGuiProvider extends PopupGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
+	public Object getClientGui(Player player) {
 		return new GuiEditChannelPopup(responsibleSecurityID, channel);
 	}
 

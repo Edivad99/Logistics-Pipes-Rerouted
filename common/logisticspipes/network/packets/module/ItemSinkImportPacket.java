@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -51,21 +51,21 @@ public class ItemSinkImportPacket extends ModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (MainProxy.isServer(player.world)) {
+	public void processPacket(Player player) {
+		if (MainProxy.isServer(player.level())) {
 			ModuleItemSink module = this.getLogisticsModule(player, ModuleItemSink.class);
 			if (module == null) {
 				return;
 			}
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ItemSinkImportPacket.class)
 				.setImportedItems(module.getAdjacentInventoriesItems()
-					.limit(module.filterInventory.getSizeInventory())
+					.limit(module.filterInventory.getContainerSize())
 					.collect(Collectors.toList()))
 				.setPacketPos(this), player);
-		} else if (MainProxy.isClient(player.world)) {
+		} else if (MainProxy.isClient(player.level())) {
 			if (importedItems == null) return;
-			if (Minecraft.getMinecraft().currentScreen instanceof ItemSinkGui) {
-				((ItemSinkGui) Minecraft.getMinecraft().currentScreen).importFromInventory(importedItems);
+			if (Minecraft.getInstance().screen instanceof ItemSinkGui) {
+				((ItemSinkGui) Minecraft.getInstance().screen).importFromInventory(importedItems);
 			}
 		}
 	}

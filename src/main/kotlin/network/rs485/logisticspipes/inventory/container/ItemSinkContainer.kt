@@ -45,13 +45,13 @@ import network.rs485.logisticspipes.property.layer.PropertyOverlayInventoryAdapt
 import network.rs485.logisticspipes.util.FuzzyFlag
 import logisticspipes.modules.ModuleItemSink
 import logisticspipes.utils.item.ItemIdentifierInventory
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import java.util.*
 
 class ItemSinkContainer(
-    playerInventory: IInventory,
+    playerInventory: Container,
     filterInventoryOverlay: PropertyOverlay<ItemIdentifierInventory, out InventoryProperty<ItemIdentifierInventory>>,
     itemSinkModule: ModuleItemSink,
     propertyLayer: PropertyLayer, // FIXME: property layer should not be passed into the container, it is a client GUI thing
@@ -78,7 +78,7 @@ class ItemSinkContainer(
     )
 
     override fun addDummySlotsToContainer(
-        overlayInventory: IInventory,
+        overlayInventory: Container,
         baseProperty: InventoryProperty<*>?,
         startX: Int,
         startY: Int
@@ -115,6 +115,6 @@ class ItemSinkContainer(
         return filterSlots
     }
 
-    override fun canInteractWith(playerIn: EntityPlayer): Boolean = true
+    override fun stillValid(playerIn: Player): Boolean = true
 
 }

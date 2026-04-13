@@ -1,10 +1,10 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.GuiSecurityStation;
@@ -26,10 +26,10 @@ public class SecurityStationCC extends IntegerCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsSecurityTileEntity tile = this.getTileAs(player.world, LogisticsSecurityTileEntity.class);
+	public void processPacket(Player player) {
+		LogisticsSecurityTileEntity tile = this.getTileAs(player.level(), LogisticsSecurityTileEntity.class);
 		if (tile instanceof LogisticsSecurityTileEntity) {
-			if (MainProxy.isClient(player.world)) {
+			if (MainProxy.isClient(player.level())) {
 				tile.setClientCC(getInteger() == 1);
 				handleClientSide(player);
 			} else {
@@ -38,10 +38,10 @@ public class SecurityStationCC extends IntegerCoordinatesPacket {
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
-	private void handleClientSide(EntityPlayer player) {
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiSecurityStation) {
-			((GuiSecurityStation) FMLClientHandler.instance().getClient().currentScreen).refreshCheckBoxes();
+	@OnlyIn(Dist.CLIENT)
+	private void handleClientSide(Player player) {
+		if (Minecraft.getInstance().screen instanceof GuiSecurityStation) {
+			((GuiSecurityStation) Minecraft.getInstance().screen).refreshCheckBoxes();
 		}
 	}
 }

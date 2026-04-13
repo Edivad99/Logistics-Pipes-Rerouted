@@ -1,6 +1,6 @@
 package logisticspipes.proxy.cofh.subproxies;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 public interface ICoFHEnergyStorage {
 
@@ -12,7 +12,7 @@ public interface ICoFHEnergyStorage {
 
 	int getMaxEnergyStored();
 
-	void readFromNBT(NBTTagCompound nbt);
+	void readFromNBT(CompoundTag nbt);
 
-	void writeToNBT(NBTTagCompound nbt);
+	void writeToNBT(CompoundTag nbt);
 }

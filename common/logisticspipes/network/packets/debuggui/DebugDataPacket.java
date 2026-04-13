@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.debuggui;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +33,7 @@ public class DebugDataPacket extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		DebugGuiController.instance().handleDataPacket(payload, identifier, player);
 	}
 

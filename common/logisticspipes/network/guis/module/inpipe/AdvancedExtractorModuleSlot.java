@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.modules.GuiAdvancedExtractor;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -21,17 +21,17 @@ public class AdvancedExtractorModuleSlot extends ModuleCoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		AsyncAdvancedExtractor module = this.getLogisticsModule(player.getEntityWorld(), AsyncAdvancedExtractor.class);
+	public Object getClientGui(Player player) {
+		AsyncAdvancedExtractor module = this.getLogisticsModule(player.level(), AsyncAdvancedExtractor.class);
 		if (module == null) {
 			return null;
 		}
 		module.getItemsIncluded().setValue(areItemsIncluded);
-		return new GuiAdvancedExtractor(player.inventory, module);
+		return new GuiAdvancedExtractor(player.getInventory(), module);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
+	public DummyContainer getContainer(Player player) {
 		return SimpleFilterInventorySlot.getContainerFromFilterModule(this, player);
 	}
 

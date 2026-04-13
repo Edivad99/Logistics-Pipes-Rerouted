@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.InventoryModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -21,8 +21,8 @@ public class ChassisPipeModuleContent extends InventoryModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		final LogisticsTileGenericPipe pipe = this.getPipe(player.world, LTGPCompletionCheck.PIPE);
+	public void processPacket(Player player) {
+		final LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (pipe.pipe instanceof PipeLogisticsChassis) {
 			PipeLogisticsChassis chassis = (PipeLogisticsChassis) pipe.pipe;
 			chassis.handleModuleItemIdentifierList(getIdentList());

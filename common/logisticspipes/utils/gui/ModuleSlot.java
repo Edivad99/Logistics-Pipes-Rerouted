@@ -2,9 +2,9 @@ package logisticspipes.utils.gui;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 
@@ -19,16 +19,15 @@ public class ModuleSlot extends RestrictedSlot {
 	@Getter
 	private final int _moduleIndex;
 
-	public ModuleSlot(IInventory iinventory, int i, int j, int k, PipeLogisticsChassis pipe) {
+	public ModuleSlot(Container iinventory, int i, int j, int k, PipeLogisticsChassis pipe) {
 		super(iinventory, i, j, k, ItemModule.class);
 		_pipe = pipe;
 		_moduleIndex = i;
 	}
 
-	@Nonnull
 	@Override
-	public ItemStack onTake(@Nonnull EntityPlayer player, @Nonnull ItemStack itemStack) {
+	public void onTake(@Nonnull Player player, @Nonnull ItemStack itemStack) {
 		ItemModuleInformationManager.saveInformation(itemStack, _pipe.getSubModule(_moduleIndex));
-		return super.onTake(player, itemStack);
+		super.onTake(player, itemStack);
 	}
 }

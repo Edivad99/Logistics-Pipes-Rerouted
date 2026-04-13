@@ -1,7 +1,7 @@
 package logisticspipes.network.abstractpackets;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Slot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,12 +22,12 @@ public abstract class SlotPacket extends ModernPacket {
 		super(id);
 	}
 
-	public <T extends Slot> T getSlot(EntityPlayer player, Class<T> clazz) {
-		if (player.openContainer instanceof DummyContainer) {
-			if (getInteger() >= player.openContainer.inventorySlots.size()) {
+	public <T extends Slot> T getSlot(Player player, Class<T> clazz) {
+		if (player.containerMenu instanceof DummyContainer) {
+			if (getInteger() >= player.containerMenu.slots.size()) {
 				targetNotFound("The requested Slot was out of range");
 			} else {
-				Slot slot = player.openContainer.getSlot(getInteger());
+				Slot slot = player.containerMenu.getSlot(getInteger());
 				if (slot == null) {
 					targetNotFound("The requested Slot was null");
 				} else if (!clazz.isAssignableFrom(slot.getClass())) {
@@ -41,7 +41,7 @@ public abstract class SlotPacket extends ModernPacket {
 	}
 
 	public SlotPacket setSlot(Slot slot) {
-		setInteger(slot.slotNumber);
+		setInteger(slot.index);
 		return this;
 	}
 

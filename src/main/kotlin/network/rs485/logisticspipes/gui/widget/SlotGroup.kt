@@ -37,9 +37,19 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import net.minecraft.inventory.Slot
+import net.minecraft.world.inventory.Slot
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
+
+/** Slot.x and Slot.y are public final in 1.20.1; use reflection to reposition at runtime. */
+private fun Slot.setXY(newX: Int, newY: Int) {
+    try {
+        val xf = net.minecraft.world.inventory.Slot::class.java.getDeclaredField("x").also { it.isAccessible = true }
+        val yf = net.minecraft.world.inventory.Slot::class.java.getDeclaredField("y").also { it.isAccessible = true }
+        xf.setInt(this, newX)
+        yf.setInt(this, newY)
+    } catch (_: Exception) {}
+}
 
 class SlotGroup(
     parent: Drawable,
@@ -74,10 +84,7 @@ class SlotGroup(
         val slotSize = 18
         for (row in 0 until rows) {
             for (column in 0 until columns) {
-                slots[column + row * rows].apply {
-                    xPos = startX + column * slotSize
-                    yPos = startY + row * slotSize
-                }
+                slots[column + row * rows].setXY(startX + column * slotSize, startY + row * slotSize)
             }
         }
         return width to height

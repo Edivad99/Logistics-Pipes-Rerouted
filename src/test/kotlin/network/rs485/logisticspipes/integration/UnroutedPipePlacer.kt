@@ -41,8 +41,8 @@ import logisticspipes.LPBlocks
 import logisticspipes.LPItems
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe
 import logisticspipes.pipes.unrouted.PipeItemsBasicTransport
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.WorldServer
+import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
 import network.rs485.minecraft.Configurator
 import network.rs485.minecraft.Placer
 import network.rs485.minecraft.configurator
@@ -50,10 +50,10 @@ import kotlin.test.assertTrue
 
 object UnroutedPipePlacer : Placer {
 
-    override suspend fun place(world: WorldServer, pos: BlockPos): Configurator {
-        val unroutedPipe = PipeItemsBasicTransport(LPItems.pipeUnrouted)
+    override suspend fun place(world: ServerLevel, pos: BlockPos): Configurator {
+        val unroutedPipe = PipeItemsBasicTransport(LPItems.pipeUnrouted.get())
         assertTrue(message = "Expected unrouted pipe to be placed at $pos (${world})") {
-            LogisticsBlockGenericPipe.placePipe(unroutedPipe, world, pos, LPBlocks.pipe)
+            LogisticsBlockGenericPipe.placePipe(unroutedPipe, world, pos, LPBlocks.pipe.get())
         }
         return configurator { unroutedPipe.updateEntity() }
     }

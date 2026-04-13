@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
@@ -46,7 +46,7 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 		ISimpleInventoryEventHandler, IModuleInventoryReceive, Gui {
 
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(9, "Requested Enchanted items", 1), "");
+			new ItemIdentifierInventory(9, "Requested Enchanted items", 1), "filterInv");
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
@@ -94,7 +94,7 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 			return null;
 		}
 		if (filterInventory.containsExcludeNBTItem(item.getUndamaged().getIgnoringNBT())) {
-			if (stack.isItemEnchanted()) {
+			if (stack.isEnchanted()) {
 				return _sinkReply;
 			}
 			return null;
@@ -126,19 +126,19 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	}
 
 	@Override
-	public void startWatching(EntityPlayer player) {
+	public void startWatching(Player player) {
 		localModeWatchers.add(player);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
 				.setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory)).setModulePos(this), player);
 	}
 
 	@Override
-	public void stopWatching(EntityPlayer player) {
+	public void stopWatching(Player player) {
 		localModeWatchers.remove(player);
 	}
 
 	@Override
-	public void InventoryChanged(IInventory inventory) {
+	public void InventoryChanged(Container inventory) {
 		MainProxy.runOnServer(getWorld(), () -> () ->
 				MainProxy.sendToPlayerList(
 						PacketHandler.getPacket(ModuleInventory.class)

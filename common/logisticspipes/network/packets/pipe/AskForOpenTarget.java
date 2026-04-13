@@ -1,9 +1,9 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.RayTraceResult;
-
-import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -23,13 +23,13 @@ public class AskForOpenTarget extends ModernPacket {
 	public void readData(LPDataInput input) {}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		RayTraceResult box = FMLClientHandler.instance().getClient().objectMouseOver;
-		if (box.typeOfHit == RayTraceResult.Type.BLOCK) {
+	public void processPacket(Player player) {
+		HitResult box = Minecraft.getInstance().hitResult;
+		if (box != null && box.getType() == HitResult.Type.BLOCK) {
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(SlotFinderActivatePacket.class)
-					.setTargetPosX(box.getBlockPos().getX())
-					.setTargetPosY(box.getBlockPos().getY())
-					.setTargetPosZ(box.getBlockPos().getZ()));
+					.setTargetPosX(((BlockHitResult) box).getBlockPos().getX())
+					.setTargetPosY(((BlockHitResult) box).getBlockPos().getY())
+					.setTargetPosZ(((BlockHitResult) box).getBlockPos().getZ()));
 		}
 	}
 

@@ -8,21 +8,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCraftResult;
-import net.minecraft.inventory.SlotCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.ResultContainer;
+import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+
+
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
@@ -46,6 +47,8 @@ import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.security.SecuritySettings;
+import net.minecraft.network.chat.Component;
+
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.CraftingUtil;
@@ -64,9 +67,9 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	public ItemIdentifierInventory matrix = new ItemIdentifierInventory(9, "Crafting Matrix", 1);
 	public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
 	public SimpleStackInventory toSortInv = new SimpleStackInventory(1, "Sorting Slot", 64);
-	private InventoryCraftResult vanillaResult = new InventoryCraftResult();
-	private IRecipe cache;
-	private EntityPlayerMP fake;
+	private ResultContainer vanillaResult = new ResultContainer();
+	private Recipe cache;
+	private ServerPlayer fake;
 	private int delay = 0;
 	private int tick = 0;
 	private int rotation;
@@ -84,16 +87,16 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
 		//allow using upgrade manager
-		if (MainProxy.isPipeControllerEquipped(entityplayer) && !(entityplayer.isSneaking())) {
+		if (MainProxy.isPipeControllerEquipped(entityplayer) && !(entityplayer.isCrouching())) {
 			return false;
 		}
 		if (MainProxy.isServer(getWorld())) {
 			if (settings == null || settings.openGui) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
+				entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 			}
 		}
 		return true;
@@ -103,7 +106,11 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	public void ignoreDisableUpdateEntity() {
 		super.ignoreDisableUpdateEntity();
 		if (tick++ == 5) {
-			getWorld().markBlockRangeForRenderUpdate(getX(), getY(), getZ(), getX(), getY(), getZ());
+			if (getWorld() != null) {
+				net.minecraft.core.BlockPos pos = new net.minecraft.core.BlockPos(getX(), getY(), getZ());
+				net.minecraft.world.level.block.state.BlockState state = getWorld().getBlockState(pos);
+				getWorld().sendBlockUpdated(pos, state, state, 3);
+			}
 		}
 		if (MainProxy.isClient(getWorld())) {
 			if (!init) {
@@ -119,7 +126,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			checkForExpired();
 			if (getUpgradeManager().hasCraftingMonitoringUpgrade()) {
 				for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
-					MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).setInteger(entry.getKey()).setTilePos(container), localGuiWatcher);
+					MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).putInt(entry.getKey()).setTilePos(container), localGuiWatcher);
 				}
 			}
 		} else if (tick % 20 == 0) {
@@ -132,7 +139,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		while (iter.hasNext()) {
 			Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry = iter.next();
 			if (isDone(entry.getValue().getValue2())) {
-				MainProxy.sendToPlayerList(PacketHandler.getPacket(OrderWatchRemovePacket.class).setInteger(entry.getKey()).setTilePos(container), localGuiWatcher);
+				MainProxy.sendToPlayerList(PacketHandler.getPacket(OrderWatchRemovePacket.class).putInt(entry.getKey()).setTilePos(container), localGuiWatcher);
 				iter.remove();
 			}
 		}
@@ -159,7 +166,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	@Override
 	public void enabledUpdateEntity() {
 		super.enabledUpdateEntity();
-		ItemStack stack = toSortInv.getStackInSlot(0);
+		ItemStack stack = toSortInv.getItem(0);
 		if (!stack.isEmpty()) {
 			if (delay > 0) {
 				delay--;
@@ -168,7 +175,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			IRoutedItem itemToSend = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
 			SimpleServiceLocator.logisticsManager.assignDestinationFor(itemToSend, getRouter().getSimpleID(), false);
 			if (itemToSend.getDestinationUUID() != null) {
-				EnumFacing dir = getRouteLayer().getOrientationForItem(itemToSend, null);
+				Direction dir = getRouteLayer().getOrientationForItem(itemToSend, null);
 				super.queueRoutedItem(itemToSend, dir.getOpposite());
 				spawnParticle(Particles.OrangeParticle, 4);
 				toSortInv.clearInventorySlotContents(0);
@@ -181,17 +188,19 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public void openGui(EntityPlayer entityplayer) {
+	public void openGui(Player entityplayer) {
 		boolean flag = true;
-		if (!diskInv.getStackInSlot(0).isEmpty()) {
-			if (!entityplayer.getHeldItemMainhand().isEmpty() && entityplayer.getHeldItemMainhand().getItem().equals(LPItems.disk)) {
-				diskInv.setInventorySlotContents(0, entityplayer.getHeldItemMainhand());
-				entityplayer.inventory.setInventorySlotContents(entityplayer.inventory.currentItem, ItemStack.EMPTY);
+		if (!diskInv.getItem(0).isEmpty()) {
+			if (!entityplayer.getMainHandItem().isEmpty() && entityplayer.getMainHandItem().getItem().equals(LPItems.disk.get())) {
+				diskInv.setItem(0, entityplayer.getMainHandItem());
+				entityplayer.getInventory().setItem(entityplayer.getInventory().selected, ItemStack.EMPTY);
 				flag = false;
 			}
 		}
 		if (flag) {
-			entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_Request_Table_ID, getWorld(), getX(), getY(), getZ());
+			logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.RequestTableGui.class)
+					.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
+					.open(entityplayer);
 		}
 	}
 
@@ -201,17 +210,17 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public TextureType getRoutedTexture(EnumFacing connection) {
+	public TextureType getRoutedTexture(Direction connection) {
 		return Textures.empty_1;
 	}
 
 	@Override
-	public TextureType getNonRoutedTexture(EnumFacing connection) {
+	public TextureType getNonRoutedTexture(Direction connection) {
 		return Textures.empty_2;
 	}
 
 	/*public TextureAtlasSprite getTextureFor(int l) {
-		EnumFacing dir = EnumFacing.byIndex(l);
+		Direction dir = Direction.from3DDataValue(l);
 		//if (LogisticsPipes.getClientPlayerConfig().isUseNewRenderer()) {
 			switch (dir) {
 				case UP:
@@ -263,28 +272,28 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		resultInv.clearInventorySlotContents(0);
 		AutoCraftingInventory craftInv = new AutoCraftingInventory(null);
 		for (int i = 0; i < 9; i++) {
-			craftInv.setInventorySlotContents(i, matrix.getStackInSlot(i));
+			craftInv.setItem(i, matrix.getItem(i));
 		}
-		List<IRecipe> list = new ArrayList<>();
-		for (IRecipe r : CraftingUtil.getRecipeList()) {
+		List<Recipe> list = new ArrayList<>();
+		for (Recipe r : CraftingUtil.getRecipeList()) {
 			if (r.matches(craftInv, getWorld())) {
 				list.add(r);
 			}
 		}
 		if (list.size() == 1) {
 			cache = list.get(0);
-			resultInv.setInventorySlotContents(0, cache.getCraftingResult(craftInv));
+			resultInv.setItem(0, cache.assemble(craftInv, getWorld().registryAccess()));
 			targetType = null;
 		} else if (list.size() > 1) {
 			if (targetType != null) {
-				for (IRecipe recipe : list) {
+				for (Recipe recipe : list) {
 					craftInv = new AutoCraftingInventory(null);
 					for (int i = 0; i < 9; i++) {
-						craftInv.setInventorySlotContents(i, matrix.getStackInSlot(i));
+						craftInv.setItem(i, matrix.getItem(i));
 					}
-					ItemStack result = recipe.getCraftingResult(craftInv);
+					ItemStack result = recipe.assemble(craftInv, getWorld().registryAccess());
 					if (targetType == ItemIdentifier.get(result)) {
-						resultInv.setInventorySlotContents(0, result);
+						resultInv.setItem(0, result);
 						cache = recipe;
 						break;
 					}
@@ -292,8 +301,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			}
 			if (cache == null) {
 				cache = list.get(0);
-				ItemStack result = cache.getCraftingResult(craftInv);
-				resultInv.setInventorySlotContents(0, result);
+				ItemStack result = cache.assemble(craftInv, getWorld().registryAccess());
+				resultInv.setItem(0, result);
 				targetType = ItemIdentifier.get(result);
 			}
 		} else {
@@ -312,27 +321,27 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		cache = null;
 		AutoCraftingInventory craftInv = new AutoCraftingInventory(null);
 		for (int i = 0; i < 9; i++) {
-			craftInv.setInventorySlotContents(i, matrix.getStackInSlot(i));
+			craftInv.setItem(i, matrix.getItem(i));
 		}
-		List<IRecipe> list = new ArrayList<>();
-		for (IRecipe r : CraftingUtil.getRecipeList()) {
+		List<Recipe> list = new ArrayList<>();
+		for (Recipe r : CraftingUtil.getRecipeList()) {
 			if (r.matches(craftInv, getWorld())) {
 				list.add(r);
 			}
 		}
 		if (list.size() > 1) {
 			boolean found = false;
-			IRecipe prev = null;
-			for (IRecipe recipe : list) {
+			Recipe prev = null;
+			for (Recipe recipe : list) {
 				if (found) {
 					cache = recipe;
 					break;
 				}
 				craftInv = new AutoCraftingInventory(null);
 				for (int i = 0; i < 9; i++) {
-					craftInv.setInventorySlotContents(i, matrix.getStackInSlot(i));
+					craftInv.setItem(i, matrix.getItem(i));
 				}
-				if (targetType == ItemIdentifier.get(recipe.getCraftingResult(craftInv))) {
+				if (targetType == ItemIdentifier.get(recipe.assemble(craftInv, getWorld().registryAccess()))) {
 					if (down) {
 						found = true;
 					} else {
@@ -351,9 +360,9 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			}
 			craftInv = new AutoCraftingInventory(null);
 			for (int i = 0; i < 9; i++) {
-				craftInv.setInventorySlotContents(i, matrix.getStackInSlot(i));
+				craftInv.setItem(i, matrix.getItem(i));
 			}
-			targetType = ItemIdentifier.get(cache.getCraftingResult(craftInv));
+			targetType = ItemIdentifier.get(cache.assemble(craftInv, getWorld().registryAccess()));
 		}
 		if (!localGuiWatcher.isEmpty() && getWorld() != null && MainProxy.isServer(getWorld())) {
 			MainProxy.sendToPlayerList(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), localGuiWatcher);
@@ -374,17 +383,17 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 
 		int[] toUse = new int[9];
-		int[] used = new int[inv.getSizeInventory()];
+		int[] used = new int[inv.getContainerSize()];
 		outer:
 		for (int i = 0; i < 9; i++) {
-			ItemStack item = matrix.getStackInSlot(i);
+			ItemStack item = matrix.getItem(i);
 			if (item.isEmpty()) {
 				toUse[i] = -1;
 				continue;
 			}
 			ItemIdentifier ident = ItemIdentifier.get(item);
-			for (int j = 0; j < inv.getSizeInventory(); j++) {
-				item = inv.getStackInSlot(j);
+			for (int j = 0; j < inv.getContainerSize(); j++) {
+				item = inv.getItem(j);
 				if (item.isEmpty()) {
 					continue;
 				}
@@ -409,51 +418,42 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			//Not enough material
 			return ItemStack.EMPTY;
 		}
-		AutoCraftingInventory crafter = new AutoCraftingInventory(null);//TODO
+		AutoCraftingInventory crafter = new AutoCraftingInventory(null);
 		for (int i = 0; i < 9; i++) {
 			int j = toUse[i];
 			if (j != -1) {
-				crafter.setInventorySlotContents(i, inv.getStackInSlot(j));
+				crafter.setItem(i, inv.getItem(j));
 			}
 		}
 		if (!cache.matches(crafter, getWorld())) {
 			return ItemStack.EMPTY; //Fix MystCraft
 		}
-		ItemStack result = cache.getCraftingResult(crafter);
+		ItemStack result = cache.assemble(crafter, getWorld().registryAccess());
 		if (result.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
 		if (!resultInv.getIDStackInSlot(0).getItem().equalsWithoutNBT(ItemIdentifier.get(result))) {
 			return ItemStack.EMPTY;
 		}
-		crafter = new AutoCraftingInventory(null);//TODO
+		crafter = new AutoCraftingInventory(null);
 		for (int i = 0; i < 9; i++) {
 			int j = toUse[i];
 			if (j != -1) {
-				crafter.setInventorySlotContents(i, inv.decrStackSize(j, 1));
+				crafter.setItem(i, inv.removeItem(j, 1));
 			}
 		}
-		result = cache.getCraftingResult(crafter);
+		result = cache.assemble(crafter, getWorld().registryAccess());
 		if (fake == null) {
 			fake = MainProxy.getFakePlayer(getWorld());
 		}
 		result = result.copy();
 
-		SlotCrafting craftingSlot = new SlotCrafting(fake, crafter, resultInv, 0, 0, 0) {
-
-			@Override
-			protected void onCrafting(@Nonnull ItemStack stack) {
-				IInventory tmp = this.inventory;
-				vanillaResult.setRecipeUsed(cache);
-				this.inventory = vanillaResult;
-				super.onCrafting(stack);
-				this.inventory = tmp;
-			}
-		};
-		result = craftingSlot.onTake(fake, result);
+		ResultSlot craftingSlot = new ResultSlot(fake, crafter, resultInv, 0, 0, 0);
+		vanillaResult.setRecipeUsed(cache);
+		craftingSlot.onTake(fake, result);
 		for (int i = 0; i < 9; i++) {
-			ItemStack left = crafter.getStackInSlot(i);
-			crafter.setInventorySlotContents(i, ItemStack.EMPTY);
+			ItemStack left = crafter.getItem(i);
+			crafter.setItem(i, ItemStack.EMPTY);
 			if (!left.isEmpty()) {
 				left.setCount(inv.addCompressed(left, false));
 				if (left.getCount() > 0) {
@@ -461,9 +461,9 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				}
 			}
 		}
-		for (int i = 0; i < fake.inventory.getSizeInventory(); i++) {
-			ItemStack left = fake.inventory.getStackInSlot(i);
-			fake.inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+		for (int i = 0; i < fake.getInventory().getContainerSize(); i++) {
+			ItemStack left = fake.getInventory().getItem(i);
+			fake.getInventory().setItem(i, ItemStack.EMPTY);
 			if (!left.isEmpty()) {
 				left.setCount(inv.addCompressed(left, false));
 				if (left.getCount() > 0) {
@@ -494,40 +494,40 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public void InventoryChanged(IInventory inventory) {
+	public void InventoryChanged(Container inventory) {
 		if (inventory == matrix) {
 			cacheRecipe();
 		}
 	}
 
 	public void handleNEIRecipePacket(NonNullList<ItemStack> content) {
-		if (matrix.getSizeInventory() != content.size()) throw new IllegalStateException("Different sizes of matrix and inventory from packet");
+		if (matrix.getContainerSize() != content.size()) throw new IllegalStateException("Different sizes of matrix and inventory from packet");
 		for (int i = 0; i < content.size(); i++) {
-			matrix.setInventorySlotContents(i, content.get(i));
+			matrix.setItem(i, content.get(i));
 		}
 		cacheRecipe();
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound par1nbtTagCompound) {
+	public void readFromNBT(CompoundTag par1nbtTagCompound) {
 		super.readFromNBT(par1nbtTagCompound);
 		inv.readFromNBT(par1nbtTagCompound, "inv");
 		matrix.readFromNBT(par1nbtTagCompound, "matrix");
 		toSortInv.readFromNBT(par1nbtTagCompound, "toSortInv");
 		diskInv.readFromNBT(par1nbtTagCompound, "diskInv");
-		rotation = par1nbtTagCompound.getInteger("blockRotation");
-		//TODO NPEs on world load
+		rotation = par1nbtTagCompound.getInt("blockRotation");
+		// cacheRecipe() skipped here — world/registry not available during NBT load; cache is rebuilt lazily on first use
 		//cacheRecipe();
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound par1nbtTagCompound) {
+	public void writeToNBT(CompoundTag par1nbtTagCompound) {
 		super.writeToNBT(par1nbtTagCompound);
 		inv.writeToNBT(par1nbtTagCompound, "inv");
 		matrix.writeToNBT(par1nbtTagCompound, "matrix");
 		toSortInv.writeToNBT(par1nbtTagCompound, "toSortInv");
 		diskInv.writeToNBT(par1nbtTagCompound, "diskInv");
-		par1nbtTagCompound.setInteger("blockRotation", rotation);
+		par1nbtTagCompound.putInt("blockRotation", rotation);
 	}
 
 	@Override
@@ -551,7 +551,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				}
 
 				@Override
-				public EnumFacing itemArrived(IRoutedItem item, EnumFacing denied) {
+				public Direction itemArrived(IRoutedItem item, Direction denied) {
 					return null;
 				}
 
@@ -571,21 +571,21 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 		orders.setWatched();
 		watchedRequests.put(++localLastUsedWatcherId, new Pair<>(stack, orders));
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(orders).setStack(stack).setInteger(localLastUsedWatcherId).setTilePos(container), localGuiWatcher);
+		MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(orders).setStack(stack).putInt(localLastUsedWatcherId).setTilePos(container), localGuiWatcher);
 	}
 
 	@Override
-	public void guiOpenedByPlayer(EntityPlayer player) {
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrderWatchRemovePacket.class).setInteger(-1).setTilePos(container), player);
+	public void guiOpenedByPlayer(Player player) {
+		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrderWatchRemovePacket.class).putInt(-1).setTilePos(container), player);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), player);
 		localGuiWatcher.add(player);
 		for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).setInteger(entry.getKey()).setTilePos(container), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).putInt(entry.getKey()).setTilePos(container), player);
 		}
 	}
 
 	@Override
-	public void guiClosedByPlayer(EntityPlayer player) {
+	public void guiClosedByPlayer(Player player) {
 		localGuiWatcher.remove(player);
 	}
 
@@ -609,7 +609,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 
 	@Nonnull
 	public ItemStack getDisk() {
-		return diskInv.getStackInSlot(0);
+		return diskInv.getItem(0);
 	}
 
 	@Override
@@ -628,8 +628,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@SubscribeEvent
-	public void onWorldUnload(WorldEvent.Unload worldEvent) {
-		if (fake.world == worldEvent.getWorld())
+	public void onWorldUnload(LevelEvent.Unload worldEvent) {
+		if (fake != null && fake.level() == worldEvent.getLevel())
 			fake = null;
 	}
 

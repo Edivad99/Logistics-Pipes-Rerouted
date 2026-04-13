@@ -63,10 +63,10 @@ import logisticspipes.routing.ServerRouter
 import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
-import net.minecraftforge.fml.client.FMLClientHandler
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemStack
-import net.minecraft.util.EnumFacing
+import net.minecraft.client.Minecraft
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import java.util.*
 import kotlin.math.min
 import kotlin.math.pow
@@ -75,7 +75,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 
 class ExtractorJob(private val module: AsyncExtractorModule, private val inventoryGetter: () -> IInventoryUtil?) {
-    private var inventorySize = inventoryGetter()?.sizeInventory ?: 0
+    private var inventorySize = inventoryGetter()?.containerSize ?: 0
     private val slotsPerTick: Int = determineSlotsPerTick(module.everyNthTick, inventorySize)
     private val slotStartIter =
         if (slotsPerTick == 0) emptyList<Int>().iterator()
@@ -93,7 +93,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
                 updateRoutingTableMsgChannel.close()
                 return
             }
-            inventorySize = inventory.sizeInventory
+            inventorySize = inventory.containerSize
             val startSlot = slotStartIter.next()
             val stopSlot = if (slotStartIter.hasNext()) {
                 min(inventorySize, startSlot + slotsPerTick)
@@ -101,7 +101,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
 
             val slotRange = startSlot until stopSlot
             for (slot in slotRange) {
-                val stack = inventory.getStackInSlot(slot)
+                val stack = inventory.getItem(slot)
                 if (module.inverseFilter(stack)) continue // filters the stack out by the given filter method
                 val toExtract = min(itemsLeft, stack.count)
                 itemsLeft -= toExtract
@@ -150,9 +150,9 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
     ) {
         val service = module.service ?: return
         val pointedOrientation = service.pointedOrientation ?: return
-        val stack = inventory.getStackInSlot(slot)
+        val stack = inventory.getItem(slot)
         if (!itemIdStack.item.equalsWithNBT(stack)) return
-        var sourceStackLeft = itemIdStack.stackSize
+        var sourceStackLeft = itemIdStack.getStackSize()
         val validDestinationSequence = LogisticsManager.allDestinations(
             stack = stack,
             itemid = ItemIdentifier.get(stack),
@@ -167,7 +167,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
                 if (extract < 2) break
                 extract /= 2
             }
-            val toSend = inventory.decrStackSize(slot, extract)
+            val toSend = inventory.removeItem(slot, extract)
             if (toSend.isEmpty) return@forEach
             service.sendStack(toSend, destRouterId, sinkReply, module.itemSendMode, pointedOrientation)
             sourceStackLeft -= toSend.count
@@ -185,12 +185,12 @@ class AsyncExtractorModule(
         val name: String = "extractor"
     }
 
-    private val sneakyDirectionProp = NullableEnumProperty(null, "sneakydirection", EnumFacing.values())
+    private val sneakyDirectionProp = NullableEnumProperty(null, "sneakydirection", Direction.values())
 
     override val properties: List<Property<*>>
         get() = listOf(sneakyDirectionProp)
 
-    override var sneakyDirection: EnumFacing?
+    override var sneakyDirection: Direction?
         get() = sneakyDirectionProp.value
         set(value) {
             sneakyDirectionProp.value = value
@@ -291,7 +291,7 @@ class AsyncExtractorModule(
         )
     }
 
-    override fun startWatching(player: EntityPlayer?) {
+    override fun startWatching(player: Player?) {
         Objects.requireNonNull(player, "player must not be null")
         localModeWatchers.add(player)
         MainProxy.sendPacketToPlayer(
@@ -301,19 +301,17 @@ class AsyncExtractorModule(
         )
     }
 
-    override fun stopWatching(player: EntityPlayer?) {
+    override fun stopWatching(player: Player?) {
         Objects.requireNonNull(player, "player must not be null")
         if (localModeWatchers.contains(player)) localModeWatchers.remove(player)
     }
 
     class HUDAsyncExtractor(private val module: AsyncExtractorModule) : IHUDModuleRenderer {
         override fun renderContent(shifted: Boolean) {
-            val mc = FMLClientHandler.instance().client
+            val mc = Minecraft.getInstance()
 
-            val d: EnumFacing? = module.sneakyDirection
-            mc.fontRenderer.drawString("Extract", -22, -22, 0)
-            mc.fontRenderer.drawString("from:", -22, -9, 0)
-            mc.fontRenderer.drawString(d?.name ?: "DEFAULT", -22, 18, 0)
+            val d: Direction? = module.sneakyDirection
+            // TODO: deferred — migrate Font.drawString to GuiGraphics.drawString in 1.20.1
         }
 
         override fun getButtons(): MutableList<IHUDButton>? = null

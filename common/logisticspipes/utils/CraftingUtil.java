@@ -1,16 +1,19 @@
 package logisticspipes.utils;
 
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.RegistryNamespaced;
+import java.util.Collection;
+import java.util.Collections;
+
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class CraftingUtil {
 
-	// Suppressed because getRecipeList shouldn't ever return something that
-	// isn't a recipe.
-	public static RegistryNamespaced<ResourceLocation, IRecipe> getRecipeList() {
-		return CraftingManager.REGISTRY;
-	}
-
+    @SuppressWarnings("unchecked")
+    public static Collection<Recipe<?>> getRecipeList() {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return Collections.emptyList();
+        return (Collection<Recipe<?>>) (Collection<?>) server.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING);
+    }
 }

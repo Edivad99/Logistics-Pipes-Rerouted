@@ -2,8 +2,8 @@ package logisticspipes.network.guis.module.inpipe;
 
 import java.util.BitSet;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -55,25 +55,25 @@ public class ItemSinkSlot extends ModuleCoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		ModuleItemSink module = this.getLogisticsModule(player.getEntityWorld(), ModuleItemSink.class);
+	public Object getClientGui(Player player) {
+		ModuleItemSink module = this.getLogisticsModule(player.level(), ModuleItemSink.class);
 		if (module == null) {
 			return null;
 		}
 		module.setDefaultRoute(isDefaultRoute);
 		module.setFuzzyFlags(fuzzyFlags);
 
-		return ItemSinkGui.create(player.inventory, module, ItemStack.EMPTY, hasFuzzyUpgrade, false);
+		return ItemSinkGui.create(player.getInventory(), module, ItemStack.EMPTY, hasFuzzyUpgrade, false);
 	}
 
 	@Override
-	public ItemSinkContainer getContainer(EntityPlayer player) {
-		ModuleItemSink module = this.getLogisticsModule(player.getEntityWorld(), ModuleItemSink.class);
+	public ItemSinkContainer getContainer(Player player) {
+		ModuleItemSink module = this.getLogisticsModule(player.level(), ModuleItemSink.class);
 		if (module == null) {
 			return null;
 		}
 		return new ItemSinkContainer(
-			player.inventory,
+			player.getInventory(),
 			new SimplePropertyOverlay<>(module.filterInventory),
 			module,
 			new PropertyLayer(module.getProperties()),

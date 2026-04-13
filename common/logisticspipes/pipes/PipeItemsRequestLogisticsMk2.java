@@ -2,13 +2,14 @@ package logisticspipes.pipes;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+
 
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
@@ -29,51 +30,53 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 	}
 
 	@Override
-	public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
 		//allow using upgrade manager
-		if (MainProxy.isPipeControllerEquipped(entityplayer) && !(entityplayer.isSneaking())) {
+		if (MainProxy.isPipeControllerEquipped(entityplayer) && !(entityplayer.isCrouching())) {
 			return false;
 		}
 		if (MainProxy.isServer(getWorld())) {
 			if (settings == null || settings.openGui) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
+				entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 			}
 		}
 		return true;
 	}
 
 	@Override
-	public void openGui(EntityPlayer entityplayer) {
+	public void openGui(Player entityplayer) {
 		boolean flag = true;
 		if (disk.isEmpty()) {
-			if (!entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() && entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem().equals(LPItems.disk)) {
-				disk = entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
-				entityplayer.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, ItemStack.EMPTY);
+			if (!entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).getItem().equals(LPItems.disk.get())) {
+				disk = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
+				entityplayer.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
 				flag = false;
 			}
 		}
 		if (flag) {
-			entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_Normal_Mk2_Orderer_ID, getWorld(), getX(), getY(), getZ());
+			logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalMk2OrdererGui.class)
+					.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
+					.open(entityplayer);
 		}
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
 		if (!disk.isEmpty()) {
-			NBTTagCompound itemNBT = new NBTTagCompound();
-			disk.writeToNBT(itemNBT);
-			nbttagcompound.setTag("Disk", itemNBT);
+			CompoundTag itemNBT = new CompoundTag();
+			disk.save(itemNBT);
+			nbttagcompound.put("Disk", itemNBT);
 		}
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
+	public void readFromNBT(CompoundTag nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
-		if (nbttagcompound.hasKey("Disk")) {
-			NBTTagCompound item = nbttagcompound.getCompoundTag("Disk");
+		if (nbttagcompound.contains("Disk")) {
+			CompoundTag item = nbttagcompound.getCompound("Disk");
 			disk = ItemStackLoader.loadAndFixItemStackFromNBT(item);
 		}
 	}
@@ -97,8 +100,8 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 
 	public void dropDisk() {
 		if (!disk.isEmpty()) {
-			EntityItem item = new EntityItem(getWorld(), getX(), getY(), getZ(), disk);
-			getWorld().spawnEntity(item);
+			ItemEntity item = new ItemEntity(getWorld(), getX(), getY(), getZ(), disk);
+			getWorld().addFreshEntity(item);
 			disk = ItemStack.EMPTY;
 		}
 	}

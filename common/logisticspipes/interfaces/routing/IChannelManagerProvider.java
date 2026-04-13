@@ -1,8 +1,8 @@
 package logisticspipes.interfaces.routing;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public interface IChannelManagerProvider {
 
-	IChannelManager getChannelManager(World world);
+	IChannelManager getChannelManager(Level world);
 }

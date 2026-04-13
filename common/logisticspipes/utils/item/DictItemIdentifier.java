@@ -7,9 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.item.ItemStack;
-
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.LogisticsPipes;
 
@@ -26,8 +26,11 @@ public class DictItemIdentifier {
 			LogisticsPipes.log.error("Cannot make stack from item " + itemIdent.toString() + " -- item creates and empty stack!");
 			return null;
 		}
-		for (int oreId : OreDictionary.getOreIDs(stack)) {
-			ids.set(oreId);
+		// 1.20.1 replacement for OreDictionary.getOreIDs: walk the item's tag keys and
+		// assign each TagKey a stable int id via DictIdentifier.
+		for (TagKey<Item> tag : stack.getTags().toList()) {
+			DictIdentifier ident = DictIdentifier.getForTag(tag);
+			ids.set(ident.getId());
 			hasDict = true;
 		}
 		if (!hasDict) {
@@ -78,6 +81,6 @@ public class DictItemIdentifier {
 			first = false;
 		}
 		builder.append("]");
-		System.out.println(builder.toString());
+		LogisticsPipes.log.info("{}", builder);
 	}
 }

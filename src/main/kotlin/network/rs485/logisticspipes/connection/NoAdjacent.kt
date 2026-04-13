@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -37,17 +37,17 @@
 
 package network.rs485.logisticspipes.connection
 
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
 import java.util.*
 
 object NoAdjacent : Adjacent {
     override fun connectedPos(): Map<BlockPos, ConnectionType> = emptyMap()
-    override fun get(direction: EnumFacing): ConnectionType? = null
-    override fun optionalGet(direction: EnumFacing): Optional<ConnectionType> = Optional.empty()
-    override fun neighbors(): Map<NeighborTileEntity<TileEntity>, ConnectionType> = emptyMap()
-    override fun inventories(): List<NeighborTileEntity<TileEntity>> = emptyList()
-    override fun fluidTanks(): List<NeighborTileEntity<TileEntity>> = emptyList()
+    override fun get(direction: Direction): ConnectionType? = null
+    override fun optionalGet(direction: Direction): Optional<ConnectionType> = Optional.empty()
+    override fun neighbors(): Map<NeighborTileEntity<BlockEntity>, ConnectionType> = emptyMap()
+    override fun inventories(): List<NeighborTileEntity<BlockEntity>> = emptyList()
+    override fun fluidTanks(): List<NeighborTileEntity<BlockEntity>> = emptyList()
     override fun toString(): String = "NoAdjacent"
 }

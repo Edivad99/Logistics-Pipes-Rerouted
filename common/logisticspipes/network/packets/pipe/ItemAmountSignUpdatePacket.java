@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,18 +29,18 @@ public class ItemAmountSignUpdatePacket extends Integer2CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld());
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe pipe = this.getPipe(player.level());
 		if (pipe == null || !pipe.isInitialized()) {
 			return;
 		}
 
-		IPipeSign sign = ((CoreRoutedPipe) pipe.pipe).getPipeSign(EnumFacing.byIndex(getInteger()));
+		IPipeSign sign = ((CoreRoutedPipe) pipe.pipe).getPipeSign(Direction.from3DDataValue(getInteger()));
 		if (sign == null) {
 			return;
 		}
 		((ItemAmountPipeSign) sign).amount = getInteger2();
-		((ItemAmountPipeSign) sign).itemTypeInv.setInventorySlotContents(0, stack);
+		((ItemAmountPipeSign) sign).itemTypeInv.setItem(0, stack);
 	}
 
 	@Override

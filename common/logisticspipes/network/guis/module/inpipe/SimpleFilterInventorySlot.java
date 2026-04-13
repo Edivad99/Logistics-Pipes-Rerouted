@@ -2,7 +2,7 @@ package logisticspipes.network.guis.module.inpipe;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.modules.GuiSimpleFilter;
 import logisticspipes.modules.LogisticsModule;
@@ -20,26 +20,26 @@ public class SimpleFilterInventorySlot extends ModuleCoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		LogisticsModule module = this.getLogisticsModule(player.getEntityWorld(), LogisticsModule.class);
+	public Object getClientGui(Player player) {
+		LogisticsModule module = this.getLogisticsModule(player.level(), LogisticsModule.class);
 		if (module == null) {
 			return null;
 		}
-		return new GuiSimpleFilter(player.inventory, module);
+		return new GuiSimpleFilter(player.getInventory(), module);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
+	public DummyContainer getContainer(Player player) {
 		return getContainerFromFilterModule(this, player);
 	}
 
 	@Nullable
-	public static DummyContainer getContainerFromFilterModule(ModuleCoordinatesGuiProvider guiProvider, EntityPlayer player) {
-		SimpleFilter filter = guiProvider.getLogisticsModule(player.getEntityWorld(), SimpleFilter.class);
+	public static DummyContainer getContainerFromFilterModule(ModuleCoordinatesGuiProvider guiProvider, Player player) {
+		SimpleFilter filter = guiProvider.getLogisticsModule(player.level(), SimpleFilter.class);
 		if (filter == null) {
 			return null;
 		}
-		DummyContainer dummy = new DummyContainer(player.inventory, filter.getFilterInventory());
+		DummyContainer dummy = new DummyContainer(player.getInventory(), filter.getFilterInventory());
 		dummy.addNormalSlotsForPlayerInventory(8, 60);
 
 		//Pipe slots

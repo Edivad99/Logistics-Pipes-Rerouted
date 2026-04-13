@@ -1,6 +1,5 @@
 package logisticspipes.proxy;
 
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Supplier;
@@ -8,39 +7,32 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler.OutboundTarget;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.event.level.LevelEvent;
+
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import com.google.common.collect.Maps;
 import lombok.Getter;
 
 import logisticspipes.LPItems;
-import logisticspipes.LogisticsEventListener;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.entity.FakePlayerLP;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.PacketInboundHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.interfaces.IProxy;
 import logisticspipes.routing.debug.RoutingTableDebugUpdateThread;
@@ -52,23 +44,31 @@ public class MainProxy {
 
 	private MainProxy() {}
 
-	@SidedProxy(clientSide = "logisticspipes.proxy.side.ClientProxy", serverSide = "logisticspipes.proxy.side.ServerProxy")
-	public static IProxy proxy;
+	/**
+	 * Side-specific proxy: ClientProxy on client dist, ServerProxy on dedicated server.
+	 * Replaces 1.12.2 {@code @SidedProxy} annotation.
+	 */
+	// NeoForge 1.20.1: DistExecutor removed — use FMLEnvironment.dist check
+	public static IProxy proxy = net.minecraftforge.fml.loading.FMLEnvironment.dist.isClient()
+			? new logisticspipes.proxy.side.ClientProxy()
+			: new logisticspipes.proxy.side.ServerProxy();
+
 	@Getter
 	private static int globalTick;
-	public static EnumMap<Side, FMLEmbeddedChannel> channels;
 
-	private static final WeakHashMap<Thread, Side> threadSideMap = new WeakHashMap<>();
-	private static final Map<Integer, FakePlayerLP> fakePlayers = Maps.newHashMap();
+	private static final WeakHashMap<Thread, LogicalSide> threadSideMap = new WeakHashMap<>();
+	private static final Map<ResourceKey<Level>, FakePlayerLP> fakePlayers = Maps.newHashMap();
 
 	public static final String networkChannelName = "LogisticsPipes";
 
-	private static Side getEffectiveSide() {
+	// ── Side detection ────────────────────────────────────────────────────────
+
+	private static LogicalSide getEffectiveSide() {
 		Thread thr = Thread.currentThread();
 		if (MainProxy.threadSideMap.containsKey(thr)) {
 			return MainProxy.threadSideMap.get(thr);
 		}
-		Side side = MainProxy.getEffectiveSide(thr);
+		LogicalSide side = MainProxy.getEffectiveSide(thr);
 		if (MainProxy.threadSideMap.size() > 50) {
 			MainProxy.threadSideMap.clear();
 		}
@@ -76,286 +76,217 @@ public class MainProxy {
 		return side;
 	}
 
-	private static Side getEffectiveSide(Thread thr) {
-		if (thr.getName().equals("Server thread") || (thr instanceof RoutingTableUpdateThread) || (thr instanceof RoutingTableDebugUpdateThread)) {
-			return Side.SERVER;
+	private static LogicalSide getEffectiveSide(Thread thr) {
+		if (thr.getName().equals("Server thread")
+				|| (thr instanceof RoutingTableUpdateThread)
+				|| (thr instanceof RoutingTableDebugUpdateThread)) {
+			return LogicalSide.SERVER;
 		}
 		if (SimpleServiceLocator.ccProxy != null && SimpleServiceLocator.ccProxy.isLuaThread(thr)) {
-			return Side.SERVER;
+			return LogicalSide.SERVER;
 		}
-		return Side.CLIENT;
+		return LogicalSide.CLIENT;
 	}
 
-	public static boolean isClient(IBlockAccess blockAccess) {
-		if (blockAccess instanceof World) {
-			World world = (World) blockAccess;
-			try {
-				return world.isRemote;
-			} catch (NullPointerException n) {
-				LogisticsPipes.log.fatal("isClient called with a null world - using slow thread based fallback");
-				n.printStackTrace();
-			}
-		}
-		return MainProxy.isClient();
+	/** Use {@link #isClient(Level)} when a level is available; this thread-based fallback is slow. */
+	@Deprecated
+	public static boolean isClient() {
+		return MainProxy.getEffectiveSide() == LogicalSide.CLIENT;
+	}
+
+	/** Use {@link #isServer(Level)} when a level is available; this thread-based fallback is slow. */
+	@Deprecated
+	public static boolean isServer() {
+		return MainProxy.getEffectiveSide() == LogicalSide.SERVER;
+	}
+
+	public static boolean isClient(Level level) {
+		return level.isClientSide;
+	}
+
+	public static boolean isServer(Level level) {
+		if (level == null) return MainProxy.getEffectiveSide() == LogicalSide.SERVER;
+		return !level.isClientSide;
 	}
 
 	/**
-	 * isClient is slow, find a world and check isClient(world)
+	 * Accepts any {@link LevelAccessor} (e.g. from {@code BlockEvent.getLevel()}).
+	 * Falls back to thread detection if the accessor is not a full {@link Level}.
 	 */
-	@Deprecated
-	public static boolean isClient() {
-		return MainProxy.getEffectiveSide() == Side.CLIENT;
-	}
-
-	public static boolean isServer(IBlockAccess blockAccess) {
-		if (blockAccess instanceof World) {
-			World world = (World) blockAccess;
-			try {
-				return !world.isRemote;
-			} catch (NullPointerException n) {
-				LogisticsPipes.log.fatal("isServer called with a null world - using slow thread based fallback");
-				n.printStackTrace();
-			}
+	public static boolean isServer(@Nullable LevelAccessor levelAccessor) {
+		if (levelAccessor instanceof Level level) {
+			return !level.isClientSide;
 		}
 		return MainProxy.isServer();
 	}
 
-	/**
-	 * isServer is slow, find a world and check isServer(world)
-	 */
-	@Deprecated
-	public static boolean isServer() {
-		return MainProxy.getEffectiveSide() == Side.SERVER;
+	public static boolean isClient(@Nullable LevelAccessor levelAccessor) {
+		if (levelAccessor instanceof Level level) {
+			return level.isClientSide;
+		}
+		return MainProxy.isClient();
 	}
 
-	/**
-	 * Simple function to run code on the server and which can be replaced by the DistExecutor later.
-	 */
-	public static void runOnServer(@Nullable IBlockAccess world, @Nonnull Supplier<Runnable> runnableConsumer) {
+	public static void runOnServer(@Nullable LevelAccessor world, @Nonnull Supplier<Runnable> runnableConsumer) {
 		if (isServer(world)) runnableConsumer.get().run();
 	}
 
-	public static void runOnClient(@Nullable IBlockAccess world, @Nonnull Supplier<Runnable> runnableConsumer) {
+	public static void runOnClient(@Nullable LevelAccessor world, @Nonnull Supplier<Runnable> runnableConsumer) {
 		if (isClient(world)) runnableConsumer.get().run();
 	}
 
-	public static World getClientMainWorld() {
+	public static Level getClientMainWorld() {
 		return MainProxy.proxy.getWorld();
 	}
 
-	public static void createChannels() {
-		MainProxy.channels = NetworkRegistry.INSTANCE.newChannel(MainProxy.networkChannelName, new PacketHandler());
-		for (Side side : Side.values()) {
-			FMLEmbeddedChannel channel = MainProxy.channels.get(side);
-			String type = channel.findChannelHandlerNameForType(PacketHandler.class);
-			channel.pipeline().addAfter(type, PacketInboundHandler.class.getName(), new PacketInboundHandler());
-		}
-	}
+	// ── Networking ────────────────────────────────────────────────────────────
 
+	/** Sends a packet from the client to the server. */
 	public static void sendPacketToServer(ModernPacket packet) {
 		if (MainProxy.isServer()) {
-			System.err.println("sendPacketToServer called serverside !");
-			new Exception().printStackTrace();
+			LogisticsPipes.log.error("sendPacketToServer called server-side!");
 			return;
 		}
-		if (packet.isCompressable() || MainProxy.needsToBeCompressed(packet)) {
-			SimpleServiceLocator.clientBufferHandler.addPacketToCompressor(packet);
-		} else {
-			MainProxy.channels.get(Side.CLIENT).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(OutboundTarget.TOSERVER);
-			MainProxy.channels.get(Side.CLIENT).writeOutbound(packet);
-		}
+		logisticspipes.network.PacketHandler.sendToServer(packet);
 	}
 
-	public static void sendPacketToPlayer(ModernPacket packet, EntityPlayer player) {
-		if (!MainProxy.isServer(player.world)) {
-			System.err.println("sendPacketToPlayer called clientside !");
-			new Exception().printStackTrace();
+	/** Sends a packet from the server to a specific player. */
+	public static void sendPacketToPlayer(ModernPacket packet, Player player) {
+		if (!MainProxy.isServer()) {
+			LogisticsPipes.log.error("sendPacketToPlayer called client-side!");
 			return;
 		}
-		if (packet.isCompressable() || MainProxy.needsToBeCompressed(packet)) {
-			SimpleServiceLocator.serverBufferHandler.addPacketToCompressor(packet, player);
-		} else {
-			MainProxy.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
-			MainProxy.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
-			MainProxy.channels.get(Side.SERVER).writeOutbound(packet);
-		}
+		logisticspipes.network.PacketHandler.sendToPlayer(packet, player);
 	}
 
-	// ignores dimension; more stringent check done inside sendPacketToAllWatching
+	// ── Chunk-watch / broadcast helpers ──────────────────────────────────────
+
 	public static boolean isAnyoneWatching(BlockPos pos, int dimensionID) {
-		return isAnyoneWatching(pos.getX(), pos.getZ(), dimensionID);
+		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(pos);
+		PlayerCollectionList list = logisticspipes.LogisticsEventListener.watcherList.get(chunkPos);
+		return list != null && !list.isEmpty();
 	}
 
-	// ignores dimension; more stringent check done inside sendPacketToAllWatching
 	public static boolean isAnyoneWatching(int X, int Z, int dimensionID) {
-		ChunkPos chunk = new ChunkPos(X >> 4, Z >> 4);
-		PlayerCollectionList players = LogisticsEventListener.watcherList.get(chunk);
-		if (players == null) {
-			return false;
-		}
-		return !players.isEmptyWithoutCheck();
+		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(
+				net.minecraft.core.SectionPos.blockToSectionCoord(X),
+				net.minecraft.core.SectionPos.blockToSectionCoord(Z));
+		PlayerCollectionList list = logisticspipes.LogisticsEventListener.watcherList.get(chunkPos);
+		return list != null && !list.isEmpty();
 	}
 
 	public static void sendPacketToAllWatchingChunk(LogisticsModule module, ModernPacket packet) {
-		if (module.getSlot().isInWorld()) {
-			final World world = module.getWorld();
-			if (world == null) {
-				if (LogisticsPipes.isDEBUG()) {
-					throw new IllegalStateException("sendPacketToAllWatchingChunk called without a world provider on the module");
-				}
-				return;
-			}
-			final BlockPos pos = module.getBlockPos();
-			sendPacketToAllWatchingChunk(pos.getX(), pos.getZ(), world.provider.getDimension(), packet);
-		} else {
-			if (LogisticsPipes.isDEBUG()) {
-				throw new IllegalStateException("sendPacketToAllWatchingChunk for module in hand was called");
-			}
-		}
+		if (module == null || module.getBlockPos() == null) return;
+		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(module.getBlockPos());
+		sendPacketToChunkWatchers(chunkPos, packet);
 	}
 
-	public static void sendPacketToAllWatchingChunk(TileEntity tile, ModernPacket packet) {
-		sendPacketToAllWatchingChunk(tile.getPos().getX(), tile.getPos().getZ(), tile.getWorld().provider.getDimension(), packet);
+	public static void sendPacketToAllWatchingChunk(BlockEntity tile, ModernPacket packet) {
+		if (tile == null) return;
+		net.minecraft.world.level.Level lvl = tile.getLevel();
+		if (lvl instanceof net.minecraft.server.level.ServerLevel sl) {
+			net.minecraft.world.level.chunk.LevelChunk chunk = sl.getChunkAt(tile.getBlockPos());
+			logisticspipes.network.PacketHandler.CHANNEL.send(
+				net.minecraftforge.network.PacketDistributor.TRACKING_CHUNK.with(() -> chunk),
+				logisticspipes.network.PacketHandler.buildPayloadPublic(packet));
+			return;
+		}
+		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(tile.getBlockPos());
+		sendPacketToChunkWatchers(chunkPos, packet);
 	}
 
 	public static void sendPacketToAllWatchingChunk(int X, int Z, int dimensionId, ModernPacket packet) {
-		if (!MainProxy.isServer()) {
-			System.err.println("sendPacketToAllWatchingChunk called clientside !");
-			new Exception().printStackTrace();
-			return;
-		}
-		ChunkPos chunk = new ChunkPos(X >> 4, Z >> 4);
-		PlayerCollectionList players = LogisticsEventListener.watcherList.get(chunk);
-		if (players != null) {
-			for (EntityPlayer player : players.players()) {
-				if (player.world.provider.getDimension() == dimensionId) {
-					MainProxy.sendPacketToPlayer(packet, player);
-				}
-			}
+		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(
+				net.minecraft.core.SectionPos.blockToSectionCoord(X),
+				net.minecraft.core.SectionPos.blockToSectionCoord(Z));
+		sendPacketToChunkWatchers(chunkPos, packet);
+	}
+
+	private static void sendPacketToChunkWatchers(net.minecraft.world.level.ChunkPos chunkPos, ModernPacket packet) {
+		PlayerCollectionList list = logisticspipes.LogisticsEventListener.watcherList.get(chunkPos);
+		if (list != null) {
+			list.players().forEach(p -> sendPacketToPlayer(packet, p));
 		}
 	}
 
 	public static void sendToPlayerList(ModernPacket packet, PlayerCollectionList players) {
-		if (players.isEmpty()) {
-			return;
-		}
-		sendToPlayerList(packet, players.players());
+		players.players().forEach(p -> sendPacketToPlayer(packet, p));
 	}
 
-	public static void sendToPlayerList(ModernPacket packet, Iterable<EntityPlayer> players) {
+	public static void sendToPlayerList(ModernPacket packet, Iterable<Player> players) {
+		players.forEach(p -> sendPacketToPlayer(packet, p));
+	}
 
+	public static void sendToPlayerList(ModernPacket packet, Stream<Player> players) {
+		players.forEach(p -> sendPacketToPlayer(packet, p));
+	}
+
+	public static void sendToAllPlayers(ModernPacket packet) {
 		if (!MainProxy.isServer()) {
-			System.err.println("sendToPlayerList called clientside !");
-			new Exception().printStackTrace();
+			LogisticsPipes.log.error("sendToAllPlayers called client-side!");
 			return;
 		}
-		if (packet.isCompressable() || MainProxy.needsToBeCompressed(packet)) {
-			for (EntityPlayer player : players) {
-				SimpleServiceLocator.serverBufferHandler.addPacketToCompressor(packet, player);
-			}
-		} else {
-			for (EntityPlayer player : players) {
+		var server = ServerLifecycleHooks.getCurrentServer();
+		if (server == null) return;
+		for (ServerLevel level : server.getAllLevels()) {
+			for (Player player : level.players()) {
 				MainProxy.sendPacketToPlayer(packet, player);
 			}
 		}
 	}
 
-	public static void sendToPlayerList(ModernPacket packet, Stream<EntityPlayer> players) {
-		if (!MainProxy.isServer()) {
-			System.err.println("sendToPlayerList called clientside !");
-			new Exception().printStackTrace();
-			return;
-		}
-		if (packet.isCompressable() || MainProxy.needsToBeCompressed(packet)) {
-			players.forEach(player -> SimpleServiceLocator.serverBufferHandler.addPacketToCompressor(packet, player));
-		} else {
-			players.forEach(player -> MainProxy.sendPacketToPlayer(packet, player));
-		}
+	// ── Fake player ──────────────────────────────────────────────────────────
+
+	@Nullable
+	public static FakePlayer getFakePlayer(Level level) {
+		if (!(level instanceof ServerLevel serverLevel)) return null;
+		ResourceKey<Level> dim = level.dimension();
+		if (fakePlayers.containsKey(dim)) return fakePlayers.get(dim);
+		FakePlayerLP fp = new FakePlayerLP(serverLevel);
+		fakePlayers.put(dim, fp);
+		return fp;
 	}
 
-	public static void sendToAllPlayers(ModernPacket packet) {
-		if (!MainProxy.isServer()) {
-			System.err.println("sendToAllPlayers called clientside !");
-			new Exception().printStackTrace();
-			return;
-		}
-		if (packet.isCompressable() || MainProxy.needsToBeCompressed(packet)) {
-			for (World world : DimensionManager.getWorlds()) {
-				for (Object playerObject : world.playerEntities) {
-					EntityPlayer player = (EntityPlayer) playerObject;
-					SimpleServiceLocator.serverBufferHandler.addPacketToCompressor(packet, player);
-				}
-			}
-		} else {
-			MainProxy.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.ALL);
-			MainProxy.channels.get(Side.SERVER).writeOutbound(packet);
-		}
-	}
-
-	private static boolean needsToBeCompressed(ModernPacket packet) {
-		/*if(packet.getData() != null) {
-			if(packet.getData().length > 32767) {
-				return true; // Packet is to big
-			}
-		}*/
-		return false;
-	}
-
-	public static FakePlayer getFakePlayer(World world) {
-		int dimId = world.provider.getDimension();
-		if (fakePlayers.containsKey(dimId))
-			return fakePlayers.get(dimId);
-		if (world instanceof WorldServer) {
-			FakePlayerLP fp = new FakePlayerLP((WorldServer) world);
-			fakePlayers.put(dimId, fp);
-			return fp;
-		}
-		return null;
-	}
+	// ── Misc ─────────────────────────────────────────────────────────────────
 
 	public static void addTick() {
 		MainProxy.globalTick++;
 	}
 
-	public static EntityItem dropItems(World world, @Nonnull ItemStack stack, int xCoord, int yCoord, int zCoord) {
-		EntityItem item = new EntityItem(world, xCoord, yCoord, zCoord, stack);
-		world.spawnEntity(item);
+	public static ItemEntity dropItems(Level world, @Nonnull ItemStack stack, int xCoord, int yCoord, int zCoord) {
+		ItemEntity item = new ItemEntity(world, xCoord, yCoord, zCoord, stack);
+		world.addFreshEntity(item);
 		return item;
 	}
 
-	public static boolean checkPipesConnections(TileEntity from, TileEntity to, EnumFacing way) {
+	public static boolean checkPipesConnections(BlockEntity from, BlockEntity to, Direction way) {
 		return MainProxy.checkPipesConnections(from, to, way, false);
 	}
 
-	public static boolean checkPipesConnections(TileEntity from, TileEntity to, EnumFacing way, boolean ignoreSystemDisconnection) {
-		if (from == null || to == null) {
-			return false;
-		}
+	public static boolean checkPipesConnections(BlockEntity from, BlockEntity to, Direction way, boolean ignoreSystemDisconnection) {
+		if (from == null || to == null) return false;
 		IPipeInformationProvider fromInfo = SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(from);
-		IPipeInformationProvider toInfo = SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(to);
-		if (fromInfo == null && toInfo == null) {
-			return false;
-		}
-		if (fromInfo != null) {
-			if (!fromInfo.canConnect(to, way, ignoreSystemDisconnection)) {
-				return false;
-			}
-		}
-		if (toInfo != null) {
-			return toInfo.canConnect(from, way.getOpposite(), ignoreSystemDisconnection);
-		}
+		IPipeInformationProvider toInfo   = SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(to);
+		if (fromInfo == null && toInfo == null) return false;
+		if (fromInfo != null && !fromInfo.canConnect(to, way, ignoreSystemDisconnection)) return false;
+		if (toInfo   != null) return toInfo.canConnect(from, way.getOpposite(), ignoreSystemDisconnection);
 		return true;
 	}
 
-	public static boolean isPipeControllerEquipped(EntityPlayer entityplayer) {
-		return entityplayer != null &&
-				!entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() &&
-				entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == LPItems.pipeController;
+	public static boolean isPipeControllerEquipped(Player player) {
+		return player != null &&
+				!player.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() &&
+				player.getItemBySlot(EquipmentSlot.MAINHAND).getItem() == LPItems.pipeController.get();
 	}
 
 	@SubscribeEvent
-	public static void onWorldUnload(WorldEvent.Unload event) {
-		fakePlayers.entrySet().removeIf(entry -> entry.getValue().world == event.getWorld());
+	public static void onWorldUnload(LevelEvent.Unload event) {
+		if (event.getLevel() instanceof Level level) {
+			fakePlayers.keySet().removeIf(key -> key.equals(level.dimension()));
+		}
 	}
 
+	private static boolean needsToBeCompressed(ModernPacket packet) {
+		return false;
+	}
 }

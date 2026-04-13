@@ -1,5 +1,7 @@
 package logisticspipes.request;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -11,11 +13,12 @@ import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+
 
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.routing.IRequestFluid;
@@ -42,9 +45,9 @@ public class RequestHandler {
 		CraftOnly
 	}
 
-	public static void request(final EntityPlayer player, final ItemIdentifierStack stack, final CoreRoutedPipe pipe) {
+	public static void request(final Player player, final ItemIdentifierStack stack, final CoreRoutedPipe pipe) {
 		if (!pipe.useEnergy(5)) {
-			player.sendMessage(new TextComponentTranslation("lp.misc.noenergy"));
+			player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return;
 		}
 		RequestTree.request(new ItemIdentifierStack(stack), pipe, new RequestLog() {
@@ -69,7 +72,7 @@ public class RequestHandler {
 		}, null);
 	}
 
-	public static void simulate(final EntityPlayer player, final ItemIdentifierStack stack, CoreRoutedPipe pipe) {
+	public static void simulate(final Player player, final ItemIdentifierStack stack, CoreRoutedPipe pipe) {
 		final List<IResource> usedList = new ArrayList<>();
 		final List<IResource> missingList = new ArrayList<>();
 		RequestTree.simulate(new ItemIdentifierStack(stack), pipe, new RequestLog() {
@@ -90,7 +93,7 @@ public class RequestHandler {
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ComponentList.class).setUsed(usedList).setMissing(missingList), player);
 	}
 
-	public static void refresh(EntityPlayer player, CoreRoutedPipe pipe, DisplayOptions option) {
+	public static void refresh(Player player, CoreRoutedPipe pipe, DisplayOptions option) {
 		Map<ItemIdentifier, Integer> _availableItems;
 		LinkedList<ItemIdentifier> _craftableItems;
 
@@ -120,9 +123,9 @@ public class RequestHandler {
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class).setIdentSet(_allItems), player);
 	}
 
-	public static void requestList(final EntityPlayer player, final List<ItemIdentifierStack> list, final CoreRoutedPipe pipe) {
+	public static void requestList(final Player player, final List<ItemIdentifierStack> list, final CoreRoutedPipe pipe) {
 		if (!pipe.useEnergy(5)) {
-			player.sendMessage(new TextComponentTranslation("lp.misc.noenergy"));
+			player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return;
 		}
 		RequestTree.request(list, pipe, new RequestLog() {
@@ -145,20 +148,20 @@ public class RequestHandler {
 		}, RequestTree.defaultRequestFlags, null);
 	}
 
-	public static void requestMacrolist(NBTTagCompound itemlist, final CoreRoutedPipe requester, final EntityPlayer player) {
+	public static void requestMacrolist(CompoundTag itemlist, final CoreRoutedPipe requester, final Player player) {
 		if (!requester.useEnergy(5)) {
-			player.sendMessage(new TextComponentTranslation("lp.misc.noenergy"));
+			player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return;
 		}
-		NBTTagList list = itemlist.getTagList("inventar", 10);
-		final List<ItemIdentifierStack> transaction = new ArrayList<>(list.tagCount());
-		for (int i = 0; i < list.tagCount(); i++) {
-			NBTTagCompound itemnbt = list.getCompoundTagAt(i);
-			NBTTagCompound itemNBTContent = itemnbt.getCompoundTag("nbt");
-			if (!itemnbt.hasKey("nbt")) {
+		ListTag list = itemlist.getList("inventar", 10);
+		final List<ItemIdentifierStack> transaction = new ArrayList<>(list.size());
+		for (int i = 0; i < list.size(); i++) {
+			CompoundTag itemnbt = list.getCompound(i);
+			CompoundTag itemNBTContent = itemnbt.getCompound("nbt");
+			if (!itemnbt.contains("nbt")) {
 				itemNBTContent = null;
 			}
-			ItemIdentifierStack stack = ItemIdentifier.get(Item.getItemById(itemnbt.getInteger("id")), itemnbt.getInteger("data"), itemNBTContent).makeStack(itemnbt.getInteger("amount"));
+			ItemIdentifierStack stack = ItemIdentifier.get(BuiltInRegistries.ITEM.byId(itemnbt.getInt("id")), itemnbt.getInt("data"), itemNBTContent).makeStack(itemnbt.getInt("amount"));
 			transaction.add(stack);
 		}
 		RequestTree.request(transaction, requester, new RequestLog() {
@@ -215,7 +218,7 @@ public class RequestHandler {
 		return status;
 	}
 
-	public static void refreshFluid(EntityPlayer player, CoreRoutedPipe pipe) {
+	public static void refreshFluid(Player player, CoreRoutedPipe pipe) {
 		TreeSet<FluidIdentifierStack> _allItems = SimpleServiceLocator.logisticsFluidManager.getAvailableFluid(pipe.getRouter().getIRoutersByCost());
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class)
 						.setIdentSet(
@@ -226,9 +229,9 @@ public class RequestHandler {
 				, player);
 	}
 
-	public static void requestFluid(final EntityPlayer player, final ItemIdentifierStack stack, CoreRoutedPipe pipe, IRequestFluid requester) {
+	public static void requestFluid(final Player player, final ItemIdentifierStack stack, CoreRoutedPipe pipe, IRequestFluid requester) {
 		if (!pipe.useEnergy(10)) {
-			player.sendMessage(new TextComponentTranslation("lp.misc.noenergy"));
+			player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return;
 		}
 

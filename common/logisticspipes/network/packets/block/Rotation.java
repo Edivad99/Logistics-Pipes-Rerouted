@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
 
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
@@ -21,11 +21,13 @@ public class Rotation extends IntegerCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		IRotationProvider tile = this.getTileOrPipe(player.world, IRotationProvider.class);
+	public void processPacket(Player player) {
+		IRotationProvider tile = this.getTileOrPipe(player.level(), IRotationProvider.class);
 		if (tile != null) {
 			tile.setRotation(getInteger());
-			player.world.notifyNeighborsRespectDebug(new BlockPos(getPosX(), getPosY(), getPosZ()), player.world.getBlockState(new BlockPos(getPosX(), getPosY(), getPosZ())).getBlock(), true);
+			// notifyNeighborsRespectDebug removed in 1.20.1 — use updateNeighborsAt
+			BlockPos rPos = new BlockPos(getPosX(), getPosY(), getPosZ());
+			player.level().updateNeighborsAt(rPos, player.level().getBlockState(rPos).getBlock());
 		}
 	}
 }

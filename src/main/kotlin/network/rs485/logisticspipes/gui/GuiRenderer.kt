@@ -103,10 +103,9 @@ object GuiRenderer : WidgetRenderer<WidgetContainer> {
             margin = component.margin,
             text = component.text,
             enabled = component.enabled,
-            onClickAction = {
-                // FIXME: filter mouse button
-                component.action.invoke()
-                return@TextButton true
+            onClickAction = { mouseButton ->
+                if (mouseButton == 0) component.action.invoke()
+                mouseButton == 0
             },
         )
 

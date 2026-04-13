@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.minecraftforge.fluids.FluidStack;
 
@@ -58,7 +58,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 		AtomicInteger attemptedAmount = new AtomicInteger();
 		amountToSend.set(Math.min(order.getAmount(), 5000));
 		attemptedAmount.set(Math.min(order.getAmount(), 5000));
-		for (Pair<NeighborTileEntity<TileEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
 			if (amountToSend.get() <= 0) {
 				break;
 			}
@@ -68,9 +68,9 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 				fallback = false;
 				ISpecialTankAccessHandler handler = util.getSpecialHandler();
 				FluidStack drained = handler.drainFrom(pair.getValue1().getTileEntity(), order.getFluid(), amountToSend.get(), false);
-				if (drained != null && drained.amount > 0 && order.getFluid().equals(FluidIdentifier.get(drained))) {
+				if (drained != null && drained.getAmount() > 0 && order.getFluid().equals(FluidIdentifier.get(drained))) {
 					drained = handler.drainFrom(pair.getValue1().getTileEntity(), order.getFluid(), amountToSend.get(), true);
-					int amount = drained.amount;
+					int amount = drained.getAmount();
 					amountToSend.addAndGet(-amount);
 					ItemIdentifierStack stack = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(FluidIdentifierStack.getFromStack(drained));
 					IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
@@ -85,7 +85,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 			}
 			if (fallback) {
 				if (pair.getValue2().containsTanks()) {
-					pair.getValue2().tanks().map(tank -> FluidIdentifierStack.getFromStack(tank.getContents())).forEach(fluidStack -> {
+					pair.getValue2().tanks().map(tank -> FluidIdentifierStack.getFromStack(tank)).forEach(fluidStack -> {
 						if (amountToSend.get() <= 0) {
 							return;
 						}
@@ -127,13 +127,13 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 	@Override
 	public Map<FluidIdentifier, Integer> getAvailableFluids() {
 		Map<FluidIdentifier, Integer> map = new HashMap<>();
-		for (Pair<NeighborTileEntity<TileEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
 			boolean fallback = true;
 			if (pair.getValue2() instanceof ISpecialTankUtil) {
 				final ISpecialTankUtil util = (ISpecialTankUtil) pair.getValue2();
 				fallback = false;
 				ISpecialTankAccessHandler handler = util.getSpecialHandler();
-				TileEntity tile = util.getTileEntity();
+				BlockEntity tile = util.getTileEntity();
 				Map<FluidIdentifier, Long> tmp = handler.getAvailableLiquid(tile);
 				for (Entry<FluidIdentifier, Long> entry : tmp.entrySet()) {
 					if (map.containsKey(entry.getKey())) {
@@ -146,7 +146,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 			}
 			if (fallback) {
 				if (pair.getValue2().containsTanks()) {
-					pair.getValue2().tanks().map(tank -> FluidIdentifierStack.getFromStack(tank.getContents())).forEach(liquid -> {
+					pair.getValue2().tanks().map(tank -> FluidIdentifierStack.getFromStack(tank)).forEach(liquid -> {
 						if (liquid != null && liquid.getFluid() != null) {
 							FluidIdentifier ident = liquid.getFluid();
 							if (pair.getValue2().canDrain(ident)) {
@@ -191,13 +191,13 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 		}
 		FluidIdentifier fluid = ((FluidResource) tree.getRequestType()).getFluid();
 		AtomicInteger containedAmount = new AtomicInteger(0);
-		for (Pair<NeighborTileEntity<TileEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
 			boolean fallback = true;
 			if (pair.getValue2() instanceof ISpecialTankUtil) {
 				final ISpecialTankUtil util = (ISpecialTankUtil) pair.getValue2();
 				fallback = false;
 				ISpecialTankAccessHandler handler = util.getSpecialHandler();
-				TileEntity tile = util.getTileEntity();
+				BlockEntity tile = util.getTileEntity();
 				Map<FluidIdentifier, Long> map = handler.getAvailableLiquid(tile);
 				if (map.containsKey(fluid)) {
 					long addition = (containedAmount.get()) + map.get(fluid);
@@ -206,7 +206,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 			}
 			if (fallback) {
 				if (pair.getValue2().containsTanks()) {
-					pair.getValue2().tanks().map(tank -> FluidIdentifierStack.getFromStack(tank.getContents())).forEach(liquid -> {
+					pair.getValue2().tanks().map(tank -> FluidIdentifierStack.getFromStack(tank)).forEach(liquid -> {
 						if (liquid != null && liquid.getFluid() != null) {
 							if (fluid.equals(liquid.getFluid())) {
 								if (pair.getValue2().canDrain(liquid.getFluid())) {
@@ -249,20 +249,20 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 	@Override
 	//work in progress, currently not active code.
 	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
-		for (Pair<NeighborTileEntity<TileEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
 			boolean fallback = true;
 			if (pair.getValue2() instanceof ISpecialTankUtil) {
 				final ISpecialTankUtil util = (ISpecialTankUtil) pair.getValue2();
 				fallback = false;
 				ISpecialTankAccessHandler handler = util.getSpecialHandler();
-				TileEntity tile = util.getTileEntity();
+				BlockEntity tile = util.getTileEntity();
 				handler.getAvailableLiquid(tile).keySet().stream()
 						.map(FluidIdentifier::getItemIdentifier)
 						.forEach(itemIdentifiers::add);
 			}
 			if (fallback) {
 				if (pair.getValue2().containsTanks()) {
-					pair.getValue2().tanks().map(tank -> FluidIdentifierStack.getFromStack(tank.getContents())).forEach(liquid -> {
+					pair.getValue2().tanks().map(tank -> FluidIdentifierStack.getFromStack(tank)).forEach(liquid -> {
 						if (liquid != null && liquid.getFluid() != null) {
 							if (pair.getValue2().canDrain(liquid.getFluid())) {
 								if (pair.getValue2().drain(1, false) != null) {

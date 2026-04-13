@@ -1,8 +1,8 @@
 package logisticspipes.utils;
 
-import net.minecraft.inventory.IInventory;
+import net.minecraft.world.Container;
 
 public interface ISimpleInventoryEventHandler {
 
-	void InventoryChanged(IInventory inventory);
+	void InventoryChanged(Container inventory);
 }

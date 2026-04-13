@@ -38,10 +38,11 @@
 package network.rs485.logisticspipes.util
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.FontRenderer
-import net.minecraft.client.resources.I18n
-import net.minecraft.item.ItemStack
-import net.minecraft.util.text.TextFormatting
+import net.minecraft.client.gui.Font
+import net.minecraft.client.resources.language.I18n
+import net.minecraft.locale.Language
+import net.minecraft.world.item.ItemStack
+import net.minecraft.ChatFormatting
 import java.text.NumberFormat
 import java.util.*
 
@@ -49,10 +50,10 @@ object TextUtil {
 
     private const val holdShiftTooltip: String = "misc.holdshift"
     private val numberPrefixes: List<Pair<Double, String>> = listOf(1e0 to "", 1e3 to "k", 1e6 to "M", 1e9 to "G", 1e12 to "T", 1e15 to "P", 1e18 to "E")
-    private val formattingState: EnumSet<TextFormatting> = EnumSet.noneOf(TextFormatting::class.java)
-    private val baseFormattingState: EnumSet<TextFormatting> = EnumSet.noneOf(TextFormatting::class.java)
+    private val formattingState: EnumSet<ChatFormatting> = EnumSet.noneOf(ChatFormatting::class.java)
+    private val baseFormattingState: EnumSet<ChatFormatting> = EnumSet.noneOf(ChatFormatting::class.java)
     private val regexPattern =
-            TextFormatting.values().joinToString("|", prefix = "(\\$)(", postfix = ")") { it.friendlyName.uppercase() }
+            ChatFormatting.values().joinToString("|", prefix = "(\\$)(", postfix = ")") { it.getName().uppercase() }
                     .toRegex()
 
     @JvmStatic
@@ -62,25 +63,25 @@ object TextUtil {
     ): String =
             translate(
                     key = key,
-                    baseFormatting = EnumSet.noneOf(TextFormatting::class.java),
+                    baseFormatting = EnumSet.noneOf(ChatFormatting::class.java),
                     args = args
             )
 
     @JvmStatic
     fun translate(
         key: String,
-        baseFormatting: EnumSet<TextFormatting> = EnumSet.noneOf(TextFormatting::class.java),
+        baseFormatting: EnumSet<ChatFormatting> = EnumSet.noneOf(ChatFormatting::class.java),
         prepend: String = "",
         append: String = "",
         args: Array<out String>,
-    ): String = transform(prepend + I18n.format(key, *args) + append, baseFormatting)
+    ): String = transform(prepend + I18n.get(key, *args) + append, baseFormatting)
 
     @JvmStatic
-    fun getTrimmedString(text: String, maxWidth: Int, fontRenderer: FontRenderer, postfix: CharSequence = "..."): String {
-        if (fontRenderer.getStringWidth(text) < maxWidth) return text
+    fun getTrimmedString(text: String, maxWidth: Int, fontRenderer: Font, postfix: CharSequence = "..."): String {
+        if (fontRenderer.width(text) < maxWidth) return text
         var result = ""
         text.takeWhile { char ->
-            (fontRenderer.getStringWidth(result + char + postfix) < maxWidth).also { fitsInWidth ->
+            (fontRenderer.width(result + char + postfix) < maxWidth).also { fitsInWidth ->
                 if (fitsInWidth) {
                     result += char
                 }
@@ -117,16 +118,16 @@ object TextUtil {
     }
 
     @JvmStatic
-    fun addTooltipInformation(stack: ItemStack, tooltip: MutableList<String>, extended: Boolean){
+    fun addTooltipInformation(stack: ItemStack, tooltip: MutableList<net.minecraft.network.chat.Component>, extended: Boolean){
         if(extended) {
             var tooltipLine = 1
-            while(I18n.hasKey("${stack.translationKey}.tip$tooltipLine")){
-                tooltip += translate("${stack.translationKey}.tip$tooltipLine")
+            while(Language.getInstance().has("${stack.descriptionId}.tip$tooltipLine")){
+                tooltip += net.minecraft.network.chat.Component.literal(translate("${stack.descriptionId}.tip$tooltipLine"))
                 tooltipLine++
             }
         } else {
-            if(I18n.hasKey("${stack.translationKey}.tip1")){
-                tooltip += translate(holdShiftTooltip)
+            if(Language.getInstance().has("${stack.descriptionId}.tip1")){
+                tooltip += net.minecraft.network.chat.Component.literal(translate(holdShiftTooltip))
             }
         }
     }
@@ -139,7 +140,7 @@ object TextUtil {
      * @param baseFormatting to be applied at the start of the string and will be preserved throughout.
      * @return formatted string ready to be rendered by Minecraft's font renderer.
      */
-    fun transform(text: String, baseFormatting: EnumSet<TextFormatting>): String {
+    fun transform(text: String, baseFormatting: EnumSet<ChatFormatting>): String {
         baseFormattingState.clear()
         baseFormattingState.addAll(baseFormatting)
         formattingState.clear()
@@ -157,10 +158,10 @@ object TextUtil {
 
     @JvmStatic
     fun formatNumberWithCommas(number: Long): String =
-            NumberFormat.getNumberInstance(Minecraft.getMinecraft().languageManager.currentLanguage.javaLocale).format(number)
+            NumberFormat.getNumberInstance(Minecraft.getInstance().languageManager.javaLocale).format(number)
 
-    private fun getReplacementString(formatting: TextFormatting): String {
-        if (formatting == TextFormatting.RESET) {
+    private fun getReplacementString(formatting: ChatFormatting): String {
+        if (formatting == ChatFormatting.RESET) {
             formattingState.clear()
             return formatting.toString() + baseFormattingState.getColorTag() + baseFormattingState.getFormattingTags()
         }
@@ -171,12 +172,12 @@ object TextUtil {
         return formattingState.getColorTag() + formattingState.getFormattingTags()
     }
 
-    private fun MatchResult.getTextFormatting(): TextFormatting = TextFormatting.getValueByName(value.lowercase())!!
+    private fun MatchResult.getTextFormatting(): ChatFormatting = ChatFormatting.getByName(value.lowercase())!!
 
-    private fun EnumSet<TextFormatting>.getColorTag(): String =
+    private fun EnumSet<ChatFormatting>.getColorTag(): String =
             this.firstOrNull { it.isColor }?.toString() ?: baseFormattingState.firstOrNull { it.isColor }?.toString()
             ?: ""
 
-    private fun EnumSet<TextFormatting>.getFormattingTags(): String =
-            (this + baseFormattingState).filter { it.isFancyStyling }.joinToString(separator = "") { it.toString() }
+    private fun EnumSet<ChatFormatting>.getFormattingTags(): String =
+            (this + baseFormattingState).filter { it.isFormat }.joinToString(separator = "") { it.toString() }
 }

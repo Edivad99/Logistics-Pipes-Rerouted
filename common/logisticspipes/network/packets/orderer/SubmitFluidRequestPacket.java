@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.orderer;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -24,7 +24,7 @@ public class SubmitFluidRequestPacket extends RequestPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		final LogisticsTileGenericPipe pipe = MainProxy.proxy.getPipeInDimensionAt(getDimension(), getPosX(), getPosY(), getPosZ(), player);
 		if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe) || !(pipe.pipe instanceof IRequestFluid)) {
 			return;

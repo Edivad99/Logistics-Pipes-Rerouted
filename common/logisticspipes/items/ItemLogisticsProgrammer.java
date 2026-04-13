@@ -4,15 +4,15 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -21,49 +21,47 @@ public class ItemLogisticsProgrammer extends LogisticsItem {
 	public static final String RECIPE_TARGET = "LogisticsRecipeTarget";
 
 	public ItemLogisticsProgrammer() {
-		super();
-		setNoRepair();
-		setContainerItem(this);
+		super(new Item.Properties().stacksTo(1));
 	}
 
 	@Nonnull
 	@Override
-	public ItemStack getContainerItem(@Nonnull ItemStack itemStack) {
-		ItemStack items = super.getContainerItem(itemStack);
-		items.setTagCompound(itemStack.getTagCompound());
+	public ItemStack getCraftingRemainingItem(@Nonnull ItemStack itemStack) {
+		ItemStack items = super.getCraftingRemainingItem(itemStack);
+		items.setTag(itemStack.getTag());
 		return items;
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+	@OnlyIn(Dist.CLIENT)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
 		if (!stack.isEmpty()) {
-			if (stack.hasTagCompound()) {
-				NBTTagCompound nbt = stack.getTagCompound();
+			if (stack.hasTag()) {
+				CompoundTag nbt = stack.getTag();
 				String target = nbt.getString(RECIPE_TARGET);
 				if (!target.isEmpty()) {
-					Item targetItem = REGISTRY.getObject(new ResourceLocation(target));
+					Item targetItem = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(new ResourceLocation(target));
 					if (targetItem instanceof ItemModule) {
-						tooltip.add(TextUtil.translate("tooltip.programmerForModule"));
-						tooltip.add(TextUtil.translate(targetItem.getTranslationKey() + ".name"));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForModule")));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate(targetItem.getDescriptionId() + ".name")));
 					} else if (targetItem instanceof ItemUpgrade) {
-						tooltip.add(TextUtil.translate("tooltip.programmerForUpgrade"));
-						tooltip.add(TextUtil.translate(targetItem.getTranslationKey() + ".name"));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForUpgrade")));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate(targetItem.getDescriptionId() + ".name")));
 					} else if (targetItem instanceof ItemLogisticsPipe) {
-						tooltip.add(TextUtil.translate("tooltip.programmerForPipe"));
-						tooltip.add(TextUtil.translate(targetItem.getTranslationKey() + ".name"));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForPipe")));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate(targetItem.getDescriptionId() + ".name")));
 					} else {
-						tooltip.add(TextUtil.translate("tooltip.programmerForUnknown.1"));
-						tooltip.add(TextUtil.translate("tooltip.programmerForUnknown.2"));
-						tooltip.add(TextUtil.translate("tooltip.programmerForUnknown.3"));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForUnknown.1")));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForUnknown.2")));
+						tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForUnknown.3")));
 					}
 				}
 			} else {
-				tooltip.add(TextUtil.translate("tooltip.programmerForUnknown.1"));
-				tooltip.add(TextUtil.translate("tooltip.programmerForUnknown.2"));
-				tooltip.add(TextUtil.translate("tooltip.programmerForUnknown.3"));
+				tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForUnknown.1")));
+				tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForUnknown.2")));
+				tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.programmerForUnknown.3")));
 			}
 		}
-		super.addInformation(stack, worldIn, tooltip, flagIn);
+		super.appendHoverText(stack, worldIn, tooltip, flagIn);
 	}
 }

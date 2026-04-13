@@ -7,9 +7,9 @@
 
 package logisticspipes.routing;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public interface IPaintPath {
 
-	void addLaser(World world, LaserData laser);
+	void addLaser(Level world, LaserData laser);
 }

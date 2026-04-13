@@ -1,10 +1,11 @@
 package logisticspipes.renderer.newpipe;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 
@@ -18,32 +19,32 @@ import logisticspipes.proxy.object3d.operation.LPUVScale;
 
 public class LogisticsNewSolidBlockWorldRenderer {
 
-	enum CoverSides {
-		DOWN(EnumFacing.DOWN, "D"),
-		NORTH(EnumFacing.NORTH, "N"),
-		SOUTH(EnumFacing.SOUTH, "S"),
-		WEST(EnumFacing.WEST, "W"),
-		EAST(EnumFacing.EAST, "E");
+	public enum CoverSides {
+		DOWN(Direction.DOWN, "D"),
+		NORTH(Direction.NORTH, "N"),
+		SOUTH(Direction.SOUTH, "S"),
+		WEST(Direction.WEST, "W"),
+		EAST(Direction.EAST, "E");
 
-		private EnumFacing dir;
+		private Direction dir;
 		@Getter
 		private String letter;
 
-		CoverSides(EnumFacing dir, String letter) {
+		CoverSides(Direction dir, String letter) {
 			this.dir = dir;
 			this.letter = letter;
 		}
 
-		public EnumFacing getDir(BlockRotation rot) {
-			EnumFacing result = dir;
-			if (result != EnumFacing.DOWN) {
+		public Direction getDir(BlockRotation rot) {
+			Direction result = dir;
+			if (result != Direction.DOWN) {
 				switch (rot.getInteger()) {
 					case 0:
-						result = result.rotateY();
+						result = result.getClockWise();
 					case 3:
-						result = result.rotateY();
+						result = result.getClockWise();
 					case 1:
-						result = result.rotateY();
+						result = result.getClockWise();
 					case 2:
 				}
 			}
@@ -51,7 +52,7 @@ public class LogisticsNewSolidBlockWorldRenderer {
 		}
 	}
 
-	enum BlockRotation {
+	public enum BlockRotation {
 		ZERO(0),
 		ONE(1),
 		TWO(2),
@@ -74,9 +75,9 @@ public class LogisticsNewSolidBlockWorldRenderer {
 		}
 	}
 
-	static Map<BlockRotation, IModel3D> block = new HashMap<>();
-	static Map<CoverSides, Map<BlockRotation, IModel3D>> texturePlate_Inner = new HashMap<>();
-	static Map<CoverSides, Map<BlockRotation, IModel3D>> texturePlate_Outer = new HashMap<>();
+	public static Map<BlockRotation, IModel3D> block = new HashMap<>();
+	public static Map<CoverSides, Map<BlockRotation, IModel3D>> texturePlate_Inner = new HashMap<>();
+	public static Map<CoverSides, Map<BlockRotation, IModel3D>> texturePlate_Outer = new HashMap<>();
 
 	public static void loadModels() {
 		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
@@ -120,24 +121,31 @@ public class LogisticsNewSolidBlockWorldRenderer {
 	}
 
 	private static Map<BlockRotation, IModel3D> computeRotated(IModel3D m) {
-		m.apply(new LPUVScale(1, 0.75));
+		// Scale V by 95/128 ≈ 0.742 rather than 96/128 = 0.750.
+		// The solid-block textures are 128×128 with content in rows 0–95 and transparent
+		// padding in rows 96–127.  After the V-flip in OBJParser the OBJ v=0 vertex maps
+		// to v_mc = 1.0, and scale × 1.0 must land inside row 95, not on the row-95/96
+		// boundary (0.75) where bilinear filtering mixes in the transparent row 96 and
+		// produces A ≈ 127 — just below the cutout alpha threshold — making those faces
+		// render as transparent / black.
+		m = m.apply(new LPUVScale(1, 0.742));
 		Map<BlockRotation, IModel3D> map = new HashMap<>();
 		for (BlockRotation rot : BlockRotation.values()) {
 			IModel3D model = m.copy();
 			switch (rot.getInteger()) {
 				case 0:
-					model.apply(LPRotation.sideOrientation(0, 3));
-					model.apply(new LPTranslation(0, 0, 1));
+					model = model.apply(LPRotation.sideOrientation(0, 3));
+					model = model.apply(new LPTranslation(0, 0, 1));
 					break;
 				case 1:
-					model.apply(LPRotation.sideOrientation(0, 1));
-					model.apply(new LPTranslation(1, 0, 0));
+					model = model.apply(LPRotation.sideOrientation(0, 1));
+					model = model.apply(new LPTranslation(1, 0, 0));
 					break;
 				case 2:
 					break;
 				case 3:
-					model.apply(LPRotation.sideOrientation(0, 2));
-					model.apply(new LPTranslation(1, 0, 1));
+					model = model.apply(LPRotation.sideOrientation(0, 2));
+					model = model.apply(new LPTranslation(1, 0, 1));
 					break;
 			}
 			model.computeNormals();
@@ -147,8 +155,8 @@ public class LogisticsNewSolidBlockWorldRenderer {
 		return map;
 	}
 /*
-	public void renderWorldBlock(IBlockAccess world, LogisticsSolidTileEntity blockTile, RenderBlocks renderer, int x, int y, int z) {
-		Tessellator tess = Tessellator.instance;
+	public void renderWorldBlock(BlockGetter world, LogisticsSolidTileEntity blockTile, Object renderer, int x, int y, int z) { // renderer was RenderBlocks, removed in 1.20.1
+		// TODO: rendering deferred — Tessellator tess = Tessellator.instance;
 		SimpleServiceLocator.cclProxy.getRenderState().reset();
 		SimpleServiceLocator.cclProxy.getRenderState().setUseNormals(true);
 		SimpleServiceLocator.cclProxy.getRenderState().setAlphaOverride(0xff);
@@ -176,7 +184,7 @@ public class LogisticsNewSolidBlockWorldRenderer {
 			for (CoverSides side : CoverSides.values()) {
 				boolean render = true;
 				DoubleCoordinates newPos = CoordinateUtils.sum(pos, side.getDir(rotation));
-				TileEntity sideTile = newPos.getTileEntity(blockTile.getworld());
+				BlockEntity sideTile = newPos.getBlockEntity(blockTile.getworld());
 				if (sideTile instanceof LogisticsTileGenericPipe) {
 					LogisticsTileGenericPipe tilePipe = (LogisticsTileGenericPipe) sideTile;
 					if (tilePipe.renderState.pipeConnectionMatrix.isConnected(side.getDir(rotation).getOpposite())) {
@@ -193,14 +201,14 @@ public class LogisticsNewSolidBlockWorldRenderer {
 	}
 
 	public void renderInventoryBlock(Block block2, int metadata) {
-		GL11.glPushAttrib(GL11.GL_COLOR_BUFFER_BIT); //don't break other mods' guis when holding a pipe
+		// TODO: glPushAttrib removed //don't break other mods' guis when holding a pipe
 		//force transparency
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glEnable(GL11.GL_BLEND);
+		// TODO: glBlendFunc → RenderSystem.blendFunc()
+		RenderSystem.enableBlend();
 
-		GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+		// TODO: GL11.glTranslatef → poseStack.translate(-0.5F, -0.5F, -0.5F)
 		Block block = LogisticsPipes.LogisticsPipeBlock;
-		Tessellator tess = Tessellator.instance;
+		// TODO: rendering deferred — Tessellator tess = Tessellator.instance;
 
 		BlockRotation rotation = BlockRotation.ZERO;
 
@@ -218,7 +226,7 @@ public class LogisticsNewSolidBlockWorldRenderer {
 		tess.draw();
 		block.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 
-		GL11.glPopAttrib(); // nicely leave the rendering how it was
+		// TODO: glPopAttrib removed // nicely leave the rendering how it was
 	}*/
 
 }

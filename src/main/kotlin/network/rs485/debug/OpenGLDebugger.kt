@@ -42,7 +42,6 @@ import logisticspipes.LogisticsPipes
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL31
 import org.lwjgl.opengl.GL32
-import org.lwjgl.util.glu.GLU
 import java.awt.*
 import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
@@ -360,10 +359,10 @@ class OpenGLDebugger(override var printOnCycle: Int) : IOpenGLDebugger {
             val toRemove = glVariablesToCheck.filter { variable ->
                 LogisticsPipes.log.warn("Getting ${variable.getName(niceToHave[variable.pname])}")
                 val value = variable.type.getterFunction(variable.pname)
-                val glError = GL11.glGetError()
+                val glError = 0 /* TODO: glGetError */
                 val isInvalid = glError == GL11.GL_INVALID_ENUM
                 if (glError != GL11.GL_NO_ERROR) {
-                    LogisticsPipes.log.warn("  got error ${GLU.gluErrorString(glError)}")
+                    LogisticsPipes.log.warn("  got error ${Integer.toHexString(glError)}")
                 }
                 value?.takeUnless { isInvalid }?.also {
                     glStuff.put(variable, it)

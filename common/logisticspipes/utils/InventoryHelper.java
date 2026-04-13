@@ -1,10 +1,11 @@
 package logisticspipes.utils;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import javax.annotation.Nullable;
 
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.transactor.ITransactor;
@@ -14,19 +15,20 @@ import network.rs485.logisticspipes.inventory.ProviderMode;
 public class InventoryHelper {
 
 	//BC getTransactorFor using our getInventory
-	public static ITransactor getTransactorFor(Object object, EnumFacing dir) {
-		if (object instanceof TileEntity) {
-			ITransactor t = SimpleServiceLocator.inventoryUtilFactory.getSpecialHandlerFor((TileEntity) object, dir, ProviderMode.DEFAULT);
+	public static ITransactor getTransactorFor(Object object, @Nullable Direction dir) {
+		if (object instanceof BlockEntity tile) {
+			ITransactor t = SimpleServiceLocator.inventoryUtilFactory.getSpecialHandlerFor(tile, dir, ProviderMode.DEFAULT);
 			if (t != null) {
 				return t;
 			}
+			// NeoForge 1.20.1: BlockCapability queried via static method
+			if (tile.getLevel() != null) {
+				var handler = tile.getCapability(ForgeCapabilities.ITEM_HANDLER, dir).orElse(null);
+				if (handler != null) {
+					return new TransactorSimple(handler);
+				}
+			}
 		}
-
-		if (object instanceof ICapabilityProvider && ((ICapabilityProvider) object).hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, dir)) {
-			return new TransactorSimple(((ICapabilityProvider) object).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, dir));
-		}
-
 		return null;
-
 	}
 }

@@ -1,12 +1,12 @@
 package logisticspipes.proxy.interfaces;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public interface IEnderStorageProxy {
 
 	boolean isEnderChestBlock(Block block);
 
-	void openEnderChest(World world, int x, int y, int z, EntityPlayer player);
+	void openEnderChest(Level world, int x, int y, int z, Player player);
 }

@@ -1,13 +1,15 @@
+
 package logisticspipes.gui.orderer;
 
-import java.io.IOException;
+import net.minecraft.client.gui.GuiGraphics;
+
 import javax.annotation.Nonnull;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 
-import org.lwjgl.opengl.GL11;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
+
 
 import logisticspipes.gui.popup.GuiDiskPopup;
 import logisticspipes.interfaces.IDiskProvider;
@@ -26,50 +28,46 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 	public PipeItemsRequestLogisticsMk2 pipe;
 	private SmallGuiButton macroButton;
 
-	public NormalMk2GuiOrderer(PipeItemsRequestLogisticsMk2 RequestPipeMK2, EntityPlayer entityPlayer) {
-		super(RequestPipeMK2.getX(), RequestPipeMK2.getY(), RequestPipeMK2.getZ(), RequestPipeMK2.getWorld().provider.getDimension(), entityPlayer);
+	public NormalMk2GuiOrderer(PipeItemsRequestLogisticsMk2 RequestPipeMK2, Player entityPlayer) {
+		super(RequestPipeMK2.getX(), RequestPipeMK2.getY(), RequestPipeMK2.getZ(), RequestPipeMK2.getWorld().dimension().location().hashCode(), entityPlayer);
 		pipe = RequestPipeMK2;
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.add(macroButton = new SmallGuiButton(12, right - 55, bottom - 60, 50, 10, "Disk"));
-		macroButton.enabled = false;
+	public void init() {
+		super.init();
+		macroButton = new SmallGuiButton(12, right - 55, bottom - 60, 50, 10, "Disk");
+		macroButton.setPressListener(b -> {
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
+			minecraft.setScreen(new GuiDiskPopup(this));
+		});
+		addRenderableWidget(macroButton);
+		macroButton.active = false;
 	}
 
 	@Override
-	public void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		super.drawGuiContainerBackgroundLayer(f, i, j);
+	public void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+		super.renderBg(guiGraphics, f, i, j);
 
-		drawRect(right - 39, bottom - 47, right - 19, bottom - 27, Color.BLACK);
-		drawRect(right - 37, bottom - 45, right - 21, bottom - 29, Color.DARKER_GREY);
+		guiGraphics.fill(right - 39, bottom - 47, right - 19, bottom - 27, Color.getValue(Color.BLACK));
+		guiGraphics.fill(right - 37, bottom - 45, right - 21, bottom - 29, Color.getValue(Color.DARKER_GREY));
 
 		if (pipe.getDisk() != null) {
-			itemRender.renderItemIntoGUI(pipe.getDisk(), right - 37, bottom - 45);
-			macroButton.enabled = true;
+			guiGraphics.renderItem(pipe.getDisk(), right - 36, bottom - 44);
+			macroButton.active = true;
 		} else {
-			macroButton.enabled = false;
+			macroButton.active = false;
 		}
-		GL11.glDisable(2896 /*GL_LIGHTING*/);
 	}
 
 	@Override
-	protected void mouseClicked(int x, int y, int k) throws IOException {
+	public boolean mouseClicked(double x, double y, int k) {
 		if (x >= right - 39 && x < right - 19 && y >= bottom - 47 && y < bottom - 27) {
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskDropPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
+			return true;
 		} else {
-			super.mouseClicked(x, y, k);
-		}
-	}
-
-	@Override
-	protected void actionPerformed(GuiButton guibutton) throws IOException {
-		super.actionPerformed(guibutton);
-		if (guibutton.id == 12) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
-			setSubGui(new GuiDiskPopup(this));
+			return super.mouseClicked(x, y, k);
 		}
 	}
 
@@ -81,13 +79,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 
 	@Override
 	public void specialItemRendering(ItemIdentifier item, int x, int y) {
-		/*
-		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		if (SimpleServiceLocator.thaumCraftProxy.isScannedObject(item.unsafeMakeNormalStack(1), mc.thePlayer.getName())) {
-			SimpleServiceLocator.thaumCraftProxy.renderAspectsDown(item.unsafeMakeNormalStack(1), -20, 10, this);
-		}
-		GL11.glPopAttrib();
-		*/
+		// ThaumCraft integration not ported to 1.20.1
 	}
 
 	@Override

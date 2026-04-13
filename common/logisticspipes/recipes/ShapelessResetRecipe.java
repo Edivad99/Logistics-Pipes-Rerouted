@@ -1,65 +1,85 @@
 package logisticspipes.recipes;
 
-import javax.annotation.Nonnull;
+import com.google.gson.JsonObject;
 
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.world.World;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.Level;
 
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import logisticspipes.LPConstants;
 
-public class ShapelessResetRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe {
+/**
+ * A crafting recipe that produces a clean (NBT-stripped) copy of a specific item.
+ * Matches a crafting grid containing exactly one instance of the target item.
+ * Used to reset module/orderer state.
+ */
+public class ShapelessResetRecipe extends CustomRecipe {
 
-	private final Item item;
-	private final int meta;
-	private final ItemStack output;
+	public static final ResourceLocation ID = new ResourceLocation(LPConstants.LP_MOD_ID, "reset");
 
-	public ShapelessResetRecipe(Item item, int meta) {
-		output = new ItemStack(item, 1, meta);
-		this.item = item;
-		this.meta = meta;
-	}
+	public static final RecipeSerializer<ShapelessResetRecipe> SERIALIZER = new RecipeSerializer<>() {
 
-	@Override
-	public boolean matches(InventoryCrafting var1, World var2) {
-		int nmatches = 0;
-		for (int i = 0; i < var1.getSizeInventory(); i++) {
-			ItemStack stack = var1.getStackInSlot(i);
-			if (stack.isEmpty()) {
-				continue;
-			}
-			if (stack.getItem() != item || stack.getItemDamage() != meta) {
-				return false;
-			}
-			nmatches++;
+		@Override
+		public ShapelessResetRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+			Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.get("item").getAsString()));
+			return new ShapelessResetRecipe(recipeId, CraftingBookCategory.MISC, item);
 		}
-		return (nmatches > 0);
-	}
 
-	@Nonnull
-	@Override
-	public ItemStack getCraftingResult(InventoryCrafting var1) {
-		int nmatches = 0;
-		for (int i = 0; i < var1.getSizeInventory(); i++) {
-			if (var1.getStackInSlot(i).isEmpty()) {
-				continue;
-			}
-			nmatches++;
+		@Override
+		public ShapelessResetRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buf) {
+			Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(buf.readResourceLocation());
+			return new ShapelessResetRecipe(recipeId, CraftingBookCategory.MISC, item);
 		}
-		return new ItemStack(item, nmatches, meta);
+
+		@Override
+		public void toNetwork(FriendlyByteBuf buf, ShapelessResetRecipe recipe) {
+			buf.writeResourceLocation(net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(recipe.targetItem));
+		}
+	};
+
+	private final Item targetItem;
+
+	public ShapelessResetRecipe(ResourceLocation id, CraftingBookCategory category, Item targetItem) {
+		super(id, category);
+		this.targetItem = targetItem;
 	}
 
 	@Override
-	public boolean canFit(int width, int height) {
+	public boolean matches(CraftingContainer input, Level level) {
+		boolean found = false;
+		for (int i = 0; i < input.getContainerSize(); i++) {
+			ItemStack stack = input.getItem(i);
+			if (!stack.isEmpty()) {
+				if (stack.getItem() == targetItem) {
+					if (found) return false; // only one allowed
+					found = true;
+				} else {
+					return false; // no other items allowed
+				}
+			}
+		}
+		return found;
+	}
+
+	@Override
+	public ItemStack assemble(CraftingContainer input, RegistryAccess registry) {
+		return new ItemStack(targetItem);
+	}
+
+	@Override
+	public boolean canCraftInDimensions(int width, int height) {
 		return true;
 	}
 
-	@Nonnull
 	@Override
-	public ItemStack getRecipeOutput() {
-		return output;
+	public RecipeSerializer<?> getSerializer() {
+		return SERIALIZER;
 	}
-
 }

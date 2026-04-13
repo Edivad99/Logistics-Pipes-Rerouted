@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.abstractpackets.Integer2ModuleCoordinatesPacket;
@@ -21,13 +21,13 @@ public class FluidCraftingAmount extends Integer2ModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		ModuleCrafter module = this.getLogisticsModule(player, ModuleCrafter.class);
 		if (module == null) {
 			return;
 		}
 		// integer2 is the slot and integer is the amount
-		if (MainProxy.isClient(player.world)) {
+		if (MainProxy.isClient(player.level())) {
 			module.liquidAmounts.set(getInteger2(), getInteger());
 		} else {
 			module.changeFluidAmount(getInteger(), getInteger2(), player);

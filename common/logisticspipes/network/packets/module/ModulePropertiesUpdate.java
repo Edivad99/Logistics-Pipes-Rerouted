@@ -3,9 +3,9 @@ package logisticspipes.network.packets.module;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
@@ -22,7 +22,7 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 
 	@Nonnull
-	public NBTTagCompound tag = new NBTTagCompound();
+	public CompoundTag tag = new CompoundTag();
 
 	public ModulePropertiesUpdate(int id) {
 		super(id);
@@ -31,13 +31,13 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 	@Override
 	public void writeData(LPDataOutput output) {
 		super.writeData(output);
-		output.writeNBTTagCompound(tag);
+		output.writeCompoundTag(tag);
 	}
 
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
-		tag = Objects.requireNonNull(input.readNBTTagCompound(), "read null NBT in ModulePropertiesUpdate");
+		tag = Objects.requireNonNull(input.readCompoundTag(), "read null NBT in ModulePropertiesUpdate");
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		final LogisticsModule module = this.getLogisticsModule(player, LogisticsModule.class);
 		if (module == null) {
 			return;
@@ -55,14 +55,13 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 		// sync updated properties
 		module.readFromNBT(tag);
 
-		if (!getType().isInWorld() && player.openContainer instanceof ContainerPlayer) {
-			// FIXME: saveInformation & markDirty on module property change? should be called only once
+		if (!getType().isInWorld() && player.containerMenu instanceof InventoryMenu) {
 			// sync slot in player inventory and mark player inventory dirty
-			ItemModuleInformationManager.saveInformation(player.inventory.mainInventory.get(getPositionInt()), module);
-			player.inventory.markDirty();
+			ItemModuleInformationManager.saveInformation(player.getInventory().items.get(getPositionInt()), module);
+			player.getInventory().setChanged();
 		}
 
-		MainProxy.runOnServer(player.world, () -> () -> {
+		MainProxy.runOnServer(player.level(), () -> () -> {
 			// resync client; always
 			MainProxy.sendPacketToPlayer(fromPropertyHolder(module).setModulePos(module), player);
 		});

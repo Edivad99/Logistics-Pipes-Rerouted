@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -59,8 +59,8 @@ public class ParticleFX extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (!Minecraft.isFancyGraphicsEnabled()) {
+	public void processPacket(Player player) {
+		if (net.minecraft.client.Minecraft.getInstance().options.graphicsMode().get().getId() < 1) { // isFancyGraphicsEnabled removed — check graphicsMode >= 1 (Fancy)
 			return;
 		}
 		for (ParticleCount pc : particles) {

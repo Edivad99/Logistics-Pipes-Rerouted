@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundTag
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.function.UnaryOperator
 
@@ -46,8 +46,8 @@ interface IListProperty<T> : MutableList<T>, Property<MutableList<T>> {
     fun ensureSize(size: Int): Unit?
     fun replaceContent(col: Collection<T>): Boolean?
     fun replaceContent(arr: Array<T>): Boolean?
-    fun readSingleFromNBT(tag: NBTTagCompound, key: String): T
-    fun writeSingleToNBT(tag: NBTTagCompound, key: String, value: T)
+    fun readSingleFromNBT(tag: CompoundTag, key: String): T
+    fun writeSingleToNBT(tag: CompoundTag, key: String, value: T)
     fun copyValue(obj: T): T
 }
 
@@ -80,11 +80,11 @@ abstract class ListProperty<T>(
 
     abstract fun defaultValue(idx: Int): T
 
-    override fun readFromNBT(tag: NBTTagCompound) {
-        if (tag.hasKey(sizeTagKey(tagKey))) {
+    override fun readFromNBT(tag: CompoundTag) {
+        if (tag.contains(sizeTagKey(tagKey))) {
             replaceContent(
-                MutableList(tag.getInteger(sizeTagKey(tagKey))) { idx ->
-                    if (tag.hasKey(itemTagKey(tagKey, idx))) {
+                MutableList(tag.getInt(sizeTagKey(tagKey))) { idx ->
+                    if (tag.contains(itemTagKey(tagKey, idx))) {
                         readSingleFromNBT(tag, itemTagKey(tagKey, idx))
                     } else defaultValue(idx)
                 }
@@ -92,8 +92,8 @@ abstract class ListProperty<T>(
         }
     }
 
-    override fun writeToNBT(tag: NBTTagCompound) {
-        tag.setInteger(sizeTagKey(tagKey), list.size)
+    override fun writeToNBT(tag: CompoundTag) {
+        tag.putInt(sizeTagKey(tagKey), list.size)
         list.withIndex().forEach { writeSingleToNBT(tag, itemTagKey(tagKey, it.index), it.value) }
     }
 
@@ -123,14 +123,12 @@ abstract class ListProperty<T>(
 
     override fun sort(c: Comparator<in T>) = list.sortWith(c).alsoIChanged()
 
-    override fun listIterator(): MutableListIterator<T> =
-        TODO("Returned MutableListIterator needs to inform of changes")
+    // Note: mutations through listIterator/subList bypass change notification.
+    override fun listIterator(): MutableListIterator<T> = list.listIterator()
 
-    override fun listIterator(index: Int): MutableListIterator<T> =
-        TODO("Returned MutableListIterator needs to inform of changes")
+    override fun listIterator(index: Int): MutableListIterator<T> = list.listIterator(index)
 
-    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> =
-        TODO("Returned sub list needs to inform of changes")
+    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> = list.subList(fromIndex, toIndex)
 
 }
 
@@ -154,19 +152,19 @@ class IntListProperty : ListProperty<Int> {
 
     override fun defaultValue(idx: Int): Int = 0
 
-    override fun readFromNBT(tag: NBTTagCompound) {
-        if (tag.hasKey(tagKey)) replaceContent(tag.getIntArray(tagKey))
+    override fun readFromNBT(tag: CompoundTag) {
+        if (tag.contains(tagKey)) replaceContent(tag.getIntArray(tagKey))
     }
 
-    override fun writeToNBT(tag: NBTTagCompound) = tag.setIntArray(tagKey, list.toIntArray())
+    override fun writeToNBT(tag: CompoundTag) = tag.putIntArray(tagKey, list.toIntArray())
 
     override fun copyValue(obj: Int): Int = obj
 
     override fun copyProperty(): IntListProperty = IntListProperty(tagKey = tagKey, list = copyValue())
 
-    override fun readSingleFromNBT(tag: NBTTagCompound, key: String): Int = tag.getInteger(key)
+    override fun readSingleFromNBT(tag: CompoundTag, key: String): Int = tag.getInt(key)
 
-    override fun writeSingleToNBT(tag: NBTTagCompound, key: String, value: Int) = tag.setInteger(key, value)
+    override fun writeSingleToNBT(tag: CompoundTag, key: String, value: Int) = tag.putInt(key, value)
 
 }
 
@@ -184,9 +182,9 @@ class StringListProperty : ListProperty<String> {
 
     override fun defaultValue(idx: Int): String = ""
 
-    override fun readSingleFromNBT(tag: NBTTagCompound, key: String): String = tag.getString(key)
+    override fun readSingleFromNBT(tag: CompoundTag, key: String): String = tag.getString(key)
 
-    override fun writeSingleToNBT(tag: NBTTagCompound, key: String, value: String) = tag.setString(key, value)
+    override fun writeSingleToNBT(tag: CompoundTag, key: String, value: String) = tag.putString(key, value)
 
     override fun copyValue(obj: String): String = obj
 

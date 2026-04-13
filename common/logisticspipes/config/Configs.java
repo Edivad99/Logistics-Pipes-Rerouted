@@ -1,13 +1,6 @@
 package logisticspipes.config;
 
-import java.io.File;
-import java.util.Arrays;
-
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.common.Loader;
-
-import logisticspipes.LogisticsPipes;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 //@formatter:off
 //CHECKSTYLE:OFF
@@ -17,9 +10,91 @@ public class Configs {
 	public static final String CATEGORY_MULTITHREAD = "multithread";
 	public static final String CATEGORY_PERFORMANCE = "performance";
 
-	private static Configuration CONFIGURATION;
+	// ── ForgeConfigSpec ────────────────────────────────────────────────────────
+	public static final ForgeConfigSpec SPEC;
 
-	// Configurable
+	// Value holders (package-private, read in load())
+	static final ForgeConfigSpec.IntValue     DETECTION_LENGTH_V;
+	static final ForgeConfigSpec.IntValue     DETECTION_COUNT_V;
+	static final ForgeConfigSpec.IntValue     DETECTION_FREQUENCY_V;
+	static final ForgeConfigSpec.BooleanValue ORDERER_COUNT_INVERT_V;
+	static final ForgeConfigSpec.BooleanValue ORDERER_PAGE_INVERT_V;
+	static final ForgeConfigSpec.IntValue     MAX_UNROUTED_CONNECTIONS_V;
+	static final ForgeConfigSpec.IntValue     HUD_RENDER_DISTANCE_V;
+	static final ForgeConfigSpec.DoubleValue  PIPE_DURABILITY_V;
+	static final ForgeConfigSpec.BooleanValue POWER_USAGE_DISABLED_V;
+	static final ForgeConfigSpec.DoubleValue  POWER_USAGE_MULTIPLIER_V;
+	static final ForgeConfigSpec.DoubleValue  COMPILER_SPEED_V;
+	static final ForgeConfigSpec.BooleanValue ENABLE_RESEARCH_SYSTEM_V;
+	static final ForgeConfigSpec.IntValue     CRAFTING_TABLE_POWER_USAGE_V;
+	static final ForgeConfigSpec.BooleanValue TOOLTIP_INFO_V;
+	static final ForgeConfigSpec.BooleanValue ENABLE_PARTICLE_FX_V;
+	static final ForgeConfigSpec.BooleanValue CHECK_FOR_UPDATES_V;
+	static final ForgeConfigSpec.BooleanValue EASTER_EGGS_V;
+	static final ForgeConfigSpec.BooleanValue OPAQUE_V;
+	static final ForgeConfigSpec.IntValue     MAX_ROBOT_DISTANCE_V;
+	static final ForgeConfigSpec.IntValue     MULTI_THREAD_NUMBER_V;
+	static final ForgeConfigSpec.IntValue     MULTI_THREAD_PRIORITY_V;
+	static final ForgeConfigSpec.BooleanValue DISABLE_ASYNC_WORK_V;
+	static final ForgeConfigSpec.IntValue     MIN_SLOT_ACCESS_V;
+	static final ForgeConfigSpec.IntValue     MAX_SLOT_ACCESS_V;
+	static final ForgeConfigSpec.IntValue     MIN_JOB_TICK_LENGTH_V;
+	static final ForgeConfigSpec.EnumValue<PowerSourceMode> POWER_SOURCE_MODE_V;
+
+	static {
+		ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
+
+		b.comment("Pipe network detection settings").push("detection");
+		DETECTION_LENGTH_V         = b.comment("Max detection length for pipe network scan").defineInRange("detectionLength", 50, 1, 1000);
+		DETECTION_COUNT_V          = b.comment("Max pipes counted during detection").defineInRange("detectionCount", 100, 1, 10000);
+		DETECTION_FREQUENCY_V      = b.comment("Detection frequency in ticks").defineInRange("detectionFrequency", 20 * 30, 1, Integer.MAX_VALUE);
+		MAX_UNROUTED_CONNECTIONS_V = b.comment("Max unrouted connections per pipe").defineInRange("maxUnroutedConnections", 32, 1, 512);
+		b.pop();
+
+		b.comment("Orderer GUI settings").push("orderer");
+		ORDERER_COUNT_INVERT_V = b.comment("Invert mouse wheel for item count in orderer").define("invertCountWheel", false);
+		ORDERER_PAGE_INVERT_V  = b.comment("Invert mouse wheel for page navigation in orderer").define("invertPageWheel", false);
+		b.pop();
+
+		b.comment("HUD settings").push("hud");
+		HUD_RENDER_DISTANCE_V = b.comment("HUD render distance in blocks").defineInRange("hudRenderDistance", 15, 1, 256);
+		TOOLTIP_INFO_V        = b.comment("Show extra tooltip info").define("tooltipInfo", false);
+		OPAQUE_V              = b.comment("Make pipes opaque").define("opaque", false);
+		b.pop();
+
+		b.comment("Power settings").push("power");
+		PIPE_DURABILITY_V            = b.comment("Pipe block durability").defineInRange("pipeDurability", 0.25, 0.0, 1.0);
+		POWER_USAGE_DISABLED_V       = b.comment("Disable power usage entirely").define("powerUsageDisabled", false);
+		POWER_USAGE_MULTIPLIER_V     = b.comment("Power usage multiplier").defineInRange("powerUsageMultiplier", 1.0, 0.0, 100.0);
+		CRAFTING_TABLE_POWER_USAGE_V = b.comment("Power used per crafting operation (RF)").defineInRange("craftingTablePowerUsage", 250, 0, Integer.MAX_VALUE);
+		POWER_SOURCE_MODE_V          = b.comment("How the RF power junction acquires FE. ADJACENT: pulls from any neighbouring IEnergyStorage each tick. CABLE: passive — FE cables push into the junction.").defineEnum("powerSourceMode", PowerSourceMode.ADJACENT);
+		b.pop();
+
+		b.comment("Logistics system settings").push("logistics");
+		COMPILER_SPEED_V         = b.comment("Program compiler speed multiplier").defineInRange("compilerSpeed", 1.0, 0.01, 100.0);
+		ENABLE_RESEARCH_SYSTEM_V = b.comment("Enable research system").define("enableResearchSystem", false);
+		ENABLE_PARTICLE_FX_V     = b.comment("Enable particle effects").define("enableParticleFx", true);
+		CHECK_FOR_UPDATES_V      = b.comment("Check for mod updates on startup").define("checkForUpdates", true);
+		EASTER_EGGS_V            = b.comment("Enable easter eggs").define("easterEggs", true);
+		MAX_ROBOT_DISTANCE_V     = b.comment("Max robot operation distance in blocks").defineInRange("maxRobotDistance", 64, 1, 512);
+		b.pop();
+
+		b.comment("Multithreading settings").push(CATEGORY_MULTITHREAD);
+		MULTI_THREAD_NUMBER_V   = b.comment("Number of routing worker threads").defineInRange("threadCount", 4, 1, 32);
+		MULTI_THREAD_PRIORITY_V = b.comment("Worker thread priority").defineInRange("threadPriority", Thread.NORM_PRIORITY, Thread.MIN_PRIORITY, Thread.MAX_PRIORITY);
+		b.pop();
+
+		b.comment("Performance settings").push(CATEGORY_PERFORMANCE);
+		DISABLE_ASYNC_WORK_V = b.comment("Disable async work processing (use main thread only)").define("disableAsyncWork", false);
+		MIN_SLOT_ACCESS_V    = b.comment("Minimum inventory slot accesses per tick").defineInRange("minSlotAccess", 10, 1, Integer.MAX_VALUE);
+		MAX_SLOT_ACCESS_V    = b.comment("Maximum inventory slot accesses per tick (0 = unlimited)").defineInRange("maxSlotAccess", 0, 0, Integer.MAX_VALUE);
+		MIN_JOB_TICK_LENGTH_V = b.comment("Minimum ticks between async jobs").defineInRange("minJobTickLength", 1, 1, Integer.MAX_VALUE);
+		b.pop();
+
+		SPEC = b.build();
+	}
+
+	// ── Public static fields (populated from spec in load()) ──────────────────
 	public static int LOGISTICS_DETECTION_LENGTH = 50;
 	public static int LOGISTICS_DETECTION_COUNT = 100;
 	public static int LOGISTICS_DETECTION_FREQUENCY = 20 * 30;
@@ -31,21 +106,22 @@ public class Configs {
 
 	public static int LOGISTICS_HUD_RENDER_DISTANCE = 15;
 
-	public static float	pipeDurability = 0.25F; //TODO
+	public static float pipeDurability = 0.25F;
 
 	public static boolean LOGISTICS_POWER_USAGE_DISABLED = false;
 	public static double POWER_USAGE_MULTIPLIER = 1;
+	public static PowerSourceMode POWER_SOURCE_MODE = PowerSourceMode.ADJACENT;
 	public static double COMPILER_SPEED = 1.0;
 	public static boolean ENABLE_RESEARCH_SYSTEM = false;
 
 	public static int LOGISTICS_CRAFTING_TABLE_POWER_USAGE = 250;
 
-	public static boolean TOOLTIP_INFO = LogisticsPipes.isDEBUG();
+	public static boolean TOOLTIP_INFO = false;
 	public static boolean ENABLE_PARTICLE_FX = true;
 
-	public static int[] CHASSIS_SLOTS_ARRAY = {1,2,3,4,8};
+	public static int[] CHASSIS_SLOTS_ARRAY = {1, 2, 3, 4, 8};
 
-	// GuiOrderer Popup setting
+	// GuiOrderer Popup setting — runtime-only, not persisted to config file
 	public static boolean DISPLAY_POPUP = true;
 
 	// MultiThread
@@ -67,201 +143,53 @@ public class Configs {
 	public static int MAX_ROBOT_DISTANCE = 64;
 
 	private static boolean loaded = false;
+
 	public static void load() {
-		if(Configs.loaded) {
+		if (Configs.loaded) {
 			return;
 		}
-		if(Loader.instance().getConfigDir() == null) {
-			return;
-		}
-		Configs.CONFIGURATION = new Configuration(new File(Loader.instance().getConfigDir(), "LogisticsPipes.cfg"));
-		Configs.CONFIGURATION.load();
 		Configs.loaded = true;
-
-		if (Configs.CONFIGURATION.hasCategory("logisticspipe.id")
-				|| Configs.CONFIGURATION.hasCategory("logisticsPipe.id")) {
-			throw new RuntimeException(
-					"Old config, please remove it and manually reconfigure LogisticPipes");
-		}
-
-		Configs.LOGISTICS_DETECTION_LENGTH = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL,
-						"detectionLength",
-						Configs.LOGISTICS_DETECTION_LENGTH,
-						"The maximum shortest length between logistics pipes. This is an indicator on the maxim depth of the recursion algorithm to discover logistics neighbours. A low value might use less CPU, a high value will allow longer pipe sections")
-						.getInt();
-		Configs.LOGISTICS_DETECTION_COUNT = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL,
-						"detectionCount",
-						Configs.LOGISTICS_DETECTION_COUNT,
-						"The maximum number of BuildCraft pipes (including forks) between logistics pipes. This is an indicator of the maximum amount of nodes the recursion algorithm will visit before giving up. As it is possible to fork a pipe connection using standard BC pipes the algorithm will attempt to discover all available destinations through that pipe. Do note that the logistics system will not interfere with the operation of non-logistics pipes. So a forked pipe will usually be sup-optimal, but it is possible. A low value might reduce CPU usage, a high value will be able to handle more complex pipe setups. If you never fork your connection between the logistics pipes this has the same meaning as detectionLength and the lower of the two will be used")
-						.getInt();
-		Configs.LOGISTICS_DETECTION_FREQUENCY = Math
-				.max(Configs.CONFIGURATION
-						.get(Configuration.CATEGORY_GENERAL,
-								"reDetectionFrequency",
-								Configs.LOGISTICS_DETECTION_FREQUENCY,
-								"The amount of time that passes between checks to see if it is still connected to its neighbours (Independently from block place detection). A low value will mean that it will correct wrong values faster but use more CPU. A high value means error correction takes longer, but CPU consumption is reduced. A value of 20 will check about every second (default 600 [30 seconds])")
-								.getInt(), 1);
-
-		Configs.MAX_ROBOT_DISTANCE = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL, "maxRobotDistance",
-						Configs.MAX_ROBOT_DISTANCE,
-						"The max. distance between two robots when there is no zone defined.")
-						.getInt();
-		Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL, "ordererCountInvertWheel",
-						Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL,
-						"Inverts the the mouse wheel scrolling for remote order number of items")
-						.getBoolean(false);
-		Configs.LOGISTICS_ORDERER_PAGE_INVERTWHEEL = Configs.CONFIGURATION.get(
-				Configuration.CATEGORY_GENERAL, "ordererPageInvertWheel",
-				Configs.LOGISTICS_ORDERER_PAGE_INVERTWHEEL,
-				"Inverts the the mouse wheel scrolling for remote order pages")
-				.getBoolean(false);
-
-		Configs.LOGISTICS_POWER_USAGE_DISABLED = Configs.CONFIGURATION.get(
-				Configuration.CATEGORY_GENERAL, "powerUsageDisabled",
-				Configs.LOGISTICS_POWER_USAGE_DISABLED,
-				"Disable the power usage trough LogisticsPipes").getBoolean(
-						false);
-
-		Configs.COMPILER_SPEED = Configs.CONFIGURATION.get(
-				Configuration.CATEGORY_GENERAL, "compilerSpeed",
-				Configs.COMPILER_SPEED,
-				"Multiplier for the work speed of the compiler").getDouble(
-						1.0);
-
-		Configs.LOGISTICS_HUD_RENDER_DISTANCE = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL, "HUDRenderDistance",
-						Configs.LOGISTICS_HUD_RENDER_DISTANCE,
-						"The max. distance between a player and the HUD that get's shown in blocks.")
-						.getInt();
-
-		Configs.DISPLAY_POPUP = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL,
-						"displayPopup",
-						Configs.DISPLAY_POPUP,
-						"Set the default configuration for the popup of the Orderer Gui. Should it be used?")
-						.getBoolean(false);
-
-		Configs.ENABLE_PARTICLE_FX = Configs.CONFIGURATION.get(Configuration.CATEGORY_GENERAL,
-				"enableParticleFX", Configs.ENABLE_PARTICLE_FX,
-				"Whether or not special particles will spawn.")
-				.getBoolean(false);
-
-		if(Configs.CONFIGURATION.hasKey(Configs.CATEGORY_MULTITHREAD, "enabled")) {
-			//ConfigCategory.remove is deprecated, but there's no other way to remove a key-value pair without completely recreating the config...
-			Configs.CONFIGURATION.getCategory(Configs.CATEGORY_MULTITHREAD).remove("enabled");
-		}
-		Configs.MULTI_THREAD_NUMBER = Configs.CONFIGURATION.get(Configs.CATEGORY_MULTITHREAD, "count",
-				Configs.MULTI_THREAD_NUMBER, "Number of routing table update Threads, 0 to disable.").getInt();
-		if (Configs.MULTI_THREAD_NUMBER < 0) {
-			Configs.MULTI_THREAD_NUMBER = 0;
-			Configs.CONFIGURATION.get(Configs.CATEGORY_MULTITHREAD, "count",
-					Configs.MULTI_THREAD_NUMBER, "Number of routing table update Threads, 0 to disable.").set(Integer
-							.toString(Configs.MULTI_THREAD_NUMBER));
-		}
-		Configs.MULTI_THREAD_PRIORITY = Configs.CONFIGURATION
-				.get(Configs.CATEGORY_MULTITHREAD, "priority", Configs.MULTI_THREAD_PRIORITY,
-						"Priority of the multiThread Threads. 10 is highest, 5 normal, 1 lowest")
-						.getInt();
-		if (Configs.MULTI_THREAD_PRIORITY < 1 || Configs.MULTI_THREAD_PRIORITY > 10) {
-			Configs.MULTI_THREAD_PRIORITY = Thread.NORM_PRIORITY;
-			Configs.CONFIGURATION
-			.get(Configs.CATEGORY_MULTITHREAD, "priority",
-					Configs.MULTI_THREAD_PRIORITY,
-					"Priority of the multiThread Threads. 10 is highest, 5 normal, 1 lowest").set(Integer
-							.toString(Thread.NORM_PRIORITY));
-		}
-
-		Configs.DISABLE_ASYNC_WORK = Configs.CONFIGURATION.get(CATEGORY_PERFORMANCE, "disableAsyncWork",
-			Configs.DISABLE_ASYNC_WORK,
-			"Disables asynchronous work (currently Extractor and QuickSort modules)").getBoolean();
-		Configs.MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK = Configs.CONFIGURATION.get(CATEGORY_PERFORMANCE, "minSlotsPerTick",
-			Configs.MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK,
-			"Minimum slots to access per tick for asynchronous modules (currently Extractor and QuickSort modules)",
-			1, 1024).getInt();
-		Configs.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK = Configs.CONFIGURATION.get(CATEGORY_PERFORMANCE, "maxSlotsPerTick",
-			Configs.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK,
-			"Maximum slots to access per tick (0 means infinite) for asynchronous modules (currently Extractor and QuickSort modules)",
-			0, 1024).getInt();
-		Configs.MINIMUM_JOB_TICK_LENGTH = Configs.CONFIGURATION.get(CATEGORY_PERFORMANCE, "minJobTicks",
-			Configs.MINIMUM_JOB_TICK_LENGTH,
-			"Minimum ticks to split work on within a job of asynchronous modules (currently Extractor and QuickSort modules)",
-			1, 1200).getInt();
-
-		Configs.POWER_USAGE_MULTIPLIER = Configs.CONFIGURATION.get(
-				Configuration.CATEGORY_GENERAL, "powerUsageMultiplyer",
-				Configs.POWER_USAGE_MULTIPLIER, "A multiplier for the power usage.")
-				.getDouble(Configs.POWER_USAGE_MULTIPLIER);
-
-		if (Configs.POWER_USAGE_MULTIPLIER <= 0) {
-			Configs.POWER_USAGE_MULTIPLIER = 1;
-			Configs.CONFIGURATION.get(Configuration.CATEGORY_GENERAL,
-					"powerUsageMultiplyer", Configs.POWER_USAGE_MULTIPLIER,
-					"A multiplier for the power usage.").set(1);
-		}
-
-		Configs.LOGISTICS_CRAFTING_TABLE_POWER_USAGE = Math
-				.max(Configs.CONFIGURATION
-						.get(Configuration.CATEGORY_GENERAL,
-								"logisticsCraftingTablePowerUsage",
-								Configs.LOGISTICS_CRAFTING_TABLE_POWER_USAGE,
-								"Number of LPower units the Logistics Crafting Table uses per craft.")
-								.getInt(), 0);
-
-		Configs.CHECK_FOR_UPDATES = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL,
-						"checkForUpdates",
-						Configs.CHECK_FOR_UPDATES,
-						"Should LogisticsPipes check for updates?")
-						.getBoolean(false);
-
-		Configs.OPAQUE = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL,
-						"OpaquePipes",
-						Configs.OPAQUE,
-						"Render every LP pipe opaque.")
-						.getBoolean(false);
-
-		Configs.EASTER_EGGS = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL,
-						"easterEggs",
-						Configs.EASTER_EGGS,
-						"Do you fancy easter eggs?")
-						.getBoolean(false);
-
-		Configs.CHASSIS_SLOTS_ARRAY = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL, "chassisSlots",
-						Configs.CHASSIS_SLOTS_ARRAY,
-						"The number of slots in a chassis pipe starting from MK1 to MK5. Because there are 5 tiers, there need to be 5 values (positive integers, zero is allowed).")
-						.getIntList();
-
-		if (Configs.CHASSIS_SLOTS_ARRAY.length != 5) {
-			throw new RuntimeException(
-					"The config file of Logistics Pipes needs to have 5 values (positive integers, zero is allowed) in ascending order in chassisSlots. \nThe configuration contains "
-							+ Configs.CHASSIS_SLOTS_ARRAY.length + " values.");
-		}
-
-		for (int i = 0; i < Configs.CHASSIS_SLOTS_ARRAY.length; i++) {
-			if (Configs.CHASSIS_SLOTS_ARRAY[i] < 0)
-				throw new RuntimeException(
-						"The config file of Logistics Pipes needs to have 5 values (positive integers, zero is allowed) in ascending order in chassisSlots. \nThe configuration contains "
-								+ Configs.CHASSIS_SLOTS_ARRAY[i] + " as one of the values.");
-		}
-		Arrays.sort(Configs.CHASSIS_SLOTS_ARRAY);
-
-		Configs.CONFIGURATION.save();
+		LOGISTICS_DETECTION_LENGTH             = DETECTION_LENGTH_V.get();
+		LOGISTICS_DETECTION_COUNT              = DETECTION_COUNT_V.get();
+		LOGISTICS_DETECTION_FREQUENCY          = DETECTION_FREQUENCY_V.get();
+		LOGISTICS_ORDERER_COUNT_INVERTWHEEL    = ORDERER_COUNT_INVERT_V.get();
+		LOGISTICS_ORDERER_PAGE_INVERTWHEEL     = ORDERER_PAGE_INVERT_V.get();
+		MAX_UNROUTED_CONNECTIONS               = MAX_UNROUTED_CONNECTIONS_V.get();
+		LOGISTICS_HUD_RENDER_DISTANCE          = HUD_RENDER_DISTANCE_V.get();
+		pipeDurability                         = PIPE_DURABILITY_V.get().floatValue();
+		LOGISTICS_POWER_USAGE_DISABLED         = POWER_USAGE_DISABLED_V.get();
+		POWER_USAGE_MULTIPLIER                 = POWER_USAGE_MULTIPLIER_V.get();
+		POWER_SOURCE_MODE                      = POWER_SOURCE_MODE_V.get();
+		COMPILER_SPEED                         = COMPILER_SPEED_V.get();
+		ENABLE_RESEARCH_SYSTEM                 = ENABLE_RESEARCH_SYSTEM_V.get();
+		LOGISTICS_CRAFTING_TABLE_POWER_USAGE   = CRAFTING_TABLE_POWER_USAGE_V.get();
+		TOOLTIP_INFO                           = TOOLTIP_INFO_V.get();
+		ENABLE_PARTICLE_FX                     = ENABLE_PARTICLE_FX_V.get();
+		CHECK_FOR_UPDATES                      = CHECK_FOR_UPDATES_V.get();
+		EASTER_EGGS                            = EASTER_EGGS_V.get();
+		OPAQUE                                 = OPAQUE_V.get();
+		MAX_ROBOT_DISTANCE                     = MAX_ROBOT_DISTANCE_V.get();
+		MULTI_THREAD_NUMBER                    = MULTI_THREAD_NUMBER_V.get();
+		MULTI_THREAD_PRIORITY                  = MULTI_THREAD_PRIORITY_V.get();
+		DISABLE_ASYNC_WORK                     = DISABLE_ASYNC_WORK_V.get();
+		MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK = MIN_SLOT_ACCESS_V.get();
+		MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK = MAX_SLOT_ACCESS_V.get();
+		MINIMUM_JOB_TICK_LENGTH                = MIN_JOB_TICK_LENGTH_V.get();
 	}
 
 	public static void savePopupState() {
-		Property pageDisplayPopupProperty = Configs.CONFIGURATION
-				.get(Configuration.CATEGORY_GENERAL,
-						"displayPopup",
-						Configs.DISPLAY_POPUP,
-						"Set the default configuration for the popup of the Orderer Gui. Should it be used?");
-		pageDisplayPopupProperty.set(Boolean.toString(Configs.DISPLAY_POPUP));
-		Configs.CONFIGURATION.save();
+		// DISPLAY_POPUP is a runtime-only value, not backed by config file.
+	}
+
+	/** Always reads live from the spec so config file edits take effect on reload. */
+	public static PowerSourceMode getPowerSourceMode() {
+		return POWER_SOURCE_MODE_V.get();
+	}
+
+	public enum PowerSourceMode {
+		/** Pull FE from any adjacent IEnergyStorage each tick (active). */
+		ADJACENT,
+		/** Accept FE pushed in by cables (passive, IEnergyStorage capability only). */
+		CABLE
 	}
 }

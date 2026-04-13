@@ -7,8 +7,8 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import com.google.common.collect.ImmutableList;
 
@@ -136,21 +136,6 @@ public class ChassisModule extends LogisticsModule implements Gui {
 			return new SinkReply(bestresult, roomForItem);
 		}
 		return new SinkReply(bestresult, Math.min(bestresult.maxNumberOfItems, roomForItem));
-	}
-
-	@Override
-	public void readFromNBT(@Nonnull NBTTagCompound tag) {
-		super.readFromNBT(tag);
-		// FIXME: remove after 1.12
-		modules.stream()
-				.filter(slottedModule -> !slottedModule.isEmpty() && tag.hasKey("slot" + slottedModule.getSlot()))
-				.forEach(slottedModule -> Objects.requireNonNull(slottedModule.getModule())
-						.readFromNBT(tag.getCompoundTag("slot" + slottedModule.getSlot())));
-
-		// FIXME: remove after 1.12.2 update, backwards compatibility
-		for (int i = 0; i < parentChassis.getChassisSize(); i++) {
-			slotUpgradeManagers.get(i).readFromNBT(tag, Integer.toString(i));
-		}
 	}
 
 	@Override

@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.core.Direction;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSolidTileEntity;
@@ -73,7 +73,8 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 	private IHeadUpDisplayRenderer HUD;
 	private boolean init = false;
 
-	protected LogisticsPowerProviderTileEntity() {
+	protected LogisticsPowerProviderTileEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(type, pos, state);
 		HUD = new HUDPowerLevel(this);
 	}
 
@@ -121,7 +122,7 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 			}
 		}
 		orders.clear();
-		if (MainProxy.isServer(world)) {
+		if (MainProxy.isServer(getWorld())) {
 			if (internalStorage != lastUpdateStorage) {
 				updateClients();
 				lastUpdateStorage = internalStorage;
@@ -131,14 +132,14 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 
 	protected abstract void handlePower(CoreRoutedPipe pipe, double toSend);
 
-	private void sendPowerLaserPackets(IRouter sourceRouter, IRouter destinationRouter, EnumFacing exitOrientation, boolean addBall) {
+	private void sendPowerLaserPackets(IRouter sourceRouter, IRouter destinationRouter, Direction exitOrientation, boolean addBall) {
 		if (sourceRouter == destinationRouter) {
 			return;
 		}
-		LinkedList<Triplet<IRouter, EnumFacing, Boolean>> todo = new LinkedList<>();
+		LinkedList<Triplet<IRouter, Direction, Boolean>> todo = new LinkedList<>();
 		todo.add(new Triplet<>(sourceRouter, exitOrientation, addBall));
 		while (!todo.isEmpty()) {
-			Triplet<IRouter, EnumFacing, Boolean> part = todo.pollFirst();
+			Triplet<IRouter, Direction, Boolean> part = todo.pollFirst();
 			List<ExitRoute> exits = part.getValue1().getRoutersOnSide(part.getValue2());
 			for (ExitRoute exit : exits) {
 				if (exit.containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom)) { // Find only result (caused by only straight connections)
@@ -181,36 +182,27 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 	public abstract String getBrand();
 
 	@Override
-	public void invalidate() {
-		super.invalidate();
+	public void setRemoved() {
+		super.setRemoved();
 		if (MainProxy.isClient(getWorld())) {
 			LogisticsHUDRenderer.instance().remove(this);
 		}
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
+	public void onLoad() {
+		super.onLoad();
 		if (MainProxy.isClient(getWorld())) {
 			init = false;
 		}
 	}
 
-	@Override
-	public void onChunkUnload() {
-		super.onChunkUnload();
-		if (MainProxy.isClient(getWorld())) {
-			LogisticsHUDRenderer.instance().remove(this);
-		}
-	}
+	// onChunkUnload removed in 1.20.1 — setRemoved() covers this case
 
 	@Override
 	public void requestPower(int destination, double amount) {
 		if (pauseRequesting) {
 			return;
-		}
-		if (getBrand().equals("EU")) {
-			System.out.print("");
 		}
 		if (orders.containsKey(destination)) {
 			if (reOrdered.get(destination)) {
@@ -237,23 +229,22 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt) {
-		super.readFromNBT(nbt);
-		if (nbt.getTag("internalStorage") instanceof NBTTagFloat) { // support for old float
+	public void load(CompoundTag nbt) {
+		super.load(nbt);
+		if (nbt.get("internalStorage") instanceof FloatTag) { // support for old float
 			internalStorage = nbt.getFloat("internalStorage");
 		} else {
 			internalStorage = nbt.getDouble("internalStorage");
 		}
-		maxMode = nbt.getInteger("maxMode");
+		maxMode = nbt.getInt("maxMode");
 
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		nbt = super.writeToNBT(nbt);
-		nbt.setDouble("internalStorageDouble", internalStorage);
-		nbt.setInteger("maxMode", maxMode);
-		return nbt;
+	public void saveAdditional(CompoundTag nbt) {
+		super.saveAdditional(nbt);
+		nbt.putDouble("internalStorageDouble", internalStorage);
+		nbt.putInt("maxMode", maxMode);
 	}
 
 	@Override
@@ -262,18 +253,23 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 	}
 
 	@Override
+	public net.minecraft.world.level.Level getLevelForHUD() {
+		return getWorld();
+	}
+
+	@Override
 	public int getX() {
-		return pos.getX();
+		return getBlockPos().getX();
 	}
 
 	@Override
 	public int getY() {
-		return pos.getY();
+		return getBlockPos().getY();
 	}
 
 	@Override
 	public int getZ() {
-		return pos.getZ();
+		return getBlockPos().getZ();
 	}
 
 	@Override
@@ -287,41 +283,41 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 	}
 
 	@Override
-	public void playerStartWatching(EntityPlayer player) {
+	public void playerStartWatching(Player player) {
 		watcherList.add(player);
 		updateClients();
 	}
 
 	@Override
-	public void playerStopWatching(EntityPlayer player) {
+	public void playerStopWatching(Player player) {
 		watcherList.remove(player);
 	}
 
 	@Override
 	public boolean isHUDExistent() {
-		return getWorld().getTileEntity(pos) == this;
+		return getWorld().getBlockEntity(getBlockPos()) == this;
 	}
 
 	@Override
-	public void guiOpenedByPlayer(EntityPlayer player) {
+	public void guiOpenedByPlayer(Player player) {
 		guiListener.add(player);
 		updateClients();
 	}
 
 	@Override
-	public void guiClosedByPlayer(EntityPlayer player) {
+	public void guiClosedByPlayer(Player player) {
 		guiListener.remove(player);
 	}
 
 	public void updateClients() {
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).setDouble(internalStorage).setTilePos(this), guiListener);
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).setDouble(internalStorage).setTilePos(this), watcherList);
+		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).putDouble(internalStorage).setTilePos(this), guiListener);
+		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).putDouble(internalStorage).setTilePos(this), watcherList);
 	}
 
 	@Override
-	public void addInfoToCrashReport(CrashReportCategory par1CrashReportCategory) {
-		super.addInfoToCrashReport(par1CrashReportCategory);
-		par1CrashReportCategory.addCrashSection("LP-Version", LogisticsPipes.getVersionString());
+	public void fillCrashReportCategory(CrashReportCategory par1CrashReportCategory) {
+		super.fillCrashReportCategory(par1CrashReportCategory);
+		par1CrashReportCategory.setDetail("LP-Version", LogisticsPipes.getVersionString());
 	}
 
 	public void handlePowerPacket(double d) {
@@ -342,7 +338,7 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 
 	@Override
 	public boolean isHUDInvalid() {
-		return isInvalid();
+		return isRemoved();
 	}
 
 	@Override

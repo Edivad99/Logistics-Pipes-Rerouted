@@ -1,7 +1,8 @@
 package logisticspipes.commands.commands;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.text.TextComponentString;
+// Player removed — use net.minecraft.commands.CommandSourceStack
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.abstracts.ICommandHandler;
@@ -16,7 +17,7 @@ public class ChangelogCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
+	public boolean isCommandUsableBy(Player sender) {
 		return true;
 	}
 
@@ -26,7 +27,7 @@ public class ChangelogCommand implements ICommandHandler {
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
+	public void executeCommand(Player sender, String[] args) {
 		VersionChecker versionChecker = LogisticsPipes.versionChecker;
 		String statusMessage = versionChecker.getVersionCheckerStatus();
 
@@ -41,7 +42,7 @@ public class ChangelogCommand implements ICommandHandler {
 			}
 			display.display(sender);
 		} else {
-			sender.sendMessage(new TextComponentString(statusMessage));
+			sender.sendSystemMessage(Component.literal(statusMessage));
 		}
 	}
 }

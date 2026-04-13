@@ -2,7 +2,7 @@ package logisticspipes.network.packets.pipe;
 
 import java.lang.ref.WeakReference;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +37,7 @@ public class PipeContentPacket extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		WeakReference<LPTravelingItemClient> ref = LPTravelingItem.clientList.get(travelId);
 		LPTravelingItemClient content = null;
 		if (ref != null) {

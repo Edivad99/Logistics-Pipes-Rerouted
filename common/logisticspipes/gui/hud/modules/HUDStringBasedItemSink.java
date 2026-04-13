@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
+
 
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -59,12 +59,12 @@ public class HUDStringBasedItemSink implements IHUDModuleRenderer {
 
 	@Override
 	public void renderContent(boolean shifted) {
-		Minecraft mc = FMLClientHandler.instance().getClient();
+		Minecraft mc = Minecraft.getInstance();
+		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		if (gg == null) return;
 		for (int i = page * 6; i < itemSink.stringListProperty().size() && i < 6 + (page * 6); i++) {
 			String mod = itemSink.stringListProperty().get(i);
-			mc.fontRenderer.drawString(mod.substring(0, Math.min(12, mod.length())), -28, -25 + ((i - (page * 6)) * 10),
-					0x404040);
-			//mc.fontRenderer.drawSplitString(mod, -28, -25 + ((i - (page * 6)) * 10), 50, 0x404040);
+			gg.drawString(mc.font, mod, -28, -25 + ((i - (page * 6)) * 10), 0xff404040, false);
 		}
 	}
 

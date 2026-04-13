@@ -38,13 +38,11 @@
 package network.rs485.minecraft
 
 import network.rs485.logisticspipes.integration.ONE_VECTOR
-import net.minecraft.block.BlockColored
-import net.minecraft.init.Blocks
-import net.minecraft.item.EnumDyeColor
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3i
-import net.minecraft.world.WorldServer
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Vec3i
+import net.minecraft.server.level.ServerLevel
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.async
@@ -55,18 +53,18 @@ class BlockPosSelector(val worldBuilder: WorldBuilder) {
     private val placersToOffsets = ArrayList<Pair<Placer, Vec3i>>()
     private val extraConfigurators = ArrayList<Configurator>()
     private var finalized: BlockPos? = null
-    var localStart: Vec3i = BlockPos.NULL_VECTOR
+    var localStart: Vec3i = Vec3i.ZERO
         private set
-    var localEnd: Vec3i = BlockPos.NULL_VECTOR
+    var localEnd: Vec3i = Vec3i.ZERO
         private set
-    var localOffset: Vec3i = BlockPos.NULL_VECTOR
+    var localOffset: Vec3i = Vec3i.ZERO
 
     fun <T> resetOffsetAfter(block: BlockPosSelector.() -> T) = localOffset.let { startOffset ->
         block.invoke(this).also { localOffset = startOffset }
     }
 
-    fun direction(direction: EnumFacing): BlockPosSelector = this.also {
-        localOffset += direction.directionVec
+    fun direction(direction: Direction): BlockPosSelector = this.also {
+        localOffset += direction.getNormal()
     }
 
     fun place(placer: Placer): BlockPosSelector = this.also {
@@ -114,14 +112,14 @@ class BlockPosSelector(val worldBuilder: WorldBuilder) {
         ?.let { it + localStart - ONE_VECTOR }
         ?.to(state.let {
             when (it) {
-                TestState.RUNNING -> Blocks.GLOWSTONE.defaultState
-                TestState.FAILED -> Blocks.CONCRETE.defaultState.withProperty(BlockColored.COLOR, EnumDyeColor.RED)
-                TestState.PASSED -> Blocks.CONCRETE.defaultState.withProperty(BlockColored.COLOR, EnumDyeColor.GREEN)
-                TestState.SKIPPED -> Blocks.CONCRETE.defaultState.withProperty(BlockColored.COLOR, EnumDyeColor.YELLOW)
+                TestState.RUNNING -> Blocks.GLOWSTONE.defaultBlockState()
+                TestState.FAILED -> Blocks.RED_CONCRETE.defaultBlockState()
+                TestState.PASSED -> Blocks.GREEN_CONCRETE.defaultBlockState()
+                TestState.SKIPPED -> Blocks.YELLOW_CONCRETE.defaultBlockState()
             }
         })
         ?.also {
-            worldBuilder.world.setBlockState(it.first, it.second)
+            worldBuilder.world.setBlock(it.first, it.second, 3)
         }
 }
 
@@ -133,7 +131,7 @@ enum class TestState {
 }
 
 interface Placer {
-    suspend fun place(world: WorldServer, pos: BlockPos): Configurator
+    suspend fun place(world: ServerLevel, pos: BlockPos): Configurator
 }
 
 interface Configurator {
@@ -150,5 +148,5 @@ suspend fun configurator(name: String? = null, block: suspend () -> Unit) = obje
 
 internal operator fun Vec3i.plus(other: Vec3i): Vec3i = Vec3i(x + other.x, y + other.y, z + other.z)
 
-internal operator fun BlockPos.plus(other: Vec3i): BlockPos = add(other)
-internal operator fun BlockPos.minus(other: Vec3i): BlockPos = subtract(other)
+internal operator fun BlockPos.plus(other: Vec3i): BlockPos = BlockPos(x + other.x, y + other.y, z + other.z)
+internal operator fun BlockPos.minus(other: Vec3i): BlockPos = BlockPos(x - other.x, y - other.y, z - other.z)

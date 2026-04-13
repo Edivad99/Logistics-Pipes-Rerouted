@@ -5,23 +5,20 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.network.chat.Component;
 
-import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
-import logisticspipes.LogisticsPipes;
-import logisticspipes.network.GuiIDs;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.RequestPipeDimension;
 import logisticspipes.pipes.PipeItemsRemoteOrdererLogistics;
@@ -41,77 +38,94 @@ public class RemoteOrderer extends LogisticsItem {
 		return 17;
 	}
 
-	@Override
-	public boolean getShareTag() {
+	// getShareTag() removed in 1.20 — NBT always shared now
+	@Deprecated public boolean getShareTag__REMOVED() {
 		return true;
 	}
 
 	@Override
-	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		super.addInformation(stack, worldIn, tooltip, flagIn);
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<Component> tooltip, TooltipFlag flagIn) {
+		super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
-		if (stack.hasTagCompound() && Objects.requireNonNull(stack.getTagCompound()).hasKey("connectedPipe-x")) {
-			tooltip.add("\u00a77Has Remote Pipe");
+		if (stack.hasTag() && Objects.requireNonNull(stack.getTag()).contains("connectedPipe-x")) {
+			tooltip.add(Component.literal("\u00a77Has Remote Pipe"));
 		}
 	}
 
 	@Nonnull
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, @Nonnull EnumHand handIn) {
-		ItemStack par1ItemStack = player.inventory.getCurrentItem();
-		if (par1ItemStack.isEmpty() || !par1ItemStack.hasTagCompound()) {
-			return ActionResult.newResult(EnumActionResult.FAIL, par1ItemStack);
+	public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand handIn) {
+		ItemStack par1ItemStack = player.getMainHandItem();
+		if (par1ItemStack.isEmpty() || !par1ItemStack.hasTag()) {
+			return InteractionResultHolder.fail(par1ItemStack);
 		}
 		PipeItemsRemoteOrdererLogistics pipe = RemoteOrderer.getPipe(par1ItemStack);
 		if (pipe != null) {
-			if (MainProxy.isServer(player.world)) {
+			if (MainProxy.isServer(player.level())) {
 				int energyUse = 0;
-				if (pipe.getWorld() != player.world) {
+				if (pipe.getWorld() != player.level()) {
 					energyUse += 2500;
 				}
-				energyUse += Math.sqrt(Math.pow(pipe.getX() - player.posX, 2) + Math.pow(pipe.getY() - player.posY, 2) + Math.pow(pipe.getZ() - player.posZ, 2));
+				energyUse += Math.sqrt(Math.pow(pipe.getX() - player.getX(), 2) + Math.pow(pipe.getY() - player.getY(), 2) + Math.pow(pipe.getZ() - player.getZ(), 2));
 				if (pipe.useEnergy(energyUse)) {
-					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RequestPipeDimension.class).setInteger(pipe.getWorld().provider.getDimension()), player);
-					player.openGui(LogisticsPipes.instance, GuiIDs.GUI_Normal_Orderer_ID, pipe.getWorld(), pipe.getX(), pipe.getY(), pipe.getZ());
+					logisticspipes.network.packets.pipe.RequestPipeDimension dimPkt = PacketHandler.getPacket(logisticspipes.network.packets.pipe.RequestPipeDimension.class);
+					dimPkt.setInteger(pipe.getWorld().dimension().location().hashCode());
+					MainProxy.sendPacketToPlayer(dimPkt, player);
+					logisticspipes.network.guis.pipe.NormalOrdererGui gui = logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
+					gui.setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ());
+					gui.setDim(pipe.getWorld().dimension().location().hashCode());
+					gui.open(player);
 				}
 			}
 		}
-		return ActionResult.newResult(EnumActionResult.PASS, par1ItemStack);
+		return InteractionResultHolder.pass(par1ItemStack);
 	}
 
 	public static void connectToPipe(@Nonnull ItemStack stack, PipeItemsRemoteOrdererLogistics pipe) {
-		stack.setTagCompound(new NBTTagCompound());
-		final NBTTagCompound tag = Objects.requireNonNull(stack.getTagCompound());
-		tag.setInteger("connectedPipe-x", pipe.getX());
-		tag.setInteger("connectedPipe-y", pipe.getY());
-		tag.setInteger("connectedPipe-z", pipe.getZ());
-		int dimension = 0;
-		for (Integer dim : DimensionManager.getIDs()) {
-			if (pipe.getWorld().equals(DimensionManager.getWorld(dim))) {
-				dimension = dim;
-				break;
-			}
-		}
-		tag.setInteger("connectedPipe-world-dim", dimension);
+		stack.setTag(new CompoundTag());
+		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
+		tag.putInt("connectedPipe-x", pipe.getX());
+		tag.putInt("connectedPipe-y", pipe.getY());
+		tag.putInt("connectedPipe-z", pipe.getZ());
+		// Store dimension by registry name for forward compatibility; also keep hashed int
+		// for compatibility with legacy packet dimension encoding.
+		int dimension = pipe.getWorld().dimension().location().hashCode();
+		tag.putInt("connectedPipe-world-dim", dimension);
+		tag.putString("connectedPipe-world-dim-key", pipe.getWorld().dimension().location().toString());
 	}
 
 	public static PipeItemsRemoteOrdererLogistics getPipe(@Nonnull ItemStack stack) {
-		if (stack.isEmpty() || !stack.hasTagCompound()) {
+		if (stack.isEmpty() || !stack.hasTag()) {
 			return null;
 		}
-		final NBTTagCompound tag = Objects.requireNonNull(stack.getTagCompound());
-		if (!tag.hasKey("connectedPipe-x") || !tag.hasKey("connectedPipe-y") || !tag.hasKey("connectedPipe-z")) {
+		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
+		if (!tag.contains("connectedPipe-x") || !tag.contains("connectedPipe-y") || !tag.contains("connectedPipe-z")) {
 			return null;
 		}
-		if (!tag.hasKey("connectedPipe-world-dim")) {
+		if (!tag.contains("connectedPipe-world-dim")) {
 			return null;
 		}
-		int dim = tag.getInteger("connectedPipe-world-dim");
-		World world = DimensionManager.getWorld(dim);
+		// Resolve dimension: prefer ResourceLocation string, fall back to hash match.
+		var server = ServerLifecycleHooks.getCurrentServer();
+		if (server == null) return null;
+		Level world = null;
+		if (tag.contains("connectedPipe-world-dim-key")) {
+			try {
+				net.minecraft.resources.ResourceLocation rl = new net.minecraft.resources.ResourceLocation(tag.getString("connectedPipe-world-dim-key"));
+				net.minecraft.resources.ResourceKey<Level> key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, rl);
+				world = server.getLevel(key);
+			} catch (Exception ignored) {}
+		}
+		if (world == null) {
+			int wantHash = tag.getInt("connectedPipe-world-dim");
+			for (net.minecraft.server.level.ServerLevel lvl : server.getAllLevels()) {
+				if (lvl.dimension().location().hashCode() == wantHash) { world = lvl; break; }
+			}
+		}
 		if (world == null) {
 			return null;
 		}
-		TileEntity tile = world.getTileEntity(new BlockPos(tag.getInteger("connectedPipe-x"), tag.getInteger("connectedPipe-y"), tag.getInteger("connectedPipe-z")));
+		BlockEntity tile = world.getBlockEntity(new BlockPos(tag.getInt("connectedPipe-x"), tag.getInt("connectedPipe-y"), tag.getInt("connectedPipe-z")));
 		if (!(tile instanceof LogisticsTileGenericPipe)) {
 			return null;
 		}
@@ -122,13 +136,5 @@ public class RemoteOrderer extends LogisticsItem {
 		return null;
 	}
 
-	@Override
-	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
-		if (isInCreativeTab(tab)) {
-			for (int meta = 0; meta < 17; meta++) {
-				items.add(new ItemStack(this, 1, meta));
-			}
-		}
-	}
 
 }

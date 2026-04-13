@@ -3,7 +3,7 @@ package logisticspipes.pipes.basic.debug;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.debug.SendNewLogLine;
@@ -49,7 +49,7 @@ public class DebugLogController {
 		}
 	}
 
-	public void openForPlayer(EntityPlayer player) {
+	public void openForPlayer(Player player) {
 		players.add(player);
 		List<StatusEntry> status = new ArrayList<>();
 		pipe.addStatusInformation(status);

@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDConfig;
@@ -15,25 +15,22 @@ public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 
 	protected final List<IHUDButton> buttons = new ArrayList<>();
 
-	protected void addButton(IHUDButton button) {
+	protected void addRenderableWidget(IHUDButton button) {
 		buttons.add(button);
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double d, boolean day, boolean shifted, Minecraft mc, IHUDConfig config) {
+	public void renderHeadUpDisplay(double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
 		for (IHUDButton button : buttons) {
-			GL11.glPushMatrix();
 			button.renderAlways(shifted);
 			if (button.shouldRenderButton()) {
 				button.renderButton(button.isFocused(), button.isblockFocused(), shifted);
 			}
-			GL11.glPopMatrix();
 		}
 	}
 
 	@Override
 	public void handleCursor(int x, int y) {
-		GL11.glPushMatrix();
 		for (IHUDButton button : buttons) {
 			if (!button.buttonEnabled() || !button.shouldRenderButton()) {
 				continue;
@@ -49,6 +46,5 @@ public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 				button.clearFocused();
 			}
 		}
-		GL11.glPopMatrix();
 	}
 }

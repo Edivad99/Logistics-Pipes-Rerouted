@@ -1,6 +1,6 @@
 package logisticspipes.proxy.cofh.subproxies;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
 
 public interface ICoFHEnergyReceiver {
 
@@ -8,6 +8,6 @@ public interface ICoFHEnergyReceiver {
 
 	int getEnergyStored();
 
-	int receiveEnergy(EnumFacing opposite, int i, boolean b);
+	int receiveEnergy(Direction opposite, int i, boolean b);
 
 }

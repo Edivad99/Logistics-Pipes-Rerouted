@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.hud;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.interfaces.IBlockWatchingHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -20,8 +20,8 @@ public class HUDStartBlockWatchingPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		IBlockWatchingHandler tile = this.getTileAs(player.world, IBlockWatchingHandler.class);
+	public void processPacket(Player player) {
+		IBlockWatchingHandler tile = this.getTileAs(player.level(), IBlockWatchingHandler.class);
 		if (tile != null) {
 			tile.playerStartWatching(player);
 		}

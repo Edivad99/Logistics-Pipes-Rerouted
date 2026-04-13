@@ -2,27 +2,28 @@ package logisticspipes.renderer.newpipe;
 
 import java.util.List;
 
-import net.minecraftforge.common.property.IUnlistedProperty;
 
-public class PropertyRenderList implements IUnlistedProperty<List<RenderEntry>> {
 
-	@Override
+// TODO: IUnlistedProperty removed in 1.20.1 — deferred with rest of rendering migration
+public class PropertyRenderList {
+
+
 	public String getName() {
 		return "lprenderentrylist";
 	}
 
-	@Override
+
 	public boolean isValid(List<RenderEntry> value) {
 		return value != null;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
+
 	public Class<List<RenderEntry>> getType() {
 		return (Class) List.class;
 	}
 
-	@Override
+
 	public String valueToString(List<RenderEntry> value) {
 		return value.toString();
 	}

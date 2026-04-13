@@ -5,11 +5,11 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
@@ -23,36 +23,23 @@ public class HUDCrafting extends BasicHUDGui {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double d, boolean day, boolean shifted, Minecraft mc, IHUDConfig config) {
-		if (day) {
-			GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 64);
-		} else {
-			GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 64);
-		}
+	public void renderHeadUpDisplay(double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
 		if (pipe.displayList.size() > 0) {
-			GuiGraphics.drawGuiBackGround(mc, -50, -28, 50, 30, 0, false);
+			LPGuiGraphics.drawGuiBackGround(minecraft, -50, -28, 50, 30, 0, false);
 		} else {
-			GuiGraphics.drawGuiBackGround(mc, -30, -22, 30, 25, 0, false);
+			LPGuiGraphics.drawGuiBackGround(minecraft, -30, -22, 30, 25, 0, false);
 		}
-		if (day) {
-			GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 127);
-		} else {
-			GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 127);
+		super.renderHeadUpDisplay(d, day, shifted, minecraft, config);
+		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		int textColor = day ? 0xff404040 : 0xff7f7f7f;
+		if (gg != null) {
+			if (pipe.displayList.size() > 0) {
+				gg.drawString(minecraft.font, "Result:", -20, -25, textColor, false);
+				gg.drawString(minecraft.font, "Todo:", -20, 0, textColor, false);
+			} else {
+				gg.drawString(minecraft.font, "Result:", -25, -18, textColor, false);
+			}
 		}
-
-		GL11.glTranslatef(0.0F, 0.0F, -0.005F);
-		GL11.glScalef(1.5F, 1.5F, 0.0001F);
-
-		if (pipe.displayList.size() > 0) {
-			String message = "Result:";
-			mc.fontRenderer.drawString(message, -28, -10, 0);
-			message = "Todo:";
-			mc.fontRenderer.drawString(message, -28, 5, 0);
-		} else {
-			String message = "Result:";
-			mc.fontRenderer.drawString(message, -16, -10, 0);
-		}
-		GL11.glScalef(0.8F, 0.8F, -1F);
 		List<ItemIdentifierStack> list = new ArrayList<>();
 		List<ItemIdentifierStack> craftables = pipe.getCraftedItems();
 		if (craftables != null && craftables.size() > 0) {

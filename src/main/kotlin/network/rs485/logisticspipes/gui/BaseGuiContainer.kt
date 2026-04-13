@@ -48,161 +48,60 @@ import network.rs485.logisticspipes.inventory.container.LPBaseContainer
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.DummySlot
-import mezz.jei.api.gui.IGhostIngredientHandler
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.inventory.GuiContainer
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.inventory.ClickType
-import net.minecraft.inventory.Slot
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.Slot
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import kotlin.math.roundToInt
+
+// TODO: Rendering deferred — full 1.20.1 rendering migration (PoseStack, AbstractContainerScreen API) pending.
 
 abstract class BaseGuiContainer(
     private val baseContainer: LPBaseContainer<LogisticsModule>,
     val xOffset: Int = 0,
     val yOffset: Int = 0,
     private val widgetScreen: WidgetScreen,
-) : GuiContainer(baseContainer), Drawable by widgetScreen {
-
-    // TODO
-    // Make it so only the highest "z" widget can be drawn as hovered - hovered state should be managed by gui class.
+) : AbstractContainerScreen<LPBaseContainer<LogisticsModule>>(
+    baseContainer,
+    Inventory(Minecraft.getInstance().player!!),
+    Component.empty(),
+), Drawable by widgetScreen {
 
     open val fuzzySelector: FuzzySelectionWidget? = null
 
-    override fun initGui() {
-        widgetScreen.initGuiWidget(this@BaseGuiContainer, super<GuiContainer>.width, super<GuiContainer>.height)
+    /** Exposes the protected hoveredSlot field from AbstractContainerScreen. */
+    val currentHoveredSlot: Slot? get() = hoveredSlot
 
-        // To use minecraft's slot and item rendering. Might remove later.
-        guiLeft = widgetScreen.widgetContainer.absoluteBody.roundedLeft
-        guiTop = widgetScreen.widgetContainer.absoluteBody.roundedTop
-
-        // Clear button and widget lists
-        buttonList.clear()
-        mc.player.openContainer = inventorySlots
+    override fun init() {
+        super.init()
+        widgetScreen.initGuiWidget(this@BaseGuiContainer, width, height)
     }
-    /**
-     * Draw what is supposed to not be important to the gui and is behind everything else.
-     * Origin is top left corner of the minecraft window.
-     * @param mouseX mouse position on X axis.
-     * @param mouseY mouse position on Y axis.
-     * @param partialTicks time so animations don't have to depend on game ticks which can be unstable.
-     */
+
     open fun drawBackgroundLayer(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        drawDefaultBackground()
-        GuiDrawer.drawGuiContainerBackground(absoluteBody, guiLeft to guiTop, inventorySlots)
+        // TODO: deferred rendering — migrate to PoseStack-based rendering
     }
 
-    /**
-     * Draw the area in between the back and fore grounds, good place to draw buttons.
-     * Origin is the top left corner of the gui.
-     * @param mouseX mouse position on X axis.
-     * @param mouseY mouse position on Y axis.
-     * @param partialTicks time so animations don't have to depend on game ticks which can be unstable.
-     */
     open fun drawFocalgroundLayer(mouseX: Float, mouseY: Float, partialTicks: Float) {}
 
-    /**
-     * Draw the top layer of the screen, it could be tooltips, items on slots or even titles and text.
-     * Origin is the top left corner of the gui.
-     * @param mouseX mouse position on X axis.
-     * @param mouseY mouse position on Y axis.
-     * @param partialTicks time so animations don't have to depend on game ticks which can be unstable.
-     */
     open fun drawForegroundLayer(mouseX: Float, mouseY: Float, partialTicks: Float) {
-        widgetScreen.widgetContainer.draw(mouseX, mouseY, partialTicks, Screen.absoluteBody)
-        (widgetScreen.hoveredWidget as? Tooltipped)?.getTooltipText()?.takeIf { it.isNotEmpty() }?.also {
-            drawHoveringText(it, mouseX.roundToInt(), mouseY.roundToInt())
-        } ?: renderHoveredToolTip(mouseX.roundToInt(), mouseY.roundToInt())
+        // TODO: deferred rendering
     }
 
-    // Call super and call all the normally used methods.
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        super.drawScreen(mouseX, mouseY, partialTicks)
-        val floatMouseX: Float = mouseX.toFloat()
-        val floatMouseY: Float = mouseY.toFloat()
-        GlStateManager.pushMatrix()
-        GlStateManager.disableLighting()
-        GlStateManager.disableDepth()
-        drawFocalgroundLayer(floatMouseX, floatMouseY, partialTicks)
-        GlStateManager.translate(0.0f, 0.0f, 10.0f)
-        RenderHelper.disableStandardItemLighting()
-        widgetScreen.updateHoveredState(floatMouseX, floatMouseY)
-        drawForegroundLayer(floatMouseX, floatMouseY, partialTicks)
-        RenderHelper.disableStandardItemLighting()
-        fuzzySelector?.let { fuzzySelector ->
-            if (hoveredSlot == null && fuzzySelector.active && !fuzzySelector.isMouseHovering(
-                    floatMouseX,
-                    floatMouseY,
-                )
-            ) {
-                fuzzySelector.active = false
-                fuzzySelector.currentSlot = null
-            } else if (hoveredSlot != null && hoveredSlot != fuzzySelector.currentSlot && hoveredSlot is FuzzyItemSlot) {
-                val slot = hoveredSlot as FuzzyItemSlot
-                fuzzySelector.active = true
-                fuzzySelector.currentSlot = slot
-                fuzzySelector.setPos(guiLeft + slot.xPos, guiTop + slot.yPos + 17)
-            }
-            fuzzySelector.draw(floatMouseX, floatMouseY, partialTicks, Screen.screen)
-        }
-        RenderHelper.enableStandardItemLighting()
-        GlStateManager.enableLighting()
-        GlStateManager.enableDepth()
-        GlStateManager.popMatrix()
-    }
-
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        if (fuzzySelector?.mouseClicked(
-                mouseX = mouseX.toFloat(),
-                mouseY = mouseY.toFloat(),
-                mouseButton = mouseButton,
-            ) == true
-        ) {
-            return
-        }
-        val currentHovered = widgetScreen.hoveredWidget
-        if (currentHovered is MouseInteractable) {
-            if (currentHovered.mouseClicked(
-                    mouseX = mouseX.toFloat(),
-                    mouseY = mouseY.toFloat(),
-                    mouseButton = mouseButton,
-                )
-            ) {
-                currentHovered.playPressedSound(mc.soundHandler)
-            }
-        }
-        super.mouseClicked(mouseX, mouseY, mouseButton)
-    }
-
-    override fun handleMouseClick(slotIn: Slot?, slotId: Int, mouseButton: Int, type: ClickType) {
-        if (slotIn is DummySlot || slotIn is GhostSlot) {
-            inventorySlots.slotClick(slotId, mouseButton, type, mc.player)
-        } else if (type == ClickType.QUICK_MOVE && baseContainer.tryTransferSlotToGhostSlot(slotId)) {
-            // transfer to ghost slot succeeded
-        } else {
-            super.handleMouseClick(slotIn, slotId, mouseButton, type)
-        }
-    }
-
-    // Update screen size square when resolution changes.
-    override fun setWorldAndResolution(mc: Minecraft, width: Int, height: Int) {
-        super.setWorldAndResolution(mc, width, height)
-    }
-
-    // Redirect vanilla background method to drawBackgroundLayer()
-    override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
-        drawBackgroundLayer(mouseX, mouseY, partialTicks)
+    override fun renderBg(
+        guiGraphics: net.minecraft.client.gui.GuiGraphics,
+        partialTick: Float,
+        mouseX: Int,
+        mouseY: Int,
+    ) {
+        // TODO: deferred rendering
     }
 
     fun List<Drawable>.draw(mouseX: Float, mouseY: Float, partialTicks: Float, visibleArea: IRectangle) =
         forEach {
             it.draw(mouseX, mouseY, partialTicks, visibleArea)
         }
-
-    /**
-     * Returns of JEI targets for ghost items and fluids to be placed on.
-     */
-    abstract fun <I> getFilterSlots(): MutableList<IGhostIngredientHandler.Target<I>>
 
     /**
      * Returns a list of rectangles that overflow from the main gui area, so that JEI can avoid it.

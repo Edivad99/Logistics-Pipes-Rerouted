@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -39,7 +39,7 @@ package network.rs485.logisticspipes.connection
 
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.SimpleServiceLocator
-import net.minecraft.util.EnumFacing
+import net.minecraft.core.Direction
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper
 
 object AdjacentFactory {
@@ -47,16 +47,22 @@ object AdjacentFactory {
         val connectedTileEntities = WorldCoordinatesWrapper(parent.container!!).connectedTileEntities()
             .filter { SimpleServiceLocator.pipeInformationManager.isNotAPipe(it.tileEntity) && !parent.isSideBlocked(it.direction, false) }
 
-        // FIXME: container.canPipeConnect(neighbor.getTileEntity(), neighbor.getDirection()))
-        // the above will check InventoryUtil.getSizeInventory() > 0 (which is wrong)
-        // it is similar to SimpleServiceLocator.pipeInformationManager.isNotAPipe
         return when {
             connectedTileEntities.isEmpty() -> NoAdjacent
-            // FIXME: check when to use FLUID/ITEM/UNDEFINED
-            connectedTileEntities.size == 1 -> SingleAdjacent(parent, connectedTileEntities[0].direction, ConnectionType.UNDEFINED)
-            else -> DynamicAdjacent(parent, arrayOfNulls<ConnectionType>(EnumFacing.VALUES.size).also { arr ->
-                connectedTileEntities.forEach { neighbor -> arr[neighbor.direction.index] = ConnectionType.UNDEFINED }
+            connectedTileEntities.size == 1 -> SingleAdjacent(parent, connectedTileEntities[0].direction, connectionTypeFor(connectedTileEntities[0]))
+            else -> DynamicAdjacent(parent, arrayOfNulls<ConnectionType>(Direction.values().size).also { arr ->
+                connectedTileEntities.forEach { neighbor -> arr[neighbor.direction.get3DDataValue()] = connectionTypeFor(neighbor) }
             })
+        }
+    }
+
+    private fun connectionTypeFor(neighbor: LPNeighborTileEntity<*>): ConnectionType {
+        val items = neighbor.canHandleItems()
+        val fluids = neighbor.canHandleFluids()
+        return when {
+            items && !fluids -> ConnectionType.ITEM
+            fluids && !items -> ConnectionType.FLUID
+            else -> ConnectionType.UNDEFINED
         }
     }
 }

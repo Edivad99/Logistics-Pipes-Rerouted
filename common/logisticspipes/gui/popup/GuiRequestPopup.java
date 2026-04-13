@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.text.TextComponentString;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.IResource.ColorCode;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -19,9 +19,10 @@ public class GuiRequestPopup extends SubGuiScreen {
 
 	private String[] text;
 	private int mWidth = 0;
-	private EntityPlayer player;
+	private Player player;
+	private logisticspipes.utils.gui.SmallGuiButton logButton = null;
 
-	public GuiRequestPopup(EntityPlayer player, Object... message) {
+	public GuiRequestPopup(Player player, Object... message) {
 		super(200, (message.length * 10) + 40, 0, 0);
 		List<String> textArray = new ArrayList<>();
 		for (Object o : message) {
@@ -46,11 +47,19 @@ public class GuiRequestPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
-		buttonList.add(new GuiButton(0, xCenter - 55, bottom - 25, 50, 20, "OK"));
-		buttonList.add(new GuiButton(1, xCenter + 5, bottom - 25, 50, 20, "Log"));
+	public void init() {
+		super.init();
+		logisticspipes.utils.gui.SmallGuiButton ok = new logisticspipes.utils.gui.SmallGuiButton(0, xCenter - 55, bottom - 25, 50, 20, "OK");
+		ok.setPressListener(b -> exitGui());
+		addRenderableWidget(ok);
+		logButton = new logisticspipes.utils.gui.SmallGuiButton(1, xCenter + 5, bottom - 25, 50, 20, "Log");
+		logButton.setPressListener(b -> {
+			for (String msg : text) {
+				player.sendSystemMessage(Component.literal(msg));
+			}
+			logButton.active = false;
+		});
+		addRenderableWidget(logButton);
 	}
 
 	@Override
@@ -58,37 +67,23 @@ public class GuiRequestPopup extends SubGuiScreen {
 		if (mWidth == 0) {
 			int lWidth = 0;
 			for (String msg : text) {
-				int tWidth = mc.fontRenderer.getStringWidth(msg);
+				int tWidth = minecraft.font.width(msg);
 				if (tWidth > lWidth) {
 					lWidth = tWidth;
 				}
 			}
 			xSize = mWidth = Math.max(Math.min(lWidth + 20, 400), 120);
-			super.initGui();
+			super.init();
 		}
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
+		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
 		for (int i = 0; i < text.length; i++) {
 			if (text[i] == null) {
 				continue;
 			}
-			String msg = TextUtil.getTrimmedString(text[i], mWidth - 10, fontRenderer, "...");
-			int stringWidth = mc.fontRenderer.getStringWidth(msg);
-			mc.fontRenderer.drawString(msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0x404040);
+			String msg = TextUtil.getTrimmedString(text[i], mWidth - 10, font, "...");
+			int stringWidth = minecraft.font.width(msg);
+			getGuiGraphics().drawString(minecraft.font, msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0x404040);
 		}
 	}
 
-	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch (guibutton.id) {
-			case 0:
-				super.exitGui();
-				break;
-			case 1:
-				for (String msg : text) {
-					player.sendMessage(new TextComponentString(msg));
-				}
-				buttonList.get(1).enabled = false;
-				break;
-		}
-	}
 }

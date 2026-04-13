@@ -4,44 +4,44 @@ package logisticspipes.proxy.recipeproviders;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import buildcraft.factory.TileAutoWorkbench;
 
 public class AutoWorkbench implements ICraftingRecipeProvider {
 
 	@Override
-	public boolean canOpenGui(TileEntity tile) {
+	public boolean canOpenGui(BlockEntity tile) {
 		return (tile instanceof TileAutoWorkbench);
 	}
 
 	@Override
-	public boolean importRecipe(TileEntity tile, ItemIdentifierInventory inventory) {
+	public boolean importRecipe(BlockEntity tile, ItemIdentifierInventory inventory) {
 		if (!(tile instanceof TileAutoWorkbench)) {
 			return false;
 		}
 
 		TileAutoWorkbench bench = (TileAutoWorkbench) tile;
 		ItemStack result = bench.craftMatrix.getRecipeOutput();
-		//ItemStack result = bench.getStackInSlot(TileAutoWorkbench.SLOT_RESULT);
+		//ItemStack result = bench.getItem(TileAutoWorkbench.SLOT_RESULT);
 
 		if (result == null) {
 			return false;
 		}
 
-		inventory.setInventorySlotContents(9, result);
+		inventory.setItem(9, result);
 
 		// Import
-		for (int i = 0; i < bench.craftMatrix.getSizeInventory(); i++) {
-			if (i >= inventory.getSizeInventory() - 2) {
+		for (int i = 0; i < bench.craftMatrix.getContainerSize(); i++) {
+			if (i >= inventory.getContainerSize() - 2) {
 				break;
 			}
-			final ItemStack newStack = bench.craftMatrix.getStackInSlot(i).copy();
-			if (!newStack.isEmpty() && newStack.stackSize > 1) {
-				newStack.stackSize = 1;
+			final ItemStack newStack = bench.craftMatrix.getItem(i).copy();
+			if (!newStack.isEmpty() && newStack.getCount() > 1) {
+				newStack.getCount() = 1;
 			}
-			inventory.setInventorySlotContents(i, newStack);
+			inventory.setItem(i, newStack);
 		}
 
 		inventory.compactFirst(9);

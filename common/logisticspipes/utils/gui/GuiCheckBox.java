@@ -1,50 +1,51 @@
 package logisticspipes.utils.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
-import org.lwjgl.opengl.GL11;
+public class GuiCheckBox extends AbstractButton {
 
-public class GuiCheckBox extends GuiButton {
-
+	/** Replaces the old Button.id field removed in 1.20.1 */
+	public final int id;
 	private boolean state;
+	private java.util.function.Consumer<GuiCheckBox> pressListener = b -> {};
 
 	public GuiCheckBox(int par1, int par2, int par3, int par4, int par5, boolean startState) {
-		super(par1, par2, par3, par4, par5, "");
+		super(par2, par3, par4, par5, Component.empty());
+		this.id = par1;
 		state = startState;
 	}
 
-	/**
-	 * Draws this button to the screen.
-	 */
+	public void setPressListener(java.util.function.Consumer<GuiCheckBox> listener) {
+		this.pressListener = listener;
+	}
+
 	@Override
-	public void drawButton(@Nonnull Minecraft minecraft, int par2, int par3, float partial) {
+	public void onPress() {
+		change();
+		pressListener.accept(this);
+	}
+
+	@Override
+	public void renderWidget(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
 		if (visible) {
-			boolean var5 = par2 >= x && par3 >= y && par2 < x + width && par3 < y + height;
-			int var6 = getHoverState(var5);
-			//GL11.glBindTexture(GL11.GL_TEXTURE_2D, minecraft.renderEngine.getTexture("/logisticspipes/gui/checkbox-" + (state?"on":"out") + "" + (var6 == 2?"-mouse":"") + ".png"));
-			minecraft.renderEngine.bindTexture(new ResourceLocation("logisticspipes", "textures/gui/checkbox-" + (state ? "on" : "out") + "" + (var6 == 2 ? "-mouse" : "") + ".png"));
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder vertexbuffer = tessellator.getBuffer();
-			vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-
-			vertexbuffer.pos(x, y + height, zLevel).tex(0, 1).endVertex();
-			vertexbuffer.pos(x + width, y + height, zLevel).tex(1, 1).endVertex();
-			vertexbuffer.pos(x + width, y, zLevel).tex(1, 0).endVertex();
-			vertexbuffer.pos(x, y, zLevel).tex(0, 0).endVertex();
-
-			tessellator.draw();
-
-			mouseDragged(minecraft, par2, par3);
+			boolean hover = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
+			ResourceLocation tex = new ResourceLocation("logisticspipes", "textures/gui/checkbox-" + (state ? "on" : "out") + (hover ? "-mouse" : "") + ".png");
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			guiGraphics.blit(tex, getX(), getY(), 0, 0, width, height, width, height);
 		}
+	}
+
+	@Override
+	protected void updateWidgetNarration(@Nonnull NarrationElementOutput narrationElementOutput) {
+		defaultButtonNarrationText(narrationElementOutput);
 	}
 
 	public boolean change() {

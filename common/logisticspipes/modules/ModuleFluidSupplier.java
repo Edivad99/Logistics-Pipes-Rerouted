@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
@@ -27,7 +27,7 @@ import network.rs485.logisticspipes.property.Property;
 public class ModuleFluidSupplier extends LogisticsModule implements IClientInformationProvider, Gui {
 
 	private final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(9, "Requested liquids", 1), "");
+			new ItemIdentifierInventory(9, "Requested liquids", 1), "filterInv");
 
 	private SinkReply _sinkReply;
 
@@ -44,7 +44,7 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 	}
 
 	@Nonnull
-	public IInventory getFilterInventory() {
+	public Container getFilterInventory() {
 		return filterInventory;
 	}
 

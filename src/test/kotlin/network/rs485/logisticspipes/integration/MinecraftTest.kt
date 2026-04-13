@@ -42,11 +42,12 @@ import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.TestState
 import network.rs485.util.checkBooleanProperty
 import logisticspipes.LogisticsPipes
-import net.minecraftforge.fml.common.FMLCommonHandler
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent
+import net.minecraftforge.server.ServerLifecycleHooks
+import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraft.server.dedicated.DedicatedServer
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.WorldServer
+import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.GameRules
 import java.lang.management.ManagementFactory
 import java.time.Duration
 import kotlin.test.assertTrue
@@ -61,44 +62,38 @@ object MinecraftTest {
      */
     private val isDebugging = checkBooleanProperty("logisticspipes.test.debug")
 
-    private lateinit var world: WorldServer
+    private lateinit var world: ServerLevel
     private lateinit var firstBlockPos: BlockPos
     private lateinit var testBlockBuilder: TestWorldBuilder
 
     const val TIMEOUT_MODIFIER: Long = 1L
 
-    fun serverStart(event: FMLServerStartedEvent) {
-        assertTrue(message = "Test suite must run on the server") { event.side.isServer }
-        val serverInstance = FMLCommonHandler.instance().minecraftServerInstance as DedicatedServer
-        world = serverInstance.worlds[0]
+    fun serverStart(event: ServerStartedEvent) {
+        val serverInstance = ServerLifecycleHooks.getCurrentServer() as DedicatedServer
+        world = serverInstance.overworld()
         firstBlockPos = BlockPos(0, LEVEL, 0)
         if (isDebugging) {
-            serverInstance.setProperty("max-tick-time", 0L)
-            serverInstance.saveProperties()
             val threadmxbean = ManagementFactory.getThreadMXBean()
             val athreadinfo = threadmxbean.dumpAllThreads(true, true)
             val watchdog = athreadinfo.find { it.threadName == "Server Watchdog" }
             if (watchdog != null) error("Watchdog already running! Set max-tick-time to 0, please restart the server!")
 
             // set rules for spawning players without annoying stuff
-            world.spawnPoint = firstBlockPos
-            world.gameRules.setOrCreateGameRule("spawnRadius", "0")
-            world.gameRules.setOrCreateGameRule("doDaylightCycle", "false")
-            world.gameRules.setOrCreateGameRule("doWeatherCycle", "false")
-            world.worldTime = 5000
-            world.worldInfo.cleanWeatherTime = 15000
-            world.worldInfo.rainTime = 0
-            world.worldInfo.thunderTime = 0
-            world.worldInfo.isRaining = false
-            world.worldInfo.isThundering = false
+            world.setDefaultSpawnPos(firstBlockPos, 0f)
+            world.gameRules.getRule(GameRules.RULE_SPAWN_RADIUS).set(0, serverInstance)
+            world.gameRules.getRule(GameRules.RULE_DAYLIGHT).set(false, serverInstance)
+            world.gameRules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverInstance)
+            world.setDayTime(5000)
+            world.setRainLevel(0f)
+            world.setThunderLevel(0f)
         }
-        val task = startTests(LogisticsPipes.log::info)
+        val task = startTests { msg: Any -> LogisticsPipes.log.info(msg.toString()) }
         task.invokeOnCompletion {
             if (it != null) throw it
             repeat(3) {
                 LogisticsPipes.log.info("All Tests done.")
             }
-            if (!isDebugging) serverInstance.initiateShutdown()
+            if (!isDebugging) serverInstance.halt(false)
         }
     }
 
@@ -108,7 +103,7 @@ object MinecraftTest {
             logger("[STARTING LOGISTICSPIPES TESTS]")
             withTimeout(Duration.ofMinutes(3)) {
                 testBlockBuilder = TestWorldBuilder(world, firstBlockPos)
-                world.spawnPoint = testBlockBuilder.buildSpawnPlatform()
+                world.setDefaultSpawnPos(testBlockBuilder.buildSpawnPlatform(), 0f)
                 listOf(
                     async {
                         CraftingTest.`test single fuzzy ingredient crafting fails multi-request with mixed OreDict input`(

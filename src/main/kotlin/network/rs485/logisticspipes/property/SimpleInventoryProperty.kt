@@ -38,16 +38,16 @@
 package network.rs485.logisticspipes.property
 
 import logisticspipes.utils.item.SimpleStackInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.stream.Stream
 
 class SimpleInventoryProperty(private val inv: SimpleStackInventory, override val tagKey: String) :
-    Property<SimpleStackInventory>, IInventory by inv {
+    Property<SimpleStackInventory>, Container by inv {
 
     override val propertyObservers: CopyOnWriteArraySet<ObserverCallback<SimpleStackInventory>> =
         CopyOnWriteArraySet()
@@ -56,41 +56,32 @@ class SimpleInventoryProperty(private val inv: SimpleStackInventory, override va
 
     override fun copyProperty(): Property<SimpleStackInventory> = SimpleInventoryProperty(copyValue(), tagKey)
 
-    override fun readFromNBT(tag: NBTTagCompound) = inv.readFromNBT(tag, tagKey)
+    override fun readFromNBT(tag: CompoundTag) = inv.readFromNBT(tag, tagKey)
 
-    override fun writeToNBT(tag: NBTTagCompound) = inv.writeToNBT(tag, tagKey)
+    override fun writeToNBT(tag: CompoundTag) = inv.writeToNBT(tag, tagKey)
 
     fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 
-    fun dropContents(world: World, pos: BlockPos) = inv.dropContents(world, pos).alsoIChanged()
+    fun dropContents(world: Level, pos: BlockPos) = inv.dropContents(world, pos).alsoIChanged()
 
     fun addCompressed(toAdd: ItemStack, ignoreMaxStackSize: Boolean): Int =
         inv.addCompressed(toAdd, ignoreMaxStackSize).alsoIChanged()
 
-    override fun decrStackSize(index: Int, count: Int): ItemStack = inv.decrStackSize(index, count).alsoIChanged()
+    override fun removeItem(index: Int, count: Int): ItemStack = inv.removeItem(index, count).alsoIChanged()
 
-    override fun removeStackFromSlot(index: Int): ItemStack = inv.removeStackFromSlot(index).alsoIChanged()
+    override fun removeItemNoUpdate(index: Int): ItemStack = inv.removeItemNoUpdate(index).alsoIChanged()
 
-    override fun setInventorySlotContents(index: Int, stack: ItemStack) =
-        inv.setInventorySlotContents(index, stack).alsoIChanged()
+    override fun setItem(index: Int, stack: ItemStack) =
+        inv.setItem(index, stack).alsoIChanged()
 
-    override fun markDirty() = inv.markDirty().alsoIChanged()
+    override fun setChanged() = inv.setChanged().alsoIChanged()
 
-    override fun clear() = inv.clear().alsoIChanged()
-
-    @Deprecated("delegate not implemented")
-    override fun setField(id: Int, value: Int) = inv.setField(id, value).alsoIChanged()
-
-    @Deprecated("delegate not implemented")
-    override fun getFieldCount(): Int = inv.fieldCount
-
-    @Deprecated("delegate not implemented")
-    override fun getField(id: Int): Int = inv.getField(id)
+    fun clear() = inv.clearContent().alsoIChanged()
 
     @Deprecated("do not change returned ItemStack or call markDirty afterwards")
-    override fun getStackInSlot(index: Int): ItemStack = inv.getStackInSlot(index)
+    override fun getItem(index: Int): ItemStack = inv.getItem(index)
 
-    fun isSlotEmpty(index: Int): Boolean = inv.getStackInSlot(index).isEmpty
+    fun isSlotEmpty(index: Int): Boolean = inv.getItem(index).isEmpty
 
     /**
      * @see SimpleStackInventory.stackStream

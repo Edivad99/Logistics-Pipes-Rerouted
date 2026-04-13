@@ -37,9 +37,19 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import net.minecraft.inventory.Slot
+import net.minecraft.world.inventory.Slot
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
+
+/** Slot.x and Slot.y are public final in 1.20.1; use reflection to reposition at runtime. */
+private fun Slot.setXY(newX: Int, newY: Int) {
+    try {
+        val xf = net.minecraft.world.inventory.Slot::class.java.getDeclaredField("x").also { it.isAccessible = true }
+        val yf = net.minecraft.world.inventory.Slot::class.java.getDeclaredField("y").also { it.isAccessible = true }
+        xf.setInt(this, newX)
+        yf.setInt(this, newY)
+    } catch (_: Exception) {}
+}
 
 class PlayerInventorySlotGroup(
     parent: Drawable,
@@ -74,20 +84,14 @@ class PlayerInventorySlotGroup(
         var index = 0
         for (row in 0 until 3) {
             for (column in 0 until 9) {
-                slots[index].apply {
-                    xPos = startX + column * slotSize
-                    yPos = startY + row * slotSize
-                }
+                slots[index].setXY(startX + column * slotSize, startY + row * slotSize)
                 index++
             }
         }
 
         // Add the hotbar inventory slots
         for (column in 0 until 9) {
-            slots[index].apply {
-                xPos = startX + column * slotSize
-                yPos = startY + 3 * slotSize + 4
-            }
+            slots[index].setXY(startX + column * slotSize, startY + 3 * slotSize + 4)
             index++
         }
         return width to height

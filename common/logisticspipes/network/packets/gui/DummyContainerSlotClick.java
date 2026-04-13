@@ -2,11 +2,12 @@ package logisticspipes.network.packets.gui;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -49,10 +50,10 @@ public class DummyContainerSlotClick extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (player instanceof EntityPlayerMP && ((EntityPlayerMP) player).openContainer instanceof DummyContainer) {
-			DummyContainer container = (DummyContainer) ((EntityPlayerMP) player).openContainer;
-			Slot slot = container.inventorySlots.get(slotId);
+	public void processPacket(Player player) {
+		if (player instanceof ServerPlayer && ((ServerPlayer) player).containerMenu instanceof DummyContainer) {
+			DummyContainer container = (DummyContainer) ((ServerPlayer) player).containerMenu;
+			Slot slot = container.slots.get(slotId);
 			if (slot instanceof DummySlot || slot instanceof ColorSlot || slot instanceof FluidSlot) {
 				container.handleDummyClick(slot, slotId, stack, button, ClickType.PICKUP, player);
 			}

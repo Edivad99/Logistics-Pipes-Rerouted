@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.modules;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.abstractpackets.BooleanModuleCoordinatesPacket;
@@ -20,7 +20,7 @@ public class ProviderModuleInclude extends BooleanModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		final ModuleProvider module = this.getLogisticsModule(player, ModuleProvider.class);
 		if (module == null) {
 			return;

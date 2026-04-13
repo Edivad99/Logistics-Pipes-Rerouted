@@ -20,16 +20,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.LogisticsPipes;
 import network.rs485.logisticspipes.IStore;
@@ -111,30 +111,30 @@ public class ItemIdentifierInventory
 		isLiquidInventory = copy.isLiquidInventory;
 	}
 
-	public static void dropItems(World world, @Nonnull ItemStack stack, BlockPos pos) {
+	public static void dropItems(Level world, @Nonnull ItemStack stack, BlockPos pos) {
 		dropItems(world, stack, pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public static void dropItems(World world, @Nonnull ItemStack stack, int i, int j, int k) {
+	public static void dropItems(Level world, @Nonnull ItemStack stack, int i, int j, int k) {
 		if (stack.isEmpty()) return;
 		float f1 = 0.7F;
-		double d = (world.rand.nextFloat() * f1) + (1.0F - f1) * 0.5D;
-		double d1 = (world.rand.nextFloat() * f1) + (1.0F - f1) * 0.5D;
-		double d2 = (world.rand.nextFloat() * f1) + (1.0F - f1) * 0.5D;
-		EntityItem entityitem = new EntityItem(world, i + d, j + d1, k + d2, stack);
-		entityitem.setPickupDelay(10);
-		world.spawnEntity(entityitem);
+		double d = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+		double d1 = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+		double d2 = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+		ItemEntity entityitem = new ItemEntity(world, i + d, j + d1, k + d2, stack);
+		entityitem.setPickUpDelay(10);
+		world.addFreshEntity(entityitem);
 	}
 
 	@Override
-	public int getSizeInventory() {
+	public int getContainerSize() {
 		return _contents.length;
 	}
 
 	@Override
 	@Deprecated
 	@Nonnull
-	public ItemStack getStackInSlot(int i) {
+	public ItemStack getItem(int i) {
 		if (_contents[i] == null) {
 			return ItemStack.EMPTY;
 		}
@@ -148,7 +148,7 @@ public class ItemIdentifierInventory
 
 	@Override
 	@Nonnull
-	public ItemStack decrStackSize(int slot, int count) {
+	public ItemStack removeItem(int slot, int count) {
 		if (_contents[slot] == null) {
 			return ItemStack.EMPTY;
 		}
@@ -164,7 +164,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void setInventorySlotContents(int i, @Nonnull ItemStack itemstack) {
+	public void setItem(int i, @Nonnull ItemStack itemstack) {
 		if (itemstack.isEmpty()) {
 			_contents[i] = null;
 		} else {
@@ -181,7 +181,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void setInventorySlotContents(int i, ItemIdentifierStack itemstack) {
+	public void setItem(int i, ItemIdentifierStack itemstack) {
 		if (itemstack == null) {
 			_contents[i] = null;
 		} else {
@@ -198,12 +198,12 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public int getInventoryStackLimit() {
+	public int getMaxStackSize() {
 		return _stackLimit;
 	}
 
 	@Override
-	public void markDirty() {
+	public void setChanged() {
 		updateContents();
 		for (ISimpleInventoryEventHandler handler : _listener) {
 			handler.InventoryChanged(this);
@@ -211,29 +211,28 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public boolean isUsableByPlayer(@Nonnull EntityPlayer entityplayer) {
+	public boolean stillValid(@Nonnull Player entityplayer) {
 		return true;
 	}
 
 	@Override
-	public void openInventory(@Nonnull EntityPlayer player) {}
+	public void startOpen(@Nonnull Player player) {}
 
 	@Override
-	public void closeInventory(@Nonnull EntityPlayer player) {}
+	public void stopOpen(@Nonnull Player player) {}
 
 	@Override
-	public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
+	public void readFromNBT(@Nonnull CompoundTag nbttagcompound) {
 		readFromNBT(nbttagcompound, "");
 	}
 
-	public void readFromNBT(NBTTagCompound nbttagcompound, String prefix) {
-		// FIXME: after 1.12 remove this items appending crap
-		NBTTagList nbttaglist = nbttagcompound.getTagList(prefix + "items", nbttagcompound.getId());
+	public void readFromNBT(CompoundTag nbttagcompound, String prefix) {
+		ListTag nbttaglist = nbttagcompound.getList(prefix + "items", nbttagcompound.getId());
 
 		Arrays.fill(_contents, null);
-		for (int j = 0; j < nbttaglist.tagCount(); ++j) {
-			NBTTagCompound nbttagcompound2 = nbttaglist.getCompoundTagAt(j);
-			int index = nbttagcompound2.getInteger("index");
+		for (int j = 0; j < nbttaglist.size(); ++j) {
+			CompoundTag nbttagcompound2 = nbttaglist.getCompound(j);
+			int index = nbttagcompound2.getInt("index");
 			if (index < _contents.length) {
 				ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2);
 				ItemIdentifierStack itemstack = ItemIdentifierStack.getFromStack(stack);
@@ -241,7 +240,7 @@ public class ItemIdentifierInventory
 					_contents[index] = itemstack;
 				}
 			} else {
-				LogisticsPipes.log.fatal("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of "
+				LogisticsPipes.log.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of "
 						+ _contents.length);
 			}
 		}
@@ -249,33 +248,33 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull NBTTagCompound nbttagcompound) {
+	public void writeToNBT(@Nonnull CompoundTag nbttagcompound) {
 		writeToNBT(nbttagcompound, "");
 	}
 
-	public void writeToNBT(NBTTagCompound nbttagcompound, String prefix) {
-		NBTTagList nbttaglist = new NBTTagList();
+	public void writeToNBT(CompoundTag nbttagcompound, String prefix) {
+		ListTag nbttaglist = new ListTag();
 		for (int j = 0; j < _contents.length; ++j) {
 			if (_contents[j] != null && _contents[j].getStackSize() > 0) {
-				NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-				nbttaglist.appendTag(nbttagcompound2);
-				nbttagcompound2.setInteger("index", j);
-				_contents[j].unsafeMakeNormalStack().writeToNBT(nbttagcompound2);
+				CompoundTag nbttagcompound2 = new CompoundTag();
+				nbttaglist.add(nbttagcompound2);
+				nbttagcompound2.putInt("index", j);
+				_contents[j].unsafeMakeNormalStack().save(nbttagcompound2);
 			}
 		}
-		nbttagcompound.setTag(prefix + "items", nbttaglist);
-		nbttagcompound.setInteger(prefix + "itemsCount", _contents.length);
+		nbttagcompound.put(prefix + "items", nbttaglist);
+		nbttagcompound.putInt(prefix + "itemsCount", _contents.length);
 	}
 
-	public void dropContents(World world, BlockPos pos) {
+	public void dropContents(Level world, BlockPos pos) {
 		dropContents(world, pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public void dropContents(World world, int posX, int posY, int posZ) {
+	public void dropContents(Level world, int posX, int posY, int posZ) {
 		if (MainProxy.isServer(world)) {
 			for (int i = 0; i < _contents.length; i++) {
 				while (_contents[i] != null) {
-					ItemStack todrop = decrStackSize(i, _contents[i].getItem().getMaxStackSize());
+					ItemStack todrop = removeItem(i, _contents[i].getItem().getMaxStackSize());
 					ItemIdentifierInventory.dropItems(world, todrop, posX, posY, posZ);
 				}
 			}
@@ -297,7 +296,7 @@ public class ItemIdentifierInventory
 
 	@Nonnull
 	@Override
-	public ItemStack removeStackFromSlot(int i) {
+	public ItemStack removeItemNoUpdate(int i) {
 		if (_contents[i] == null) {
 			return ItemStack.EMPTY;
 		}
@@ -318,7 +317,7 @@ public class ItemIdentifierInventory
 			_contents[i] = stack;
 			i++;
 		}
-		markDirty();
+		setChanged();
 	}
 
 	private int tryAddToSlot(int i, @Nonnull ItemStack stack, int realstacklimit) {
@@ -388,7 +387,7 @@ public class ItemIdentifierInventory
 			stack.setCount(stack.getCount() - added);
 		}
 
-		markDirty();
+		setChanged();
 		return stack.getCount();
 	}
 
@@ -450,24 +449,25 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
+	public boolean canPlaceItem(int i, @Nonnull ItemStack itemstack) {
 		return true;
 	}
 
-	@Override
 	public int getField(int id) {
 		return 0;
 	}
 
-	@Override
 	public void setField(int id, int value) {}
 
-	@Override
 	public int getFieldCount() {
 		return 0;
 	}
 
 	@Override
+	public void clearContent() {
+		clear();
+	}
+
 	public void clear() {
 		Arrays.fill(_contents, null);
 		updateContents();
@@ -525,27 +525,24 @@ public class ItemIdentifierInventory
 	}
 
 	public void clearGrid() {
-		for (int i = 0; i < getSizeInventory(); i++) {
+		for (int i = 0; i < getContainerSize(); i++) {
 			_contents[i] = null;
 		}
 		updateContents();
 	}
 
-	@Override
 	@Nonnull
 	public String getName() {
 		return _name;
 	}
 
-	@Override
 	public boolean hasCustomName() {
 		return true;
 	}
 
-	@Override
 	@Nonnull
-	public ITextComponent getDisplayName() {
-		return new TextComponentString(getName());
+	public Component getDisplayName() {
+		return Component.literal(getName());
 	}
 
 	public NonNullList<ItemStack> toNonNullList() {

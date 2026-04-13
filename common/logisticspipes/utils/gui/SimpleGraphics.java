@@ -8,17 +8,12 @@
 
 package logisticspipes.utils.gui;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.gui.Font;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.utils.Color;
 
@@ -26,8 +21,10 @@ import logisticspipes.utils.Color;
  * Utils class for simple drawing methods.
  */
 @SuppressWarnings("JavadocReference")
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public final class SimpleGraphics {
+
+	public static net.minecraft.client.gui.GuiGraphics guiGraphics = null;
 
 	private SimpleGraphics() {}
 
@@ -57,7 +54,7 @@ public final class SimpleGraphics {
 			x2 = temp;
 		}
 
-		Gui.drawRect(x1, y, x2 + 1, y + thickness, color);
+		guiGraphics.fill(x1, y, x2 + 1, y + thickness, color);
 	}
 
 	/**
@@ -86,7 +83,7 @@ public final class SimpleGraphics {
 			y2 = temp;
 		}
 
-		Gui.drawRect(x, y1 + 1, x + thickness, y2, color);
+		guiGraphics.fill(x, y1 + 1, x + thickness, y2, color);
 	}
 
 	/**
@@ -108,7 +105,7 @@ public final class SimpleGraphics {
 	 * @param y2     the second y-coordinate of the rectangle
 	 * @param color  the color of the rectangle
 	 * @param zLevel the z-level of the graphic
-	 * @see net.minecraft.client.gui.Gui#drawRect(int, int, int, int, int)
+	 * @see net.minecraft.client.gui.Gui#guiGraphics.fill(int, int, int, int, int)
 	 */
 	public static void drawRectNoBlend(int x1, int y1, int x2, int y2, int color, double zLevel) {
 		int temp;
@@ -125,22 +122,7 @@ public final class SimpleGraphics {
 			y2 = temp;
 		}
 
-		// no blend //GlStateManager.enableBlend();
-		GlStateManager.disableTexture2D();
-		// no blend //GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		GL11.glColor4f(Color.getRed(color), Color.getGreen(color), Color.getBlue(color), Color.getAlpha(color));
-
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder buf = tessellator.getBuffer();
-		buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-		buf.pos(x1, y2, zLevel).endVertex();
-		buf.pos(x2, y2, zLevel).endVertex();
-		buf.pos(x2, y1, zLevel).endVertex();
-		buf.pos(x1, y1, zLevel).endVertex();
-		tessellator.draw();
-
-		GlStateManager.enableTexture2D();
-		// no blend //GlStateManager.disableBlend();
+		guiGraphics.fill(Math.min(x1, x2), Math.min(y1, y2), Math.max(x1, x2), Math.max(y1, y2), color);
 	}
 
 	/**
@@ -164,26 +146,8 @@ public final class SimpleGraphics {
 	 * @param zLevel the z-level of the graphic
 	 * @see net.minecraft.client.gui.Gui#drawGradientRect(int, int, int, int, int, int)
 	 */
-	public static void drawGradientRect(int x1, int y1, int x2, int y2, int colorA, int colorB, double zLevel) { // TODO
-		GlStateManager.disableTexture2D();
-		GlStateManager.enableBlend();
-		GlStateManager.disableAlpha();
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		GlStateManager.shadeModel(7425);
-
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder buf = tessellator.getBuffer();
-		buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-		buf.pos(x2, y1, zLevel).color(Color.getRed(colorA), Color.getGreen(colorA), Color.getBlue(colorA), Color.getAlpha(colorA)).endVertex();
-		buf.pos(x1, y1, zLevel).color(Color.getRed(colorA), Color.getGreen(colorA), Color.getBlue(colorA), Color.getAlpha(colorA)).endVertex();
-		buf.pos(x1, y2, zLevel).color(Color.getRed(colorB), Color.getGreen(colorB), Color.getBlue(colorB), Color.getAlpha(colorB)).endVertex();
-		buf.pos(x2, y2, zLevel).color(Color.getRed(colorB), Color.getGreen(colorB), Color.getBlue(colorB), Color.getAlpha(colorB)).endVertex();
-		tessellator.draw();
-
-		GlStateManager.shadeModel(7424);
-		GlStateManager.disableBlend();
-		GlStateManager.enableAlpha();
-		GlStateManager.enableTexture2D();
+	public static void drawGradientRect(int x1, int y1, int x2, int y2, int colorA, int colorB, double zLevel) {
+		guiGraphics.fillGradient(x1, y1, x2, y2, colorA, colorB);
 	}
 
 	/**
@@ -198,41 +162,35 @@ public final class SimpleGraphics {
 	 * @param zLevel the z-level of the graphic
 	 * @see net.minecraft.client.gui.Gui#drawTexturedModalRect(int, int, int, int, int, int)
 	 */
+	/**
+	 * @deprecated 1.12.2 signature — callers must migrate to
+	 *   {@code guiGraphics.blit(ResourceLocation, x, y, u, v, w, h)}.
+	 *   Kept as a no-op so legacy call sites still compile until migrated.
+	 */
+	@Deprecated
 	public static void drawTexturedModalRect(int x, int y, int u, int v, int width, int height, double zLevel) {
-		float f = 0.00390625F;
-		float f1 = 0.00390625F;
-
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder buf = tessellator.getBuffer();
-		buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		buf.pos(x, y + height, zLevel).tex(u * f, (v + height) * f1);
-		buf.pos(x + width, y + height, zLevel).tex((u + width) * f, (v + height) * f1);
-		buf.pos(x + width, y, zLevel).tex((u + width) * f, v * f1);
-		buf.pos(x, y, zLevel).tex(u * f, v * f1);
-		tessellator.draw();
+		// no-op: texture binding is callsite-specific in 1.20.1; see GuiGraphics.blit
 	}
 
 	/**
 	 * Draws the specified string with a z-translated drop shadow.
 	 *
-	 * @param fontRenderer the font renderer to render the string with
+	 * @param font the font renderer to render the string with
 	 * @param s            the string to render
 	 * @param x            the x-coordinate of the string
 	 * @param y            the y-coordinate of the string
 	 * @param color        the color of the string
 	 * @return the stop x-coordinate of the drawn string
 	 */
-	public static int drawStringWithTranslatedShadow(FontRenderer fontRenderer, String s, int x, int y, int color) {
+	public static int drawStringWithTranslatedShadow(Font font, String s, int x, int y, int color) {
 		int endX;
 
 		// make color gray-ish and draw shadow
 		int grayColor = (color & 16579836) >> 2 | color & -16777216;
-		endX = fontRenderer.drawString(s, x + 1, y + 1, grayColor);
+		endX = guiGraphics.drawString(font, s, x + 1, y + 1, grayColor);
 
 		// move to foreground and draw actual string
-		GL11.glTranslated(0.0, 0.0, 1.0);
-		endX = Math.max(endX, fontRenderer.drawString(s, x, y, color));
-		GL11.glTranslated(0.0, 0.0, -1.0);
+		endX = Math.max(endX, guiGraphics.drawString(font, s, x, y, color));
 
 		return endX;
 	}
@@ -240,43 +198,18 @@ public final class SimpleGraphics {
 	/**
 	 * Takes colors as enum values from {@link logisticspipes.utils.Color}.
 	 *
-	 * @see #drawQuad(Tessellator, int, int, int, int, int, double)
+	 * @see #drawQuad(Object, int, int, int, int, int, double)
 	 */
-	public static void drawQuad(Tessellator tessellator, int x, int y, int width, int height, Color color, double zLevel) {
+	public static void drawQuad(Object tessellator, int x, int y, int width, int height, Color color, double zLevel) {
 		SimpleGraphics.drawQuad(tessellator, x, y, width, height, Color.getValue(color), zLevel);
 	}
 
 	/**
-	 * Adds a quad to the tesselator at the specified position with the set
-	 * width and height and color.
-	 *
-	 * @param tessellator the tesselator
-	 * @param x           the x-coordinate of the quad
-	 * @param y           the y-coordinate of the quad
-	 * @param width       the width of the quad
-	 * @param height      the height of the quad
-	 * @param color       the color of the quad
-	 * @param zLevel      the z-level of the quad
+	 * Draws a solid-color rectangle. The {@code tessellator} parameter is kept for
+	 * source compatibility with 1.12.2 call sites and is ignored; the rectangle is
+	 * painted via {@link net.minecraft.client.gui.GuiGraphics#fill}.
 	 */
-	public static void drawQuad(Tessellator tessellator, int x, int y, int width, int height, int color, double zLevel) {
-		BufferBuilder buf = tessellator.getBuffer();
-		buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-		float a = Color.getAlpha(color);
-		float r = Color.getRed(color);
-		float g = Color.getGreen(color);
-		float b = Color.getBlue(color);
-		buf.pos(x, y, zLevel)
-				.color(r, g, b, a)
-				.endVertex();
-		buf.pos(x, y + height, zLevel)
-				.color(r, g, b, a)
-				.endVertex();
-		buf.pos(x + width, y + height, zLevel)
-				.color(r, g, b, a)
-				.endVertex();
-		buf.pos(x + width, y, zLevel)
-				.color(r, g, b, a)
-				.endVertex();
-		tessellator.draw();
+	public static void drawQuad(Object tessellator, int x, int y, int width, int height, int color, double zLevel) {
+		guiGraphics.fill(x, y, x + width, y + height, color);
 	}
 }

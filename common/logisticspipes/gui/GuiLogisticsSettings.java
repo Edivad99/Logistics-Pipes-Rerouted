@@ -1,14 +1,10 @@
 package logisticspipes.gui;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
+import net.minecraft.world.entity.player.Player;
+
+
+
 
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
@@ -26,15 +22,16 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 
 	private static final String PREFIX = "gui.settings.";
 
-	public GuiLogisticsSettings(final EntityPlayer player) {
-		super(180, 220);
-		DummyContainer dummy = new DummyContainer(player, null);
-		dummy.addNormalSlotsForPlayerInventory(10, 135);
-
+	public GuiLogisticsSettings(final Player player) {
+		super(buildDummy(player), 180, 220);
 		addTab(new PipeRenderSettings());
-
-		inventorySlots = dummy;
 	}
+	private static DummyContainer buildDummy(final Player player) {
+		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
+		dummy.addNormalSlotsForPlayerInventory(10, 135);
+		return dummy;
+	}
+
 
 	private class PipeRenderSettings extends TabSubGui {
 
@@ -47,42 +44,33 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 
 		@Override
 		public void initTab() {
-			Keyboard.enableRepeatEvents(true);
+			
 
 			ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 			if (renderDistance == null) {
-				renderDistance = new InputBar(fontRenderer, getBaseScreen(), 15, 75, 30, 15, false, true, InputBar.Align.RIGHT);
-				renderDistance.setInteger(config.getRenderPipeDistance());
+				renderDistance = new InputBar(font, getBaseScreen(), 15, 75, 30, 15, false, true, InputBar.Align.RIGHT);
+				renderDistance.putInt(config.getRenderPipeDistance());
 			}
 			renderDistance.reposition(15, 80, 30, 15);
 			if (contentRenderDistance == null) {
-				contentRenderDistance = new InputBar(fontRenderer, getBaseScreen(), 15, 105, 30, 15, false, true, InputBar.Align.RIGHT);
-				contentRenderDistance.setInteger(config.getRenderPipeContentDistance());
+				contentRenderDistance = new InputBar(font, getBaseScreen(), 15, 105, 30, 15, false, true, InputBar.Align.RIGHT);
+				contentRenderDistance.putInt(config.getRenderPipeContentDistance());
 			}
 			contentRenderDistance.reposition(15, 110, 30, 15);
-			//useNewRendererButton = (GuiCheckBox) addButton(new GuiCheckBox(0, guiLeft + 15, guiTop + 30, 16, 16, config.isUseNewRenderer()));
-			//useFallbackRendererButton = (GuiCheckBox) addButton(new GuiCheckBox(0, guiLeft + 15, guiTop + 50, 16, 16, config.isUseFallbackRenderer()));
+			//useNewRendererButton = (GuiCheckBox) addRenderableWidget(new GuiCheckBox(0, leftPos + 15, topPos + 30, 16, 16, config.isUseNewRenderer()));
+			//useFallbackRendererButton = (GuiCheckBox) addRenderableWidget(new GuiCheckBox(0, leftPos + 15, topPos + 50, 16, 16, config.isUseFallbackRenderer()));
 		}
 
 		@Override
 		public void renderIcon(int x, int y) {
-			GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240 / 1.0F, 240 / 1.0F);
-			GL11.glEnable(GL11.GL_LIGHTING);
-			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			RenderHelper.enableGUIStandardItemLighting();
-			ItemStack stack = new ItemStack(LPItems.pipeBasic, 1);
-			itemRender.renderItemAndEffectIntoGUI(stack, x, y);
-			GL11.glDisable(GL11.GL_LIGHTING);
-			GL11.glDisable(GL11.GL_DEPTH_TEST);
-			itemRender.zLevel = 0.0F;
+			// Deferred: tab icon requires an LP item texture selection; left blank for now.
 		}
 
 		@Override
 		public void renderBackgroundContent() {}
 
 		@Override
-		public void buttonClicked(GuiButton button) {
+		public void buttonClicked(net.minecraft.client.gui.components.AbstractButton button) {
 			if (button == useNewRendererButton) {
 				useNewRendererButton.change();
 			}
@@ -95,16 +83,16 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		public void renderForegroundContent() {
 			renderDistance.drawTextBox();
 			contentRenderDistance.drawTextBox();
-			//fontRenderer.drawString(StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0x404040);
-			//fontRenderer.drawString(StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0x404040);
-			fontRenderer.drawString(TextUtil.translate(PREFIX + "piperenderdistance"), 10, 70, 0x404040);
-			fontRenderer.drawString(TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 100, 0x404040);
+			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0x404040);
+			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0x404040);
+			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 70, 0x404040);
+			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 100, 0x404040);
 		}
 
 		@Override
 		public boolean handleClick(int x, int y, int type) {
-			boolean val1 = renderDistance.handleClick(x - guiLeft, y - guiTop, type);
-			boolean val2 = contentRenderDistance.handleClick(x - guiLeft, y - guiTop, type);
+			boolean val1 = renderDistance.handleClick(x - leftPos, y - topPos, type);
+			boolean val2 = contentRenderDistance.handleClick(x - leftPos, y - topPos, type);
 			return val1 || val2;
 		}
 
@@ -117,10 +105,10 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		public void guiClose() {
 			ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 			try {
-				config.setRenderPipeDistance(renderDistance.getInteger());
-				config.setRenderPipeContentDistance(contentRenderDistance.getInteger());
+				config.setRenderPipeDistance(renderDistance.getInt());
+				config.setRenderPipeContentDistance(contentRenderDistance.getInt());
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogisticsPipes.log.error("Failed to update render distance config", e);
 			}
 			//config.setUseNewRenderer(useNewRendererButton.getState());
 			//config.setUseFallbackRenderer(useFallbackRendererButton.getState());

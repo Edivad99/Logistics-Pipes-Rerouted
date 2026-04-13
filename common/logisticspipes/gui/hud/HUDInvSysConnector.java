@@ -2,11 +2,11 @@ package logisticspipes.gui.hud;
 
 import net.minecraft.client.Minecraft;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 
@@ -20,25 +20,14 @@ public class HUDInvSysConnector extends BasicHUDGui {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft mc, IHUDConfig config) {
-		if (day) {
-			GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 64);
-		} else {
-			GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 64);
+	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, -50, -50, 50, 50, 0, false);
+		super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
+		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		if (gg != null) {
+			int textColor = day ? 0xff404040 : 0xff7f7f7f;
+			gg.drawString(minecraft.font, "Expected:", -28, -25, textColor, false);
 		}
-		GuiGraphics.drawGuiBackGround(mc, -50, -50, 50, 50, 0, false);
-		if (day) {
-			GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 127);
-		} else {
-			GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 127);
-		}
-
-		GL11.glTranslatef(0.0F, 0.0F, -0.005F);
-		GL11.glScalef(1.5F, 1.5F, 0.0001F);
-		String message = "Expected:";
-		mc.fontRenderer.drawString(message, -28, -25, 0);
-		GL11.glScalef(0.8F, 0.8F, -1F);
-
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(pipe.displayList, null, 0, -37, -18, 3, 9, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 	}
 

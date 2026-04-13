@@ -1,28 +1,29 @@
 /*
 package logisticspipes.renderer;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.HashMap;
 import java.util.Map;
 
 import logisticspipes.renderer.CustomBlockRenderer.RenderInfo;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.init.Blocks;
+// import net.minecraft.client.renderer.GLAllocation; // removed — display lists not available
+import net.minecraft.client.renderer.texture.TextureAtlas; // was TextureAtlas
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
-import org.lwjgl.opengl.GL11;
+
 
 public final class FluidRenderer {
 
 	public static final int DISPLAY_STAGES = 100;
-	//private static final ResourceLocation BLOCK_TEXTURE = TextureMap.locationBlocksTexture;
+	//private static final ResourceLocation BLOCK_TEXTURE = TextureAtlas.locationBlocksTexture;
 	private static Map<Fluid, int[]> flowingRenderCache = new HashMap<>();
 	private static Map<Fluid, int[]> stillRenderCache = new HashMap<>();
 	private static final RenderInfo liquidBlock = new RenderInfo();
@@ -47,7 +48,7 @@ public final class FluidRenderer {
 		}
 		TextureAtlasSprite icon = flowing ? fluid.getFlowingIcon() : fluid.getStillIcon();
 		if (icon == null) {
-			icon = ((TextureMap) Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)).getAtlasSprite("missingno");
+			icon = ((TextureAtlas) Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS_TEXTURE)).getAtlasSprite("missingno");
 		}
 		return icon;
 	}
@@ -76,10 +77,10 @@ public final class FluidRenderer {
 		float red = (color >> 16 & 255) / 255.0F;
 		float green = (color >> 8 & 255) / 255.0F;
 		float blue = (color & 255) / 255.0F;
-		GL11.glColor4f(red, green, blue, 1.0F);
+		RenderSystem.setShaderColor(red, green, blue, 1.0F);
 	}
 
-	public static int[] getFluidDisplayLists(FluidStack fluidStack, World world, boolean flowing) {
+	public static int[] getFluidDisplayLists(FluidStack fluidStack, Level world, boolean flowing) {
 		if (fluidStack == null) {
 			return null;
 		}
@@ -105,13 +106,13 @@ public final class FluidRenderer {
 
 		cache.put(fluid, diplayLists);
 
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glDisable(GL11.GL_BLEND);
-		GL11.glDisable(GL11.GL_CULL_FACE);
+		// GL_LIGHTING removed — use shaders
+		RenderSystem.disableBlend();
+		// TODO: GL11.glDisable(GL11.GL_CULL_FACE) → RenderSystem equivalent
 
 		for (int s = 0; s < FluidRenderer.DISPLAY_STAGES; ++s) {
 			diplayLists[s] = GLAllocation.generateDisplayLists(1);
-			GL11.glNewList(diplayLists[s], 4864 /*GL_COMPILE* /);
+			// TODO: glNewList removed — use vertex buffer rendering
 
 			FluidRenderer.liquidBlock.minX = 0.01f;
 			FluidRenderer.liquidBlock.minY = 0;
@@ -123,13 +124,13 @@ public final class FluidRenderer {
 
 			CustomBlockRenderer.INSTANCE.renderBlock(FluidRenderer.liquidBlock, world, 0, 0, 0, false, true);
 
-			GL11.glEndList();
+			// TODO: glEndList removed
 		}
 
-		GL11.glColor4f(1, 1, 1, 1);
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glEnable(GL11.GL_LIGHTING);
+		RenderSystem.setShaderColor(1, 1, 1, 1);
+		// TODO: GL11.glEnable(GL11.GL_CULL_FACE) → RenderSystem equivalent
+		RenderSystem.enableBlend();
+		// GL_LIGHTING removed — use shaders
 
 		return diplayLists;
 	}

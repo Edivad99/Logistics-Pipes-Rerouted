@@ -1,20 +1,21 @@
 package logisticspipes.items;
 
+import net.minecraft.client.gui.screens.Screen;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 
-import org.lwjgl.input.Keyboard;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -26,41 +27,41 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
 	public static final int SEC_CARD = 1;
 
 	public LogisticsItemCard() {
-		hasSubtypes = true;
+		// hasSubtypes removed in 1.20.1 — item variants handled via DamageValue or separate items
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		super.addInformation(stack, worldIn, tooltip, flagIn);
-		if (!stack.hasTagCompound()) {
-			tooltip.add(TextUtil.translate("tooltip.logisticsItemCard"));
+	@OnlyIn(Dist.CLIENT)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
+		super.appendHoverText(stack, worldIn, tooltip, flagIn);
+		if (!stack.hasTag()) {
+			tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.logisticsItemCard")));
 		} else {
-			final NBTTagCompound tag = Objects.requireNonNull(stack.getTagCompound());
-			if (tag.hasKey("UUID")) {
-				if (stack.getItemDamage() == LogisticsItemCard.FREQ_CARD) {
-					tooltip.add("Freq. Card");
-				} else if (stack.getItemDamage() == LogisticsItemCard.SEC_CARD) {
-					tooltip.add("Sec. Card");
+			final CompoundTag tag = Objects.requireNonNull(stack.getTag());
+			if (tag.contains("UUID")) {
+				if (stack.getDamageValue() == LogisticsItemCard.FREQ_CARD) {
+					tooltip.add(net.minecraft.network.chat.Component.literal("Freq. Card"));
+				} else if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
+					tooltip.add(net.minecraft.network.chat.Component.literal("Sec. Card"));
 				}
-				if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-					tooltip.add("Id: " + tag.getString("UUID"));
-					if (stack.getItemDamage() == LogisticsItemCard.SEC_CARD) {
+				if (Screen.hasShiftDown()) {
+					tooltip.add(net.minecraft.network.chat.Component.literal("Id: " + tag.getString("UUID")));
+					if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
 						UUID id = UUID.fromString(tag.getString("UUID"));
-						tooltip.add("Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? "Authorized" : "Unauthorized"));
+						tooltip.add(net.minecraft.network.chat.Component.literal("Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? "Authorized" : "Unauthorized")));
 					}
 				}
 			}
 		}
 	}
 
-	@Override
-	public boolean getShareTag() {
+	// getShareTag() removed in 1.20 — NBT always shared now
+	@Deprecated public boolean getShareTag__REMOVED() {
 		return true;
 	}
 
 	@Override
-	public int getItemStackLimit() {
+	public int getMaxStackSize(@Nonnull ItemStack stack) {
 		return 64;
 	}
 
@@ -71,6 +72,6 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
 
 	@Override
 	public boolean canExistInWorld(@Nonnull ItemStack stack) {
-		return stack.getItemDamage() != LogisticsItemCard.SEC_CARD;
+		return stack.getDamageValue() != LogisticsItemCard.SEC_CARD;
 	}
 }

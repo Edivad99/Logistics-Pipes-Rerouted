@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -22,9 +22,9 @@ public class InvSysConResistance extends IntegerCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (MainProxy.isClient(player.world)) {
-			final LogisticsTileGenericPipe pipe = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		if (MainProxy.isClient(player.level())) {
+			final LogisticsTileGenericPipe pipe = this.getPipe(player.level());
 			if (pipe == null) {
 				return;
 			}
@@ -33,7 +33,7 @@ public class InvSysConResistance extends IntegerCoordinatesPacket {
 				invCon.resistance = getInteger();
 			}
 		} else {
-			final LogisticsTileGenericPipe pipe = this.getPipe(player.world);
+			final LogisticsTileGenericPipe pipe = this.getPipe(player.level());
 			if (pipe == null) {
 				return;
 			}

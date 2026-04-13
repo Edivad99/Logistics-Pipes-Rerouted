@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.module;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -21,13 +21,13 @@ public class OreDictItemSinkList extends NBTModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		ModuleOreDictItemSink module = this.getLogisticsModule(player, ModuleOreDictItemSink.class);
 		if (module == null) {
 			return;
 		}
 		module.readFromNBT(getTag());
-		if (MainProxy.isServer(player.getEntityWorld()) && getType().isInWorld()) {
+		if (MainProxy.isServer(player.level()) && getType().isInWorld()) {
 			module.OreListChanged();
 		}
 	}

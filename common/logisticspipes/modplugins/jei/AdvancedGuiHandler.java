@@ -1,25 +1,34 @@
 package logisticspipes.modplugins.jei;
 
-import java.awt.Rectangle;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
-import mezz.jei.api.gui.IAdvancedGuiHandler;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 
-public class AdvancedGuiHandler implements IAdvancedGuiHandler<LogisticsBaseGuiScreen> {
+import network.rs485.logisticspipes.gui.BaseGuiContainer;
+import network.rs485.logisticspipes.util.IRectangle;
 
-	@Override
-	public @Nonnull Class<LogisticsBaseGuiScreen> getGuiContainerClass() {
-		return LogisticsBaseGuiScreen.class;
-	}
+/**
+ * Exposes extra GUI areas (outside the main container window) to JEI
+ * so it knows to move its ingredient panel out of the way.
+ */
+@OnlyIn(Dist.CLIENT)
+public class AdvancedGuiHandler implements IGuiContainerHandler<AbstractContainerScreen<?>> {
 
-	@Nullable
-	@Override
-	public List<Rectangle> getGuiExtraAreas(@Nonnull LogisticsBaseGuiScreen guiContainer) {
-		return guiContainer.getGuiExtraAreas();
-	}
+    @Override
+    public List<Rect2i> getGuiExtraAreas(AbstractContainerScreen<?> containerScreen) {
+        if (!(containerScreen instanceof BaseGuiContainer)) {
+            return List.of();
+        }
+        BaseGuiContainer gui = (BaseGuiContainer) containerScreen;
+        return gui.getExtraGuiAreas().stream()
+                .map(r -> new Rect2i(r.getRoundedX(), r.getRoundedY(), r.getRoundedWidth(), r.getRoundedHeight()))
+                .collect(Collectors.toList());
+    }
 }

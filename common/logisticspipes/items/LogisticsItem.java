@@ -8,20 +8,23 @@
 
 package logisticspipes.items;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+
+import net.minecraft.client.gui.screens.Screen;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.translation.I18n;
-import net.minecraft.world.World;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.level.Level;
 
-import org.lwjgl.input.Keyboard;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ILogisticsItem;
@@ -30,12 +33,16 @@ import network.rs485.logisticspipes.util.TextUtil;
 public class LogisticsItem extends Item implements ILogisticsItem {
 
 	public LogisticsItem() {
-		setCreativeTab(LogisticsPipes.CREATIVE_TAB_LP);
+		super(new Item.Properties()); // creative tab registration handled via event in 1.20.1
+	}
+
+	protected LogisticsItem(Item.Properties properties) {
+		super(properties);
 	}
 
 	@Override
 	public String getModelPath() {
-		String modelFile = getRegistryName().getPath();
+		String modelFile = BuiltInRegistries.ITEM.getKey(this).getPath();
 		String dir = getModelSubdir();
 		if (!dir.isEmpty()) {
 			if (modelFile.startsWith(String.format("%s_", dir))) {
@@ -56,11 +63,9 @@ public class LogisticsItem extends Item implements ILogisticsItem {
 
 	@Nonnull
 	@Override
-	public String getTranslationKey(@Nonnull ItemStack stack) {
-		if (getHasSubtypes()) {
-			return String.format("%s.%d", super.getTranslationKey(stack), stack.getMetadata());
-		}
-		return super.getTranslationKey(stack);
+	public String getDescriptionId(@Nonnull ItemStack stack) {
+		// getHasSubtypes() removed in 1.20.1 (damage-based subtypes no longer exist)
+		return super.getDescriptionId(stack);
 	}
 
 	/**
@@ -70,11 +75,11 @@ public class LogisticsItem extends Item implements ILogisticsItem {
 	 * shows full tooltip, without it, you just get the first line.
 	 */
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		super.addInformation(stack, worldIn, tooltip, flagIn);
+	@OnlyIn(Dist.CLIENT)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
+		super.appendHoverText(stack, worldIn, tooltip, flagIn);
 		if (addShiftInfo()) {
-			TextUtil.addTooltipInformation(stack, tooltip, Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT));
+			TextUtil.addTooltipInformation(stack, tooltip, Screen.hasShiftDown());
 		}
 	}
 
@@ -83,8 +88,8 @@ public class LogisticsItem extends Item implements ILogisticsItem {
 	}
 
 	@Nonnull
-	@Override
-	public String getItemStackDisplayName(@Nonnull ItemStack itemstack) {
-		return I18n.translateToLocal(getTranslationKey(itemstack) + ".name").trim();
+	public String getHoverName(@Nonnull ItemStack itemstack) {
+		// getHoverName(ItemStack) removed from Item in 1.20.1; kept as custom method for internal use
+		return I18n.get(getDescriptionId(itemstack) + ".name").trim();
 	}
 }

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
@@ -47,7 +47,7 @@ public class ModuleTerminus extends LogisticsModule
 		ISimpleInventoryEventHandler, IModuleInventoryReceive, Gui {
 
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(9, "Terminated items", 1), "");
+			new ItemIdentifierInventory(9, "Terminated items", 1), "filterInv");
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
@@ -132,7 +132,7 @@ public class ModuleTerminus extends LogisticsModule
 	}
 
 	@Override
-	public void startWatching(EntityPlayer player) {
+	public void startWatching(Player player) {
 		localModeWatchers.add(player);
 		MainProxy.sendToPlayerList(PacketHandler.getPacket(ModuleInventory.class)
 						.setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory)).setModulePos(this),
@@ -140,12 +140,12 @@ public class ModuleTerminus extends LogisticsModule
 	}
 
 	@Override
-	public void stopWatching(EntityPlayer player) {
+	public void stopWatching(Player player) {
 		localModeWatchers.remove(player);
 	}
 
 	@Override
-	public void InventoryChanged(IInventory inventory) {
+	public void InventoryChanged(Container inventory) {
 		MainProxy.runOnServer(getWorld(), () -> () ->
 				MainProxy.sendToPlayerList(
 						PacketHandler.getPacket(ModuleInventory.class)

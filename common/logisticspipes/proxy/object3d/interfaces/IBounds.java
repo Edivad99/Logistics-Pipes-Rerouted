@@ -1,6 +1,6 @@
 package logisticspipes.proxy.object3d.interfaces;
 
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.phys.AABB;
 
 public interface IBounds {
 
@@ -8,6 +8,6 @@ public interface IBounds {
 
 	IVec3 min();
 
-	AxisAlignedBB toAABB();
+	AABB toAABB();
 
 }

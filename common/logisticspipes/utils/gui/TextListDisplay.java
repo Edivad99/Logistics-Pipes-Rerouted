@@ -2,8 +2,7 @@ package logisticspipes.utils.gui;
 
 import java.util.Collections;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -51,16 +50,17 @@ public class TextListDisplay {
 		this.elementPerPage = elementPerPage;
 	}
 
-	public void mouseClicked(int i, int j, int k) {
-		mouseClickX = i;
-		mouseClickY = j;
+	public boolean mouseClicked(double i, double j, int k) {
+		mouseClickX = (int)i;
+		mouseClickY = (int)j;
+		return false;
 	}
 
 	public void renderGuiBackground(int mouseX, int mouseY) {
 		mousePosX = mouseX;
 		mousePosY = mouseY;
 
-		Gui.drawRect(gui.getGuiLeft() + borderLeft, gui.getGuiTop() + borderTop, gui.getRight() - borderRight, gui.getBottom() - borderBottom, Color.getValue(Color.GREY));
+		gui.getGuiGraphics().fill(gui.getGuiLeft() + borderLeft, gui.getGuiTop() + borderTop, gui.getRight() - borderRight, gui.getBottom() - borderBottom, Color.getValue(Color.GREY));
 
 		if (scroll + elementPerPage > list.getSize()) {
 			scroll = list.getSize() - elementPerPage;
@@ -91,12 +91,12 @@ public class TextListDisplay {
 
 		for (int i = scroll; i < list.getSize() && (i - scroll) < elementPerPage; i++) {
 			if (i == selected) {
-				Gui.drawRect(gui.getGuiLeft() + borderLeft + 2, gui.getGuiTop() + borderTop + 2 + ((i - scroll) * 10), gui.getRight() - borderRight - 2, gui.getGuiTop() + borderTop + 13 + ((i - scroll) * 10), Color.getValue(Color.DARKER_GREY));
+				gui.getGuiGraphics().fill(gui.getGuiLeft() + borderLeft + 2, gui.getGuiTop() + borderTop + 2 + ((i - scroll) * 10), gui.getRight() - borderRight - 2, gui.getGuiTop() + borderTop + 13 + ((i - scroll) * 10), Color.getValue(Color.DARKER_GREY));
 				flag = true;
 			}
 			String name = list.getTextAt(i);
-			name = TextUtil.getTrimmedString(name, gui.getXSize() - borderRight - borderLeft - 6, gui.getMC().fontRenderer, "...");
-			gui.getMC().fontRenderer.drawString(name, gui.getGuiLeft() + borderLeft + 4, gui.getGuiTop() + borderTop + 4 + ((i - scroll) * 10), list.getTextColor(i));
+			name = TextUtil.getTrimmedString(name, gui.getXSize() - borderRight - borderLeft - 6, gui.getMC().font, "...");
+			gui.getGuiGraphics().drawString(gui.getMC().font, name, gui.getGuiLeft() + borderLeft + 4, gui.getGuiTop() + borderTop + 4 + ((i - scroll) * 10), list.getTextColor(i));
 		}
 
 		if (!flag) {
@@ -106,7 +106,7 @@ public class TextListDisplay {
 
 	public void renderGuiForeground() {
 		if (hover != -1) {
-			GuiGraphics.drawToolTip(mousePosX - gui.getGuiLeft(), mousePosY - gui.getGuiTop(), Collections.singletonList(list.getTextAt(hover)), TextFormatting.WHITE);
+			LPGuiGraphics.drawToolTip(mousePosX - gui.getGuiLeft(), mousePosY - gui.getGuiTop(), Collections.singletonList(list.getTextAt(hover)), ChatFormatting.WHITE);
 		}
 	}
 

@@ -2,12 +2,12 @@ package logisticspipes.proxy.interfaces;
 
 import java.util.List;
 
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.client.renderer.texture.TextureAtlas; // was TextureAtlas
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.td.subproxies.ITDPart;
@@ -21,13 +21,13 @@ public interface ITDProxy {
 
 	void registerPipeInformationProvider();
 
-	boolean isItemDuct(TileEntity tile);
+	boolean isItemDuct(BlockEntity tile);
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	void renderPipeConnections(LogisticsTileGenericPipe pipeTile, List<RenderEntry> renderList);
 
-	@SideOnly(Side.CLIENT)
-	void registerTextures(TextureMap iconRegister);
+	@OnlyIn(Dist.CLIENT)
+	void registerTextures(TextureAtlas iconRegister);
 
-	boolean isBlockedSide(TileEntity with, EnumFacing opposite);
+	boolean isBlockedSide(BlockEntity with, Direction opposite);
 }

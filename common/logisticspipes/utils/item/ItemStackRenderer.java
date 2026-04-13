@@ -12,50 +12,38 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockPane;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.entity.RenderEntityItem;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import logisticspipes.LPItems;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.SimpleGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
 
 @Data
 @Accessors(chain = true)
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ItemStackRenderer {
 
-	private RenderManager renderManager;
-	private RenderItem renderItem;
 	private TextureManager texManager;
-	private FontRenderer fontRenderer;
-	private RenderEntityItem itemEntityRenderer;
+	private Font font;
 
 	@Nonnull
 	private ItemStack itemstack = ItemStack.EMPTY;
@@ -70,8 +58,8 @@ public class ItemStackRenderer {
 	private boolean renderEffects;
 	private boolean ignoreDepth;
 	private boolean renderInColor;
-	private EntityItem entityitem;
-	private World world;
+	private ItemEntity entityitem;
+	private Level world;
 	private float partialTickTime;
 
 	public ItemStackRenderer(int posX, int posY, float zLevel, boolean renderEffects, boolean ignoreDepth) {
@@ -80,13 +68,9 @@ public class ItemStackRenderer {
 		this.zLevel = zLevel;
 		this.renderEffects = renderEffects;
 		this.ignoreDepth = ignoreDepth;
-		renderManager = Minecraft.getMinecraft().getRenderManager();
-		fontRenderer = renderManager.getFontRenderer();
-		world = renderManager.world;
-		texManager = renderManager.renderEngine;
-		if (texManager == null) texManager = Minecraft.getMinecraft().getTextureManager();
-		renderItem = Minecraft.getMinecraft().getRenderItem();
-		itemEntityRenderer = new RenderEntityItem(renderManager, renderItem);
+		font = Minecraft.getInstance().font;
+		world = null;
+		texManager = Minecraft.getInstance().getTextureManager();
 		scaleX = 1.0F;
 		scaleY = 1.0F;
 		scaleZ = 1.0F;
@@ -147,168 +131,57 @@ public class ItemStackRenderer {
 	}
 
 	public void renderInGui() {
-		assert displayAmount != null;
-		assert renderItem != null;
-		assert texManager != null;
-		assert fontRenderer != null;
-		assert scaleX != 0.0F;
-		assert scaleY != 0.0F;
-		assert scaleZ != 0.0F;
+		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		if (gg == null) return;
 
-		GlStateManager.pushMatrix();
-
-		// The only thing that ever sets NORMALIZE are slimes. It never gets disabled and it interferes with our lightning in the HUD.
-		GlStateManager.disableNormalize();
-
-		// set up lightning
-		GlStateManager.scale(1.0F / scaleX, 1.0F / scaleY, 1.0F / scaleZ);
-		RenderHelper.enableGUIStandardItemLighting();
-		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
-		GlStateManager.scale(scaleX, scaleY, scaleZ);
-
-		if (ignoreDepth) {
-			GlStateManager.disableDepth();
-		} else {
-			GlStateManager.enableDepth();
+		ItemStack stack = itemstack;
+		if ((stack == null || stack.isEmpty()) && itemIdentStack != null) {
+			stack = itemIdentStack.getItem().unsafeMakeNormalStack(1);
 		}
+		if (stack == null || stack.isEmpty()) return;
 
-		renderItem.zLevel += zLevel;
+		gg.renderItem(stack, posX, posY);
 
-		if (itemIdentStack != null) {
-			if (itemIdentStack.getStackSize() < 1) {
-				itemstack = itemIdentStack.getItem().unsafeMakeNormalStack(1);
-			} else {
-				itemstack = itemIdentStack.unsafeMakeNormalStack();
+		String countLabel = null;
+		if (displayAmount == DisplayAmount.ALWAYS) {
+			long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
+			countLabel = String.valueOf(count);
+		} else if (displayAmount == DisplayAmount.HIDE_ONE) {
+			long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
+			if (count != 1) {
+				countLabel = String.valueOf(count);
 			}
 		}
-
-		IBakedModel bakedmodel = renderItem.getItemModelWithOverrides(itemstack, null, (renderEffects ? Minecraft.getMinecraft().player : null));
-
-		GlStateManager.pushMatrix();
-		this.texManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		this.texManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-		GlStateManager.enableRescaleNormal();
-		GlStateManager.enableAlpha();
-		GlStateManager.alphaFunc(516, 0.1F);
-		GlStateManager.enableBlend();
-		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		this.setupGuiTransform(posX, posY, bakedmodel.isGui3d());
-		bakedmodel = ForgeHooksClient.handleCameraTransforms(bakedmodel, ItemCameraTransforms.TransformType.GUI, false);
-		renderItem.renderItem(itemstack, bakedmodel);
-		GlStateManager.disableAlpha();
-		GlStateManager.disableRescaleNormal();
-		GlStateManager.disableLighting();
-		GlStateManager.popMatrix();
-
-		this.texManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		this.texManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-
-		renderItem.zLevel -= zLevel;
-
-		// disable lightning
-		RenderHelper.disableStandardItemLighting();
-
-		if (ignoreDepth) {
-			GlStateManager.disableDepth();
-		} else {
-			GlStateManager.enableDepth();
-		}
-		// 20 should be about the size of a block
-		GuiGraphics.drawDurabilityBar(itemstack, posX, posY, zLevel + 20.0F);
-
-		// if we want to render the amount, do that
-		if (displayAmount != DisplayAmount.NEVER) {
-			if (ignoreDepth) {
-				GlStateManager.disableDepth();
-			} else {
-				GlStateManager.enableDepth();
-			}
-
-			FontRenderer specialFontRenderer = itemstack.getItem().getFontRenderer(itemstack);
-
-			if (specialFontRenderer != null) {
-				fontRenderer = specialFontRenderer;
-			}
-
-			GlStateManager.disableLighting();
-			String amountString = TextUtil.getThreeDigitFormattedNumber(itemIdentStack != null ? itemIdentStack.getStackSize() : itemstack.getCount(), displayAmount == DisplayAmount.ALWAYS);
-			GlStateManager.translate(0.0F, 0.0F, zLevel + 130.0F);
-
-			// using a translated shadow does not hurt and works with the HUD
-			SimpleGraphics.drawStringWithTranslatedShadow(fontRenderer, amountString, posX + 17 - fontRenderer.getStringWidth(amountString), posY + 9, Color.getValue(Color.WHITE));
-
-			GlStateManager.translate(0.0F, 0.0F, -(zLevel + 130.0F));
-		}
-
-		GlStateManager.popMatrix();
+		gg.renderItemDecorations(font, stack, posX, posY, countLabel);
 	}
 
 	private void setupGuiTransform(int xPosition, int yPosition, boolean isGui3d) {
-		GlStateManager.translate((float) xPosition, (float) yPosition, 100.0F + renderItem.zLevel);
-		GlStateManager.translate(8.0F, 8.0F, 0.0F);
-		GlStateManager.scale(1.0F, -1.0F, 1.0F);
-		GlStateManager.scale(16.0F, 16.0F, 16.0F);
-
-		if (isGui3d) {
-			GlStateManager.enableLighting();
-		} else {
-			GlStateManager.disableLighting();
-		}
+		// no-op: replaced by GuiGraphics.renderItem in renderInGui()
 	}
 
 	public void renderInWorld() {
-		assert renderManager != null;
-		assert renderItem != null;
-		assert scaleX != 0.0F;
-		assert scaleY != 0.0F;
-		assert scaleZ != 0.0F;
+		// Legacy no-arg entry point — call sites that still use this path have no PoseStack
+		// context and only run under the CCL-activated branch (currently dormant).
+	}
 
-		if (entityitem == null || !ItemStack.areItemStacksEqual(entityitem.getItem(), itemstack)) {
-			Objects.requireNonNull(world, "World is needed for EntityItem creation");
-			if (itemstack.isEmpty()) {
-				// :itemcard: 🤷
-				itemstack = new ItemStack(LPItems.itemCard);
-			}
-			entityitem = new EntityItem(world, 0.0D, 0.0D, 0.0D, itemstack);
-			entityitem.getItem().setCount(1);
-			entityitem.hoverStart = 0.0F;
-		}
-
-		Item item = itemstack.getItem();
-		if (item instanceof ItemBlock) {
-			Block block = ((ItemBlock) item).getBlock();
-			if (block instanceof BlockPane) {
-				GlStateManager.scale(0.5F, 0.5F, 0.5F);
-			}
-		} else if (item == LPItems.requestTable) {
-			GlStateManager.scale(0.5F, 0.5F, 0.5F);
-		}
-
-		itemEntityRenderer.doRender(entityitem, posX, posY, zLevel, 0.0F, partialTickTime);
+	public void renderInWorld(com.mojang.blaze3d.vertex.PoseStack poseStack, net.minecraft.client.renderer.MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		if (itemstack == null || itemstack.isEmpty()) return;
+		Minecraft mc = Minecraft.getInstance();
+		net.minecraft.client.renderer.entity.ItemRenderer ir = mc.getItemRenderer();
+		ir.renderStatic(itemstack, net.minecraft.world.item.ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, mc.level, 0);
 	}
 
 	public void renderItemInGui(float x, float y, Item item, float zLevel, float scale) {
-		// TODO check if I can set position and the scale here
-		this.setPosX(0);
-		this.setPosY(0);
-		this.setScaleX(1f);
-		this.setScaleY(1f);
-		this.setScaleZ(1f);
-		this.itemstack = new ItemStack(item);
-		this.displayAmount = DisplayAmount.NEVER;
-		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, 0);
-		GlStateManager.scale(scale, scale, 1f);
-		GlStateManager.disableDepth();
-		float previousZ = renderItem.zLevel;
-		renderItem.zLevel = zLevel;
-		this.renderInGui();
-		renderItem.zLevel = previousZ;
-		GlStateManager.enableDepth();
-		GlStateManager.scale(1 / scale, 1 / scale, 1f);
-		GlStateManager.translate(-x, -y, 0);
-		GlStateManager.popMatrix();
+		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		if (gg == null || item == null) return;
+		ItemStack stack = new ItemStack(item);
+		if (stack.isEmpty()) return;
+		com.mojang.blaze3d.vertex.PoseStack pose = gg.pose();
+		pose.pushPose();
+		pose.translate(x, y, zLevel);
+		pose.scale(scale, scale, 1.0F);
+		gg.renderItem(stack, 0, 0);
+		pose.popPose();
 	}
 
 	public enum DisplayAmount {

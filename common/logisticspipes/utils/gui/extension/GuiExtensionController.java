@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.inventory.Slot;
+
+import net.minecraft.world.inventory.Slot;
 
 import lombok.Setter;
 
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 
 public class GuiExtensionController {
 
@@ -27,7 +27,7 @@ public class GuiExtensionController {
 	private int maxBottom;
 	private GuiExtension currentlyExtended = null;
 	private Map<Slot, Integer> slotMap = new HashMap<>();
-	private Map<GuiButton, Integer> buttonMap = new HashMap<>();
+	private Map<net.minecraft.client.gui.components.AbstractWidget, Integer> buttonMap = new HashMap<>();
 
 	private final GuiSide side;
 
@@ -51,7 +51,7 @@ public class GuiExtensionController {
 				}
 				int bottom = yPos + extension.getCurrentHeight();
 				extension.update(left, yPos);
-				GuiGraphics.drawGuiBackGround(Minecraft.getMinecraft(), left, yPos, right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, yPos, right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
 				extension.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), yPos);
 				yPos = bottom;
 			}
@@ -68,7 +68,7 @@ public class GuiExtensionController {
 				}
 				int bottom = currentlyExtended.getCurrentYPos() + currentlyExtended.getCurrentHeight();
 				currentlyExtended.update(left, yPos);
-				GuiGraphics.drawGuiBackGround(Minecraft.getMinecraft(), left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
 				currentlyExtended.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), currentlyExtended.getCurrentYPos());
 			} else {
 				for (GuiExtension extension : extensions) {
@@ -90,7 +90,7 @@ public class GuiExtensionController {
 				}
 				int bottom = currentlyExtended.getCurrentYPos() + currentlyExtended.getCurrentHeight();
 				currentlyExtended.update(left, yPos);
-				GuiGraphics.drawGuiBackGround(Minecraft.getMinecraft(), left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
 				currentlyExtended.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), currentlyExtended.getCurrentYPos());
 				if (currentlyExtended.isFullyRetracted()) {
 					currentlyExtended = null;
@@ -112,7 +112,7 @@ public class GuiExtensionController {
 		extensionsToRemove.add(extension);
 	}
 
-	public void mouseClicked(int x, int y, int k) {
+	public boolean mouseClicked(double x, double y, int k) {
 		if (currentlyExtended == null) {
 			extensions.stream()
 					.filter(extension -> x > extension.getCurrentXPos() && x < extension.getCurrentXPos() + extension.getCurrentWidth() + (side == GuiSide.RIGHT ? 15 : 0) && y > extension.getCurrentYPos() && y < extension.getCurrentYPos() + extension.getCurrentHeight())
@@ -125,6 +125,7 @@ public class GuiExtensionController {
 				currentlyExtended.setExtending(false);
 			}
 		}
+		return false;
 	}
 
 	public void mouseOver(int i, int j) {
@@ -179,17 +180,17 @@ public class GuiExtensionController {
 		return currentlyExtended.renderSelectSlot(id);
 	}
 
-	public int registerControlledButton(GuiButton button) {
+	public int registerControlledButton(net.minecraft.client.gui.components.AbstractWidget button) {
 		int size = buttonMap.size();
 		buttonMap.put(button, size);
 		return size;
 	}
 
-	public boolean renderButtonControlled(GuiButton button) {
+	public boolean renderButtonControlled(net.minecraft.client.gui.components.AbstractWidget button) {
 		return buttonMap.containsKey(button);
 	}
 
-	public boolean renderButton(GuiButton button) {
+	public boolean renderButton(net.minecraft.client.gui.components.AbstractWidget button) {
 		if (!buttonMap.containsKey(button)) {
 			return true;
 		}

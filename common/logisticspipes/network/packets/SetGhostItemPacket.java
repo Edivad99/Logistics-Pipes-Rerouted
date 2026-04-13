@@ -2,10 +2,10 @@ package logisticspipes.network.packets;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packetcontent.IntegerContent;
@@ -30,15 +30,15 @@ public class SetGhostItemPacket extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		Container container = player.openContainer;
+	public void processPacket(Player player) {
+		AbstractContainerMenu container = player.containerMenu;
 
 		if (container != null) {
-			if (integer.getValue() >= 0 && integer.getValue() < container.inventorySlots.size()) {
+			if (integer.getValue() >= 0 && integer.getValue() < container.slots.size()) {
 				Slot slot = container.getSlot(integer.getValue());
 
 				if (slot instanceof DummySlot || slot instanceof FluidSlot) {
-					slot.putStack(stack.getValue());
+					slot.set(stack.getValue());
 				}
 			}
 		}
@@ -49,7 +49,7 @@ public class SetGhostItemPacket extends ModernPacket {
 		return new SetGhostItemPacket(getId());
 	}
 
-	public SetGhostItemPacket setInteger(int value) {
+	public SetGhostItemPacket putInt(int value) {
 		integer.setValue(value);
 		return this;
 	}

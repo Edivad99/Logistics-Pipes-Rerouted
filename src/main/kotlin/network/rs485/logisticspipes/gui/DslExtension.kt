@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.gui
 
-import net.minecraft.inventory.Slot
+import net.minecraft.world.inventory.Slot
 
 abstract class InventorySlotsBase : GuiComponent() {
     var slots: List<Slot> = emptyList()

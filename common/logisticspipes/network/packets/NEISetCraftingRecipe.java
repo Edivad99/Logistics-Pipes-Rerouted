@@ -1,10 +1,10 @@
 package logisticspipes.network.packets;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.NonNullList;
 
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -29,8 +29,8 @@ public class NEISetCraftingRecipe extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		TileEntity tile = getTileAs(player.world, TileEntity.class);
+	public void processPacket(Player player) {
+		BlockEntity tile = getTileAs(player.level(), BlockEntity.class);
 		if (tile instanceof LogisticsCraftingTableTileEntity) {
 			((LogisticsCraftingTableTileEntity) tile).handleNEIRecipePacket(getStackList());
 		} else if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe instanceof PipeBlockRequestTable) {
@@ -46,15 +46,15 @@ public class NEISetCraftingRecipe extends CoordinatesPacket {
 	@Override
 	public void writeData(LPDataOutput output) {
 		super.writeData(output);
-		output.writeCollection(stackList, (out, stack) -> out.writeNBTTagCompound(stack.isEmpty() ? null : stack.writeToNBT(new NBTTagCompound())));
+		output.writeCollection(stackList, (out, stack) -> out.writeCompoundTag(stack.isEmpty() ? null : stack.save(new CompoundTag())));
 	}
 
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
 		NonNullList<ItemStack> readList = input.readNonNullList(inp -> {
-			NBTTagCompound tag = inp.readNBTTagCompound();
-			return tag == null ? null : new ItemStack(tag);
+			CompoundTag tag = inp.readCompoundTag();
+			return tag == null ? null : ItemStack.of(tag);
 		}, ItemStack.EMPTY);
 		if (readList != null) stackList = readList;
 	}

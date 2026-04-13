@@ -1,8 +1,8 @@
 package logisticspipes.pipes;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.routing.IRequestFluid;
@@ -20,17 +20,19 @@ public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IReque
 		super(item);
 	}
 
-	public void openGui(EntityPlayer entityplayer) {
-		entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_Fluid_Orderer_ID, getWorld(), getX(), getY(), getZ());
+	public void openGui(Player entityplayer) {
+		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.FluidOrdererGui.class)
+				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
+				.open(entityplayer);
 	}
 
 	@Override
-	public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
 		if (MainProxy.isServer(getWorld())) {
 			if (settings == null || settings.openRequest) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.sendMessage(new TextComponentString("Permission denied"));
+				entityplayer.sendSystemMessage(Component.literal("Permission denied"));
 			}
 		}
 		return true;

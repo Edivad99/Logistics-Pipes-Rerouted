@@ -1,7 +1,7 @@
 package logisticspipes.network.guis.block;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.GuiSecurityStation;
@@ -18,13 +18,13 @@ public class SecurityStationGui extends CoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		return new GuiSecurityStation(getTileAs(player.world, LogisticsSecurityTileEntity.class), player);
+	public Object getClientGui(Player player) {
+		return new GuiSecurityStation(getTileAs(player.level(), LogisticsSecurityTileEntity.class), player);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
-		LogisticsSecurityTileEntity securityStation = getTileAs(player.world, LogisticsSecurityTileEntity.class);
+	public DummyContainer getContainer(Player player) {
+		LogisticsSecurityTileEntity securityStation = getTileAs(player.level(), LogisticsSecurityTileEntity.class);
 		DummyContainer dummy = new DummyContainer(player, null, securityStation);
 		dummy.addRestrictedSlot(0, securityStation.inv, 50, 50, (Item) null);
 		dummy.addNormalSlotsForPlayerInventory(10, 210);

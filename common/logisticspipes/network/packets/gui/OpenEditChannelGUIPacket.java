@@ -3,9 +3,9 @@ package logisticspipes.network.packets.gui;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -46,8 +46,8 @@ public class OpenEditChannelGUIPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		TileEntity tile = player.getEntityWorld().getTileEntity(new BlockPos(getPosX(), getPosY(), getPosZ()));
+	public void processPacket(Player player) {
+		BlockEntity tile = player.level().getBlockEntity(new BlockPos(getPosX(), getPosY(), getPosZ()));
 		UUID securityID = null;
 		if (tile instanceof LogisticsSecurityTileEntity) {
 			LogisticsSecurityTileEntity security = (LogisticsSecurityTileEntity) tile;
@@ -55,7 +55,7 @@ public class OpenEditChannelGUIPacket extends CoordinatesPacket {
 		}
 		UUID finalSecurityID = securityID;
 		IChannelManager channelManager = SimpleServiceLocator.channelManagerProvider
-				.getChannelManager(player.getEntityWorld());
+				.getChannelManager(player.level());
 		Optional<ChannelInformation> match = channelManager.getChannels().stream()
 				.filter(channel -> channel.getChannelIdentifier().toString().equals(getIdentifier())).findFirst();
 		match.ifPresent(channel -> NewGuiHandler.getGui(EditChannelGuiProvider.class).setResponsibleSecurityID(finalSecurityID).setChannel(channel).open(player));

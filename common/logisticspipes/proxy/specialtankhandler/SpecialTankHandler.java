@@ -3,7 +3,7 @@ package logisticspipes.proxy.specialtankhandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import com.google.common.collect.Lists;
 
@@ -23,11 +23,11 @@ public class SpecialTankHandler {
 				LogisticsPipes.log.warn("Didn't load SpecialTankHandler: " + handler.getClass().getName());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogisticsPipes.log.error("Failed to register SpecialTankHandler", e);
 		}
 	}
 
-	public List<TileEntity> getBaseTileFor(TileEntity tile) {
+	public List<BlockEntity> getBaseTileFor(BlockEntity tile) {
 		for (ISpecialTankHandler handler : handlers) {
 			if (handler.isType(tile)) {
 				return handler.getBaseTilesFor(tile);
@@ -36,7 +36,7 @@ public class SpecialTankHandler {
 		return Lists.newArrayList(tile);
 	}
 
-	public boolean hasHandlerFor(TileEntity tile) {
+	public boolean hasHandlerFor(BlockEntity tile) {
 		if (tile == null) {
 			return false;
 		}
@@ -48,7 +48,7 @@ public class SpecialTankHandler {
 		return false;
 	}
 
-	public ISpecialTankHandler getTankHandlerFor(TileEntity tile) {
+	public ISpecialTankHandler getTankHandlerFor(BlockEntity tile) {
 		for (ISpecialTankHandler handler : handlers) {
 			if (handler.isType(tile)) {
 				return handler;
@@ -58,6 +58,6 @@ public class SpecialTankHandler {
 		if (tile != null) {
 			name = tile.getClass().getName();
 		}
-		throw new RuntimeException("Unknwon TankTileEntity Request, '" + name + "'");
+		throw new RuntimeException("Unknwon TankBlockEntity Request, '" + name + "'");
 	}
 }

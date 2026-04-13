@@ -4,14 +4,12 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.WorldServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import com.mojang.authlib.GameProfile;
 
@@ -22,30 +20,17 @@ public class FakePlayerLP extends FakePlayer {
 
 	public String myName = "[LogisticsPipes]";
 
-	public FakePlayerLP(WorldServer world) {
+	public FakePlayerLP(ServerLevel world) {
 		super(world, LPPLAYER);
-		connection = new FakeNetServerHandler(FMLCommonHandler.instance().getMinecraftServerInstance(), this);
-		this.addedToChunk = false;
-		this.posX = 0;
-		this.posY = 0;
-		this.posZ = 0;
+		this.setPos(0, 0, 0);
 	}
 
 	@Nonnull
 	@Override
-	public ITextComponent getDisplayName() {
-		return new TextComponentString(getName());
+	public Component getDisplayName() {
+		return Component.literal(myName);
 	}
 
 	@Override
-	public void onUpdate() { }
-
-	@Override
-	public void unlockRecipes(@Nonnull List<IRecipe> p_192021_1_) { }
-
-	@Override
-	public void unlockRecipes(ResourceLocation[] p_193102_1_) { }
-
-	@Override
-	public void resetRecipes(@Nonnull List<IRecipe> p_192022_1_) { }
+	public void tick() { }
 }

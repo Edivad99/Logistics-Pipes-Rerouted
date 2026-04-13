@@ -2,7 +2,7 @@ package logisticspipes.recipes;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import lombok.Data;
 

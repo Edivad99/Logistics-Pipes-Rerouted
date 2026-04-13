@@ -3,14 +3,14 @@ package logisticspipes.pipes.basic;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
@@ -88,11 +88,11 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 
 	public abstract LPPositionSet<DoubleCoordinatesType<SubBlockTypeForShare>> getRotatedSubBlocks();
 
-	public abstract void addCollisionBoxesToList(List<AxisAlignedBB> arraylist, AxisAlignedBB axisalignedbb);
+	public abstract void addCollisionBoxesToList(List<AABB> arraylist, AABB axisalignedbb);
 
-	public abstract AxisAlignedBB getCompleteBox();
+	public abstract AABB getCompleteBox();
 
-	public abstract ITubeOrientation getTubeOrientation(EntityPlayer player, int xPos, int zPos);
+	public abstract ITubeOrientation getTubeOrientation(Player player, int xPos, int zPos);
 
 	public abstract float getPipeLength();
 
@@ -104,19 +104,19 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 		return (float) (getItemRenderYaw(getPipeLength(), item) - getItemRenderYaw(0.0F, item));
 	}
 
-	public abstract EnumFacing getExitForInput(EnumFacing commingFrom);
+	public abstract Direction getExitForInput(Direction commingFrom);
 
-	public abstract TileEntity getConnectedEndTile(EnumFacing output);
+	public abstract BlockEntity getConnectedEndTile(Direction output);
 
 	@Override
 	public abstract boolean actAsNormalPipe();
 
 	@Override
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public abstract ISpecialPipeRenderer getSpecialRenderer();
 
 	@Override
-	public boolean canPipeConnect(TileEntity tile, EnumFacing side) {
+	public boolean canPipeConnect(BlockEntity tile, Direction side) {
 		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 			return true;
 		}

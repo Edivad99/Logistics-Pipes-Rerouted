@@ -1,6 +1,6 @@
 package logisticspipes.utils.gui;
 
-import net.minecraft.inventory.IInventory;
+import net.minecraft.world.Container;
 
 import logisticspipes.interfaces.IFuzzySlot;
 import network.rs485.logisticspipes.property.IBitSet;
@@ -9,7 +9,7 @@ public class FuzzyUnmodifiableSlot extends UnmodifiableSlot implements IFuzzySlo
 
 	private IBitSet fuzzyFlags;
 
-	public FuzzyUnmodifiableSlot(IInventory par1iInventory, int par2, int par3, int par4, IBitSet fuzzyFlags) {
+	public FuzzyUnmodifiableSlot(Container par1iInventory, int par2, int par3, int par4, IBitSet fuzzyFlags) {
 		super(par1iInventory, par2, par3, par4);
 		this.fuzzyFlags = fuzzyFlags;
 	}
@@ -21,16 +21,16 @@ public class FuzzyUnmodifiableSlot extends UnmodifiableSlot implements IFuzzySlo
 
 	@Override
 	public int getX() {
-		return xPos;
+		return x;
 	}
 
 	@Override
 	public int getY() {
-		return yPos;
+		return y;
 	}
 
 	@Override
 	public int getSlotId() {
-		return this.slotNumber;
+		return this.index;
 	}
 }

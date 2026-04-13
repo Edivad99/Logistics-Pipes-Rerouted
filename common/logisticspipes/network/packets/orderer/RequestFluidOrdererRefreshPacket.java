@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.orderer;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -23,7 +23,7 @@ public class RequestFluidOrdererRefreshPacket extends IntegerCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		int dimension = getInteger();
 		final LogisticsTileGenericPipe pipe = MainProxy.proxy.getPipeInDimensionAt(dimension, getPosX(), getPosY(), getPosZ(), player);
 		if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe)) {

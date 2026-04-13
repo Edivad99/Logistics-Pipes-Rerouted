@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 
@@ -28,7 +28,7 @@ public interface ISecurityStationManager {
 
 	void sendClientAuthorizationList();
 
-	void sendClientAuthorizationList(EntityPlayer player);
+	void sendClientAuthorizationList(Player player);
 
 	void setClientAuthorizationList(List<String> list);
 }

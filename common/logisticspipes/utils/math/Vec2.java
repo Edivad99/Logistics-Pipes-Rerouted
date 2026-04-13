@@ -3,15 +3,13 @@ package logisticspipes.utils.math;
 import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import mcp.MethodsReturnNonnullByDefault;
-
 /**
  * 2-dimensional vector.
  * Imported from qcommon-croco (https://github.com/therealfarfetchd/qcommon)
  *
  * @author therealfarfetchd
  */
-@MethodsReturnNonnullByDefault
+// @MethodsReturnNonnullByDefault removed
 @ParametersAreNonnullByDefault
 public final class Vec2 {
 

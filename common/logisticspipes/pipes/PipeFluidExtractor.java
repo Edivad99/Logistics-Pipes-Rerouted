@@ -1,8 +1,8 @@
 package logisticspipes.pipes;
 
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 
 import net.minecraftforge.fluids.FluidStack;
 
@@ -33,10 +33,10 @@ public class PipeFluidExtractor extends PipeFluidInsertion {
 				.forEach(tankData -> extractFrom(tankData.getValue2(), tankData.getValue1().getDirection()));
 	}
 
-	private void extractFrom(ITankUtil container, EnumFacing side) {
+	private void extractFrom(ITankUtil container, Direction side) {
 		int sideID = side.ordinal();
-		FluidStack contained = ((PipeFluidTransportLogistics) transport).getTankProperties(side)[0].getContents();
-		int amountMissing = ((PipeFluidTransportLogistics) transport).getSideCapacity() - (contained != null ? contained.amount : 0);
+		FluidStack contained = ((PipeFluidTransportLogistics) transport).getFluidInSideTank(side);
+		int amountMissing = ((PipeFluidTransportLogistics) transport).getSideCapacity() - (contained != null && !contained.isEmpty() ? contained.getAmount() : 0);
 		if (liquidToExtract[sideID] < Math.min(PipeFluidExtractor.flowRate, amountMissing)) {
 			if (this.useEnergy(PipeFluidExtractor.energyPerFlow)) {
 				liquidToExtract[sideID] += Math.min(PipeFluidExtractor.flowRate, amountMissing);
@@ -53,13 +53,13 @@ public class PipeFluidExtractor extends PipeFluidInsertion {
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
-		nbttagcompound.setIntArray("liquidToExtract", liquidToExtract);
+		nbttagcompound.putIntArray("liquidToExtract", liquidToExtract);
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
+	public void readFromNBT(CompoundTag nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
 		liquidToExtract = nbttagcompound.getIntArray("liquidToExtract");
 		if (liquidToExtract.length < 6) {

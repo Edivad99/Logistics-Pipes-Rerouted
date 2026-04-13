@@ -1,6 +1,6 @@
 package logisticspipes.renderer.state;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 
@@ -29,15 +29,15 @@ public class TextureMatrix {
 	@Getter
 	private boolean isFluid;
 	@Getter
-	private EnumFacing pointedOrientation;
+	private Direction pointedOrientation;
 
 	private boolean dirty = true;
 
-	public int getTextureIndex(EnumFacing direction) {
+	public int getTextureIndex(Direction direction) {
 		return iconIndexes[direction.ordinal()];
 	}
 
-	public void setIconIndex(EnumFacing direction, int value) {
+	public void setIconIndex(Direction direction, int value) {
 		if (iconIndexes[direction.ordinal()] != value) {
 			iconIndexes[direction.ordinal()] = value;
 			dirty = true;
@@ -56,16 +56,16 @@ public class TextureMatrix {
 		if (isRouted) {
 			CoreRoutedPipe cPipe = (CoreRoutedPipe) pipe;
 			for (int i = 0; i < 6; i++) {
-				if (isRoutedInDir[i] != cPipe.getRouter().isRoutedExit(EnumFacing.byIndex(i))) {
+				if (isRoutedInDir[i] != cPipe.getRouter().isRoutedExit(Direction.from3DDataValue(i))) {
 					dirty = true;
 				}
-				isRoutedInDir[i] = cPipe.getRouter().isRoutedExit(EnumFacing.byIndex(i));
+				isRoutedInDir[i] = cPipe.getRouter().isRoutedExit(Direction.from3DDataValue(i));
 			}
 			for (int i = 0; i < 6; i++) {
-				if (isSubPowerInDir[i] != cPipe.getRouter().isSubPoweredExit(EnumFacing.byIndex(i))) {
+				if (isSubPowerInDir[i] != cPipe.getRouter().isSubPoweredExit(Direction.from3DDataValue(i))) {
 					dirty = true;
 				}
-				isSubPowerInDir[i] = cPipe.getRouter().isSubPoweredExit(EnumFacing.byIndex(i));
+				isSubPowerInDir[i] = cPipe.getRouter().isSubPoweredExit(Direction.from3DDataValue(i));
 			}
 			if (hasPowerUpgrade != (cPipe.getUpgradeManager().hasRFPowerSupplierUpgrade() || cPipe.getUpgradeManager().getIC2PowerLevel() > 0)) {
 				dirty = true;
@@ -88,14 +88,25 @@ public class TextureMatrix {
 		}
 	}
 
-	public boolean isRoutedInDir(EnumFacing dir) {
+	/** Item-renderer entry: only sets textureIndex (no router/world access). */
+	public void refreshStatesForItem(CoreUnroutedPipe pipe) {
+		textureIndex = pipe.getTextureIndex();
+		isRouted = pipe.isRoutedPipe();
+		isRoutedInDir = new boolean[6];
+		isSubPowerInDir = new boolean[6];
+		hasPowerUpgrade = false;
+		hasPower = true;
+		dirty = true;
+	}
+
+	public boolean isRoutedInDir(Direction dir) {
 		if (dir == null) {
 			return false;
 		}
 		return isRoutedInDir[dir.ordinal()];
 	}
 
-	public boolean isSubPowerInDir(EnumFacing dir) {
+	public boolean isSubPowerInDir(Direction dir) {
 		if (dir == null) {
 			return false;
 		}

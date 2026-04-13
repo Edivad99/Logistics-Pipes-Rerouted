@@ -37,32 +37,32 @@
 
 package network.rs485.minecraft
 
-import net.minecraft.block.Block
-import net.minecraft.block.state.IBlockState
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.WorldServer
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
 
 open class BlockPlacer<T : Block>(
     private val block: T,
-    private val state: IBlockState = block.defaultState,
+    private val state: BlockState = block.defaultBlockState(),
     private val blockPlacerConfigurator: suspend (BlockPlacer<T>) -> Unit = {},
 ) : Placer {
 
-    private lateinit var world: WorldServer
+    private lateinit var world: ServerLevel
     private lateinit var pos: BlockPos
     private var placed = false
 
-    override suspend fun place(world: WorldServer, pos: BlockPos): Configurator {
+    override suspend fun place(world: ServerLevel, pos: BlockPos): Configurator {
         this.pos = pos
         this.world = world
-        world.setBlockState(pos, state)
+        world.setBlock(pos, state, 3)
         placed = true
         return configurator(name = "$block at $pos") { blockPlacerConfigurator(this@BlockPlacer) }
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <Y : TileEntity> getTileEntity(): Y =
-        if (placed) world.getTileEntity(pos) as Y else error("$block has not been placed yet")
+    fun <Y : BlockEntity> getTileEntity(): Y =
+        if (placed) world.getBlockEntity(pos) as Y else error("$block has not been placed yet")
 
 }

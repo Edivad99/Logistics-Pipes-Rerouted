@@ -1,10 +1,10 @@
 package logisticspipes.network.abstractpackets;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screens.Screen;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -15,9 +15,9 @@ public abstract class GuiPacket extends ModernPacket {
 		super(id);
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	protected <T> T getGui(Class<T> guiClass) {
-		GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+		Screen currentScreen = Minecraft.getInstance().screen;
 		if (currentScreen == null) {
 			return null;
 		}

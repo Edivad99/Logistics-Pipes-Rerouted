@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -58,8 +58,8 @@ public class ActiveSupplierSlot extends ModuleCoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		ModuleActiveSupplier module = this.getLogisticsModule(player.getEntityWorld(), ModuleActiveSupplier.class);
+	public Object getClientGui(Player player) {
+		ModuleActiveSupplier module = this.getLogisticsModule(player.level(), ModuleActiveSupplier.class);
 		if (module == null) {
 			return null;
 		}
@@ -70,16 +70,16 @@ public class ActiveSupplierSlot extends ModuleCoordinatesGuiProvider {
 			module.requestMode.setValue(SupplyMode.values()[mode]);
 		}
 		module.slotAssignmentPattern.replaceContent(slotArray);
-		return new GuiSupplierPipe(player.inventory, module.inventory, module, patternUpgarde, slotArray);
+		return new GuiSupplierPipe(player.getInventory(), module.inventory, module, patternUpgarde, slotArray);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
-		ModuleActiveSupplier module = this.getLogisticsModule(player.getEntityWorld(), ModuleActiveSupplier.class);
+	public DummyContainer getContainer(Player player) {
+		ModuleActiveSupplier module = this.getLogisticsModule(player.level(), ModuleActiveSupplier.class);
 		if (module == null) {
 			return null;
 		}
-		DummyContainer dummy = new DummyContainer(player.inventory, module.inventory);
+		DummyContainer dummy = new DummyContainer(player.getInventory(), module.inventory);
 		dummy.addNormalSlotsForPlayerInventory(18, 97);
 
 		for (int row = 0; row < 3; row++) {

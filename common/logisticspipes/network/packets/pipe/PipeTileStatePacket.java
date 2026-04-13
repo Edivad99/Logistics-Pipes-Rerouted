@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -44,12 +44,12 @@ public class PipeTileStatePacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.NONE);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.NONE);
 		if (pipe == null) {
 			return;
 		}
-		if (pipe.statePacketId < statePacketId) {
+		if (pipe.statePacketId <= statePacketId) {
 			LPDataIOWrapper.provideData(bytesRenderState, pipe.renderState::readData);
 			LPDataIOWrapper.provideData(bytesCoreState, pipe.coreState::readData);
 			pipe.afterStateUpdated();

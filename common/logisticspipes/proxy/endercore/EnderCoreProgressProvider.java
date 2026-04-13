@@ -1,20 +1,8 @@
 package logisticspipes.proxy.endercore;
-
-import net.minecraft.tileentity.TileEntity;
-
-import com.enderio.core.api.common.util.IProgressTile;
-
+// TODO: EnderCore not ported to 1.20.1 — stub
+import net.minecraft.world.level.block.entity.BlockEntity;
 import logisticspipes.proxy.interfaces.IGenericProgressProvider;
-
 public class EnderCoreProgressProvider implements IGenericProgressProvider {
-
-	@Override
-	public boolean isType(TileEntity tile) {
-		return tile instanceof IProgressTile;
-	}
-
-	@Override
-	public byte getProgress(TileEntity tile) {
-		return (byte) Math.max(0, Math.min(((IProgressTile) tile).getProgress() * 100, 100));
-	}
+    @Override public boolean isType(BlockEntity tile) { return false; }
+    @Override public byte getProgress(BlockEntity tile) { return 0; }
 }

@@ -1,7 +1,8 @@
 package logisticspipes.commands.commands;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.text.TextComponentString;
+// Player removed — use net.minecraft.commands.CommandSourceStack
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.abstracts.ICommandHandler;
@@ -14,7 +15,7 @@ public class DumpCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
+	public boolean isCommandUsableBy(Player sender) {
 		return LogisticsPipesCommand.isOP(sender);
 	}
 
@@ -24,7 +25,7 @@ public class DumpCommand implements ICommandHandler {
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
-		sender.sendMessage(new TextComponentString("Dump Created"));
+	public void executeCommand(Player sender, String[] args) {
+		sender.sendSystemMessage(Component.literal("Dump Created"));
 	}
 }

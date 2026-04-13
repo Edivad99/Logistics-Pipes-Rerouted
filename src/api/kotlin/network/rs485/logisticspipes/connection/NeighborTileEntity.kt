@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -37,14 +37,15 @@
 
 package network.rs485.logisticspipes.connection
 
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import net.minecraftforge.common.capabilities.Capability
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
+// import net.neoforged.neoforge.capabilities.Capabilities // unused after Capability<T> removal
 
-abstract class NeighborTileEntity<T : TileEntity>(val tileEntity: T, val direction: EnumFacing) {
-    open fun getOurDirection(): EnumFacing = direction.opposite
+abstract class NeighborTileEntity<T : BlockEntity>(val tileEntity: T, val direction: Direction) {
+    open fun getOurDirection(): Direction = direction.opposite
 
-    fun hasCapability(capability: Capability<*>): Boolean = tileEntity.hasCapability(capability, getOurDirection())
+    // TODO: hasCapability(Capability<C>) removed — Capability<T> API gone in NeoForge 1.20.1.
+    // Use BlockCapability static query: Capabilities.X.BLOCK.getCapability(level, pos, state, be, dir) != null
 
     abstract fun isLogisticsPipe(): Boolean
 

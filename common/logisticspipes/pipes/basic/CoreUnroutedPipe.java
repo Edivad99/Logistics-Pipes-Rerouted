@@ -4,19 +4,19 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.api.ILPPipe;
 import logisticspipes.config.Configs;
@@ -53,12 +53,12 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		this.item = item;
 	}
 
-	public void setTile(TileEntity tile) {
+	public void setTile(BlockEntity tile) {
 		container = (LogisticsTileGenericPipe) tile;
 		transport.setTile((LogisticsTileGenericPipe) tile);
 	}
 
-	public boolean blockActivated(EntityPlayer entityplayer) {
+	public boolean blockActivated(Player entityplayer) {
 		return false;
 	}
 
@@ -66,13 +66,13 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		transport.onBlockPlaced();
 	}
 
-	public void onBlockPlacedBy(EntityLivingBase placer) {}
+	public void onBlockPlacedBy(LivingEntity placer) {}
 
 	public void onNeighborBlockChange() {
 		transport.onNeighborBlockChange();
 	}
 
-	public boolean canPipeConnect(TileEntity tile, EnumFacing side) {
+	public boolean canPipeConnect(BlockEntity tile, Direction side) {
 		CoreUnroutedPipe otherPipe;
 
 		if (tile instanceof LogisticsTileGenericPipe) {
@@ -99,7 +99,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	 *
 	 * @return An array of icons
 	 */
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public IIconProvider getIconProvider() {
 		return Textures.LPpipeIconProvider;
 	}
@@ -112,17 +112,17 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	 *                  Unknown for pipe center
 	 * @return An index valid in the array returned by getTextureIcons()
 	 */
-	public abstract int getIconIndex(EnumFacing direction);
+	public abstract int getIconIndex(Direction direction);
 
 	public void updateEntity() {
 		transport.updateEntity();
 	}
 
-	public void writeToNBT(NBTTagCompound data) {
+	public void writeToNBT(CompoundTag data) {
 		transport.writeToNBT(data);
 	}
 
-	public void readFromNBT(NBTTagCompound data) {
+	public void readFromNBT(CompoundTag data) {
 		transport.readFromNBT(data);
 	}
 
@@ -161,16 +161,17 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	 */
 	public void onChunkUnload() {}
 
-	public World getWorld() {
+	@Nullable
+	public Level getWorld() {
 		if (container == null) return null;
-		return container.getWorld();
+		return container.getLevel();
 	}
 
-	public boolean canPipeConnect(TileEntity tile, EnumFacing direction, boolean flag) {
+	public boolean canPipeConnect(BlockEntity tile, Direction direction, boolean flag) {
 		return canPipeConnect(tile, direction);
 	}
 
-	public boolean isSideBlocked(EnumFacing side, boolean ignoreSystemDisconnection) {
+	public boolean isSideBlocked(Direction side, boolean ignoreSystemDisconnection) {
 		return false;
 	}
 
@@ -188,7 +189,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 
 	@Nonnull
 	public final BlockPos getPos() {
-		return container.getPos();
+		return container.getBlockPos();
 	}
 
 	public boolean canBeDestroyed() {
@@ -217,9 +218,6 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	public abstract int getTextureIndex();
 
 	public void triggerDebug() {
-		if (debug.debugThisPipe) {
-			System.out.print("");
-		}
 	}
 
 	public void addStatusInformation(List<StatusEntry> status) {}
@@ -233,7 +231,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		if (container == null) {
 			return getClass().getName() + "(NO CONTAINER)";
 		} else {
-			return String.format("%s(%s)", getClass().getName(), container.getPos());
+			return String.format("%s(%s)", getClass().getName(), container.getBlockPos());
 		}
 	}
 
@@ -270,7 +268,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 			}
 
 			@Override
-			public boolean isSideDisconnected(EnumFacing side) {
+			public boolean isSideDisconnected(Direction side) {
 				return false;
 			}
 
@@ -300,15 +298,15 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 			}
 
 			@Override
-			public EnumFacing[] getCombinedSneakyOrientation() {
+			public Direction[] getCombinedSneakyOrientation() {
 				return null;
 			}
 		};
 	}
 
-	public double getDistanceTo(int destinationint, EnumFacing ignore, ItemIdentifier ident, boolean isActive, double travled, double max, List<DoubleCoordinates> visited) {
+	public double getDistanceTo(int destinationint, Direction ignore, ItemIdentifier ident, boolean isActive, double travled, double max, List<DoubleCoordinates> visited) {
 		double lowest = Integer.MAX_VALUE;
-		for (EnumFacing dir : EnumFacing.VALUES) {
+		for (Direction dir : Direction.values()) {
 			if (ignore == dir) {
 				continue;
 			}
@@ -340,12 +338,12 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		return false;
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public ISpecialPipeRenderer getSpecialRenderer() {
 		return null;
 	}
 
-	public boolean hasSpecialPipeEndAt(EnumFacing dir) {
+	public boolean hasSpecialPipeEndAt(Direction dir) {
 		return false;
 	}
 
@@ -399,7 +397,8 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 
 	public abstract IHighlightPlacementRenderer getHighlightRenderer();
 
-	public World getWorldForHUD() {
+	@Nullable
+	public Level getLevelForHUD() {
 		return getWorld();
 	}
 

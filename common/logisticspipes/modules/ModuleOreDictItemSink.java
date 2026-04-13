@@ -1,5 +1,11 @@
 package logisticspipes.modules;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,13 +15,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
-import net.minecraftforge.oredict.OreDictionary;
+
 
 import logisticspipes.gui.hud.modules.HUDOreDictItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
@@ -113,49 +119,33 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	private void buildOreItemIdMap() {
 		oreItemIdMap = new HashMap<>();
 		oreHudList = new ArrayList<>(oreList.size());
+		// In 1.20.1 each entry in oreList is a tag id ("forge:ingots/iron"); we resolve
+		// it to every Item carrying that tag. Damage values no longer exist, so the
+		// inner damage Set is always empty, which sinksItem treats as "match any".
 		for (String orename : oreList) {
-			List<ItemStack> items = OreDictionary.getOres(orename);
+			ResourceLocation loc = ResourceLocation.tryParse(orename);
 			ItemStack stackForHud = ItemStack.EMPTY;
-			for (ItemStack stack : items) {
-				if (stackForHud.isEmpty()) {
-					stackForHud = stack;
-				}
-				if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-					oreItemIdMap.put(stack.getItem(), new TreeSet<>());
-				} else {
-					Set<Integer> damageSet = oreItemIdMap.get(stack.getItem());
-					if (damageSet == null) {
-						damageSet = new TreeSet<>();
-						damageSet.add(stack.getItemDamage());
-						oreItemIdMap.put(stack.getItem(), damageSet);
-					} else if (!damageSet.isEmpty()) {
-						damageSet.add(stack.getItemDamage());
+			if (loc != null) {
+				TagKey<Item> tag = TagKey.create(Registries.ITEM, loc);
+				for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(tag)) {
+					Item item = holder.value();
+					oreItemIdMap.put(item, new TreeSet<>());
+					if (stackForHud.isEmpty()) {
+						stackForHud = new ItemStack(item);
 					}
 				}
 			}
 			if (!stackForHud.isEmpty()) {
-				ItemStack t = stackForHud.copy();
-				if (t.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-					t.setItemDamage(0);
-				}
-				oreHudList.add(new ItemIdentifierStack(ItemIdentifier.get(t), 1));
+				oreHudList.add(new ItemIdentifierStack(ItemIdentifier.get(stackForHud), 1));
 			} else {
-				oreHudList.add(new ItemIdentifierStack(ItemIdentifier.get(Item.getItemFromBlock(Blocks.FIRE), 0, null), 1));
+				oreHudList.add(new ItemIdentifierStack(ItemIdentifier.get(Item.BY_BLOCK.get(Blocks.FIRE), 0, null), 1));
 			}
 		}
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull NBTTagCompound tag) {
+	public void readFromNBT(@Nonnull CompoundTag tag) {
 		super.readFromNBT(tag);
-		// deprecated, TODO: remove after 1.12
-		for (int i = 0; i < oreList.size(); i++) {
-			final String key = "Ore" + i;
-			if (tag.hasKey(key)) {
-				final String val = tag.getString(key);
-				if (!val.isEmpty()) oreList.set(i, val);
-			}
-		}
 		oreItemIdMap = null;
 	}
 
@@ -181,25 +171,25 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void startWatching(EntityPlayer player) {
+	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		NBTTagCompound nbt = new NBTTagCompound();
+		CompoundTag nbt = new CompoundTag();
 		writeToNBT(nbt);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this), player);
 	}
 
 	@Override
-	public void stopWatching(EntityPlayer player) {
+	public void stopWatching(Player player) {
 		localModeWatchers.remove(player);
 	}
 
 	public void OreListChanged() {
 		if (MainProxy.isServer(getWorld())) {
-			NBTTagCompound nbt = new NBTTagCompound();
+			CompoundTag nbt = new CompoundTag();
 			writeToNBT(nbt);
 			MainProxy.sendToPlayerList(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this), localModeWatchers);
 		} else {
-			NBTTagCompound nbt = new NBTTagCompound();
+			CompoundTag nbt = new CompoundTag();
 			writeToNBT(nbt);
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this));
 		}
@@ -233,7 +223,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		NBTTagCompound nbt = new NBTTagCompound();
+		CompoundTag nbt = new CompoundTag();
 		writeToNBT(nbt);
 		return NewGuiHandler.getGui(OreDictItemSinkModuleSlot.class).setNbt(nbt);
 	}

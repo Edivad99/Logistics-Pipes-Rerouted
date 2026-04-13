@@ -3,7 +3,7 @@ package logisticspipes.network.packets.chassis;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.LogisticsEventListener;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -23,7 +23,7 @@ public class ChestGuiClosed extends ModernPacket {
 	public void readData(LPDataInput input) {}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		List<WeakReference<AsyncQuicksortModule>> list = LogisticsEventListener.chestQuickSortConnection.get(player);
 		if (list == null || list.isEmpty()) {
 			return;

@@ -1,6 +1,6 @@
 package logisticspipes.network.packets;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +29,8 @@ public class BufferTransfer extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (MainProxy.isClient(player.world)) {
+	public void processPacket(Player player) {
+		if (MainProxy.isClient(player.level())) {
 			SimpleServiceLocator.clientBufferHandler.handlePacket(content);
 		} else {
 			SimpleServiceLocator.serverBufferHandler.handlePacket(content, player);

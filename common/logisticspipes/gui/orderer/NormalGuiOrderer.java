@@ -2,8 +2,8 @@ package logisticspipes.gui.orderer;
 
 import java.io.IOException;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
+
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.orderer.OrdererRefreshRequestPacket;
@@ -21,17 +21,39 @@ public class NormalGuiOrderer extends GuiOrderer {
 
 	protected DisplayOptions displayOptions = DisplayOptions.Both;
 
-	public NormalGuiOrderer(int x, int y, int z, int dim, EntityPlayer entityPlayer) {
+	public NormalGuiOrderer(int x, int y, int z, int dim, Player entityPlayer) {
 		super(x, y, z, dim, entityPlayer);
 		refreshItems();
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.add(new SmallGuiButton(3, guiLeft + 10, bottom - 15, 46, 10, "Refresh")); // Refresh
-		buttonList.add(new SmallGuiButton(13, guiLeft + 10, bottom - 28, 46, 10, "Content")); // Component
-		buttonList.add(new SmallGuiButton(9, guiLeft + 10, bottom - 41, 46, 10, "Both"));
+	public void init() {
+		super.init();
+		SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 15, 46, 10, "Refresh");
+		refreshBtn.setPressListener(b -> refreshItems());
+		addRenderableWidget(refreshBtn);
+		addRenderableWidget(new SmallGuiButton(13, leftPos + 10, bottom - 28, 46, 10, "Content"));
+		SmallGuiButton modeBtn = new SmallGuiButton(9, leftPos + 10, bottom - 41, 46, 10, "Both");
+		modeBtn.setPressListener(b -> {
+			String displayString = "";
+			switch (displayOptions) {
+				case Both:
+					displayOptions = DisplayOptions.CraftOnly;
+					displayString = "Craft";
+					break;
+				case CraftOnly:
+					displayOptions = DisplayOptions.SupplyOnly;
+					displayString = "Supply";
+					break;
+				case SupplyOnly:
+					displayOptions = DisplayOptions.Both;
+					displayString = "Both";
+					break;
+			}
+			b.setMessage(net.minecraft.network.chat.Component.literal(displayString));
+			refreshItems();
+		});
+		addRenderableWidget(modeBtn);
 	}
 
 	@Override
@@ -51,31 +73,7 @@ public class NormalGuiOrderer extends GuiOrderer {
 				integer = 3;
 		}
 		integer += (dimension * 10);
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).setInteger(integer).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord));
-	}
-
-	@Override
-	protected void actionPerformed(GuiButton guibutton) throws IOException {
-		super.actionPerformed(guibutton);
-		if (guibutton.id == 9) {
-			String displayString = "";
-			switch (displayOptions) {
-				case Both:
-					displayOptions = DisplayOptions.CraftOnly;
-					displayString = "Craft";
-					break;
-				case CraftOnly:
-					displayOptions = DisplayOptions.SupplyOnly;
-					displayString = "Supply";
-					break;
-				case SupplyOnly:
-					displayOptions = DisplayOptions.Both;
-					displayString = "Both";
-					break;
-			}
-			guibutton.displayString = displayString;
-			refreshItems();
-		}
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord));
 	}
 
 	@Override

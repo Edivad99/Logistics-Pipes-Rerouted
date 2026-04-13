@@ -37,13 +37,13 @@
 
 package network.rs485.minecraft
 
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.WorldServer
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.ChunkPos
+import net.minecraft.server.level.ServerLevel
 
 interface WorldBuilder {
     fun finalPosition(selector: BlockPosSelector): BlockPos
     fun loadChunk(pos: ChunkPos)
 
-    val world: WorldServer
+    val world: ServerLevel
 }

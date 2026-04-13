@@ -1,11 +1,11 @@
 package logisticspipes.network.packets.debuggui;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,47 +42,47 @@ public class DebugTargetResponse extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(final EntityPlayer player) {
+	public void processPacket(final Player player) {
 		if (mode == TargetMode.None) {
-			player.sendMessage(new TextComponentString(ChatColor.RED + "No Target Found"));
+			player.sendSystemMessage(Component.literal(ChatColor.RED + "No Target Found"));
 		} else if (mode == TargetMode.Block) {
 			int x = additions[0];
 			int y = additions[1];
 			int z = additions[2];
-			player.sendMessage(new TextComponentString("Checking Block at: x:" + x + " y:" + y + " z:" + z));
-			Block id = player.world.getBlockState(new BlockPos(x, y, z)).getBlock();
-			player.sendMessage(new TextComponentString("Found Block with Id: " + id.getClass()));
-			final TileEntity tile = player.world.getTileEntity(new BlockPos(x, y, z));
+			player.sendSystemMessage(Component.literal("Checking Block at: x:" + x + " y:" + y + " z:" + z));
+			Block id = player.level().getBlockState(new BlockPos(x, y, z)).getBlock();
+			player.sendSystemMessage(Component.literal("Found Block with Id: " + id.getClass()));
+			final BlockEntity tile = player.level().getBlockEntity(new BlockPos(x, y, z));
 			if (tile == null) {
-				player.sendMessage(new TextComponentString(ChatColor.RED + "No TileEntity found"));
+				player.sendSystemMessage(Component.literal(ChatColor.RED + "No BlockEntity found"));
 			} else {
 				LPChatListener.addTask(() -> {
-					player.sendMessage(new TextComponentString(
-							ChatColor.GREEN + "Starting debuging of TileEntity: " + ChatColor.BLUE + ChatColor.UNDERLINE + tile.getClass().getSimpleName()));
+					player.sendSystemMessage(Component.literal(
+							ChatColor.GREEN + "Starting debuging of BlockEntity: " + ChatColor.BLUE + ChatColor.UNDERLINE + tile.getClass().getSimpleName()));
 					DebugGuiController.instance().startWatchingOf(tile, player);
 					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 					return true;
 				}, player);
-				player.sendMessage(new TextComponentString(
-						ChatColor.AQUA + "Start debuging of TileEntity: " + ChatColor.BLUE + ChatColor.UNDERLINE + tile.getClass().getSimpleName()
+				player.sendSystemMessage(Component.literal(
+						ChatColor.AQUA + "Start debuging of BlockEntity: " + ChatColor.BLUE + ChatColor.UNDERLINE + tile.getClass().getSimpleName()
 								+ ChatColor.AQUA + "? " + ChatColor.RESET + "<" + ChatColor.GREEN + "yes" + ChatColor.RESET + "/" + ChatColor.RED + "no"
 								+ ChatColor.RESET + ">"));
 				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 			}
 		} else if (mode == TargetMode.Entity) {
 			int entityId = additions[0];
-			final Entity entity = player.world.getEntityByID(entityId);
+			final Entity entity = player.level().getEntity(entityId);
 			if (entity == null) {
-				player.sendMessage(new TextComponentString(ChatColor.RED + "No Entity found"));
+				player.sendSystemMessage(Component.literal(ChatColor.RED + "No Entity found"));
 			} else {
 				LPChatListener.addTask(() -> {
-					player.sendMessage(new TextComponentString(
+					player.sendSystemMessage(Component.literal(
 							ChatColor.GREEN + "Starting debuging of Entity: " + ChatColor.BLUE + ChatColor.UNDERLINE + entity.getClass().getSimpleName()));
 					DebugGuiController.instance().startWatchingOf(entity, player);
 					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 					return true;
 				}, player);
-				player.sendMessage(new TextComponentString(
+				player.sendSystemMessage(Component.literal(
 						ChatColor.AQUA + "Start debuging of Entity: " + ChatColor.BLUE + ChatColor.UNDERLINE + entity.getClass().getSimpleName()
 								+ ChatColor.AQUA + "? " + ChatColor.RESET + "<" + ChatColor.GREEN + "yes" + ChatColor.RESET + "/" + ChatColor.RED + "no"
 								+ ChatColor.RESET + ">"));

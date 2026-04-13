@@ -2,10 +2,10 @@ package logisticspipes.utils.gui;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.interfaces.ISlotCheck;
 
@@ -14,19 +14,19 @@ public class RestrictedSlot extends Slot {
 	private final Item item;
 	private final ISlotCheck slotCheck;
 
-	public RestrictedSlot(IInventory iinventory, int i, int j, int k, Class<? extends Item> itemClass) {
+	public RestrictedSlot(Container iinventory, int i, int j, int k, Class<? extends Item> itemClass) {
 		super(iinventory, i, j, k);
 		this.item = null;
 		slotCheck = itemStack -> !itemStack.isEmpty() && itemClass.isAssignableFrom(itemStack.getItem().getClass());
 	}
 
-	public RestrictedSlot(IInventory iinventory, int i, int j, int k, Item item) {
+	public RestrictedSlot(Container iinventory, int i, int j, int k, Item item) {
 		super(iinventory, i, j, k);
 		this.item = item;
 		slotCheck = null;
 	}
 
-	public RestrictedSlot(IInventory iinventory, int i, int j, int k, ISlotCheck slotCheck) {
+	public RestrictedSlot(Container iinventory, int i, int j, int k, ISlotCheck slotCheck) {
 		super(iinventory, i, j, k);
 		item = null;
 		this.slotCheck = slotCheck;
@@ -37,7 +37,7 @@ public class RestrictedSlot extends Slot {
 	 * the armor slots.
 	 */
 	@Override
-	public boolean isItemValid(@Nonnull ItemStack par1ItemStack) {
+	public boolean mayPlace(@Nonnull ItemStack par1ItemStack) {
 		if (slotCheck == null) {
 			return par1ItemStack.getItem() == item;
 		} else {

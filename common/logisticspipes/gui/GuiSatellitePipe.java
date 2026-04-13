@@ -10,18 +10,15 @@ package logisticspipes.gui;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.tileentity.TileEntity;
-
-import org.lwjgl.input.Keyboard;
-
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -39,77 +36,64 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 	private InputBar input;
 
 	public GuiSatellitePipe(@Nonnull SatellitePipe satellitePipe) {
-		super(new Container() {
-
-			@Override
-			public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
-				return true;
-			}
-		});
-		xSize = 116;
-		ySize = 77;
+		super(new DummyContainer(null, null));
+		imageWidth = 116;
+		imageHeight = 77;
 		this.satellitePipe = satellitePipe;
 	}
 
 	@Override
-	public void initGui() {
-		Keyboard.enableRepeatEvents(true);
+	public void init() {
+		
 
-		super.initGui();
-		buttonList.add(new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, "Save"));
-		input = new InputBar(fontRenderer, this, guiLeft + 8, guiTop + 40, 100, 16);
+		super.init();
+		SmallGuiButton saveBtn = new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, "Save");
+		saveBtn.setPressListener(b -> MainProxy.sendPacketToServer(
+				PacketHandler.getPacket(SatelliteSetNamePacket.class).setString(input.getText()).setTilePos(satellitePipe.getContainer())));
+		addRenderableWidget(saveBtn);
+		input = new InputBar(font, this, leftPos + 8, topPos + 40, 100, 16);
 	}
 
 	@Override
 	public void closeGui() throws IOException {
 		super.closeGui();
-		Keyboard.enableRepeatEvents(false);
+		
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) throws IOException {
-		if (guibutton.id == 0) {
-			final TileEntity container = satellitePipe.getContainer();
-			if (container != null) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(SatelliteSetNamePacket.class).setString(input.getText()).setTilePos(container));
-			}
-		} else {
-			super.actionPerformed(guibutton);
-		}
-	}
-
-	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-		super.drawGuiContainerForegroundLayer(par1, par2);
-		drawCenteredString(TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0x404040);
-		String name = TextUtil.getTrimmedString(satellitePipe.getSatellitePipeName(), 100, mc.fontRenderer, "...");
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		guiGraphics.drawCenteredString(font, TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0x404040);
+		String name = TextUtil.getTrimmedString(satellitePipe.getSatellitePipeName(), 100, minecraft.font, "...");
 		int yOffset = 0;
 		if (!response.isEmpty()) {
-			drawCenteredString(TextUtil.translate("gui.satellite.naming_result." + response), xSize / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
+			guiGraphics.drawCenteredString(font, TextUtil.translate("gui.satellite.naming_result." + response), imageWidth / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
 			yOffset = 4;
 		}
-		drawCenteredString(name, xSize / 2, 24 - yOffset, 0x404040);
+		guiGraphics.drawCenteredString(font, name, imageWidth / 2, 24 - yOffset, 0x404040);
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int x, int y) {
-		super.drawGuiContainerBackgroundLayer(f, x, y);
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+		super.renderBg(guiGraphics, f, x, y);
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		input.drawTextBox();
 	}
 
 	@Override
-	protected void mouseClicked(int x, int y, int k) throws IOException {
+	public boolean mouseClicked(double x, double y, int k) {
 		if (!input.handleClick(x, y, k)) {
-			super.mouseClicked(x, y, k);
+			return super.mouseClicked(x, y, k);
 		}
+		return true;
 	}
 
 	@Override
-	public void keyTyped(char c, int i) throws IOException {
+	public boolean charTyped(char c, int i) {
 		if (!input.handleKey(c, i)) {
-			super.keyTyped(c, i);
+			return super.charTyped(c, i);
 		}
+		return true;
 	}
 
 	public void handleResponse(SatelliteNamingResult result, String newName) {

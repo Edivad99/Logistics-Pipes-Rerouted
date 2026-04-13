@@ -1,14 +1,14 @@
 package logisticspipes.proxy.td.subproxies;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public interface ITDPart {
 
-	TileEntity getInternalDuct();
+	BlockEntity getInternalDuct();
 
-	void setWorld_LP(World world);
+	void setWorld_LP(Level world);
 
 	void invalidate();
 

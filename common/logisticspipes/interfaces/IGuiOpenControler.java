@@ -1,10 +1,10 @@
 package logisticspipes.interfaces;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public interface IGuiOpenControler {
 
-	void guiOpenedByPlayer(EntityPlayer player);
+	void guiOpenedByPlayer(Player player);
 
-	void guiClosedByPlayer(EntityPlayer player);
+	void guiClosedByPlayer(Player player);
 }

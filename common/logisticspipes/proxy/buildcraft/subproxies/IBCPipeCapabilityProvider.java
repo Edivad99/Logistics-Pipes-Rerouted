@@ -1,7 +1,6 @@
 package logisticspipes.proxy.buildcraft.subproxies;
 
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-
-public interface IBCPipeCapabilityProvider extends ICapabilityProvider {
-
+// TODO: ICapabilityProvider removed in NeoForge 1.20.1. BuildCraft not ported to 1.20.1.
+// Remove this interface when BuildCraft integration is cleaned up.
+public interface IBCPipeCapabilityProvider {
 }

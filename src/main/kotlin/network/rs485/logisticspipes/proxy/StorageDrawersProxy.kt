@@ -40,17 +40,16 @@ package network.rs485.logisticspipes.proxy
 import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
 import logisticspipes.proxy.SimpleServiceLocator
-import net.minecraftforge.fml.common.Loader
-import network.rs485.logisticspipes.proxy.StorageDrawersProxyImpl.Companion.drawerGroupCapability
+import net.minecraftforge.fml.ModList
 
 object StorageDrawersProxy {
     private val impl: StorageDrawersProxyImpl? by lazy {
-        if (Loader.isModLoaded(LPConstants.storagedrawersModID) && drawerGroupCapability != null) {
+        if (ModList.get().isLoaded(LPConstants.storagedrawersModID)) {
             try {
-                val implClass = Loader.instance().modClassLoader.loadClass("network.rs485.logisticspipes.proxy.StorageDrawersProxyImpl")
+                val implClass = StorageDrawersProxy::class.java.classLoader.loadClass("network.rs485.logisticspipes.proxy.StorageDrawersProxyImpl")
                 return@lazy (implClass.getDeclaredConstructor().newInstance() as? StorageDrawersProxyImpl)
             } catch (e: ReflectiveOperationException) {
-                LogisticsPipes.log.fatal("Could not load proxy implementation for mod ${LPConstants.storagedrawersModID}", e)
+                LogisticsPipes.log.error("Could not load proxy implementation for mod ${LPConstants.storagedrawersModID}", e)
             }
         }
         null

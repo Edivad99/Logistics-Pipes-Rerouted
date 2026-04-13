@@ -1,9 +1,9 @@
 package logisticspipes.interfaces;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public interface IWorldProvider {
 
-	World getWorld();
+	Level getWorld();
 
 }

@@ -3,11 +3,11 @@ package logisticspipes.proxy.object3d.interfaces;
 import java.util.List;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.math.AxisAlignedBB;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.world.phys.AABB;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface IModel3D {
 
@@ -15,7 +15,7 @@ public interface IModel3D {
 
 	void render(I3DOperation... i3dOperations);
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	List<BakedQuad> renderToQuads(VertexFormat format, I3DOperation... i3dOperations);
 
 	void computeNormals();
@@ -32,6 +32,6 @@ public interface IModel3D {
 
 	Object getOriginal();
 
-	IBounds getBoundsInside(AxisAlignedBB boundingBox);
+	IBounds getBoundsInside(AABB boundingBox);
 
 }

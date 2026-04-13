@@ -3,8 +3,8 @@ package logisticspipes.network.packets.pipe;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -20,7 +20,7 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 public class PipePropertiesUpdate extends CoordinatesPacket {
 
 	@Nonnull
-	public NBTTagCompound tag = new NBTTagCompound();
+	public CompoundTag tag = new CompoundTag();
 
 	public PipePropertiesUpdate(int id) {
 		super(id);
@@ -29,13 +29,13 @@ public class PipePropertiesUpdate extends CoordinatesPacket {
 	@Override
 	public void writeData(LPDataOutput output) {
 		super.writeData(output);
-		output.writeNBTTagCompound(tag);
+		output.writeCompoundTag(tag);
 	}
 
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
-		tag = Objects.requireNonNull(input.readNBTTagCompound(), "read null NBT in PipePropertiesUpdate");
+		tag = Objects.requireNonNull(input.readCompoundTag(), "read null NBT in PipePropertiesUpdate");
 	}
 
 	@Override
@@ -44,8 +44,8 @@ public class PipePropertiesUpdate extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe tile = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe tile = this.getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (!(tile.pipe instanceof PropertyHolder)) {
 			return;
 		}
@@ -53,7 +53,7 @@ public class PipePropertiesUpdate extends CoordinatesPacket {
 		// sync updated properties
 		tile.pipe.readFromNBT(tag);
 
-		MainProxy.runOnServer(player.world, () -> () -> {
+		MainProxy.runOnServer(player.level(), () -> () -> {
 			// resync client; always
 			MainProxy.sendPacketToPlayer(fromPropertyHolder((PropertyHolder) tile.pipe).setPacketPos(this), player);
 		});

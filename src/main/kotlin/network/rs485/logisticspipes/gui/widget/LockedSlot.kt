@@ -37,12 +37,12 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
 
-class LockedSlot(inventoryIn: IInventory, index: Int, xPosition: Int, yPosition: Int) : Slot(inventoryIn, index, xPosition, yPosition) {
-    override fun canTakeStack(playerIn: EntityPlayer): Boolean = false
-    override fun isItemValid(stack: ItemStack): Boolean = false
+class LockedSlot(inventoryIn: Container, index: Int, xPosition: Int, yPosition: Int) : Slot(inventoryIn, index, xPosition, yPosition) {
+    override fun mayPickup(playerIn: Player): Boolean = false
+    override fun mayPlace(stack: ItemStack): Boolean = false
 }

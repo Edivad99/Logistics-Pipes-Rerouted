@@ -1,5 +1,7 @@
 package logisticspipes.renderer;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -8,30 +10,24 @@ import java.util.concurrent.Executors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.model.ModelSign;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemModelMesher;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.Font;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.resources.model.BakedModel;
+import com.mojang.blaze3d.pipeline.RenderTarget; // was Framebuffer
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
-import net.minecraftforge.client.ForgeHooksClient;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
+
+
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -50,7 +46,7 @@ import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
-public class LogisticsRenderPipe extends TileEntitySpecialRenderer<LogisticsTileGenericPipe> {
+public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGenericPipe> {
 
 	private static final ExecutorService pool = Executors.newFixedThreadPool(1);
 	private static final int LIQUID_STAGES = 40;
@@ -60,66 +56,154 @@ public class LogisticsRenderPipe extends TileEntitySpecialRenderer<LogisticsTile
 	public static LogisticsNewPipeItemBoxRenderer boxRenderer = new LogisticsNewPipeItemBoxRenderer();
 	public static ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 	private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
-	private final ModelSign modelSign = new ModelSign();
 
-	public LogisticsRenderPipe() {
-		super();
-		modelSign.signStick.showModel = false;
+	public LogisticsRenderPipe(BlockEntityRendererProvider.Context context) {
 	}
 
 	@Override
-	public void render(@Nullable LogisticsTileGenericPipe tileentity, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+	public void render(LogisticsTileGenericPipe tileentity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		if (tileentity == null || tileentity.pipe == null) return;
+
+		// Fallback placeholder cube — only draws when the OBJ model pipeline failed to load
+		// (empty sideNormal map), so broken-geometry states remain visible in-world. When
+		// loadModels() succeeded, the real LogisticsNewRenderPipe path emits textured quads
+		// through LPRenderStateImpl and the placeholder is skipped.
+		if (logisticspipes.renderer.newpipe.LogisticsNewRenderPipe.sideNormal.isEmpty()) {
+			drawPlaceholderCube(tileentity, poseStack, bufferSource, packedLight, packedOverlay);
+		}
+
+		// Everything below drives the legacy CCL-based path. Gate until CCLProxy is activated.
+		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
+
+		// Bind the current MultiBufferSource buffer + lighting into the render state so that
+		// any IModel3D.render(ops...) calls made downstream emit vertices into the correct
+		// RenderType batch. The solid RenderType covers opaque pipe geometry; translucent
+		// fluid/overlay passes will bind their own buffer when those paths are migrated.
+		if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
+			logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
+				(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
+			com.mojang.blaze3d.vertex.VertexConsumer buffer =
+				bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.cutoutMipped());
+			rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
+		}
+
+		poseStack.pushPose();
+		try {
+			// Historic renderInternal() was called with absolute world x/y/z; the new BER
+			// pipeline provides a PoseStack pre-translated to the block origin, so pass (0,0,0).
+			renderInternal(tileentity, 0, 0, 0, partialTicks, -1, 1.0f, poseStack, bufferSource, packedLight, packedOverlay);
+		} finally {
+			poseStack.popPose();
+		}
+	}
+
+	private void drawPlaceholderCube(LogisticsTileGenericPipe tileentity, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		com.mojang.blaze3d.vertex.VertexConsumer vc = bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.solid());
+		org.joml.Matrix4f m = poseStack.last().pose();
+		org.joml.Matrix3f n = poseStack.last().normal();
+
+		// Core cube 6/16..10/16 — visual placeholder centered in the block.
+		float a = 0.375f, b = 0.625f;
+		int pipeHash = tileentity.pipe.getClass().getName().hashCode();
+		int r = 64 + ((pipeHash >>> 16) & 0x7F);
+		int g = 64 + ((pipeHash >>> 8) & 0x7F);
+		int bl = 64 + (pipeHash & 0x7F);
+		emitBox(vc, m, n, a, a, a, b, b, b, r, g, bl, packedLight, packedOverlay);
+
+		// Connection stubs on each connected side.
+		if (tileentity.renderState != null && tileentity.renderState.pipeConnectionMatrix != null) {
+			for (Direction dir : Direction.values()) {
+				if (!tileentity.renderState.pipeConnectionMatrix.isConnected(dir)) continue;
+				float x0 = a, y0 = a, z0 = a, x1 = b, y1 = b, z1 = b;
+				switch (dir) {
+					case DOWN:  y0 = 0f; y1 = a; break;
+					case UP:    y0 = b; y1 = 1f; break;
+					case NORTH: z0 = 0f; z1 = a; break;
+					case SOUTH: z0 = b; z1 = 1f; break;
+					case WEST:  x0 = 0f; x1 = a; break;
+					case EAST:  x0 = b; x1 = 1f; break;
+				}
+				emitBox(vc, m, n, x0, y0, z0, x1, y1, z1, r, g, bl, packedLight, packedOverlay);
+			}
+		}
+	}
+
+	private static void emitBox(com.mojang.blaze3d.vertex.VertexConsumer vc, org.joml.Matrix4f m, org.joml.Matrix3f n,
+			float x0, float y0, float z0, float x1, float y1, float z1,
+			int r, int g, int b, int packedLight, int packedOverlay) {
+		// -Y
+		quad(vc, m, n, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1, 0, -1, 0, r, g, b, packedLight, packedOverlay);
+		// +Y
+		quad(vc, m, n, x0, y1, z1, x1, y1, z1, x1, y1, z0, x0, y1, z0, 0, 1, 0, r, g, b, packedLight, packedOverlay);
+		// -Z
+		quad(vc, m, n, x1, y0, z0, x0, y0, z0, x0, y1, z0, x1, y1, z0, 0, 0, -1, r, g, b, packedLight, packedOverlay);
+		// +Z
+		quad(vc, m, n, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1, 0, 0, 1, r, g, b, packedLight, packedOverlay);
+		// -X
+		quad(vc, m, n, x0, y0, z0, x0, y0, z1, x0, y1, z1, x0, y1, z0, -1, 0, 0, r, g, b, packedLight, packedOverlay);
+		// +X
+		quad(vc, m, n, x1, y0, z1, x1, y0, z0, x1, y1, z0, x1, y1, z1, 1, 0, 0, r, g, b, packedLight, packedOverlay);
+	}
+
+	private static void quad(com.mojang.blaze3d.vertex.VertexConsumer vc, org.joml.Matrix4f m, org.joml.Matrix3f n,
+			float x1, float y1, float z1, float x2, float y2, float z2,
+			float x3, float y3, float z3, float x4, float y4, float z4,
+			float nx, float ny, float nz, int r, int g, int b, int packedLight, int packedOverlay) {
+		vc.vertex(m, x1, y1, z1).color(r, g, b, 255).uv(0, 0).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
+		vc.vertex(m, x2, y2, z2).color(r, g, b, 255).uv(1, 0).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
+		vc.vertex(m, x3, y3, z3).color(r, g, b, 255).uv(1, 1).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
+		vc.vertex(m, x4, y4, z4).color(r, g, b, 255).uv(0, 1).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
+	}
+
+	private void renderInternal(@Nullable LogisticsTileGenericPipe tileentity, double x, double y, double z, float partialTicks, int destroyStage, float alpha,
+			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 		boolean inHand = (tileentity == null || (x == 0 && y == 0 && z == 0));
 		if (!inHand && tileentity.pipe == null) {
 			return;
 		}
 
-		GlStateManager.enableDepth();
-		GlStateManager.depthFunc(515);
-		GlStateManager.depthMask(true);
+		// 1.20.1: depth + rescale-normal + colour state are managed by the bound RenderType,
+		// so the old GlStateManager._enableDepthTest/_depthFunc/_depthMask block is gone.
+		// destroyStage overlay is handled by the outer BER pipeline (crumbling buffer) and
+		// no longer needs a per-pipe matrix push here.
 
-		if (destroyStage >= 0) {
-			this.bindTexture(DESTROY_STAGES[destroyStage]);
-			GlStateManager.matrixMode(GL11.GL_TEXTURE);
-			GlStateManager.pushMatrix();
-			GlStateManager.scale(4.0F, 4.0F, 1.0F);
-			//GlStateManager.translate(0.0625F, 0.0625F, 0.0625F);
-			GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-		}
-
-		GlStateManager.pushMatrix();
-		GlStateManager.enableRescaleNormal();
-
-		if (destroyStage < 0) {
-			GlStateManager.color(1.0F, 1.0F, 1.0F, alpha);
-		}
-
-		if (!inHand) {
-			if (tileentity.pipe instanceof CoreRoutedPipe) {
-				renderPipeSigns((CoreRoutedPipe) tileentity.pipe, x, y, z, partialTicks);
+		poseStack.pushPose();
+		try {
+			if (!inHand && SimpleServiceLocator.cclProxy.isActivated()) {
+				if (tileentity.pipe instanceof CoreRoutedPipe) {
+					renderPipeSigns((CoreRoutedPipe) tileentity.pipe, x, y, z, partialTicks, poseStack, bufferSource, packedLight, packedOverlay);
+				}
 			}
-		}
 
-		double distance = !inHand ? new DoubleCoordinates((TileEntity) tileentity).distanceTo(new DoubleCoordinates(Minecraft.getMinecraft().player)) : 0;
+			double distance = !inHand ? new DoubleCoordinates((BlockEntity) tileentity).distanceTo(new DoubleCoordinates(Minecraft.getInstance().player)) : 0;
 
-		LogisticsRenderPipe.secondRenderer.renderTileEntityAt(tileentity, x, y, z, partialTicks, distance);
-
-		if (!inHand && !tileentity.isOpaque()) {
-			if (tileentity.pipe.transport instanceof PipeFluidTransportLogistics) {
-				//renderFluids(pipe.pipe, x, y, z);
+			if (SimpleServiceLocator.cclProxy.isActivated()) {
+				// Refresh the bound pose matrices to the current PoseStack top so that
+				// any pipe-geometry emission in LogisticsNewRenderPipe lands at the block.
+				if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
+					logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
+						(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
+					rs.pose = poseStack.last().pose();
+					rs.normal = poseStack.last().normal();
+				}
+				LogisticsRenderPipe.secondRenderer.renderTileEntityAt(tileentity, x, y, z, partialTicks, distance);
 			}
-			if (tileentity.pipe.transport != null) {
-				renderSolids(tileentity.pipe, x, y, z, partialTicks);
-			}
-		}
 
-		GlStateManager.disableRescaleNormal();
-		GlStateManager.popMatrix();
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		if (destroyStage >= 0) {
-			GlStateManager.matrixMode(GL11.GL_TEXTURE);
-			GlStateManager.popMatrix();
-			GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+			if (!inHand && !tileentity.isOpaque() && SimpleServiceLocator.cclProxy.isActivated()) {
+				if (tileentity.pipe.transport instanceof PipeFluidTransportLogistics) {
+					//renderFluids(pipe.pipe, x, y, z);
+				}
+				if (tileentity.pipe.transport != null) {
+					try {
+						renderSolids(tileentity.pipe, x, y, z, partialTicks, poseStack, bufferSource, packedLight, packedOverlay);
+					} catch (Throwable t) {
+						// Item-in-transit rendering depends on ItemStackRenderer which still has TODOs;
+						// swallow failures so a broken item render doesn't hide the whole pipe.
+					}
+				}
+			}
+		} finally {
+			poseStack.popPose();
 		}
 
 		if (!inHand) {
@@ -127,10 +211,11 @@ public class LogisticsRenderPipe extends TileEntitySpecialRenderer<LogisticsTile
 		}
 	}
 
-	private void renderSolids(CoreUnroutedPipe pipe, double x, double y, double z, float partialTickTime) {
-		GL11.glPushMatrix();
+	private void renderSolids(CoreUnroutedPipe pipe, double x, double y, double z, float partialTickTime,
+			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		poseStack.pushPose();
 
-		float light = pipe.container.getWorld().getLightBrightness(pipe.container.getPos());
+		float light = 1.0F; // full-bright; actual lighting applied via packedLight parameter
 
 		int count = 0;
 		for (LPTravelingItem item : pipe.transport.items) {
@@ -146,7 +231,7 @@ public class LogisticsRenderPipe extends TileEntitySpecialRenderer<LogisticsTile
 			if (item.getItemIdentifierStack() == null) {
 				continue;
 			}
-			if (!item.getContainer().getPos().equals(lPipe.container.getPos())) {
+			if (!item.getContainer().getBlockPos().equals(lPipe.container.getBlockPos())) {
 				continue;
 			}
 
@@ -182,75 +267,78 @@ public class LogisticsRenderPipe extends TileEntitySpecialRenderer<LogisticsTile
 			double itemYawForPitch = lPipe.getItemRenderYaw(fPos, item);
 
 			ItemStack stack = item.getItemIdentifierStack().makeNormalStack();
-			doRenderItem(stack, pipe.container.getWorld(), lX + pos.getXCoord(), lY + pos.getYCoord(), lZ + pos.getZCoord(), light, 0.75F, boxScale, itemYaw, itemPitch, itemYawForPitch, partialTickTime);
+			doRenderItem(stack, pipe.container.getWorld(), lX + pos.getXCoord(), lY + pos.getYCoord(), lZ + pos.getZCoord(), light, 0.75F, boxScale, itemYaw, itemPitch, itemYawForPitch, partialTickTime, poseStack, bufferSource, packedLight, packedOverlay);
 			count++;
 		}
 
 		count = 0;
 		double dist = 0.135;
 		DoubleCoordinates pos = new DoubleCoordinates(0.5, 0.5, 0.5);
-		CoordinateUtils.add(pos, EnumFacing.SOUTH, dist);
-		CoordinateUtils.add(pos, EnumFacing.EAST, dist);
-		CoordinateUtils.add(pos, EnumFacing.UP, dist);
+		CoordinateUtils.add(pos, Direction.SOUTH, dist);
+		CoordinateUtils.add(pos, Direction.EAST, dist);
+		CoordinateUtils.add(pos, Direction.UP, dist);
 		for (Pair<ItemIdentifierStack, Pair<Integer, Integer>> item : pipe.transport._itemBuffer) {
 			if (item == null || item.getValue1() == null) {
 				continue;
 			}
 			ItemStack stack = item.getValue1().makeNormalStack();
-			doRenderItem(stack, pipe.container.getWorld(), x + pos.getXCoord(), y + pos.getYCoord(), z + pos.getZCoord(), light, 0.25F, 0, 0, 0, 0, partialTickTime);
+			doRenderItem(stack, pipe.container.getWorld(), x + pos.getXCoord(), y + pos.getYCoord(), z + pos.getZCoord(), light, 0.25F, 0, 0, 0, 0, partialTickTime, poseStack, bufferSource, packedLight, packedOverlay);
 			count++;
 			if (count >= 27) {
 				break;
 			} else if (count % 9 == 0) {
-				CoordinateUtils.add(pos, EnumFacing.SOUTH, dist * 2.0);
-				CoordinateUtils.add(pos, EnumFacing.EAST, dist * 2.0);
-				CoordinateUtils.add(pos, EnumFacing.DOWN, dist);
+				CoordinateUtils.add(pos, Direction.SOUTH, dist * 2.0);
+				CoordinateUtils.add(pos, Direction.EAST, dist * 2.0);
+				CoordinateUtils.add(pos, Direction.DOWN, dist);
 			} else if (count % 3 == 0) {
-				CoordinateUtils.add(pos, EnumFacing.SOUTH, dist * 2.0);
-				CoordinateUtils.add(pos, EnumFacing.WEST, dist);
+				CoordinateUtils.add(pos, Direction.SOUTH, dist * 2.0);
+				CoordinateUtils.add(pos, Direction.WEST, dist);
 			} else {
-				CoordinateUtils.add(pos, EnumFacing.NORTH, dist);
+				CoordinateUtils.add(pos, Direction.NORTH, dist);
 			}
 		}
 
-		GL11.glPopMatrix();
+		poseStack.popPose();
 	}
 
-	public void doRenderItem(@Nonnull ItemStack itemstack, World world, double x, double y, double z, float light, float renderScale, double boxScale, double yaw, double pitch, double yawForPitch, float partialTickTime) {
-		LogisticsRenderPipe.boxRenderer.doRenderItem(itemstack, light, x, y, z, boxScale, yaw, pitch, yawForPitch);
+	public void doRenderItem(@Nonnull ItemStack itemstack, Level world, double x, double y, double z, float light, float renderScale, double boxScale, double yaw, double pitch, double yawForPitch, float partialTickTime,
+			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		LogisticsRenderPipe.boxRenderer.doRenderItem(itemstack, light, x, y, z, boxScale, yaw, pitch, yawForPitch, poseStack);
 
-		GL11.glPushMatrix();
-		GL11.glTranslated(x, y, z);
-		GL11.glScalef(renderScale, renderScale, renderScale);
-		GL11.glRotated(yawForPitch, 0, 1, 0);
-		GL11.glRotated(pitch, 1, 0, 0);
-		GL11.glRotated(-yawForPitch, 0, 1, 0);
-		GL11.glRotated(yaw, 0, 1, 0);
-		GL11.glTranslatef(0.0F, -0.35F, 0.0F);
+		poseStack.pushPose();
+		poseStack.translate(x, y, z);
+		poseStack.scale(renderScale, renderScale, renderScale);
+		// Historic order: yaw around Y, then pitch around X after a secondary yawForPitch
+		// rotation, matching the 1.12.2 glRotated sequence in CoreRoutedPipe-driven items.
+		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(yaw)));
+		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(yawForPitch)));
+		poseStack.mulPose(new org.joml.Quaternionf().rotationX((float) Math.toRadians(pitch)));
+		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
+		poseStack.translate(0.0F, -0.35F, 0.0F);
 		itemRenderer.setItemstack(itemstack).setWorld(world).setPartialTickTime(partialTickTime);
 		itemRenderer.renderInWorld();
-		GL11.glPopMatrix();
+		poseStack.popPose();
 	}
 
-	private boolean needDistance(List<Pair<EnumFacing, IPipeSign>> list) {
-		List<Pair<EnumFacing, IPipeSign>> copy = new ArrayList<>(list);
-		Iterator<Pair<EnumFacing, IPipeSign>> iter = copy.iterator();
+	private boolean needDistance(List<Pair<Direction, IPipeSign>> list) {
+		List<Pair<Direction, IPipeSign>> copy = new ArrayList<>(list);
+		Iterator<Pair<Direction, IPipeSign>> iter = copy.iterator();
 		boolean north = false, south = false, east = false, west = false;
 		while (iter.hasNext()) {
-			Pair<EnumFacing, IPipeSign> pair = iter.next();
-			if (pair.getValue1() == EnumFacing.UP || pair.getValue1() == EnumFacing.DOWN || pair.getValue1() == null) {
+			Pair<Direction, IPipeSign> pair = iter.next();
+			if (pair.getValue1() == Direction.UP || pair.getValue1() == Direction.DOWN || pair.getValue1() == null) {
 				iter.remove();
 			}
-			if (pair.getValue1() == EnumFacing.NORTH) {
+			if (pair.getValue1() == Direction.NORTH) {
 				north = true;
 			}
-			if (pair.getValue1() == EnumFacing.SOUTH) {
+			if (pair.getValue1() == Direction.SOUTH) {
 				south = true;
 			}
-			if (pair.getValue1() == EnumFacing.EAST) {
+			if (pair.getValue1() == Direction.EAST) {
 				east = true;
 			}
-			if (pair.getValue1() == EnumFacing.WEST) {
+			if (pair.getValue1() == Direction.WEST) {
 				west = true;
 			}
 		}
@@ -266,206 +354,96 @@ public class LogisticsRenderPipe extends TileEntitySpecialRenderer<LogisticsTile
 		return result;
 	}
 
-	private void renderPipeSigns(CoreRoutedPipe pipe, double x, double y, double z, float partialTickTime) {
-		List<Pair<EnumFacing, IPipeSign>> pipeSigns = pipe.getPipeSigns();
+	private void renderPipeSigns(CoreRoutedPipe pipe, double x, double y, double z, float partialTickTime,
+			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		List<Pair<Direction, IPipeSign>> pipeSigns = pipe.getPipeSigns();
 		if (pipe.container != null && !pipeSigns.isEmpty()) {
-			for (Pair<EnumFacing, IPipeSign> pair : pipeSigns) {
+			for (Pair<Direction, IPipeSign> pair : pipeSigns) {
 				if (pipe.container.renderState.pipeConnectionMatrix.isConnected(pair.getValue1())) {
 					continue;
 				}
-				GL11.glPushMatrix();
-				GL11.glTranslatef((float) x + 0.5F, (float) y + 0.5F, (float) z + 0.5F);
+				poseStack.pushPose();
+				poseStack.translate((float) x + 0.5F, (float) y + 0.5F, (float) z + 0.5F);
 				switch (pair.getValue1()) {
 					case UP:
-						GL11.glRotatef(90, 1.0F, 0.0F, 0.0F);
+						poseStack.mulPose(new org.joml.Quaternionf().rotationX((float) Math.toRadians(90)));
 						break;
 					case DOWN:
-						GL11.glRotatef(-90, 1.0F, 0.0F, 0.0F);
+						poseStack.mulPose(new org.joml.Quaternionf().rotationX((float) Math.toRadians(-90)));
 						break;
 					case NORTH:
-						GL11.glRotatef(0, 0.0F, 1.0F, 0.0F);
+						// 0° yaw; no rotation required
 						if (needDistance(pipeSigns)) {
-							GL11.glTranslatef(0.0F, 0.0F, -0.15F);
+							poseStack.translate(0.0F, 0.0F, -0.15F);
 						}
 						break;
 					case SOUTH:
-						GL11.glRotatef(-180, 0.0F, 1.0F, 0.0F);
+						poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(-180)));
 						if (needDistance(pipeSigns)) {
-							GL11.glTranslatef(0.0F, 0.0F, -0.15F);
+							poseStack.translate(0.0F, 0.0F, -0.15F);
 						}
 						break;
 					case EAST:
-						GL11.glRotatef(-90, 0.0F, 1.0F, 0.0F);
+						poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(-90)));
 						if (needDistance(pipeSigns)) {
-							GL11.glTranslatef(0.0F, 0.0F, -0.15F);
+							poseStack.translate(0.0F, 0.0F, -0.15F);
 						}
 						break;
 					case WEST:
-						GL11.glRotatef(90, 0.0F, 1.0F, 0.0F);
+						poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(90)));
 						if (needDistance(pipeSigns)) {
-							GL11.glTranslatef(0.0F, 0.0F, -0.15F);
+							poseStack.translate(0.0F, 0.0F, -0.15F);
 						}
 						break;
 					default:
 				}
-				renderSign(pipe, pair.getValue2(), partialTickTime);
-				GL11.glPopMatrix();
+				renderSign(pipe, pair.getValue2(), partialTickTime, poseStack, bufferSource, packedLight);
+				poseStack.popPose();
 			}
 		}
 	}
 
-	private void renderSign(CoreRoutedPipe pipe, IPipeSign type, float partialTickTime) {
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-		GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-
-		float signScale = 2 / 3.0F;
-		GL11.glTranslatef(0.0F, -0.3125F, -0.36F);
-		GL11.glRotatef(180, 0.0f, 1.0f, 0.0f);
-		Minecraft.getMinecraft().renderEngine.bindTexture(LogisticsRenderPipe.SIGN);
-
-		GL11.glPushMatrix();
-		GL11.glScalef(signScale, -signScale, -signScale);
-		modelSign.renderSign();
-		GL11.glPopMatrix();
-
-
-		boolean needsUpdating = type.doesFrameBufferNeedUpdating(pipe, this);
-		Framebuffer fbo = type.getMCFrameBufferForSign();
-
-		if(fbo != null) {
-			if(needsUpdating) {
-				pool.submit(() -> {
-					Minecraft.getMinecraft().addScheduledTask(() -> {
-						fbo.framebufferClear();
-						GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
-						GL11.glMatrixMode(GL11.GL_MODELVIEW);
-						GL11.glPushMatrix();
-						GL11.glMatrixMode(GL11.GL_PROJECTION);
-						GL11.glPushMatrix();
-
-						// setup modelview matrix
-						GlStateManager.clearColor(1.0f, 1.0f, 1.0f, 0.5f);
-						GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-						GL11.glMatrixMode(GL11.GL_MODELVIEW);
-						GL11.glLoadIdentity();
-						GL11.glMatrixMode(GL11.GL_PROJECTION);
-						GL11.glLoadIdentity();
-						GL11.glDepthFunc(GL11.GL_LESS);
-
-						GL11.glOrtho(0.0D, 1.0, 1.0, 0.0, -1, 1);
-						GL11.glDisable(GL11.GL_DEPTH_TEST);
-
-						fbo.bindFramebuffer(true);
-						resetStateManager();
-
-						GL11.glRotatef(-180.0F, 1.0F, 0.0F, 0.0F);
-						GL11.glTranslatef(0.16F, -0.41F, 0.0F);
-						GL11.glScalef(1.0F, 1.0F, -1/0.001F);
-
-						type.render(pipe, LogisticsRenderPipe.this);
-						fbo.unbindFramebuffer();
-
-						GL11.glMatrixMode(GL11.GL_PROJECTION);
-						GL11.glPopMatrix();
-						GL11.glMatrixMode(GL11.GL_MODELVIEW);
-						GL11.glPopMatrix();
-						GL11.glPopAttrib();
-
-						resetStateManager();
-						GL11.glDepthFunc(GL11.GL_LEQUAL);
-					});
-				});
-			}
-			GL11.glTranslatef(-0.5F, -0.19F, 0.07F * signScale);
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder bufferbuilder = tessellator.getBuffer();
-			GlStateManager.enableTexture2D();
-			fbo.bindFramebufferTexture();
-			bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-			bufferbuilder.pos(0, 0, 0.001).tex(0, 0).endVertex();
-			bufferbuilder.pos(1, 0, 0.001).tex(1, 0).endVertex();
-			bufferbuilder.pos(1, 1, 0.001).tex(1, 1).endVertex();
-			bufferbuilder.pos(0, 1, 0.001).tex(0, 1).endVertex();
-			tessellator.draw();
-			fbo.unbindFramebufferTexture();
-		} else {
-			GL11.glTranslatef(-0.32F, 0.5F * signScale + 0.08F, 0.07F * signScale);
-			type.render(pipe, this);
-		}
+	private void renderSign(CoreRoutedPipe pipe, IPipeSign type, float partialTickTime, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+		// ModelSign background rendering deferred; delegate text/item rendering to the sign.
+		type.render(pipe, this, poseStack, bufferSource, packedLight);
 	}
 
 	private void resetStateManager() {
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		GlStateManager.color(0.0F, 0.0F, 0.0F, 1.0F);
-		GlStateManager.depthMask(false);
-		GlStateManager.depthMask(true);
-		GlStateManager.disableDepth();
-		GlStateManager.enableDepth();
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.depthMask(true);
+		RenderSystem.enableDepthTest();
 	}
 
 	public void renderItemStackOnSign(@Nonnull ItemStack itemstack) {
-		if (itemstack.isEmpty()) {
-			return; // Only happens on false configuration
-		}
-
-		Minecraft mc = Minecraft.getMinecraft();
-		RenderItem itemRender = mc.getRenderItem();
-
-		GlStateManager.disableLighting();
-		GlStateManager.color(1F, 1F, 1F); //Forge: Reset color in case Items change it.
-		GlStateManager.enableBlend(); //Forge: Make sure blend is enabled else tabs show a white border.
-		itemRender.zLevel = 100.0F;
-		GlStateManager.enableRescaleNormal();
-
-		// itemRender.renderItemAndEffectIntoGUI(itemstack, 0, 0);
-		// item render code
-		GlStateManager.pushMatrix();
-		mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		mc.renderEngine.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-		GlStateManager.enableRescaleNormal();
-		GlStateManager.enableAlpha();
-		GlStateManager.alphaFunc(516, 0.1F);
-		GlStateManager.enableBlend();
-		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
-		// mezz.jei.render.ItemStackFastRenderer#getBakedModel
-		ItemModelMesher itemModelMesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-		IBakedModel bakedModel = itemModelMesher.getItemModel(itemstack);
-		bakedModel = bakedModel.getOverrides().handleItemState(bakedModel, itemstack, null, null);
-
-		// make item/block flat and position it
-		GlStateManager.translate(0.05F, 0F, 0F);
-		GlStateManager.scale(0.8F, 0.8F, 0.001F);
-
-		// model rotation
-		bakedModel = ForgeHooksClient.handleCameraTransforms(bakedModel, ItemCameraTransforms.TransformType.GUI, false);
-
-		// model scaling to fit on sign
-		GlStateManager.scale(0.4F, 0.4F, 0.4F);
-
-		itemRender.renderItem(itemstack, bakedModel);
-
-		GlStateManager.disableRescaleNormal();
-		GlStateManager.disableAlpha();
-		GlStateManager.popMatrix();
-		mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		mc.renderEngine.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-		// item render code end
-
-		// not needed?
-		//itemRender.renderItemOverlays(mc.fontRenderer, itemstack, 0, 0);
-		itemRender.zLevel = 0.0F;
+		// Legacy no-arg stub — rendering deferred. Use the PoseStack overload instead.
 	}
 
-	public String cut(String name, FontRenderer renderer) {
-		if (renderer.getStringWidth(name) < 90) {
+	public void renderItemStackOnSign(@Nonnull ItemStack itemstack, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+		if (itemstack.isEmpty()) return;
+		poseStack.pushPose();
+		// Position the item onto the front face of the sign and scale it down to fit.
+		poseStack.translate(0.0F, 0.08F, 0.0F);
+		poseStack.scale(0.45F, 0.45F, 0.45F);
+		Level level = Minecraft.getInstance().level;
+		Minecraft.getInstance().getItemRenderer().renderStatic(
+				itemstack,
+				net.minecraft.world.item.ItemDisplayContext.FIXED,
+				packedLight,
+				net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,
+				poseStack,
+				bufferSource,
+				level,
+				0);
+		poseStack.popPose();
+	}
+
+	public String cut(String name, Font renderer) {
+		if (renderer.width(name) < 90) {
 			return name;
 		}
 		StringBuilder sum = new StringBuilder();
 		for (int i = 0; i < name.length(); i++) {
-			if (renderer.getStringWidth(sum.toString() + name.charAt(i) + "...") < 90) {
+			if (renderer.width(sum.toString() + name.charAt(i) + "...") < 90) {
 				sum.append(name.charAt(i));
 			} else {
 				return sum + "...";

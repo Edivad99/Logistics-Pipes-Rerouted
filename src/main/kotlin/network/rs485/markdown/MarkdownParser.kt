@@ -140,8 +140,8 @@ object MarkdownParser {
                 if (!spaceReplacement(innerRange.first)) spaceReplacement(fullRange.first - 1)
             }
             // add format end before start, so that $format is not detected as existing formatting and added here
-            stageReplacingElement((innerRange.last + 1)..fullRange.last, TextFormatting(TextFormat.none))
-            stageReplacingElement(fullRange.first until innerRange.first, TextFormatting(format.clone()))
+            stageReplacingElement((innerRange.last + 1)..fullRange.last, ChatFormatting(TextFormat.none))
+            stageReplacingElement(fullRange.first until innerRange.first, ChatFormatting(format.clone()))
             enhanceExistingReplacements(innerRange, format)
             if (fullRange.last + 1 < length) {
                 if (!spaceReplacement(innerRange.last)) spaceReplacement(fullRange.last + 1)
@@ -153,7 +153,7 @@ object MarkdownParser {
             if (endReplacementMapIdx == -1) return
             val (startReplacementMapIdx, _) = translateIndex(range.first)
             replacementMap.subList(startReplacementMapIdx + 1, endReplacementMapIdx + 1).forEach {
-                (it.second as? TextFormatting)?.format?.addAll(format)
+                (it.second as? ChatFormatting)?.format?.addAll(format)
             }
         }
 
@@ -162,7 +162,7 @@ object MarkdownParser {
             stagingReplacementMap.add(
                 Triple(replacementMapIdx + 1, translatedIdx..(range.last + translatedIdx - range.first), element)
             )
-            if (element is TextFormatting) {
+            if (element is ChatFormatting) {
                 val newFormat = (translatedIdx to element.format)
                 if (formattingStart.isEmpty()) {
                     formattingStart.add(newFormat)
@@ -209,7 +209,7 @@ object MarkdownParser {
         }
 
         private fun replacementIndexIsTextFormatting(index: Int, element: InlineElement): Boolean =
-            index in replacementMap.indices && element is TextFormatting && replacementMap[index].second is TextFormatting
+            index in replacementMap.indices && element is ChatFormatting && replacementMap[index].second is ChatFormatting
 
         private fun replaceFormattingIfApplicable(
             index: Int,

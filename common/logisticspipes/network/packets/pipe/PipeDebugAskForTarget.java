@@ -1,11 +1,13 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.network.chat.Component;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
+
 
 import lombok.Getter;
 import lombok.Setter;
@@ -36,21 +38,21 @@ public class PipeDebugAskForTarget extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		RayTraceResult box = FMLClientHandler.instance().getClient().objectMouseOver;
-		if (box != null && box.typeOfHit == RayTraceResult.Type.BLOCK) {
+	public void processPacket(Player player) {
+		HitResult box = Minecraft.getInstance().hitResult;
+		if (box != null && box.getType() == HitResult.Type.BLOCK) {
 			if (!isServer) {
-				TileEntity tile = new DoubleCoordinates(box.getBlockPos()).getTileEntity(player.getEntityWorld());
+				BlockEntity tile = new DoubleCoordinates(((BlockHitResult) box).getBlockPos()).getTileEntity(player.level());
 				if (tile instanceof LogisticsTileGenericPipe) {
 					((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe = !((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe;
 					if (((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe) {
-						player.sendMessage(new TextComponentString("Debug enabled On Client"));
+						player.sendSystemMessage(Component.literal("Debug enabled On Client"));
 					} else {
-						player.sendMessage(new TextComponentString("Debug disabled On Client"));
+						player.sendSystemMessage(Component.literal("Debug disabled On Client"));
 					}
 				}
 			} else {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeDebugResponse.class).setBlockPos(box.getBlockPos()));
+				MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeDebugResponse.class).setBlockPos(((BlockHitResult) box).getBlockPos()));
 			}
 		}
 	}

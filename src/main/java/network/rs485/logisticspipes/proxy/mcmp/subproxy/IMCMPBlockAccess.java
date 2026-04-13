@@ -22,30 +22,30 @@ package network.rs485.logisticspipes.proxy.mcmp.subproxy;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.BlockGetter; // was IBlockAccess
+import net.minecraft.world.level.Level;
 
 public interface IMCMPBlockAccess {
 
-	void addBlockState(BlockStateContainer.Builder builder);
+	void addBlockState(StateDefinition.Builder<Block, BlockState> builder);
 
-	IBlockState getExtendedState(IBlockState state, IBlockAccess worldIn, BlockPos pos);
+	BlockState getExtendedState(BlockState state, BlockGetter worldIn, BlockPos pos);
 
-	void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity, boolean isActualState);
+	void addCollisionBoxToList(BlockState state, Level world, BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, Entity entity, boolean isActualState);
 
-	RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end);
+	HitResult collisionRayTrace(BlockState state, Level world, BlockPos pos, Vec3 start, Vec3 end);
 
 	Block getBlock();
 
-	void addDrops(NonNullList<ItemStack> list, IBlockAccess world, BlockPos pos, IBlockState state, int fortune);
+	void addDrops(NonNullList<ItemStack> list, BlockGetter world, BlockPos pos, BlockState state, int fortune);
 }

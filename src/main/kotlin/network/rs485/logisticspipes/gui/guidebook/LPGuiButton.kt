@@ -37,38 +37,32 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiButton
-import network.rs485.logisticspipes.gui.HorizontalAlignment
+import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.components.Button
+import net.minecraft.network.chat.Component
 import network.rs485.logisticspipes.gui.GuiDrawer
+import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 
-open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) : GuiButton(id, 24, 24, "") {
+// TODO: Rendering deferred — LPGuiButton migrated to 1.20.1 Button API stub.
+
+open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) :
+    Button(Button.builder(Component.empty()) { }.pos(x, y).size(width, height)) {
+
     val body = MutableRectangle(x, y, width, height)
 
-    // Position relative to body.
     open val bodyTrigger: Rectangle = Rectangle(width = width, height = height)
     private var onClickAction: ((Int) -> Boolean)? = null
 
-    override fun mousePressed(mc: Minecraft, mouseX: Int, mouseY: Int): Boolean = isHovered(mouseX, mouseY)
-
-    override fun isMouseOver(): Boolean = hovered
-
-    override fun getButtonWidth(): Int = body.roundedWidth
-
-    override fun setWidth(width: Int) {
-        body.setSize(newWidth = width, body.roundedHeight)
-    }
-
-    override fun getHoverState(mouseOver: Boolean): Int = if (!enabled) 2 else if (hovered) 1 else 0
-
     internal fun isHovered(mouseX: Int, mouseY: Int): Boolean =
-        enabled && visible && bodyTrigger.translated(body.x0, body.y0).contains(mouseX, mouseY)
+        isActive && visible && bodyTrigger.translated(body.x0, body.y0).contains(mouseX, mouseY)
 
     open fun setPos(newX: Int, newY: Int) {
         body.setPos(newX, newY)
+        this.x = newX
+        this.y = newY
     }
 
     open fun setOnClickAction(newOnClickAction: (Int) -> Boolean): LPGuiButton {
@@ -82,5 +76,11 @@ open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) : GuiBu
 
     open fun drawTooltip(x: Int, y: Int, horizontalAlign: HorizontalAlignment, verticalAlign: VerticalAlignment) {
         GuiDrawer.drawTextTooltip(listOf(getTooltipText()), x, y, GuideBookConstants.Z_TOOLTIP, horizontalAlign, verticalAlign)
+    }
+
+    fun getHoverState(mouseOver: Boolean): Int = if (!isActive) 2 else if (mouseOver) 1 else 0
+
+    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        // TODO: deferred rendering
     }
 }

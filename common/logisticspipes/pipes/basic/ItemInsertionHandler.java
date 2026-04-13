@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 
 import net.minecraftforge.items.IItemHandler;
 
@@ -16,9 +16,9 @@ public class ItemInsertionHandler implements IItemHandler {
 	public static final List<ILPItemAcceptor> ACCEPTORS = new ArrayList<>();
 
 	private final LogisticsTileGenericPipe pipe;
-	private final EnumFacing dir;
+	private final Direction dir;
 
-	public ItemInsertionHandler(LogisticsTileGenericPipe pipe, EnumFacing dir) {
+	public ItemInsertionHandler(LogisticsTileGenericPipe pipe, Direction dir) {
 		this.pipe = pipe;
 		this.dir = dir;
 	}
@@ -30,8 +30,13 @@ public class ItemInsertionHandler implements IItemHandler {
 
 	@Nonnull
 	@Override
-	public ItemStack getStackInSlot(int slot) {
+	public ItemStack getStackInSlot(int slot) { // getItem → getStackInSlot in IItemHandler 1.20.1
 		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+		return true;
 	}
 
 	@Nonnull
@@ -55,7 +60,7 @@ public class ItemInsertionHandler implements IItemHandler {
 	}
 
 	@Nonnull
-	public static ItemStack handleItemInsetion(LogisticsTileGenericPipe pipe, EnumFacing from, @Nonnull ItemStack stack) {
+	public static ItemStack handleItemInsetion(LogisticsTileGenericPipe pipe, Direction from, @Nonnull ItemStack stack) {
 		for (ILPItemAcceptor acceptor : ACCEPTORS) {
 			if (acceptor.accept(pipe, from, stack)) {
 				return ItemStack.EMPTY;

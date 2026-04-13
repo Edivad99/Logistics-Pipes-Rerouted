@@ -40,22 +40,22 @@ package network.rs485.logisticspipes.property
 import logisticspipes.LPItems
 import logisticspipes.items.ItemModule
 import logisticspipes.modules.LogisticsModule
-import net.minecraft.item.Item
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.CompoundTag
 
 class SlottedModuleListProperty(slots: Int, override val tagKey: String) :
     ListProperty<SlottedModule>(MutableList(slots) { SlottedModule(it, null) }) {
 
     override fun defaultValue(idx: Int): SlottedModule = SlottedModule(idx, null)
 
-    override fun readSingleFromNBT(tag: NBTTagCompound, key: String): SlottedModule {
-        val slottedModuleTag = tag.getCompoundTag(key)
-        val slot = slottedModuleTag.getInteger(SLOT_INDEX_KEY)
-        val moduleName = if (slottedModuleTag.hasKey(MODULE_NAME_KEY)) {
+    override fun readSingleFromNBT(tag: CompoundTag, key: String): SlottedModule {
+        val slottedModuleTag = tag.getCompound(key)
+        val slot = slottedModuleTag.getInt(SLOT_INDEX_KEY)
+        val moduleName = if (slottedModuleTag.contains(MODULE_NAME_KEY)) {
             slottedModuleTag.getString(MODULE_NAME_KEY)
         } else null
         val moduleResource = moduleName?.let { LPItems.modules[it] }
-        val itemModule = moduleResource?.let { Item.REGISTRY.getObject(moduleResource) as? ItemModule }
+        val itemModule = moduleResource?.let { BuiltInRegistries.ITEM.get(moduleResource) as? ItemModule }
         // FIXME: move module creation to before readFromNBT
         val logisticsModule = itemModule?.getModule(null, null, null)
         return logisticsModule?.let { module ->
@@ -64,12 +64,12 @@ class SlottedModuleListProperty(slots: Int, override val tagKey: String) :
         } ?: list[slot]
     }
 
-    override fun writeSingleToNBT(tag: NBTTagCompound, key: String, value: SlottedModule) {
-        tag.setTag(key, NBTTagCompound()
+    override fun writeSingleToNBT(tag: CompoundTag, key: String, value: SlottedModule) {
+        tag.put(key, CompoundTag()
             .also { value.module?.writeToNBT(it) }
             .apply {
-                setInteger(SLOT_INDEX_KEY, value.slot)
-                value.module?.also { setString(MODULE_NAME_KEY, it.lpName) }
+                putInt(SLOT_INDEX_KEY, value.slot)
+                value.module?.also { putString(MODULE_NAME_KEY, it.lpName) }
             })
     }
 

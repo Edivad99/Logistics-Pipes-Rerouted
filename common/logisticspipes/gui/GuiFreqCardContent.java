@@ -1,30 +1,37 @@
+
 package logisticspipes.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
 
 import logisticspipes.LPItems;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import javax.annotation.Nonnull;
 
 public class GuiFreqCardContent extends LogisticsBaseGuiScreen {
 
-	public GuiFreqCardContent(EntityPlayer player, IInventory card) {
-		super(180, 130, 0, 0);
-		DummyContainer dummy = new DummyContainer(player.inventory, card);
+	public GuiFreqCardContent(Player player, Container card) {
+		super(buildDummy(player, card), 180, 130, 0, 0);
+	}
+	private static DummyContainer buildDummy(Player player, Container card) {
+		DummyContainer dummy = new DummyContainer(player.getInventory(), card);
 		dummy.addRestrictedSlot(0, card, 82, 15, itemStack ->
-				!itemStack.isEmpty() && itemStack.getItem() == LPItems.itemCard && itemStack.getItemDamage() == LogisticsItemCard.FREQ_CARD);
+				!itemStack.isEmpty() && itemStack.getItem() == LPItems.itemCard.get() && itemStack.getDamageValue() == LogisticsItemCard.FREQ_CARD);
 		dummy.addNormalSlotsForPlayerInventory(10, 45);
-		inventorySlots = dummy;
+		return dummy;
 	}
 
+
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 10, guiTop + 45);
-		GuiGraphics.drawSlotBackground(mc, guiLeft + 81, guiTop + 14);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 45);
+		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 81, topPos + 14);
 	}
 
 }

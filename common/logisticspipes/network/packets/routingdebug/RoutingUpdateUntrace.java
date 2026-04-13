@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.routingdebug;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.IntegerPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -15,7 +15,7 @@ public class RoutingUpdateUntrace extends IntegerPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		DebugController.instance(player).untrace(getInteger());
 	}
 

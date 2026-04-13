@@ -55,12 +55,13 @@ import logisticspipes.request.resources.IResource
 import logisticspipes.routing.order.LinkedLogisticsOrderList
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
-import net.minecraft.block.BlockChest
-import net.minecraft.init.Blocks
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntityChest
-import net.minecraft.util.EnumFacing
+import net.minecraft.world.Container
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.ChestBlockEntity
+import net.minecraft.core.Direction
 import java.time.Duration
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -71,13 +72,13 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.time.withTimeoutOrNull
 
 fun BlockPosSelector.setupLogisticsPower(
-    direction: EnumFacing,
+    direction: Direction,
     amount: Float,
 ): Pair<PipePlacer<PipeItemsBasicLogistics>, BlockPlacer<LogisticsSolidBlock>> =
     resetOffsetAfter {
-        val basicPipePlacer = PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic))
+        val basicPipePlacer = PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic.get()))
             .also { direction(direction).place(it) }
-        val powerJunctionPlacer = BlockPlacer(LPBlocks.powerJunction) {
+        val powerJunctionPlacer = BlockPlacer(LPBlocks.powerJunction.get()) {
             it.getTileEntity<LogisticsPowerJunctionTileEntity>().apply {
                 addEnergy(amount)
             }
@@ -86,38 +87,38 @@ fun BlockPosSelector.setupLogisticsPower(
     }
 
 fun BlockPosSelector.setupProvidingChest(
-    direction: EnumFacing,
+    direction: Direction,
     vararg stacks: ItemStack,
-): Pair<PipePlacer<PipeItemsProviderLogistics>, BlockPlacer<BlockChest>> =
+): Pair<PipePlacer<PipeItemsProviderLogistics>, BlockPlacer<Block>> =
     resetOffsetAfter {
-        val providerPlacer = PipePlacer(PipeItemsProviderLogistics(LPItems.pipeProvider))
+        val providerPlacer = PipePlacer(PipeItemsProviderLogistics(LPItems.pipeProvider.get()))
             .also { direction(direction).place(it) }
         val chestPlacer = BlockPlacer(Blocks.CHEST) {
-            it.getTileEntity<TileEntityChest>().apply {
-                stacks.forEachIndexed { index, itemStack -> setInventorySlotContents(index, itemStack) }
+            it.getTileEntity<ChestBlockEntity>().apply {
+                stacks.forEachIndexed { index, itemStack -> setItem(index, itemStack) }
             }
         }.also { direction(direction).place(it) }
         providerPlacer to chestPlacer
     }
 
 fun BlockPosSelector.setupRequestingChest(
-    direction: EnumFacing,
-): Pair<PipePlacer<PipeItemsRequestLogistics>, BlockPlacer<BlockChest>> =
+    direction: Direction,
+): Pair<PipePlacer<PipeItemsRequestLogistics>, BlockPlacer<Block>> =
     resetOffsetAfter {
-        val requesterPlacer = PipePlacer(PipeItemsRequestLogistics(LPItems.pipeRequest))
+        val requesterPlacer = PipePlacer(PipeItemsRequestLogistics(LPItems.pipeRequest.get()))
             .also { direction(direction).place(it) }
         val chestPlacer = BlockPlacer(Blocks.CHEST)
             .also { direction(direction).place(it) }
         requesterPlacer to chestPlacer
     }
 
-fun IInventory.containsOnly(stacks: Collection<ItemStack>): Boolean {
+fun Container.containsOnly(stacks: Collection<ItemStack>): Boolean {
     val stacksLeft = stacks.associateByTo(
         destination = HashMap(),
         keySelector = { ItemIdentifier.get(it) },
         valueTransform = { it.count }
     )
-    (0 until sizeInventory).map(this::getStackInSlot).filterNot(ItemStack::isEmpty).forEach { stack ->
+    (0 until containerSize).map(this::getItem).filterNot(ItemStack::isEmpty).forEach { stack ->
         stacksLeft.compute(ItemIdentifier.get(stack)) { _, amount ->
             assertNotNull(amount, "unexpected $stack in the inventory")
             (amount - stack.count).also {
@@ -128,10 +129,10 @@ fun IInventory.containsOnly(stacks: Collection<ItemStack>): Boolean {
     return stacksLeft.isEmpty()
 }
 
-fun IInventory.amountOf(itemIdents: List<ItemIdentifier>): Int {
-    return (0 until sizeInventory)
+fun Container.amountOf(itemIdents: List<ItemIdentifier>): Int {
+    return (0 until containerSize)
         .asSequence()
-        .map(this::getStackInSlot)
+        .map(this::getItem)
         .filterNot(ItemStack::isEmpty)
         .filter { stack ->
             val stacksItemIdent = ItemIdentifier.get(stack)

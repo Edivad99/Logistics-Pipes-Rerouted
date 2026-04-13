@@ -41,10 +41,10 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.LPItems;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -61,7 +61,7 @@ public class SetCurrentPagePacket extends ModernPacket {
 	@Nullable
 	private IPageData currentPage;
 
-	private EntityEquipmentSlot equipmentSlot;
+	private EquipmentSlot equipmentSlot;
 
 	private List<? extends IPageData> bookmarks;
 
@@ -70,24 +70,24 @@ public class SetCurrentPagePacket extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		if (currentPage == null) return;
-		ItemStack book = player.getItemStackFromSlot(equipmentSlot);
+		ItemStack book = player.getItemBySlot(equipmentSlot);
 		if (book.isEmpty() || !(book.getItem() instanceof ItemGuideBook)) return;
-		NBTTagCompound compound;
-		if (book.hasTagCompound()) {
-			compound = Objects.requireNonNull(book.getTagCompound());
+		CompoundTag compound;
+		if (book.hasTag()) {
+			compound = Objects.requireNonNull(book.getTag());
 		} else {
-			compound = new NBTTagCompound();
+			compound = new CompoundTag();
 		}
-		final NBTTagCompound nbt = LPItems.itemGuideBook.updateNBT(compound, currentPage, bookmarks);
-		book.setTagCompound(nbt);
+		final CompoundTag nbt = LPItems.getItemGuideBook().updateNBT(compound, currentPage, bookmarks);
+		book.setTag(nbt);
 	}
 
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
-		equipmentSlot = input.readEnum(EntityEquipmentSlot.class);
+		equipmentSlot = input.readEnum(EquipmentSlot.class);
 		currentPage = new PageData(input);
 		bookmarks = input.readArrayList(PageData::new);
 	}
@@ -111,7 +111,7 @@ public class SetCurrentPagePacket extends ModernPacket {
 		return this;
 	}
 
-	public SetCurrentPagePacket setEquipmentSlot(EntityEquipmentSlot equipmentSlot) {
+	public SetCurrentPagePacket setEquipmentSlot(EquipmentSlot equipmentSlot) {
 		this.equipmentSlot = equipmentSlot;
 		return this;
 	}

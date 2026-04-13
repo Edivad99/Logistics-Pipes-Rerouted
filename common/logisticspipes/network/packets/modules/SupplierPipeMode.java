@@ -1,8 +1,7 @@
 package logisticspipes.network.packets.modules;
 
-import net.minecraft.entity.player.EntityPlayer;
-
-import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,7 @@ public class SupplierPipeMode extends IntegerModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		ModuleActiveSupplier module = this.getLogisticsModule(player, ModuleActiveSupplier.class);
 		if (module == null) {
 			return;
@@ -44,8 +43,8 @@ public class SupplierPipeMode extends IntegerModuleCoordinatesPacket {
 		} else {
 			module.requestMode.setValue(SupplyMode.values()[getInteger()]);
 		}
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiSupplierPipe) {
-			((GuiSupplierPipe) FMLClientHandler.instance().getClient().currentScreen).refreshMode();
+		if (Minecraft.getInstance().screen instanceof GuiSupplierPipe) {
+			((GuiSupplierPipe) Minecraft.getInstance().screen).refreshMode();
 		}
 	}
 

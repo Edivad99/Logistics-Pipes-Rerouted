@@ -1,6 +1,6 @@
 package logisticspipes.proxy.computers.objects;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
@@ -36,7 +36,7 @@ public class CCFluidIdentifier implements ILPCCTypeDefinition {
 		}
 
 		@CCCommand(description = "Returns the tag of this FluidIdentifier")
-		public NBTTagCompound getTagCompound() {
+		public CompoundTag getTagCompound() {
 			return ident.tag;
 		}
 

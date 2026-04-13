@@ -1,19 +1,19 @@
 package logisticspipes.renderer.newpipe;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.items.LogisticsFluidContainer;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -29,38 +29,34 @@ public class LogisticsNewPipeItemBoxRenderer {
 	private static final ResourceLocation BLOCKS = new ResourceLocation("textures/atlas/blocks.png");
 	private static final Map<FluidIdentifier, int[]> renderLists = new HashMap<>();
 
-	@SideOnly(Side.CLIENT)
-	public void doRenderItem(@Nonnull ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch) {
+	@OnlyIn(Dist.CLIENT)
+	public void doRenderItem(@Nonnull ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack) {
 		if (LogisticsNewRenderPipe.innerTransportBox == null) return;
-		GL11.glPushMatrix();
+		poseStack.pushPose();
 
-		if (renderList == -1) {
-			renderList = GLAllocation.generateDisplayLists(1);
-			GL11.glNewList(renderList, GL11.GL_COMPILE);
+		// 1.20.1: display-list caching is gone — the transport box is emitted directly
+		// through the currently-bound VertexConsumer each frame (same pattern as
+		// LogisticsNewRenderPipe.renderList). The old renderList sentinel is kept only
+		// to preserve the one-time reset semantics.
+		poseStack.translate(x, y, z);
+		poseStack.scale((float) boxScale, (float) boxScale, (float) boxScale);
+		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(yaw)));
+		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(yawForPitch)));
+		poseStack.mulPose(new org.joml.Quaternionf().rotationX((float) Math.toRadians(pitch)));
+		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
+		poseStack.translate(-0.5, -0.5, -0.5);
 
-			SimpleServiceLocator.cclProxy.getRenderState().reset();
-			SimpleServiceLocator.cclProxy.getRenderState().startDrawing(GL11.GL_QUADS, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
-
-			LogisticsNewRenderPipe.innerTransportBox.render(LogisticsNewRenderPipe.innerBoxTexture);
-
-			SimpleServiceLocator.cclProxy.getRenderState().draw();
-			GL11.glEndList();
+		// Rebind the render state pose to the current PoseStack top so the transport
+		// box geometry below lands at the transformed position.
+		if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
+			logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
+				(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
+			rs.pose = poseStack.last().pose();
+			rs.normal = poseStack.last().normal();
 		}
-
-		GL11.glTranslated(x, y, z);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(LogisticsNewPipeItemBoxRenderer.BLOCKS);
-		GL11.glScaled(boxScale, boxScale, boxScale);
-		GL11.glRotated(yawForPitch, 0, 1, 0);
-		GL11.glRotated(pitch, 1, 0, 0);
-		GL11.glRotated(-yawForPitch, 0, 1, 0);
-		GL11.glRotated(yaw, 0, 1, 0);
-		GL11.glTranslated(-0.5, -0.5, -0.5);
-		GL11.glCallList(renderList);
-		GL11.glTranslated(0.5, 0.5, 0.5);
-		GL11.glRotated(-pitch, 1, 0, 0);
-		GL11.glRotated(-yaw, 0, 1, 0);
-		GL11.glScaled(1 / boxScale, 1 / boxScale, 1 / boxScale);
-		GL11.glTranslated(-0.5, -0.5, -0.5);
+		SimpleServiceLocator.cclProxy.getRenderState().reset();
+		LogisticsNewRenderPipe.innerTransportBox.render(LogisticsNewRenderPipe.innerBoxTexture);
+		SimpleServiceLocator.cclProxy.getRenderState().draw();
 
 		if (!itemstack.isEmpty() && itemstack.getItem() instanceof LogisticsFluidContainer) {
 			FluidIdentifierStack f = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(itemstack));
@@ -68,19 +64,19 @@ public class LogisticsNewPipeItemBoxRenderer {
 				/*
 				FluidContainerRenderer.skipNext = true;
 				int list = getRenderListFor(f);
-				GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
-				GL11.glEnable(GL11.GL_CULL_FACE);
-				GL11.glDisable(GL11.GL_LIGHTING);
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				// TODO: glPushAttrib removed
+				// TODO: GL11.glEnable(GL11.GL_CULL_FACE) → RenderSystem equivalent
+				// GL_LIGHTING removed — use shaders
+				RenderSystem.enableBlend();
+				// TODO: glBlendFunc → RenderSystem.blendFunc()
 
-				GL11.glCallList(list);
-				GL11.glPopAttrib();
+				// TODO: glCallList removed — use vertex buffer rendering
+				// TODO: glPopAttrib removed
 				*/
 			}
 		}
 
-		GL11.glPopMatrix();
+		poseStack.popPose();
 	}
 /*
 	private int getRenderListFor(FluidStack fluid) {
@@ -103,8 +99,8 @@ public class LogisticsNewPipeItemBoxRenderer {
 
 		// CENTER HORIZONTAL
 
-		array[pos] = GLAllocation.generateDisplayLists(1);
-		GL11.glNewList(array[pos], 4864 /* GL_COMPILE * /);
+		array[pos] = 0;
+		// TODO: glNewList removed — use vertex buffer rendering
 
 		block.minX = 0.32;
 		block.maxX = 0.68;
@@ -115,9 +111,9 @@ public class LogisticsNewPipeItemBoxRenderer {
 		block.minZ = 0.32;
 		block.maxZ = 0.68;
 
-		CustomBlockRenderer.INSTANCE.renderBlock(block, Minecraft.getMinecraft().theWorld, 0, 0, 0, false, true);
+		CustomBlockRenderer.INSTANCE.renderBlock(block, Minecraft.getInstance().theWorld, 0, 0, 0, false, true);
 
-		GL11.glEndList();
+		// TODO: glEndList removed
 		return array[pos];
 	}*/
 }

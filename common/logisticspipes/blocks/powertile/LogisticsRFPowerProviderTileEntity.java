@@ -3,11 +3,13 @@ package logisticspipes.blocks.powertile;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+
 
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -56,7 +58,8 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 
 	private ICoFHEnergyStorage storage;
 
-	public LogisticsRFPowerProviderTileEntity() {
+	public LogisticsRFPowerProviderTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(logisticspipes.LPRegistries.BE_POWER_PROVIDER_RF.get(), pos, state);
 		storage = SimpleServiceLocator.powerProxy.getEnergyStorage(10000);
 	}
 
@@ -83,6 +86,31 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 		}
 	}
 
+	private void pullFromAdjacentStorage() {
+		net.minecraft.world.level.Level world = getWorld();
+		if (world == null) return;
+		int remaining = freeSpace();
+		for (Direction dir : Direction.values()) {
+			remaining = pullFromNeighbor(world, dir, remaining);
+			if (remaining <= 0) return;
+		}
+	}
+
+	private int pullFromNeighbor(net.minecraft.world.level.Level world, Direction dir, int remaining) {
+		net.minecraft.world.level.block.entity.BlockEntity neighbor = world.getBlockEntity(getBlockPos().relative(dir));
+		if (neighbor == null) return remaining;
+		LazyOptional<IEnergyStorage> cap = neighbor.getCapability(ForgeCapabilities.ENERGY, dir.getOpposite());
+		if (!cap.isPresent()) return remaining;
+		IEnergyStorage neighborStorage = cap.orElseThrow(IllegalStateException::new);
+		if (!neighborStorage.canExtract()) return remaining;
+		int extracted = neighborStorage.extractEnergy(remaining, false);
+		if (extracted > 0) {
+			addEnergy(extracted);
+			return remaining - extracted;
+		}
+		return remaining;
+	}
+
 	public int freeSpace() {
 		return (int) (getMaxStorage() - internalStorage);
 	}
@@ -90,9 +118,13 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	@Override
 	public void update() {
 		super.update();
-		if (MainProxy.isServer(world)) {
+		if (MainProxy.isServer(getWorld())) {
 			if (freeSpace() > 0) {
-				addStoredRF();
+				if (logisticspipes.config.Configs.getPowerSourceMode() == logisticspipes.config.Configs.PowerSourceMode.ADJACENT) {
+					pullFromAdjacentStorage();
+				} else {
+					addStoredRF();
+				}
 			}
 		}
 	}
@@ -104,16 +136,15 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt) {
-		super.readFromNBT(nbt);
+	public void load(CompoundTag nbt) {
+		super.load(nbt);
 		storage.readFromNBT(nbt);
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		nbt = super.writeToNBT(nbt);
+	public void saveAdditional(CompoundTag nbt) {
+		super.saveAdditional(nbt);
 		storage.writeToNBT(nbt);
-		return nbt;
 	}
 
 	@Override
@@ -136,20 +167,16 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 		return LogisticsPowerProviderTileEntity.RF_COLOR;
 	}
 
+	@Nonnull
 	@Override
-	public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-		if (capability == CapabilityEnergy.ENERGY) {
-			return true;
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+		if (cap == ForgeCapabilities.ENERGY) {
+			return ForgeCapabilities.ENERGY.orEmpty(cap, LazyOptional.of(() -> energyInterface));
 		}
-		return super.hasCapability(capability, facing);
+		return super.getCapability(cap, side);
 	}
 
-	@Nullable
-	@Override
-	public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-		if (capability == CapabilityEnergy.ENERGY) {
-			return (T) energyInterface;
-		}
-		return super.getCapability(capability, facing);
+	public IEnergyStorage getEnergyInterface() {
+		return energyInterface;
 	}
 }

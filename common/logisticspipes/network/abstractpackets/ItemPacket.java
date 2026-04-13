@@ -1,9 +1,11 @@
 package logisticspipes.network.abstractpackets;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,10 +30,10 @@ public abstract class ItemPacket extends CoordinatesPacket {
 		if (getStack().isEmpty()) {
 			output.writeInt(0);
 		} else {
-			output.writeInt(Item.getIdFromItem(getStack().getItem()));
+			output.writeInt(BuiltInRegistries.ITEM.getId(getStack().getItem()));
 			output.writeInt(getStack().getCount());
-			output.writeInt(getStack().getItemDamage());
-			output.writeNBTTagCompound(getStack().getTagCompound());
+			output.writeInt(getStack().getDamageValue());
+			output.writeCompoundTag(getStack().getTag());
 		}
 	}
 
@@ -45,8 +47,10 @@ public abstract class ItemPacket extends CoordinatesPacket {
 		} else {
 			int stackSize = input.readInt();
 			int damage = input.readInt();
-			setStack(new ItemStack(Item.getItemById(itemID), stackSize, damage));
-			getStack().setTagCompound(input.readNBTTagCompound());
+			ItemStack newStack = new ItemStack(BuiltInRegistries.ITEM.byId(itemID), stackSize);
+			newStack.setDamageValue(damage);
+			setStack(newStack);
+			getStack().setTag(input.readCompoundTag());
 		}
 	}
 }

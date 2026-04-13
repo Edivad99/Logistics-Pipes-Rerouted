@@ -4,9 +4,9 @@ import java.util.BitSet;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.routing.IFilter;
@@ -45,30 +45,32 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void onWrenchClicked(EntityPlayer entityplayer) {
-		entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_FIREWALL, getWorld(), getX(), getY(), getZ());
+	public void onWrenchClicked(Player entityplayer) {
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FireWallFlag.class).setFlags(getFlags()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), entityplayer);
+		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.FirewallGui.class)
+				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
+				.open(entityplayer);
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
 		inv.writeToNBT(nbttagcompound);
-		nbttagcompound.setBoolean("blockProvider", blockProvider);
-		nbttagcompound.setBoolean("blockCrafer", blockCrafter);
-		nbttagcompound.setBoolean("blockSorting", blockSorting);
-		nbttagcompound.setBoolean("blockPower", blockPower);
-		nbttagcompound.setBoolean("isBlocking", isBlocking);
+		nbttagcompound.putBoolean("blockProvider", blockProvider);
+		nbttagcompound.putBoolean("blockCrafer", blockCrafter);
+		nbttagcompound.putBoolean("blockSorting", blockSorting);
+		nbttagcompound.putBoolean("blockPower", blockPower);
+		nbttagcompound.putBoolean("isBlocking", isBlocking);
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
+	public void readFromNBT(CompoundTag nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
 		inv.readFromNBT(nbttagcompound);
 		blockProvider = nbttagcompound.getBoolean("blockProvider");
 		blockCrafter = nbttagcompound.getBoolean("blockCrafer");
 		blockSorting = nbttagcompound.getBoolean("blockSorting");
-		if (nbttagcompound.hasKey("blockPower")) {
+		if (nbttagcompound.contains("blockPower")) {
 			blockPower = nbttagcompound.getBoolean("blockPower");
 		}
 		isBlocking = nbttagcompound.getBoolean("isBlocking");

@@ -13,13 +13,13 @@ import logisticspipes.renderer.newpipe.LogisticsNewPipeWorldRenderer;
 import logisticspipes.renderer.state.PipeRenderState;
 import logisticspipes.textures.Textures;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.init.Blocks;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.BlockGetter; // was BlockGetter
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
 
 import net.minecraftforge.fml.client.registry.ISimpleBlockRenderingHandler;
 
@@ -30,7 +30,7 @@ public class LogisticsPipeWorldRenderer implements ISimpleBlockRenderingHandler 
 	private ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 	private LogisticsNewPipeWorldRenderer newRenderer = new LogisticsNewPipeWorldRenderer();
 
-	public static boolean renderPipe(RenderBlocks renderblocks, IBlockAccess iblockaccess, LogisticsBlockGenericPipe block, LogisticsTileGenericPipe pipe, int x, int y, int z) {
+	public static boolean renderPipe(RenderBlocks renderblocks, BlockGetter iblockaccess, LogisticsBlockGenericPipe block, LogisticsTileGenericPipe pipe, int x, int y, int z) {
 		if (pipe.pipe instanceof PipeBlockRequestTable) {
 			if (LogisticsPipeWorldRenderer.renderPass != 0) {
 				return false;
@@ -94,7 +94,7 @@ public class LogisticsPipeWorldRenderer implements ISimpleBlockRenderingHandler 
 					renderblocks.uvRotateEast = renderblocks.uvRotateNorth = renderblocks.uvRotateWest = renderblocks.uvRotateSouth = (dir < 2) ? 0 : 1;
 
 					// render sub block
-					state.currentTexture = icons.getIcon(state.textureMatrix.getTextureIndex(EnumFacing.VALUES[dir]));
+					state.currentTexture = icons.getIcon(state.textureMatrix.getTextureIndex(Direction.values()[dir]));
 
 					LogisticsPipeWorldRenderer.renderTwoWayBlock(renderblocks, block, x, y, z, dim, renderMask);
 					renderblocks.uvRotateEast = renderblocks.uvRotateNorth = renderblocks.uvRotateWest = renderblocks.uvRotateSouth = 0;
@@ -138,7 +138,7 @@ public class LogisticsPipeWorldRenderer implements ISimpleBlockRenderingHandler 
 					LogisticsPipeWorldRenderer.renderOneWayBlock(renderblocks, block, x, y, z, dim, 0x3f);
 
 					// render sub block
-					state.currentTexture = icons.getIcon(state.textureMatrix.getTextureIndex(EnumFacing.VALUES[dir]));
+					state.currentTexture = icons.getIcon(state.textureMatrix.getTextureIndex(Direction.values()[dir]));
 					LogisticsPipeWorldRenderer.renderOneWayBlock(renderblocks, block, x, y, z, dim, renderMask);
 					renderblocks.uvRotateEast = renderblocks.uvRotateNorth = renderblocks.uvRotateWest = renderblocks.uvRotateSouth = 0;
 				}
@@ -147,7 +147,7 @@ public class LogisticsPipeWorldRenderer implements ISimpleBlockRenderingHandler 
 
 		renderblocks.setRenderBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 
-		for (EnumFacing dir : EnumFacing.VALUES) {
+		for (Direction dir : Direction.values()) {
 			if (pipe.tilePart.hasPipePluggable(dir)) {
 				IBCPipePluggable p = pipe.tilePart.getBCPipePluggable(dir);
 				p.renderPluggable(renderblocks, dir, LogisticsPipeWorldRenderer.renderPass, x, y, z);
@@ -199,11 +199,12 @@ public class LogisticsPipeWorldRenderer implements ISimpleBlockRenderingHandler 
 	public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer) {}
 
 	@Override
-	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
-		TileEntity tile = world.getTileEntity(x, y, z);
+	public boolean renderWorldBlock(BlockGetter world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
+		BlockEntity tile = world.getBlockEntity(x, y, z);
 		if (tile instanceof LogisticsTileGenericPipe) {
 			LogisticsTileGenericPipe pipeTile = (LogisticsTileGenericPipe) tile;
-			SimpleServiceLocator.thermalDynamicsProxy.renderPipeConnections(pipeTile, renderer);
+			// TODO(1.20.1): Thermal Dynamics not ported — no TD connection rendering
+			// SimpleServiceLocator.thermalDynamicsProxy.renderPipeConnections(pipeTile, renderer);
 			if (config.isUseNewRenderer() && !pipeTile.renderState.forceRenderOldPipe) {
 				return newRenderer.renderWorldBlock(world, x, y, z, block, modelId, renderer);
 			}

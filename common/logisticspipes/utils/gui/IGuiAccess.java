@@ -1,6 +1,7 @@
 package logisticspipes.utils.gui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public interface IGuiAccess {
 
@@ -17,4 +18,6 @@ public interface IGuiAccess {
 	int getBottom();
 
 	Minecraft getMC();
+
+	GuiGraphics getGuiGraphics();
 }

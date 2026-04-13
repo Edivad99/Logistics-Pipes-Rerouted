@@ -37,16 +37,4 @@
 
 package network.rs485.logisticspipes.compat
 
-import network.rs485.logisticspipes.gui.BaseGuiContainer
-import mezz.jei.api.gui.IGhostIngredientHandler
-
-class JEIGhostIngredientHandler : IGhostIngredientHandler<BaseGuiContainer> {
-
-    override fun <I : Any?> getTargets(
-        gui: BaseGuiContainer,
-        ingredient: I,
-        doStart: Boolean,
-    ): MutableList<IGhostIngredientHandler.Target<I>> = gui.getFilterSlots()
-
-    override fun onComplete() {}
-}
+// Replaced by logisticspipes.modplugins.jei.GhostIngredientHandler (Java, IGhostIngredientHandler).

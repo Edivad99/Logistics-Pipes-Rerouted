@@ -14,44 +14,51 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockFaceShape;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.util.StringRepresentable;
 
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.registries.IForgeRegistry;
+// BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.Minecraft;
+// Particle/ParticleEngine/TextureAtlasSprite imports removed — rendering deferred (see addHitEffects/addDestroyEffects TODOs)
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.phys.BlockHitResult;
+
+
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 import static logisticspipes.LPConstants.PIPE_MAX_POS;
 import static logisticspipes.LPConstants.PIPE_MIN_POS;
@@ -72,7 +79,7 @@ import logisticspipes.renderer.newpipe.PropertyCache;
 import logisticspipes.renderer.newpipe.PropertyRenderList;
 import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.utils.LPPositionSet;
-import network.rs485.logisticspipes.config.ClientConfiguration;
+// ClientConfiguration import removed — used only in deferred rendering methods
 import network.rs485.logisticspipes.proxy.mcmp.BlockAccessDelegate;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
@@ -86,42 +93,81 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	private static long lastRemovedDate = -1;
 	protected final Random rand = new Random();
 
-	public static final PropertyInteger rotationProperty = PropertyInteger.create("rotation", 0, 3);
-	public static final PropertyEnum<PipeRenderModel> modelTypeProperty = PropertyEnum.create("model_type", PipeRenderModel.class);
-	public static final Map<EnumFacing, PropertyBool> connectionPropertys = Arrays.stream(EnumFacing.values()).collect(Collectors
-			.toMap(key -> key, key -> PropertyBool.create("connection_" + key.ordinal())));
+	public static final IntegerProperty rotationProperty = IntegerProperty.create("rotation", 0, 3);
+	public static final EnumProperty<PipeRenderModel> modelTypeProperty = EnumProperty.create("model_type", PipeRenderModel.class);
+	public static final Map<Direction, BooleanProperty> connectionPropertys = Arrays.stream(Direction.values()).collect(Collectors
+			.toMap(key -> key, key -> BooleanProperty.create("connection_" + key.ordinal())));
 
 	public static final PropertyRenderList propertyRenderList = new PropertyRenderList();
 	public static final PropertyCache propertyCache = new PropertyCache();
 
-	public static final AxisAlignedBB PIPE_CENTER_BB = new AxisAlignedBB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS);
-	public static final List<AxisAlignedBB> PIPE_CONN_BB = Arrays.asList(
-			new AxisAlignedBB(PIPE_MIN_POS, 0, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MAX_POS),
-			new AxisAlignedBB(PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MAX_POS, 1, PIPE_MAX_POS),
-			new AxisAlignedBB(PIPE_MIN_POS, PIPE_MIN_POS, 0, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MIN_POS),
-			new AxisAlignedBB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS, 1),
-			new AxisAlignedBB(0, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS),
-			new AxisAlignedBB(PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MIN_POS, 1, PIPE_MAX_POS, PIPE_MAX_POS)
+	public static final AABB PIPE_CENTER_BB = new AABB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS);
+	public static final List<AABB> PIPE_CONN_BB = Arrays.asList(
+			new AABB(PIPE_MIN_POS, 0, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MAX_POS),
+			new AABB(PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MAX_POS, 1, PIPE_MAX_POS),
+			new AABB(PIPE_MIN_POS, PIPE_MIN_POS, 0, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MIN_POS),
+			new AABB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS, 1),
+			new AABB(0, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS),
+			new AABB(PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MIN_POS, 1, PIPE_MAX_POS, PIPE_MAX_POS)
 	);
 
-	public enum PipeRenderModel implements IStringSerializable {
+	/**
+	 * Pre-built VoxelShapes for all 64 connection combinations (one bit per Direction ordinal).
+	 * Index 0 = unconnected (center cube only). Built once at class-load time.
+	 */
+	private static final VoxelShape[] PIPE_SHAPES;
+	static {
+		VoxelShape center = Shapes.create(PIPE_CENTER_BB);
+		PIPE_SHAPES = new VoxelShape[64];
+		for (int mask = 0; mask < 64; mask++) {
+			VoxelShape shape = center;
+			for (int i = 0; i < 6; i++) {
+				if ((mask & (1 << i)) != 0) {
+					shape = Shapes.or(shape, Shapes.create(PIPE_CONN_BB.get(i)));
+				}
+			}
+			PIPE_SHAPES[mask] = shape;
+		}
+	}
+
+	public enum PipeRenderModel implements StringRepresentable {
 		NONE,
 		REQUEST_TABLE;
 
 		@Override
-		public String getName() {
+		@Nonnull
+		public String getSerializedName() {
 			return name().toLowerCase();
 		}
 	}
 
 	public LogisticsBlockGenericPipe() {
-		super(Material.GLASS);
-		IBlockState state = this.blockState.getBaseState()
-				.withProperty(rotationProperty, 0)
-				.withProperty(modelTypeProperty, PipeRenderModel.NONE);
-		connectionPropertys.values().forEach(it -> state.withProperty(it, false));
-		setDefaultState(state);
-		setCreativeTab(LogisticsPipes.CREATIVE_TAB_LP);
+		super(BlockBehaviour.Properties.of().strength(1.5F).noOcclusion());
+		registerDefaultState(this.stateDefinition.any()
+				.setValue(rotationProperty, 0)
+				.setValue(modelTypeProperty, PipeRenderModel.NONE));
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(rotationProperty, modelTypeProperty);
+		connectionPropertys.values().forEach(builder::add);
+		// TODO: propertyRenderList / propertyCache were IExtendedBlockState properties — removed in 1.20.1; rendering rewrite needed
+		if (mcmpBlockAccess != null) mcmpBlockAccess.addBlockState(builder);
+	}
+
+	@Nullable
+	@Override
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+		return new LogisticsTileGenericPipe(pos, state);
+	}
+
+	@Override
+	@Nonnull
+	public net.minecraft.world.level.block.RenderShape getRenderShape(@Nonnull BlockState state) {
+		// Pipe geometry is emitted by LogisticsRenderPipe (BlockEntityRenderer) via the
+		// CCL-replacement pipeline in logisticspipes.proxy.object3d.impl — not a JSON model.
+		return net.minecraft.world.level.block.RenderShape.ENTITYBLOCK_ANIMATED;
 	}
 
 	public static void removePipe(CoreUnroutedPipe pipe) {
@@ -135,10 +181,10 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
 		}
 
-		World world = pipe.container.getWorld();
+		Level world = pipe.container.getLevel();
 
-		if (LogisticsBlockGenericPipe.lastRemovedDate != world.getTotalWorldTime()) {
-			LogisticsBlockGenericPipe.lastRemovedDate = world.getTotalWorldTime();
+		if (LogisticsBlockGenericPipe.lastRemovedDate != world.getGameTime()) {
+			LogisticsBlockGenericPipe.lastRemovedDate = world.getGameTime();
 			LogisticsBlockGenericPipe.pipeRemoved.clear();
 			LogisticsBlockGenericPipe.pipeSubMultiRemoved.clear();
 		}
@@ -150,7 +196,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> list = ((CoreMultiBlockPipe) pipe).getRotatedSubBlocks();
 			list.forEach(pos -> pos.add(new DoubleCoordinates(pipe)));
 			for (DoubleCoordinates pos : pipe.container.subMultiBlock) {
-				TileEntity tile = pos.getTileEntity(world);
+				BlockEntity tile = pos.getTileEntity(world);
 				if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 					DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare> equ = list.findClosest(pos);
 					if (equ != null) {
@@ -160,7 +206,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = true;
 						pos.setBlockToAir(world);
 						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = false;
-						LogisticsBlockGenericPipe.pipeSubMultiRemoved.put(new DoubleCoordinates(pos), pipe.container.getPos());
+						LogisticsBlockGenericPipe.pipeSubMultiRemoved.put(new DoubleCoordinates(pos), pipe.container.getBlockPos());
 					} else {
 						MainProxy.sendPacketToAllWatchingChunk(tile, ((LogisticsTileGenericSubMultiBlock) tile).getLPDescriptionPacket());
 					}
@@ -168,27 +214,37 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			}
 		}
 
-		BlockPos pos = pipe.container.getPos();
+		BlockPos pos = pipe.container.getBlockPos();
 		LogisticsBlockGenericPipe.pipeRemoved.put(new DoubleCoordinates(pos), pipe);
-		world.removeTileEntity(pos);
+		world.removeBlockEntity(pos);
 	}
 
 	/* Registration ******************************************************** */
-	public static ItemLogisticsPipe registerPipe(IForgeRegistry<Item> registry, String name, Function<Item, ? extends CoreUnroutedPipe> constructor) {
-		ItemLogisticsPipe item = new ItemLogisticsPipe();
-		LogisticsPipes.setName(item, String.format("pipe_%s", name));
 
-		LogisticsBlockGenericPipe.pipes.put(item, constructor);
-
-		CoreUnroutedPipe dummyPipe = LogisticsBlockGenericPipe.createPipe(item);
-		if (dummyPipe != null) {
-			item.setPipeIconIndex(dummyPipe.getIconIndexForItem(), dummyPipe.getTextureIndex());
-			MainProxy.proxy.setIconProviderFromPipe(item, dummyPipe);
-			item.setDummyPipe(dummyPipe);
-		}
-
-		registry.register(item);
-		return item;
+	/**
+	 * Registers a pipe item via DeferredRegister and adds it to the {@code pipes} map.
+	 * The registry name will be {@code pipe_<name>}.
+	 *
+	 * <p>Icon/dummy-pipe setup (setPipeIconIndex, setIconProviderFromPipe, setDummyPipe)
+	 * is intentionally deferred — those methods belong to the 1.12.2 rendering system
+	 * and will be addressed when ItemLogisticsPipe is migrated to 1.20.1.</p>
+	 */
+	public static RegistryObject<ItemLogisticsPipe> registerPipe(
+			DeferredRegister<Item> registry,
+			String name,
+			Function<Item, ? extends CoreUnroutedPipe> constructor) {
+		return registry.register("pipe_" + name, () -> {
+			ItemLogisticsPipe item = new ItemLogisticsPipe();
+			LogisticsBlockGenericPipe.pipes.put(item, constructor);
+			// Create a dummy pipe instance for type/size queries (isMultiBlock, etc.)
+			// used by ItemLogisticsPipe.useOn before a real pipe is placed.
+			try {
+				item.setDummyPipe(constructor.apply(item));
+			} catch (Exception e) {
+				LogisticsPipes.log.error("Failed to create dummy pipe for {}", name, e);
+			}
+			return item;
+		});
 	}
 
 	public static CoreUnroutedPipe createPipe(Item key) {
@@ -202,20 +258,20 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return null;
 	}
 
-	public static boolean placePipe(CoreUnroutedPipe pipe, World world, BlockPos blockPos, Block block) {
+	public static boolean placePipe(CoreUnroutedPipe pipe, Level world, BlockPos blockPos, Block block) {
 		return LogisticsBlockGenericPipe.placePipe(pipe, world, blockPos, block, null);
 	}
 
-	public static boolean placePipe(CoreUnroutedPipe pipe, World world, BlockPos blockPos, Block block, ITubeOrientation orientation) {
-		IBlockState oldBlockState = world.getBlockState(blockPos);
-		boolean placed = world.setBlockState(blockPos, block.getDefaultState(), 0);
+	public static boolean placePipe(CoreUnroutedPipe pipe, Level world, BlockPos blockPos, Block block, ITubeOrientation orientation) {
+		BlockState oldBlockState = world.getBlockState(blockPos);
+		boolean placed = world.setBlock(blockPos, block.defaultBlockState(), 3);
 
-		if (world.isRemote) {
+		if (world.isClientSide) {
 			return placed;
 		}
 
 		if (placed) {
-			TileEntity tile = world.getTileEntity(blockPos);
+			BlockEntity tile = world.getBlockEntity(blockPos);
 			if (tile instanceof LogisticsTileGenericPipe) {
 				LogisticsTileGenericPipe tilePipe = (LogisticsTileGenericPipe) tile;
 				if (pipe instanceof CoreMultiBlockPipe) {
@@ -230,36 +286,36 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 					orientation.rotatePositions(positions);
 					for (DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare> pos : positions) {
 						pos.add(placeAt);
-						TileEntity subTile = world.getTileEntity(pos.getBlockPos());
-						IBlockState oldSubBlockState = world.getBlockState(pos.getBlockPos());
+						BlockEntity subTile = world.getBlockEntity(pos.getBlockPos());
+						BlockState oldSubBlockState = world.getBlockState(pos.getBlockPos());
 						if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
 							((LogisticsTileGenericSubMultiBlock) subTile).addMultiBlockMainPos(placeAt);
 							((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(pos.getType());
 							MainProxy.sendPacketToAllWatchingChunk(subTile, ((LogisticsTileGenericSubMultiBlock) subTile).getLPDescriptionPacket());
 						} else {
-							world.setBlockState(pos.getBlockPos(), LPBlocks.subMultiblock.getDefaultState(), 0);
-							subTile = world.getTileEntity(pos.getBlockPos());
+							world.setBlock(pos.getBlockPos(), LPBlocks.subMultiblock.get().defaultBlockState(), 3);
+							subTile = world.getBlockEntity(pos.getBlockPos());
 							if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
 								((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(pos.getType());
 							}
 						}
-						world.markAndNotifyBlock(pos.getBlockPos(), world.getChunk(pos.getBlockPos()), oldSubBlockState, world.getBlockState(pos.getBlockPos()), 3);
+						world.markAndNotifyBlock(pos.getBlockPos(), world.getChunkAt(pos.getBlockPos()), oldSubBlockState, world.getBlockState(pos.getBlockPos()), 3, 512);
 					}
 					LogisticsBlockGenericSubMultiBlock.currentCreatedMultiBlock = null;
 				}
 				tilePipe.initialize(pipe);
 				//				tilePipe.sendUpdateToClient();
 			}
-			world.markAndNotifyBlock(blockPos, world.getChunk(blockPos), oldBlockState, world.getBlockState(blockPos), 3);
+			world.markAndNotifyBlock(blockPos, world.getChunkAt(blockPos), oldBlockState, world.getBlockState(blockPos), 3, 512);
 		}
 
 		return placed;
 	}
 
-	public static CoreUnroutedPipe getPipe(IBlockAccess blockAccess, BlockPos pos) {
-		TileEntity tile = blockAccess.getTileEntity(pos);
+	public static CoreUnroutedPipe getPipe(BlockGetter blockAccess, BlockPos pos) {
+		BlockEntity tile = blockAccess.getBlockEntity(pos);
 
-		if (!(tile instanceof LogisticsTileGenericPipe) || tile.isInvalid()) {
+		if (!(tile instanceof LogisticsTileGenericPipe) || tile.isRemoved()) {
 			return null;
 		} else {
 			return ((LogisticsTileGenericPipe) tile).pipe;
@@ -275,9 +331,9 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	private static void cacheTileToPreventRemoval(CoreUnroutedPipe pipe) {
-		final World worldCache = pipe.getWorld();
+		final Level worldCache = pipe.getWorld();
 		final BlockPos posCache = pipe.getPos();
-		final TileEntity tileCache = pipe.container;
+		final BlockEntity tileCache = pipe.container;
 		final CoreUnroutedPipe fPipe = pipe;
 		fPipe.setPreventRemove(true);
 		QueuedTasks.queueTask(() -> {
@@ -285,16 +341,16 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 				return null;
 			}
 			boolean changed = false;
-			if (worldCache.getBlockState(posCache).getBlock() != LPBlocks.pipe) {
-				worldCache.setBlockState(posCache, LPBlocks.pipe.getDefaultState());
+			if (worldCache.getBlockState(posCache).getBlock() != LPBlocks.pipe.get()) {
+				worldCache.setBlock(posCache, LPBlocks.pipe.get().defaultBlockState(), 3);
 				changed = true;
 			}
-			if (worldCache.getTileEntity(posCache) != tileCache) {
-				worldCache.setTileEntity(posCache, tileCache);
+			if (worldCache.getBlockEntity(posCache) != tileCache) {
+				worldCache.setBlockEntity(tileCache);
 				changed = true;
 			}
 			if (changed) {
-				worldCache.markAndNotifyBlock(posCache, worldCache.getChunk(posCache), worldCache.getBlockState(posCache), worldCache.getBlockState(posCache), 3);
+				worldCache.markAndNotifyBlock(posCache, worldCache.getChunkAt(posCache), worldCache.getBlockState(posCache), worldCache.getBlockState(posCache), 3, 512);
 			}
 			fPipe.setPreventRemove(false);
 			return null;
@@ -302,15 +358,14 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Nonnull
-	@Override
-	public NonNullList<ItemStack> getDrops(@Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull IBlockState state, int fortune) {
+	// @Override removed — getDrops(BlockGetter...) does not match 1.20.1 Block API
+	public NonNullList<ItemStack> getDrops(@Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, int fortune) {
 		NonNullList<ItemStack> list = NonNullList.create();
-		if (MainProxy.isClient(world)) {
+		if (world instanceof Level && MainProxy.isClient((Level) world)) {
 			return list;
 		}
 
-		Random rand = world instanceof World ? ((World) world).rand : RANDOM;
-		int count = quantityDropped(state, fortune, rand);
+		int count = 1; // quantityDropped removed in 1.20.1
 		for (int i = 0; i < count; i++) {
 			CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
 
@@ -321,7 +376,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			if (pipe != null) {
 				if (pipe.item != null && (pipe.canBeDestroyed() || pipe.destroyByPlayer())) {
 					list.addAll(pipe.dropContents());
-					list.add(new ItemStack(pipe.item, 1, damageDropped(state)));
+					list.add(new ItemStack(pipe.item, 1));
 				} else if (pipe.item != null) {
 					LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
 				}
@@ -331,23 +386,32 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return list;
 	}
 
+	// getBlockFaceShape removed in 1.20.1; dead stub kept for reference
 	@Nonnull
-	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
-		return BlockFaceShape.UNDEFINED;
+	public Object /* BlockFaceShape */ getBlockFaceShape_DEAD(BlockGetter worldIn, BlockState state, BlockPos pos, Direction face) {
+		return null; // BlockFaceShape.UNDEFINED — removed in 1.20.1
 	}
 
-	public void addCollisionBoxToList(LogisticsTileGenericPipe pipe, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean isActualState) {
-		addCollisionBoxToList(pipe.getWorld().getBlockState(pipe.getPos()), pipe.getWorld(), pipe.getPos(), entityBox, collidingBoxes, entityIn, isActualState);
+	public void addCollisionBoxToList(LogisticsTileGenericPipe pipe, AABB entityBox, List<AABB> collidingBoxes, Entity entityIn, boolean isActualState) {
+		addCollisionBoxToList(pipe.getLevel().getBlockState(pipe.getBlockPos()), pipe.getLevel(), pipe.getBlockPos(), entityBox, collidingBoxes, entityIn, isActualState);
 	}
 
-	@Override
-	public void addCollisionBoxToList(@Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull AxisAlignedBB entityBox, @Nonnull List<AxisAlignedBB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
-		TileEntity te = world.getTileEntity(pos);
+	/** Replaces removed Block.addCollisionBoxToList — offsets the box by pos, then adds to list if it intersects entityBox. */
+	private static void addCollisionBoxToList(BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, AABB box) {
+		AABB offsetBox = box.move(pos.getX(), pos.getY(), pos.getZ());
+		if (entityBox.intersects(offsetBox)) {
+			collidingBoxes.add(offsetBox);
+		}
+	}
+
+	// Internal collision helper — addCollisionBoxToList is no longer an MC override in 1.20.1; called from the overload above
+	public void addCollisionBoxToList(@Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull AABB entityBox, @Nonnull List<AABB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
+		BlockEntity te = world.getBlockEntity(pos);
 		if (te instanceof LogisticsTileGenericPipe) {
 			LogisticsTileGenericPipe tile = (LogisticsTileGenericPipe) te;
 			CoreUnroutedPipe pipe = tile.pipe;
 			if (pipe != null && pipe.isPipeBlock()) {
-				addCollisionBoxToList(pos, entityBox, collidingBoxes, Block.FULL_BLOCK_AABB);
+				addCollisionBoxToList(pos, entityBox, collidingBoxes, new AABB(0, 0, 0, 1, 1, 1)); // Block.FULL_BLOCK_AABB removed in 1.20.1
 				return;
 			}
 			if (pipe != null && pipe.isMultiBlock()) {
@@ -355,82 +419,82 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 				if (!pipe.actAsNormalPipe()) return;
 			}
 
-			Arrays.stream(EnumFacing.VALUES)
+			Arrays.stream(Direction.values())
 					.filter(tile::isPipeConnectedCached)
-					.map(f -> PIPE_CONN_BB.get(f.getIndex()))
+					.map(f -> PIPE_CONN_BB.get(f.ordinal()))
 					.forEach(bb -> addCollisionBoxToList(pos, entityBox, collidingBoxes, bb));
 		}
 		addCollisionBoxToList(pos, entityBox, collidingBoxes, PIPE_CENTER_BB);
 		mcmpBlockAccess.addCollisionBoxToList(state, world, pos, entityBox, collidingBoxes, entity, isActualState);
 	}
 
-	@Nonnull
 	@Override
-	@SideOnly(Side.CLIENT)
-	public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World world, @Nonnull BlockPos pos) {
-		TileEntity tile = world.getTileEntity(pos);
+	@Nonnull
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+		BlockEntity te = world.getBlockEntity(pos);
+		if (!(te instanceof LogisticsTileGenericPipe)) return Shapes.block();
+		LogisticsTileGenericPipe tile = (LogisticsTileGenericPipe) te;
+		CoreUnroutedPipe pipe = tile.pipe;
+		if (pipe == null || pipe.isPipeBlock()) return Shapes.block();
+		// Multiblock pipes that don't act as normal pipes use a full-block outline for now;
+		// proper per-orientation VoxelShapes require the rendering rewrite.
+		if (pipe.isMultiBlock() && !pipe.actAsNormalPipe()) return Shapes.block();
+		int mask = 0;
+		for (Direction dir : Direction.values()) {
+			if (tile.isPipeConnectedCached(dir)) {
+				mask |= (1 << dir.ordinal());
+			}
+		}
+		return PIPE_SHAPES[mask];
+	}
+
+	@Override
+	@Nonnull
+	public VoxelShape getCollisionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+		return getShape(state, world, pos, context);
+	}
+
+	// getSelectedBoundingBox removed in 1.20.1 — replaced by getShape(state, level, pos, context)
+	// Renamed to avoid @Override on non-existent method; logic preserved for reference
+	@OnlyIn(Dist.CLIENT)
+	public AABB getSelectedBoundingBox_DEAD(BlockState state, Level world, @Nonnull BlockPos pos) {
+		BlockEntity tile = world.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).isPipeBlock()) {
-			return new AxisAlignedBB((double) pos.getX() + 0, (double) pos.getY() + 0, (double) pos.getZ() + 0,
+			return new AABB((double) pos.getX() + 0, (double) pos.getY() + 0, (double) pos.getZ() + 0,
 					(double) pos.getX() + 1, (double) pos.getY() + 1, (double) pos.getZ() + 1);
 		}
-		InternalRayTraceResult rayTraceResult = doRayTrace(world, pos, Minecraft.getMinecraft().player);
+		InternalRayTraceResult rayTraceResult = doRayTrace(world, pos, Minecraft.getInstance().player);
 
 		if (rayTraceResult != null && rayTraceResult.boundingBox != null) {
-			AxisAlignedBB box = rayTraceResult.boundingBox;
+			AABB box = rayTraceResult.boundingBox;
 			if (rayTraceResult.hitPart == Part.PIPE) {
 				float scale = 0.001F;
-				box = box.expand(scale, scale, scale);
+				box = box.inflate(scale, scale, scale);
 			}
-			return box.offset(pos);
+			return box.move(pos.getX(), pos.getY(), pos.getZ());
 		}
-		return super.getSelectedBoundingBox(state, world, pos);
+		return new AABB(pos); // fallback
 	}
 
-	@Override
-	public RayTraceResult collisionRayTrace(IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull Vec3d start, @Nonnull Vec3d end) {
-		TileEntity tile = world.getTileEntity(pos);
-		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).isPipeBlock()) {
-			Vec3d vec3d = start.subtract(pos.getX(), pos.getY(), pos.getZ());
-			Vec3d vec3d1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
-			RayTraceResult raytraceresult = FULL_BLOCK_AABB.calculateIntercept(vec3d, vec3d1);
-			return raytraceresult == null ? null : new RayTraceResult(raytraceresult.hitVec.add(pos.getX(), pos.getY(), pos.getZ()), raytraceresult.sideHit, pos);
-		}
-		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe == null) { // Fallback for defect pipe
-			return rayTrace(pos, start, end, Block.FULL_BLOCK_AABB);
-		}
+	// collisionRayTrace removed in 1.20.1 — migrated to getShape(BlockState, BlockGetter, BlockPos, CollisionContext)
+	// The entire ray-trace API (AABB.calculateIntercept, new HitResult(hitVec, side, pos), Block.FULL_BLOCK_AABB) is gone.
+	// @Override
+	// public HitResult collisionRayTrace(BlockState state, Level world, BlockPos pos, Vec3 start, Vec3 end) { ... }
 
-		InternalRayTraceResult result = doRayTrace(world, pos, start, end);
+	public InternalRayTraceResult doRayTrace(Level world, BlockPos pos, Player player) {
+		double reachDistance = player instanceof ServerPlayer
+				? player.getAttributeValue(net.minecraftforge.common.ForgeMod.BLOCK_REACH.get())
+				: 5;
 
-		if (result == null) {
-			return mcmpBlockAccess.collisionRayTrace(state, world, pos, start, end);
-		} else {
-			RayTraceResult secondResult = mcmpBlockAccess.collisionRayTrace(state, world, pos, start, end);
-			if (secondResult != null) {
-				if (secondResult.hitVec.distanceTo(start) < result.rayTraceResult.hitVec.distanceTo(start)) {
-					return secondResult;
-				}
-			}
-			return result.rayTraceResult;
-		}
-	}
-
-	public InternalRayTraceResult doRayTrace(World world, BlockPos pos, EntityPlayer player) {
-		double reachDistance = 5;
-
-		if (player instanceof EntityPlayerMP) {
-			reachDistance = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
-		}
-
-		double eyeHeight = player.getEyeHeight();
-		Vec3d lookVec = player.getLookVec();
-		Vec3d start = new Vec3d(player.posX, player.posY + eyeHeight, player.posZ);
-		Vec3d end = start.add(lookVec.x * reachDistance, lookVec.y * reachDistance, lookVec.z * reachDistance);
+		Vec3 lookVec = player.getLookAngle();
+		Vec3 start = player.getEyePosition();
+		Vec3 end = start.add(lookVec.x * reachDistance, lookVec.y * reachDistance, lookVec.z * reachDistance);
 
 		return doRayTrace(world, pos, start, end);
 	}
 
-	public InternalRayTraceResult doRayTrace(World world, BlockPos pos, Vec3d start, Vec3d end) {
-		TileEntity te = world.getTileEntity(pos);
+	public InternalRayTraceResult doRayTrace(Level world, BlockPos pos, Vec3 start, Vec3 end) {
+		BlockEntity te = world.getBlockEntity(pos);
 
 		if (te instanceof LogisticsTileGenericPipe) {
 			LogisticsTileGenericPipe tileG = (LogisticsTileGenericPipe) te;
@@ -447,7 +511,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 				return Stream.of(result1, result2)
 						.filter(Objects::nonNull)
-						.min(Comparator.comparing(r -> r.rayTraceResult.hitVec.squareDistanceTo(start)))
+						.min(Comparator.comparing(r -> r.rayTraceResult.getLocation().distanceToSqr(start)))
 						.orElse(null);
 			} else {
 				return doRayTrace(tileG, pipe, start, end);
@@ -460,13 +524,13 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	@AllArgsConstructor
 	private static class Hit {
 
-		public RayTraceResult rayTraceResult;
-		public AxisAlignedBB box;
-		public EnumFacing side;
+		public HitResult rayTraceResult;
+		public AABB box;
+		public Direction side;
 		public Part part;
 	}
 
-	private InternalRayTraceResult doRayTrace(LogisticsTileGenericPipe tileG, CoreUnroutedPipe pipe, Vec3d start, Vec3d end) {
+	private InternalRayTraceResult doRayTrace(LogisticsTileGenericPipe tileG, CoreUnroutedPipe pipe, Vec3 start, Vec3 end) {
 		if (tileG == null) return null;
 		if (!LogisticsBlockGenericPipe.isValid(pipe)) return null;
 
@@ -477,73 +541,51 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		ArrayList<Hit> list = new ArrayList<>();
 
 		// pipe
-		for (EnumFacing side : LogisticsBlockGenericPipe.DIR_VALUES) {
+		for (Direction side : LogisticsBlockGenericPipe.DIR_VALUES) {
 			if (side == null || tileG.isPipeConnectedCached(side)) {
 				if (side != null && ignoreSideRayTrace) continue;
-				AxisAlignedBB bb = getPipeBoundingBox(side);
-				list.add(new Hit(rayTrace(tileG.getPos(), start, end, bb), bb, side, Part.PIPE));
+				AABB bb = getPipeBoundingBox(side);
+				// rayTrace(pos, start, end, AABB) removed in 1.20.1 — use VoxelShape.clip
+				list.add(new Hit(net.minecraft.world.phys.shapes.Shapes.create(bb).clip(start, end, tileG.getBlockPos()), bb, side, Part.PIPE));
 			}
 		}
 
 		// pluggables
 
 		/*
-		for (EnumFacing side : EnumFacing.VALUES) {
+		for (Direction side : Direction.values()) {
 			if (tileG.getBCPipePluggable(side) != null) {
 				if(side != null && ignoreSideRayTrace) continue;
-				AxisAlignedBB bb = tileG.getBCPipePluggable(side).getBoundingBox(side);
+				AABB bb = tileG.getBCPipePluggable(side).getBoundingBox(side);
 				boxes[7 + side.ordinal()] = bb;
-				hits[7 + side.ordinal()] = super.collisionRayTrace(new BoundingBoxDelegateBlockState(bb, state), tileG.getWorld(), tileG.getPos(), start, end);
+				hits[7 + side.ordinal()] = super.collisionRayTrace(new BoundingBoxDelegateBlockState(bb, state), tileG.getLevel(), tileG.getBlockPos(), start, end);
 				sideHit[7 + side.ordinal()] = side;
 			}
 		}
 		*/
 
-		// TODO: check wires
+		// wire hit-test not implemented
 
 		// get closest hit
 
 		return list.stream()
 				.filter(r -> r.rayTraceResult != null)
-				.min(Comparator.comparing(r -> r.rayTraceResult.hitVec.squareDistanceTo(start)))
+				.min(Comparator.comparing(r -> r.rayTraceResult.getLocation().distanceToSqr(start)))
 				.map(r -> new InternalRayTraceResult(r.part, r.rayTraceResult, r.box, r.side))
 				.orElse(null);
 	}
 
-	private InternalRayTraceResult doRayTraceMultiblock(LogisticsTileGenericPipe tileG, CoreMultiBlockPipe pipe, Vec3d start, Vec3d direction) {
-		if (tileG == null) return null;
-		if (!LogisticsBlockGenericPipe.isValid(pipe)) return null;
-
-		List<RayTraceResult> hits = new ArrayList<>();
-		List<AxisAlignedBB> boxes = new ArrayList<>();
-
-		pipe.addCollisionBoxesToList(boxes, null);
-
-		while (hits.size() < boxes.size()) {
-			hits.add(null);
-		}
-
-		for (int i = 0; i < boxes.size(); i++) {
-			AxisAlignedBB bb = boxes.get(i);
-			hits.set(i, super.rayTrace(tileG.getPos(), start, direction, bb.offset(BlockPos.ORIGIN.subtract(tileG.getPos()))));
-		}
-
-		return hits.stream()
-				.filter(Objects::nonNull)
-				.min(Comparator.comparing(r -> r.hitVec.squareDistanceTo(start)))
-				.map(r -> new InternalRayTraceResult(Part.PIPE, r, pipe.getCompleteBox(), null))
-				.orElse(null);
+	// doRayTraceMultiblock — rayTrace(pos, start, end, AABB) removed in 1.20.1; VoxelShape clip not yet implemented
+	private InternalRayTraceResult doRayTraceMultiblock(LogisticsTileGenericPipe tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 direction) {
+		return null; // stub — full VoxelShape-based implementation needed
 	}
 
-	private AxisAlignedBB getPipeBoundingBox(@Nullable EnumFacing side) {
+	private AABB getPipeBoundingBox(@Nullable Direction side) {
 		if (side == null) return PIPE_CENTER_BB;
-		return PIPE_CONN_BB.get(side.getIndex());
+		return PIPE_CONN_BB.get(side.ordinal());
 	}
 
-	@Override
-	public TileEntity createNewTileEntity(@Nonnull World world, int metadata) {
-		return new LogisticsTileGenericPipe();
-	}
+	// createNewTileEntity removed in 1.20.1 — replaced by newBlockEntity(BlockPos, BlockState) above
 
 	public enum Part {
 		PIPE,
@@ -553,11 +595,11 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	public static class InternalRayTraceResult {
 
 		public final Part hitPart;
-		public final RayTraceResult rayTraceResult;
-		public final AxisAlignedBB boundingBox;
-		public final EnumFacing sideHit;
+		public final HitResult rayTraceResult;
+		public final AABB boundingBox;
+		public final Direction sideHit;
 
-		InternalRayTraceResult(Part hitPart, RayTraceResult rayTraceResult, AxisAlignedBB boundingBox, EnumFacing side) {
+		InternalRayTraceResult(Part hitPart, HitResult rayTraceResult, AABB boundingBox, Direction side) {
 			this.hitPart = hitPart;
 			this.rayTraceResult = rayTraceResult;
 			this.boundingBox = boundingBox;
@@ -566,68 +608,31 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 		@Override
 		public String toString() {
-			return String.format("RayTraceResult: %s, %s", hitPart == null ? "null" : hitPart.name(), boundingBox == null ? "null" : boundingBox.toString());
+			return String.format("HitResult: %s, %s", hitPart == null ? "null" : hitPart.name(), boundingBox == null ? "null" : boundingBox.toString());
 		}
 	}
 
-	private static final EnumFacing[] DIR_VALUES;
+	private static final Direction[] DIR_VALUES;
 
 	static {
-		DIR_VALUES = new EnumFacing[EnumFacing.VALUES.length + 1];
+		DIR_VALUES = new Direction[Direction.values().length + 1];
 		DIR_VALUES[0] = null;
-		System.arraycopy(EnumFacing.VALUES, 0, DIR_VALUES, 1, EnumFacing.VALUES.length);
+		System.arraycopy(Direction.values(), 0, DIR_VALUES, 1, Direction.values().length);
 	}
 
-	@Override
-	public float getBlockHardness(IBlockState state, World par1World, BlockPos pos) {
-		return Configs.pipeDurability;
-	}
+	// getBlockHardness removed in 1.20.1 — set via BlockBehaviour.Properties.strength() in constructor
+	// getRenderType removed in 1.20.1 — MODEL is the default
+	// getRenderLayer removed in 1.20.1 — use ItemBlockRenderTypes.setRenderLayer in client setup
+	// isFullBlock / isFullCube / isNormalCube / isOpaqueCube / isTopSolid — all removed in 1.20.1
 
-	@Nonnull
-	@Override
-	public EnumBlockRenderType getRenderType(IBlockState state) {
-		return EnumBlockRenderType.MODEL;
-	}
-
-	@Nonnull
-	@Override
-	public BlockRenderLayer getRenderLayer() {
-		return BlockRenderLayer.CUTOUT;
-	}
-
-	@Override
-	public boolean isFullBlock(IBlockState state) {
+	// @Override removed — canBeReplacedByLeaves removed in 1.20.1
+	public boolean canBeReplacedByLeaves_DEAD(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos) {
 		return false;
 	}
 
-	@Override
-	public boolean isFullCube(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public boolean isNormalCube(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public boolean isOpaqueCube(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public boolean isTopSolid(IBlockState state) {
-		return false;
-	}
-
-	@Override
-	public boolean canBeReplacedByLeaves(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos) {
-		return false;
-	}
-
-	@Override
-	public boolean isSideSolid(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
-		TileEntity tile = world.getTileEntity(pos);
+	// @Override removed — isSideSolid(BlockGetter...) removed in 1.20.1
+	public boolean isSideSolid_DEAD(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
+		BlockEntity tile = world.getBlockEntity(pos);
 
 		if (tile instanceof LogisticsTileGenericPipe) {
 			if (((LogisticsTileGenericPipe) tile).isPipeBlock()) {
@@ -635,78 +640,77 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			}
 		}
 
-		return super.isSideSolid(state, world, pos, side);
+		return false; // super.isSideSolid removed
 	}
 
 	@Override
-	public void breakBlock(World world, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
-		LogisticsBlockGenericPipe.removePipe(LogisticsBlockGenericPipe.getPipe(world, pos));
-		super.breakBlock(world, pos, state);
+	public void onRemove(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
+		if (state.getBlock() != newState.getBlock()) {
+			LogisticsBlockGenericPipe.removePipe(LogisticsBlockGenericPipe.getPipe(world, pos));
+		}
+		super.onRemove(state, world, pos, newState, isMoving);
 	}
 
-	@Override
-	public void dropBlockAsItemWithChance(World world, @Nonnull final BlockPos pos, @Nonnull IBlockState state, float chance, int fortune) {
+	// @Override removed — dropBlockAsItemWithChance removed in 1.20.1
+	public void dropBlockAsItemWithChance_DEAD(Level world, @Nonnull final BlockPos pos, @Nonnull BlockState state, float chance, int fortune) {
 
-		if (world.isRemote) {
+		if (world.isClientSide) {
 			return;
 		}
 
-		int i1 = quantityDropped(world.rand);
-		for (int j1 = 0; j1 < i1; j1++) {
-			if (world.rand.nextFloat() > chance) {
-				continue;
+		// quantityDropped removed in 1.20.1; drop once if chance passes
+		if (world.getRandom().nextFloat() > chance) {
+			return;
+		}
+
+		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
+
+		if (pipe == null) {
+			pipe = LogisticsBlockGenericPipe.pipeRemoved.get(new DoubleCoordinates(pos));
+		}
+
+		if (pipe == null) return;
+
+		if (pipe.item != null && (pipe.canBeDestroyed() || pipe.destroyByPlayer())) {
+			for (ItemStack stack : pipe.dropContents()) {
+				Block.popResource(world, pos, stack);
 			}
+			Block.popResource(world, pos, new ItemStack(pipe.item, 1));
+			final NonNullList<ItemStack> list = NonNullList.create();
+			CoreUnroutedPipe finalPipe = pipe;
+			BlockAccessDelegate worldDelegate = new BlockAccessDelegate(world) {
 
-			CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
-
-			if (pipe == null) {
-				pipe = LogisticsBlockGenericPipe.pipeRemoved.get(new DoubleCoordinates(pos));
-			}
-
-			if (pipe == null) return;
-
-			if (pipe.item != null && (pipe.canBeDestroyed() || pipe.destroyByPlayer())) {
-				for (ItemStack stack : pipe.dropContents()) {
-					spawnAsEntity(world, pos, stack);
-				}
-				spawnAsEntity(world, pos, new ItemStack(pipe.item, 1, damageDropped(state)));
-				final NonNullList<ItemStack> list = NonNullList.create();
-				CoreUnroutedPipe finalPipe = pipe;
-				BlockAccessDelegate worldDelegate = new BlockAccessDelegate(world) {
-
-					@Override
-					public TileEntity getTileEntity(BlockPos testPos) {
-						if (pos == testPos) {
-							return finalPipe.container;
-						}
-						return super.getTileEntity(pos);
+				@Override
+				public BlockEntity getBlockEntity(BlockPos testPos) {
+					if (pos.equals(testPos)) {
+						return finalPipe.container;
 					}
-				};
-				mcmpBlockAccess.addDrops(list, worldDelegate, pos, state, fortune);
-				for (ItemStack stack : list) {
-					spawnAsEntity(world, pos, stack);
+					return super.getBlockEntity(testPos);
 				}
-			} else if (pipe.item != null) {
-				LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
+			};
+			mcmpBlockAccess.addDrops(list, worldDelegate, pos, state, fortune);
+			for (ItemStack stack : list) {
+				Block.popResource(world, pos, stack);
 			}
+		} else if (pipe.item != null) {
+			LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
 		}
 	}
 
-	@Nonnull
-	@Override
-	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+	// @Override removed — getItemDropped removed in 1.20.1
+	public Item getItemDropped_DEAD(BlockState state, Random rand, int fortune) {
 		// Returns null to be safe - the id does not depend on the meta
 		return null;
 	}
 
-	@SideOnly(Side.CLIENT)
-	@Override
+	@OnlyIn(Dist.CLIENT)
 	@Nonnull
-	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
-		ItemStack pick = super.getPickBlock(state, target, world, pos, player);
+	public ItemStack getPickedResult(BlockState state, HitResult target, net.minecraft.world.level.LevelReader levelReader, BlockPos pos, Player player) {
+		ItemStack pick = getCloneItemStack(levelReader, pos, state);
 		if (!pick.isEmpty()) {
 			return pick;
 		}
+		Level world = (Level) levelReader; // safe — client-only code, LevelReader is always a Level here
 		InternalRayTraceResult rayTraceResult = doRayTrace(world, pos, player);
 
 		if (rayTraceResult != null && rayTraceResult.boundingBox != null) {
@@ -720,8 +724,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 	/* Wrappers ************************************************************ */
 	@Override
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-		super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean movedByPiston) {
+		super.neighborChanged(state, worldIn, pos, blockIn, fromPos, movedByPiston);
 
 		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(worldIn, pos);
 
@@ -731,228 +735,67 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, @Nonnull ItemStack stack) {
-		super.onBlockPlacedBy(world, pos, state, placer, stack);
+	public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
+		super.setPlacedBy(world, pos, state, placer, stack);
 		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
 
 		if (LogisticsBlockGenericPipe.isValid(pipe)) {
 			pipe.onBlockPlaced();
 			pipe.onBlockPlacedBy(placer);
 			if (pipe instanceof IRotationProvider) {
-				((IRotationProvider) pipe).setFacing(placer.getHorizontalFacing().getOpposite());
+				((IRotationProvider) pipe).setFacing(placer.getDirection().getOpposite());
 			}
 		}
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float xOffset, float yOffset, float zOffset) {
-		if (super.onBlockActivated(world, pos, state, player, hand, side, xOffset, yOffset, zOffset)) return true;
+	public InteractionResult use(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hitResult) {
+		InteractionResult superResult = super.use(state, world, pos, player, hand, hitResult);
+		if (superResult != InteractionResult.PASS) return superResult;
 
-		ItemStack heldItem = player.inventory.mainInventory.get(player.inventory.currentItem);
+		ItemStack heldItem = player.getInventory().items.get(player.getInventory().selected);
 
-		//world.notifyBlocksOfNeighborChange(pos, LogisticsPipes.LogisticsPipeBlock);
 		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
 
 		if (LogisticsBlockGenericPipe.isValid(pipe)) {
 
 			if (heldItem.isEmpty()) {
 				// Fall through the end of the test
-			} else if (heldItem.getItem() == Items.SIGN) {
+			} else if (heldItem.getItem() instanceof net.minecraft.world.item.SignItem) { // Items.SIGN removed in 1.20.1 — sign items split per wood type
 				// Sign will be placed anyway, so lets show the sign gui
-				return false;
+				return InteractionResult.PASS;
 			} else if (heldItem.getItem() instanceof ItemLogisticsPipe) {
-				return false;
+				return InteractionResult.PASS;
 			}
-			return pipe.blockActivated(player);
+			return pipe.blockActivated(player) ? InteractionResult.SUCCESS : InteractionResult.PASS;
 		}
 
-		return false;
+		return InteractionResult.PASS;
 	}
 
 	@Override
-	public boolean canProvidePower(IBlockState state) {
+	public boolean isSignalSource(BlockState state) { // canProvidePower renamed to isSignalSource in 1.20.1
 		return true;
 	}
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public boolean addHitEffects(IBlockState state, World world, RayTraceResult target, ParticleManager effectRenderer) {
-		if (super.addHitEffects(state, world, target, effectRenderer)) return true;
-		BlockPos pos = target.getBlockPos();
+	// TODO: addHitEffects rendering — migrate to NeoForge IBlockExtension.addHitEffects with ParticleEngine (deferred)
+	// @OnlyIn(Dist.CLIENT)
+	// @Override
+	// public boolean addHitEffects(BlockState state, Level world, HitResult target, ParticleEngine effectRenderer) { ... }
 
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
-		if (pipe == null) {
-			return false;
-		}
+	// TODO: addDestroyEffects rendering — migrate to NeoForge IBlockExtension.addDestroyEffects with ParticleEngine (deferred)
+	// @OnlyIn(Dist.CLIENT)
+	// @Override
+	// public boolean addDestroyEffects(BlockState state, Level world, BlockPos pos, ParticleEngine effectRenderer) { ... }
 
-		TextureAtlasSprite icon = pipe.getIconProvider().getIcon(pipe.getIconIndexForItem());
-
-		EnumFacing sideHit = target.sideHit;
-
-		Block block = LPBlocks.pipe;
-		float b = 0.1F;
-		double px = target.hitVec.x + rand.nextDouble() * (state.getBoundingBox(world, pos).maxX - state.getBoundingBox(world, pos).minX - (b * 2.0F)) + b + state.getBoundingBox(world, pos).minX;
-		double py = target.hitVec.y + rand.nextDouble() * (state.getBoundingBox(world, pos).maxY - state.getBoundingBox(world, pos).minY - (b * 2.0F)) + b + state.getBoundingBox(world, pos).minY;
-		double pz = target.hitVec.z + rand.nextDouble() * (state.getBoundingBox(world, pos).maxZ - state.getBoundingBox(world, pos).minZ - (b * 2.0F)) + b + state.getBoundingBox(world, pos).minZ;
-
-		if (sideHit == EnumFacing.DOWN) {
-			py = target.hitVec.y + state.getBoundingBox(world, pos).minY - b;
-		}
-
-		if (sideHit == EnumFacing.UP) {
-			py = target.hitVec.y + state.getBoundingBox(world, pos).maxY + b;
-		}
-
-		if (sideHit == EnumFacing.NORTH) {
-			pz = target.hitVec.z + state.getBoundingBox(world, pos).minZ - b;
-		}
-
-		if (sideHit == EnumFacing.SOUTH) {
-			pz = target.hitVec.z + state.getBoundingBox(world, pos).maxZ + b;
-		}
-
-		if (sideHit == EnumFacing.EAST) {
-			px = target.hitVec.x + state.getBoundingBox(world, pos).minX - b;
-		}
-
-		if (sideHit == EnumFacing.WEST) {
-			px = target.hitVec.x + state.getBoundingBox(world, pos).maxX + b;
-		}
-
-		Particle fx = effectRenderer.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), px, py, pz, 0.0D, 0.0D, 0.0D, Block.getStateId(world.getBlockState(target.getBlockPos())));
-		fx.setParticleTexture(icon);
-		effectRenderer.addEffect(fx.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
-		return true;
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager effectRenderer) {
-		if (super.addDestroyEffects(world, pos, effectRenderer)) return true;
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
-		if (pipe == null) {
-			return false;
-		}
-
-		ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
-		//if (config.isUseNewRenderer()) {
-		LogisticsNewRenderPipe.renderDestruction(pipe, world, pos.getX(), pos.getY(), pos.getZ(), effectRenderer);
-		/*} else {
-			TextureAtlasSprite icon = pipe.getIconProvider().getIcon(pipe.getIconIndexForItem());
-
-			byte its = 4;
-			for (int i = 0; i < its; ++i) {
-				for (int j = 0; j < its; ++j) {
-					for (int k = 0; k < its; ++k) {
-						if (pipe.isMultiBlock()) {
-							LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> set = ((CoreMultiBlockPipe) pipe).getRotatedSubBlocks();
-							set.add(new DoubleCoordinatesType<>(0, 0, 0, CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
-							for (DoubleCoordinates pos : set) {
-								int localx = x + pos.getXInt();
-								int localy = y + pos.getYInt();
-								int localz = z + pos.getZInt();
-								double px = localx + (i + 0.5D) / its;
-								double py = localy + (j + 0.5D) / its;
-								double pz = localz + (k + 0.5D) / its;
-								int random = rand.nextInt(6);
-								EntityDiggingFX fx = new EntityDiggingFX(world, px, py, pz, px - localx - 0.5D, py - localy - 0.5D, pz - localz - 0.5D, LogisticsPipes.LogisticsPipeBlock, random, meta);
-								fx.setParticleIcon(icon);
-								effectRenderer.addEffect(fx.applyColourMultiplier(pos));
-							}
-						} else {
-							double px = x + (i + 0.5D) / its;
-							double py = y + (j + 0.5D) / its;
-							double pz = z + (k + 0.5D) / its;
-							int random = rand.nextInt(6);
-							EntityDiggingFX fx = new EntityDiggingFX(world, px, py, pz, px - x - 0.5D, py - y - 0.5D, pz - z - 0.5D, LogisticsPipes.LogisticsPipeBlock, random, meta);
-							fx.setParticleIcon(icon);
-							effectRenderer.addEffect(fx.applyColourMultiplier(pos));
-						}
-					}
-				}
-			}
-		}
-		*/
-		return true;
-	}
-
-	@Nonnull
-	@Override
-	protected BlockStateContainer createBlockState() {
-		BlockStateContainer.Builder builder = new BlockStateContainer.Builder(this);
-		builder.add(rotationProperty);
-		builder.add(modelTypeProperty);
-		connectionPropertys.values().forEach(builder::add);
-
-		builder.add(propertyRenderList);
-		builder.add(propertyCache);
-
-		mcmpBlockAccess.addBlockState(builder);
-
-		return builder.build();
-	}
-
-	@Nonnull
-	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		return this.getDefaultState();
-	}
-
-	@Override
-	public int getMetaFromState(IBlockState state) {
-		return 0;
-	}
-
-	@Nonnull
-	@Override
-	public IBlockState getActualState(@Nonnull IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		checkForRenderChanges(worldIn, pos);
-		state = super.getActualState(state, worldIn, pos);
-
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(worldIn, pos);
-
-		if (LogisticsBlockGenericPipe.isValid(pipe)) {
-			if (pipe instanceof IRotationProvider) {
-				state = state.withProperty(rotationProperty, ((IRotationProvider) pipe).getRotation());
-			}
-
-			for (EnumFacing side : EnumFacing.VALUES) {
-				state = state.withProperty(connectionPropertys.get(side), pipe.container.renderState.pipeConnectionMatrix.isConnected(side));
-			}
-
-			if (pipe instanceof PipeBlockRequestTable) {
-				state = state.withProperty(modelTypeProperty, PipeRenderModel.REQUEST_TABLE);
-			}
-		}
-
-		return state;
-	}
-
-	@Nonnull
-	@Override
-	public IBlockState getExtendedState(@Nonnull IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		state = mcmpBlockAccess.getExtendedState(state, worldIn, pos);
-
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(worldIn, pos);
-
-		if (LogisticsBlockGenericPipe.isValid(pipe)) {
-			LogisticsNewRenderPipe.checkAndCalculateRenderCache(pipe.container);
-			state = ((IExtendedBlockState) state).withProperty(propertyRenderList, pipe.container.renderState.cachedRenderer);
-			state = ((IExtendedBlockState) state).withProperty(propertyCache, pipe.container.renderState.objectCache);
-		} else {
-			state = ((IExtendedBlockState) state).withProperty(propertyRenderList, LogisticsNewRenderPipe.getBasicPipeFrameRenderList());
-		}
-		return state;
-	}
-
-	private void checkForRenderChanges(IBlockAccess worldIn, BlockPos blockPos) {
-		TileEntity tile = new DoubleCoordinates(blockPos).getTileEntity(worldIn);
+private void checkForRenderChanges(BlockGetter worldIn, BlockPos blockPos) {
+		BlockEntity tile = new DoubleCoordinates(blockPos).getTileEntity(worldIn);
 		if (!(tile instanceof LogisticsTileGenericPipe)) return;
 		((LogisticsTileGenericPipe) tile).renderState.checkForRenderUpdate(worldIn, blockPos);
 	}
 
-	@Override
-	public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
+	// @Override removed — canRenderInLayer removed in 1.20.1
+	public boolean canRenderInLayer_DEAD(BlockState state, Object /* BlockRenderLayer */ layer) {
 		return true;
 	}
 }

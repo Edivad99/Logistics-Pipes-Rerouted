@@ -1,25 +1,10 @@
 package logisticspipes.proxy.enderchest;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
-import codechicken.enderstorage.block.BlockEnderStorage;
-import codechicken.enderstorage.tile.TileFrequencyOwner;
-
+// TODO: EnderStorage not ported to 1.20.1 — stub
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import logisticspipes.proxy.interfaces.IEnderStorageProxy;
-
 public class EnderStorageProxy implements IEnderStorageProxy {
-
-	@Override
-	public boolean isEnderChestBlock(Block block) {
-		return block instanceof BlockEnderStorage;
-	}
-
-	@Override
-	public void openEnderChest(World world, int x, int y, int z, EntityPlayer player) {
-		TileFrequencyOwner tile = (TileFrequencyOwner) world.getTileEntity(new BlockPos(x, y, z));
-		tile.activate(player, 0, null);
-	}
+    @Override public boolean isEnderChestBlock(Block block) { return false; }
+    @Override public void openEnderChest(Level world, int x, int y, int z, Player player) {}
 }

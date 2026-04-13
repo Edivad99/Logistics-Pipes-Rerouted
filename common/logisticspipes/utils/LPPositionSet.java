@@ -3,7 +3,7 @@ package logisticspipes.utils;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.phys.AABB;
 
 import lombok.SneakyThrows;
 
@@ -106,8 +106,8 @@ public class LPPositionSet<T extends DoubleCoordinates> extends HashSet<T> imple
 		this.forEach(DoubleCoordinates::rotateRight);
 	}
 
-	public AxisAlignedBB toABB() {
-		return new AxisAlignedBB(getMinXD(), getMinYD(), getMinZD(), getMaxXD(), getMaxYD(), getMaxZD());
+	public AABB toABB() {
+		return new AABB(getMinXD(), getMinYD(), getMinZD(), getMaxXD(), getMaxYD(), getMaxZD());
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class LPPositionSet<T extends DoubleCoordinates> extends HashSet<T> imple
 	}
 
 	@SneakyThrows({ NoSuchMethodException.class, IllegalAccessException.class, InvocationTargetException.class, InstantiationException.class })
-	public void addFrom(AxisAlignedBB completeBox) {
+	public void addFrom(AABB completeBox) {
 		add(clazz.getConstructor(Double.TYPE, Double.TYPE, Double.TYPE).newInstance(completeBox.minX, completeBox.minY, completeBox.minZ));
 		add(clazz.getConstructor(Double.TYPE, Double.TYPE, Double.TYPE).newInstance(completeBox.maxX, completeBox.maxY, completeBox.maxZ));
 	}

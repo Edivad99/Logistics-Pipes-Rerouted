@@ -44,10 +44,10 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
 import io.netty.buffer.ByteBuf;
 
@@ -117,7 +117,7 @@ public interface LPDataOutput {
 
 	void writeUTFArray(@Nullable String[] arr);
 
-	void writeFacing(@Nullable EnumFacing direction);
+	void writeFacing(@Nullable Direction direction);
 
 	void writeResourceLocation(@Nullable ResourceLocation resource);
 
@@ -125,7 +125,7 @@ public interface LPDataOutput {
 
 	void writeBitSet(@Nonnull BitSet bits);
 
-	void writeNBTTagCompound(@Nullable NBTTagCompound tag);
+	void writeCompoundTag(@Nullable CompoundTag tag);
 
 	void writeItemStack(@Nonnull ItemStack itemstack);
 

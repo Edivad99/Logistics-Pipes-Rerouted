@@ -4,17 +4,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.resources.ResourceLocation;
 
 import logisticspipes.LPItems;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
@@ -55,19 +54,19 @@ public class ModuleChippedCraftingRecipes extends CraftingPartRecipes {
 
 	private void registerModuleRecipe(CraftingParts parts, RecipeType type, ResourceLocation recipeCategory, @Nonnull String moduleName, @Nullable String baseModuleName) {
 		final ResourceLocation moduleResource = LPItems.modules.get(moduleName);
-		Item module = Item.REGISTRY.getObject(moduleResource);
+		Item module = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(moduleResource);
 		if (module == null) return;
 		Item baseModule;
 		if (baseModuleName == null) {
-			baseModule = LPItems.blankModule;
+			baseModule = LPItems.blankModule.get();
 		} else {
-			baseModule = Item.REGISTRY.getObject(LPItems.modules.get(baseModuleName));
+			baseModule = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(LPItems.modules.get(baseModuleName));
 		}
 		if (baseModule == null) return;
 
 		Ingredient programmer = programmerIngredient(moduleResource.toString());
-		final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerTileEntity.programByCategory.putIfAbsent(recipeCategory, new HashSet<>());
-		Objects.requireNonNull(compilerPrograms).add(moduleResource);
+		final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerTileEntity.programByCategory.computeIfAbsent(recipeCategory, k -> new HashSet<>());
+		compilerPrograms.add(moduleResource);
 
 		RecipeManager.RecipeLayout layout = null;
 		switch (type) {

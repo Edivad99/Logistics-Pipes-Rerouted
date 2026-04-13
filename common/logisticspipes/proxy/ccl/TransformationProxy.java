@@ -1,24 +1,7 @@
 package logisticspipes.proxy.ccl;
-
-import codechicken.lib.vec.Transformation;
-
+// TODO: CodeChickenLib not ported to 1.20.1 — stub
 import logisticspipes.proxy.object3d.interfaces.ITranslation;
-
 public class TransformationProxy implements ITranslation {
-
-	private final Transformation transformation;
-
-	public TransformationProxy(Transformation transformation) {
-		this.transformation = transformation;
-	}
-
-	@Override
-	public ITranslation inverse() {
-		return new TransformationProxy(transformation.inverse());
-	}
-
-	@Override
-	public Object getOriginal() {
-		return transformation;
-	}
+    @Override public ITranslation inverse() { return null; }
+    @Override public Object getOriginal() { return null; }
 }

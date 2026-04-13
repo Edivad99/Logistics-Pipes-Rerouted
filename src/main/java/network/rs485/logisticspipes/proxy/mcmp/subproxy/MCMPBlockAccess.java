@@ -20,56 +20,54 @@
 
 package network.rs485.logisticspipes.proxy.mcmp.subproxy;
 
+// TODO: MCMultiPart has no 1.20.1 port — this entire class is a stub.
+// The real implementation called MCMultiPart.multipart BlockMultipartContainer methods
+// which no longer exist. Strip this integration if MCMultiPart does not port to 1.20.1.
+
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-
-import mcmultipart.MCMultiPart;
-import mcmultipart.block.BlockMultipartContainer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 public class MCMPBlockAccess implements IMCMPBlockAccess {
 
-	private final BlockMultipartContainer multipart = (BlockMultipartContainer) MCMultiPart.multipart;
-
 	@Override
-	public void addBlockState(BlockStateContainer.Builder builder) {
-		builder.add(BlockMultipartContainer.PROPERTY_INFO);
+	public void addBlockState(StateDefinition.Builder<Block, BlockState> builder) {
+		// TODO: MCMultiPart removed — no block state to add
 	}
 
 	@Override
-	public IBlockState getExtendedState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		return multipart.getExtendedState(state, worldIn, pos);
+	public BlockState getExtendedState(BlockState state, BlockGetter worldIn, BlockPos pos) {
+		return state;
 	}
 
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity,
-			boolean isActualState) {
-		multipart.addCollisionBoxToList(state, world, pos, entityBox, collidingBoxes, entity, isActualState);
+	public void addCollisionBoxToList(BlockState state, Level world, BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, Entity entity, boolean isActualState) {
+		// TODO: MCMultiPart removed
 	}
 
 	@Override
-	public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end) {
-		return multipart.collisionRayTrace(state, world, pos, start, end);
+	public HitResult collisionRayTrace(BlockState state, Level world, BlockPos pos, Vec3 start, Vec3 end) {
+		return null; // TODO: MCMultiPart removed
 	}
 
 	@Override
 	public Block getBlock() {
-		return multipart;
+		return null; // TODO: MCMultiPart removed
 	}
 
 	@Override
-	public void addDrops(NonNullList<ItemStack> list, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-		list.addAll(multipart.getDrops(world, pos, state, fortune));
+	public void addDrops(NonNullList<ItemStack> list, BlockGetter world, BlockPos pos, BlockState state, int fortune) {
+		// TODO: MCMultiPart removed
 	}
 }

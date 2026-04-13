@@ -56,8 +56,8 @@ import logisticspipes.routing.ServerRouter
 import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.SinkReply
 import logisticspipes.utils.item.ItemIdentifier
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
@@ -83,7 +83,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
     private var currentSlot = 0
         set(value) {
             field = value
-            MainProxy.sendToPlayerList(PacketHandler.getPacket(QuickSortState::class.java).setInteger(value)
+            MainProxy.sendToPlayerList(PacketHandler.getPacket(QuickSortState::class.java).putInt(value)
                 .setModulePos(this), localSlotWatchers)
         }
     private var stallSlot = 0
@@ -101,10 +101,10 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
     override fun jobSetup(): Pair<Int, ItemStack>? {
         val serverRouter = this._service?.router as? ServerRouter ?: return null
         val inventory = _service?.availableInventories()?.firstOrNull() ?: return null
-        if (inventory.sizeInventory == 0) return null
-        if (currentSlot >= inventory.sizeInventory) currentSlot = 0
+        if (inventory.containerSize == 0) return null
+        if (currentSlot >= inventory.containerSize) currentSlot = 0
         val slot = currentSlot++
-        val stack = inventory.getStackInSlot(slot)
+        val stack = inventory.getItem(slot)
         if (!stalled && slot == stallSlot) stalled = true
         if (stack.isEmpty) return null
         serverRouter.updateServerRouterLsa()
@@ -133,8 +133,8 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
     override fun completeJob(deferred: Deferred<QuicksortAsyncResult?>) {
         val result = deferred.getCompleted() ?: return
         val inventory = _service?.availableInventories()?.firstOrNull() ?: return
-        if (result.slot >= inventory.sizeInventory) return
-        val stack = inventory.getStackInSlot(result.slot)
+        if (result.slot >= inventory.containerSize) return
+        val stack = inventory.getItem(result.slot)
         if (result.itemid.equalsWithNBT(stack)) {
             extractAndSend(result.slot, stack, inventory, result.destRouterId, result.sinkReply)
         }
@@ -154,7 +154,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
         if (!service.useEnergy(energyPerStack)) return
         stalled = false
         stallSlot = slot
-        val extracted = inventory.decrStackSize(slot, toExtract)
+        val extracted = inventory.removeItem(slot, toExtract)
         if (extracted.isEmpty) return
         service.sendStack(
             extracted,
@@ -176,13 +176,13 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
 
     override fun interestedInAttachedInventory(): Boolean = false
 
-    fun addWatchingPlayer(player: EntityPlayer) {
+    fun addWatchingPlayer(player: Player) {
         localSlotWatchers.add(player)
-        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(QuickSortState::class.java).setInteger(currentSlot)
+        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(QuickSortState::class.java).putInt(currentSlot)
             .setModulePos(this), player)
     }
 
-    fun removeWatchingPlayer(player: EntityPlayer) {
+    fun removeWatchingPlayer(player: Player) {
         localSlotWatchers.remove(player)
     }
 

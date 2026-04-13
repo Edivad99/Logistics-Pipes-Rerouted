@@ -2,27 +2,22 @@ package logisticspipes.blocks.crafting;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 
 import logisticspipes.utils.PlayerIdentifier;
 
-public class AutoCraftingInventory extends InventoryCrafting {
+public class AutoCraftingInventory extends TransientCraftingContainer {
 
 	public final PlayerIdentifier placedByPlayer;
 
 	public AutoCraftingInventory(PlayerIdentifier playerID) {
-		super(new Container() {
-
+		super(new AbstractContainerMenu(null, 0) {
 			@Override
-			public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
-				return false;
-			}
-
+			public boolean stillValid(@Nonnull Player entityplayer) { return false; }
 			@Override
-			public void onCraftMatrixChanged(IInventory par1iInventory) {}
+			public net.minecraft.world.item.ItemStack quickMoveStack(@Nonnull Player player, int i) { return net.minecraft.world.item.ItemStack.EMPTY; }
 		}, 3, 3);
 		placedByPlayer = playerID;
 	}

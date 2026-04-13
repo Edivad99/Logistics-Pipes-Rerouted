@@ -9,10 +9,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
 
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
@@ -27,13 +28,15 @@ import logisticspipes.utils.PlayerIdentifier;
 public class ChannelManager implements IChannelManager {
 
 	private static final String DATA_NAME = LPConstants.LP_MOD_ID + "_ChannelManager_SavedData";
-	private SavedData savedData;
+	private ChannelSavedData savedData;
 
-	public ChannelManager(@Nonnull World world) {
-		savedData = (SavedData) Objects.requireNonNull(world.getMapStorage()).getOrLoadData(SavedData.class, DATA_NAME);
-		if (savedData == null) {
-			savedData = new SavedData();
-			world.getMapStorage().setData(DATA_NAME, savedData);
+	public ChannelManager(@Nonnull Level world) {
+		if (world instanceof ServerLevel) {
+			savedData = ((ServerLevel) world).getDataStorage().computeIfAbsent(
+					ChannelSavedData::load, ChannelSavedData::new, DATA_NAME
+			);
+		} else {
+			savedData = new ChannelSavedData();
 		}
 	}
 
@@ -42,7 +45,7 @@ public class ChannelManager implements IChannelManager {
 		return Collections.unmodifiableList(savedData.channels);
 	}
 
-	private boolean isChannelAllowedFor(ChannelInformation channel, EntityPlayer player) {
+	private boolean isChannelAllowedFor(ChannelInformation channel, Player player) {
 		switch (channel.getRights()) {
 			case PUBLIC:
 				return true;
@@ -62,7 +65,7 @@ public class ChannelManager implements IChannelManager {
 	}
 
 	@Override
-	public List<ChannelInformation> getAllowedChannels(EntityPlayer player) {
+	public List<ChannelInformation> getAllowedChannels(Player player) {
 		return Collections.unmodifiableList(savedData.channels.stream().filter(channel -> isChannelAllowedFor(channel, player)).collect(Collectors.toList()));
 	}
 
@@ -70,7 +73,7 @@ public class ChannelManager implements IChannelManager {
 	public ChannelInformation createNewChannel(String name, PlayerIdentifier owner, ChannelInformation.AccessRights rights, UUID responsibleSecurityID) {
 		ChannelInformation channel = new ChannelInformation(name, UUID.randomUUID(), owner, rights, responsibleSecurityID);
 		savedData.channels.add(channel);
-		savedData.markDirty();
+		savedData.setDirty();
 		sendUpdatePacketToClients(channel);
 		return channel;
 	}
@@ -81,8 +84,7 @@ public class ChannelManager implements IChannelManager {
 			channel.setName(newName);
 			sendUpdatePacketToClients(channel);
 		});
-		savedData.markDirty();
-
+		savedData.setDirty();
 	}
 
 	@Override
@@ -92,7 +94,7 @@ public class ChannelManager implements IChannelManager {
 			channel.setResponsibleSecurityID(responsibleSecurityID);
 			sendUpdatePacketToClients(channel);
 		});
-		savedData.markDirty();
+		savedData.setDirty();
 	}
 
 	@Override
@@ -100,46 +102,41 @@ public class ChannelManager implements IChannelManager {
 		Optional<ChannelInformation> optChannel = savedData.channels.stream().filter(channel -> channel.getChannelIdentifier().equals(channelIdentifier)).findFirst();
 		savedData.channels.removeIf(channel -> channel.getChannelIdentifier().equals(channelIdentifier));
 		optChannel.ifPresent(channelInformation -> sendUpdatePacketToClients(new ChannelInformation(null, channelIdentifier, channelInformation.getOwner(), channelInformation.getRights(), null)));
-		savedData.markDirty();
+		savedData.setDirty();
 	}
 
-	public void markDirty() {
-		savedData.markDirty();
+	public void setChanged() {
+		savedData.setDirty();
 	}
 
 	private void sendUpdatePacketToClients(ChannelInformation channel) {
 		MainProxy.sendToAllPlayers(PacketHandler.getPacket(ChannelInformationPacket.class).setInformation(channel).setTargeted(false).setCompressable(true));
 	}
 
-	public static class SavedData extends WorldSavedData {
+	public static class ChannelSavedData extends SavedData {
 
 		List<ChannelInformation> channels = new ArrayList<>();
 
-		public SavedData(String name) {
-			super(name);
-		}
+		public ChannelSavedData() {}
 
-		public SavedData() {
-			this(DATA_NAME);
-		}
-
-		@Override
-		public void readFromNBT(NBTTagCompound nbt) {
-			channels = new ArrayList<>();
-			for (int i = 0; i < nbt.getInteger("dataSize"); i++) {
-				channels.add(i, new ChannelInformation(nbt.getCompoundTag("data" + i)));
+		public static ChannelSavedData load(CompoundTag nbt) {
+			ChannelSavedData data = new ChannelSavedData();
+			data.channels = new ArrayList<>();
+			for (int i = 0; i < nbt.getInt("dataSize"); i++) {
+				data.channels.add(i, new ChannelInformation(nbt.getCompound("data" + i)));
 			}
+			return data;
 		}
 
 		@Nonnull
 		@Override
-		public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-			compound.setInteger("dataSize", channels.size());
+		public CompoundTag save(CompoundTag compound) {
+			compound.putInt("dataSize", channels.size());
 			for (int i = 0; i < channels.size(); i++) {
 				ChannelInformation channel = channels.get(i);
-				NBTTagCompound nbt = new NBTTagCompound();
+				CompoundTag nbt = new CompoundTag();
 				channel.writeToNBT(nbt);
-				compound.setTag("data" + i, nbt);
+				compound.put("data" + i, nbt);
 			}
 			return compound;
 		}
@@ -148,35 +145,9 @@ public class ChannelManager implements IChannelManager {
 			return this.channels;
 		}
 
-		public SavedData setChannels(List<ChannelInformation> channels) {
+		public ChannelSavedData setChannels(List<ChannelInformation> channels) {
 			this.channels = channels;
 			return this;
-		}
-
-		public boolean equals(final Object o) {
-			if (o == this) return true;
-			if (!(o instanceof SavedData)) return false;
-			final SavedData other = (SavedData) o;
-			if (!other.canEqual(this)) return false;
-			final Object this$channels = this.getChannels();
-			final Object other$channels = other.getChannels();
-			return Objects.equals(this$channels, other$channels);
-		}
-
-		protected boolean canEqual(final Object other) {
-			return other instanceof SavedData;
-		}
-
-		public int hashCode() {
-			final int PRIME = 59;
-			int result = 1;
-			final Object $channels = this.getChannels();
-			result = result * PRIME + ($channels == null ? 43 : $channels.hashCode());
-			return result;
-		}
-
-		public String toString() {
-			return "ChannelManager.SavedData(channels=" + this.getChannels() + ")";
 		}
 	}
 }

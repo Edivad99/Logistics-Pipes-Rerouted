@@ -1,7 +1,7 @@
 package logisticspipes.network.guis.block;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import logisticspipes.LPItems;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
@@ -19,17 +19,17 @@ public class ProgramCompilerGui extends CoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		return new GuiProgramCompiler(player, getTileAs(player.world, LogisticsProgramCompilerTileEntity.class));
+	public Object getClientGui(Player player) {
+		return new GuiProgramCompiler(player, getTileAs(player.level(), LogisticsProgramCompilerTileEntity.class));
 	}
 
 	@Override
-	public Container getContainer(EntityPlayer player) {
-		LogisticsProgramCompilerTileEntity compilerBlock = getTileAs(player.world, LogisticsProgramCompilerTileEntity.class);
+	public AbstractContainerMenu getContainer(Player player) {
+		LogisticsProgramCompilerTileEntity compilerBlock = getTileAs(player.level(), LogisticsProgramCompilerTileEntity.class);
 		DummyContainer dummy = new DummyContainer(player, null, compilerBlock);
 
-		dummy.addRestrictedSlot(0, compilerBlock.getInventory(), 10, 10, LPItems.disk);
-		dummy.addRestrictedSlot(1, compilerBlock.getInventory(), 154, 10, LPItems.logisticsProgrammer);
+		dummy.addRestrictedSlot(0, compilerBlock.getInventory(), 10, 10, LPItems.disk.get());
+		dummy.addRestrictedSlot(1, compilerBlock.getInventory(), 154, 10, LPItems.logisticsProgrammer.get());
 
 		dummy.addNormalSlotsForPlayerInventory(10, 45);
 		return dummy;

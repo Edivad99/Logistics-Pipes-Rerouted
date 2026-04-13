@@ -1,19 +1,23 @@
+
 package logisticspipes.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
 
 import logisticspipes.network.packets.pipe.PipePropertiesUpdate;
 import logisticspipes.pipes.PipeFluidTerminus;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
+import javax.annotation.Nonnull;
 
 public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 
@@ -21,30 +25,33 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 	private final BlockPos pipePosition;
 	private final PropertyOverlay<ItemIdentifierInventory, ItemIdentifierInventoryProperty> sinkInventoryOverlay;
 
-	public GuiFluidTerminus(EntityPlayer player, PipeFluidTerminus pipe) {
-		super(null);
+	public GuiFluidTerminus(Player player, PipeFluidTerminus pipe) {
+		super(buildDummy(player, pipe));
 
 		pipePosition = pipe.getPos();
 		propertyLayer = new PropertyLayer(pipe.getProperties());
 		sinkInventoryOverlay = propertyLayer.overlay(pipe.getSinkInv());
 
-		DummyContainer dummy = new DummyContainer(player.inventory, propertyLayer.writeProp(pipe.getSinkInv()));
+		imageWidth = 180;
+		imageHeight = 130;
+	}
+	private static DummyContainer buildDummy(Player player, PipeFluidTerminus pipe) {
+		// propertyLayer is not yet available during static construction; use pipe.getSinkInv() directly
+		DummyContainer dummy = new DummyContainer(player.getInventory(), pipe.getSinkInv());
 		// Pipe slots
-		for (int pipeSlot = 0; pipeSlot < pipe.getSinkInv().getSizeInventory(); ++pipeSlot) {
+		for (int pipeSlot = 0; pipeSlot < pipe.getSinkInv().getContainerSize(); ++pipeSlot) {
 			dummy.addFluidSlot(pipeSlot, 10 + pipeSlot * 18, 19);
 		}
 		dummy.addNormalSlotsForPlayerInventory(10, 45);
-
-		inventorySlots = dummy;
-		xSize = 180;
-		ySize = 130;
+		return dummy;
 	}
 
+
 	@Override
-	public void onGuiClosed() {
-		super.onGuiClosed();
+	public void onClose() {
+		super.onClose();
 		propertyLayer.unregister();
-		if (this.mc.player != null && !propertyLayer.getProperties().isEmpty()) {
+		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
 			MainProxy.sendPacketToServer(
 					PipePropertiesUpdate.fromPropertyHolder(propertyLayer).setBlockPos(pipePosition));
@@ -52,22 +59,22 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
+	public void init() {
+		super.init();
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 10, guiTop + 45);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 45);
 		for (int i = 0; i < 9; i++) {
-			GuiGraphics.drawSlotBackground(mc, guiLeft + 9 + i * 18, guiTop + 18);
+			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 9 + i * 18, topPos + 18);
 		}
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-		super.drawGuiContainerForegroundLayer(par1, par2);
-		mc.fontRenderer.drawString(sinkInventoryOverlay.read(IItemIdentifierInventory::getName), 10, 8, 0x404040);
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		guiGraphics.drawString(minecraft.font, "Fluid Terminus", 10, 8, 0x404040);
 	}
 }

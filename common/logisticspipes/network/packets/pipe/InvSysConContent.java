@@ -1,8 +1,9 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
+
 
 import logisticspipes.gui.GuiInvSysConnector;
 import logisticspipes.network.abstractpackets.InventoryModuleCoordinatesPacket;
@@ -22,9 +23,9 @@ public class InvSysConContent extends InventoryModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiInvSysConnector) {
-			((GuiInvSysConnector) FMLClientHandler.instance().getClient().currentScreen).handleContentAnswer(getIdentList());
+	public void processPacket(Player player) {
+		if (Minecraft.getInstance().screen instanceof GuiInvSysConnector) {
+			((GuiInvSysConnector) Minecraft.getInstance().screen).handleContentAnswer(getIdentList());
 		}
 	}
 }

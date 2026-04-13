@@ -38,57 +38,44 @@
 package network.rs485.logisticspipes.property.layer
 
 import network.rs485.logisticspipes.property.InventoryProperty
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 
-class PropertyOverlayInventoryAdapter<T : IInventory, out P : InventoryProperty<T>>(
+class PropertyOverlayInventoryAdapter<T : Container, out P : InventoryProperty<T>>(
     private val propertyOverlay: PropertyOverlay<T, P>,
-) : IInventory {
-    override fun getName(): String = propertyOverlay.read { it.name }
-
-    override fun hasCustomName(): Boolean = propertyOverlay.read { it.hasCustomName() }
-
-    override fun getDisplayName(): ITextComponent? = propertyOverlay.read { it.displayName }
-
-    override fun getSizeInventory(): Int = propertyOverlay.read { it.sizeInventory }
+) : Container {
+    override fun getContainerSize(): Int = propertyOverlay.read { it.containerSize }
 
     override fun isEmpty(): Boolean = propertyOverlay.read { it.isEmpty }
 
     @Deprecated("do not modify returned ItemStack, handle as immutable")
-    override fun getStackInSlot(index: Int): ItemStack = propertyOverlay.read { it.getStackInSlot(index) }
+    override fun getItem(index: Int): ItemStack = propertyOverlay.read { it.getItem(index) }
 
-    override fun decrStackSize(index: Int, count: Int): ItemStack =
-        propertyOverlay.write { it.decrStackSize(index, count) }
+    override fun removeItem(index: Int, count: Int): ItemStack =
+        propertyOverlay.write { it.removeItem(index, count) }
 
-    override fun removeStackFromSlot(index: Int): ItemStack = propertyOverlay.write { it.removeStackFromSlot(index) }
+    override fun removeItemNoUpdate(index: Int): ItemStack = propertyOverlay.write { it.removeItemNoUpdate(index) }
 
-    override fun setInventorySlotContents(index: Int, stack: ItemStack) =
-        propertyOverlay.write { it.setInventorySlotContents(index, stack) }
+    override fun setItem(index: Int, stack: ItemStack) =
+        propertyOverlay.write { it.setItem(index, stack) }
 
-    override fun getInventoryStackLimit(): Int = propertyOverlay.read { it.inventoryStackLimit }
+    override fun getMaxStackSize(): Int = propertyOverlay.read { it.getMaxStackSize() }
 
-    override fun markDirty() = propertyOverlay.write { it.markDirty() }
+    override fun setChanged() = propertyOverlay.write { it.setChanged() }
 
-    override fun isUsableByPlayer(player: EntityPlayer): Boolean = propertyOverlay.read { it.isUsableByPlayer(player) }
+    override fun stillValid(player: Player): Boolean = propertyOverlay.read { it.stillValid(player) }
 
     @Deprecated("no-op on adapter")
-    override fun openInventory(player: EntityPlayer) {
+    override fun startOpen(player: Player) {
     }
 
     @Deprecated("no-op on adapter")
-    override fun closeInventory(player: EntityPlayer) {
+    override fun stopOpen(player: Player) {
     }
 
-    override fun isItemValidForSlot(index: Int, stack: ItemStack): Boolean =
-        propertyOverlay.read { it.isItemValidForSlot(index, stack) }
+    override fun canPlaceItem(index: Int, stack: ItemStack): Boolean =
+        propertyOverlay.read { it.canPlaceItem(index, stack) }
 
-    override fun getField(id: Int): Int = propertyOverlay.read { it.getField(id) }
-
-    override fun setField(id: Int, value: Int) = propertyOverlay.write { it.setField(id, value) }
-
-    override fun getFieldCount(): Int = propertyOverlay.read { it.fieldCount }
-
-    override fun clear() = propertyOverlay.write { it.clear() }
+    override fun clearContent() = propertyOverlay.write { it.clearContent() }
 }

@@ -1,7 +1,9 @@
 package logisticspipes.proxy.computers.objects;
 
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.core.registries.BuiltInRegistries;
+
+import net.minecraft.world.item.Item;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
@@ -29,12 +31,12 @@ public class CCItemIdentifier implements ILPCCTypeDefinition {
 
 		@CCCommand(description = "Returns the itemID (int) of this ItemIdentifier")
 		public int getId() {
-			return Item.getIdFromItem(ident.item);
+			return BuiltInRegistries.ITEM.getId(ident.item);
 		}
 
 		@CCCommand(description = "Returns the itemID (String) of this ItemIdentifier")
 		public String getIdName() {
-			return Item.REGISTRY.getNameForObject(ident.item).toString();
+			return net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(ident.item).toString();
 		}
 
 		@CCCommand(description = "Returns the data/damage of this ItemIdentifier")
@@ -53,7 +55,7 @@ public class CCItemIdentifier implements ILPCCTypeDefinition {
 		}
 
 		@CCCommand(description = "Returns the tag of this ItemIdentifier")
-		public NBTTagCompound getTagCompound() {
+		public CompoundTag getTagCompound() {
 			return ident.tag;
 		}
 

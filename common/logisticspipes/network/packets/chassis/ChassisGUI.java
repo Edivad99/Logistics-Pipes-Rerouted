@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.chassis;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -39,8 +39,8 @@ public class ChassisGUI extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		final LogisticsTileGenericPipe pipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
+	public void processPacket(Player player) {
+		final LogisticsTileGenericPipe pipe = getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (pipe.pipe instanceof PipeLogisticsChassis) {
 			LogisticsModule subModule = ((PipeLogisticsChassis) pipe.pipe).getSubModule(getButtonID());
 			if (subModule instanceof Gui) {

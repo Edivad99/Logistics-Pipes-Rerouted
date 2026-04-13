@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.ListSyncPacket;
 import logisticspipes.proxy.MainProxy;
@@ -36,7 +36,7 @@ public class SyncList<E> implements List<E> {
 	/**
 	 * Can be used to trigger update manualy
 	 */
-	public void markDirty() {
+	public void setChanged() {
 		if (packetType == null) {
 			return;
 		}
@@ -69,7 +69,7 @@ public class SyncList<E> implements List<E> {
 		}
 	}
 
-	public void addWatcher(EntityPlayer player) {
+	public void addWatcher(Player player) {
 		if (watcherList == null) {
 			watcherList = new PlayerCollectionList();
 		}
@@ -79,7 +79,7 @@ public class SyncList<E> implements List<E> {
 		watcherList.add(player);
 	}
 
-	public boolean removeWatcher(EntityPlayer player) {
+	public boolean removeWatcher(Player player) {
 		if (watcherList == null) {
 			watcherList = new PlayerCollectionList();
 		}
@@ -122,14 +122,14 @@ public class SyncList<E> implements List<E> {
 	@Override
 	public boolean add(E paramE) {
 		boolean flag = list.add(paramE);
-		markDirty();
+		setChanged();
 		return flag;
 	}
 
 	@Override
 	public boolean remove(Object paramObject) {
 		boolean flag = list.remove(paramObject);
-		markDirty();
+		setChanged();
 		return flag;
 	}
 
@@ -141,35 +141,35 @@ public class SyncList<E> implements List<E> {
 	@Override
 	public boolean addAll(@Nonnull Collection<? extends E> paramCollection) {
 		boolean flag = list.addAll(paramCollection);
-		markDirty();
+		setChanged();
 		return flag;
 	}
 
 	@Override
 	public boolean addAll(int paramInt, @Nonnull Collection<? extends E> paramCollection) {
 		boolean flag = list.addAll(paramInt, paramCollection);
-		markDirty();
+		setChanged();
 		return flag;
 	}
 
 	@Override
 	public boolean removeAll(@Nonnull Collection<?> paramCollection) {
 		boolean flag = list.removeAll(paramCollection);
-		markDirty();
+		setChanged();
 		return flag;
 	}
 
 	@Override
 	public boolean retainAll(@Nonnull Collection<?> paramCollection) {
 		boolean flag = list.retainAll(paramCollection);
-		markDirty();
+		setChanged();
 		return flag;
 	}
 
 	@Override
 	public void clear() {
 		list.clear();
-		markDirty();
+		setChanged();
 	}
 
 	@Override
@@ -180,20 +180,20 @@ public class SyncList<E> implements List<E> {
 	@Override
 	public E set(int paramInt, E paramE) {
 		E object = list.set(paramInt, paramE);
-		markDirty();
+		setChanged();
 		return object;
 	}
 
 	@Override
 	public void add(int paramInt, E paramE) {
 		list.add(paramInt, paramE);
-		markDirty();
+		setChanged();
 	}
 
 	@Override
 	public E remove(int paramInt) {
 		E object = list.remove(paramInt);
-		markDirty();
+		setChanged();
 		return object;
 	}
 
@@ -205,7 +205,7 @@ public class SyncList<E> implements List<E> {
 	@Override
 	public int lastIndexOf(Object paramObject) {
 		int index = list.lastIndexOf(paramObject);
-		markDirty();
+		setChanged();
 		return index;
 	}
 
@@ -248,7 +248,7 @@ public class SyncList<E> implements List<E> {
 		@Override
 		public void remove() {
 			iter.remove();
-			markDirty();
+			setChanged();
 		}
 	}
 
@@ -264,7 +264,7 @@ public class SyncList<E> implements List<E> {
 		@Override
 		public void add(E paramE) {
 			iter.add(paramE);
-			markDirty();
+			setChanged();
 		}
 
 		@Override
@@ -290,7 +290,7 @@ public class SyncList<E> implements List<E> {
 		@Override
 		public void set(E paramE) {
 			iter.set(paramE);
-			markDirty();
+			setChanged();
 		}
 	}
 }

@@ -1,6 +1,6 @@
 package logisticspipes.renderer.newpipe;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import lombok.Data;
 

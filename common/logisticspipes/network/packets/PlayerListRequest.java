@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.common.DimensionManager;
+// DimensionManager removed — use ServerLevel directly
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -29,9 +29,12 @@ public class PlayerListRequest extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		Stream<?> allPlayers = Arrays.stream(DimensionManager.getWorlds()).map(worldServer -> worldServer.playerEntities).flatMap(Collection::stream);
-		Stream<EntityPlayer> allPlayerEntities = allPlayers.filter(o -> o instanceof EntityPlayer).map(o -> (EntityPlayer) o);
+	public void processPacket(Player player) {
+		// NeoForge 1.20.1: DimensionManager.getWorlds() removed — get players from server's player list
+		Stream<?> allPlayers = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer() != null
+				? net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers().stream()
+				: java.util.stream.Stream.empty();
+		Stream<Player> allPlayerEntities = allPlayers.filter(o -> o instanceof Player).map(o -> (Player) o);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PlayerList.class)
 				.setStringList(allPlayerEntities.map(entityPlayer -> entityPlayer.getGameProfile().getName()).collect(Collectors.toList())), player);
 	}

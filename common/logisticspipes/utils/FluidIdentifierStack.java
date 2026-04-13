@@ -18,7 +18,7 @@ public class FluidIdentifierStack implements Comparable<FluidIdentifierStack> {
 	public static FluidIdentifierStack getFromStack(FluidStack stack) {
 		FluidIdentifier fluid = FluidIdentifier.get(stack);
 		if (fluid == null) return null;
-		return new FluidIdentifierStack(fluid, stack.amount);
+		return new FluidIdentifierStack(fluid, stack.getAmount());
 	}
 
 	public static FluidIdentifierStack getFromStack(ItemIdentifierStack stack) {

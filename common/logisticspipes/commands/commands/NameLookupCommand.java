@@ -1,8 +1,11 @@
 package logisticspipes.commands.commands;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.item.Item;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
+import net.minecraft.world.item.Item;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.commands.exception.MissingArgumentException;
@@ -16,7 +19,7 @@ public class NameLookupCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
+	public boolean isCommandUsableBy(Player sender) {
 		return true;
 	}
 
@@ -26,7 +29,7 @@ public class NameLookupCommand implements ICommandHandler {
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
+	public void executeCommand(Player sender, String[] args) {
 		if (args.length < 2) {
 			throw new MissingArgumentException();
 		}
@@ -34,7 +37,7 @@ public class NameLookupCommand implements ICommandHandler {
 		String metaString = args[1];
 		int id = Integer.valueOf(idString);
 		int meta = Integer.valueOf(metaString);
-		ItemIdentifier item = ItemIdentifier.get(Item.getItemById(id), meta, null);
-		sender.sendMessage(new TextComponentString("Name: " + item.getFriendlyNameCC()));
+		ItemIdentifier item = ItemIdentifier.get(BuiltInRegistries.ITEM.byId(id), meta, null);
+		sender.sendSystemMessage(Component.literal("Name: " + item.getFriendlyNameCC()));
 	}
 }

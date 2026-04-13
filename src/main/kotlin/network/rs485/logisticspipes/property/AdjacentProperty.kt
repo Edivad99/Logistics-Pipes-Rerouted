@@ -39,11 +39,11 @@ package network.rs485.logisticspipes.property
 
 import network.rs485.logisticspipes.connection.*
 import logisticspipes.pipes.basic.CoreRoutedPipe
-import logisticspipes.utils.EnumFacingUtil
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.nbt.NBTTagString
-import net.minecraft.util.EnumFacing
+import logisticspipes.utils.DirectionUtil
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.StringTag
+import net.minecraft.core.Direction
 
 class AdjacentProperty @JvmOverloads constructor(
     defaultValue: Adjacent = NoAdjacent,
@@ -55,21 +55,21 @@ class AdjacentProperty @JvmOverloads constructor(
 
     override fun copyProperty(): AdjacentProperty = AdjacentProperty(value, pipe, tagKey)
 
-    override fun readFromNBT(tag: NBTTagCompound) {
-        if (tag.hasKey(tagKey)) {
-            val adjacentConnectionsTagList = tag.getTagList(tagKey, 8)
-            assert(adjacentConnectionsTagList.tagCount() in 0..6)
-            if (adjacentConnectionsTagList.tagCount() == 0) {
+    override fun readFromNBT(tag: CompoundTag) {
+        if (tag.contains(tagKey)) {
+            val adjacentConnectionsTagList = tag.getList(tagKey, 8)
+            assert(adjacentConnectionsTagList.size in 0..6)
+            if (adjacentConnectionsTagList.size == 0) {
                 value = NoAdjacent
                 return
             }
-            val adjacentConnections = (0..5).map { idx -> adjacentConnectionsTagList.getStringTagAt(idx) }
+            val adjacentConnections = (0..5).map { idx -> adjacentConnectionsTagList.getString(idx) }
             val activeConnections = adjacentConnections.withIndex().filter { it.value.isNotBlank() }
             value = when (activeConnections.size) {
                 0 -> NoAdjacent
                 1 -> SingleAdjacent(
                     parent = pipe,
-                    dir = EnumFacingUtil.getOrientation(activeConnections[0].index)!!,
+                    dir = DirectionUtil.getOrientation(activeConnections[0].index)!!,
                     adjacentType = ConnectionType.valueOf(activeConnections[0].value),
                 )
                 else -> DynamicAdjacent(
@@ -82,14 +82,14 @@ class AdjacentProperty @JvmOverloads constructor(
         }
     }
 
-    override fun writeToNBT(tag: NBTTagCompound) {
-        tag.setTag(tagKey, NBTTagList().also { list ->
+    override fun writeToNBT(tag: CompoundTag) {
+        tag.put(tagKey, ListTag().also { list ->
             if (value == NoAdjacent) {
                 return@also
             }
-            EnumFacing.VALUES.map { dir -> NBTTagString(value[dir]?.name ?: "") }.forEach(list::appendTag)
+            Direction.values().map { dir -> StringTag.valueOf(value[dir]?.name ?: "") }.forEach { list.add(it) }
         })
     }
 
-    fun getDirectionOrNull(): EnumFacing? = (value as? SingleAdjacent)?.dir
+    fun getDirectionOrNull(): Direction? = (value as? SingleAdjacent)?.dir
 }

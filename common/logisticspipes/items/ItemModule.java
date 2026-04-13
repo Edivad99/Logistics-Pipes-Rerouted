@@ -5,57 +5,36 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.network.chat.Component;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import org.lwjgl.input.Keyboard;
-
-import logisticspipes.LPConstants;
-import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IWorldProvider;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.modules.ModuleActiveSupplier;
-import logisticspipes.modules.ModuleCrafter;
-import logisticspipes.modules.ModuleCreativeTabBasedItemSink;
-import logisticspipes.modules.ModuleEnchantmentSink;
-import logisticspipes.modules.ModuleEnchantmentSinkMK2;
-import logisticspipes.modules.ModuleItemSink;
-import logisticspipes.modules.ModuleModBasedItemSink;
-import logisticspipes.modules.ModuleOreDictItemSink;
-import logisticspipes.modules.ModulePassiveSupplier;
-import logisticspipes.modules.ModulePolymorphicItemSink;
-import logisticspipes.modules.ModuleProvider;
-import logisticspipes.modules.ModuleTerminus;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.DummyWorldProvider;
+import logisticspipes.utils.DummyLevelProvider;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
-import network.rs485.logisticspipes.module.AsyncExtractorModule;
-import network.rs485.logisticspipes.module.AsyncQuicksortModule;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -89,48 +68,19 @@ public class ItemModule extends LogisticsItem {
 	public ItemModule(Module moduleType) {
 		super();
 		this.moduleType = moduleType;
-		setHasSubtypes(false);
 	}
 
-	public static void loadModules(IForgeRegistry<Item> registry) {
-		registerModule(registry, ModuleItemSink.getName(), ModuleItemSink::new);
-		registerModule(registry, ModulePassiveSupplier.getName(), ModulePassiveSupplier::new);
-		registerModule(registry, AsyncExtractorModule.getName(), AsyncExtractorModule::new);
-		registerModule(registry, ModulePolymorphicItemSink.getName(), ModulePolymorphicItemSink::new);
-		registerModule(registry, AsyncQuicksortModule.getName(), AsyncQuicksortModule::new);
-		registerModule(registry, ModuleTerminus.getName(), ModuleTerminus::new);
-		registerModule(registry, AsyncAdvancedExtractor.getName(), AsyncAdvancedExtractor::new);
-		registerModule(registry, ModuleProvider.getName(), ModuleProvider::new);
-		registerModule(registry, ModuleModBasedItemSink.getName(), ModuleModBasedItemSink::new);
-		registerModule(registry, ModuleOreDictItemSink.getName(), ModuleOreDictItemSink::new);
-		registerModule(registry, ModuleEnchantmentSink.getName(), ModuleEnchantmentSink::new);
-		registerModule(registry, ModuleEnchantmentSinkMK2.getName(), ModuleEnchantmentSinkMK2::new);
-		//registerModule(registry, "quick_sort_cc", ModuleCCBasedQuickSort::new);
-		//registerModule(registry, "item_sink_cc", ModuleCCBasedItemSink::new);
-		registerModule(registry, ModuleCrafter.getName(), ModuleCrafter::new);
-		registerModule(registry, ModuleActiveSupplier.getName(), ModuleActiveSupplier::new);
-		registerModule(registry, ModuleCreativeTabBasedItemSink.getName(), ModuleCreativeTabBasedItemSink::new);
-	}
-
-	public static void registerModule(IForgeRegistry<Item> registry, String name,
-			@Nonnull Supplier<? extends LogisticsModule> moduleConstructor) {
-		registerModule(registry, name, moduleConstructor, LPConstants.LP_MOD_ID);
-	}
-
-	public static void registerModule(IForgeRegistry<Item> registry, String name,
-			@Nonnull Supplier<? extends LogisticsModule> moduleConstructor, String modID) {
-		ItemModule module = LogisticsPipes
-				.setName(new ItemModule(new Module(moduleConstructor)), String.format("module_%s", name), modID);
-		LPItems.modules.put(name, module.getRegistryName());
-		registry.register(module);
+	/** Factory for use with DeferredRegister. */
+	public static ItemModule of(@Nonnull Supplier<? extends LogisticsModule> moduleConstructor) {
+		return new ItemModule(new Module(moduleConstructor));
 	}
 
 	@Nullable
-	public static LogisticsModule getLogisticsModule(@Nonnull EntityPlayer player, int invSlot) {
-		ItemStack item = player.inventory.mainInventory.get(invSlot);
+	public static LogisticsModule getLogisticsModule(@Nonnull Player player, int invSlot) {
+		ItemStack item = player.getInventory().items.get(invSlot);
 		if (item.isEmpty() || !(item.getItem() instanceof ItemModule)) return null;
 		LogisticsModule module = ((ItemModule) item.getItem()).getModuleForItem(
-				item, null, new DummyWorldProvider(player.getEntityWorld()), null
+				item, null, new DummyLevelProvider(player.level()), null
 		);
 		if (module == null) return null;
 		module.registerPosition(ModulePositionType.IN_HAND, invSlot);
@@ -138,17 +88,17 @@ public class ItemModule extends LogisticsItem {
 		return module;
 	}
 
-	private void openConfigGui(@Nonnull ItemStack stack, EntityPlayer player, World world) {
-		LogisticsModule module = getModuleForItem(stack, null, new DummyWorldProvider(world), null);
+	private void openConfigGui(@Nonnull ItemStack stack, Player player, Level world) {
+		LogisticsModule module = getModuleForItem(stack, null, new DummyLevelProvider(world), null);
 		if (module instanceof Gui && !stack.isEmpty()) {
-			module.registerPosition(ModulePositionType.IN_HAND, player.inventory.currentItem);
+			module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().selected);
 			ItemModuleInformationManager.readInformation(stack, module);
 			Gui.getInHandGuiProvider((Gui) module).open(player);
 		}
 	}
 
 	@Override
-	public boolean hasEffect(@Nonnull ItemStack stack) {
+	public boolean isFoil(@Nonnull ItemStack stack) {
 		LogisticsModule module = getModuleForItem(stack, null, null, null);
 		if (module != null) {
 			if (stack.getCount() > 0) {
@@ -160,33 +110,36 @@ public class ItemModule extends LogisticsItem {
 
 	@Override
 	@Nonnull
-	public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player,
-			@Nonnull final EnumHand hand) {
-		if (MainProxy.isServer(player.world)) {
-			openConfigGui(player.getHeldItem(hand), player, world);
+	public InteractionResultHolder<ItemStack> use(final Level world, final Player player,
+			@Nonnull final InteractionHand hand) {
+		if (MainProxy.isServer(player.level())) {
+			openConfigGui(player.getItemInHand(hand), player, world);
 		}
-		return super.onItemRightClick(world, player, hand);
+		return super.use(world, player, hand);
 	}
 
 	@Override
 	@Nonnull
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing,
-			float hitX, float hitY, float hitZ) {
-		if (MainProxy.isServer(player.world)) {
-			TileEntity tile = world.getTileEntity(pos);
+	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+		Player player = context.getPlayer();
+		Level world = context.getLevel();
+		BlockPos pos = context.getClickedPos();
+		InteractionHand hand = context.getHand();
+		if (player != null && MainProxy.isServer(player.level())) {
+			BlockEntity tile = world.getBlockEntity(pos);
 			if (tile instanceof LogisticsTileGenericPipe) {
-				if (player.getDisplayName().getUnformattedText()
+				if (player.getDisplayName().getString()
 						.equals("ComputerCraft")) { // Allow turtle to place modules in pipes.
 					CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
 					if (LogisticsBlockGenericPipe.isValid(pipe)) {
 						pipe.blockActivated(player);
 					}
 				}
-				return EnumActionResult.PASS;
+				return InteractionResult.PASS;
 			}
-			openConfigGui(player.inventory.getCurrentItem(), player, world);
+			openConfigGui(player.getItemInHand(hand), player, world);
 		}
-		return EnumActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 
 	@Nullable
@@ -231,57 +184,56 @@ public class ItemModule extends LogisticsItem {
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip,
-			ITooltipFlag flagIn) {
-		if (stack.hasTagCompound()) {
-			NBTTagCompound nbt = stack.getTagCompound();
+	@OnlyIn(Dist.CLIENT)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<Component> tooltip,
+			TooltipFlag flagIn) {
+		if (stack.hasTag()) {
+			CompoundTag nbt = stack.getTag();
 			assert nbt != null;
 
-			if (nbt.hasKey("informationList")) {
-				if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-					NBTTagList nbttaglist = nbt.getTagList("informationList", 8);
-					for (int i = 0; i < nbttaglist.tagCount(); i++) {
-						Object nbtTag = nbttaglist.get(i);
-						String data = ((NBTTagString) nbtTag).getString();
-						if (data.equals("<inventory>") && i + 1 < nbttaglist.tagCount()) {
+			if (nbt.contains("informationList")) {
+				if (Screen.hasShiftDown()) {
+					ListTag nbttaglist = nbt.getList("informationList", 8);
+					for (int i = 0; i < nbttaglist.size(); i++) {
+						net.minecraft.nbt.Tag nbtTag = nbttaglist.get(i);
+						String data = ((StringTag) nbtTag).getAsString();
+						if (data.equals("<inventory>") && i + 1 < nbttaglist.size()) {
 							nbtTag = nbttaglist.get(i + 1);
-							data = ((NBTTagString) nbtTag).getString();
+							data = ((StringTag) nbtTag).getAsString();
 							if (data.startsWith("<that>")) {
 								String prefix = data.substring(6);
-								NBTTagCompound module = nbt.getCompoundTag("moduleInformation");
-								int size = module.getTagList(prefix + "items", module.getId()).tagCount();
-								if (module.hasKey(prefix + "itemsCount")) {
-									size = module.getInteger(prefix + "itemsCount");
+								CompoundTag module = nbt.getCompound("moduleInformation");
+								int size = module.getList(prefix + "items", module.getId()).size();
+								if (module.contains(prefix + "itemsCount")) {
+									size = module.getInt(prefix + "itemsCount");
 								}
 								ItemIdentifierInventory inv = new ItemIdentifierInventory(size,
 										"InformationTempInventory", Integer.MAX_VALUE);
 								inv.readFromNBT(module, prefix);
-								for (int pos = 0; pos < inv.getSizeInventory(); pos++) {
+								for (int pos = 0; pos < inv.getContainerSize(); pos++) {
 									ItemIdentifierStack identStack = inv.getIDStackInSlot(pos);
 									if (identStack != null) {
 										if (identStack.getStackSize() > 1) {
-											tooltip.add("  " + identStack.getStackSize() + "x " + identStack
-													.getFriendlyName());
+											tooltip.add(Component.literal("  " + identStack.getStackSize() + "x " + identStack.getFriendlyName()));
 										} else {
-											tooltip.add("  " + identStack.getFriendlyName());
+											tooltip.add(Component.literal("  " + identStack.getFriendlyName()));
 										}
 									}
 								}
 							}
 							i++;
 						} else {
-							tooltip.add(data);
+							tooltip.add(Component.literal(data));
 						}
 					}
 				} else {
 					TextUtil.addTooltipInformation(stack, tooltip, false);
 				}
 			} else {
-				TextUtil.addTooltipInformation(stack, tooltip, Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT));
+				TextUtil.addTooltipInformation(stack, tooltip, Screen.hasShiftDown());
 			}
 		} else {
-			TextUtil.addTooltipInformation(stack, tooltip, Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT));
+			TextUtil.addTooltipInformation(stack, tooltip, Screen.hasShiftDown());
 		}
 	}
 }

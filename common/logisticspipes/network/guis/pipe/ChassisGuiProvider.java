@@ -2,9 +2,9 @@ package logisticspipes.network.guis.pipe;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.items.ItemUpgrade;
@@ -25,8 +25,8 @@ public class ChassisGuiProvider extends BooleanModuleCoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = getTileAs(player.world, LogisticsTileGenericPipe.class);
+	public Object getClientGui(Player player) {
+		LogisticsTileGenericPipe pipe = getTileAs(player.level(), LogisticsTileGenericPipe.class);
 		if (!(pipe.pipe instanceof PipeLogisticsChassis)) {
 			return null;
 		}
@@ -34,14 +34,14 @@ public class ChassisGuiProvider extends BooleanModuleCoordinatesGuiProvider {
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = getTileAs(player.world, LogisticsTileGenericPipe.class);
+	public DummyContainer getContainer(Player player) {
+		LogisticsTileGenericPipe pipe = getTileAs(player.level(), LogisticsTileGenericPipe.class);
 		if (!(pipe.pipe instanceof PipeLogisticsChassis)) {
 			return null;
 		}
 		final PipeLogisticsChassis _chassiPipe = (PipeLogisticsChassis) pipe.pipe;
-		IInventory _moduleInventory = _chassiPipe.getModuleInventory();
-		DummyContainer dummy = new DummyContainer(player.inventory, _moduleInventory);
+		Container _moduleInventory = _chassiPipe.getModuleInventory();
+		DummyContainer dummy = new DummyContainer(player.getInventory(), _moduleInventory);
 		if (_chassiPipe.getChassisSize() < 5) {
 			dummy.addNormalSlotsForPlayerInventory(18, 97);
 		} else {

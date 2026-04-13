@@ -2,14 +2,14 @@ package logisticspipes.utils.transactor;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface IInvSlot {
 
 	boolean canPutStackInSlot(@Nonnull ItemStack stack);
 
 	@Nonnull
-	ItemStack getStackInSlot();
+	ItemStack getItem();
 
 	@Nonnull
 	ItemStack insertItem(@Nonnull ItemStack stack, boolean simulate);

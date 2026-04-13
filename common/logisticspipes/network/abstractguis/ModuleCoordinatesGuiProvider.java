@@ -1,6 +1,6 @@
 package logisticspipes.network.abstractguis;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.modules.LogisticsModule;
@@ -35,11 +35,11 @@ public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvide
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getLogisticsModule(World world, Class<T> clazz) {
+	public <T> T getLogisticsModule(Level world, Class<T> clazz) {
 		LogisticsTileGenericPipe pipe = getTileAs(world, LogisticsTileGenericPipe.class);
 		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
 			if (LogisticsPipes.isDEBUG() && pipe.isInitialized()) {
-				LogisticsPipes.log.fatal(toString());
+				LogisticsPipes.log.error(toString());
 				new RuntimeException("Couldn't find " + clazz.getName() + ", pipe didn't exsist").printStackTrace();
 			}
 			return null;
@@ -52,7 +52,7 @@ public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvide
 		} else {
 			if (!(pipe.pipe instanceof PipeLogisticsChassis)) {
 				if (LogisticsPipes.isDEBUG()) {
-					LogisticsPipes.log.fatal(toString());
+					LogisticsPipes.log.error(toString());
 					new RuntimeException("Couldn't find " + clazz.getName() + ", pipe wasn't a chassi pipe").printStackTrace();
 				}
 				return null;
@@ -62,14 +62,14 @@ public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvide
 		if (module != null) {
 			if (!(clazz.isAssignableFrom(module.getClass()))) {
 				if (LogisticsPipes.isDEBUG()) {
-					LogisticsPipes.log.fatal(toString());
+					LogisticsPipes.log.error(toString());
 					new RuntimeException("Couldn't find " + clazz.getName() + ", found " + module.getClass()).printStackTrace();
 				}
 				return null;
 			}
 		} else {
 			if (LogisticsPipes.isDEBUG()) {
-				LogisticsPipes.log.fatal(toString());
+				LogisticsPipes.log.error(toString());
 				new RuntimeException("Couldn't find " + clazz.getName()).printStackTrace();
 			}
 		}

@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.network.PacketHandler;
@@ -22,10 +22,10 @@ public class RequestRotationPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		IRotationProvider tile = this.getTileOrPipe(player.world, IRotationProvider.class);
+	public void processPacket(Player player) {
+		IRotationProvider tile = this.getTileOrPipe(player.level(), IRotationProvider.class);
 		if (tile != null) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(Rotation.class).setInteger(tile.getRotation()).setPosX(getPosX()).setPosY(getPosY()).setPosZ(getPosZ()), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(Rotation.class).putInt(tile.getRotation()).setPosX(getPosX()).setPosY(getPosY()).setPosZ(getPosZ()), player);
 		}
 	}
 }

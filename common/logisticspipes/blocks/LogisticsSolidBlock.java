@@ -2,27 +2,33 @@ package logisticspipes.blocks;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.Property;
 
 import lombok.Getter;
 
@@ -34,14 +40,16 @@ import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.IRotationProvider;
+import logisticspipes.interfaces.ITickable;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 
-public class LogisticsSolidBlock extends Block {
+public class LogisticsSolidBlock extends Block implements EntityBlock {
 
-	public static final PropertyInteger rotationProperty = PropertyInteger.create("rotation", 0, 3);
-	public static final PropertyBool active = PropertyBool.create("active");
-	public static final Map<EnumFacing, PropertyBool> connectionPropertys = Arrays.stream(EnumFacing.values()).collect(Collectors.toMap(key -> key, key -> PropertyBool.create("connection_" + key.ordinal())));
+	public static final IntegerProperty rotationProperty = IntegerProperty.create("rotation", 0, 3);
+	public static final BooleanProperty active = BooleanProperty.create("active");
+	public static final Map<Direction, BooleanProperty> connectionPropertys = Arrays.stream(Direction.values())
+			.collect(Collectors.toMap(key -> key, key -> BooleanProperty.create("connection_" + key.ordinal())));
 
 	@Getter
 	private final Type type;
@@ -62,7 +70,7 @@ public class LogisticsSolidBlock extends Block {
 
 		LOGISTICS_BLOCK_FRAME(15);
 
-		// TODO backwards compat, remove with 1.13
+		/** Numeric meta id kept for {@link logisticspipes.datafixer.DataFixerSolidBlockItems} legacy save migration. */
 		@Getter
 		int meta;
 
@@ -70,17 +78,17 @@ public class LogisticsSolidBlock extends Block {
 		boolean hasActiveTexture;
 
 		@Nullable
-		private final Supplier<TileEntity> teConstructor;
+		private final BiFunction<BlockPos, BlockState, BlockEntity> teConstructor;
 
 		Type(int meta) {
 			this(meta, null, false);
 		}
 
-		Type(int meta, @Nullable Supplier<TileEntity> teConstructor) {
+		Type(int meta, @Nullable BiFunction<BlockPos, BlockState, BlockEntity> teConstructor) {
 			this(meta, teConstructor, false);
 		}
 
-		Type(int meta, @Nullable Supplier<TileEntity> teConstructor, boolean hasActiveTexture) {
+		Type(int meta, @Nullable BiFunction<BlockPos, BlockState, BlockEntity> teConstructor, boolean hasActiveTexture) {
 			this.meta = meta;
 			this.teConstructor = teConstructor;
 			this.hasActiveTexture = hasActiveTexture;
@@ -90,121 +98,102 @@ public class LogisticsSolidBlock extends Block {
 			return teConstructor != null;
 		}
 
-		public TileEntity createTE() {
+		public BlockEntity createTE(BlockPos pos, BlockState state) {
 			if (!hasTE()) throw new UnsupportedOperationException("This block type has no tile entity!");
-
 			assert teConstructor != null;
-			return teConstructor.get();
+			return teConstructor.apply(pos, state);
 		}
-
 	}
 
 	public LogisticsSolidBlock(Type type) {
-		super(Material.IRON);
+		super(BlockBehaviour.Properties.of().strength(6.0F).requiresCorrectToolForDrops());
 		this.type = type;
-		setHardness(6.0F);
-		setCreativeTab(LogisticsPipes.CREATIVE_TAB_LP);
-		BlockDummy.updateBlockMap.put(type.getMeta(), this);
 	}
 
 	@Override
-	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-		super.onNeighborChange(world, pos, neighbor);
-		TileEntity tile = world.getTileEntity(pos);
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+		super.neighborChanged(state, world, pos, block, fromPos, isMoving);
+		BlockEntity tile = world.getBlockEntity(pos);
 		if (tile instanceof LogisticsSolidTileEntity) {
 			((LogisticsSolidTileEntity) tile).notifyOfBlockChange();
 		}
 	}
 
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (!playerIn.isSneaking()) {
-			TileEntity tile = worldIn.getTileEntity(pos);
+	public InteractionResult use(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull Player playerIn, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
+		if (!playerIn.isCrouching()) {
+			BlockEntity tile = worldIn.getBlockEntity(pos);
 			if (tile instanceof IGuiTileEntity) {
-				if (MainProxy.isServer(playerIn.world)) {
-					((IGuiTileEntity) tile).getGuiProvider().setTilePos(tile).open(playerIn);
+				if (MainProxy.isServer(playerIn.level())) {
+					logisticspipes.network.abstractguis.CoordinatesGuiProvider gp = ((IGuiTileEntity) tile).getGuiProvider();
+					gp.setTilePos(tile).open(playerIn);
 				}
-				return true;
+				return InteractionResult.sidedSuccess(worldIn.isClientSide);
 			}
 		}
-		return false;
+		return InteractionResult.PASS;
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, @Nonnull ItemStack stack) {
-		super.onBlockPlacedBy(world, pos, state, placer, stack);
-		TileEntity tile = world.getTileEntity(pos);
+	public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
+		super.setPlacedBy(world, pos, state, placer, stack);
+		BlockEntity tile = world.getBlockEntity(pos);
 		if (tile instanceof LogisticsCraftingTableTileEntity) {
 			((LogisticsCraftingTableTileEntity) tile).placedBy(placer);
 		}
-		if (tile instanceof IRotationProvider) {
-			((IRotationProvider) tile).setFacing(placer.getHorizontalFacing().getOpposite());
+		if (placer != null && tile instanceof IRotationProvider) {
+			((IRotationProvider) tile).setFacing(placer.getDirection().getOpposite());
 		}
 	}
 
 	@Override
-	public void breakBlock(World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
-		TileEntity tile = worldIn.getTileEntity(pos);
-		if (tile instanceof LogisticsSolidTileEntity) {
-			((LogisticsSolidTileEntity) tile).onBlockBreak();
+	public void onRemove(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
+		if (state.getBlock() != newState.getBlock()) {
+			BlockEntity tile = worldIn.getBlockEntity(pos);
+			if (tile instanceof LogisticsSolidTileEntity) {
+				((LogisticsSolidTileEntity) tile).onBlockBreak();
+			}
 		}
-		super.breakBlock(worldIn, pos, state);
+		super.onRemove(state, worldIn, pos, newState, isMoving);
 	}
 
 	@Nullable
 	@Override
-	public TileEntity createTileEntity(@Nonnull World world, @Nonnull IBlockState state) {
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
 		if (!type.hasTE()) return null;
-		return type.createTE();
+		return type.createTE(pos, state);
+	}
+
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
+		// Tick all ITickable solid block entities
+		return (lvl, pos, st, be) -> {
+			if (be instanceof ITickable) ((ITickable) be).update();
+		};
 	}
 
 	@Override
-	public boolean hasTileEntity(IBlockState state) {
-		return type.hasTE();
-	}
-
 	@Nonnull
-	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer.Builder(this)
-				.add(rotationProperty)
-				.add(active)
-				.add(connectionPropertys.values().toArray(new IProperty[0]))
-				.build();
-	}
-
-	@Override
-	public int getMetaFromState(IBlockState state) {
-		return 0;
-	}
-
-	@Nonnull
-	@Override
-	public IBlockState getActualState(@Nonnull IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		state = super.getActualState(state, worldIn, pos);
-		TileEntity tile = worldIn.getTileEntity(pos);
-		if (tile instanceof LogisticsSolidTileEntity) {
-			LogisticsSolidTileEntity ste = (LogisticsSolidTileEntity) tile;
-			int rotation = ste.getRotation();
-			state = state
-					.withProperty(rotationProperty, Math.min(Math.max(rotation, 0), 3))
-					.withProperty(active, ste.isActive());
+	public net.minecraft.world.level.block.RenderShape getRenderShape(@Nonnull BlockState state) {
+		// Types with a BlockEntity are drawn by LogisticsSolidBlockRenderer — suppress the
+		// flat cube_all JSON model so only the 3D OBJ geometry is visible. Types without a
+		// TE (frame, BC power provider) fall back to the JSON model for now.
+		if (type.hasTE()) {
+			return net.minecraft.world.level.block.RenderShape.ENTITYBLOCK_ANIMATED;
 		}
-
-		if (tile != null) {
-			for (EnumFacing side : EnumFacing.VALUES) {
-				boolean render = true;
-				TileEntity sideTile = worldIn.getTileEntity(pos.offset(side));
-				if (sideTile instanceof LogisticsTileGenericPipe) {
-					LogisticsTileGenericPipe tilePipe = (LogisticsTileGenericPipe) sideTile;
-					if (tilePipe.renderState.pipeConnectionMatrix.isConnected(side.getOpposite())) {
-						render = false;
-					}
-				}
-				state = state.withProperty(connectionPropertys.get(side), render);
-			}
-		}
-
-		return state;
+		return super.getRenderShape(state);
 	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(rotationProperty);
+		builder.add(active);
+		connectionPropertys.values().forEach(builder::add);
+	}
+
+	// TODO: getActualState (dynamic state per neighbor) removed in 1.20.1.
+	// Reimplement as a ticker that calls setChanged() + requestModelDataUpdate(),
+	// or encode connection state in blockstate updates via neighborChanged().
+
 }

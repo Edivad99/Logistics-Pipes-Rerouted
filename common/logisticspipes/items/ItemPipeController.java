@@ -2,14 +2,12 @@ package logisticspipes.items;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.guis.LogisticsPlayerSettingsGuiProvider;
@@ -23,26 +21,28 @@ public class ItemPipeController extends LogisticsItem {
 
 	@Nonnull
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, @Nonnull EnumHand handIn) {
-		ItemStack stack = player.getHeldItem(handIn);
+	public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand handIn) {
+		ItemStack stack = player.getItemInHand(handIn);
 		if (MainProxy.isClient(world)) {
-			return new ActionResult<>(EnumActionResult.PASS, stack);
+			return InteractionResultHolder.pass(stack);
 		}
 		useItem(player, world);
-		return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+		return InteractionResultHolder.success(stack);
 	}
 
 	@Nonnull
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
+		Player player = _ctx.getPlayer();
+		Level world = _ctx.getLevel();
 		if (MainProxy.isClient(world)) {
-			return EnumActionResult.PASS;
+			return InteractionResult.PASS;
 		}
 		useItem(player, world);
-		return EnumActionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
-	private void useItem(EntityPlayer player, World world) {
+	private void useItem(Player player, Level world) {
 		NewGuiHandler.getGui(LogisticsPlayerSettingsGuiProvider.class).open(player);
 	}
 }

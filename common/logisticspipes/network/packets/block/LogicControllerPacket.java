@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.logic.interfaces.ILogicControllerTile;
 import logisticspipes.network.NewGuiHandler;
@@ -18,12 +18,12 @@ public class LogicControllerPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		ILogicControllerTile tile = this.getTileAs(player.getEntityWorld(), ILogicControllerTile.class);
+	public void processPacket(Player player) {
+		ILogicControllerTile tile = this.getTileAs(player.level(), ILogicControllerTile.class);
 		if (tile == null) {
 			return;
 		}
-		NewGuiHandler.getGui(LogicControllerGuiProvider.class).setTilePos((TileEntity) tile).open(player);
+		NewGuiHandler.getGui(LogicControllerGuiProvider.class).setTilePos((BlockEntity) tile).open(player);
 	}
 
 	@Override

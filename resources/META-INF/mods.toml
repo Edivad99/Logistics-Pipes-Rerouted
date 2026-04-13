@@ -1,0 +1,36 @@
+modLoader   = "kotlinforforge"
+loaderVersion = "[4,)"
+license     = "MMPL"
+
+[[mods]]
+    modId       = "logisticspipes"
+    version     = "${version}"
+    displayName = "Logistics Pipes"
+    description = '''
+        Logistics Pipes is an extensive overhaul of the Buildcraft pipe system.
+        It allows for better distribution of items via pipes, more organised
+        stockkeeping and easier automated crafting.
+    '''
+    authors     = "RS485, LP Team"
+    displayURL  = "https://github.com/RS485/LogisticsPipes"
+
+[[dependencies.logisticspipes]]
+    modId        = "forge"
+    mandatory    = true
+    versionRange = "[47,)"
+    ordering     = "NONE"
+    side         = "BOTH"
+
+[[dependencies.logisticspipes]]
+    modId        = "minecraft"
+    mandatory    = true
+    versionRange = "[1.20.1,1.21)"
+    ordering     = "NONE"
+    side         = "BOTH"
+
+[[dependencies.logisticspipes]]
+    modId        = "jei"
+    mandatory    = false
+    versionRange = "[15,)"
+    ordering     = "AFTER"
+    side         = "CLIENT"

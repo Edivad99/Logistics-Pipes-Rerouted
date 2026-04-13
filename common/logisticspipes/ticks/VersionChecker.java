@@ -10,10 +10,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.ModList;
+
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -161,19 +161,20 @@ public final class VersionChecker implements Callable<VersionChecker.VersionInfo
 	 * (http://www.minecraftforum.net/topic/2721902-/)
 	 */
 	private void sendIMCOutdatedMessage(VersionInfo versionInfo) {
-		if (Loader.isModLoaded("VersionChecker")) {
-			NBTTagCompound tag = new NBTTagCompound();
-			tag.setString("oldVersion", LogisticsPipes.getVERSION());
-			tag.setString("newVersion", versionInfo.getNewestBuild());
-			tag.setString("updateUrl", "http://ci.rs485.network/view/Logistics%20Pipes/");
-			tag.setBoolean("isDirectLink", false);
+		if (ModList.get().isLoaded("VersionChecker")) {
+			CompoundTag tag = new CompoundTag();
+			tag.putString("oldVersion", LogisticsPipes.getVERSION());
+			tag.putString("newVersion", versionInfo.getNewestBuild());
+			tag.putString("updateUrl", "http://ci.rs485.network/view/Logistics%20Pipes/");
+			tag.putBoolean("isDirectLink", false);
 
 			StringBuilder stringBuilder = new StringBuilder();
 			for (String changeLogLine : versionInfo.getChangelog()) {
 				stringBuilder.append(changeLogLine).append("\n");
 			}
-			tag.setString("changeLog", stringBuilder.toString());
-			FMLInterModComms.sendRuntimeMessage("LogisticsPipes", "VersionChecker", "addUpdate", tag);
+			tag.putString("changeLog", stringBuilder.toString());
+			// FMLInterModComms.sendRuntimeMessage removed in 1.20.1 — TODO: use InterModComms.sendTo if needed
+			// FMLInterModComms.sendRuntimeMessage("LogisticsPipes", "VersionChecker", "addUpdate", tag);
 			versionInfo.setImcMessageSent(true);
 		}
 	}

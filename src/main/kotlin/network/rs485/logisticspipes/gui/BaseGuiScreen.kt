@@ -38,14 +38,15 @@
 package network.rs485.logisticspipes.gui
 
 import network.rs485.logisticspipes.gui.guidebook.Drawable
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.network.chat.Component
 
-class BaseGuiScreen(private val widgetScreen: WidgetScreen) : GuiScreen(), Drawable by widgetScreen {
+// TODO: Rendering deferred — full 1.20.1 Screen rendering migration pending.
 
-    override fun initGui() {
+class BaseGuiScreen(private val widgetScreen: WidgetScreen) : Screen(Component.empty()), Drawable by widgetScreen {
+
+    override fun init() {
+        super.init()
         widgetScreen.initGuiWidget(this, widgetScreen.width, widgetScreen.height)
-
-        // Clear button and widget lists
-        buttonList.clear()
     }
 }

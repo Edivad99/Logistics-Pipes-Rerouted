@@ -1,6 +1,6 @@
 package logisticspipes.utils.gui;
 
-import net.minecraft.inventory.IInventory;
+import net.minecraft.world.Container;
 
 import lombok.Getter;
 
@@ -14,7 +14,7 @@ public class UpgradeSlot extends RestrictedSlot {
 	protected final ISlotUpgradeManager manager;
 	protected final int upgradeSlotId;
 
-	protected UpgradeSlot(IInventory iinventory, ISlotUpgradeManager manager, int upgradeSlotId, int i, int j, int k, ISlotCheck slotCheck) {
+	protected UpgradeSlot(Container iinventory, ISlotUpgradeManager manager, int upgradeSlotId, int i, int j, int k, ISlotCheck slotCheck) {
 		super(iinventory, i, j, k, slotCheck);
 		this.manager = manager;
 		this.upgradeSlotId = upgradeSlotId;

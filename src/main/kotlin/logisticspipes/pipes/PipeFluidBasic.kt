@@ -37,12 +37,12 @@
 
 package logisticspipes.pipes
 
-import logisticspipes.LogisticsPipes
-import logisticspipes.network.GuiIDs
+import logisticspipes.network.NewGuiHandler
+import logisticspipes.network.guis.pipe.FluidBasicGui
 import logisticspipes.textures.Textures
 import logisticspipes.utils.FluidSinkReply.FixedFluidPriority
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.Item
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
 import network.rs485.logisticspipes.FluidSinkPipe
 
 class PipeFluidBasic(item: Item) : FluidSinkPipe(item, "Fluids to sink", 1) {
@@ -51,8 +51,8 @@ class PipeFluidBasic(item: Item) : FluidSinkPipe(item, "Fluids to sink", 1) {
 
     override fun getCenterTexture(): Textures.TextureType = Textures.LOGISTICSPIPE_LIQUID_BASIC
 
-    override fun onWrenchClicked(entityplayer: EntityPlayer) {
-        entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_Fluid_Basic_ID, world, x, y, z)
+    override fun onWrenchClicked(entityplayer: Player) {
+        NewGuiHandler.openGui(NewGuiHandler.getGui(FluidBasicGui::class.java).setPosX(x).setPosY(y).setPosZ(z), entityplayer)
     }
 
 }

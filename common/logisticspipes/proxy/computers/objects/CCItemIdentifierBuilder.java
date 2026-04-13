@@ -1,9 +1,11 @@
 package logisticspipes.proxy.computers.objects;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+
 import java.util.List;
 
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceLocation;
 
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
@@ -52,9 +54,9 @@ public class CCItemIdentifierBuilder implements ILPCCTypeHolder {
 	public ItemIdentifier build() {
 		Item item;
 		if (itemIDName != null) {
-			item = Item.REGISTRY.getObject(new ResourceLocation(itemIDName));
+			item = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(new ResourceLocation(itemIDName));
 		} else {
-			item = Item.getItemById(itemID);
+			item = BuiltInRegistries.ITEM.byId(itemID);
 		}
 		if (item == null) {
 			throw new UnsupportedOperationException("Not a valid ItemIdentifier");
@@ -64,7 +66,7 @@ public class CCItemIdentifierBuilder implements ILPCCTypeHolder {
 
 	@CCCommand(description = "Returns a list of all ItemIdentifier with an NBT tag matching the given Item ID and data")
 	public List<ItemIdentifier> matchingNBTIdentifier() {
-		Item item = Item.REGISTRY.getObjectById(itemID);
+		Item item = BuiltInRegistries.ITEM.byId(itemID);
 		if (item == null) {
 			throw new UnsupportedOperationException("Not a valid ItemIdentifier");
 		}

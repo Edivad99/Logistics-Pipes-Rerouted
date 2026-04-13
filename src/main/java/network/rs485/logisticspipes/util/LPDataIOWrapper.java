@@ -56,13 +56,13 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.NbtIo; // was CompressedStreamTools
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 
 import io.netty.buffer.ByteBuf;
 import static io.netty.buffer.Unpooled.buffer;
@@ -237,7 +237,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	}
 
 	@Override
-	public void writeFacing(@Nullable EnumFacing direction) {
+	public void writeFacing(@Nullable Direction direction) {
 		if (direction == null) {
 			writeByte(Byte.MIN_VALUE);
 		} else {
@@ -276,14 +276,14 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	}
 
 	@Override
-	public void writeNBTTagCompound(@Nullable NBTTagCompound tag) {
+	public void writeCompoundTag(@Nullable CompoundTag tag) {
 		if (tag == null) {
 			writeByte(0);
 		} else {
 			writeByte(1);
 			try {
 				ByteArrayOutputStream output = new ByteArrayOutputStream();
-				CompressedStreamTools.writeCompressed(tag, output);
+				NbtIo.writeCompressed(tag, output);
 				writeByteArray(output.toByteArray());
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -337,10 +337,10 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		if (itemstack.isEmpty()) {
 			writeInt(0);
 		} else {
-			writeInt(Item.getIdFromItem(itemstack.getItem()));
+			writeInt(net.minecraft.core.registries.BuiltInRegistries.ITEM.getId(itemstack.getItem()));
 			writeInt(itemstack.getCount());
-			writeInt(itemstack.getItemDamage());
-			writeNBTTagCompound(itemstack.getTagCompound());
+			writeInt(itemstack.getDamageValue());
+			writeCompoundTag(itemstack.getTag());
 		}
 	}
 
@@ -349,9 +349,9 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		if (item == null) {
 			writeInt(0);
 		} else {
-			writeInt(Item.getIdFromItem(item.item));
+			writeInt(net.minecraft.core.registries.BuiltInRegistries.ITEM.getId(item.item));
 			writeInt(item.itemDamage);
-			writeNBTTagCompound(item.tag);
+			writeCompoundTag(item.tag);
 		}
 	}
 
@@ -477,15 +477,15 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Nullable
 	@Override
-	public EnumFacing readFacing() {
+	public Direction readFacing() {
 		byte b = localBuffer.readByte();
 
 		if (b == Byte.MIN_VALUE) {
 			return null;
-		} else if (b < 0 || b >= EnumFacing.VALUES.length) {
-			throw new IndexOutOfBoundsException("Invalid value for EnumFacing");
+		} else if (b < 0 || b >= Direction.values().length) {
+			throw new IndexOutOfBoundsException("Invalid value for Direction");
 		}
-		return EnumFacing.VALUES[b];
+		return Direction.values()[b];
 	}
 
 	@Nullable
@@ -526,14 +526,14 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Nullable
 	@Override
-	public NBTTagCompound readNBTTagCompound() {
+	public CompoundTag readCompoundTag() {
 		boolean isEmpty = (readByte() == 0);
 		if (isEmpty) {
 			return null;
 		}
 
 		try {
-			return CompressedStreamTools.readCompressed(new ByteArrayInputStream(Objects.requireNonNull(readByteArray())));
+			return NbtIo.readCompressed(new ByteArrayInputStream(Objects.requireNonNull(readByteArray())));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -605,8 +605,8 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		}
 
 		int damage = readInt();
-		NBTTagCompound tag = readNBTTagCompound();
-		return ItemIdentifier.get(Item.getItemById(itemId), damage, tag);
+		CompoundTag tag = readCompoundTag();
+		return ItemIdentifier.get(net.minecraft.core.registries.BuiltInRegistries.ITEM.byId(itemId), damage, tag);
 	}
 
 	@Nullable
@@ -635,9 +635,9 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 		int stackSize = readInt();
 		int damage = readInt();
-		ItemStack stack = new ItemStack(Item.getItemById(itemId), stackSize, damage);
+		ItemStack stack = new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.byId(itemId), stackSize);
 		// may be null, see code
-		stack.setTagCompound(readNBTTagCompound());
+		stack.setTag(readCompoundTag());
 		return stack;
 	}
 

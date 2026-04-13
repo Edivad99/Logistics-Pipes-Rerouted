@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
@@ -20,8 +20,8 @@ public class SecurityCardPacket extends IntegerCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsSecurityTileEntity tile = this.getTileAs(player.world, LogisticsSecurityTileEntity.class);
+	public void processPacket(Player player) {
+		LogisticsSecurityTileEntity tile = this.getTileAs(player.level(), LogisticsSecurityTileEntity.class);
 		if (tile != null) {
 			tile.buttonFreqCard(getInteger(), player);
 		}

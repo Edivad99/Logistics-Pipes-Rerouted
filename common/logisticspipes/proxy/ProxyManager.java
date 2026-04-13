@@ -9,36 +9,35 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.world.level.block.Block;
+// BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.texture.TextureAtlas; // was TextureAtlas
+import com.mojang.blaze3d.vertex.VertexFormat;
 
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.model.IModelState;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.BlockGetter; // was IBlockAccess
+import net.minecraft.world.level.Level;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.google.common.collect.Lists;
 
@@ -112,29 +111,26 @@ public class ProxyManager {
 			@Override public Class<? extends ICraftingRecipeProvider> getAssemblyTableProviderClass() {return null;}
 			@Override public void registerInventoryHandler() {}
 			@Override public IBCPipeCapabilityProvider getIBCPipeCapabilityProvider(LogisticsTileGenericPipe pipe) {
-				return new IBCPipeCapabilityProvider() {
-					@Override public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {return false;}
-					@Nullable@Override public<T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {return null;}
-				};
+				return new IBCPipeCapabilityProvider() {}; // TODO: stub — Capability<T> API removed in NeoForge 1.20.1
 			}
 			@Override public Object createMjReceiver(@Nonnull LogisticsPowerJunctionTileEntity te) {return null;}
-			@Override public boolean isBuildCraftPipe(TileEntity tile) {return false;}
+			@Override public boolean isBuildCraftPipe(BlockEntity tile) {return false;}
 		}, IBCPipeCapabilityProvider.class));
 
 		SimpleServiceLocator.setElectricItemProxy(ProxyManager.getWrappedProxy(LPConstants.ic2ModID, IIC2Proxy.class, IC2Proxy.class, new IIC2Proxy() {
 			@Override public void addCraftingRecipes(CraftingParts parts) {}
 			@Override public boolean hasIC2() {return false;}
-			@Override public void registerToEneryNet(TileEntity tile) {}
-			@Override public void unregisterToEneryNet(TileEntity tile) {}
-			@Override public boolean acceptsEnergyFrom(TileEntity tile1, TileEntity tile2, EnumFacing opposite) {return false;}
-			@Override public boolean isEnergySink(TileEntity tile) {return false;}
-			@Override public double demandedEnergyUnits(TileEntity tile) {return 0;}
-			@Override public double injectEnergyUnits(TileEntity tile, EnumFacing opposite, double d) {return d;}
+			@Override public void registerToEneryNet(BlockEntity tile) {}
+			@Override public void unregisterToEneryNet(BlockEntity tile) {}
+			@Override public boolean acceptsEnergyFrom(BlockEntity tile1, BlockEntity tile2, Direction opposite) {return false;}
+			@Override public boolean isEnergySink(BlockEntity tile) {return false;}
+			@Override public double demandedEnergyUnits(BlockEntity tile) {return 0;}
+			@Override public double injectEnergyUnits(BlockEntity tile, Direction opposite, double d) {return d;}
 		}));
 
 		SimpleServiceLocator.setCCProxy(ProxyManager.getWrappedProxy(LPConstants.computerCraftModID, ICCProxy.class, CCProxy.class, new ICCProxy() {
-			@Override public boolean isTurtle(TileEntity tile) {return false;}
-			@Override public boolean isComputer(TileEntity tile) {return false;}
+			@Override public boolean isTurtle(BlockEntity tile) {return false;}
+			@Override public boolean isComputer(BlockEntity tile) {return false;}
 			@Override public boolean isCC() {return false;}
 			@Override public boolean isLuaThread(Thread thread) {return false;}
 			@Override public void queueEvent(String event, Object[] arguments, LogisticsTileGenericPipe logisticsTileGenericPipe) {}
@@ -150,49 +146,49 @@ public class ProxyManager {
 			@Override public boolean isTE() {return false;}
 			@Override public CraftingParts getRecipeParts() {return null;}
 			@Override public boolean isToolHammer(Item stack) {return false;}
-			@Override public boolean canHammer(@Nonnull ItemStack stack, EntityPlayer entityplayer, BlockPos pos) {return false;}
-			@Override public void toolUsed(@Nonnull ItemStack stack, EntityPlayer entityplayer, BlockPos pos) {}
+			@Override public boolean canHammer(@Nonnull ItemStack stack, Player entityplayer, BlockPos pos) {return false;}
+			@Override public void toolUsed(@Nonnull ItemStack stack, Player entityplayer, BlockPos pos) {}
 		}));
 
 		SimpleServiceLocator.setNEIProxy(ProxyManager.getWrappedProxy(LPConstants.neiModID, INEIProxy.class, null /*NEIProxy.class*/, new INEIProxy() {
-			@Override public List<String> getInfoForPosition(World world, EntityPlayer player, RayTraceResult objectMouseOver) {return new ArrayList<>(0);}
-			@Override @SideOnly(Side.CLIENT) public boolean renderItemToolTip(int posX, int posY, List<String> msg, TextFormatting rarityColor, @Nonnull ItemStack stack) {return false;}
-			@Override @SideOnly(Side.CLIENT) public List<String> getItemToolTip(@Nonnull ItemStack stack, EntityPlayer thePlayer, ITooltipFlag advancedItemTooltips, GuiContainer screen) {return stack.getTooltip(thePlayer, advancedItemTooltips);}
-			@Override public@Nonnull  ItemStack getItemForPosition(World world, EntityPlayer player, RayTraceResult objectMouseOver) {return null;}
+			@Override public List<String> getInfoForPosition(Level world, Player player, HitResult objectMouseOver) {return new ArrayList<>(0);}
+			@Override @OnlyIn(Dist.CLIENT) public boolean renderItemToolTip(int posX, int posY, List<String> msg, ChatFormatting rarityColor, @Nonnull ItemStack stack) {return false;}
+			@Override @OnlyIn(Dist.CLIENT) public List<String> getItemToolTip(@Nonnull ItemStack stack, Player thePlayer, TooltipFlag advancedItemTooltips, AbstractContainerScreen screen) {return new ArrayList<>();}
+			@Override public@Nonnull  ItemStack getItemForPosition(Level world, Player player, HitResult objectMouseOver) {return null;}
 		}));
 
 		SimpleServiceLocator.setIronChestProxy(ProxyManager.getWrappedProxy(LPConstants.ironChestModID, IIronChestProxy.class, IronChestProxy.class, new IIronChestProxy() {
-			@Override public boolean isIronChest(TileEntity tile) {return false;}
-			@Override public @SideOnly(Side.CLIENT) boolean isChestGui(GuiScreen gui) {return false;}
+			@Override public boolean isIronChest(BlockEntity tile) {return false;}
+			@Override public @OnlyIn(Dist.CLIENT) boolean isChestGui(Screen gui) {return false;}
 		}));
 
 		SimpleServiceLocator.setEnderStorageProxy(ProxyManager.getWrappedProxy("enderstorage", IEnderStorageProxy.class, EnderStorageProxy.class, new IEnderStorageProxy() {
 			@Override public boolean isEnderChestBlock(Block block) {return false;}
-			@Override public void openEnderChest(World world, int x, int y, int z, EntityPlayer player) {}
+			@Override public void openEnderChest(Level world, int x, int y, int z, Player player) {}
 		}));
 
 		SimpleServiceLocator.setOpenComputersProxy(ProxyManager.getWrappedProxy(LPConstants.openComputersModID, IOpenComputersProxy.class, OpenComputersProxy.class, new IOpenComputersProxy() {
 			@Override public void initLogisticsTileGenericPipe(LogisticsTileGenericPipe tile) {}
 			@Override public void initLogisticsSolidTileEntity(LogisticsSolidTileEntity tile) {}
-			@Override public void handleWriteToNBT(IOCTile tile, NBTTagCompound nbt) {}
-			@Override public void handleReadFromNBT(IOCTile tile, NBTTagCompound nbt) {}
+			@Override public void handleWriteToNBT(IOCTile tile, CompoundTag nbt) {}
+			@Override public void handleReadFromNBT(IOCTile tile, CompoundTag nbt) {}
 			@Override public void handleInvalidate(IOCTile tile) {}
 			@Override public void handleChunkUnload(IOCTile tile) {}
-			@Override public void addToNetwork(TileEntity tile) {}
+			@Override public void addToNetwork(BlockEntity tile) {}
 		}));
 
 /*		SimpleServiceLocator.setToolWrenchProxy(ProxyManager.getWrappedProxy("!IToolWrench", IToolWrenchProxy.class, ToolWrenchProxy.class, new IToolWrenchProxy() {
-			@Override public void wrenchUsed(EntityPlayer entityplayer, int x, int y, int z) {}
-			@Override public boolean isWrenchEquipped(EntityPlayer entityplayer) {return false;}
-			@Override public boolean canWrench(EntityPlayer entityplayer, int x, int y, int z) {return false;}
+			@Override public void wrenchUsed(Player entityplayer, int x, int y, int z) {}
+			@Override public boolean isWrenchEquipped(Player entityplayer) {return false;}
+			@Override public boolean canWrench(Player entityplayer, int x, int y, int z) {return false;}
 			@Override public boolean isWrench(Item item) {return false;}
 		}));*/
 
 		SimpleServiceLocator.setThermalDynamicsProxy(ProxyManager.getWrappedProxy(LPConstants.thermalDynamicsModID, ITDProxy.class, ThermalDynamicsProxy.class, new ITDProxy() {
 			@Override public ITDPart getTDPart(final LogisticsTileGenericPipe pipe) {
 				return new ITDPart() {
-					@Override public TileEntity getInternalDuct() {return pipe;}
-					@Override public void setWorld_LP(World world) {}
+					@Override public BlockEntity getInternalDuct() {return pipe;}
+					@Override public void setWorld_LP(Level world) {}
 					@Override public void invalidate() {}
 					@Override public void onChunkUnload() {}
 					@Override public void scheduleNeighborChange() {}
@@ -203,37 +199,36 @@ public class ProxyManager {
 			}
 			@Override public boolean isActive() {return false;}
 			@Override public void registerPipeInformationProvider() {}
-			@Override public boolean isItemDuct(TileEntity tile) {return false;}
-			@Override @SideOnly(Side.CLIENT) public void renderPipeConnections(LogisticsTileGenericPipe pipeTile, List<RenderEntry> list) {}
-			@Override public void registerTextures(TextureMap iconRegister) {}
-			@Override public boolean isBlockedSide(TileEntity with, EnumFacing opposite) {return false;}
+			@Override public boolean isItemDuct(BlockEntity tile) {return false;}
+			@Override @OnlyIn(Dist.CLIENT) public void renderPipeConnections(LogisticsTileGenericPipe pipeTile, List<RenderEntry> list) {}
+			@Override public void registerTextures(TextureAtlas iconRegister) {}
+			@Override public boolean isBlockedSide(BlockEntity with, Direction opposite) {return false;}
 		}, ITDPart.class));
 
 		SimpleServiceLocator.setMCMPProxy(ProxyManager.getWrappedProxy(LPConstants.mcmpModID, IMCMPProxy.class, MCMPProxy.class, new IMCMPProxy() {
 			@Override public IMCMPLTGPCompanion createMCMPCompanionFor(LogisticsTileGenericPipe pipe) {
+				// TODO: Capability<T> API removed in NeoForge 1.20.1 — stub until MCMP is ported
 				return new IMCMPLTGPCompanion() {
-					@Override public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {return false;}
-					@Nullable @Override public<T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {return null;}
-					@Override public NBTTagCompound getUpdateTag() {return new NBTTagCompound();}
-					@Override public void handleUpdateTag(NBTTagCompound tag) {}
-					@Override public TileEntity getMCMPTileEntity() {return null;}
+					@Override public CompoundTag getUpdateTag() {return new CompoundTag();}
+					@Override public void handleUpdateTag(CompoundTag tag) {}
+					@Override public BlockEntity getMCMPBlockEntity() {return null;}
 					@Override public void update() {}
 				};
 			}
 			@Override public IMCMPBlockAccess createMCMPBlockAccess() {return new IMCMPBlockAccess() {
-					@Override public void addBlockState(BlockStateContainer.Builder builder) {}
-					@Override public IBlockState getExtendedState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {return state;}
-					@Override public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity, boolean isActualState) {}
-					@Override public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end) {return null;}
+					@Override public void addBlockState(net.minecraft.world.level.block.state.StateDefinition.Builder<Block, BlockState> builder) {}
+					@Override public BlockState getExtendedState(BlockState state, BlockGetter worldIn, BlockPos pos) {return state;}
+					@Override public void addCollisionBoxToList(BlockState state, Level world, BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, Entity entity, boolean isActualState) {}
+					@Override public HitResult collisionRayTrace(BlockState state, Level world, BlockPos pos, Vec3 start, Vec3 end) {return null;}
 					@Override public Block getBlock() {return null;}
-					@Override public void addDrops(NonNullList<ItemStack> list, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {}
+					@Override public void addDrops(NonNullList<ItemStack> list, BlockGetter world, BlockPos pos, BlockState state, int fortune) {}
 				};
 			}
-		    @Override public void addQuads(@Nonnull List<BakedQuad> list, IBlockState state, EnumFacing side, long rand) {}
+		    @Override public void addQuads(@Nonnull List<BakedQuad> list, BlockState state, Direction side, long rand) {}
 		    @Override public void registerTileEntities() {}
-		    @Override public boolean checkIntersectionWith(LogisticsTileGenericPipe logisticsTileGenericPipe, AxisAlignedBB aabb) {return false;}
+		    @Override public boolean checkIntersectionWith(LogisticsTileGenericPipe logisticsTileGenericPipe, AABB aabb) {return false;}
 		    @Override public boolean hasParts(LogisticsTileGenericPipe pipeTile) {return false;}
-		    @Override @SideOnly(Side.CLIENT) public void renderTileEntitySpecialRenderer(LogisticsTileGenericPipe tileentity, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {}
+		    @Override @OnlyIn(Dist.CLIENT) public void renderTileEntitySpecialRenderer(LogisticsTileGenericPipe tileentity, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {}
 		}, IMCMPLTGPCompanion.class));
 
 		final IBounds dummyBounds = new IBounds() {
@@ -253,7 +248,7 @@ public class ProxyManager {
 					@Override public Object getOriginal() {return null;}
 				};
 			}
-			@Override public AxisAlignedBB toAABB() {return null;}
+			@Override public AABB toAABB() {return null;}
 		};
 		final IModel3D dummy3DModel = new IModel3D() {
 			@Override public IModel3D backfacedCopy() {return this;}
@@ -268,10 +263,10 @@ public class ProxyManager {
 			@Override public IModel3D copy() {return this;}
 			@Override public IModel3D twoFacedCopy() {return this;}
 			@Override public Object getOriginal() {return this;}
-			@Override public IBounds getBoundsInside(AxisAlignedBB boundingBox) {return dummyBounds;}
+			@Override public IBounds getBoundsInside(AABB boundingBox) {return dummyBounds;}
 		};
 		ICCLProxy dummyCCLProxy = new ICCLProxy() {
-			@SideOnly(Side.CLIENT) @Override public TextureTransformation createIconTransformer(TextureAtlasSprite registerIcon) {
+			@OnlyIn(Dist.CLIENT) @Override public TextureTransformation createIconTransformer(TextureAtlasSprite registerIcon) {
 				return new TextureTransformation() {
 					@Override public Object getOriginal() {return null;}
 					@Override public void update(TextureAtlasSprite registerIcon) {}
@@ -283,7 +278,7 @@ public class ProxyManager {
 					@Override public void reset() {}
 					@Override public void setAlphaOverride(int i) {}
 					@Override public void draw() {}
-					@Override public void setBrightness(IBlockAccess world, BlockPos pos) {}
+					@Override public void setBrightness(BlockGetter world, BlockPos pos) {}
 					@Override public void startDrawing(int mode, VertexFormat format) {}
 				};
 			}
@@ -315,14 +310,15 @@ public class ProxyManager {
 				return dummy3DModel;
 			}
 			@Override public Object getColourMultiplier(int i) {return null;}
-			@Override public IModelState getDefaultBlockState() {return null;}
+			@Override public Object getDefaultBlockState() { return null; } // TODO: return type was IModelState — rendering deferred
 		};
 
 		//@formatter:on
 		//CHECKSTYLE:ON
 
-		Class<?>[] cclSubWrapper = new Class<?>[] { TextureTransformation.class, IRenderState.class, IModel3D.class, ITranslation.class, IVec3.class, IBounds.class };
-		SimpleServiceLocator.setCCLProxy(ProxyManager.getWrappedProxy("!" + LPConstants.cclrenderModID, ICCLProxy.class, CCLProxy.class, dummyCCLProxy, cclSubWrapper));
+		// TODO(1.20.1): CCL is now LP's own built-in impl — bypass legacy ASM wrapper so
+		// callers receive real LPRenderStateImpl/LPModel3DImpl instances instead of proxy wrappers.
+		SimpleServiceLocator.setCCLProxy(new CCLProxy());
 
 		SimpleServiceLocator.setConfigToolHandler(new ConfigToolHandler());
 		SimpleServiceLocator.configToolHandler.registerWrapper();

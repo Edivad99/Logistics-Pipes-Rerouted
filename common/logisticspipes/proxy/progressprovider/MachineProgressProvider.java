@@ -3,7 +3,7 @@ package logisticspipes.proxy.progressprovider;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.api.IProgressProvider;
 import logisticspipes.proxy.interfaces.IGenericProgressProvider;
@@ -16,7 +16,7 @@ public class MachineProgressProvider {
 		providers.add(provider);
 	}
 
-	public byte getProgressForTile(TileEntity tile) {
+	public byte getProgressForTile(BlockEntity tile) {
 		if (tile instanceof IProgressProvider) {
 			return ((IProgressProvider) tile).getMachineProgressForLP();
 		}

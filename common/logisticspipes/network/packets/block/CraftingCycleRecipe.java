@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,8 +27,8 @@ public class CraftingCycleRecipe extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		TileEntity table = this.getTileAs(player.getEntityWorld(), TileEntity.class);
+	public void processPacket(Player player) {
+		BlockEntity table = this.getTileAs(player.level(), BlockEntity.class);
 		if (table instanceof LogisticsCraftingTableTileEntity) {
 			((LogisticsCraftingTableTileEntity) table).cycleRecipe(down);
 		} else if (table instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) table).pipe instanceof PipeBlockRequestTable) {

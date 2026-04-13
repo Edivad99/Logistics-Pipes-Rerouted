@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.network.PacketHandler;
@@ -26,8 +26,8 @@ public class RequestAmountTaskSubGui extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsStatisticsTileEntity tile = this.getTileAs(player.getEntityWorld(), LogisticsStatisticsTileEntity.class);
+	public void processPacket(Player player) {
+		LogisticsStatisticsTileEntity tile = this.getTileAs(player.level(), LogisticsStatisticsTileEntity.class);
 		CoreRoutedPipe pipe = tile.getConnectedPipe();
 		if (pipe == null) {
 			return;

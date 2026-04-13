@@ -1,13 +1,13 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,36 +38,36 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		//hack to avoid wrenching blocks
-		int savedEquipped = player.inventory.currentItem;
+		int savedEquipped = player.getInventory().selected;
 		boolean foundSlot = false;
 		//try to find a empty slot
 		for (int i = 0; i < 9; i++) {
-			if (player.inventory.getStackInSlot(i).isEmpty()) {
+			if (player.getInventory().getItem(i).isEmpty()) {
 				foundSlot = true;
-				player.inventory.currentItem = i;
+				player.getInventory().selected = i;
 				break;
 			}
 		}
 		//okay, anything that's a block?
 		if (!foundSlot) {
 			for (int i = 0; i < 9; i++) {
-				ItemStack is = player.inventory.getStackInSlot(i);
-				if (!is.isEmpty() && is.getItem() instanceof ItemBlock) {
+				ItemStack is = player.getInventory().getItem(i);
+				if (!is.isEmpty() && is.getItem() instanceof BlockItem) {
 					foundSlot = true;
-					player.inventory.currentItem = i;
+					player.getInventory().selected = i;
 					break;
 				}
 			}
 		}
 		//give up and select whatever is right of the current slot
 		if (!foundSlot) {
-			player.inventory.currentItem = (player.inventory.currentItem + 1) % 9;
+			player.getInventory().selected = (player.getInventory().selected + 1) % 9;
 		}
 
 		boolean openedGui = false;
-		final LogisticsTileGenericPipe genericPipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
+		final LogisticsTileGenericPipe genericPipe = getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (genericPipe.isRoutingPipe()) {
 			openedGui = genericPipe.getRoutingPipe().getAvailableAdjacent().inventories().stream()
 					.filter(neighbor -> LPNeighborTileEntityKt.getInventoryUtil(neighbor) instanceof ISpecialInsertion)
@@ -78,16 +78,16 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 							}
 						}
 
-						Block block = neighbor.getTileEntity().getBlockType();
-						final BlockPos blockPos = neighbor.getTileEntity().getPos();
-						final IBlockState blockState = player.world.getBlockState(blockPos);
-						if (!block.isAir(blockState, player.world, blockPos)) {
+						final BlockPos blockPos = neighbor.getTileEntity().getBlockPos();
+						Block block = player.level().getBlockState(blockPos).getBlock();
+						final BlockState blockState = player.level().getBlockState(blockPos);
+						if (!blockState.isAir()) {
 							int xCoord = blockPos.getX();
 							int yCoord = blockPos.getY();
 							int zCoord = blockPos.getZ();
 
 							if (SimpleServiceLocator.enderStorageProxy.isEnderChestBlock(block)) {
-								SimpleServiceLocator.enderStorageProxy.openEnderChest(player.world, xCoord, yCoord, zCoord, player);
+								SimpleServiceLocator.enderStorageProxy.openEnderChest(player.level(), xCoord, yCoord, zCoord, player);
 								MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SlotFinderActivatePacket.class)
 										.setTargetPosX(xCoord)
 										.setTargetPosY(yCoord)
@@ -97,7 +97,10 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 								return true;
 							}
 
-							if (block.onBlockActivated(player.world, blockPos, blockState, player, EnumHand.MAIN_HAND, EnumFacing.UP, 0, 0, 0)) {
+							net.minecraft.world.phys.BlockHitResult blockHit = new net.minecraft.world.phys.BlockHitResult(
+									new net.minecraft.world.phys.Vec3(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5),
+									Direction.UP, blockPos, false);
+							if (block.use(blockState, player.level(), blockPos, player, InteractionHand.MAIN_HAND, blockHit) != net.minecraft.world.InteractionResult.PASS) {
 								MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SlotFinderActivatePacket.class)
 										.setTargetPosX(xCoord)
 										.setTargetPosY(yCoord)
@@ -116,7 +119,7 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 			LogisticsPipes.log.warn("Ignored SlotFinderOpenGuiPacket from " + player.toString() + ", because of failing preconditions");
 		}
 
-		player.inventory.currentItem = savedEquipped;
+		player.getInventory().selected = savedEquipped;
 	}
 
 	@Override

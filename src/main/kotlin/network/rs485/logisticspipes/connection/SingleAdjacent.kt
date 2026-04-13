@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -38,17 +38,17 @@
 package network.rs485.logisticspipes.connection
 
 import logisticspipes.pipes.basic.CoreRoutedPipe
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
 import java.util.*
 
-class SingleAdjacent(private val parent: CoreRoutedPipe, val dir: EnumFacing, private val adjacentType: ConnectionType) : Adjacent {
-    override fun connectedPos(): Map<BlockPos, ConnectionType> = mapOf(parent.pos.offset(dir) to adjacentType)
+class SingleAdjacent(private val parent: CoreRoutedPipe, val dir: Direction, private val adjacentType: ConnectionType) : Adjacent {
+    override fun connectedPos(): Map<BlockPos, ConnectionType> = mapOf(parent.getPos().relative(dir) to adjacentType)
 
-    override fun get(direction: EnumFacing): ConnectionType? = adjacentType.takeIf { dir == direction }
+    override fun get(direction: Direction): ConnectionType? = adjacentType.takeIf { dir == direction }
 
-    override fun optionalGet(direction: EnumFacing): Optional<ConnectionType> {
+    override fun optionalGet(direction: Direction): Optional<ConnectionType> {
         return if (dir == direction) {
             Optional.of(adjacentType)
         } else {
@@ -56,24 +56,24 @@ class SingleAdjacent(private val parent: CoreRoutedPipe, val dir: EnumFacing, pr
         }
     }
 
-    override fun neighbors(): Map<NeighborTileEntity<TileEntity>, ConnectionType> =
-        parent.world.getTileEntity(parent.pos.offset(dir))
+    override fun neighbors(): Map<NeighborTileEntity<BlockEntity>, ConnectionType> =
+        parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))
             ?.let { mapOf(LPNeighborTileEntity(it, dir) to adjacentType) }
             ?: emptyMap()
 
-    override fun inventories(): List<NeighborTileEntity<TileEntity>> =
+    override fun inventories(): List<NeighborTileEntity<BlockEntity>> =
         if (adjacentType.isItem()) {
-            listOfNotNull(parent.world.getTileEntity(parent.pos.offset(dir))?.let { tile ->
+            listOfNotNull(parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))?.let { tile ->
                 LPNeighborTileEntity(tile, dir).takeIf { it.canHandleItems() }
             })
         } else emptyList()
 
-    override fun fluidTanks(): List<NeighborTileEntity<TileEntity>> =
+    override fun fluidTanks(): List<NeighborTileEntity<BlockEntity>> =
         if (adjacentType.isFluid()) {
-            listOfNotNull(parent.world.getTileEntity(parent.pos.offset(dir))?.let { tile ->
+            listOfNotNull(parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))?.let { tile ->
                 LPNeighborTileEntity(tile, dir).takeIf { it.canHandleFluids() }
             })
         } else emptyList()
 
-    override fun toString(): String = "SingleAdjacent(${dir.name2}: $adjacentType)"
+    override fun toString(): String = "SingleAdjacent(${dir.getName()}: $adjacentType)"
 }

@@ -1,10 +1,11 @@
 package logisticspipes.gui.popup;
 
-import java.io.IOException;
+import net.minecraft.client.gui.GuiGraphics;
+
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.math.BlockPos;
+
+import net.minecraft.core.BlockPos;
 
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
@@ -13,7 +14,7 @@ import logisticspipes.network.packets.gui.OpenAddChannelGUIPacket;
 import logisticspipes.network.packets.gui.OpenEditChannelGUIPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
@@ -51,75 +52,59 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
-		buttonList.add(new SmallGuiButton(10, xCenter + 16, bottom - 27, 50, 10, "Delete"));
-		buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, "Exit"));
-		buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, "Add"));
-		buttonList.add(new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10, "Edit"));
-		buttonList.add(new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\"));
-		buttonList.add(new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/"));
-	}
-
-	@Override
-	protected void renderGuiBackground(int mouseX, int mouseY) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		drawTitle();
-
-		textList.renderGuiBackground(mouseX, mouseY);
-	}
-
-	protected void drawTitle() {
-		mc.fontRenderer.drawStringWithShadow(
-				TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f), guiTop + 6, 0xFFFFFF);
-	}
-
-	@Override
-	protected void mouseClicked(int i, int j, int k) throws IOException {
-		textList.mouseClicked(i, j, k);
-		super.mouseClicked(i, j, k);
-	}
-
-	@Override
-	public void handleMouseInputSub() throws IOException {
-		int wheel = org.lwjgl.input.Mouse.getDWheel() / 120;
-		if (wheel == 0) {
-			super.handleMouseInputSub();
-		}
-		if (wheel < 0) {
-			textList.scrollUp();
-		} else if (wheel > 0) {
-			textList.scrollDown();
-		}
-	}
-
-	@Override
-	protected void actionPerformed(GuiButton guibutton) throws IOException {
-		if (guibutton.id == 1) { // Exit
-			exitGui();
-		} else if (guibutton.id == 2) { // Add
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenAddChannelGUIPacket.class).setBlockPos(position));
-		} else if (guibutton.id == 3) { // Edit
-			int selected = textList.getSelected();
-			if (selected >= 0) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenEditChannelGUIPacket.class).setIdentifier(channelList.get(selected).getChannelIdentifier().toString()).setBlockPos(position));
-			}
-		} else if (guibutton.id == 4) {
-			textList.scrollDown();
-		} else if (guibutton.id == 5) {
-			textList.scrollUp();
-		} else if (guibutton.id == 10) {
+	public void init() {
+		super.init();
+		SmallGuiButton delBtn = new SmallGuiButton(10, xCenter + 16, bottom - 27, 50, 10, "Delete");
+		delBtn.setPressListener(b -> {
 			int selected = textList.getSelected();
 			if (selected >= 0) {
 				this.setSubGui(new ActionChoicePopup(TextUtil.translate(GUI_LANG_KEY + "deletedialog.title"), TextUtil.translate(GUI_LANG_KEY + "deletedialog.yes"), () ->
 						MainProxy.sendPacketToServer(PacketHandler.getPacket(DeleteChannelPacket.class).setChannelIdentifier(channelList.get(selected).getChannelIdentifier())),
 						TextUtil.translate(GUI_LANG_KEY + "deletedialog.no"), () -> {}));
 			}
-		} else {
-			super.actionPerformed(guibutton);
-		}
+		});
+		addRenderableWidget(delBtn);
+		SmallGuiButton exitBtn = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, "Exit");
+		exitBtn.setPressListener(b -> exitGui());
+		addRenderableWidget(exitBtn);
+		SmallGuiButton addBtn = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, "Add");
+		addBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenAddChannelGUIPacket.class).setBlockPos(position)));
+		addRenderableWidget(addBtn);
+		SmallGuiButton editBtn = new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10, "Edit");
+		editBtn.setPressListener(b -> {
+			int selected = textList.getSelected();
+			if (selected >= 0) {
+				MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenEditChannelGUIPacket.class).setIdentifier(channelList.get(selected).getChannelIdentifier().toString()).setBlockPos(position));
+			}
+		});
+		addRenderableWidget(editBtn);
+		SmallGuiButton upBtn = new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\");
+		upBtn.setPressListener(b -> textList.scrollDown());
+		addRenderableWidget(upBtn);
+		SmallGuiButton dnBtn = new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/");
+		dnBtn.setPressListener(b -> textList.scrollUp());
+		addRenderableWidget(dnBtn);
 	}
+
+	@Override
+	protected void renderGuiBackground(int mouseX, int mouseY) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		drawTitle(getGuiGraphics());
+
+		textList.renderGuiBackground(mouseX, mouseY);
+	}
+
+	protected void drawTitle(GuiGraphics guiGraphics) {
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6, 0xFFFFFF, true);
+	}
+
+	@Override
+	public boolean mouseClicked(double i, double j, int k) {
+		textList.mouseClicked(i, j, k);
+		return super.mouseClicked(i, j, k);
+	}
+
+	// Deferred: scroll wheel handling not wired
 
 	@Override
 	public void handleChannelInformation(ChannelInformation channel, boolean flag) {

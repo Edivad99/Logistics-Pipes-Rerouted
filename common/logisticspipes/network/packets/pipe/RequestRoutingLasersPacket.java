@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,7 +44,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 	private static class DataEntry {
 
 		final LogisticsTileGenericPipe pipe;
-		final EnumFacing dir;
+		final Direction dir;
 		final ArrayList<ExitRoute> connectedRouters;
 		final List<LaserData> lasers;
 		final EnumSet<PipeRoutingConnectionType> connectionType;
@@ -58,8 +58,8 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe tile = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe tile = this.getPipe(player.level());
 		if (tile == null) {
 			return;
 		}
@@ -70,7 +70,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 			router.forceLsaUpdate();
 
 			List<List<ExitRoute>> exits = router.getRouteTable();
-			HashMap<EnumFacing, ArrayList<ExitRoute>> routers = new HashMap<>();
+			HashMap<Direction, ArrayList<ExitRoute>> routers = new HashMap<>();
 			for (List<ExitRoute> exit : exits) {
 				if (exit == null) {
 					continue;
@@ -86,7 +86,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 			}
 			ArrayList<LaserData> lasers = new ArrayList<>();
 			firstPipe = true;
-			for (final EnumFacing dir : routers.keySet()) {
+			for (final Direction dir : routers.keySet()) {
 				if (dir == null) {
 					continue;
 				}
@@ -105,13 +105,13 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 		}
 	}
 
-	private void handleRouteInDirection(final LogisticsTileGenericPipe pipeIn, EnumFacing dirIn, ArrayList<ExitRoute> connectedRoutersIn, final List<LaserData> lasersIn, EnumSet<PipeRoutingConnectionType> connectionTypeIn, final Log logIn) {
+	private void handleRouteInDirection(final LogisticsTileGenericPipe pipeIn, Direction dirIn, ArrayList<ExitRoute> connectedRoutersIn, final List<LaserData> lasersIn, EnumSet<PipeRoutingConnectionType> connectionTypeIn, final Log logIn) {
 		List<DataEntry> worklist = new LinkedList<>();
 		worklist.add(new DataEntry(pipeIn, dirIn, connectedRoutersIn, lasersIn, connectionTypeIn, logIn));
 		while (!worklist.isEmpty()) {
 			final DataEntry entry = worklist.remove(0);
 			final LogisticsTileGenericPipe pipe = entry.pipe;
-			final EnumFacing dir = entry.dir;
+			final Direction dir = entry.dir;
 			final ArrayList<ExitRoute> connectedRouters = entry.connectedRouters;
 			final List<LaserData> lasers = entry.lasers;
 			final EnumSet<PipeRoutingConnectionType> connectionType = entry.connectionType;
@@ -163,7 +163,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 			}
 
 			for (Entry<CoreRoutedPipe, ArrayList<ExitRoute>> connectedPipe : sort.entrySet()) {
-				HashMap<EnumFacing, ArrayList<ExitRoute>> routers = new HashMap<>();
+				HashMap<Direction, ArrayList<ExitRoute>> routers = new HashMap<>();
 				for (ExitRoute exit : connectedPipe.getValue()) {
 					if (!routers.containsKey(exit.exitOrientation)) {
 						routers.put(exit.exitOrientation, new ArrayList<>());
@@ -172,7 +172,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 						routers.get(exit.exitOrientation).add(exit);
 					}
 				}
-				for (final EnumFacing exitDir : routers.keySet()) {
+				for (final Direction exitDir : routers.keySet()) {
 					if (exitDir == null) {
 						continue;
 					}
@@ -196,7 +196,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 		while (iLasers.hasNext()) {
 			boolean compressed = false;
 			LaserData data = iLasers.next();
-			BlockPos next = new BlockPos(data.getPosX(), data.getPosY(), data.getPosZ()).offset(data.getDir(), data.getLength());
+			BlockPos next = new BlockPos(data.getPosX(), data.getPosY(), data.getPosZ()).relative(data.getDir(), data.getLength());
 			boolean found;
 			do {
 				found = false;
@@ -206,7 +206,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 					if (d.getPosX() == next.getX() && d.getPosY() == next.getY() && d.getPosZ() == next.getZ()) {
 						if (data.getDir().equals(d.getDir()) && data.getConnectionType().equals(d.getConnectionType())) {
 							data.setLength(data.getLength() + d.getLength());
-							next = next.offset(data.getDir(), data.getLength());
+							next = next.relative(data.getDir(), data.getLength());
 							found = true;
 							iOptions.remove();
 							lasers.remove(d);

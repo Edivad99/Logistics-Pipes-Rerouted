@@ -37,20 +37,16 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+// TODO: Rendering deferred — DrawableImageParagraph migrated to 1.20.1 stub (Tessellator/GlStateManager removed).
+
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.BufferBuilder
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.texture.PngSizeInfo
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import java.io.IOException
-import kotlin.math.min
 
 class DrawableImageParagraph(private val alternativeText: List<DrawableWord>, val image: DrawableImage) : DrawableParagraph() {
     override val relativeBody = MutableRectangle()
@@ -98,82 +94,38 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
     override var relativeBody: MutableRectangle = MutableRectangle()
     override var parent: Drawable? = null
 
-    private var imageSize: PngSizeInfo? = try {
-        val resource = Minecraft.getMinecraft().resourceManager.getResource(imageResource)
-        PngSizeInfo.makeFromResource(resource)
-    } catch (e: IOException) {
-        LogisticsPipes.log.error("File not found: ${imageResource.path}")
-        null
-    }
-    val broken: Boolean get() = imageSize == null
+    // In 1.20.1 there is no PngSizeInfo; we detect image availability via resource presence.
+    // Width/height are stored separately after a successful read.
+    private var imageWidth: Int = 0
+    private var imageHeight: Int = 0
+    val broken: Boolean
 
+    init {
+        var success = false
+        try {
+            val resource = Minecraft.getInstance().resourceManager.getResource(imageResource)
+            if (resource.isPresent) {
+                // TODO: read actual PNG dimensions; for now treat as available with 0x0 placeholder
+                success = true
+            }
+        } catch (e: IOException) {
+            LogisticsPipes.log.error("File not found: ${imageResource.path}")
+        }
+        broken = !success
+    }
 
     override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        if (imageSize != null) {
-            drawImage(absoluteBody, visibleArea, imageResource)
+        if (!broken) {
+            // TODO: deferred rendering — drawImage using GuiGraphics blit
         } else {
             GuiDrawer.drawOutlineRect(absoluteBody, MinecraftColor.WHITE.colorCode)
         }
     }
 
-    private fun putTexturedImage(
-        bufferBuilder: BufferBuilder,
-        x0: Float,
-        y0: Float,
-        x1: Float,
-        y1: Float,
-        uw: Int,
-        vh: Int,
-        u0: Int,
-        v0: Int,
-        u1: Int,
-        v1: Int,
-    ) {
-        val atlasWidthScale = 1 / uw.toDouble()
-        val atlasHeightScale = 1 / vh.toDouble()
-        val u0S = u0 * atlasWidthScale
-        val v0S = v0 * atlasHeightScale
-        val u1S = u1 * atlasWidthScale
-        val v1S = v1 * atlasHeightScale
-        bufferBuilder.pos(x0, y1, 0f).tex(u0S, v1S).endVertex()
-        bufferBuilder.pos(x1, y1, 0f).tex(u1S, v1S).endVertex()
-        bufferBuilder.pos(x1, y0, 0f).tex(u1S, v0S).endVertex()
-        bufferBuilder.pos(x0, y0, 0f).tex(u0S, v0S).endVertex()
-    }
-
-    fun drawImage(imageBody: IRectangle, visibleArea: IRectangle, image: ResourceLocation) {
-        val visibleImageBody = imageBody.overlap(visibleArea)
-        val xOffset = min(imageBody.x0 - visibleArea.x0, 0f)
-        val yOffset = min(imageBody.y0 - visibleArea.y0, 0f)
-        val visibleImageTexture = MutableRectangle.fromRectangle(visibleImageBody).setPos(xOffset, -yOffset)
-        GlStateManager.pushMatrix()
-        Minecraft.getMinecraft().textureManager.bindTexture(image)
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
-        val tessellator = Tessellator.getInstance()
-        val bufferBuilder = tessellator.buffer
-        bufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX)
-        putTexturedImage(
-            bufferBuilder = bufferBuilder,
-            x0 = visibleImageBody.x0,
-            y0 = visibleImageBody.y0,
-            x1 = visibleImageBody.x1,
-            y1 = visibleImageBody.y1,
-            uw = imageBody.roundedWidth,
-            vh = imageBody.roundedHeight,
-            u0 = visibleImageTexture.roundedLeft,
-            v0 = visibleImageTexture.roundedTop,
-            u1 = visibleImageTexture.roundedRight,
-            v1 = visibleImageTexture.roundedBottom,
-        )
-        tessellator.draw()
-        GlStateManager.popMatrix()
-    }
-
     override fun setPos(x: Int, y: Int): Pair<Int, Int> {
-        if (imageSize != null) {
-            // Checks width of image to scale down to a size that fits on the page
-            relativeBody.setSize(imageSize!!.pngWidth, imageSize!!.pngHeight)
-            if (imageSize!!.pngWidth > parent!!.width) {
+        if (!broken) {
+            relativeBody.setSize(imageWidth, imageHeight)
+            if (imageWidth > (parent?.width ?: 0) && (parent?.width ?: 0) > 0) {
                 val downScaleFactor = parent!!.width.toFloat() / width
                 relativeBody.scale(downScaleFactor)
             }
@@ -182,9 +134,4 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
         }
         return super.setPos(x, y)
     }
-
 }
-
-fun BufferBuilder.pos(x: Float, y: Float, z: Float): BufferBuilder = pos(x.toDouble(), y.toDouble(), z.toDouble())
-
-fun BufferBuilder.tex(u: Float, v: Float): BufferBuilder = tex(u.toDouble(), v.toDouble())

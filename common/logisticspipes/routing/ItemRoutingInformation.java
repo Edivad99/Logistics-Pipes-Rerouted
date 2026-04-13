@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -62,28 +62,28 @@ public class ItemRoutingInformation {
 	@Setter
 	private ItemIdentifierStack item;
 
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		if (nbttagcompound.hasKey("destinationUUID")) {
+	public void readFromNBT(CompoundTag nbttagcompound) {
+		if (nbttagcompound.contains("destinationUUID")) {
 			destinationUUID = UUID.fromString(nbttagcompound.getString("destinationUUID"));
 		}
 		arrived = nbttagcompound.getBoolean("arrived");
-		bufferCounter = nbttagcompound.getInteger("bufferCounter");
-		_transportMode = TransportMode.values()[nbttagcompound.getInteger("transportMode")];
-		ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound.getCompoundTag("Item"));
+		bufferCounter = nbttagcompound.getInt("bufferCounter");
+		_transportMode = TransportMode.values()[nbttagcompound.getInt("transportMode")];
+		ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound.getCompound("Item"));
 		setItem(ItemIdentifierStack.getFromStack(stack));
 	}
 
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound) {
 		if (destinationUUID != null) {
-			nbttagcompound.setString("destinationUUID", destinationUUID.toString());
+			nbttagcompound.putString("destinationUUID", destinationUUID.toString());
 		}
-		nbttagcompound.setBoolean("arrived", arrived);
-		nbttagcompound.setInteger("bufferCounter", bufferCounter);
-		nbttagcompound.setInteger("transportMode", _transportMode.ordinal());
+		nbttagcompound.putBoolean("arrived", arrived);
+		nbttagcompound.putInt("bufferCounter", bufferCounter);
+		nbttagcompound.putInt("transportMode", _transportMode.ordinal());
 
-		NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-		getItem().makeNormalStack().writeToNBT(nbttagcompound2);
-		nbttagcompound.setTag("Item", nbttagcompound2);
+		CompoundTag nbttagcompound2 = new CompoundTag();
+		getItem().makeNormalStack().save(nbttagcompound2);
+		nbttagcompound.put("Item", nbttagcompound2);
 	}
 
 	// the global LP tick in which getTickToTimeOut returns 0.
@@ -115,15 +115,15 @@ public class ItemRoutingInformation {
 		return String.format("(%s, %d, %s, %s, %s, %d, %s)", item, destinationint, destinationUUID, _transportMode, jamlist, delay, tracker);
 	}
 
-	public void storeToNBT(NBTTagCompound nbtTagCompound) {
+	public void storeToNBT(CompoundTag nbtTagCompound) {
 		UUID uuid = UUID.randomUUID();
-		nbtTagCompound.setString("StoreUUID", uuid.toString());
+		nbtTagCompound.putString("StoreUUID", uuid.toString());
 		this.writeToNBT(nbtTagCompound);
 		storeMap.put(uuid, this);
 	}
 
-	public static ItemRoutingInformation restoreFromNBT(NBTTagCompound nbtTagCompound) {
-		if (nbtTagCompound.hasKey("StoreUUID")) {
+	public static ItemRoutingInformation restoreFromNBT(CompoundTag nbtTagCompound) {
+		if (nbtTagCompound.contains("StoreUUID")) {
 			UUID uuid = UUID.fromString(nbtTagCompound.getString("StoreUUID"));
 			if (storeMap.containsKey(uuid)) {
 				ItemRoutingInformation result = storeMap.get(uuid);

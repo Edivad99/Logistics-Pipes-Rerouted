@@ -1,17 +1,16 @@
 package logisticspipes.gui.popup;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.awt.Rectangle;
-import java.io.IOException;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.ScaledResolution;
+
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.upgrade.ToogleDisconnectionUpgradeSidePacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.sideconfig.SideConfigDisplay;
@@ -33,9 +32,8 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
+	public void init() {
+		super.init();
 		configDisplay = new SideConfigDisplay(pipe) {
 
 			@Override
@@ -46,53 +44,67 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
 		configDisplay.init();
 		configDisplay.renderNeighbours = true;
 
-		buttonList.add(new GuiButton(0, right - 106, bottom - 26, 100, 20, "OK"));
+		logisticspipes.utils.gui.SmallGuiButton okBtn = new logisticspipes.utils.gui.SmallGuiButton(0, right - 106, bottom - 26, 100, 20, "OK");
+		okBtn.setPressListener(b -> exitGui());
+		addRenderableWidget(okBtn);
 
 		bounds = new Rectangle(guiLeft + 5, guiTop + 20, this.xSize - 10, this.ySize - 50);
 	}
 
 	public void handleSelection(SideConfigDisplay.SelectedFace selection) {
-		//ItemStack stack = pipe.getOriginalUpgradeManager().getInv().getStackInSlot(pos);
+		//ItemStack stack = pipe.getOriginalUpgradeManager().getInv().getItem(pos);
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(ToogleDisconnectionUpgradeSidePacket.class).setSide(selection.face).setSlot(pos));
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY, float partialTick) {
-		drawRect(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height, 0xff000000);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		guiGraphics.fill(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height, 0xff000000);
 
-		Minecraft mc = Minecraft.getMinecraft();
-		ScaledResolution scaledresolution = new ScaledResolution(mc);
+		Minecraft mc = Minecraft.getInstance();
+		int vpx = bounds.x * (int) Minecraft.getInstance().getWindow().getGuiScale();
+		int vpy = (bounds.y + 10) * (int) Minecraft.getInstance().getWindow().getGuiScale();
+		int w = bounds.width * (int) Minecraft.getInstance().getWindow().getGuiScale();
+		int h = (bounds.height - 1) * (int) Minecraft.getInstance().getWindow().getGuiScale();
 
-		int vpx = bounds.x * scaledresolution.getScaleFactor();
-		int vpy = (bounds.y + 10) * scaledresolution.getScaleFactor();
-		int w = bounds.width * scaledresolution.getScaleFactor();
-		int h = (bounds.height - 1) * scaledresolution.getScaleFactor();
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "disconnectTitle"), guiLeft + 8, guiTop + 8, logisticspipes.utils.Color.getValue(logisticspipes.utils.Color.DARKER_GREY));
 
-		mc.fontRenderer.drawString(TextUtil
-				.translate(PREFIX + "disconnectTitle"), guiLeft + 8, guiTop + 8, logisticspipes.utils.Color
-				.getValue(logisticspipes.utils.Color.DARKER_GREY), false);
-
-		configDisplay.drawScreen(mouseX, mouseY, partialTick, new Rectangle(vpx, vpy, w, h), bounds);
+		configDisplay.drawScreen(mouseX, mouseY, 0.0f, new Rectangle(vpx, vpy, w, h), bounds);
 	}
 
 	@Override
-	public void handleMouseInputSub() throws IOException {
-		super.handleMouseInputSub();
-		configDisplay.handleMouseInput();
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (button == 0 && bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
+			int vpx = bounds.x * (int) Minecraft.getInstance().getWindow().getGuiScale();
+			int vpy = (bounds.y + 10) * (int) Minecraft.getInstance().getWindow().getGuiScale();
+			int w = bounds.width * (int) Minecraft.getInstance().getWindow().getGuiScale();
+			int h = (bounds.height - 1) * (int) Minecraft.getInstance().getWindow().getGuiScale();
+			configDisplay.onMouseClicked((int) mouseX, (int) mouseY, new java.awt.Rectangle(vpx, vpy, w, h));
+			return true;
+		}
+		return super.mouseClicked(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+		if (bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
+			configDisplay.onMouseDragged(dx, dy, button);
+			return true;
+		}
+		return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		if (bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
+			configDisplay.onMouseScrolled(delta);
+			return true;
+		}
+		return super.mouseScrolled(mouseX, mouseY, delta);
 	}
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
+		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
 	}
 
-	@Override
-	protected void actionPerformed(GuiButton button) {
-		switch (button.id) {
-			case 0:
-				this.exitGui();
-			default:
-				break;
-		}
-	}
 }

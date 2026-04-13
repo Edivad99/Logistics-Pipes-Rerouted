@@ -1,17 +1,19 @@
 package logisticspipes.gui;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
+
+
+
 
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
@@ -23,7 +25,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -31,6 +33,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import network.rs485.logisticspipes.util.TextUtil;
+import javax.annotation.Nonnull;
 
 public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUIChannelInformationReceiver {
 
@@ -43,37 +46,55 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 
 	private ChannelInformation connectedChannel = null;
 
-	public GuiInvSysConnector(EntityPlayer player, PipeItemsInvSysConnector pipe) {
-		super(180, 220, 0, 0);
-		DummyContainer dummy = new DummyContainer(player.inventory, null);
-
-		dummy.addNormalSlotsForPlayerInventory(10, 135);
-
-		inventorySlots = dummy;
+	public GuiInvSysConnector(Player player, PipeItemsInvSysConnector pipe) {
+		super(buildDummy(player, pipe), 180, 220, 0, 0);
 		this.pipe = pipe;
 
 	}
+	private static DummyContainer buildDummy(Player player, PipeItemsInvSysConnector pipe) {
+		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
+
+		dummy.addNormalSlotsForPlayerInventory(10, 135);
+		return dummy;
+	}
+
 
 	@Override
-	public void initGui() {
-		Keyboard.enableRepeatEvents(true);
+	public void init() {
+		
 
-		super.initGui();
-		buttonList.clear();
-		buttonList.add(new SmallGuiButton(0, guiLeft + 120, guiTop + 67, 10, 10, "<"));
-		buttonList.add(new SmallGuiButton(1, guiLeft + 160, guiTop + 67, 10, 10, ">"));
-		buttonList.add(new SmallGuiButton(2, guiLeft + 68, guiTop + 67, 46, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Refresh")));
-		buttonList.add(new SmallGuiButton(3, guiLeft + 80, guiTop + 55, 10, 10, "<"));
-		buttonList.add(new SmallGuiButton(4, guiLeft + 120, guiTop + 55, 10, 10, ">"));
-		buttonList.add(new SmallGuiButton(5, guiLeft + 140, guiTop + 55, 30, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Save")));
-		buttonList.add(new SmallGuiButton(6, guiLeft + 130, guiTop + 20, 40, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Change")));
+		super.init();
+		SmallGuiButton b0 = new SmallGuiButton(0, leftPos + 120, topPos + 67, 10, 10, "<");
+		b0.setPressListener(b -> pageDown());
+		addRenderableWidget(b0);
+		SmallGuiButton b1 = new SmallGuiButton(1, leftPos + 160, topPos + 67, 10, 10, ">");
+		b1.setPressListener(b -> pageUp());
+		addRenderableWidget(b1);
+		SmallGuiButton b2 = new SmallGuiButton(2, leftPos + 68, topPos + 67, 46, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Refresh"));
+		b2.setPressListener(b -> refreshPacket());
+		addRenderableWidget(b2);
+		SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 80, topPos + 55, 10, 10, "<");
+		b3.setPressListener(b -> resistanceCountBar.putInt(resistanceCountBar.getInt() - (Screen.hasControlDown() ? 10 : 1)));
+		addRenderableWidget(b3);
+		SmallGuiButton b4 = new SmallGuiButton(4, leftPos + 120, topPos + 55, 10, 10, ">");
+		b4.setPressListener(b -> resistanceCountBar.putInt(resistanceCountBar.getInt() + 1));
+		addRenderableWidget(b4);
+		SmallGuiButton b5 = new SmallGuiButton(5, leftPos + 140, topPos + 55, 30, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Save"));
+		b5.setPressListener(b -> {
+			pipe.resistance = resistanceCountBar.getInt();
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConResistance.class).putInt(pipe.resistance).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
+		});
+		addRenderableWidget(b5);
+		SmallGuiButton b6 = new SmallGuiButton(6, leftPos + 130, topPos + 20, 40, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Change"));
+		b6.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConOpenSelectChannelPopupPacket.class).setTilePos(pipe.container)));
+		addRenderableWidget(b6);
 
 		if (this.resistanceCountBar == null) {
-			this.resistanceCountBar = new InputBar(this.fontRenderer, this, guiLeft + 90, guiTop + 55, 30, 12, false, true, InputBar.Align.CENTER);
+			this.resistanceCountBar = new InputBar(this.font, this, leftPos + 90, topPos + 55, 30, 12, false, true, InputBar.Align.CENTER);
 			this.resistanceCountBar.minNumber = 0;
-			this.resistanceCountBar.setInteger(pipe.resistance);
+			this.resistanceCountBar.putInt(pipe.resistance);
 		}
-		this.resistanceCountBar.reposition(guiLeft + 90, guiTop + 55, 30, 12);
+		this.resistanceCountBar.reposition(leftPos + 90, topPos + 55, 30, 12);
 
 		refreshPacket();
 	}
@@ -81,26 +102,26 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	@Override
 	public void closeGui() throws IOException {
 		super.closeGui();
-		Keyboard.enableRepeatEvents(false);
+		
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 10, guiTop + 135);
-		mc.fontRenderer.drawString(TextUtil.translate(GuiInvSysConnector.PREFIX + "InventorySystemConnector"), guiLeft + 5, guiTop + 6, 0x404040);
-		drawRect(guiLeft + 9, guiTop + 78, guiLeft + 170, guiTop + 132, Color.GREY);
-		mc.fontRenderer.drawString(TextUtil.translate(GuiInvSysConnector.PREFIX + "ConnectionInformation") + ":", guiLeft + 10, guiTop + 21, 0x404040);
-		mc.fontRenderer.drawString(TextUtil.getTrimmedString(TextUtil.translate(GuiInvSysConnector.PREFIX + "Channel") + ": " + (connectedChannel != null ? connectedChannel.getName() : "UNDEFINED"), 150, this.fontRenderer, "..."), guiLeft + 15, guiTop + 38, 0x404040);
-		mc.fontRenderer.drawString(TextUtil.translate(GuiInvSysConnector.PREFIX + "Waitingfor") + ":", guiLeft + 10, guiTop + 68, 0x404040);
-		mc.fontRenderer.drawString((page + 1) + "/" + maxPage(), guiLeft + 136, guiTop + 69, 0x404040);
-		mc.fontRenderer.drawString(TextUtil.translate(GuiInvSysConnector.PREFIX + "Resistance") + ":", guiLeft + 10, guiTop + 55, 0x404040);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 135);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "InventorySystemConnector"), leftPos + 5, topPos + 6, 0x404040);
+		guiGraphics.fill(leftPos + 9, topPos + 78, leftPos + 170, topPos + 132, Color.getValue(Color.GREY));
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "ConnectionInformation") + ":", leftPos + 10, topPos + 21, 0x404040);
+		guiGraphics.drawString(minecraft.font, TextUtil.getTrimmedString(TextUtil.translate(GuiInvSysConnector.PREFIX + "Channel") + ": " + (connectedChannel != null ? connectedChannel.getName() : "UNDEFINED"), 150, this.font, "..."), leftPos + 15, topPos + 38, 0x404040);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Waitingfor") + ":", leftPos + 10, topPos + 68, 0x404040);
+		guiGraphics.drawString(minecraft.font, (page + 1) + "/" + maxPage(), leftPos + 136, topPos + 69, 0x404040);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Resistance") + ":", leftPos + 10, topPos + 55, 0x404040);
 		resistanceCountBar.drawTextBox();
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-		super.drawGuiContainerForegroundLayer(par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(_allItems, null, page, 9, 79, 9, 27, 18, 18, 100.0F, DisplayAmount.ALWAYS);
 
 		int ppi = 0;
@@ -116,16 +137,12 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 				continue;
 			}
 			ItemStack st = itemStack.unsafeMakeNormalStack();
-			int x = 9 + 18 * column + guiLeft;
-			int y = 79 + 18 * row + guiTop;
+			int x = 9 + 18 * column + leftPos;
+			int y = 79 + 18 * row + topPos;
 
-			GL11.glDisable(2896 /*GL_LIGHTING*/);
-
-			int mouseX = Mouse.getX() * width / mc.displayWidth;
-			int mouseY = height - Mouse.getY() * height / mc.displayHeight - 1;
-
-			if (x < mouseX && mouseX < x + 18 && y < mouseY && mouseY < y + 18) {
-				GuiGraphics.displayItemToolTip(new Object[] { mouseX, mouseY, st, true }, zLevel, guiLeft, guiTop, false);
+			// mouse position is passed as par1/par2 in screen space
+			if (x < par1 && par1 < x + 18 && y < par2 && par2 < y + 18) {
+				guiGraphics.renderTooltip(minecraft.font, st, par1, par2);
 			}
 
 			column++;
@@ -165,38 +182,19 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) throws IOException {
-		super.actionPerformed(button);
-		if (button.id == 0) {
-			pageDown();
-		} else if (button.id == 1) {
-			pageUp();
-		} else if (button.id == 2) {
-			refreshPacket();
-		} else if (button.id == 3) {
-			resistanceCountBar.setInteger(resistanceCountBar.getInteger() - (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 10 : 1));
-		} else if (button.id == 4) {
-			resistanceCountBar.setInteger(resistanceCountBar.getInteger() + 1);
-		} else if (button.id == 5) {
-			pipe.resistance = resistanceCountBar.getInteger();
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConResistance.class).setInteger(pipe.resistance).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
-		} else if (button.id == 6) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConOpenSelectChannelPopupPacket.class).setTilePos(pipe.container));
-		}
-	}
-
-	@Override
-	protected void mouseClicked(int x, int y, int k) throws IOException {
+	public boolean mouseClicked(double x, double y, int k) {
 		if (!resistanceCountBar.handleClick(x, y, k)) {
-			super.mouseClicked(x, y, k);
+			return super.mouseClicked(x, y, k);
 		}
+		return true;
 	}
 
 	@Override
-	public void keyTyped(char c, int i) throws IOException {
+	public boolean charTyped(char c, int i) {
 		if (!resistanceCountBar.handleKey(c, i)) {
-			super.keyTyped(c, i);
+			return super.charTyped(c, i);
 		}
+		return true;
 	}
 
 	public void handleContentAnswer(Collection<ItemIdentifierStack> allItems) {
@@ -205,7 +203,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	public void handleResistanceAnswer(int resistance) {
-		resistanceCountBar.setInteger(resistance);
+		resistanceCountBar.putInt(resistance);
 	}
 
 	@Override

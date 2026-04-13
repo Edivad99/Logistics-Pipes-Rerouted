@@ -3,9 +3,9 @@ package logisticspipes.routing.pathfinder;
 import java.util.List;
 import java.util.stream.Stream;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -24,7 +24,7 @@ public interface IPipeInformationProvider {
 
 	int getZ();
 
-	World getWorld();
+	Level getWorld();
 
 	boolean isRouterInitialized();
 
@@ -32,13 +32,13 @@ public interface IPipeInformationProvider {
 
 	CoreRoutedPipe getRoutingPipe();
 
-	TileEntity getNextConnectedTile(EnumFacing direction);
+	BlockEntity getNextConnectedTile(Direction direction);
 
 	boolean isFirewallPipe();
 
 	IFilter getFirewallFilter();
 
-	TileEntity getTile();
+	BlockEntity getTile();
 
 	boolean divideNetwork();
 
@@ -46,9 +46,9 @@ public interface IPipeInformationProvider {
 
 	boolean isOnewayPipe();
 
-	boolean isOutputClosed(EnumFacing direction);
+	boolean isOutputClosed(Direction direction);
 
-	boolean canConnect(TileEntity to, EnumFacing direction, boolean flag);
+	boolean canConnect(BlockEntity to, Direction direction, boolean flag);
 
 	double getDistance();
 
@@ -60,13 +60,13 @@ public interface IPipeInformationProvider {
 
 	boolean isPowerPipe();
 
-	double getDistanceTo(int destinationint, EnumFacing ignore, ItemIdentifier ident, boolean isActive, double travled, double max, List<DoubleCoordinates> visited);
+	double getDistanceTo(int destinationint, Direction ignore, ItemIdentifier ident, boolean isActive, double travled, double max, List<DoubleCoordinates> visited);
 
-	boolean acceptItem(LPTravelingItem item, TileEntity from);
+	boolean acceptItem(LPTravelingItem item, BlockEntity from);
 
-	void refreshTileCacheOnSide(EnumFacing side);
+	void refreshTileCacheOnSide(Direction side);
 
 	boolean isMultiBlock();
 
-	Stream<TileEntity> getPartsOfPipe();
+	Stream<BlockEntity> getPartsOfPipe();
 }

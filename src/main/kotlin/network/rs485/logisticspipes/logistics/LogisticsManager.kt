@@ -46,7 +46,7 @@ import logisticspipes.routing.PipeRoutingConnectionType
 import logisticspipes.routing.ServerRouter
 import logisticspipes.utils.SinkReply
 import logisticspipes.utils.item.ItemIdentifier
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import java.util.*
 import java.util.stream.Stream
 

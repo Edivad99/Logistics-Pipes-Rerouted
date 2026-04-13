@@ -2,8 +2,8 @@ package logisticspipes.utils.transactor;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 
 public interface ITransactor {
 
@@ -15,5 +15,5 @@ public interface ITransactor {
 	 * @return added stack.
 	 */
 	@Nonnull
-	ItemStack add(@Nonnull ItemStack stack, EnumFacing orientation, boolean doAdd);
+	ItemStack add(@Nonnull ItemStack stack, Direction orientation, boolean doAdd);
 }

@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -38,18 +38,18 @@
 package network.rs485.logisticspipes.connection
 
 import logisticspipes.interfaces.ISlotUpgradeManager
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
 
-class LPNeighborTileEntitySneakyInsertion<T : TileEntity>(tileEntity: T, direction: EnumFacing) :
+class LPNeighborTileEntitySneakyInsertion<T : BlockEntity>(tileEntity: T, direction: Direction) :
         LPNeighborTileEntity<T>(tileEntity, direction) {
-    private var sneakyDirection: EnumFacing = super.getOurDirection()
+    private var sneakyDirection: Direction = super.getOurDirection()
 
-    override fun getOurDirection(): EnumFacing {
+    override fun getOurDirection(): Direction {
         return sneakyDirection
     }
 
-    fun from(direction: EnumFacing): LPNeighborTileEntitySneakyInsertion<T> {
+    fun from(direction: Direction): LPNeighborTileEntitySneakyInsertion<T> {
         sneakyDirection = direction
         return this
     }

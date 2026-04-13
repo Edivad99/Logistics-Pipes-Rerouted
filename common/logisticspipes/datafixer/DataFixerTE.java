@@ -3,15 +3,14 @@ package logisticspipes.datafixer;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.IFixableData;
+import net.minecraft.nbt.CompoundTag;
 
 import com.google.common.collect.ImmutableMap;
 
-public class DataFixerTE implements IFixableData {
+// DataFixer for block entity ID renames. Not registered via DFU (no 1.12.2→1.20.1 upgrade path).
+public class DataFixerTE {
 
-	public static final FixTypes TYPE = FixTypes.BLOCK_ENTITY;
+	public static final String TYPE = "BLOCK_ENTITY"; // was FixTypes.BLOCK_ENTITY
 	public static final int VERSION = 0;
 
 	private Map<String, String> tileIDMap = ImmutableMap.<String, String>builder()
@@ -27,17 +26,17 @@ public class DataFixerTE implements IFixableData {
 			.put("minecraft:logisticspipes.pipes.basic.logisticstilegenericsubmultiblock", "logisticspipes:submultiblock")
 			.build();
 
-	@Override
+
 	public int getFixVersion() {
 		return VERSION;
 	}
 
 	@Nonnull
-	@Override
-	public NBTTagCompound fixTagCompound(NBTTagCompound compound) {
+
+	public CompoundTag fixTagCompound(CompoundTag compound) {
 		String teName = compound.getString("id");
 
-		compound.setString("id", tileIDMap.getOrDefault(teName, teName));
+		compound.putString("id", tileIDMap.getOrDefault(teName, teName));
 
 		return compound;
 	}

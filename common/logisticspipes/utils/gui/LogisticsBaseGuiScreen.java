@@ -20,26 +20,19 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.ChatFormatting;
 
-import codechicken.nei.api.INEIGuiHandler;
-import codechicken.nei.api.TaggedInventoryArea;
+// NEI imports removed — NEI has no 1.20.1 port; interface added at runtime via @ModDependentInterface ASM
 import lombok.Getter;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
+
+
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -61,7 +54,9 @@ import network.rs485.logisticspipes.util.FuzzyUtil;
 import network.rs485.logisticspipes.util.TextUtil;
 
 @ModDependentInterface(modId = { LPConstants.neiModID }, interfacePath = { "codechicken.nei.api.INEIGuiHandler" })
-public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISubGuiControler, INEIGuiHandler, IGuiAccess {
+public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen implements ISubGuiControler,
+		// INEIGuiHandler — added at runtime by @ModDependentInterface ASM when NEI is present
+		IGuiAccess {
 
 	protected static final ResourceLocation ITEMSINK = new ResourceLocation("logisticspipes", "textures/gui/itemsink.png");
 
@@ -78,45 +73,53 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 	protected List<IRenderSlot> slots = new ArrayList<>();
 	protected GuiExtensionController extensionControllerLeft = new GuiExtensionController(GuiSide.LEFT);
 	protected GuiExtensionController extensionControllerRight = new GuiExtensionController(GuiSide.RIGHT);
-	private GuiButton selectedButton;
+	private net.minecraft.client.gui.components.AbstractWidget selectedButton;
+	/** Compatibility bridge: mirrors widgets added via addRenderableWidget so old buttonList.get(i) still works. */
+	protected java.util.List<net.minecraft.client.gui.components.AbstractWidget> buttonList = new java.util.ArrayList<>();
 
 	private int currentDrawScreenMouseX;
 	private int currentDrawScreenMouseY;
+	/** Stored during rendering so non-render methods (drawPoint, fillRect, etc.) can use it. */
+	protected GuiGraphics guiGraphics;
+
+	public int getCurrentMouseX() { return currentDrawScreenMouseX; }
+	public int getCurrentMouseY() { return currentDrawScreenMouseY; }
 
 	private IFuzzySlot fuzzySlot;
 	private boolean fuzzySlotActiveGui;
 	private int fuzzySlotGuiHoverTime;
 	private Queue<Runnable> renderAtTheEnd = new LinkedList<>();
 
-	public LogisticsBaseGuiScreen(int xSize, int ySize, int xCenterOffset, int yCenterOffset) {
-		this(new DummyContainer(null, null), xSize, ySize, xCenterOffset, yCenterOffset);
+	public LogisticsBaseGuiScreen(int imageWidth, int imageHeight, int xCenterOffset, int yCenterOffset) {
+		this(new DummyContainer(null, null), imageWidth, imageHeight, xCenterOffset, yCenterOffset);
 	}
 
-	public LogisticsBaseGuiScreen(Container container) {
-		super(container);
+	public LogisticsBaseGuiScreen(AbstractContainerMenu container) {
+		super(container, net.minecraft.client.Minecraft.getInstance().player.getInventory(), net.minecraft.network.chat.Component.empty());
 		xCenterOffset = 0;
 		yCenterOffset = 0;
 	}
 
-	public LogisticsBaseGuiScreen(Container container, int xSize, int ySize, int xCenterOffset, int yCenterOffset) {
-		super(container);
-		this.xSize = xSize;
-		this.ySize = ySize;
+	public LogisticsBaseGuiScreen(AbstractContainerMenu container, int imageWidth, int imageHeight, int xCenterOffset, int yCenterOffset) {
+		super(container, net.minecraft.client.Minecraft.getInstance().player.getInventory(), net.minecraft.network.chat.Component.empty());
+		this.imageWidth = imageWidth;
+		this.imageHeight = imageHeight;
 		this.xCenterOffset = xCenterOffset;
 		this.yCenterOffset = yCenterOffset;
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		guiLeft = width / 2 - xSize / 2 + xCenterOffset;
-		guiTop = height / 2 - ySize / 2 + yCenterOffset;
+	public void init() {
+		super.init();
+		buttonList.clear();
+		leftPos = width / 2 - imageWidth / 2 + xCenterOffset;
+		topPos = height / 2 - imageHeight / 2 + yCenterOffset;
 
-		right = width / 2 + xSize / 2 + xCenterOffset;
-		bottom = height / 2 + ySize / 2 + yCenterOffset;
+		right = width / 2 + imageWidth / 2 + xCenterOffset;
+		bottom = height / 2 + imageHeight / 2 + yCenterOffset;
 
-		xCenter = (right + guiLeft) / 2;
-		yCenter = (bottom + guiTop) / 2;
+		xCenter = (right + leftPos) / 2;
+		yCenter = (bottom + topPos) / 2;
 		extensionControllerLeft.setMaxBottom(bottom);
 		extensionControllerRight.setMaxBottom(bottom);
 	}
@@ -136,16 +139,16 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 		if (subGui == null) {
 			subGui = gui;
 			subGui.register(this);
-			subGui.setWorldAndResolution(mc, width, height);
-			subGui.initGui();
+			subGui.resize(minecraft, width, height);
+			subGui.init();
 		}
 	}
 
 	@Override
-	public void setWorldAndResolution(Minecraft mc, int width, int height) {
-		super.setWorldAndResolution(mc, width, height);
+	public void resize(Minecraft mc, int width, int height) {
+		super.resize(mc, width, height);
 		if (subGui != null) {
-			subGui.setWorldAndResolution(mc, width, height);
+			subGui.resize(mc, width, height);
 		}
 	}
 
@@ -155,64 +158,32 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 	}
 
 	@Override
-	public void drawDefaultBackground() {
+	public void renderBackground(GuiGraphics guiGraphics) {
 		if (subGui == null) {
-			super.drawDefaultBackground();
+			super.renderBackground(guiGraphics);
 		}
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		this.guiGraphics = guiGraphics;
+		SimpleGraphics.guiGraphics = guiGraphics;
 		currentDrawScreenMouseX = mouseX;
 		currentDrawScreenMouseY = mouseY;
 		checkButtons();
 		if (subGui != null) {
-			//Save Mouse Pos
-			int x = Mouse.getX();
-			int y = Mouse.getY();
-			//Set Pos 0,0
-			try {
-				Field fX = Mouse.class.getDeclaredField("x");
-				Field fY = Mouse.class.getDeclaredField("y");
-				fX.setAccessible(true);
-				fY.setAccessible(true);
-				fX.set(null, 0);
-				fY.set(null, 0);
-			} catch (Exception e) {
-				if (LogisticsPipes.isDEBUG()) {
-					e.printStackTrace();
-				}
-			}
-			//Draw super class (maybe NEI)
-			super.drawScreen(0, 0, partialTicks);
-			//Resore Mouse Pos
-			try {
-				Field fX = Mouse.class.getDeclaredField("x");
-				Field fY = Mouse.class.getDeclaredField("y");
-				fX.setAccessible(true);
-				fY.setAccessible(true);
-				fX.set(null, x);
-				fY.set(null, y);
-			} catch (Exception e) {
-				if (LogisticsPipes.isDEBUG()) {
-					e.printStackTrace();
-				}
-			}
-			GL11.glPushAttrib(GL11.GL_DEPTH_BUFFER_BIT);
+			// In 1.20.1, Mouse hack removed — subGui renders directly
+			super.render(guiGraphics, 0, 0, partialTicks);
 			if (!subGui.hasSubGui()) {
-				GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-				super.drawDefaultBackground();
+				super.renderBackground(guiGraphics);
 			}
-			GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-			subGui.drawScreen(mouseX, mouseY, partialTicks);
-			GL11.glPopAttrib();
+			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
 		} else {
-			drawDefaultBackground();
-			super.drawScreen(mouseX, mouseY, partialTicks);
-			RenderHelper.disableStandardItemLighting();
+			renderBackground(guiGraphics);
+			super.render(guiGraphics, mouseX, mouseY, partialTicks);
 			for (IRenderSlot slot : slots) {
-				int localMouseX = mouseX - guiLeft;
-				int localMouseY = mouseY - guiTop;
+				int localMouseX = mouseX - leftPos;
+				int localMouseY = mouseY - topPos;
 				int mouseXMax = localMouseX - slot.getSize();
 				int mouseYMax = localMouseY - slot.getSize();
 				if (slot.getXPos() < localMouseX && slot.getXPos() > mouseXMax && slot.getYPos() < localMouseY && slot.getYPos() > mouseYMax) {
@@ -220,13 +191,12 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 						if (slot.getToolTipText() != null && !slot.getToolTipText().equals("")) {
 							ArrayList<String> list = new ArrayList<>();
 							list.add(slot.getToolTipText());
-							GuiGraphics.drawToolTip(mouseX, mouseY, list, TextFormatting.WHITE);
+							LPGuiGraphics.drawToolTip(mouseX, mouseY, list, ChatFormatting.WHITE);
 						}
 					}
 				}
 			}
-			this.renderHoveredToolTip(mouseX, mouseY);
-			RenderHelper.enableStandardItemLighting();
+			this.renderTooltip(guiGraphics, mouseX, mouseY);
 		}
 		Runnable run = renderAtTheEnd.poll();
 		while (run != null) {
@@ -236,53 +206,50 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
 		renderExtensions();
 	}
 
 	protected void renderExtensions() {
-		extensionControllerLeft.render(guiLeft, guiTop);
-		extensionControllerRight.render(guiLeft + xSize, guiTop);
+		extensionControllerLeft.render(leftPos, topPos);
+		extensionControllerRight.render(leftPos + imageWidth, topPos);
 	}
 
-	@Override
+	// drawSlot removed in 1.20.1 — slot rendering handled via renderSlot or renderLabels
 	protected void drawSlot(Slot slot) {
 		if (extensionControllerLeft.renderSlot(slot) && extensionControllerRight.renderSlot(slot)) {
 			if (subGui == null) {
 				onRenderSlot(slot);
 			}
-			super.drawSlot(slot);
 		}
 	}
 
 	private void onRenderSlot(Slot slot) {
 		if (slot instanceof IFuzzySlot) {
 			final IBitSet set = ((IFuzzySlot) slot).getFuzzyFlags();
-			int x1 = slot.xPos;
-			int y1 = slot.yPos;
-			GL11.glDisable(GL11.GL_LIGHTING);
+			int x1 = slot.x;
+			int y1 = slot.y;
+			// GL_LIGHTING removed — use shaders
 			final boolean useOreDict = FuzzyUtil.INSTANCE.get(set, FuzzyFlag.USE_ORE_DICT);
 			if (useOreDict) {
-				Gui.drawRect(x1 + 8, y1 - 1, x1 + 17, y1, 0xFFFF4040);
-				Gui.drawRect(x1 + 16, y1, x1 + 17, y1 + 8, 0xFFFF4040);
+				guiGraphics.fill(x1 + 8, y1 - 1, x1 + 17, y1, 0xFFFF4040);
+				guiGraphics.fill(x1 + 16, y1, x1 + 17, y1 + 8, 0xFFFF4040);
 			}
 			final boolean ignoreDamage = FuzzyUtil.INSTANCE.get(set, FuzzyFlag.IGNORE_DAMAGE);
 			if (ignoreDamage) {
-				Gui.drawRect(x1 - 1, y1 - 1, x1 + 8, y1, 0xFF40FF40);
-				Gui.drawRect(x1 - 1, y1, x1, y1 + 8, 0xFF40FF40);
+				guiGraphics.fill(x1 - 1, y1 - 1, x1 + 8, y1, 0xFF40FF40);
+				guiGraphics.fill(x1 - 1, y1, x1, y1 + 8, 0xFF40FF40);
 			}
 			final boolean ignoreNBT = FuzzyUtil.INSTANCE.get(set, FuzzyFlag.IGNORE_NBT);
 			if (ignoreNBT) {
-				Gui.drawRect(x1 - 1, y1 + 16, x1 + 8, y1 + 17, 0xFF4040FF);
-				Gui.drawRect(x1 - 1, y1 + 8, x1, y1 + 17, 0xFF4040FF);
+				guiGraphics.fill(x1 - 1, y1 + 16, x1 + 8, y1 + 17, 0xFF4040FF);
+				guiGraphics.fill(x1 - 1, y1 + 8, x1, y1 + 17, 0xFF4040FF);
 			}
 			final boolean useOreCategory = FuzzyUtil.INSTANCE.get(set, FuzzyFlag.USE_ORE_CATEGORY);
 			if (useOreCategory) {
-				Gui.drawRect(x1 + 8, y1 + 16, x1 + 17, y1 + 17, 0xFF7F7F40);
-				Gui.drawRect(x1 + 16, y1 + 8, x1 + 17, y1 + 17, 0xFF7F7F40);
+				guiGraphics.fill(x1 + 8, y1 + 16, x1 + 17, y1 + 17, 0xFF7F7F40);
+				guiGraphics.fill(x1 + 16, y1 + 8, x1 + 17, y1 + 17, 0xFF7F7F40);
 			}
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			GL11.glEnable(GL11.GL_LIGHTING);
 			final boolean mouseOver = this.isMouseOverSlot(slot, currentDrawScreenMouseX, currentDrawScreenMouseY);
 			if (mouseOver) {
 				if (fuzzySlot == slot) {
@@ -299,35 +266,32 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 			if (fuzzySlotActiveGui && fuzzySlot == slot) {
 				if (!mouseOver) {
 					//Check within FuzzyGui
-					if (!isPointInRegion(slot.xPos, slot.yPos + 16, 60, 52, currentDrawScreenMouseX, currentDrawScreenMouseY)) {
+					if (!isHovering(slot.x, slot.y + 16, 60, 52, currentDrawScreenMouseX, currentDrawScreenMouseY)) {
 						fuzzySlotActiveGui = false;
 						fuzzySlot = null;
 					}
 				}
-				final int posX = slot.xPos + guiLeft;
-				final int posY = slot.yPos + 17 + guiTop;
+				final int posX = slot.x + leftPos;
+				final int posY = slot.y + 17 + topPos;
 				renderAtTheEnd.add(() -> {
-					GL11.glDisable(GL11.GL_DEPTH_TEST);
-					GL11.glDisable(GL11.GL_LIGHTING);
-					GuiGraphics.drawGuiBackGround(mc, posX, posY, posX + 61, posY + 47, zLevel, true, true, true, true, true);
-					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+					com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
+					LPGuiGraphics.drawGuiBackGround(minecraft, posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
 					final String PREFIX = "gui.crafting.";
-					mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
+					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
 							(useOreDict ? 0xFF4040 : 0x404040));
-					mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "IgnDamage"), posX + 5, posY + 15,
+					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "IgnDamage"), posX + 5, posY + 15,
 							(ignoreDamage ? 0x40FF40 : 0x404040));
-					mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "IgnNBT"), posX + 5, posY + 25,
+					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "IgnNBT"), posX + 5, posY + 25,
 							(ignoreNBT ? 0x4040FF : 0x404040));
-					mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
+					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
 							(useOreCategory ? 0x7F7F40 : 0x404040));
-					GL11.glEnable(GL11.GL_LIGHTING);
-					GL11.glEnable(GL11.GL_DEPTH_TEST);
+					com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
 				});
 			}
 		}
 	}
 
-	@Override
+	// isMouseOverSlot(Slot, int, int) removed in 1.20.1 — use isHovering(Slot, double, double)
 	protected boolean isMouseOverSlot(Slot par1Slot, int par2, int par3) {
 		if (!extensionControllerLeft.renderSelectSlot(par1Slot)) {
 			return false;
@@ -336,16 +300,16 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 			return false;
 		}
 		if (isMouseInFuzzyPanel(currentDrawScreenMouseX, currentDrawScreenMouseY)) return false;
-		return super.isMouseOverSlot(par1Slot, par2, par3);
+		return isHovering(par1Slot.x, par1Slot.y, 16, 16, (double)par2, (double)par3);
 	}
 
 	private boolean isMouseInFuzzyPanel(int x, int y) {
 		if (!fuzzySlotActiveGui || fuzzySlot == null) return false;
-		return isPointInRegion(fuzzySlot.getX(), fuzzySlot.getY() + 16, 60, 52, x, y);
+		return isHovering(fuzzySlot.getX(), fuzzySlot.getY() + 16, 60, 52, x, y);
 	}
 
 	protected void checkButtons() {
-		for (GuiButton button : buttonList) {
+		for (net.minecraft.client.gui.components.AbstractWidget button : buttonList) {
 			if (extensionControllerLeft.renderButtonControlled(button)) {
 				button.visible = extensionControllerLeft.renderButton(button);
 			}
@@ -356,101 +320,73 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 	}
 
 	@Nonnull
-	public <T extends GuiButton> T addButton(@Nonnull T button) {
+	public <T extends net.minecraft.client.gui.components.AbstractWidget> T addRenderableWidget(@Nonnull T button) {
+		if (button instanceof SmallGuiButton) {
+			((SmallGuiButton) button).setPressListener(this::actionPerformed);
+		} else if (button instanceof GuiCheckBox) {
+			((GuiCheckBox) button).setPressListener(b -> actionPerformed(b));
+		}
 		buttonList.add(button);
-		return button;
+		return super.addRenderableWidget(button);
 	}
 
-	@Override
-	public final void handleMouseInput() throws IOException {
-		if (subGui != null) {
-			subGui.handleMouseInput();
-		} else {
-			handleMouseInputSub();
-		}
-	}
+	protected void actionPerformed(net.minecraft.client.gui.components.AbstractButton button) {}
 
-	public void handleMouseInputSub() throws IOException {
-		super.handleMouseInput();
-		int x = Mouse.getEventX() * this.width / this.mc.displayWidth;
-		int y = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-		int dWheel = Mouse.getEventDWheel();
-		if (dWheel != 0 && !mouseHandled) {
-			Optional<DummySlot> slotOpt = this.inventorySlots.inventorySlots.stream().filter(it -> it instanceof DummySlot).map(it -> (DummySlot) it).filter(it -> isMouseOverSlot(it, x, y)).findFirst();
-			if (slotOpt.isPresent()) {
-				DummySlot slot = slotOpt.get();
-				slot.setRedirectCall(true);
-				if (slot.getSlotStackLimit() > 0 && slot.getHasStack()) {
-					int buttonActionID = dWheel > 0 ? 1000 : 1001;
-					this.mc.playerController.windowClick(this.inventorySlots.windowId, slot.slotNumber, buttonActionID, ClickType.SWAP, this.mc.player);
-				}
-				slot.setRedirectCall(false);
-				mouseHandled = true;
-			}
-		}
-	}
+	// handleMouseInput removed in 1.20.1 — use mouseScrolled override instead
+	// handleMouseInputSub removed — mouse scroll handling deferred
 
-	@Override
-	public final void handleKeyboardInput() throws IOException {
-		if (subGui != null) {
-			subGui.handleKeyboardInput();
-		} else {
-			super.handleKeyboardInput();
-		}
-		for (EventListener el : onGuiEvents)
-			keyHandled |= el.onKeyboardInput();
-	}
+	// handleKeyboardInput removed in 1.20.1 — use keyPressed override instead
 
 	public void addRenderSlot(IRenderSlot slot) {
 		slots.add(slot);
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-		if (par1 < guiLeft) {
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		if (par1 < leftPos) {
 			extensionControllerLeft.mouseOver(par1, par2);
 		}
-		if (par1 > guiLeft + xSize) {
+		if (par1 > leftPos + imageWidth) {
 			extensionControllerRight.mouseOver(par1, par2);
 		}
 		for (IRenderSlot slot : slots) {
 			if (slot instanceof IItemTextureRenderSlot) {
 				if (slot.drawSlotBackground()) {
-					GuiGraphics.drawSlotBackground(mc, slot.getXPos(), slot.getYPos());
+					LPGuiGraphics.drawSlotBackground(minecraft, slot.getXPos(), slot.getYPos());
 				}
-				if (((IItemTextureRenderSlot) slot).drawSlotIcon() && !((IItemTextureRenderSlot) slot).customRender(mc, zLevel)) {
-					GuiGraphics.renderIconAt(mc, slot.getXPos() + 1, slot.getYPos() + 1, zLevel, ((IItemTextureRenderSlot) slot).getTextureIcon());
+				if (((IItemTextureRenderSlot) slot).drawSlotIcon() && !((IItemTextureRenderSlot) slot).customRender(minecraft, 0.0f)) {
+					LPGuiGraphics.renderIconAt(minecraft, slot.getXPos() + 1, slot.getYPos() + 1, 0.0f, ((IItemTextureRenderSlot) slot).getTextureIcon());
 				}
 			} else if (slot instanceof ISmallColorRenderSlot) {
 				if (slot.drawSlotBackground()) {
-					GuiGraphics.drawSmallSlotBackground(mc, slot.getXPos(), slot.getYPos());
+					LPGuiGraphics.drawSmallSlotBackground(minecraft, slot.getXPos(), slot.getYPos());
 				}
 				if (((ISmallColorRenderSlot) slot).drawColor()) {
-					Gui.drawRect(slot.getXPos() + 1, slot.getYPos() + 1, slot.getXPos() + 7, slot.getYPos() + 7, ((ISmallColorRenderSlot) slot).getColor());
+					guiGraphics.fill(slot.getXPos() + 1, slot.getYPos() + 1, slot.getXPos() + 7, slot.getYPos() + 7, ((ISmallColorRenderSlot) slot).getColor());
 				}
 			}
 		}
 	}
 
 	@Override
-	protected void mouseClicked(int par1, int par2, int par3) throws IOException {
+	public boolean mouseClicked(double par1, double par2, int par3) {
 		for (IRenderSlot slot : slots) {
-			int mouseX = par1 - guiLeft;
-			int mouseY = par2 - guiTop;
+			int mouseX = (int) par1 - leftPos;
+			int mouseY = (int) par2 - topPos;
 			int mouseXMax = mouseX - slot.getSize();
 			int mouseYMax = mouseY - slot.getSize();
 			if (slot.getXPos() < mouseX && slot.getXPos() > mouseXMax && slot.getYPos() < mouseY && slot.getYPos() > mouseYMax) {
 				slot.mouseClicked(par3);
-				return;
+				return true;
 			}
 		}
-		if (isMouseInFuzzyPanel(par1, par2)) {
-			final int posX = fuzzySlot.getX() + guiLeft;
-			final int posY = fuzzySlot.getY() + 17 + guiTop;
+		if (isMouseInFuzzyPanel((int)par1, (int)par2)) {
+			final int posX = fuzzySlot.getX() + leftPos;
+			final int posY = fuzzySlot.getY() + 17 + topPos;
 			int sel = -1;
 			if (par1 >= posX + 5 && par1 <= posX + 56) {
 				if (par2 >= posY + 5 && par2 <= posY + 45) {
-					sel = (par2 - posY - 4) / 10;
+					sel = (int) (par2 - posY - 4) / 10;
 				}
 			}
 			IBitSet set = fuzzySlot.getFuzzyFlags();
@@ -469,53 +405,35 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 					flag = FuzzyFlag.USE_ORE_CATEGORY;
 					break;
 			}
-			if (flag == null) return;
+			if (flag == null) return false;
 			set.flip(flag.getBit());
 			MainProxy.sendPacketToServer(
 					PacketHandler.getPacket(FuzzySlotSettingsPacket.class)
 							.setSlotNumber(fuzzySlot.getSlotId())
 							.setFlags(set.copyValue()));
-			return;
+			return true;
 		}
-		boolean handledButton = false;
-		if (par3 == 0) {
-			for (Object aButtonList : buttonList) {
-				GuiButton guibutton = (GuiButton) aButtonList;
-				if (guibutton.mousePressed(mc, par1, par2)) {
-					selectedButton = guibutton;
-					guibutton.playPressSound(mc.getSoundHandler());
-					actionPerformed(guibutton);
-					handledButton = true;
-					break;
-				}
-			}
-		}
-		if (!handledButton) {
-			super.mouseClicked(par1, par2, par3);
-		}
-		if (par3 == 0 && par1 < guiLeft && !mouseCanPressButton(par1, par2) && !isOverSlot(par1, par2)) {
-			extensionControllerLeft.mouseClicked(par1, par2, par3);
-		}
-		if (par3 == 0 && par1 > guiLeft + xSize && !mouseCanPressButton(par1, par2) && !isOverSlot(par1, par2)) {
-			extensionControllerRight.mouseClicked(par1, par2, par3);
-		}
+		// Button presses are handled by AbstractContainerScreen/Screen's own widget dispatch
+		// (addRenderableWidget wires SmallGuiButton/GuiCheckBox press listeners in this class).
+		return super.mouseClicked(par1, par2, par3);
 	}
 
 	@Override
-	protected void mouseReleased(int par1, int par2, int par3) {
+	public boolean mouseReleased(double par1, double par2, int par3) {
 		if (selectedButton != null && par3 == 0) {
-			selectedButton.mouseReleased(par1, par2);
+			selectedButton.mouseReleased(par1, par2, 0);
 			selectedButton = null;
-		} else if (isMouseInFuzzyPanel(par1 - guiLeft, par2 - guiTop)) {
+			return true;
+		} else if (isMouseInFuzzyPanel((int)(par1 - leftPos), (int)(par2 - topPos))) {
+			return false;
 		} else {
-			super.mouseReleased(par1, par2, par3);
+			return super.mouseReleased(par1, par2, par3);
 		}
 	}
 
 	private boolean mouseCanPressButton(int par1, int par2) {
-		for (Object aButtonList : buttonList) {
-			GuiButton guibutton = (GuiButton) aButtonList;
-			if (guibutton.mousePressed(mc, par1, par2)) {
+		for (net.minecraft.client.gui.components.AbstractWidget b : buttonList) {
+			if (b.visible && b.isMouseOver(par1, par2)) {
 				return true;
 			}
 		}
@@ -523,8 +441,8 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 	}
 
 	private boolean isOverSlot(int par1, int par2) {
-		for (int k = 0; k < inventorySlots.inventorySlots.size(); ++k) {
-			Slot slot = inventorySlots.inventorySlots.get(k);
+		for (int k = 0; k < menu.slots.size(); ++k) {
+			Slot slot = menu.slots.get(k);
 			if (isMouseOverSlot(slot, par1, par2)) {
 				return true;
 			}
@@ -533,15 +451,15 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 	}
 
 	public void drawPoint(int x, int y, int color) {
-		Gui.drawRect(x, y, x + 1, y + 1, color);
+		guiGraphics.fill(x, y, x + 1, y + 1, color);
 	}
 
 	public void drawPoint(int x, int y, Color color) {
-		Gui.drawRect(x, y, x + 1, y + 1, Color.getValue(color));
+		guiGraphics.fill(x, y, x + 1, y + 1, Color.getValue(color));
 	}
 
-	public void drawRect(int x1, int y1, int x2, int y2, Color color) {
-		Gui.drawRect(x1, y1, x2, y2, Color.getValue(color));
+	public void fillRect(int x1, int y1, int x2, int y2, Color color) {
+		guiGraphics.fill(x1, y1, x2, y2, Color.getValue(color));
 	}
 
 	public void drawLine(int x1, int y1, int x2, int y2, Color color) {
@@ -570,12 +488,17 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 	}
 
 	public void closeGui() throws IOException {
-		keyTyped(' ', 1);
+		onClose();
 	}
 
 	@Override
 	public Minecraft getMC() {
-		return mc;
+		return minecraft;
+	}
+
+	@Override
+	public net.minecraft.client.gui.GuiGraphics getGuiGraphics() {
+		return guiGraphics;
 	}
 
 	@Override
@@ -583,26 +506,26 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 		return this;
 	}
 
-	@Override
+	// @Override removed — INEIGuiHandler not in implements (added at runtime by ASM)
 	@ModDependentMethod(modId = LPConstants.neiModID)
-	public List<TaggedInventoryArea> getInventoryAreas(GuiContainer gui) {
+	public List<Object> getInventoryAreas(AbstractContainerScreen gui) { // was: List<TaggedInventoryArea>
 		return null;
 	}
 
-	@Override
+	// @Override removed — INEIGuiHandler not in implements
 	@ModDependentMethod(modId = LPConstants.neiModID)
-	public Iterable<Integer> getItemSpawnSlots(GuiContainer gui, @Nonnull ItemStack stack) {
+	public Iterable<Integer> getItemSpawnSlots(AbstractContainerScreen gui, @Nonnull ItemStack stack) {
 		return null;
 	}
 
-	@Override
+	// @Override removed — INEIGuiHandler not in implements
 	@ModDependentMethod(modId = LPConstants.neiModID)
-	public boolean handleDragNDrop(GuiContainer gui, int mouseX, int mouseY, @Nonnull ItemStack stack, int button) {
-		if (gui instanceof LogisticsBaseGuiScreen && gui.inventorySlots instanceof DummyContainer && !stack.isEmpty()) {
+	public boolean handleDragNDrop(AbstractContainerScreen gui, int mouseX, int mouseY, @Nonnull ItemStack stack, int button) {
+		if (gui instanceof LogisticsBaseGuiScreen && gui.getMenu() instanceof DummyContainer && !stack.isEmpty()) {
 			Slot result = null;
 			int pos = -1;
-			for (int k = 0; k < inventorySlots.inventorySlots.size(); ++k) {
-				Slot slot = inventorySlots.inventorySlots.get(k);
+			for (int k = 0; k < menu.slots.size(); ++k) {
+				Slot slot = menu.slots.get(k);
 				if (isMouseOverSlot(slot, mouseX, mouseY)) {
 					result = slot;
 					pos = k;
@@ -611,7 +534,7 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 			}
 			if (result != null) {
 				if (result instanceof DummySlot || result instanceof ColorSlot || result instanceof FluidSlot) {
-					((DummyContainer) gui.inventorySlots).handleDummyClick(result, pos, stack, button, ClickType.PICKUP, mc.player);
+					((DummyContainer) gui.getMenu()).handleDummyClick(result, pos, stack, button, ClickType.PICKUP, minecraft.player);
 					MainProxy.sendPacketToServer(PacketHandler.getPacket(DummyContainerSlotClick.class).setSlotId(pos).setStack(stack).setButton(button));
 					return true;
 				}
@@ -620,9 +543,9 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 		return false;
 	}
 
-	@Override
+	// @Override removed — INEIGuiHandler not in implements
 	@ModDependentMethod(modId = LPConstants.neiModID)
-	public boolean hideItemPanelSlot(GuiContainer gui, int x, int y, int w, int h) {
+	public boolean hideItemPanelSlot(AbstractContainerScreen gui, int x, int y, int w, int h) {
 		if (gui instanceof LogisticsBaseGuiScreen) {
 			return ((LogisticsBaseGuiScreen) gui).extensionControllerRight.isOverPanel(x, y, w, h);
 		}
@@ -650,65 +573,8 @@ public abstract class LogisticsBaseGuiScreen extends GuiContainer implements ISu
 	}
 
 	public void drawCenteredString(String text, int x, int y, int color) {
-		int actualX = x - mc.fontRenderer.getStringWidth(text) / 2;
-		mc.fontRenderer.drawString(text, actualX, y, color);
+		int actualX = x - minecraft.font.width(text) / 2;
+		guiGraphics.drawString(minecraft.font, text, actualX, y, color);
 	}
 
-	@Deprecated
-	public static void drawHorizontalGradientRect(int left, int top, int right, int bottom, int z, int colorLeft, int colorRight){
-		float aL = (float)(colorLeft >> 24 & 255) / 255.0F;
-		float rL = (float)(colorLeft >> 16 & 255) / 255.0F;
-		float gL = (float)(colorLeft >> 8 & 255) / 255.0F;
-		float bL = (float)(colorLeft & 255) / 255.0F;
-		float aR = (float)(colorRight >> 24 & 255) / 255.0F;
-		float rR = (float)(colorRight >> 16 & 255) / 255.0F;
-		float gR = (float)(colorRight >> 8 & 255) / 255.0F;
-		float bR = (float)(colorRight & 255) / 255.0F;
-		GlStateManager.disableTexture2D();
-		GlStateManager.enableBlend();
-		GlStateManager.disableAlpha();
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		GlStateManager.shadeModel(7425);
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuffer();
-		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-		bufferbuilder.pos((double)right, (double)top, (double)z).color(rR, gR, bR, aR).endVertex();
-		bufferbuilder.pos((double)left, (double)top, (double)z).color(rL, gL, bL, aL).endVertex();
-		bufferbuilder.pos((double)left, (double)bottom, (double)z).color(rL, gL, bL, aL).endVertex();
-		bufferbuilder.pos((double)right, (double)bottom, (double)z).color(rR, gR, bR, aR).endVertex();
-		tessellator.draw();
-		GlStateManager.shadeModel(7424);
-		GlStateManager.disableBlend();
-		GlStateManager.enableAlpha();
-		GlStateManager.enableTexture2D();
-	}
-
-	@Deprecated
-	public static void drawVerticalGradientRect(int left, int top, int right, int bottom, int z, int colorTop, int colorBottom){
-		float aT = (float)(colorTop >> 24 & 255) / 255.0F;
-		float rT = (float)(colorTop >> 16 & 255) / 255.0F;
-		float gT = (float)(colorTop >> 8 & 255) / 255.0F;
-		float bT = (float)(colorTop & 255) / 255.0F;
-		float aB = (float)(colorBottom >> 24 & 255) / 255.0F;
-		float rB = (float)(colorBottom >> 16 & 255) / 255.0F;
-		float gB = (float)(colorBottom >> 8 & 255) / 255.0F;
-		float bB = (float)(colorBottom & 255) / 255.0F;
-		GlStateManager.disableTexture2D();
-		GlStateManager.enableBlend();
-		GlStateManager.disableAlpha();
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		GlStateManager.shadeModel(7425);
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuffer();
-		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-		bufferbuilder.pos((double)right, (double)top, (double)z).color(rT, gT, bT, aT).endVertex();
-		bufferbuilder.pos((double)left, (double)top, (double)z).color(rT, gT, bT, aT).endVertex();
-		bufferbuilder.pos((double)left, (double)bottom, (double)z).color(rB, gB, bB, aB).endVertex();
-		bufferbuilder.pos((double)right, (double)bottom, (double)z).color(rB, gB, bB, aB).endVertex();
-		tessellator.draw();
-		GlStateManager.shadeModel(7424);
-		GlStateManager.disableBlend();
-		GlStateManager.enableAlpha();
-		GlStateManager.enableTexture2D();
-	}
 }

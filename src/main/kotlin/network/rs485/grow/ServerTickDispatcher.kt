@@ -56,7 +56,7 @@ object ServerTickDispatcher : CoroutineDispatcher() {
             LogisticsPipes.log.info("Server tick complete! Hello from the async scope")
         }.invokeOnCompletion { throwable ->
             throwable?.stackTraceToString()?.also { stacktrace ->
-                LogisticsPipes.log.fatal("Error when greeting server tick scope:\n$stacktrace")
+                LogisticsPipes.log.error("Error when greeting server tick scope:\n$stacktrace")
             }
         }
     }

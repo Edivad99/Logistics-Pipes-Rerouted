@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.BitSetCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -21,8 +21,8 @@ public class FireWallFlag extends BitSetCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		final LogisticsTileGenericPipe pipe = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		final LogisticsTileGenericPipe pipe = this.getPipe(player.level());
 		if (pipe == null) {
 			return;
 		}

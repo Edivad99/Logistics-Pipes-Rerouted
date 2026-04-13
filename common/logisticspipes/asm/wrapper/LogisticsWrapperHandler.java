@@ -15,10 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.launchwrapper.Launch;
-import net.minecraft.launchwrapper.LogWrapper;
-
-import org.apache.logging.log4j.Level;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -40,10 +36,19 @@ public class LogisticsWrapperHandler {
 
 	private static final boolean DUMP = false;
 
+	private static final WrapperClassLoader CLASS_LOADER = new WrapperClassLoader();
+
+	private static final class WrapperClassLoader extends ClassLoader {
+		WrapperClassLoader() {
+			super(LogisticsWrapperHandler.class.getClassLoader());
+		}
+		Class<?> define(String name, byte[] data) {
+			return defineClass(name, data, 0, data.length);
+		}
+	}
+
 	private static Map<String, Class<?>> lookupMap = new HashMap<>();
 	public static List<AbstractWrapper> wrapperController = new ArrayList<>();
-
-	private static Method m_defineClass = null;
 
 	private LogisticsWrapperHandler() {}
 
@@ -237,7 +242,7 @@ public class LogisticsWrapperHandler {
 						LogisticsWrapperHandler.saveGeneratedClass(bytes, lookfor, "LP_WRAPPER_CLASSES");
 					}
 					ClassReader cr = new ClassReader(bytes);
-					org.objectweb.asm.util.CheckClassAdapter.verify(cr, Launch.classLoader, false, new PrintWriter(System.err));
+					org.objectweb.asm.util.CheckClassAdapter.verify(cr, CLASS_LOADER, false, new PrintWriter(System.err));
 				}
 
 				try {
@@ -249,7 +254,7 @@ public class LogisticsWrapperHandler {
 							System.err.println(e.getMessage());
 							System.err.printf("Already loaded: %s%n", prev);
 							String resourcePath = className.replace('.', '/').concat(".class");
-							URL classResource = Launch.classLoader.findResource(resourcePath);
+							URL classResource = CLASS_LOADER.getResource(resourcePath);
 							if (classResource != null) {
 								String path = classResource.getPath();
 								System.err.println("Class source: " + path);
@@ -382,7 +387,7 @@ public class LogisticsWrapperHandler {
 						LogisticsWrapperHandler.saveGeneratedClass(bytes, lookfor, "LP_WRAPPER_CLASSES");
 					}
 					ClassReader cr = new ClassReader(bytes);
-					org.objectweb.asm.util.CheckClassAdapter.verify(cr, Launch.classLoader, false, new PrintWriter(System.err));
+					org.objectweb.asm.util.CheckClassAdapter.verify(cr, CLASS_LOADER, false, new PrintWriter(System.err));
 				}
 
 				try {
@@ -394,7 +399,7 @@ public class LogisticsWrapperHandler {
 							System.err.println(e.getMessage());
 							System.err.printf("Already loaded: %s%n", prev);
 							String resourcePath = className.replace('.', '/').concat(".class");
-							URL classResource = Launch.classLoader.findResource(resourcePath);
+							URL classResource = CLASS_LOADER.getResource(resourcePath);
 							if (classResource != null) {
 								String path = classResource.getPath();
 								System.err.println("Class source: " + path);
@@ -416,12 +421,8 @@ public class LogisticsWrapperHandler {
 		return instance;
 	}
 
-	private static Class<?> loadClass(byte[] data, String lookfor) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		if (LogisticsWrapperHandler.m_defineClass == null) {
-			LogisticsWrapperHandler.m_defineClass = ClassLoader.class.getDeclaredMethod("defineClass", byte[].class, int.class, int.class);
-			LogisticsWrapperHandler.m_defineClass.setAccessible(true);
-		}
-		return (Class<?>) LogisticsWrapperHandler.m_defineClass.invoke(Launch.classLoader, data, 0, data.length);
+	private static Class<?> loadClass(byte[] data, String lookfor) {
+		return CLASS_LOADER.define(lookfor, data);
 	}
 
 	private static void addGetTypeName(ClassWriter cw, String className, String type) {
@@ -662,7 +663,7 @@ public class LogisticsWrapperHandler {
 
 	public static void saveGeneratedClass(final byte[] data, final String transformedName, final String folder) {
 		if (LogisticsWrapperHandler.tempFolder == null) {
-			LogisticsWrapperHandler.tempFolder = new File(Launch.minecraftHome, folder);
+			LogisticsWrapperHandler.tempFolder = new File(System.getProperty("user.dir"), folder);
 		}
 
 		final File outFile = new File(LogisticsWrapperHandler.tempFolder, transformedName.replace('.', File.separatorChar) + ".class");
@@ -677,13 +678,13 @@ public class LogisticsWrapperHandler {
 		}
 
 		try {
-			LogWrapper.fine("Saving transformed class \"%s\" to \"%s\"", transformedName, outFile.getAbsolutePath().replace('\\', '/'));
+			LogisticsPipes.log.debug("Saving transformed class \"{}\" to \"{}\"", transformedName, outFile.getAbsolutePath().replace('\\', '/'));
 
 			final OutputStream output = new FileOutputStream(outFile);
 			output.write(data);
 			output.close();
 		} catch (IOException ex) {
-			LogWrapper.log(Level.WARN, ex, "Could not save transformed class \"%s\"", transformedName);
+			LogisticsPipes.log.warn("Could not save transformed class \"{}\"", transformedName, ex);
 		}
 	}
 }

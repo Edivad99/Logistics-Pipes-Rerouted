@@ -41,9 +41,10 @@ import logisticspipes.LPItems
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.MinecraftColor
 import com.google.common.collect.ImmutableSet
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
 import java.util.*
 
 data class InlineDrawableState(var format: Set<TextFormat>, var color: Int, var link: Link?)
@@ -74,13 +75,13 @@ class ItemLink(translationKey: String) : Link() {
                         it.getOrElse(1) { "broken_item" }
                 )
             }
-            val item: Item? = Item.REGISTRY.getObject(resourceLocation)
+            val item: Item? = BuiltInRegistries.ITEM.get(resourceLocation)
             if(item == null) {
                 LogisticsPipes.log.error("Item doesn't exist: $translationKey")
             }
-            ItemStack(item ?: LPItems.brokenItem)
+            ItemStack(item ?: LPItems.getBrokenItem())
         } else {
-            ItemStack(LPItems.brokenItem)
+            ItemStack(LPItems.getBrokenItem())
         }
     }
 }
@@ -95,7 +96,7 @@ data class LinkFormatting(val link: Link?) : InlineElement() {
     }
 }
 
-data class TextFormatting(val format: EnumSet<TextFormat>) : InlineElement() {
+data class ChatFormatting(val format: EnumSet<TextFormat>) : InlineElement() {
     override fun changeDrawableState(state: InlineDrawableState) {
         state.format = this.format
     }

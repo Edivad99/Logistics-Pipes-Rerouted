@@ -1,9 +1,11 @@
 package logisticspipes.transport;
 
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+
 import java.util.Objects;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
@@ -23,15 +25,15 @@ public class TransportInvConnection extends PipeTransportLogistics {
 	}
 
 	@Override
-	protected void inventorySystemConnectorHook(ItemRoutingInformation info, TileEntity tile) {
+	protected void inventorySystemConnectorHook(ItemRoutingInformation info, BlockEntity tile) {
 		if (tile == null) {
 			return;
 		}
 
-		final EnumFacing orientationOfTilewithTile = OrientationsUtil.getOrientationOfTilewithTile(getPipe().container, tile);
+		final Direction orientationOfTilewithTile = OrientationsUtil.getOrientationOfTilewithTile(getPipe().container, tile);
 		Objects.requireNonNull(orientationOfTilewithTile, "Could not get direction from pipe and tile entity");
 
-		if (tile.hasCapability(LogisticsPipes.ITEM_HANDLER_CAPABILITY, orientationOfTilewithTile.getOpposite())) {
+		if (tile.getLevel() != null && tile.getCapability(ForgeCapabilities.ITEM_HANDLER, orientationOfTilewithTile.getOpposite()).isPresent()) {
 			((PipeItemsInvSysConnector) container.pipe).handleItemEnterInv(info, tile);
 		}
 	}

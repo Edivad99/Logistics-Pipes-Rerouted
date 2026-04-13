@@ -1,8 +1,8 @@
 package logisticspipes.gui.popup;
 
-import net.minecraft.client.gui.GuiButton;
 
-import logisticspipes.utils.gui.GuiGraphics;
+
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -27,10 +27,11 @@ public class GuiMessagePopup extends SubGuiScreen {
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
-		buttonList.add(new GuiButton(0, xCenter - 25, bottom - 25, 50, 20, "OK"));
+	public void init() {
+		super.init();
+		logisticspipes.utils.gui.SmallGuiButton ok = new logisticspipes.utils.gui.SmallGuiButton(0, xCenter - 25, bottom - 25, 50, 20, "OK");
+		ok.setPressListener(b -> exitGui());
+		addRenderableWidget(ok);
 	}
 
 	@Override
@@ -38,31 +39,23 @@ public class GuiMessagePopup extends SubGuiScreen {
 		if (mWidth == 0) {
 			int lWidth = 0;
 			for (String msg : text) {
-				int tWidth = mc.fontRenderer.getStringWidth(msg);
+				int tWidth = minecraft.font.width(msg);
 				if (tWidth > lWidth) {
 					lWidth = tWidth;
 				}
 			}
 			xSize = mWidth = Math.max(Math.min(lWidth + 20, 400), 120);
-			super.initGui();
+			super.init();
 		}
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
+		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
 		for (int i = 0; i < 9 && i < text.length; i++) {
 			if (text[i] == null) {
 				continue;
 			}
-			String msg = TextUtil.getTrimmedString(text[i], mWidth - 10, fontRenderer, "");
-			int stringWidth = mc.fontRenderer.getStringWidth(msg);
-			mc.fontRenderer.drawString(msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0x404040);
+			String msg = TextUtil.getTrimmedString(text[i], mWidth - 10, font, "");
+			int stringWidth = minecraft.font.width(msg);
+			getGuiGraphics().drawString(minecraft.font, msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0x404040);
 		}
 	}
 
-	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch (guibutton.id) {
-			case 0:
-				super.exitGui();
-				break;
-		}
-	}
 }

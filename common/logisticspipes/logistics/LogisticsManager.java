@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.interfaces.routing.ICraftItems;
 import logisticspipes.interfaces.routing.IFilter;

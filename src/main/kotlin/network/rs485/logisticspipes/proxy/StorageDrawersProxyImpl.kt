@@ -38,164 +38,29 @@
 package network.rs485.logisticspipes.proxy
 
 import network.rs485.logisticspipes.inventory.ProviderMode
-import network.rs485.logisticspipes.util.equalsWithNBT
 import logisticspipes.LPConstants
 import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler
 import logisticspipes.utils.item.ItemIdentifier
-import com.jaquadro.minecraft.storagedrawers.api.storage.IDrawer
-import com.jaquadro.minecraft.storagedrawers.api.storage.IDrawerAttributes
-import com.jaquadro.minecraft.storagedrawers.api.storage.IDrawerGroup
-import net.minecraftforge.common.capabilities.Capability
-import net.minecraftforge.common.capabilities.CapabilityInject
-import net.minecraftforge.fml.common.Loader
-import net.minecraftforge.fml.common.versioning.ArtifactVersion
-import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion
-import net.minecraftforge.fml.common.versioning.VersionRange
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import kotlin.math.min
+import net.minecraftforge.fml.ModList
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
 
 class StorageDrawersProxyImpl : SpecialInventoryHandler.Factory {
 
-    companion object {
-        @JvmStatic
-        @CapabilityInject(IDrawerGroup::class)
-        val drawerGroupCapability: Capability<IDrawerGroup>? = null
+    // Storage Drawers 1.20.1 uses a different capability API.
+    // Re-implement isType/getUtilForTile once Storage Drawers 1.20.1 BlockCapability API is available.
 
-        @JvmStatic
-        @CapabilityInject(IDrawerAttributes::class)
-        val drawerAttributesCapability: Capability<IDrawerAttributes>? = null
-    }
-
-    override fun isType(tile: TileEntity, dir: EnumFacing?): Boolean = tile.hasCapability(drawerGroupCapability!!, dir)
+    override fun isType(tile: BlockEntity, dir: Direction?): Boolean = false
 
     override fun getUtilForTile(
-        tile: TileEntity,
-        direction: EnumFacing?,
+        tile: BlockEntity,
+        direction: Direction?,
         mode: ProviderMode
-    ): SpecialInventoryHandler? =
-        drawerGroupCapability?.let {
-            val drawerAttributes = drawerAttributesCapability?.let { tile.getCapability(it, direction) }
-            tile.getCapability(drawerGroupCapability, direction)?.let { drawerGroup ->
-                StorageDrawersInventoryHandler(drawerGroup, drawerAttributes, mode)
-            }
-        }
+    ): SpecialInventoryHandler? = null
 
-    override fun init(): Boolean =
-        Loader.instance().modList.firstOrNull { it.modId == LPConstants.storagedrawersModID }?.let {
-            val validVersions = VersionRange.createFromVersionSpec("[1.12.2-5.4.0,1.12.3)")
-            val validVersionsFml = VersionRange.createFromVersionSpec("5.2.2")
-            val version: ArtifactVersion = DefaultArtifactVersion(it.version)
-            (validVersions.containsVersion(version) || validVersionsFml.containsVersion(version))
-                    && drawerGroupCapability != null
-        } ?: false
+    override fun init(): Boolean = ModList.get().isLoaded(LPConstants.storagedrawersModID)
 
 }
 
-class StorageDrawersInventoryHandler(
-    private val drawerGroup: IDrawerGroup,
-    private val drawerAttributes: IDrawerAttributes?,
-    private val mode: ProviderMode,
-) : SpecialInventoryHandler() {
-
-    private fun checkSlot(slot: Int): Boolean = slot in mode.cropStart until (drawerGroup.drawerCount - mode.cropEnd)
-
-    private fun <T> fullDrawerApply(slot: Int, apply: (IDrawer) -> T) =
-        drawerGroup.getDrawer(slot).takeIf { it.isEnabled && !it.isEmpty }?.let(apply)
-
-    private fun accessibleDrawerSlots() = drawerGroup.accessibleDrawerSlots.filter(::checkSlot)
-
-    private fun slotMachine() = accessibleDrawerSlots()
-        .flatMap { slot ->
-            fullDrawerApply(slot) {
-                listOf(Triple(slot, it.storedItemPrototype, it.storedItemCount))
-            } ?: emptyList()
-        }
-
-    private fun Int.hideSinglePerTypeOrStack(): Int =
-        (if (mode.hideOnePerStack || mode.hideOnePerType) minus(1) else this).coerceAtLeast(0)
-
-    private fun Int.hideSinglePerStack(): Int = if (mode.hideOnePerStack) minus(1) else this
-
-    private fun enabledDrawerSequence(): Sequence<IDrawer> =
-        accessibleDrawerSlots().asSequence()
-            .map { slot -> drawerGroup.getDrawer(slot) }
-            .filter { drawer -> drawer.isEnabled }
-
-    override fun getItems(): MutableSet<ItemIdentifier> = accessibleDrawerSlots().flatMapTo(HashSet()) { slot ->
-        fullDrawerApply(slot) { listOf(ItemIdentifier.get(it.storedItemPrototype)) } ?: emptyList()
-    }
-
-    override fun getStackInSlot(slot: Int): ItemStack =
-        if (checkSlot(slot) && slot in drawerGroup.accessibleDrawerSlots) {
-            fullDrawerApply(slot) { it.storedItemPrototype } ?: ItemStack.EMPTY
-        } else ItemStack.EMPTY
-
-    override fun decrStackSize(slot: Int, amount: Int): ItemStack =
-        if (amount <= 0) ItemStack.EMPTY else getStackInSlot(slot).let { slotStack ->
-            if (slotStack.isEmpty) slotStack else slotStack.copy().also { stackCopy ->
-                if (drawerAttributes?.isUnlimitedStorage == true || drawerAttributes?.isUnlimitedVending == true) {
-                    stackCopy.count = amount
-                } else {
-                    val wantToDecrease = -min(amount, slotStack.count.hideSinglePerTypeOrStack())
-                    val toDecrease = drawerGroup.getDrawer(slot).adjustStoredItemCount(wantToDecrease)
-                    stackCopy.grow(toDecrease)
-                }
-            }
-        }
-
-    override fun itemCount(itemid: ItemIdentifier): Int = slotMachine()
-        .filter { (_, stack, _) -> itemid.equalsWithNBT(stack) }
-        .sumOf { (_, _, count) -> count.hideSinglePerStack() }
-        .apply { if (mode.hideOnePerType && !mode.hideOnePerStack) minus(1) }
-        .coerceAtLeast(0)
-
-    override fun getItemsAndCount(): MutableMap<ItemIdentifier, Int> = HashMap<ItemIdentifier, Int>().also { map ->
-        slotMachine().forEach { (_, stack, count) ->
-            map.compute(ItemIdentifier.get(stack)) { _, existing ->
-                count.hideSinglePerStack() + (existing ?: if (mode.hideOnePerType && !mode.hideOnePerStack) -1 else 0)
-            }
-        }
-        map.forEach { (k, v) -> map[k] = v.coerceAtLeast(0) }
-    }
-
-    override fun getSizeInventory(): Int = drawerGroup.drawerCount
-
-    override fun getMultipleItems(itemid: ItemIdentifier, count: Int): ItemStack {
-        var left = count
-        enabledDrawerSequence()
-            .takeWhile { left > 0 }
-            .filter { drawer -> !drawer.isEmpty && itemid.equalsWithNBT(drawer.storedItemPrototype) }
-            .forEach { drawer -> left = drawer.adjustStoredItemCount(-left) }
-        return itemid.makeNormalStack(count - left)
-    }
-
-    override fun containsUndamagedItem(itemid: ItemIdentifier): Boolean =
-        accessibleDrawerSlots().any { slot ->
-            fullDrawerApply(slot) { drawer -> itemid.equalsWithNBT(drawer.storedItemPrototype) } ?: false
-        }
-
-    override fun add(stack: ItemStack, orientation: EnumFacing?, doAdd: Boolean): ItemStack {
-        var left = stack.count
-        enabledDrawerSequence()
-            .takeWhile { left > 0 }
-            .filter { drawer -> drawer.canItemBeStored(stack) }
-            .forEach { drawer ->
-                left = if (doAdd) {
-                    drawer.adjustStoredItemCount(left)
-                } else {
-                    (left - drawer.acceptingRemainingCapacity).coerceAtLeast(0)
-                }
-            }
-        return stack.copy().also { it.grow(-left) }
-    }
-
-    override fun roomForItem(stack: ItemStack): Int = accessibleDrawerSlots().map { slot ->
-        drawerGroup.getDrawer(slot)
-            .let { if (it.isEnabled && it.canItemBeStored(stack)) it.acceptingRemainingCapacity else 0 }
-    }.sum()
-
-    override fun getSingleItem(item: ItemIdentifier?): ItemStack = throw NotImplementedError("Unused operation")
-
-}
+// StorageDrawersInventoryHandler: re-implement once Storage Drawers 1.20.1 BlockCapability API is available.

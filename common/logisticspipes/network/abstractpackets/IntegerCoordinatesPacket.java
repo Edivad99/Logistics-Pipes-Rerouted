@@ -16,6 +16,11 @@ public abstract class IntegerCoordinatesPacket extends CoordinatesPacket {
 		super(id);
 	}
 
+	public IntegerCoordinatesPacket putInt(int value) {
+		setInteger(value);
+		return this;
+	}
+
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);

@@ -14,7 +14,7 @@ public abstract class IntegerModuleCoordinatesPacket extends ModuleCoordinatesPa
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
-		setInteger(input.readInt());
+		putInt(input.readInt());
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public abstract class IntegerModuleCoordinatesPacket extends ModuleCoordinatesPa
 		return this.integer;
 	}
 
-	public IntegerModuleCoordinatesPacket setInteger(int integer) {
+	public IntegerModuleCoordinatesPacket putInt(int integer) {
 		this.integer = integer;
 		return this;
 	}

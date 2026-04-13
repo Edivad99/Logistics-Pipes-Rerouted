@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.orderer;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -46,8 +46,8 @@ public class OrdererWatchPacket extends IntegerCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe tile = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe tile = this.getPipe(player.level());
 		if (tile.pipe instanceof IRequestWatcher) {
 			((IRequestWatcher) tile.pipe).handleClientSideListInfo(getInteger(), getStack(), getOrders());
 		}

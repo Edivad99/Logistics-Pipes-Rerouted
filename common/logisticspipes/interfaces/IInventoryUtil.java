@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.utils.item.ItemIdentifier;
 
@@ -44,12 +44,12 @@ public interface IInventoryUtil {
 	@Nonnull
 	Set<ItemIdentifier> getItems();
 
-	//IInventory adapter
-	int getSizeInventory();
+	//AbstractContainerMenu adapter
+	int getContainerSize();
 
 	@Nonnull
-	ItemStack getStackInSlot(int slot);
+	ItemStack getItem(int slot);
 
 	@Nonnull
-	ItemStack decrStackSize(int slot, int amount);
+	ItemStack removeItem(int slot, int amount);
 }

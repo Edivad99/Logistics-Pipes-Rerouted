@@ -8,14 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +49,6 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import network.rs485.logisticspipes.connection.AdjacentUtilKt;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.BooleanProperty;
@@ -76,7 +73,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 
 	// properties for the regular configuration
 	public final ItemIdentifierInventoryProperty inventory =
-			new ItemIdentifierInventoryProperty(new ItemIdentifierInventory(SUPPLIER_SLOTS, "", 127), "");
+			new ItemIdentifierInventoryProperty(new ItemIdentifierInventory(SUPPLIER_SLOTS, "", 127), "supplierInv");
 	public final EnumProperty<SupplyMode> requestMode =
 			new EnumProperty<>(SupplyMode.Bulk50, "requestmode", SupplyMode.values());
 	public final BooleanProperty isLimited = new BooleanProperty(true, "limited");
@@ -133,7 +130,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void startWatching(EntityPlayer player) {
+	public void startWatching(Player player) {
 		localModeWatchers.add(player);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
 						.setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
@@ -142,7 +139,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void stopWatching(EntityPlayer player) {
+	public void stopWatching(Player player) {
 		localModeWatchers.remove(player);
 	}
 
@@ -158,7 +155,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void InventoryChanged(IInventory inventory) {
+	public void InventoryChanged(Container inventory) {
 		if (MainProxy.isServer(getWorld())) {
 			MainProxy.sendToPlayerList(PacketHandler.getPacket(ModuleInventory.class)
 							.setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
@@ -207,7 +204,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 				.forEach(amount -> service.spawnParticle(Particles.VioletParticle, 2));
 
 		AdjacentUtilKt.sneakyInventoryUtils(service.getAvailableAdjacent(), getUpgradeManager()).stream()
-				.filter(invUtil -> invUtil != null && invUtil.getSizeInventory() > 0)
+				.filter(invUtil -> invUtil != null && invUtil.getContainerSize() > 0)
 				.forEach(invUtil -> {
 					if (getUpgradeManager().hasPatternUpgrade()) {
 						createPatternRequest(invUtil);
@@ -228,10 +225,10 @@ public class ModuleActiveSupplier extends LogisticsModule
 				continue;
 			}
 			final Integer slotAssignedTo = slotAssignmentPattern.get(i);
-			if (invUtil.getSizeInventory() <= slotAssignedTo) {
+			if (invUtil.getContainerSize() <= slotAssignedTo) {
 				continue;
 			}
-			ItemStack stack = invUtil.getStackInSlot(slotAssignedTo);
+			ItemStack stack = invUtil.getItem(slotAssignedTo);
 			ItemIdentifierStack have = null;
 			if (!stack.isEmpty()) {
 				have = ItemIdentifierStack.getFromStack(stack);
@@ -403,20 +400,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 		}
 	}
 
-	@Override
-	public void readFromNBT(@Nonnull NBTTagCompound tag) {
-		super.readFromNBT(tag);
-		// deprecated, TODO: remove after 1.12
-		final List<Pair<Integer, String>> slotArrayList = IntStream.range(0, SUPPLIER_SLOTS)
-				.mapToObj((idx) -> new Pair<>(idx, "slotArray_" + idx))
-				.filter((it) -> tag.hasKey(it.getValue2()))
-				.collect(Collectors.toList());
-		if (!slotArrayList.isEmpty()) {
-			final int[] slotArray = new int[SUPPLIER_SLOTS];
-			slotArrayList.forEach((pair) -> slotArray[pair.getValue1()] = tag.getInteger(pair.getValue2()));
-			slotAssignmentPattern.replaceContent(slotArray);
-		}
-	}
 
 	private void decreaseRequested(ItemIdentifierStack item) {
 		final IPipeServiceProvider service = Objects.requireNonNull(_service);

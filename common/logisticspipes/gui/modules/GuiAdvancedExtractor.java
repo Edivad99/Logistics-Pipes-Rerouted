@@ -7,10 +7,12 @@
 
 package logisticspipes.gui.modules;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.inventory.IInventory;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphics;
 
-import org.lwjgl.opengl.GL11;
+import net.minecraft.world.Container;
+
+
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.module.AdvancedExtractorSneakyGuiPacket;
@@ -23,6 +25,7 @@ import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.ValuePropertyOverlay;
+import javax.annotation.Nonnull;
 
 public class GuiAdvancedExtractor extends ModuleBaseGui {
 
@@ -30,75 +33,65 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 	private final PropertyLayer propertyLayer;
 	private final ValuePropertyOverlay<Boolean, BooleanProperty> itemsIncludedOverlay;
 
-	public GuiAdvancedExtractor(IInventory playerInventory, AsyncAdvancedExtractor advancedExtractor) {
-		super(null, advancedExtractor);
+	public GuiAdvancedExtractor(Container playerInventory, AsyncAdvancedExtractor advancedExtractor) {
+		super(buildDummy(playerInventory, advancedExtractor), advancedExtractor);
 		_advancedExtractor = advancedExtractor;
 
 		propertyLayer = new PropertyLayer(_advancedExtractor.getProperties());
 
 		itemsIncludedOverlay = propertyLayer.overlay(_advancedExtractor.getItemsIncluded());
 
-		DummyContainer dummy = new DummyContainer(playerInventory, _advancedExtractor.getFilterInventory());
+		imageWidth = 175;
+		imageHeight = 142;
+	}
+	private static DummyContainer buildDummy(Container playerInventory, AsyncAdvancedExtractor advancedExtractor) {
+		DummyContainer dummy = new DummyContainer(playerInventory, advancedExtractor.getFilterInventory());
 		dummy.addNormalSlotsForPlayerInventory(8, 60);
 
 		//Pipe slots
 		for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
 			dummy.addDummySlot(pipeSlot, 8 + pipeSlot * 18, 18);
 		}
-
-		inventorySlots = dummy;
-		xSize = 175;
-		ySize = 142;
+		return dummy;
 	}
 
+
 	@Override
-	public void initGui() {
-		super.initGui();
+	public void init() {
+		super.init();
 		//Default item toggle:
-		buttonList.clear();
-		buttonList.add(new GuiStringHandlerButton(0, width / 2 + 20, height / 2 - 34, 60, 20,
-				() -> itemsIncludedOverlay.get() ? "Included" : "Excluded"));
+		addRenderableWidget(new GuiStringHandlerButton(0, width / 2 + 20, height / 2 - 34, 60, 20,
+				() -> itemsIncludedOverlay.get() ? "Included" : "Excluded",
+				() -> itemsIncludedOverlay.write(BooleanProperty::toggle)));
 
-		buttonList.add(new GuiButton(1, width / 2 - 25, height / 2 - 34, 40, 20, "Sneaky"));
+		logisticspipes.utils.gui.SmallGuiButton sneaky = new logisticspipes.utils.gui.SmallGuiButton(1, width / 2 - 25, height / 2 - 34, 40, 20, "Sneaky");
+		sneaky.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(AdvancedExtractorSneakyGuiPacket.class).setModulePos(_advancedExtractor)));
+		addRenderableWidget(sneaky);
 	}
 
 	@Override
-	public void onGuiClosed() {
-		super.onGuiClosed();
+	public void onClose() {
+		super.onClose();
 		propertyLayer.unregister();
-		if (this.mc.player != null && !propertyLayer.getProperties().isEmpty()) {
+		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
 			MainProxy.sendPacketToServer(ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(module));
 		}
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch (guibutton.id) {
-			case 0:
-				itemsIncludedOverlay.write(BooleanProperty::toggle);
-				break;
-			case 1:
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(AdvancedExtractorSneakyGuiPacket.class)
-						.setModulePos(_advancedExtractor));
-				break;
-		}
-
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) _advancedExtractor.getFilterInventory()).getName(), 8, 6, 0x404040);
+		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040);
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-		mc.fontRenderer.drawString(_advancedExtractor.getFilterInventory().getName(), 8, 6, 0x404040);
-		mc.fontRenderer.drawString("Inventory", 8, ySize - 92, 0x404040);
-	}
-
-	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int x, int y) {
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.renderEngine.bindTexture(LogisticsBaseGuiScreen.ITEMSINK);
-		int j = guiLeft;
-		int k = guiTop;
-		drawTexturedModalRect(j, k, 0, 0, xSize, ySize);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		// texture: LogisticsBaseGuiScreen.ITEMSINK
+		int j = leftPos;
+		int k = topPos;
+		guiGraphics.blit(LogisticsBaseGuiScreen.ITEMSINK, j, k, 0, 0, imageWidth, imageHeight);
 	}
 
 }

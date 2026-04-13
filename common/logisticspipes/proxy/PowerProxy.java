@@ -1,10 +1,10 @@
 package logisticspipes.proxy;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
-import net.minecraftforge.energy.CapabilityEnergy;
+// CapabilityEnergy removed in NeoForge 1.20.1 — use ForgeCapabilities.EnergyStorage.BLOCK
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 
@@ -20,37 +20,39 @@ public class PowerProxy implements IPowerProxy {
 			super(capacity);
 		}
 
-		public void readFromNBT(NBTTagCompound nbt) {
-			this.energy = nbt.getInteger("Energy");
+		public void readFromNBT(CompoundTag nbt) {
+			this.energy = nbt.getInt("Energy");
 
 			if (energy > capacity) {
 				energy = capacity;
 			}
 		}
 
-		public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+		public CompoundTag writeToNBT(CompoundTag nbt) {
 			if (energy < 0) {
 				energy = 0;
 			}
-			nbt.setInteger("Energy", energy);
+			nbt.putInt("Energy", energy);
 			return nbt;
 		}
 	}
 
 	@Override
-	public boolean isEnergyReceiver(TileEntity tile, EnumFacing face) {
-		if (tile != null && tile.hasCapability(CapabilityEnergy.ENERGY, face)) {
-			return tile.getCapability(CapabilityEnergy.ENERGY, face).canReceive();
+	public boolean isEnergyReceiver(BlockEntity tile, Direction face) {
+		if (tile != null && tile.getLevel() != null) {
+			IEnergyStorage storage = tile.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ENERGY, face).orElse(null);
+			if (storage != null) return storage.canReceive();
 		}
 		return tile instanceof IEnergyStorage;
 	}
 
 	@Override
-	public ICoFHEnergyReceiver getEnergyReceiver(TileEntity tile, EnumFacing face) {
+	public ICoFHEnergyReceiver getEnergyReceiver(BlockEntity tile, Direction face) {
 		IEnergyStorage bHandler = null;
-		if (tile != null && tile.hasCapability(CapabilityEnergy.ENERGY, face)) {
-			bHandler = tile.getCapability(CapabilityEnergy.ENERGY, face);
-		} else if (tile instanceof IEnergyStorage) {
+		if (tile != null && tile.getLevel() != null) {
+			bHandler = tile.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ENERGY, face).orElse(null);
+		}
+		if (bHandler == null && tile instanceof IEnergyStorage) {
 			bHandler = (IEnergyStorage) tile;
 		}
 		final IEnergyStorage handler = bHandler;
@@ -67,7 +69,7 @@ public class PowerProxy implements IPowerProxy {
 			}
 
 			@Override
-			public int receiveEnergy(EnumFacing opposite, int amount, boolean simulate) {
+			public int receiveEnergy(Direction opposite, int amount, boolean simulate) {
 				return handler.receiveEnergy(amount, simulate);
 			}
 		};
@@ -99,12 +101,12 @@ public class PowerProxy implements IPowerProxy {
 			}
 
 			@Override
-			public void readFromNBT(NBTTagCompound nbt) {
+			public void readFromNBT(CompoundTag nbt) {
 				energy.readFromNBT(nbt);
 			}
 
 			@Override
-			public void writeToNBT(NBTTagCompound nbt) {
+			public void writeToNBT(CompoundTag nbt) {
 				energy.writeToNBT(nbt);
 			}
 

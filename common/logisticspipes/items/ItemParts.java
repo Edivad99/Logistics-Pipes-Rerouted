@@ -2,15 +2,14 @@ package logisticspipes.items;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+// net.minecraft.world.item.CreativeModeTab removed — use CreativeModeTab
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 
 public class ItemParts extends LogisticsItem {
 
 	public ItemParts() {
 		super();
-		setHasSubtypes(true);
 	}
 
 	@Override
@@ -23,14 +22,6 @@ public class ItemParts extends LogisticsItem {
 		return "parts";
 	}
 
-	@Override
-	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
-		if (isInCreativeTab(tab)) {
-			items.add(new ItemStack(this, 1, 0));
-			items.add(new ItemStack(this, 1, 1));
-			items.add(new ItemStack(this, 1, 2));
-			items.add(new ItemStack(this, 1, 3));
-		}
-	}
+	// fillItemCategory removed in 1.20.1 — creative tab content registered via BuildCreativeModeTabContentsEvent
 
 }

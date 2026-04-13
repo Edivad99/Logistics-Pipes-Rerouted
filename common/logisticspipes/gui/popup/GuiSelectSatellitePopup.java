@@ -1,18 +1,19 @@
 package logisticspipes.gui.popup;
 
-import java.io.IOException;
+import net.minecraft.client.gui.GuiGraphics;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.math.BlockPos;
+
+import net.minecraft.core.BlockPos;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.RequestSatellitePipeListPacket;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
@@ -50,69 +51,51 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSatellitePipeListPacket.class).setFlag(fluidSatellites).setBlockPos(pos));
 	}
 
-	protected void drawTitle() {
-		mc.fontRenderer.drawStringWithShadow(TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f), guiTop + 6, 0xFFFFFF);
+	protected void drawTitle(GuiGraphics guiGraphics) {
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f), guiTop + 6, 0xFFFFFF, true);
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
-		buttonList.add(new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "select")));
-		buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate(GUI_LANG_KEY + "exit")));
-		buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "unset")));
-		buttonList.add(new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\"));
-		buttonList.add(new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/"));
-	}
-
-	@Override
-	protected void renderGuiBackground(int mouseX, int mouseY) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		drawTitle();
-
-		textList.renderGuiBackground(mouseX, mouseY);
-	}
-
-	@Override
-	protected void mouseClicked(int i, int j, int k) throws IOException {
-		textList.mouseClicked(i, j, k);
-		super.mouseClicked(i, j, k);
-	}
-
-	@Override
-	public void handleMouseInputSub() throws IOException {
-		int wheel = org.lwjgl.input.Mouse.getDWheel() / 120;
-		if (wheel == 0) {
-			super.handleMouseInputSub();
-		}
-		if (wheel < 0) {
-			textList.scrollUp();
-		} else if (wheel > 0) {
-			textList.scrollDown();
-		}
-	}
-
-	@Override
-	protected void actionPerformed(GuiButton guibutton) throws IOException {
-		if (guibutton.id == 0) { // Select
+	public void init() {
+		super.init();
+		SmallGuiButton sel = new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "select"));
+		sel.setPressListener(b -> {
 			int selected = textList.getSelected();
 			if (selected >= 0) {
 				handleResult.accept(pipeList.get(selected).getValue2());
 				exitGui();
 			}
-		} else if (guibutton.id == 1) { // Exit
-			exitGui();
-		} else if (guibutton.id == 2) { // UnSet
-			handleResult.accept(null);
-			exitGui();
-		} else if (guibutton.id == 4) {
-			textList.scrollDown();
-		} else if (guibutton.id == 5) {
-			textList.scrollUp();
-		} else {
-			super.actionPerformed(guibutton);
-		}
+		});
+		addRenderableWidget(sel);
+		SmallGuiButton ex = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate(GUI_LANG_KEY + "exit"));
+		ex.setPressListener(b -> exitGui());
+		addRenderableWidget(ex);
+		SmallGuiButton unset = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "unset"));
+		unset.setPressListener(b -> { handleResult.accept(null); exitGui(); });
+		addRenderableWidget(unset);
+		SmallGuiButton up = new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\");
+		up.setPressListener(b -> textList.scrollDown());
+		addRenderableWidget(up);
+		SmallGuiButton dn = new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/");
+		dn.setPressListener(b -> textList.scrollUp());
+		addRenderableWidget(dn);
 	}
+
+	@Override
+	protected void renderGuiBackground(int mouseX, int mouseY) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		drawTitle(getGuiGraphics());
+
+		textList.renderGuiBackground(mouseX, mouseY);
+	}
+
+	@Override
+	public boolean mouseClicked(double i, double j, int k) {
+		textList.mouseClicked(i, j, k);
+		return super.mouseClicked(i, j, k);
+	}
+
+	// Deferred: scroll wheel handling not wired
 
 	public void handleSatelliteList(List<Pair<String, UUID>> list) {
 		pipeList = list;

@@ -1,15 +1,12 @@
 package logisticspipes.utils.gui.hud;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureMap;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SimpleGraphics;
 
 public abstract class BasicHUDButton implements IHUDButton {
@@ -81,32 +78,14 @@ public abstract class BasicHUDButton implements IHUDButton {
 
 	@Override
 	public void renderButton(boolean hover, boolean clicked, boolean shifted) {
-		Minecraft minecraft = FMLClientHandler.instance().getClient();
-		//GL11.glBindTexture(3553 /*GL_TEXTURE_2D*/,
-		minecraft.renderEngine.bindTexture(GuiGraphics.WIDGETS_TEXTURE);
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		int k = !buttonEnabled() ? 0 : hover ? 2 : 1;
-
-		SimpleGraphics.drawTexturedModalRect(posX, posY, 0, 46 + k * 20, sizeX / 2, sizeY / 2, 0.0);
-		SimpleGraphics.drawTexturedModalRect(posX + sizeX / 2, posY, 200 - sizeX / 2, 46 + k * 20, sizeX / 2, sizeY / 2, 0.0);
-
-		SimpleGraphics.drawTexturedModalRect(posX, posY + sizeY / 2, 0, 46 + 24 - sizeY + k * 20, sizeX / 2, sizeY / 2, 0.0);
-		SimpleGraphics.drawTexturedModalRect(posX + sizeX / 2, posY + sizeY / 2, 200 - sizeX / 2, 46 + 24 - sizeY + k * 20, sizeX / 2, sizeY / 2, 0.0);
-
-		GL11.glTranslatef(0.0F, 0.0F, -0.001F);
-		int color = Color.getValue(Color.LIGHTER_GREY);
-		if (!clicked) {
-			color = Color.getValue(Color.LIGHT_YELLOW);
-			if (hover) {
-				GL11.glTranslatef(0.0F, 0.0F, -0.02F);
-			}
-		}
-		minecraft.fontRenderer.drawString(label, -(minecraft.fontRenderer.getStringWidth(label) / 2) + posX + sizeX / 2, posY + (sizeY - 8) / 2, color);
-		if (!clicked && hover) {
-			GL11.glTranslatef(0.0F, 0.0F, 0.02F);
-		}
-		GL11.glTranslatef(0.0F, 0.0F, 0.001F);
-		minecraft.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
+		if (gg == null) return;
+		int bg = clicked ? 0xaa333333 : hover ? 0xaa555555 : 0xaa444444;
+		gg.fill(posX, posY, posX + sizeX, posY + sizeY, bg);
+		gg.fill(posX, posY, posX + sizeX, posY + 1, 0xffaaaaaa);
+		gg.fill(posX, posY + sizeY - 1, posX + sizeX, posY + sizeY, 0xff333333);
+		gg.drawCenteredString(net.minecraft.client.Minecraft.getInstance().font, label,
+			posX + sizeX / 2, posY + (sizeY - 8) / 2, Color.getValue(Color.LIGHTER_GREY));
 	}
 
 	@Override

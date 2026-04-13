@@ -9,8 +9,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import net.minecraftforge.fluids.FluidStack;
 
@@ -59,10 +59,10 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 
 	@Override
 	public ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack) {
-		ItemStack item = new ItemStack(LPItems.fluidContainer, 1);
-		NBTTagCompound nbt = new NBTTagCompound();
+		ItemStack item = new ItemStack(LPItems.fluidContainer.get(), 1);
+		CompoundTag nbt = new CompoundTag();
 		stack.makeFluidStack().writeToNBT(nbt);
-		item.setTagCompound(nbt);
+		item.setTag(nbt);
 		return ItemIdentifierStack.getFromStack(item);
 	}
 

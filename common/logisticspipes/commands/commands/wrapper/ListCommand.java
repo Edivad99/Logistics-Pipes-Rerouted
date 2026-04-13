@@ -1,6 +1,7 @@
 package logisticspipes.commands.commands.wrapper;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraft.command.ICommandSender;
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 import logisticspipes.asm.wrapper.AbstractWrapper;
 import logisticspipes.asm.wrapper.LogisticsWrapperHandler;
@@ -17,7 +18,7 @@ public class ListCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
+	public boolean isCommandUsableBy(Player sender) {
 		return true;
 	}
 
@@ -27,7 +28,7 @@ public class ListCommand implements ICommandHandler {
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
+	public void executeCommand(Player sender, String[] args) {
 		MorePageDisplay display = new MorePageDisplay(new String[] { "|< Wrapper status - Page: %/$ >|" }, sender);
 		for (AbstractWrapper controller : LogisticsWrapperHandler.wrapperController) {
 			StringBuilder builder = new StringBuilder();

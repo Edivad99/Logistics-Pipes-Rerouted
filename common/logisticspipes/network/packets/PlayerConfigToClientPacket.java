@@ -1,6 +1,6 @@
 package logisticspipes.network.packets;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Setter;
 
@@ -27,7 +27,7 @@ public class PlayerConfigToClientPacket extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {}
+	public void processPacket(Player player) {}
 
 	@Override
 	public void writeData(LPDataOutput output) {

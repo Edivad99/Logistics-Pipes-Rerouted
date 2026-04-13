@@ -5,9 +5,9 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -38,9 +38,9 @@ public abstract class SpecialInventoryHandler implements IInventoryUtil, ITransa
 
 		boolean init();
 
-		boolean isType(@Nonnull TileEntity tile, @Nullable EnumFacing dir);
+		boolean isType(@Nonnull BlockEntity tile, @Nullable Direction dir);
 
 		@Nullable
-		SpecialInventoryHandler getUtilForTile(@Nonnull TileEntity tile, @Nullable EnumFacing direction, @Nonnull ProviderMode mode);
+		SpecialInventoryHandler getUtilForTile(@Nonnull BlockEntity tile, @Nullable Direction direction, @Nonnull ProviderMode mode);
 	}
 }

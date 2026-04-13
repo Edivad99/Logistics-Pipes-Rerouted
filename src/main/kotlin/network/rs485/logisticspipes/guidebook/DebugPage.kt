@@ -83,7 +83,7 @@ object DebugPage : PageInfoProvider {
         ),
         HeaderParagraph(
             listOf(
-                listOf(TextFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Shadow))),
+                listOf(ChatFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Shadow))),
                 MarkdownParser.splitSpacesAndWords(
                     "Nulla faucibus cursus bibendum."
                 ).map {
@@ -93,7 +93,7 @@ object DebugPage : PageInfoProvider {
         ),
         RegularParagraph(
             listOf(
-                listOf(TextFormatting(EnumSet.of(TextFormat.Bold, TextFormat.Shadow))),
+                listOf(ChatFormatting(EnumSet.of(TextFormat.Bold, TextFormat.Shadow))),
                 listOf(LinkFormatting(PageLink("/cantfindme.md")), Word("Hello"), Space, Word("World"), LinkFormatting(null), Break),
                 listOf(ColorFormatting(randomColor())),
                 MarkdownParser.splitSpacesAndWords(
@@ -104,7 +104,7 @@ object DebugPage : PageInfoProvider {
         RegularParagraph(
             listOf(
                 listOf(ColorFormatting(randomColor())),
-                listOf(TextFormatting(EnumSet.of(TextFormat.Bold, TextFormat.Italic))),
+                listOf(ChatFormatting(EnumSet.of(TextFormat.Bold, TextFormat.Italic))),
                 MarkdownParser.splitWhitespaceCharactersAndWords(
                     "Phasellus ut ipsum quis metus rutrum tempus eget in lacus. Nam at sollicitudin massa. Curabitur fringilla nisl ut quam lacinia, vel laoreet leo placerat. Aliquam erat volutpat. Nulla faucibus cursus bibendum.  \n" +
                             "Etiam porttitor sed nulla vitae vehicula. Mauris nec dolor ipsum. In eget leo malesuada, faucibus turpis a, convallis neque."
@@ -113,7 +113,7 @@ object DebugPage : PageInfoProvider {
         ),
         HeaderParagraph(
             listOf(
-                listOf(TextFormatting(EnumSet.of(TextFormat.Strikethrough))),
+                listOf(ChatFormatting(EnumSet.of(TextFormat.Strikethrough))),
                 MarkdownParser.splitSpacesAndWords(
                     "Nulla faucibus cursus bibendum."
                 ).map {
@@ -123,7 +123,7 @@ object DebugPage : PageInfoProvider {
         ),
         RegularParagraph(
             listOf(
-                listOf(TextFormatting(EnumSet.noneOf(TextFormat::class.java))),
+                listOf(ChatFormatting(EnumSet.noneOf(TextFormat::class.java))),
                 listOf(ColorFormatting(randomColor())),
                 MarkdownParser.splitSpacesAndWords(
                     "Cras sit amet nisi velit. Etiam vitae elit quis ipsum rhoncus facilisis et ac ante."
@@ -132,7 +132,7 @@ object DebugPage : PageInfoProvider {
         ),
         RegularParagraph(
             listOf(
-                listOf(TextFormatting(EnumSet.noneOf(TextFormat::class.java))),
+                listOf(ChatFormatting(EnumSet.noneOf(TextFormat::class.java))),
                 listOf(ColorFormatting(randomColor())),
                 MarkdownParser.splitSpacesAndWords(
                     "Лорем ипсум долор сит амет, видит лаборес ест еи, мунере цомпрехенсам вим ех. " +
@@ -144,7 +144,7 @@ object DebugPage : PageInfoProvider {
         ),
         RegularParagraph(
             listOf(
-                listOf(TextFormatting(EnumSet.noneOf(TextFormat::class.java))),
+                listOf(ChatFormatting(EnumSet.noneOf(TextFormat::class.java))),
                 listOf(ColorFormatting(randomColor())),
                 MarkdownParser.splitSpacesAndWords(
                     "就ら展総ま内長ミルロム水万くし競顔北参ラテキ物36由らいおね割心社イ距公ワヱトネ労固服推野ぱお。" +
@@ -156,7 +156,7 @@ object DebugPage : PageInfoProvider {
         ),
         RegularParagraph(
             listOf(
-                listOf(TextFormatting(EnumSet.of(TextFormat.Underline, TextFormat.Shadow))),
+                listOf(ChatFormatting(EnumSet.of(TextFormat.Underline, TextFormat.Shadow))),
                 listOf(ColorFormatting(randomColor())),
                 MarkdownParser.splitSpacesAndWords(
                     "並城容打性様権続料左速水戸離。績相質三活活気堀防塩関遅。" +
@@ -169,7 +169,7 @@ object DebugPage : PageInfoProvider {
         ),
         RegularParagraph(
             listOf(
-                listOf(TextFormatting(EnumSet.of(TextFormat.Underline, TextFormat.Italic))),
+                listOf(ChatFormatting(EnumSet.of(TextFormat.Underline, TextFormat.Italic))),
                 listOf(ColorFormatting(randomColor())),
                 MarkdownParser.splitWhitespaceCharactersAndWords(
                     "Phasellus ut ipsum quis metus rutrum tempus eget in lacus. Nam at sollicitudin massa.\n" +

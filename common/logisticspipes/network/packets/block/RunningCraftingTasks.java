@@ -2,9 +2,8 @@ package logisticspipes.network.packets.block;
 
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
-
-import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,9 +27,9 @@ public class RunningCraftingTasks extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiStatistics) {
-			((GuiStatistics) FMLClientHandler.instance().getClient().currentScreen).handlePacket2(getIdentList());
+	public void processPacket(Player player) {
+		if (Minecraft.getInstance().screen instanceof GuiStatistics) {
+			((GuiStatistics) Minecraft.getInstance().screen).handlePacket2(getIdentList());
 		}
 	}
 

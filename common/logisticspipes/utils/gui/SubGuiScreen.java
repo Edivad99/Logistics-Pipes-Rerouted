@@ -1,17 +1,16 @@
 package logisticspipes.utils.gui;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 
 import lombok.Getter;
-import org.lwjgl.opengl.GL11;
 
-public abstract class SubGuiScreen extends GuiScreen implements ISubGuiControler, IGuiAccess {
+
+public abstract class SubGuiScreen extends Screen implements ISubGuiControler, IGuiAccess {
 
 	@Getter
 	protected int guiLeft;
@@ -31,8 +30,10 @@ public abstract class SubGuiScreen extends GuiScreen implements ISubGuiControler
 	protected int yCenterOffset;
 	protected ISubGuiControler controler;
 	private SubGuiScreen subGui;
+	private net.minecraft.client.gui.GuiGraphics storedGuiGraphics;
 
 	public SubGuiScreen(int xSize, int ySize, int xOffset, int yOffset) {
+		super(net.minecraft.network.chat.Component.empty());
 		this.xSize = xSize;
 		this.ySize = ySize;
 		xCenterOffset = xOffset;
@@ -40,8 +41,8 @@ public abstract class SubGuiScreen extends GuiScreen implements ISubGuiControler
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
+	public void init() {
+		super.init();
 		guiLeft = width / 2 - xSize / 2 + xCenterOffset;
 		guiTop = height / 2 - ySize / 2 + yCenterOffset;
 
@@ -52,6 +53,16 @@ public abstract class SubGuiScreen extends GuiScreen implements ISubGuiControler
 		yCenter = (bottom + guiTop) / 2;
 	}
 
+	@Override
+	protected <T extends net.minecraft.client.gui.components.events.GuiEventListener & net.minecraft.client.gui.components.Renderable & net.minecraft.client.gui.narration.NarratableEntry> T addRenderableWidget(@Nonnull T button) {
+		if (button instanceof SmallGuiButton) {
+			((SmallGuiButton) button).setPressListener(this::actionPerformed);
+		}
+		return super.addRenderableWidget(button);
+	}
+
+	protected void actionPerformed(net.minecraft.client.gui.components.AbstractButton button) {}
+
 	public void register(ISubGuiControler gui) {
 		controler = gui;
 	}
@@ -61,86 +72,53 @@ public abstract class SubGuiScreen extends GuiScreen implements ISubGuiControler
 	}
 
 	@Override
-	protected void keyTyped(char par1, int par2) {
+	public boolean charTyped(char par1, int par2) {
 		if (par2 == 1) {
 			exitGui();
 		}
+		return false;
 	}
 
 	@Override
-	public final void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		RenderHelper.disableStandardItemLighting();
+	public net.minecraft.client.gui.GuiGraphics getGuiGraphics() {
+		return storedGuiGraphics;
+	}
+
+	@Override
+	public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		this.storedGuiGraphics = guiGraphics;
+		SimpleGraphics.guiGraphics = guiGraphics;
 		renderGuiBackground(mouseX, mouseY);
-		GlStateManager.disableRescaleNormal();
-		GlStateManager.disableLighting();
-		GlStateManager.disableDepth();
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		RenderHelper.enableGUIStandardItemLighting();
-
-		GlStateManager.pushMatrix();
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GlStateManager.enableRescaleNormal();
-		short short1 = 240;
-		short short2 = 240;
-		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) short1 / 1.0F, (float) short2 / 1.0F);
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-		this.drawGuiContainerForegroundLayer(mouseX, mouseY, partialTicks);
-
-		GlStateManager.popMatrix();
-
-		GlStateManager.enableLighting();
-		GlStateManager.enableDepth();
+		RenderSystem.disableDepthTest();
+		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		this.renderLabels(guiGraphics, mouseX, mouseY);
+		RenderSystem.enableDepthTest();
 		if (subGui != null) {
-			GL11.glPushAttrib(GL11.GL_DEPTH_BUFFER_BIT);
 			if (!subGui.hasSubGui()) {
-				GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-				super.drawDefaultBackground();
+				super.renderBackground(guiGraphics);
 			}
-			GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-			subGui.drawScreen(mouseX, mouseY, partialTicks);
-			GL11.glPopAttrib();
+			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
 		}
 		renderToolTips(mouseX, mouseY, partialTicks);
 	}
 
 	protected void renderToolTips(int mouseX, int mouseY, float par3) {}
 
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY, float partialTick) {
-		drawGuiContainerForegroundLayer(mouseX, mouseY);
-	}
-
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {}
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
 
 	protected abstract void renderGuiBackground(int mouseX, int mouseY);
 
-	@Override
-	public final void handleMouseInput() throws IOException {
-		if (subGui != null) {
-			subGui.handleMouseInput();
-		} else {
-			handleMouseInputSub();
-		}
-	}
-
-	public void handleMouseInputSub() throws IOException {
-		super.handleMouseInput();
-	}
+	// TODO: handleMouseInput/handleKeyboardInput removed in 1.20.1 — mouse/keyboard handling via individual event methods
+	// public final void handleMouseInput() { ... }
+	// public void handleMouseInputSub() { ... }
+	// public final void handleKeyboardInput() { ... }
 
 	@Override
-	public final void handleKeyboardInput() throws IOException {
+	public void resize(Minecraft mc, int width, int height) {
+		super.resize(mc, width, height);
 		if (subGui != null) {
-			subGui.handleKeyboardInput();
-		} else {
-			super.handleKeyboardInput();
-		}
-	}
-
-	@Override
-	public void setWorldAndResolution(Minecraft mc, int width, int height) {
-		super.setWorldAndResolution(mc, width, height);
-		if (subGui != null) {
-			subGui.setWorldAndResolution(mc, width, height);
+			subGui.resize(mc, width, height);
 		}
 	}
 
@@ -164,8 +142,8 @@ public abstract class SubGuiScreen extends GuiScreen implements ISubGuiControler
 		if (subGui == null) {
 			subGui = gui;
 			subGui.register(this);
-			subGui.setWorldAndResolution(mc, width, height);
-			subGui.initGui();
+			subGui.resize(minecraft, width, height);
+			subGui.init();
 		}
 	}
 
@@ -176,6 +154,6 @@ public abstract class SubGuiScreen extends GuiScreen implements ISubGuiControler
 
 	@Override
 	public Minecraft getMC() {
-		return mc;
+		return minecraft;
 	}
 }

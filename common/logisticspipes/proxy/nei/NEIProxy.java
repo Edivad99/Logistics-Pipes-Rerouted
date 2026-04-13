@@ -7,16 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import codechicken.lib.gui.GuiDraw;
 import codechicken.nei.api.ItemInfo;
@@ -29,25 +29,25 @@ import logisticspipes.utils.ReflectionHelper;
 public class NEIProxy implements INEIProxy {
 
 	@Override
-	public List<String> getInfoForPosition(World world, EntityPlayer player, RayTraceResult objectMouseOver) {
+	public List<String> getInfoForPosition(Level world, Player player, HitResult objectMouseOver) {
 		List<ItemStack> items = ItemInfo.getIdentifierItems(world, player, objectMouseOver);
 		if (items.isEmpty()) {
 			return new ArrayList<>(0);
 		}
-		Collections.sort(items, (stack0, stack1) -> stack1.getItemDamage() - stack0.getItemDamage());
+		Collections.sort(items, (stack0, stack1) -> stack1.getDamageValue() - stack0.getDamageValue());
 		return ItemInfo.getText(items.get(0), world, player, objectMouseOver);
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@SneakyThrows({NoSuchFieldException.class, IllegalAccessException.class})
-	public boolean renderItemToolTip(int mousex, int mousey, List<String> msg, TextFormatting rarityColor, ItemStack stack) {
-		if (!(Minecraft.getMinecraft().currentScreen instanceof GuiContainer)) {
+	public boolean renderItemToolTip(int mousex, int mousey, List<String> msg, ChatFormatting rarityColor, ItemStack stack) {
+		if (!(Minecraft.getInstance().currentScreen instanceof AbstractContainerScreen)) {
 			return false;
 		}
-		GuiContainer window = (GuiContainer) Minecraft.getMinecraft().currentScreen;
+		AbstractContainerScreen window = (AbstractContainerScreen) Minecraft.getInstance().currentScreen;
 		List<String> tooltip = new LinkedList<String>();
-		FontRenderer font = GuiDraw.fontRenderer;
+		Font font = GuiDraw.fontRenderer;
 
 		if (GuiContainerManager.shouldShowTooltip(window)) {
 			font = GuiContainerManager.getFontRenderer(stack);
@@ -66,18 +66,18 @@ public class NEIProxy implements INEIProxy {
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public List<String> getItemToolTip(ItemStack stack, EntityPlayer thePlayer, ITooltipFlag advancedItemTooltips, GuiContainer screen) {
+	@OnlyIn(Dist.CLIENT)
+	public List<String> getItemToolTip(ItemStack stack, Player thePlayer, ITooltipFlag advancedItemTooltips, AbstractContainerScreen screen) {
 		return GuiContainerManager.itemDisplayNameMultiline(stack, screen, true);
 	}
 
 	@Override
-	public ItemStack getItemForPosition(World world, EntityPlayer player, RayTraceResult objectMouseOver) {
+	public ItemStack getItemForPosition(Level world, Player player, HitResult objectMouseOver) {
 		List<ItemStack> items = ItemInfo.getIdentifierItems(world, player, objectMouseOver);
 		if (items.isEmpty()) {
 			return null;
 		}
-		Collections.sort(items, (stack0, stack1) -> stack1.getItemDamage() - stack0.getItemDamage());
+		Collections.sort(items, (stack0, stack1) -> stack1.getDamageValue() - stack0.getDamageValue());
 		return items.get(0);
 	}
 }

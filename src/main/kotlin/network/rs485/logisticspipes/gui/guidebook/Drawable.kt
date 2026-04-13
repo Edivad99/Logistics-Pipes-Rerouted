@@ -39,10 +39,8 @@ package network.rs485.logisticspipes.gui.guidebook
 
 import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.PositionedSoundRecord
-import net.minecraft.client.audio.SoundHandler
-import net.minecraft.init.SoundEvents
-import net.minecraft.util.SoundEvent
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.sounds.SoundEvent
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.guidebook.GuideBookConstants.DRAW_BODY_WIREFRAME
 import network.rs485.logisticspipes.util.IRectangle
@@ -87,10 +85,10 @@ interface MouseInteractable : MouseHoverable {
 
     /**
      * Always call this method when mouse clicked is successful.
-     * @param soundHandler minecraft's sound handler
+     * @param soundHandler minecraft's sound handler (unused — TODO: migrate to 1.20.1 SoundManager API)
      */
-    fun playPressedSound(soundHandler: SoundHandler, sound: SoundEvent = SoundEvents.UI_BUTTON_CLICK) {
-        soundHandler.playSound(PositionedSoundRecord.getMasterRecord(sound, 1.0f))
+    fun playPressedSound(soundHandler: Any?, sound: SoundEvent = SoundEvents.UI_BUTTON_CLICK.value()) {
+        // TODO: deferred — migrate to net.minecraft.client.sounds.SoundManager in 1.20.1
     }
 
 }
@@ -183,8 +181,8 @@ interface Drawable {
 object Screen : Drawable {
     val screen: MutableRectangle
         get() = MutableRectangle(
-            width = Minecraft.getMinecraft().currentScreen?.width ?: Minecraft.getMinecraft().displayWidth,
-            height = Minecraft.getMinecraft().currentScreen?.height ?: Minecraft.getMinecraft().displayHeight,
+            width = Minecraft.getInstance().screen?.width ?: Minecraft.getInstance().window.width,
+            height = Minecraft.getInstance().screen?.height ?: Minecraft.getInstance().window.height,
         )
 
     override val relativeBody: MutableRectangle

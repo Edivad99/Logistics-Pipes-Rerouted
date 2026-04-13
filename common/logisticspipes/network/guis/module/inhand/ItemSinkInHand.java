@@ -1,7 +1,7 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
@@ -21,19 +21,19 @@ public class ItemSinkInHand extends ModuleInHandGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
+	public Object getClientGui(Player player) {
 		LogisticsModule module = ItemModule.getLogisticsModule(player, getInvSlot());
 		if (!(module instanceof ModuleItemSink)) {
 			return null;
 		}
-		ItemStack usedItemStack = (player.getHeldItemMainhand().getItem() instanceof ItemModule) ?
-				player.getHeldItemMainhand() : (player.getHeldItemOffhand().getItem() instanceof ItemModule) ?
-				player.getHeldItemOffhand() : ItemStack.EMPTY;
-		return ItemSinkGui.create(player.inventory, (ModuleItemSink) module, usedItemStack, false, true);
+		ItemStack usedItemStack = (player.getMainHandItem().getItem() instanceof ItemModule) ?
+				player.getMainHandItem() : (player.getOffhandItem().getItem() instanceof ItemModule) ?
+				player.getOffhandItem() : ItemStack.EMPTY;
+		return ItemSinkGui.create(player.getInventory(), (ModuleItemSink) module, usedItemStack, false, true);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
+	public DummyContainer getContainer(Player player) {
 		DummyModuleContainer dummy = new DummyModuleContainer(player, getInvSlot());
 		if (!(dummy.getModule() instanceof ModuleItemSink)) {
 			return null;

@@ -39,8 +39,8 @@ package network.rs485.logisticspipes.property
 
 import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import network.rs485.logisticspipes.inventory.SlotAccess
 import java.util.concurrent.CopyOnWriteArraySet
@@ -48,11 +48,9 @@ import java.util.concurrent.CopyOnWriteArraySet
 class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, override val tagKey: String) :
     InventoryProperty<ItemIdentifierInventory>, IItemIdentifierInventory by inv, Collection<ItemIdentifierStack> {
 
-    /* FIXME: after 1.12
     init {
-        require(tagKey.isNotBlank())
+        require(tagKey.isNotBlank()) { "tagKey must not be blank" }
     }
-    */
 
     override val slotAccess: SlotAccess = object : SlotAccess by inv.slotAccess {
         override fun mergeSlots(intoSlot: Int, fromSlot: Int) =
@@ -62,44 +60,43 @@ class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, 
     override val propertyObservers: CopyOnWriteArraySet<ObserverCallback<ItemIdentifierInventory>> =
         CopyOnWriteArraySet()
 
-    override val size: Int = sizeInventory
+    override val size: Int get() = containerSize
 
-    override fun decrStackSize(index: Int, count: Int): ItemStack = inv.decrStackSize(index, count).alsoIChanged()
+    override fun removeItem(index: Int, count: Int): ItemStack = inv.removeItem(index, count).alsoIChanged()
 
-    override fun removeStackFromSlot(index: Int): ItemStack = inv.removeStackFromSlot(index).alsoIChanged()
+    override fun removeItemNoUpdate(index: Int): ItemStack = inv.removeItemNoUpdate(index).alsoIChanged()
 
-    override fun setInventorySlotContents(index: Int, stack: ItemStack) =
-        inv.setInventorySlotContents(index, stack).alsoIChanged()
+    override fun setItem(index: Int, stack: ItemStack) =
+        inv.setItem(index, stack).alsoIChanged()
 
-    override fun setInventorySlotContents(i: Int, itemstack: ItemIdentifierStack?) =
-        inv.setInventorySlotContents(i, itemstack).alsoIChanged()
+    override fun setItem(i: Int, itemstack: ItemIdentifierStack?) =
+        inv.setItem(i, itemstack).alsoIChanged()
 
-    override fun setField(id: Int, value: Int) = inv.setField(id, value).alsoIChanged()
+    fun setField(id: Int, value: Int) = inv.setField(id, value).alsoIChanged()
 
     override fun handleItemIdentifierList(_allItems: Collection<ItemIdentifierStack>) =
         inv.handleItemIdentifierList(_allItems).alsoIChanged()
 
-    override fun clear() = inv.clear().alsoIChanged()
+    fun clear() = inv.clear().alsoIChanged()
 
     override fun recheckStackLimit() = inv.recheckStackLimit().alsoIChanged()
 
     override fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 
-    override fun readFromNBT(tag: NBTTagCompound) {
-        // FIXME: after 1.12 remove this items appending crap
-        if (tag.hasKey(tagKey + "items")) inv.readFromNBT(tag, tagKey).alsoIChanged()
+    override fun readFromNBT(tag: CompoundTag) {
+        if (tag.contains(tagKey + "items")) inv.readFromNBT(tag, tagKey).alsoIChanged()
     }
 
-    override fun writeToNBT(tag: NBTTagCompound) = inv.writeToNBT(tag, tagKey)
+    override fun writeToNBT(tag: CompoundTag) = inv.writeToNBT(tag, tagKey)
 
     override fun copyValue(): ItemIdentifierInventory = ItemIdentifierInventory(inv)
 
     override fun copyProperty(): ItemIdentifierInventoryProperty = ItemIdentifierInventoryProperty(copyValue(), tagKey)
 
-    override fun contains(element: ItemIdentifierStack): Boolean = inv.itemCount(element.item) >= element.stackSize
+    override fun contains(element: ItemIdentifierStack): Boolean = inv.itemCount(element.item) >= element.getStackSize()
 
     override fun containsAll(elements: Collection<ItemIdentifierStack>): Boolean = inv.itemsAndCount.let { items ->
-        elements.all { items[it.item]?.run { compareTo(it.stackSize) >= 0 } ?: false }
+        elements.all { items[it.item]?.run { compareTo(it.getStackSize()) >= 0 } ?: false }
     }
 
     override fun iterator(): Iterator<ItemIdentifierStack> =

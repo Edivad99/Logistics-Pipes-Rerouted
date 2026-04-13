@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import net.minecraft.nbt.NBTBase;
 
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCQueued;
@@ -72,7 +71,7 @@ public class CCObjectWrapper {
 		if (CCObjectWrapper.specialMappings.containsKey(input.getClass())) {
 			wrapped = CCObjectWrapper.specialMappings.get(input.getClass()).getTypeFor(input);
 		} else if (input instanceof IItemIdentifierInventory) {
-			if (((IItemIdentifierInventory) input).getInventoryStackLimit() == 1) {
+			if (((IItemIdentifierInventory) input).getMaxStackSize() == 1) {
 				wrapped = new CCFilterInventory((IItemIdentifierInventory) input);
 			} else {
 				wrapped = new CCItemIdentifierInventory((IItemIdentifierInventory) input);
@@ -117,9 +116,9 @@ public class CCObjectWrapper {
 				map.put(CCObjectWrapper.getWrappedObject(key, wrapper), CCObjectWrapper.getWrappedObject(oldMap.get(key), wrapper));
 			}
 			return map;
-		} else if (input instanceof NBTBase) {
+		} else if (input instanceof net.minecraft.nbt.Tag) {
 			try {
-				return ItemIdentifier.getNBTBaseAsMap((NBTBase) input);
+				return ItemIdentifier.getNBTBaseAsMap((net.minecraft.nbt.Tag) input);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return null;

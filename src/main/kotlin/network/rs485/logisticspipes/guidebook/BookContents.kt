@@ -37,14 +37,12 @@
 
 package network.rs485.logisticspipes.guidebook
 
-import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlException
 import kotlinx.serialization.Serializable
 import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
 import net.minecraft.client.Minecraft
-import net.minecraft.item.Item
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
 import network.rs485.logisticspipes.gui.guidebook.DrawablePage
 import network.rs485.logisticspipes.gui.guidebook.DrawablePageFactory
 import network.rs485.logisticspipes.util.TextUtil
@@ -79,7 +77,7 @@ object BookContents {
     fun get(markdownFile: String): PageInfoProvider {
         assert(markdownFile.isNotEmpty()) { "Cannot read an empty file" }
         return specialPages.getOrDefault(markdownFile, cachedLoadedPages.getOrPut(markdownFile) {
-            loadPage(markdownFile, Minecraft.getMinecraft().languageManager.currentLanguage.languageCode)
+            loadPage(markdownFile, Minecraft.getInstance().languageManager.getSelected())
         })
     }
 
@@ -98,11 +96,12 @@ private val metadataRegex = "^\\s*<!---\\s*\\n(.*?)\\n\\s*--->\\s*(.*)$".toRegex
 fun loadPage(path: String, lang: String): PageInfoProvider {
     val resolvedLocation = resolveAbsoluteLocation(resolvedLocation = Paths.get(path), language = lang).toLocation(false)
     return try {
-        val bookFile = Minecraft.getMinecraft().resourceManager.getResource(ResourceLocation(LPConstants.LP_MOD_ID, resolvedLocation))
+        val bookFile = Minecraft.getInstance().resourceManager.getResource(ResourceLocation(LPConstants.LP_MOD_ID, resolvedLocation))
+            .orElseThrow { IOException("Resource not found: $resolvedLocation") }
         LoadedPage(
             fileLocation = path,
             language = lang,
-            unformattedText = bookFile.inputStream.bufferedReader().readLines().joinToString("\n"),
+            unformattedText = bookFile.open().bufferedReader().readLines().joinToString("\n"),
         )
     } catch (error: IOException) {
         if (lang != "en_us") {
@@ -137,15 +136,72 @@ fun loadPage(path: String, lang: String): PageInfoProvider {
 }
 
 private fun parseMetadata(metadataString: String, markdownFile: String): YamlPageMetadata {
-    return if (metadataString.isNotEmpty()) {
-        // Takes the metadata string and parses the YAML information
-        try {
-            Yaml.default.decodeFromString(YamlPageMetadata.serializer(), metadataString)
-        } catch (e: YamlException) {
-            LogisticsPipes.log.error("The following Yaml in $markdownFile is malformed! \n$metadataString", e)
-            MISSING_META
+    if (metadataString.isEmpty()) return MISSING_META
+    return try {
+        parseYamlMetadata(metadataString)
+    } catch (e: Exception) {
+        LogisticsPipes.log.error("The following Yaml in $markdownFile is malformed! \n$metadataString", e)
+        MISSING_META
+    }
+}
+
+/**
+ * Simple hand-rolled parser for LP's known metadata YAML structure.
+ * Avoids a kaml/snakeyaml-engine dependency at runtime (snakeyaml-engine scans the
+ * classpath on init, which hangs indefinitely in a Forge dev environment).
+ *
+ * Supported keys: title, icon, menu (with fixed 2/4/6 space indentation).
+ */
+private fun parseYamlMetadata(yaml: String): YamlPageMetadata {
+    val lines = yaml.lines()
+    var title = ""
+    var icon = "logisticspipes:item_card"
+    val menu = mutableMapOf<String, Map<String, List<String>>>()
+
+    fun indent(line: String) = line.length - line.trimStart().length
+
+    var i = 0
+    while (i < lines.size) {
+        val line = lines[i]
+        if (line.isBlank()) { i++; continue }
+        val trimmed = line.trimStart()
+        when {
+            trimmed.startsWith("title:") -> { title = trimmed.removePrefix("title:").trim(); i++ }
+            trimmed.startsWith("icon:")  -> { icon  = trimmed.removePrefix("icon:").trim();  i++ }
+            trimmed == "menu:" -> {
+                i++
+                // menuId entries are at indent 2
+                while (i < lines.size) {
+                    if (lines[i].isBlank()) { i++; continue }
+                    if (indent(lines[i]) != 2) break
+                    val menuId = lines[i].trim().removeSuffix(":")
+                    val categories = mutableMapOf<String, List<String>>()
+                    i++
+                    // category entries are at indent 4
+                    while (i < lines.size) {
+                        if (lines[i].isBlank()) { i++; continue }
+                        if (indent(lines[i]) != 4) break
+                        val catName = lines[i].trim().removeSuffix(":")
+                        val entries = mutableListOf<String>()
+                        i++
+                        // list items are at indent 6
+                        while (i < lines.size) {
+                            if (lines[i].isBlank()) { i++; continue }
+                            if (indent(lines[i]) != 6) break
+                            entries.add(lines[i].trim().removePrefix("- "))
+                            i++
+                        }
+                        categories[catName] = entries
+                    }
+                    menu[menuId] = categories
+                }
+            }
+            else -> i++
         }
-    } else MISSING_META
+    }
+
+    if (title.isEmpty()) return MISSING_META
+    return YamlPageMetadata(title = title, icon = icon, menu = menu)
 }
 
 /**
@@ -177,7 +233,7 @@ class LoadedPage(override val fileLocation: String, override val language: Strin
             if (LogisticsPipes.isDEBUG()) {
                 try {
                     it.icon.split(":").apply {
-                        val item = Item.REGISTRY.getObject(
+                        val item = BuiltInRegistries.ITEM.get(
                             ResourceLocation(
                                 this@apply[0],
                                 this@apply[1],

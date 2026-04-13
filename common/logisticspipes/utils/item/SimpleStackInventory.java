@@ -14,17 +14,16 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
@@ -33,9 +32,9 @@ import logisticspipes.utils.tuples.Pair;
 import network.rs485.logisticspipes.IStore;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
-public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<ItemStack, Integer>> {
+public class SimpleStackInventory implements Container, IStore, Iterable<Pair<ItemStack, Integer>> {
 
-	private static final TextComponentString TEXT_COMPONENT_EMPTY = new TextComponentString("");
+	private static final Component TEXT_COMPONENT_EMPTY = Component.literal("");
 
 	private final NonNullList<ItemStack> stackList;
 	private final String _name;
@@ -44,9 +43,9 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 	private final LinkedList<ISimpleInventoryEventHandler> _listener = new LinkedList<>();
 
 	public SimpleStackInventory(SimpleStackInventory copy) {
-		this(copy.getSizeInventory(), copy._name, copy._stackLimit);
-		for (int i = 0; i < copy.getSizeInventory(); i++) {
-			stackList.set(i, copy.getStackInSlot(i).copy());
+		this(copy.getContainerSize(), copy._name, copy._stackLimit);
+		for (int i = 0; i < copy.getContainerSize(); i++) {
+			stackList.set(i, copy.getItem(i).copy());
 		}
 	}
 
@@ -57,7 +56,7 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 	}
 
 	@Override
-	public int getSizeInventory() {
+	public int getContainerSize() {
 		return stackList.size();
 	}
 
@@ -68,13 +67,13 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 
 	@Nonnull
 	@Override
-	public ItemStack getStackInSlot(int i) {
+	public ItemStack getItem(int i) {
 		return stackList.get(i);
 	}
 
 	@Nonnull
 	@Override
-	public ItemStack decrStackSize(int slot, int count) {
+	public ItemStack removeItem(int slot, int count) {
 		final ItemStack stack = stackList.get(slot);
 		if (stack.isEmpty()) {
 			return ItemStack.EMPTY;
@@ -89,7 +88,7 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 	}
 
 	@Override
-	public void setInventorySlotContents(int slot, @Nonnull ItemStack itemstack) {
+	public void setItem(int slot, @Nonnull ItemStack itemstack) {
 		if (itemstack.isEmpty()) {
 			stackList.set(slot, ItemStack.EMPTY);
 		} else {
@@ -98,80 +97,78 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 	}
 
 	@Nonnull
-	@Override
 	public String getName() {
 		return _name;
 	}
 
 	@Nonnull
-	@Override
-	public ITextComponent getDisplayName() {
+	public Component getDisplayName() {
 		return TEXT_COMPONENT_EMPTY;
 	}
 
 	@Override
-	public int getInventoryStackLimit() {
+	public int getMaxStackSize() {
 		return _stackLimit;
 	}
 
 	@Override
-	public void markDirty() {
+	public void setChanged() {
 		for (ISimpleInventoryEventHandler handler : _listener) {
 			handler.InventoryChanged(this);
 		}
 	}
 
 	@Override
-	public boolean isUsableByPlayer(@Nonnull EntityPlayer entityplayer) {
+	public boolean stillValid(@Nonnull Player entityplayer) {
 		return false;
 	}
 
 	@Override
-	public void openInventory(@Nonnull EntityPlayer player) {}
+	public void startOpen(@Nonnull Player player) {}
 
 	@Override
-	public void closeInventory(@Nonnull EntityPlayer player) {}
+	public void stopOpen(@Nonnull Player player) {}
 
 	@Override
-	public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
+	public void readFromNBT(@Nonnull CompoundTag nbttagcompound) {
 		readFromNBT(nbttagcompound, "");
 	}
 
-	public void readFromNBT(NBTTagCompound nbttagcompound, String prefix) {
-		NBTTagList nbttaglist = nbttagcompound.getTagList(prefix + "items", nbttagcompound.getId());
+	public void readFromNBT(CompoundTag nbttagcompound, String prefix) {
+		ListTag nbttaglist = nbttagcompound.getList(prefix + "items", nbttagcompound.getId());
 
-		for (int j = 0; j < nbttaglist.tagCount(); ++j) {
-			NBTTagCompound nbttagcompound2 = nbttaglist.getCompoundTagAt(j);
-			int index = nbttagcompound2.getInteger("index");
+		for (int j = 0; j < nbttaglist.size(); ++j) {
+			CompoundTag nbttagcompound2 = nbttaglist.getCompound(j);
+			int index = nbttagcompound2.getInt("index");
 			if (index < stackList.size()) {
 				stackList.set(index, ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2));
 			} else {
-				LogisticsPipes.log.fatal("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of " + stackList.size());
+				LogisticsPipes.log.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of " + stackList.size());
 			}
 		}
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull NBTTagCompound nbttagcompound) {
+	public void writeToNBT(@Nonnull CompoundTag nbttagcompound) {
 		writeToNBT(nbttagcompound, "");
 	}
 
-	public void writeToNBT(NBTTagCompound nbttagcompound, String prefix) {
-		NBTTagList nbttaglist = new NBTTagList();
+	public void writeToNBT(CompoundTag nbttagcompound, String prefix) {
+		ListTag nbttaglist = new ListTag();
 		for (int j = 0; j < stackList.size(); ++j) {
 			final ItemStack stack = stackList.get(j);
 			if (!stack.isEmpty()) {
-				NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-				nbttaglist.appendTag(nbttagcompound2);
-				nbttagcompound2.setInteger("index", j);
-				stack.writeToNBT(nbttagcompound2);
+				CompoundTag nbttagcompound2 = new CompoundTag();
+				nbttaglist.add(nbttagcompound2);
+				nbttagcompound2.putInt("index", j);
+				stack.save(nbttagcompound2);
 			}
 		}
-		nbttagcompound.setTag(prefix + "items", nbttaglist);
-		nbttagcompound.setInteger(prefix + "itemsCount", stackList.size());
+		nbttagcompound.put(prefix + "items", nbttaglist);
+		nbttagcompound.putInt(prefix + "itemsCount", stackList.size());
 	}
 
-	public void dropContents(World world, BlockPos pos) {
+	public void dropContents(Level world, BlockPos pos) {
 		if (MainProxy.isServer(world)) {
 			for (int i = 0; i < stackList.size(); i++) {
 				dropSlot(i, world, pos);
@@ -179,19 +176,19 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 		}
 	}
 
-	private void dropSlot(int slot, World world, BlockPos pos) {
+	private void dropSlot(int slot, Level world, BlockPos pos) {
 		final ItemStack slotStack = stackList.get(slot);
 		IntStream.range(0, (slotStack.getCount() / slotStack.getMaxStackSize()) + 1)
-				.mapToObj(i -> decrStackSize(slot, slotStack.getMaxStackSize()))
+				.mapToObj(i -> removeItem(slot, slotStack.getMaxStackSize()))
 				.filter(dropStack -> !dropStack.isEmpty())
 				.forEach(dropStack -> {
 					float f1 = 0.7F;
-					double d = (world.rand.nextFloat() * f1) + (1.0F - f1) * 0.5D;
-					double d1 = (world.rand.nextFloat() * f1) + (1.0F - f1) * 0.5D;
-					double d2 = (world.rand.nextFloat() * f1) + (1.0F - f1) * 0.5D;
-					EntityItem entityitem = new EntityItem(world, pos.getX() + d, pos.getY() + d1, pos.getZ() + d2, dropStack);
-					entityitem.setDefaultPickupDelay();
-					world.spawnEntity(entityitem);
+					double d = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+					double d1 = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+					double d2 = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+					ItemEntity entityitem = new ItemEntity(world, pos.getX() + d, pos.getY() + d1, pos.getZ() + d2, dropStack);
+					entityitem.setDefaultPickUpDelay();
+					world.addFreshEntity(entityitem);
 				});
 	}
 
@@ -207,7 +204,7 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 
 	@Nonnull
 	@Override
-	public ItemStack removeStackFromSlot(int i) {
+	public ItemStack removeItemNoUpdate(int i) {
 		return stackList.set(i, ItemStack.EMPTY);
 	}
 
@@ -262,33 +259,30 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 			int added = tryAddToSlot(i, stack, stacklimit);
 			stack.setCount(stack.getCount() - added);
 		}
-		markDirty();
+		setChanged();
 		return stack.getCount();
 	}
 
 	@Override
-	public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
+	public boolean canPlaceItem(int i, @Nonnull ItemStack itemstack) {
 		return true;
 	}
 
-	@Override
 	@kotlin.Deprecated(message = "not implemented")
 	public int getField(int id) {
 		return 0;
 	}
 
-	@Override
 	@kotlin.Deprecated(message = "not implemented")
 	public void setField(int id, int value) {}
 
-	@Override
 	@kotlin.Deprecated(message = "not implemented")
 	public int getFieldCount() {
 		return 0;
 	}
 
 	@Override
-	public void clear() {
+	public void clearContent() {
 		Collections.fill(stackList, ItemStack.EMPTY);
 	}
 
@@ -296,7 +290,6 @@ public class SimpleStackInventory implements IInventory, IStore, Iterable<Pair<I
 		stackList.set(i, ItemStack.EMPTY);
 	}
 
-	@Override
 	public boolean hasCustomName() {
 		return true;
 	}

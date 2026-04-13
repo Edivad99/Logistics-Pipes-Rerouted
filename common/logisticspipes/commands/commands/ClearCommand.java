@@ -1,7 +1,8 @@
 package logisticspipes.commands.commands;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.text.TextComponentString;
+// Player removed — use net.minecraft.commands.CommandSourceStack
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.utils.string.ChatColor;
@@ -14,7 +15,7 @@ public class ClearCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
+	public boolean isCommandUsableBy(Player sender) {
 		return true;
 	}
 
@@ -24,13 +25,13 @@ public class ClearCommand implements ICommandHandler {
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
+	public void executeCommand(Player sender, String[] args) {
 		if (args.length <= 0 || !args[0].equalsIgnoreCase("all")) {
-			sender.sendMessage(new TextComponentString("%LPSTORESENDMESSAGE%"));
-			sender.sendMessage(new TextComponentString("%LPCLEARCHAT%"));
-			sender.sendMessage(new TextComponentString("%LPRESTORESENDMESSAGE%"));
+			sender.sendSystemMessage(Component.literal("%LPSTORESENDMESSAGE%"));
+			sender.sendSystemMessage(Component.literal("%LPCLEARCHAT%"));
+			sender.sendSystemMessage(Component.literal("%LPRESTORESENDMESSAGE%"));
 		} else {
-			sender.sendMessage(new TextComponentString("%LPCLEARCHAT%"));
+			sender.sendSystemMessage(Component.literal("%LPCLEARCHAT%"));
 		}
 	}
 }

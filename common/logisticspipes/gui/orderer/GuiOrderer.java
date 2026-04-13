@@ -7,7 +7,9 @@
 
 package logisticspipes.gui.orderer;
 
-import java.io.IOException;
+import net.minecraft.core.registries.BuiltInRegistries;
+
+import net.minecraft.SharedConstants;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -15,14 +17,16 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatAllowedCharacters;
 
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
+
+
 
 import logisticspipes.config.Configs;
 import logisticspipes.gui.popup.GuiRequestPopup;
@@ -35,7 +39,7 @@ import logisticspipes.request.resources.IResource;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ISubGuiControler;
 import logisticspipes.utils.gui.InputBar;
@@ -44,10 +48,11 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import javax.annotation.Nonnull;
 
 public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer {
 
-	public final EntityPlayer _entityPlayer;
+	public final Player _entityPlayer;
 	public ItemDisplay itemDisplay;
 	private InputBar search;
 
@@ -61,8 +66,8 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	public static int dimensioncache;
 	public static long cachetime;
 
-	public GuiOrderer(int x, int y, int z, int dim, EntityPlayer entityPlayer) {
-		super(220, 240, 0, 0);
+	public GuiOrderer(int x, int y, int z, int dim, Player entityPlayer) {
+		super(buildDummy(entityPlayer), 220, 240, 0, 0);
 		xCoord = x;
 		yCoord = y;
 		zCoord = z;
@@ -72,7 +77,10 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 			dimension = GuiOrderer.dimensioncache;
 		}
 		_entityPlayer = entityPlayer;
-		inventorySlots = new DummyContainer(entityPlayer.inventory, null);
+	}
+
+	private static DummyContainer buildDummy(Player entityPlayer) {
+		return new DummyContainer(entityPlayer.getInventory(), null);
 	}
 
 	public abstract void refreshItems();
@@ -82,58 +90,54 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	public void initGui() {
-		Keyboard.enableRepeatEvents(true);
+	public void init() {
+		
 
-		super.initGui();
+		super.init();
 
-		buttonList.clear();
-		buttonList.add(new GuiButton(0, right - 55, bottom - 25, 50, 20, "Request")); // Request
-		buttonList.add(new SmallGuiButton(1, right - 15, guiTop + 5, 10, 10, ">")); // Next page
-		buttonList.add(new SmallGuiButton(2, right - 90, guiTop + 5, 10, 10, "<")); // Prev page
-		buttonList.add(new SmallGuiButton(10, xCenter - 51, bottom - 15, 26, 10, "---")); // -64
-		buttonList.add(new SmallGuiButton(4, xCenter - 51, bottom - 26, 15, 10, "--")); // -10
-		buttonList.add(new SmallGuiButton(5, xCenter - 35, bottom - 26, 10, 10, "-")); // -1
-		buttonList.add(new SmallGuiButton(6, xCenter + 26, bottom - 26, 10, 10, "+")); // +1
-		buttonList.add(new SmallGuiButton(7, xCenter + 38, bottom - 26, 15, 10, "++")); // +10
-		buttonList.add(new SmallGuiButton(11, xCenter + 26, bottom - 15, 26, 10, "+++")); // +64
-		buttonList.add(new GuiCheckBox(8, guiLeft + 9, bottom - 60, 14, 14, Configs.DISPLAY_POPUP)); // Popup
+		// super.init() → rebuildWidgets() already cleared prior widgets
+		addRenderableWidget(wire(new logisticspipes.utils.gui.SmallGuiButton(0, right - 55, bottom - 25, 50, 20, "Request"), 0)); // Request
+		addRenderableWidget(wire(new SmallGuiButton(1, right - 15, topPos + 5, 10, 10, ">"), 1)); // Next page
+		addRenderableWidget(wire(new SmallGuiButton(2, right - 90, topPos + 5, 10, 10, "<"), 2)); // Prev page
+		addRenderableWidget(wire(new SmallGuiButton(10, xCenter - 51, bottom - 15, 26, 10, "---"), 10)); // -64
+		addRenderableWidget(wire(new SmallGuiButton(4, xCenter - 51, bottom - 26, 15, 10, "--"), 4)); // -10
+		addRenderableWidget(wire(new SmallGuiButton(5, xCenter - 35, bottom - 26, 10, 10, "-"), 5)); // -1
+		addRenderableWidget(wire(new SmallGuiButton(6, xCenter + 26, bottom - 26, 10, 10, "+"), 6)); // +1
+		addRenderableWidget(wire(new SmallGuiButton(7, xCenter + 38, bottom - 26, 15, 10, "++"), 7)); // +10
+		addRenderableWidget(wire(new SmallGuiButton(11, xCenter + 26, bottom - 15, 26, 10, "+++"), 11)); // +64
+		popupCheck = new GuiCheckBox(8, leftPos + 9, bottom - 60, 14, 14, Configs.DISPLAY_POPUP);
+		popupCheck.setPressListener(b -> handleBtn(8, b));
+		addRenderableWidget(popupCheck); // Popup
 
-		buttonList.add(new SmallGuiButton(20, xCenter - 13, bottom - 41, 26, 10, "Sort")); // Sort
+		addRenderableWidget(wire(new SmallGuiButton(20, xCenter - 13, bottom - 41, 26, 10, "Sort"), 20)); // Sort
 
 		if (search == null) {
-			search = new InputBar(fontRenderer, this, guiLeft + 10, bottom - 78, xSize - 20, 15);
+			search = new InputBar(font, this, leftPos + 10, bottom - 78, imageWidth - 20, 15);
 		}
-		search.reposition(guiLeft + 10, bottom - 78, xSize - 20, 15);
+		search.reposition(leftPos + 10, bottom - 78, imageWidth - 20, 15);
 
 		if (itemDisplay == null) {
-			itemDisplay = new ItemDisplay(this, fontRenderer, this, this, guiLeft + 10, guiTop + 18, xSize - 20, ySize - 100, xCenter, bottom - 24, 49, new int[] { 1, 10, 64, 64 }, true);
+			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24, 49, new int[] { 1, 10, 64, 64 }, true);
 		}
-		itemDisplay.reposition(guiLeft + 10, guiTop + 18, xSize - 20, ySize - 100, xCenter, bottom - 24);
+		itemDisplay.reposition(leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24);
 	}
 
 	@Override
-	public void closeGui() throws IOException {
-		super.closeGui();
-		Keyboard.enableRepeatEvents(false);
-	}
-
-	@Override
-	public boolean doesGuiPauseGame() {
+	public boolean isPauseScreen() {
 		return false;
 	}
 
 	@Override
-	public void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
+	public void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 
-		mc.fontRenderer.drawString(_title, guiLeft + mc.fontRenderer.getStringWidth(_title) / 2, guiTop + 6, 0x404040);
-		itemDisplay.renderPageNumber(right - 47, guiTop + 6);
+		guiGraphics.drawString(minecraft.font, _title, leftPos + minecraft.font.width(_title) / 2, topPos + 6, 0x404040);
+		itemDisplay.renderPageNumber(right - 47, topPos + 6);
 
-		if (buttonList.get(9) instanceof GuiCheckBox && ((GuiCheckBox) buttonList.get(9)).getState()) {
-			mc.fontRenderer.drawString("Popup", guiLeft + 25, bottom - 56, 0x404040);
+		if (popupCheck != null && popupCheck.getState()) {
+			guiGraphics.drawString(minecraft.font, "Popup", leftPos + 25, bottom - 56, 0x404040);
 		} else {
-			mc.fontRenderer.drawString("Popup", guiLeft + 25, bottom - 56, Color.getValue(Color.GREY));
+			guiGraphics.drawString(minecraft.font, "Popup", leftPos + 25, bottom - 56, Color.getValue(Color.GREY));
 		}
 
 		itemDisplay.renderAmount(getStackAmount());
@@ -141,15 +145,18 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		search.drawTextBox();
 
 		itemDisplay.renderSortMode(xCenter, bottom - 52);
-		itemDisplay.renderItemArea(zLevel);
+		itemDisplay.renderItemArea(0.0f);
 	}
 
 	@Override
-	public void drawGuiContainerForegroundLayer(int par1, int par2) {
+	public void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
 		if (super.hasSubGui()) {
 			return;
 		}
-		GuiGraphics.displayItemToolTip(itemDisplay.getToolTip(), this, zLevel, guiLeft, guiTop);
+		Object[] tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
+		if (tip != null && tip.length >= 3) {
+			guiGraphics.renderTooltip(minecraft.font, (ItemStack) tip[2], (int) tip[0], (int) tip[1]);
+		}
 	}
 
 	@Override
@@ -160,11 +167,11 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getText().toLowerCase(Locale.US))) {
 			return true;
 		}
-		//if(isSearched(String.valueOf(Item.getIdFromItem(item.item)), search.getContent())) return true;
+		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
 		//Enchantment? Enchantment!
 		Map<Enchantment, Integer> enchantIdLvlMap = EnchantmentHelper.getEnchantments(item.unsafeMakeNormalStack(1));
 		for (Entry<Enchantment, Integer> e : enchantIdLvlMap.entrySet()) {
-			String enchantname = e.getKey().getName();
+			String enchantname = e.getKey().getDescriptionId();
 			if (enchantname != null) {
 				if (isSearched(enchantname.toLowerCase(Locale.US), search.getText().toLowerCase(Locale.US))) {
 					return true;
@@ -186,19 +193,19 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	protected void mouseClicked(int i, int j, int k) throws IOException {
-		itemDisplay.handleClick(i, j, k);
-		search.handleClick(i, j, k);
-		super.mouseClicked(i, j, k);
+	public boolean mouseClicked(double i, double j, int k) {
+		itemDisplay.handleClick((int) i, (int) j, k);
+		search.handleClick((int) i, (int) j, k);
+		return super.mouseClicked(i, j, k);
 	}
 
 	@Override
-	public void handleMouseInputSub() throws IOException {
-		itemDisplay.handleMouse();
-		super.handleMouseInputSub();
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		itemDisplay.handleMouse(delta);
+		return super.mouseScrolled(mouseX, mouseY, delta);
 	}
 
-	public void handleRequestAnswer(Collection<IResource> items, boolean error, ISubGuiControler control, EntityPlayer player) {
+	public void handleRequestAnswer(Collection<IResource> items, boolean error, ISubGuiControler control, Player player) {
 		while (control.hasSubGui()) {
 			control = control.getSubGui();
 		}
@@ -209,49 +216,55 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		}
 	}
 
-	public void handleSimulateAnswer(Collection<IResource> used, Collection<IResource> missing, ISubGuiControler control, EntityPlayer player) {
+	public void handleSimulateAnswer(Collection<IResource> used, Collection<IResource> missing, ISubGuiControler control, Player player) {
 		while (control.hasSubGui()) {
 			control = control.getSubGui();
 		}
 		control.setSubGui(new GuiRequestPopup(_entityPlayer, "Components: ", used, "Missing: ", missing));
 	}
 
-	@Override
-	protected void actionPerformed(GuiButton guibutton) throws IOException {
-		if (guibutton.id == 0 && itemDisplay.getSelectedItem() != null) {
+	private GuiCheckBox popupCheck;
+
+	private SmallGuiButton wire(SmallGuiButton btn, int id) {
+		btn.setPressListener(b -> handleBtn(id, b));
+		return btn;
+	}
+
+	private void handleBtn(int id, net.minecraft.client.gui.components.AbstractButton guibutton) {
+		if (id == 0 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitPacket.class).setStack(stack).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
 			refreshItems();
-		} else if (guibutton.id == 1) {
+		} else if (id == 1) {
 			itemDisplay.nextPage();
-		} else if (guibutton.id == 2) {
+		} else if (id == 2) {
 			itemDisplay.prevPage();
-		} else if (guibutton.id == 3) {
+		} else if (id == 3) {
 			refreshItems();
-		} else if (guibutton.id == 10) {
+		} else if (id == 10) {
 			itemDisplay.sub(3);
-		} else if (guibutton.id == 4) {
+		} else if (id == 4) {
 			itemDisplay.sub(2);
-		} else if (guibutton.id == 5) {
+		} else if (id == 5) {
 			itemDisplay.sub(1);
-		} else if (guibutton.id == 6) {
+		} else if (id == 6) {
 			itemDisplay.add(1);
-		} else if (guibutton.id == 7) {
+		} else if (id == 7) {
 			itemDisplay.add(2);
-		} else if (guibutton.id == 11) {
+		} else if (id == 11) {
 			itemDisplay.add(3);
-		} else if (guibutton.id == 8) {
+		} else if (id == 8) {
 			GuiCheckBox button = (GuiCheckBox) guibutton;
 			Configs.DISPLAY_POPUP = button.change();
 			Configs.savePopupState();
-		} else if (guibutton.id == 13 && itemDisplay.getSelectedItem() != null) {
+		} else if (id == 13 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestComponentPacket.class).setStack(stack).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
-		} else if (guibutton.id == 20) {
+		} else if (id == 20) {
 			itemDisplay.cycle();
 		}
 
-		super.actionPerformed(guibutton);
+		// super.actionPerformed removed — no such method in 1.20.1 Screen
 	}
 
 	protected int getStackAmount() {
@@ -259,23 +272,25 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	protected void keyTyped(char c, int i) throws IOException {
+	public boolean charTyped(char c, int i) {
 		if (search.isFocused()) {
-			if (!search.isEmpty() && search.handleKey(c, i))
-				return;
-		} else if (GuiScreen.isAltKeyDown() && ChatAllowedCharacters.isAllowedCharacter(c)) {
+			if (!search.isEmpty() && search.handleKey(c, i)) {
+				return true;
+			}
+		} else if (Screen.hasAltDown() && SharedConstants.isAllowedChatCharacter(c)) {
 			itemDisplay.setFocused(false);
 			search.setFocused(true);
 			search.setText("");
 			search.handleKey(c, i);
-			return;
+			return true;
 		}
 		if (!itemDisplay.keyTyped(c, i)) {
 			// Track everything except Escape when in search bar
 			if (i == 1 || !search.handleKey(c, i)) {
-				super.keyTyped(c, i);
+				return super.charTyped(c, i);
 			}
 		}
+		return false;
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package logisticspipes.proxy.interfaces;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
 import logisticspipes.recipes.CraftingParts;
 
@@ -11,16 +11,16 @@ public interface IIC2Proxy {
 
 	boolean hasIC2();
 
-	void registerToEneryNet(TileEntity tile);
+	void registerToEneryNet(BlockEntity tile);
 
-	void unregisterToEneryNet(TileEntity tile);
+	void unregisterToEneryNet(BlockEntity tile);
 
-	boolean acceptsEnergyFrom(TileEntity energy, TileEntity tile, EnumFacing opposite);
+	boolean acceptsEnergyFrom(BlockEntity energy, BlockEntity tile, Direction opposite);
 
-	boolean isEnergySink(TileEntity tile);
+	boolean isEnergySink(BlockEntity tile);
 
-	double demandedEnergyUnits(TileEntity tile);
+	double demandedEnergyUnits(BlockEntity tile);
 
-	double injectEnergyUnits(TileEntity tile, EnumFacing opposite, double d);
+	double injectEnergyUnits(BlockEntity tile, Direction opposite, double d);
 
 }

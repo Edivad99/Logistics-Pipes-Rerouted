@@ -3,10 +3,11 @@ package logisticspipes.network.packets.orderer;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
+
 
 import lombok.Getter;
 import lombok.Setter;
@@ -46,22 +47,22 @@ public class MissingItems extends ModernPacket {
 
 	@Override
 	@ClientSideOnlyMethodContent
-	public void processPacket(EntityPlayer player) {
-		if (Configs.DISPLAY_POPUP && FMLClientHandler.instance().getClient().currentScreen instanceof GuiOrderer) {
-			((GuiOrderer) FMLClientHandler.instance().getClient().currentScreen)
-					.handleRequestAnswer(getItems(), isFlag(), (GuiOrderer) FMLClientHandler.instance().getClient().currentScreen, player);
-		} else if (Configs.DISPLAY_POPUP && FMLClientHandler.instance().getClient().currentScreen instanceof GuiRequestTable) {
-			((GuiRequestTable) FMLClientHandler.instance().getClient().currentScreen)
-					.handleRequestAnswer(getItems(), isFlag(), (GuiRequestTable) FMLClientHandler.instance().getClient().currentScreen, player);
+	public void processPacket(Player player) {
+		if (Configs.DISPLAY_POPUP && Minecraft.getInstance().screen instanceof GuiOrderer) {
+			((GuiOrderer) Minecraft.getInstance().screen)
+					.handleRequestAnswer(getItems(), isFlag(), (GuiOrderer) Minecraft.getInstance().screen, player);
+		} else if (Configs.DISPLAY_POPUP && Minecraft.getInstance().screen instanceof GuiRequestTable) {
+			((GuiRequestTable) Minecraft.getInstance().screen)
+					.handleRequestAnswer(getItems(), isFlag(), (GuiRequestTable) Minecraft.getInstance().screen, player);
 		} else if (isFlag()) {
 			for (IResource item : items) {
-				player.sendMessage(new TextComponentString(ChatColor.RED + "Missing: " + item.getDisplayText(ColorCode.MISSING)));
+				player.sendSystemMessage(Component.literal(ChatColor.RED + "Missing: " + item.getDisplayText(ColorCode.MISSING)));
 			}
 		} else {
 			for (IResource item : items) {
-				player.sendMessage(new TextComponentString(ChatColor.GREEN + "Requested: " + item.getDisplayText(ColorCode.SUCCESS)));
+				player.sendSystemMessage(Component.literal(ChatColor.GREEN + "Requested: " + item.getDisplayText(ColorCode.SUCCESS)));
 			}
-			player.sendMessage(new TextComponentString(ChatColor.GREEN + "Request successful!"));
+			player.sendSystemMessage(Component.literal(ChatColor.GREEN + "Request successful!"));
 		}
 	}
 

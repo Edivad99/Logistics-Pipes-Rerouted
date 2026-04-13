@@ -42,10 +42,10 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
 import logisticspipes.network.guis.module.inhand.SimpleFilterInventoryInHand
 import logisticspipes.network.guis.module.inpipe.SimpleFilterInventorySlot
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 
 interface SimpleFilter {
-    fun getFilterInventory(): IInventory
+    fun getFilterInventory(): Container
 
     companion object {
         @JvmStatic

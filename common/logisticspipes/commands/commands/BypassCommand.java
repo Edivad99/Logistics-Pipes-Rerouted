@@ -1,8 +1,8 @@
 package logisticspipes.commands.commands;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.text.TextComponentString;
+// Player removed — use net.minecraft.commands.CommandSourceStack
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.commands.LogisticsPipesCommand;
@@ -16,8 +16,8 @@ public class BypassCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
-		return sender instanceof EntityPlayer && LogisticsPipesCommand.isOP(sender);
+	public boolean isCommandUsableBy(Player sender) {
+		return sender instanceof Player && LogisticsPipesCommand.isOP(sender);
 	}
 
 	@Override
@@ -26,13 +26,13 @@ public class BypassCommand implements ICommandHandler {
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
-		if (!LogisticsSecurityTileEntity.byPassed.contains((EntityPlayer) sender)) {
-			LogisticsSecurityTileEntity.byPassed.add((EntityPlayer) sender);
-			sender.sendMessage(new TextComponentString("Enabled"));
+	public void executeCommand(Player sender, String[] args) {
+		if (!LogisticsSecurityTileEntity.byPassed.contains((Player) sender)) {
+			LogisticsSecurityTileEntity.byPassed.add((Player) sender);
+			sender.sendSystemMessage(Component.literal("Enabled"));
 		} else {
-			LogisticsSecurityTileEntity.byPassed.remove((EntityPlayer) sender);
-			sender.sendMessage(new TextComponentString("Disabled"));
+			LogisticsSecurityTileEntity.byPassed.remove((Player) sender);
+			sender.sendSystemMessage(Component.literal("Disabled"));
 		}
 	}
 }

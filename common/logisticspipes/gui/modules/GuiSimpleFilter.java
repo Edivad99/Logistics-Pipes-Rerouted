@@ -7,50 +7,56 @@
 
 package logisticspipes.gui.modules;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.Container;
+import net.minecraft.resources.ResourceLocation;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.utils.gui.DummyContainer;
 import network.rs485.logisticspipes.module.SimpleFilter;
+import javax.annotation.Nonnull;
 
 public class GuiSimpleFilter extends ModuleBaseGui {
 
 	private final SimpleFilter filter;
 
-	public GuiSimpleFilter(IInventory playerInventory, LogisticsModule filterModule) {
-		super(null, filterModule);
+	public GuiSimpleFilter(Container playerInventory, LogisticsModule filterModule) {
+		super(buildDummy(playerInventory, filterModule), filterModule);
 		if (!(filterModule instanceof SimpleFilter)) throw new IllegalArgumentException("Module is not a filter module");
 		filter = (SimpleFilter) filterModule;
-		DummyContainer dummy = new DummyContainer(playerInventory, filter.getFilterInventory());
+		imageWidth = 175;
+		imageHeight = 142;
+	}
+	private static DummyContainer buildDummy(Container playerInventory, LogisticsModule filterModule) {
+		SimpleFilter f = (filterModule instanceof SimpleFilter) ? (SimpleFilter) filterModule : null;
+		DummyContainer dummy = new DummyContainer(playerInventory, f != null ? f.getFilterInventory() : null);
 		dummy.addNormalSlotsForPlayerInventory(8, 60);
 
 		//Pipe slots
 		for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
 			dummy.addDummySlot(pipeSlot, 8 + pipeSlot * 18, 18);
 		}
-
-		inventorySlots = dummy;
-		xSize = 175;
-		ySize = 142;
+		return dummy;
 	}
 
+
 	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-		mc.fontRenderer.drawString(filter.getFilterInventory().getName(), 8, 6, 0x404040);
-		mc.fontRenderer.drawString("Inventory", 8, ySize - 92, 0x404040);
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) filter.getFilterInventory()).getName(), 8, 6, 0x404040);
+		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040);
 	}
 
 	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/itemsink.png");
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int x, int y) {
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.renderEngine.bindTexture(GuiSimpleFilter.TEXTURE);
-		int j = guiLeft;
-		int k = guiTop;
-		drawTexturedModalRect(j, k, 0, 0, xSize, ySize);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		// texture: GuiSimpleFilter.TEXTURE
+		int j = leftPos;
+		int k = topPos;
+		guiGraphics.blit(GuiSimpleFilter.TEXTURE, j, k, 0, 0, imageWidth, imageHeight);
 	}
 }

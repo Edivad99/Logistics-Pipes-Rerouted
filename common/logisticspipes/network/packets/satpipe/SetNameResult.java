@@ -1,8 +1,9 @@
 package logisticspipes.network.packets.satpipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
+
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,9 +42,9 @@ public class SetNameResult extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiSatellitePipe) {
-			((GuiSatellitePipe) FMLClientHandler.instance().getClient().currentScreen).handleResponse(result, newName);
+	public void processPacket(Player player) {
+		if (Minecraft.getInstance().screen instanceof GuiSatellitePipe) {
+			((GuiSatellitePipe) Minecraft.getInstance().screen).handleResponse(result, newName);
 		}
 	}
 

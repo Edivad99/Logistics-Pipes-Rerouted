@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.orderer;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.interfaces.IOrderManagerContentReceiver;
 import logisticspipes.network.abstractpackets.InventoryModuleCoordinatesPacket;
@@ -21,8 +21,8 @@ public class OrdererManagerContent extends InventoryModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		final LogisticsTileGenericPipe tile = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		final LogisticsTileGenericPipe tile = this.getPipe(player.level());
 		if (tile == null) {
 			return;
 		}

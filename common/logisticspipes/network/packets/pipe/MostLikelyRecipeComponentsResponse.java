@@ -3,8 +3,8 @@ package logisticspipes.network.packets.pipe;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,8 +38,8 @@ public class MostLikelyRecipeComponentsResponse extends ModernPacket {
 
 	@Override
 	@ClientSideOnlyMethodContent
-	public void processPacket(EntityPlayer player) {
-		GuiScreen firstGui = Minecraft.getMinecraft().currentScreen;
+	public void processPacket(Player player) {
+		Screen firstGui = Minecraft.getInstance().screen;
 		LogisticsBaseGuiScreen gui;
 		if (firstGui instanceof GuiLogisticsCraftingTable) {
 			gui = (GuiLogisticsCraftingTable) firstGui;

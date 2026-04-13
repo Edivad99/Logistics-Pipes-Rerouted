@@ -1,7 +1,7 @@
 package logisticspipes.network.abstractguis;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public abstract class PopupGuiProvider extends GuiProvider {
 
@@ -10,7 +10,7 @@ public abstract class PopupGuiProvider extends GuiProvider {
 	}
 
 	@Override
-	public final Container getContainer(EntityPlayer player) {
+	public final AbstractContainerMenu getContainer(Player player) {
 		return null;
 	}
 }

@@ -2,7 +2,7 @@ package logisticspipes.security;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import network.rs485.logisticspipes.IStore;
 
@@ -21,7 +21,7 @@ public class SecuritySettings implements IStore {
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
+	public void readFromNBT(@Nonnull CompoundTag nbttagcompound) {
 		String prev = name;
 		name = nbttagcompound.getString("name");
 		if (name.equals("")) {
@@ -36,16 +36,16 @@ public class SecuritySettings implements IStore {
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull NBTTagCompound nbttagcompound) {
+	public void writeToNBT(@Nonnull CompoundTag nbttagcompound) {
 		if (name == null || name.isEmpty()) {
 			return;
 		}
-		nbttagcompound.setString("name", name);
-		nbttagcompound.setBoolean("openGui", openGui);
-		nbttagcompound.setBoolean("openRequest", openRequest);
-		nbttagcompound.setBoolean("openUpgrades", openUpgrades);
-		nbttagcompound.setBoolean("openNetworkMonitor", openNetworkMonitor);
-		nbttagcompound.setBoolean("removePipes", removePipes);
-		nbttagcompound.setBoolean("accessRoutingChannels", accessRoutingChannels);
+		nbttagcompound.putString("name", name);
+		nbttagcompound.putBoolean("openGui", openGui);
+		nbttagcompound.putBoolean("openRequest", openRequest);
+		nbttagcompound.putBoolean("openUpgrades", openUpgrades);
+		nbttagcompound.putBoolean("openNetworkMonitor", openNetworkMonitor);
+		nbttagcompound.putBoolean("removePipes", removePipes);
+		nbttagcompound.putBoolean("accessRoutingChannels", accessRoutingChannels);
 	}
 }

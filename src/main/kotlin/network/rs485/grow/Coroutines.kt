@@ -40,7 +40,7 @@ package network.rs485.grow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.minecraftforge.fml.common.FMLCommonHandler
+import net.minecraftforge.server.ServerLifecycleHooks
 
 object Coroutines {
     val io = Dispatchers.IO
@@ -54,10 +54,10 @@ object Coroutines {
         get() = CoroutineScope(server)
 
     fun scheduleServerTask(inTicks: Int, task: Runnable) {
-        val runTick = FMLCommonHandler.instance().minecraftServerInstance.tickCounter + inTicks
+        val runTick = ServerLifecycleHooks.getCurrentServer().tickCount + inTicks
 
         fun waitForTick() {
-            if (FMLCommonHandler.instance().minecraftServerInstance.tickCounter >= runTick) {
+            if (ServerLifecycleHooks.getCurrentServer().tickCount >= runTick) {
                 task.run()
             } else {
                 server.scheduleNextTick(::waitForTick)

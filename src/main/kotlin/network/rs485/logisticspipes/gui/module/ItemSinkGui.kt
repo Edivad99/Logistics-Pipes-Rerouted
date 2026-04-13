@@ -52,9 +52,8 @@ import logisticspipes.network.packets.module.ModulePropertiesUpdate
 import logisticspipes.proxy.MainProxy
 import logisticspipes.utils.Color
 import logisticspipes.utils.item.ItemIdentifier
-import mezz.jei.api.gui.IGhostIngredientHandler
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 import java.awt.Rectangle
 import java.util.concurrent.atomic.AtomicReference
 
@@ -63,7 +62,7 @@ class ItemSinkWidgetScreen(private val guiReference: AtomicReference<ItemSinkGui
         val gui = guiReference.get() ?: return@widgetContainer
         margin = Margin.DEFAULT
         staticLabel {
-            text = gui.itemSinkModule.filterInventory.name
+            text = (gui.itemSinkModule.filterInventory as logisticspipes.utils.item.ItemIdentifierInventory).getName()
             textAlignment = HorizontalAlignment.CENTER
             textColor = Color.TEXT_DARK.value
         }
@@ -127,7 +126,7 @@ class ItemSinkGui private constructor(
     companion object {
         @JvmStatic
         fun create(
-            playerInventory: IInventory,
+            playerInventory: Container,
             itemSinkModule: ModuleItemSink,
             lockedStack: ItemStack,
             isFuzzy: Boolean,
@@ -167,37 +166,23 @@ class ItemSinkGui private constructor(
         filterInventoryOverlay.write { filterInventory: ItemIdentifierInventoryProperty ->
             for (i in filterInventory.indices) {
                 if (i < importedItems.size) {
-                    filterInventory.setInventorySlotContents(i, importedItems[i].makeStack(1))
+                    filterInventory.setItem(i, importedItems[i].makeStack(1))
                 } else {
-                    filterInventory.setInventorySlotContents(i, ItemStack.EMPTY)
+                    filterInventory.setItem(i, ItemStack.EMPTY)
                 }
             }
         }
     }
 
-    override fun onGuiClosed() {
-        super.onGuiClosed()
+    override fun onClose() {
+        super.onClose()
         propertyLayer.unregister()
-        if (mc.player != null && propertyLayer.properties.isNotEmpty()) {
+        if (minecraft?.player != null && propertyLayer.properties.isNotEmpty()) {
             // send update to server, when there are changed properties
             MainProxy.sendPacketToServer(
                 ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(itemSinkModule),
             )
         }
-    }
-
-    override fun <I : Any?> getFilterSlots(): MutableList<IGhostIngredientHandler.Target<I>> {
-        return itemSinkContainer.filterSlots.map { slot ->
-            object : IGhostIngredientHandler.Target<I> {
-                override fun accept(ingredient: I) {
-                    if (ingredient is ItemStack) {
-                        slot.putStack(ingredient)
-                    }
-                }
-
-                override fun getArea(): Rectangle = Rectangle(guiLeft + slot.xPos, guiTop + slot.yPos, 17, 17)
-            }
-        }.toMutableList()
     }
 
     override fun getExtraGuiAreas(): List<IRectangle> {

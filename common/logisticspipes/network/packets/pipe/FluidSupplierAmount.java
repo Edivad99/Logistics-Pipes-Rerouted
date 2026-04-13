@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -22,15 +22,15 @@ public class FluidSupplierAmount extends IntegerCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		final LogisticsTileGenericPipe pipe = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		final LogisticsTileGenericPipe pipe = this.getPipe(player.level());
 		if (pipe == null) {
 			return;
 		}
 		if (!(pipe.pipe instanceof PipeFluidSupplierMk2)) {
 			return;
 		}
-		if (MainProxy.isClient(player.world)) {
+		if (MainProxy.isClient(player.level())) {
 			((PipeFluidSupplierMk2) pipe.pipe).setAmount(getInteger());
 		} else {
 			((PipeFluidSupplierMk2) pipe.pipe).changeFluidAmount(getInteger(), player);

@@ -1,15 +1,15 @@
 package logisticspipes.proxy.interfaces;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface IIronChestProxy {
 
-	boolean isIronChest(TileEntity tile);
+	boolean isIronChest(BlockEntity tile);
 
-	@SideOnly(Side.CLIENT)
-	boolean isChestGui(GuiScreen gui);
+	@OnlyIn(Dist.CLIENT)
+	boolean isChestGui(Screen gui);
 }

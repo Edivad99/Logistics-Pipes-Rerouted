@@ -1,94 +1,93 @@
 package logisticspipes.modplugins.jei;
 
-import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import mezz.jei.api.gui.IGhostIngredientHandler;
+import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
+import mezz.jei.api.ingredients.ITypedIngredient;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.SetGhostItemPacket;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.FluidIdentifier;
-import logisticspipes.utils.gui.DummySlot;
-import logisticspipes.utils.gui.FluidSlot;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import network.rs485.logisticspipes.gui.widget.GhostSlot;
+import network.rs485.logisticspipes.gui.widget.Item;
+import network.rs485.logisticspipes.gui.widget.Unmodifiable;
 
-public class GhostIngredientHandler implements IGhostIngredientHandler<LogisticsBaseGuiScreen> {
+/**
+ * Enables dragging items from the JEI ingredient panel into LP ghost/filter slots.
+ */
+@OnlyIn(Dist.CLIENT)
+public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractContainerScreen<?>> {
 
-	@Nonnull
-	@Override
-	public <I> List<Target<I>> getTargets(@Nonnull LogisticsBaseGuiScreen gui, @Nonnull I ingredient, boolean doStart) {
-		if (ingredient instanceof ItemStack) {
-			Stream<Target<I>> slotStream = gui.inventorySlots.inventorySlots.stream().filter(it -> it instanceof DummySlot).map(it -> (DummySlot) it)
-					.map(it -> new Target<I>() {
+    @Override
+    @SuppressWarnings("unchecked")
+    public <I> List<IGhostIngredientHandler.Target<I>> getTargetsTyped(
+            @Nonnull AbstractContainerScreen<?> gui,
+            @Nonnull ITypedIngredient<I> typedIngredient,
+            boolean doStart) {
 
-						@Nonnull
-						@Override
-						public Rectangle getArea() {
-							return new Rectangle(gui.getGuiLeft() + it.xPos, gui.getGuiTop() + it.yPos, 17, 17);
-						}
+        Optional<ItemStack> itemStackOpt = typedIngredient.getItemStack();
+        if (itemStackOpt.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-						@Override
-						public void accept(@Nonnull I ingredient) {
-							it.putStack((ItemStack) ingredient);
-							MainProxy.sendPacketToServer(
-									PacketHandler.getPacket(SetGhostItemPacket.class).setInteger(it.slotNumber).setStack((ItemStack) ingredient));
-						}
-					});
-			if (FluidIdentifier.get((ItemStack) ingredient) != null) {
-				Stream<Target<I>> fluidStream = gui.inventorySlots.inventorySlots.stream().filter(it -> it instanceof FluidSlot).map(it -> (FluidSlot) it)
-						.map(it -> new Target<I>() {
+        List<IGhostIngredientHandler.Target<ItemStack>> targets = new ArrayList<>();
+        AbstractContainerMenu menu = gui.getMenu();
 
-							@Nonnull
-							@Override
-							public Rectangle getArea() {
-								return new Rectangle(gui.getGuiLeft() + it.xPos, gui.getGuiTop() + it.yPos, 17, 17);
-							}
+        for (Slot slot : menu.slots) {
+            if (!(slot instanceof GhostSlot)) continue;
+            if (slot instanceof Unmodifiable) continue;
+            if (!(slot instanceof Item)) continue;
 
-							@Override
-							public void accept(@Nonnull I ingredient) {
-								FluidIdentifier ident = FluidIdentifier.get((ItemStack) ingredient);
-								if (ident != null) {
-									ItemStack stack = ident.getItemIdentifier().unsafeMakeNormalStack(1);
-									it.putStack(stack);
-									MainProxy.sendPacketToServer(PacketHandler.getPacket(SetGhostItemPacket.class).setInteger(it.slotNumber).setStack(stack));
-								}
-							}
-						});
-				slotStream = Stream.concat(slotStream, fluidStream);
-			}
-			return slotStream.collect(Collectors.toList());
-		} else if (ingredient instanceof FluidStack) {
-			return gui.inventorySlots.inventorySlots.stream().filter(it -> it instanceof FluidSlot).map(it -> (FluidSlot) it).map(it -> new Target<I>() {
+            final Slot ghostSlot = slot;
+            targets.add(new IGhostIngredientHandler.Target<ItemStack>() {
+                @Override
+                public Rect2i getArea() {
+                    return new Rect2i(
+                            gui.getGuiLeft() + ghostSlot.x,
+                            gui.getGuiTop() + ghostSlot.y,
+                            16, 16);
+                }
 
-				@Nonnull
-				@Override
-				public Rectangle getArea() {
-					return new Rectangle(gui.getGuiLeft() + it.xPos, gui.getGuiTop() + it.yPos, 17, 17);
-				}
+                @Override
+                public void accept(ItemStack ingredient) {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player == null || mc.gameMode == null) return;
 
-				@Override
-				public void accept(@Nonnull I ingredient) {
-					FluidIdentifier ident = FluidIdentifier.get((FluidStack) ingredient);
-					if (ident != null) {
-						ItemStack stack = ident.getItemIdentifier().unsafeMakeNormalStack(1);
-						it.putStack(stack);
-						MainProxy.sendPacketToServer(PacketHandler.getPacket(SetGhostItemPacket.class).setInteger(it.slotNumber).setStack(stack));
-					}
-				}
-			}).collect(Collectors.toList());
-		}
-		return Collections.emptyList();
-	}
+                    ItemStack copy = ingredient.copy();
+                    copy.setCount(1);
 
-	@Override
-	public void onComplete() {}
+                    // Place the item into the ghost slot by simulating a left-click
+                    // with the ingredient as the carried item.
+                    ItemStack prev = mc.player.containerMenu.getCarried();
+                    mc.player.containerMenu.setCarried(copy);
+                    mc.gameMode.handleInventoryMouseClick(
+                            mc.player.containerMenu.containerId,
+                            ghostSlot.index,
+                            0,
+                            ClickType.PICKUP,
+                            mc.player);
+                    mc.player.containerMenu.setCarried(prev);
+                }
+            });
+        }
+
+        return (List<IGhostIngredientHandler.Target<I>>) (List<?>) targets;
+    }
+
+    @Override
+    public void onComplete() {
+        // nothing to clean up
+    }
 }

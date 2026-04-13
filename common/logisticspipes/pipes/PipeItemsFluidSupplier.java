@@ -7,12 +7,12 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -55,7 +55,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		super(new PipeTransportLogistics(true) {
 
 			@Override
-			public boolean canPipeConnect(TileEntity tile, EnumFacing dir) {
+			public boolean canPipeConnect(BlockEntity tile, Direction dir) {
 				if (super.canPipeConnect(tile, dir)) {
 					return true;
 				}
@@ -94,11 +94,11 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		return ItemSendMode.Fast;
 	}
 
-	public void endReached(LPTravelingItemServer data, TileEntity tile) {
+	public void endReached(LPTravelingItemServer data, BlockEntity tile) {
 		getCacheHolder().trigger(CacheTypes.Inventory);
 		transport.markChunkModified(tile);
 		notifyOfItemArival(data.getInfo());
-		EnumFacing orientation = data.output.getOpposite();
+		Direction orientation = data.output.getOpposite();
 		if (getOriginalUpgradeManager().hasSneakyUpgrade()) {
 			orientation = getOriginalUpgradeManager().getSneakyOrientation();
 		}
@@ -113,7 +113,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		if (idStack == null) {
 			return;
 		}
-		FluidIdentifierStack liquidId = FluidIdentifierStack.getFromStack(FluidUtil.getFluidContained(idStack.makeNormalStack()));
+		FluidIdentifierStack liquidId = FluidUtil.getFluidContained(idStack.makeNormalStack()).map(FluidIdentifierStack::getFromStack).orElse(null);
 		if (liquidId == null) {
 			return;
 		}
@@ -121,8 +121,8 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			util.fill(liquidId, true);
 			idStack.lowerStackSize(1);
 			Item item = idStack.getItem().item;
-			if (item.hasContainerItem(idStack.makeNormalStack())) {
-				Item containerItem = Objects.requireNonNull(item.getContainerItem());
+			if (item.hasCraftingRemainingItem()) {
+				Item containerItem = Objects.requireNonNull(item.getCraftingRemainingItem());
 				transport.sendItem(new ItemStack(containerItem, 1));
 			}
 		}
@@ -144,7 +144,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		}
 		super.throttledUpdateEntity();
 
-		for (NeighborTileEntity<TileEntity> neighbor : getAdjacent().fluidTanks()) {
+		for (NeighborTileEntity<BlockEntity> neighbor : getAdjacent().fluidTanks()) {
 			final ITankUtil tankUtil = LPNeighborTileEntityKt.getTankUtil(neighbor);
 			if (tankUtil == null || !tankUtil.containsTanks()) {
 				continue;
@@ -155,18 +155,18 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			HashMap<FluidIdentifier, Integer> wantFluids = new HashMap<>();
 			for (Entry<ItemIdentifier, Integer> item : wantContainers.entrySet()) {
 				ItemStack wantItem = item.getKey().unsafeMakeNormalStack(1);
-				FluidStack liquidStack = FluidUtil.getFluidContained(wantItem);
+				FluidStack liquidStack = FluidUtil.getFluidContained(wantItem).orElse(null);
 				if (liquidStack == null) {
 					continue;
 				}
-				wantFluids.put(FluidIdentifier.get(liquidStack), item.getValue() * liquidStack.amount);
+				wantFluids.put(FluidIdentifier.get(liquidStack), item.getValue() * liquidStack.getAmount());
 			}
 
 			//How much do I have?
 			HashMap<FluidIdentifier, Integer> haveFluids = new HashMap<>();
 
 			tankUtil.tanks()
-					.map(tank -> FluidIdentifierStack.getFromStack(tank.getContents()))
+					.map(tank -> FluidIdentifierStack.getFromStack(tank))
 					.filter(Objects::nonNull)
 					.forEach(fluid -> {
 						if (wantFluids.containsKey(fluid.getFluid())) {
@@ -184,14 +184,14 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			}
 			for (Entry<ItemIdentifier, Integer> requestedItem : _requestedItems.entrySet()) {
 				ItemStack wantItem = requestedItem.getKey().unsafeMakeNormalStack(1);
-				FluidStack requestedFluidId = FluidUtil.getFluidContained(wantItem);
+				FluidStack requestedFluidId = FluidUtil.getFluidContained(wantItem).orElse(null);
 				if (requestedFluidId == null) {
 					continue;
 				}
 				FluidIdentifier requestedFluid = FluidIdentifier.get(requestedFluidId);
 				Integer want = wantFluids.get(requestedFluid);
 				if (want != null) {
-					wantFluids.put(requestedFluid, want - requestedItem.getValue() * requestedFluidId.amount);
+					wantFluids.put(requestedFluid, want - requestedItem.getValue() * requestedFluidId.getAmount());
 				}
 			}
 
@@ -200,14 +200,14 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			//Make request
 
 			for (ItemIdentifier need : wantContainers.keySet()) {
-				FluidStack requestedFluidId = FluidUtil.getFluidContained(need.unsafeMakeNormalStack(1));
+				FluidStack requestedFluidId = FluidUtil.getFluidContained(need.unsafeMakeNormalStack(1)).orElse(null);
 				if (requestedFluidId == null) {
 					continue;
 				}
 				if (!wantFluids.containsKey(FluidIdentifier.get(requestedFluidId))) {
 					continue;
 				}
-				int countToRequest = wantFluids.get(FluidIdentifier.get(requestedFluidId)) / requestedFluidId.amount;
+				int countToRequest = wantFluids.get(FluidIdentifier.get(requestedFluidId)) / requestedFluidId.getAmount();
 				if (countToRequest < 1) {
 					continue;
 				}
@@ -242,17 +242,17 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
+	public void readFromNBT(CompoundTag nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
 		dummyInventory.readFromNBT(nbttagcompound, "");
 		_requestPartials = nbttagcompound.getBoolean("requestpartials");
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
 		dummyInventory.writeToNBT(nbttagcompound, "");
-		nbttagcompound.setBoolean("requestpartials", _requestPartials);
+		nbttagcompound.putBoolean("requestpartials", _requestPartials);
 	}
 
 	private void decreaseRequested(ItemIdentifierStack item) {
@@ -301,8 +301,10 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 	}
 
 	@Override
-	public void onWrenchClicked(EntityPlayer entityplayer) {
-		entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_FluidSupplier_ID, getWorld(), getX(), getY(), getZ());
+	public void onWrenchClicked(Player entityplayer) {
+		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.FluidSupplierGui.class)
+				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
+				.open(entityplayer);
 	}
 
 	/*** GUI ***/

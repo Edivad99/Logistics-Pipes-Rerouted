@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
 import logisticspipes.gui.hud.HUDProvider;
 import logisticspipes.interfaces.IChestContentReceiver;
@@ -103,18 +103,23 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe implements IProvi
 	}
 
 	@Override
+	public net.minecraft.world.level.Level getLevelForHUD() {
+		return getWorld();
+	}
+
+	@Override
 	public void startWatching() {
 		MainProxy.sendPacketToServer(
-				PacketHandler.getPacket(HUDStartWatchingPacket.class).setInteger(1 /*TODO*/).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+				PacketHandler.getPacket(HUDStartWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).setInteger(1 /*TODO*/).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
 	}
 
 	@Override
-	public void playerStartWatching(EntityPlayer player, int mode) {
+	public void playerStartWatching(Player player, int mode) {
 		if (mode == 1) {
 			providerModule.startWatching(player);
 		} else {
@@ -123,7 +128,7 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe implements IProvi
 	}
 
 	@Override
-	public void playerStopWatching(EntityPlayer player, int mode) {
+	public void playerStopWatching(Player player, int mode) {
 		if (mode == 1) {
 			providerModule.stopWatching(player);
 		} else {

@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -48,7 +48,7 @@ public class GainTubeRenderer implements ISpecialPipeRenderer, IHighlightPlaceme
 	//Tube global Access
 	public static Map<TubeGainRenderOrientation, IModel3D> tubeGain = new HashMap<>();
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/blocks/pipes/HS-Tube.png");
+	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/blocks/pipes/hs-tube.png");
 
 	public static void loadModels() {
 		try {
@@ -105,7 +105,7 @@ public class GainTubeRenderer implements ISpecialPipeRenderer, IHighlightPlaceme
 		GainTubeRenderer.tubeGain.get(orientation.getRenderOrientation()).copy().render(LPColourMultiplier.instance(0xFFFFFFFF));
 	}
 
-	public static AxisAlignedBB getObjectBoundsAt(AxisAlignedBB boundingBox, ITubeOrientation orientation) {
+	public static AABB getObjectBoundsAt(AABB boundingBox, ITubeOrientation orientation) {
 		IModel3D model = GainTubeRenderer.tubeGain.get(orientation.getRenderOrientation());
 		IBounds c = model.getBoundsInside(boundingBox);
 		if (c != null) {

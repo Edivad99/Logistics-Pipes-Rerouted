@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 
-interface InventoryProperty<T : IInventory> : Property<T>, IInventory {
+interface InventoryProperty<T : Container> : Property<T>, Container {
     override fun copyProperty(): InventoryProperty<out T>
 }

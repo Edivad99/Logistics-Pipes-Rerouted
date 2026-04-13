@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.routing.IChannelManager;
@@ -19,9 +19,9 @@ public class OpenSecurityChannelManagerPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsSecurityTileEntity securityTile = this.getTileAs(player.getEntityWorld(), LogisticsSecurityTileEntity.class);
-		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(player.getEntityWorld());
+	public void processPacket(Player player) {
+		LogisticsSecurityTileEntity securityTile = this.getTileAs(player.level(), LogisticsSecurityTileEntity.class);
+		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(player.level());
 		NewGuiHandler.getGui(SecurityChannelManagerGui.class).setChannelInformations(manager.getAllowedChannels(player)).setTilePos(securityTile).open(player);
 	}
 

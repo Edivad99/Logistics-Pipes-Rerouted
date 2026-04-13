@@ -1,6 +1,6 @@
 package logisticspipes.network.packets;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,8 +34,8 @@ public class UpdateName extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (MainProxy.isClient(player.world)) {
+	public void processPacket(Player player) {
+		if (MainProxy.isClient(player.level())) {
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(UpdateName.class).setIdent(getIdent()).setName(getIdent().getFriendlyName()));
 		} else {
 			MainProxy.proxy.updateNames(getIdent(), getName());

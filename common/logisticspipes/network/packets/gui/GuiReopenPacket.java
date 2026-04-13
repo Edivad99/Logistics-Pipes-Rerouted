@@ -1,11 +1,14 @@
 package logisticspipes.network.packets.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.network.NewGuiHandler;
+import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
+import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
@@ -36,8 +39,18 @@ public class GuiReopenPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		player.openGui(LogisticsPipes.instance, getGuiID(), player.world, getPosX(), getPosY(), getPosZ());
+	public void processPacket(Player player) {
+		if (NewGuiHandler.guilist == null || guiID < 0 || guiID >= NewGuiHandler.guilist.size()) {
+			LogisticsPipes.log.warn("GuiReopenPacket: invalid guiID {}", guiID);
+			return;
+		}
+		GuiProvider provider = NewGuiHandler.guilist.get(guiID).template();
+		if (provider instanceof CoordinatesGuiProvider coord) {
+			coord.setPosX(getPosX());
+			coord.setPosY(getPosY());
+			coord.setPosZ(getPosZ());
+		}
+		provider.open(player);
 	}
 
 	@Override

@@ -1,9 +1,6 @@
 package logisticspipes.gui.orderer;
 
-import java.io.IOException;
-
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.orderer.RequestFluidOrdererRefreshPacket;
@@ -15,31 +12,31 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 public class FluidGuiOrderer extends GuiOrderer {
 
-	public FluidGuiOrderer(PipeFluidRequestLogistics pipe, EntityPlayer entityPlayer) {
-		super(pipe.getX(), pipe.getY(), pipe.getZ(), pipe.getWorld().provider.getDimension(), entityPlayer);
+	public FluidGuiOrderer(PipeFluidRequestLogistics pipe, Player entityPlayer) {
+		super(pipe.getX(), pipe.getY(), pipe.getZ(), pipe.getWorld().dimension().location().hashCode(), entityPlayer);
 		_title = "Request Fluid";
 		refreshItems();
 	}
 
 	@Override
-	public void initGui() {
+	public void init() {
 		boolean setItemDisplay = itemDisplay == null;
-		super.initGui();
-		buttonList.add(new GuiButton(3, guiLeft + 10, bottom - 25, 46, 20, "Refresh")); // Refresh
+		super.init();
+		logisticspipes.utils.gui.SmallGuiButton refreshBtn = new logisticspipes.utils.gui.SmallGuiButton(3, leftPos + 10, bottom - 25, 46, 20, "Refresh");
+		refreshBtn.setPressListener(b -> refreshItems());
+		addRenderableWidget(refreshBtn);
+		logisticspipes.utils.gui.SmallGuiButton submitBtn = new logisticspipes.utils.gui.SmallGuiButton(0, leftPos + 60, bottom - 25, 46, 20, "Request");
+		submitBtn.setPressListener(b -> {
+			if (itemDisplay.getSelectedItem() != null) {
+				MainProxy.sendPacketToServer(PacketHandler.getPacket(SubmitFluidRequestPacket.class).setStack(itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount())).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
+				refreshItems();
+			}
+		});
+		addRenderableWidget(submitBtn);
 		if (setItemDisplay) {
-			itemDisplay = new ItemDisplay(this, fontRenderer, this, this, guiLeft + 10, guiTop + 18, xSize - 20, ySize - 100, xCenter, bottom - 24, 49, new int[] { 1, 1000, 16000, 100 }, false);
+			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24, 49, new int[] { 1, 1000, 16000, 100 }, false);
 		}
-		itemDisplay.reposition(guiLeft + 10, guiTop + 18, xSize - 20, ySize - 100, xCenter, bottom - 24);
-	}
-
-	@Override
-	protected void actionPerformed(GuiButton guibutton) throws IOException {
-		if (guibutton.id == 0 && itemDisplay.getSelectedItem() != null) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(SubmitFluidRequestPacket.class).setStack(itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount())).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
-			refreshItems();
-		} else {
-			super.actionPerformed(guibutton);
-		}
+		itemDisplay.reposition(leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24);
 	}
 
 	@Override
@@ -49,7 +46,7 @@ public class FluidGuiOrderer extends GuiOrderer {
 
 	@Override
 	public void refreshItems() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestFluidOrdererRefreshPacket.class).setInteger(dimension).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestFluidOrdererRefreshPacket.class).putInt(dimension).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord));
 	}
 
 	@Override

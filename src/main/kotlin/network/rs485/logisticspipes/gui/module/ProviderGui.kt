@@ -49,10 +49,8 @@ import logisticspipes.modules.ModuleProvider
 import logisticspipes.network.packets.module.ModulePropertiesUpdate
 import logisticspipes.proxy.MainProxy
 import logisticspipes.utils.Color
-import mezz.jei.api.gui.IGhostIngredientHandler
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import java.awt.Rectangle
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 import java.util.concurrent.atomic.AtomicReference
 
 
@@ -61,7 +59,7 @@ class ProviderWidgetScreen(private val guiReference: AtomicReference<ProviderGui
         val gui = guiReference.get() ?: return@widgetContainer
         margin = Margin.DEFAULT
         staticLabel {
-            text = gui.providerModule.filterInventory.name
+            text = (gui.providerModule.filterInventory as logisticspipes.utils.item.ItemIdentifierInventory).getName()
             textAlignment = HorizontalAlignment.CENTER
             textColor = Color.TEXT_DARK.value
             extendable = true
@@ -127,7 +125,7 @@ class ProviderGui private constructor(
 
     companion object {
         @JvmStatic
-        fun create(playerInventory: IInventory, providerModule: ModuleProvider, lockedStack: ItemStack): ProviderGui {
+        fun create(playerInventory: Container, providerModule: ModuleProvider, lockedStack: ItemStack): ProviderGui {
             val propertyLayer = PropertyLayer(providerModule.propertyList)
             val filterInventoryOverlay = propertyLayer.overlay(providerModule.filterInventory)
             return ProviderGui(
@@ -152,33 +150,12 @@ class ProviderGui private constructor(
         guiReference.set(this)
     }
 
-    override fun drawFocalgroundLayer(mouseX: Float, mouseY: Float, partialTicks: Float) {
-        for (guiButton in buttonList) {
-            guiButton.drawButton(mc, mouseX.toInt(), mouseY.toInt(), partialTicks)
-        }
-    }
-
-    override fun <I> getFilterSlots(): MutableList<IGhostIngredientHandler.Target<I>> {
-        // TODO create method to turn list of filter slots into list of Target<I>
-        return providerContainer.filterSlots.map { slot ->
-            object : IGhostIngredientHandler.Target<I> {
-                override fun accept(ingredient: I) {
-                    if (ingredient is ItemStack) {
-                        slot.putStack(ingredient)
-                    }
-                }
-
-                override fun getArea(): Rectangle = Rectangle(guiLeft + slot.xPos, guiTop + slot.yPos, 17, 17)
-            }
-        }.toMutableList()
-    }
-
     override fun getExtraGuiAreas(): List<IRectangle> = emptyList()
 
-    override fun onGuiClosed() {
-        super.onGuiClosed()
+    override fun onClose() {
+        super.onClose()
         propertyLayer.unregister()
-        if (mc.player != null && propertyLayer.properties.isNotEmpty()) {
+        if (minecraft?.player != null && propertyLayer.properties.isNotEmpty()) {
             // send update to server, when there are changed properties
             MainProxy.sendPacketToServer(
                 ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(providerModule),

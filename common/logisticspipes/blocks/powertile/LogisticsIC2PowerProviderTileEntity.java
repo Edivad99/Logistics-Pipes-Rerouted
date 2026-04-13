@@ -1,10 +1,9 @@
 package logisticspipes.blocks.powertile;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
-import ic2.api.energy.tile.IEnergyEmitter;
-import ic2.api.energy.tile.IEnergySink;
+// IC2 imports removed — no 1.20.1 port; IEnergySink added at runtime via @ModDependentInterface
 
 import logisticspipes.LPConstants;
 import logisticspipes.asm.ModDependentInterface;
@@ -15,7 +14,9 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 
 @ModDependentInterface(modId = { LPConstants.ic2ModID }, interfacePath = { "ic2.api.energy.tile.IEnergySink" })
-public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderTileEntity implements IEnergySink {
+public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderTileEntity
+		// IEnergySink — added at runtime by @ModDependentInterface when IC2 is present
+{
 
 	public static final int MAX_STORAGE = 40000000;
 	public static final int MAX_MAXMODE = 8;
@@ -24,36 +25,38 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 	private boolean addedToEnergyNet = false;
 	private boolean init = false;
 
-	public LogisticsIC2PowerProviderTileEntity() {
-		super();
+	public LogisticsIC2PowerProviderTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(logisticspipes.LPRegistries.BE_POWER_PROVIDER_EU.get(), pos, state);
 	}
 
 	@Override
 	public void update() {
 		super.update();
-		if (!init) {
-			if (!addedToEnergyNet) {
-				SimpleServiceLocator.IC2Proxy.registerToEneryNet(this);
-				addedToEnergyNet = true;
-			}
-		}
+		// TODO(1.20.1): IC2 not ported — energy net registration disabled
+		// if (!init) {
+		// 	if (!addedToEnergyNet) {
+		// 		SimpleServiceLocator.IC2Proxy.registerToEneryNet(this);
+		// 		addedToEnergyNet = true;
+		// 	}
+		// }
 	}
 
 	@Override
-	public void invalidate() {
-		super.invalidate();
+	public void setRemoved() {
+		super.setRemoved();
 		if (MainProxy.isClient(getWorld())) {
 			LogisticsHUDRenderer.instance().remove(this);
 		}
-		if (addedToEnergyNet) {
-			SimpleServiceLocator.IC2Proxy.unregisterToEneryNet(this);
-			addedToEnergyNet = false;
-		}
+		// TODO(1.20.1): IC2 not ported — energy net unregistration disabled
+		// if (addedToEnergyNet) {
+		// 	SimpleServiceLocator.IC2Proxy.unregisterToEneryNet(this);
+		// 	addedToEnergyNet = false;
+		// }
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
+	public void onLoad() {
+		super.onLoad();
 		if (MainProxy.isClient(getWorld())) {
 			init = false;
 		}
@@ -62,17 +65,7 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 		}
 	}
 
-	@Override
-	public void onChunkUnload() {
-		super.onChunkUnload();
-		if (MainProxy.isClient(getWorld())) {
-			LogisticsHUDRenderer.instance().remove(this);
-		}
-		if (addedToEnergyNet) {
-			SimpleServiceLocator.IC2Proxy.unregisterToEneryNet(this);
-			addedToEnergyNet = false;
-		}
-	}
+	// onChunkUnload removed in 1.20.1 — setRemoved() covers this case
 
 	public void addEnergy(double amount) {
 		if (MainProxy.isClient(getWorld())) {
@@ -98,13 +91,13 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt) {
-		super.readFromNBT(nbt);
+	public void load(CompoundTag nbt) {
+		super.load(nbt);
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		return super.writeToNBT(nbt);
+	public void saveAdditional(CompoundTag nbt) {
+		super.saveAdditional(nbt);
 	}
 
 	@Override
@@ -127,27 +120,27 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 		return LogisticsPowerProviderTileEntity.IC2_COLOR;
 	}
 
-	@Override
+	// @Override removed — IEnergySink not in implements
 	@ModDependentMethod(modId = LPConstants.ic2ModID)
-	public boolean acceptsEnergyFrom(IEnergyEmitter tile, EnumFacing dir) {
+	public boolean acceptsEnergyFrom(Object tile, Direction dir) { // was: IEnergyEmitter tile
 		return true;
 	}
 
-	@Override
+	// @Override removed — IEnergySink not in implements
 	@ModDependentMethod(modId = LPConstants.ic2ModID)
 	public double getDemandedEnergy() {
 		return freeSpace();
 	}
 
-	@Override
+	// @Override removed — IEnergySink not in implements
 	@ModDependentMethod(modId = LPConstants.ic2ModID)
 	public int getSinkTier() {
 		return Integer.MAX_VALUE;
 	}
 
-	@Override
+	// @Override removed — IEnergySink not in implements
 	@ModDependentMethod(modId = LPConstants.ic2ModID)
-	public double injectEnergy(EnumFacing directionFrom, double amount, double voltage) {
+	public double injectEnergy(Direction directionFrom, double amount, double voltage) {
 		addEnergy(amount);
 		return 0;
 	}

@@ -38,20 +38,20 @@
 package network.rs485.logisticspipes.property
 
 import network.rs485.logisticspipes.IStore
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundTag
 
 /**
- * Holds a [properties] list and can read and write [NBT][NBTTagCompound] via [IStore].
+ * Holds a [properties] list and can read and write [NBT][CompoundTag] via [IStore].
  */
 interface PropertyHolder {
     val properties: List<Property<*>>
 
     companion object {
         @JvmStatic
-        fun readFromNBT(tag: NBTTagCompound, holder: PropertyHolder) = holder.properties.readFromNBT(tag)
+        fun readFromNBT(tag: CompoundTag, holder: PropertyHolder) = holder.properties.readFromNBT(tag)
 
         @JvmStatic
-        fun writeToNBT(tag: NBTTagCompound, holder: PropertyHolder) = holder.properties.writeToNBT(tag)
+        fun writeToNBT(tag: CompoundTag, holder: PropertyHolder) = holder.properties.writeToNBT(tag)
     }
 
 }

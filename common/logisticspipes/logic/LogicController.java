@@ -1,17 +1,34 @@
 package logisticspipes.logic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import lombok.Getter;
 
 import logisticspipes.utils.item.SimpleStackInventory;
 
 public class LogicController {
+
+	/**
+	 * Registry of task type names to factory functions.
+	 * Concrete BaseLogicTask subclasses register themselves here so that
+	 * readFromNBT() can reconstruct the right class from a saved type name.
+	 */
+	private static final Map<String, Function<CompoundTag, BaseLogicTask>> TASK_TYPES = new HashMap<>();
+
+	public static void registerTaskType(String typeName, Function<CompoundTag, BaseLogicTask> factory) {
+		TASK_TYPES.put(typeName, factory);
+	}
 
 	public SimpleStackInventory diskInv = new SimpleStackInventory(1, "Disk Inv", 1);
 
@@ -22,7 +39,7 @@ public class LogicController {
 	@Getter
 	private boolean unresolvedTasks = false;
 
-	public void calculate(TileEntity tile) {
+	public void calculate(BlockEntity tile) {
 		if (oldThread != null && oldThread.isAlive()) {
 			return;
 		}
@@ -80,13 +97,88 @@ public class LogicController {
 		//*/
 	}
 
-	public void writeToNBT(NBTTagCompound nbt) {
+	public void writeToNBT(CompoundTag nbt) {
 		diskInv.writeToNBT(nbt, "LogicDiskInv");
-		//TODO
+		writeTasks(nbt);
+		writeConnections(nbt);
 	}
 
-	public void readFromNBT(NBTTagCompound nbt) {
+	public void readFromNBT(CompoundTag nbt) {
 		diskInv.readFromNBT(nbt, "LogicDiskInv");
-		//TODO
+		readTasks(nbt);
+		readConnections(nbt);
+	}
+
+	// ── Tasks ─────────────────────────────────────────────────────────────────
+
+	private void writeTasks(CompoundTag nbt) {
+		ListTag list = new ListTag();
+		for (BaseLogicTask task : tasks) {
+			CompoundTag entry = task.getCompoundTag();
+			entry.putString("taskType", task.getTypeName());
+			list.add(entry);
+		}
+		nbt.put("LogicTasks", list);
+	}
+
+	private void readTasks(CompoundTag nbt) {
+		tasks.clear();
+		ListTag list = nbt.getList("LogicTasks", Tag.TAG_COMPOUND);
+		for (int i = 0; i < list.size(); i++) {
+			CompoundTag entry = list.getCompound(i);
+			String typeName = entry.getString("taskType");
+			Function<CompoundTag, BaseLogicTask> factory = TASK_TYPES.get(typeName);
+			if (factory != null) {
+				tasks.add(factory.apply(entry));
+			}
+			// Unknown task types are silently skipped; no data loss for known types.
+		}
+	}
+
+	// ── Connections ───────────────────────────────────────────────────────────
+
+	private void writeConnections(CompoundTag nbt) {
+		ListTag list = new ListTag();
+		for (BaseLogicConnection conn : connections) {
+			CompoundTag entry = new CompoundTag();
+			entry.putString("sourceUUID",  conn.getSource().getUuid().toString());
+			entry.putInt   ("sourceIndex", conn.getSourceIndex());
+			entry.putString("targetUUID",  conn.getTarget().getUuid().toString());
+			entry.putInt   ("targetIndex", conn.getTargetIndex());
+			entry.putString("type",        conn.getType().name());
+			list.add(entry);
+		}
+		nbt.put("LogicConnections", list);
+	}
+
+	private void readConnections(CompoundTag nbt) {
+		connections.clear();
+		if (tasks.isEmpty()) return; // nothing to wire
+
+		// Index tasks by UUID for fast lookup
+		Map<UUID, BaseLogicTask> byUUID = new HashMap<>();
+		for (BaseLogicTask task : tasks) {
+			byUUID.put(task.getUuid(), task);
+		}
+
+		ListTag list = nbt.getList("LogicConnections", Tag.TAG_COMPOUND);
+		for (int i = 0; i < list.size(); i++) {
+			CompoundTag entry = list.getCompound(i);
+			try {
+				UUID sourceUUID = UUID.fromString(entry.getString("sourceUUID"));
+				UUID targetUUID = UUID.fromString(entry.getString("targetUUID"));
+				BaseLogicTask source = byUUID.get(sourceUUID);
+				BaseLogicTask target = byUUID.get(targetUUID);
+				if (source == null || target == null) continue; // dangling reference
+
+				int sourceIndex = entry.getInt("sourceIndex");
+				int targetIndex = entry.getInt("targetIndex");
+				LogicParameterType type = LogicParameterType.valueOf(entry.getString("type"));
+
+				connections.add(new BaseLogicConnection(source, sourceIndex, target, targetIndex, type) {});
+			} catch (IllegalArgumentException ignored) {
+				// Malformed UUID or unknown LogicParameterType — skip this connection.
+			}
+		}
 	}
 }

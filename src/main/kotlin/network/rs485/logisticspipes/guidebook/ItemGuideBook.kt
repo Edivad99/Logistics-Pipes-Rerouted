@@ -42,15 +42,14 @@ import logisticspipes.network.PacketHandler
 import logisticspipes.network.guis.OpenGuideBook
 import logisticspipes.proxy.MainProxy
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.EntityEquipmentSlot
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.util.ActionResult
-import net.minecraft.util.EnumActionResult
-import net.minecraft.util.EnumHand
-import net.minecraft.world.World
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.level.Level
 import network.rs485.logisticspipes.gui.guidebook.GuiGuideBook
 import network.rs485.logisticspipes.gui.guidebook.IPageData
 import network.rs485.logisticspipes.gui.guidebook.PageData
@@ -66,15 +65,15 @@ class ItemGuideBook : LogisticsItem() {
         private fun loadDataFromNBT(stack: ItemStack): Pair<PageData, List<PageData>> {
             var currentPage: PageData? = null
             var tabPages: List<PageData>? = null
-            if (stack.hasTagCompound()) {
-                val nbt = stack.tagCompound!!
-                if (nbt.hasKey("version")) {
+            if (stack.hasTag()) {
+                val nbt = stack.tag!!
+                if (nbt.contains("version")) {
                     when (nbt.getByte("version")) {
                         1.toByte() -> {
-                            currentPage = PageData(nbt.getCompoundTag("page"))
-                            // type 10 = NBTTagCompound, see net.minecraft.nbt.NBTBase.createNewByType
-                            val tagList = nbt.getTagList("bookmarks", 10)
-                            tabPages = tagList.mapNotNull { tag -> PageData(tag as NBTTagCompound) }
+                            currentPage = PageData(nbt.getCompound("page"))
+                            // type 10 = CompoundTag, see net.minecraft.nbt.Tag
+                            val tagList = nbt.getList("bookmarks", 10)
+                            tabPages = tagList.mapNotNull { tag -> PageData(tag as CompoundTag) }
                         }
                     }
                 }
@@ -85,52 +84,48 @@ class ItemGuideBook : LogisticsItem() {
         }
 
         @JvmStatic
-        fun openGuideBook(hand: EnumHand, stack: ItemStack) {
-            val mc = Minecraft.getMinecraft()
-            val equipmentSlot = if (hand == EnumHand.MAIN_HAND) EntityEquipmentSlot.MAINHAND else EntityEquipmentSlot.OFFHAND
-            // add scheduled task to switch from network thread to main thread with OpenGL context
-            mc.addScheduledTask {
+        fun openGuideBook(hand: InteractionHand, stack: ItemStack) {
+            val mc = Minecraft.getInstance()
+            val equipmentSlot = if (hand == InteractionHand.MAIN_HAND) EquipmentSlot.MAINHAND else EquipmentSlot.OFFHAND
+            // schedule on main thread
+            mc.execute {
                 val state = loadDataFromNBT(stack).let {
                     GuideBookState(equipmentSlot, Page(it.first), it.second.map(::Page))
                 }
-                mc.displayGuiScreen(GuiGuideBook(state))
+                mc.setScreen(GuiGuideBook(state))
             }
         }
     }
 
-    init {
-        maxStackSize = 1
-    }
-
-    class GuideBookState(val equipmentSlot: EntityEquipmentSlot, var currentPage: Page, bookmarks: List<Page>) {
+    class GuideBookState(val equipmentSlot: EquipmentSlot, var currentPage: Page, bookmarks: List<Page>) {
         val bookmarks = bookmarks.toMutableList()
     }
 
-    fun updateNBT(tag: NBTTagCompound, page: IPageData, tabs: List<IPageData>) = tag.apply {
-        setByte("version", 1)
-        setTag("page", page.toTag())
-        setTag("bookmarks", NBTTagList().apply {
-            tabs.map(IPageData::toTag).forEach(::appendTag)
+    fun updateNBT(tag: CompoundTag, page: IPageData, tabs: List<IPageData>) = tag.apply {
+        putByte("version", 1)
+        put("page", page.toTag())
+        put("bookmarks", ListTag().apply {
+            tabs.map(IPageData::toTag).forEach { add(it) }
         })
     }
 
-    override fun onItemRightClick(world: World, player: EntityPlayer, hand: EnumHand): ActionResult<ItemStack> {
-        val stack = player.getHeldItem(hand)
+    override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+        val stack = player.getItemInHand(hand)
         if (stack.item is ItemGuideBook && MainProxy.isServer(world)) {
             MainProxy.sendPacketToPlayer(
                 PacketHandler.getPacket(OpenGuideBook::class.java).setHand(hand).setStack(stack),
                 player,
             )
-            return ActionResult(EnumActionResult.SUCCESS, stack)
+            return InteractionResultHolder.success(stack)
         }
-        return ActionResult(EnumActionResult.PASS, stack)
+        return InteractionResultHolder.pass(stack)
     }
 
     fun saveState(state: GuideBookState) {
-        val stack = Minecraft.getMinecraft().player.getItemStackFromSlot(state.equipmentSlot)
-        val compound = if (stack.hasTagCompound()) stack.tagCompound!! else NBTTagCompound()
+        val stack = Minecraft.getInstance().player!!.getItemBySlot(state.equipmentSlot)
+        val compound = if (stack.hasTag()) stack.tag!! else CompoundTag()
         // update NBT for the client
-        stack.tagCompound = updateNBT(compound, state.currentPage, state.bookmarks)
+        stack.setTag(updateNBT(compound, state.currentPage, state.bookmarks))
 
         // … and for the server
         MainProxy.sendPacketToServer(

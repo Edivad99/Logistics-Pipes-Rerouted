@@ -2,11 +2,12 @@ package logisticspipes.network.packets.pipe;
 
 import java.util.BitSet;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,7 +26,7 @@ public class PipeFluidUpdate extends CoordinatesPacket {
 
 	@Getter(value = AccessLevel.PRIVATE)
 	@Setter
-	private FluidStack[] renderCache = new FluidStack[EnumFacing.VALUES.length];
+	private FluidStack[] renderCache = new FluidStack[Direction.values().length];
 	private BitSet bits = new BitSet();
 
 	public PipeFluidUpdate(int id) {
@@ -38,7 +39,8 @@ public class PipeFluidUpdate extends CoordinatesPacket {
 		bits = input.readBitSet();
 		for (int i = 0; i < renderCache.length; i++) {
 			if (bits.get(i)) {
-				renderCache[i] = new FluidStack(FluidRegistry.getFluid(input.readUTF()), input.readInt(), input.readNBTTagCompound());
+				net.minecraft.world.level.material.Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(input.readUTF()));
+				renderCache[i] = new FluidStack(fluid, input.readInt(), input.readCompoundTag());
 			}
 		}
 	}
@@ -47,21 +49,21 @@ public class PipeFluidUpdate extends CoordinatesPacket {
 	public void writeData(LPDataOutput output) {
 		super.writeData(output);
 		for (int i = 0; i < renderCache.length; i++) {
-			bits.set(i, renderCache[i] != null);
+			bits.set(i, renderCache[i] != null && !renderCache[i].isEmpty());
 		}
 		output.writeBitSet(bits);
 		for (FluidStack aRenderCache : renderCache) {
-			if (aRenderCache != null) {
-				output.writeUTF(aRenderCache.getFluid().getName());
-				output.writeInt(aRenderCache.amount);
-				output.writeNBTTagCompound(aRenderCache.tag);
+			if (aRenderCache != null && !aRenderCache.isEmpty()) {
+				output.writeUTF(net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(aRenderCache.getFluid()).toString());
+				output.writeInt(aRenderCache.getAmount());
+				output.writeCompoundTag(aRenderCache.getTag());
 			}
 		}
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe pipe = this.getPipe(player.level());
 		if (pipe == null || pipe.pipe == null) {
 			return;
 		}

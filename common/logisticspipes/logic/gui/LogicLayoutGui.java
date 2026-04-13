@@ -1,28 +1,29 @@
 package logisticspipes.logic.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphics;
+// import net.minecraft.client.gui.Gui; // removed — Gui is HUD class in 1.20.1, not GUI base
 
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+
+
+
 
 import logisticspipes.logic.LogicController;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.string.ChatColor;
+import javax.annotation.Nonnull;
 
 public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 
@@ -66,7 +67,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 
 	private static final ResourceLocation achievementTextures = new ResourceLocation("textures/gui/achievement/achievement_background.png");
 
-	private final ItemRenderer renderItem = new ItemRenderer(mc);
+	private final ItemRenderer renderItem = net.minecraft.client.Minecraft.getInstance().getItemRenderer();
 
 	private int isMouseButtonDown;
 	private int mouseX;
@@ -77,175 +78,89 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 
 	private Object[] tooltip = null;
 
-	public LogicLayoutGui(LogicController controller, EntityPlayer player) {
+	public LogicLayoutGui(LogicController controller, Player player) {
 		super(256, 202 + 90, 0, 0);
 		guiMapY = -200;
-		Mouse.getDWheel(); // Reset DWheel on GUI open
-		DummyContainer dummy = new DummyContainer(player.inventory, null);
+		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
 		dummy.addNormalSlotsForPlayerInventory(50, 205);
-		inventorySlots = dummy;
+		// inventorySlots removed in 1.20.1 — menu set via super constructor
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		/*
-		buttonList.clear();
-		this.buttonList.add(new GuiButton(0, this.width / 2 + 45, this.height / 2 + 74, 80, 20, "Close"));
-		 */
+	public void init() {
+		super.init();
+	}
+
+	protected void actionPerformed(net.minecraft.client.gui.components.AbstractButton button) {}
+
+	@Override
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+		isMouseButtonDown = 0;
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) {}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (Mouse.isButtonDown(0)) {
-			int k = (width - xSize) / 2;
-			int l = (height - ySize) / 2;
-			int i1 = k + 8;
-			int j1 = l + 17;
-
-			if ((isMouseButtonDown == 0 || isMouseButtonDown == 1) && mouseX >= i1 && mouseX < i1 + 224 && mouseY >= j1 && mouseY < j1 + 155) {
-				if (isMouseButtonDown == 0) {
-					isMouseButtonDown = 1;
-				} else {
-					guiMapX -= (double) (mouseX - this.mouseX) / zoom.zoom;
-					guiMapY -= (double) (mouseY - this.mouseY) / zoom.zoom;
-				}
-
-				this.mouseX = mouseX;
-				this.mouseY = mouseY;
-			}
-
-		} else {
-			isMouseButtonDown = 0;
-		}
-
-		int dWheel = Mouse.getDWheel();
-		if (dWheel < 0) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		if (delta < 0) {
 			zoom = zoom.next();
-		} else if (dWheel > 0) {
+		} else if (delta > 0) {
 			zoom = zoom.prev();
 		}
-		GL11.glTranslatef(0.0F, 0.0F, 100.0F);
-		if (tooltip != null) {
-			GuiGraphics.displayItemToolTip(tooltip, zLevel, guiLeft, guiTop, true);
-		}
+		return super.mouseScrolled(mouseX, mouseY, delta);
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		super.drawGuiContainerBackgroundLayer(f, i, j);
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+		int k = (width - imageWidth) / 2;
+		int l = (height - imageHeight) / 2;
+		if (mouseX >= k + 8 && mouseX < k + 8 + 224 && mouseY >= l + 17 && mouseY < l + 17 + 155) {
+			guiMapX -= dx / zoom.zoom;
+			guiMapY -= dy / zoom.zoom;
+		}
+		return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+	}
+
+	@Override
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+		super.renderBg(guiGraphics, f, i, j);
 		drawTransparentBack();
 		drawMap(i, j);
-		GuiGraphics.drawGuiBackGround(getMC(), guiLeft, guiTop + 180, right, bottom, zLevel, true, false, true, true, true);
-		GuiGraphics.drawPlayerInventoryBackground(getMC(), guiLeft + 50, guiTop + 205);
+		LPGuiGraphics.drawGuiBackGround(getMC(), leftPos, topPos + 180, right, bottom, 0.0f, true, false, true, true, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(getMC(), leftPos + 50, topPos + 205);
 	}
 
 	private void drawTransparentBack() {
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		SimpleGraphics.drawGradientRect(0, 0, width, height, Color.BLANK, Color.BLANK, 0.0);
 	}
 
 	private void drawMap(int par1, int par2) {
 		tooltip = null;
-		int mapX = (int) Math.floor(guiMapX);
-		int mapY = (int) Math.floor(guiMapY - zoom.moveY);
-		int leftSide = ((width - xSize) / 2);
-		int topSide = ((height - ySize) / 2);
+		int leftSide = ((width - imageWidth) / 2);
+		int topSide = ((height - imageHeight) / 2);
 
-		GL11.glTranslatef(0.0F, 0.0F, 100.0F);
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindTexture(LogicLayoutGui.achievementTextures);
-		drawTexturedModalRect(leftSide, topSide, 0, 0, 256, 202);
-		GL11.glTranslatef(0.0F, 0.0F, -100.0F);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0, 0, 256, 202);
 
-		guiTop *= 1 / zoom.zoom;
-		guiLeft *= 1 / zoom.zoom;
-		xSize *= 1 / zoom.zoom;
-		ySize *= 1 / zoom.zoom;
+		topPos = (int) (topPos * 1 / zoom.zoom);
+		leftPos = (int) (leftPos * 1 / zoom.zoom);
+		imageWidth = (int) (imageWidth * 1 / zoom.zoom);
+		imageHeight = (int) (imageHeight * 1 / zoom.zoom);
 		leftSide *= 1 / zoom.zoom;
 		topSide *= 1 / zoom.zoom;
 
-		int innerLeftSide = leftSide + 16;
-		int innerTopSide = topSide + 17;
-		zLevel = 0.0F;
+		RenderSystem.disableBlend();
+		RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
+		RenderSystem.enableBlend();
 
-		GL11.glDepthFunc(GL11.GL_GEQUAL);
-		GL11.glPushMatrix();
-		GL11.glScalef(zoom.zoom, zoom.zoom, 1);
-		GL11.glTranslatef(0.0F, 0.0F, -100.0F);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-
-		int moveBackgroundX = (mapX) % 16 + (mapX < 0 ? 16 : 0);
-		int moveBackgroundY = (mapY) % 16 + (mapY < 0 ? 16 : 0);
-		GL11.glColor4f(0.7F, 0.7F, 0.7F, 1.0F);
-		for (int yVar = 0; yVar * 16 - moveBackgroundY < zoom.bottomRenderBorder; yVar++) {
-			for (int xVar = 0; xVar * 16 - moveBackgroundX < zoom.rightRenderBorder; xVar++) {
-				/*
-				TextureAtlasSprite icon = Blocks.STONE.getIcon(0, 0);
-				mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-				drawTexturedModalRect(innerLeftSide + xVar * 16 - moveBackgroundX, innerTopSide + yVar * 16 - moveBackgroundY, icon, 16, 16);
-				*/
-			}
-		}
-
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-
-		GL11.glPushMatrix();
-		GL11.glLoadIdentity();
-		//Draw Content
-		//Lines
-
-		//Draw Background
-
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_BLEND);
-
-		RenderHelper.enableGUIStandardItemLighting();
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-		GL11.glColor4f(0.7F, 0.7F, 0.7F, 1.0F);
-
-		mc.getTextureManager().bindTexture(LogicLayoutGui.achievementTextures);
-
-		//Draw Content
-		//Items
-
-		GL11.glPopMatrix();
-
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glEnable(GL11.GL_BLEND);
-
-		guiTop *= zoom.zoom;
-		guiLeft *= zoom.zoom;
-		xSize *= zoom.zoom;
-		ySize *= zoom.zoom;
+		topPos = (int) (topPos * zoom.zoom);
+		leftPos = (int) (leftPos * zoom.zoom);
+		imageWidth = (int) (imageWidth * zoom.zoom);
+		imageHeight = (int) (imageHeight * zoom.zoom);
 		leftSide *= zoom.zoom;
 		topSide *= zoom.zoom;
 
-		GL11.glScalef(1 / zoom.zoom, 1 / zoom.zoom, 1);
-
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindTexture(LogicLayoutGui.achievementTextures);
-		drawTexturedModalRect(leftSide, topSide, 0, 0, 256, 202);
-
-		GL11.glPopMatrix();
-		zLevel = 0.0F;
-		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		//GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glEnable(GL11.GL_LIGHTING);
-		RenderHelper.disableStandardItemLighting();
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0, 0, 256, 202);
 	}
 
 	private void renderLinkedOrderListItems(LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
@@ -254,23 +169,22 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		yPos += 13;
 		for (IOrderInfoProvider aList : list) {
 			if (aList.isInProgress()) {
-				GL11.glColor4f(0.1F, 0.9F, 0.1F, 1.0F);
+				RenderSystem.setShaderColor(0.1F, 0.9F, 0.1F, 1.0F);
 			} else {
-				GL11.glColor4f(0.7F, 0.7F, 0.7F, 1.0F);
+				RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			}
-			GL11.glEnable(GL11.GL_LIGHTING);
-			mc.getTextureManager().bindTexture(LogicLayoutGui.achievementTextures);
-			drawTexturedModalRect(startLeft - 5, yPos - 5, 0, 202, 26, 26);
-			GL11.glColor4f(0.7F, 0.7F, 0.7F, 1.0F);
+			// GL_LIGHTING removed — use shaders
+			RenderSystem.setShaderTexture(0, LogicLayoutGui.achievementTextures);
+			guiGraphics.blit(LogicLayoutGui.achievementTextures, startLeft - 5, yPos - 5, 0, 202, 26, 26);
+			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			//renderItemAt(aList.getAsDisplayItem(), startLeft, yPos);
 			if (aList.isInProgress() && aList.getMachineProgress() != 0) {
-				Gui.drawRect(startLeft - 4, yPos + 20, startLeft + 20, yPos + 24, 0xff000000);
-				Gui.drawRect(startLeft - 3, yPos + 21, startLeft + 19, yPos + 23, 0xffffffff);
-				Gui.drawRect(startLeft - 3, yPos + 21, startLeft - 3 + (22 * aList
-						.getMachineProgress() / 100), yPos + 23, 0xffff0000);
+				guiGraphics.fill(startLeft - 4, yPos + 20, startLeft + 20, yPos + 24, 0xff000000);
+				guiGraphics.fill(startLeft - 3, yPos + 21, startLeft + 19, yPos + 23, 0xffffffff);
+				guiGraphics.fill(startLeft - 3, yPos + 21, startLeft - 3 + (22 * aList.getMachineProgress() / 100), yPos + 23, 0xffff0000);
 			}
 			if (startLeft - 10 < par1 && par1 < startLeft + 20 && yPos - 6 < par2 && par2 < yPos + 20) {
-				if (guiLeft < par1 && par1 < guiLeft + xSize - 16 && guiTop < par2 && par2 < guiTop + ySize - 16) {
+				if (leftPos < par1 && par1 < leftPos + imageWidth - 16 && topPos < par2 && par2 < topPos + imageHeight - 16) {
 					IOrderInfoProvider order = aList;
 					List<String> tooltipList = new ArrayList<>();
 					tooltipList.add(ChatColor.BLUE + "Request Type: " + ChatColor.YELLOW + order.getType().name());
@@ -369,6 +283,6 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 
 	protected void drawProgressPoint(int x, int y, int color) {
 		int line = zoom.line + 1;
-		Gui.drawRect(x - line + 1, y - line + 1, x + line, y + line, color);
+		guiGraphics.fill(x - line + 1, y - line + 1, x + line, y + line, color);
 	}
 }

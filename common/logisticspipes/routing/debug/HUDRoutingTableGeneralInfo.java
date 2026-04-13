@@ -2,7 +2,7 @@ package logisticspipes.routing.debug;
 
 import net.minecraft.client.Minecraft;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.gui.hud.BasicHUDGui;
 import logisticspipes.interfaces.IHUDConfig;
@@ -13,7 +13,8 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.debug.ClientViewController.DebugInformation;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 
 public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDisplayRenderer {
@@ -32,7 +33,7 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 	}
 
 	private void addUntraceButtons(final int index) {
-		addButton(new BasicHUDButton("Untrack", -25, -75, 50, 10) {
+		addRenderableWidget(new BasicHUDButton("Untrack", -25, -75, 50, 10) {
 
 			@Override
 			public boolean shouldRenderButton() {
@@ -50,7 +51,7 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 			}
 		});
 
-		addButton(new BasicHUDButton("Yes", -45, -75, 30, 10) {
+		addRenderableWidget(new BasicHUDButton("Yes", -45, -75, 30, 10) {
 
 			@Override
 			public boolean shouldRenderButton() {
@@ -68,7 +69,7 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 				return isQuestion && display;
 			}
 		});
-		addButton(new BasicHUDButton("No", 15, -75, 30, 10) {
+		addRenderableWidget(new BasicHUDButton("No", 15, -75, 30, 10) {
 
 			@Override
 			public boolean shouldRenderButton() {
@@ -94,44 +95,40 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 		} else {
 			line = -75;
 		}
-		GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 64);
-		GuiGraphics.drawGuiBackGround(mc, -70, -80, 70, 80, 0, false);
-		GL11.glTranslatef(0.0F, 0.0F, -0.0005F);
+		LPGuiGraphics.drawGuiBackGround(mc, -70, -80, 70, 80, 0, false);
 		super.renderHeadUpDisplay(distance, day, shifted, mc, config);
-		GL11.glTranslatef(0.0F, 0.0F, -0.0005F);
 		write("Routing Update in: ", mc);
 		write(route.positions.toString(), mc);
 		if (route.closedSet != null) {
 			int left = -55;
 			for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
 				if (route.closedSet.contains(flag)) {
-					mc.fontRenderer.drawString("+", left, line, getColorForFlag(flag));
-					left += mc.fontRenderer.getStringWidth("+");
+					if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
+					left += mc.font.width("+");
 				} else {
-					mc.fontRenderer.drawString("-", left, line, getColorForFlag(flag));
-					left += mc.fontRenderer.getStringWidth("-");
+					if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
+					left += mc.font.width("-");
 				}
 			}
 			line += 10;
 		}
 		if (route.routes != null) {
 			for (ExitRoute exit : route.routes) {
-				mc.fontRenderer.drawString("Possible: ", -55, line, 0xffffff);
-				int left = -55 + mc.fontRenderer.getStringWidth("Possible: ");
+				if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "Possible: ", -55, line, 0xffffff);
+				int left = -55 + mc.font.width("Possible: ");
 				for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
 					if (exit.containsFlag(flag)) {
-						mc.fontRenderer.drawString("+", left, line, getColorForFlag(flag));
-						left += mc.fontRenderer.getStringWidth("+");
+						if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
+						left += mc.font.width("+");
 					} else {
-						mc.fontRenderer.drawString("-", left, line, getColorForFlag(flag));
-						left += mc.fontRenderer.getStringWidth("-");
+						if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
+						left += mc.font.width("-");
 					}
 				}
 				line += 10;
 				write("  " + exit.debug.filterPosition, mc);
 			}
 		}
-		GL11.glTranslatef(0.0F, 0.0F, 0.0010F);
 	}
 
 	private int getColorForFlag(PipeRoutingConnectionType type) {
@@ -149,7 +146,9 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 	}
 
 	private void write(String data, Minecraft mc) {
-		mc.fontRenderer.drawString(data, -55, line, 0xffffff);
+		if (SimpleGraphics.guiGraphics != null) {
+			SimpleGraphics.guiGraphics.drawString(mc.font, data, -55, line, 0xffffff);
+		}
 		line += 10;
 	}
 

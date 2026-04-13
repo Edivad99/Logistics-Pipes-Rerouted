@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.cpipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.abstractpackets.InventoryModuleCoordinatesPacket;
@@ -20,13 +20,13 @@ public class CPipeSatelliteImportBack extends InventoryModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		ModuleCrafter module = this.getLogisticsModule(player, ModuleCrafter.class);
 		if (module == null) {
 			return;
 		}
 		for (int i = 0; i < getStackList().size(); i++) {
-			module.dummyInventory.setInventorySlotContents(i, getStackList().get(i));
+			module.dummyInventory.setItem(i, getStackList().get(i));
 		}
 	}
 }

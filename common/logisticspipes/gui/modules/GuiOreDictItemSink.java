@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
 
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+
+
 
 import kotlin.Unit;
 
@@ -19,7 +20,7 @@ import logisticspipes.network.packets.module.ModulePropertiesUpdate;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import network.rs485.logisticspipes.property.StringListProperty;
@@ -28,6 +29,7 @@ import network.rs485.logisticspipes.property.layer.PropertyOverlay;
 
 public class GuiOreDictItemSink extends ModuleBaseGui {
 
+	private static ItemIdentifierInventory tmpInvStatic; // set by buildDummy before super()
 	private final ItemIdentifierInventory tmpInv;
 	private final PropertyLayer propertyLayer;
 	private final PropertyOverlay<List<String>, StringListProperty> oreListOverlay;
@@ -37,77 +39,74 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 
 	private final List<String> unsunkNames = new ArrayList<>();
 	private int currentOffset = 0;
+	private SmallGuiButton scrollUpButton;
+	private SmallGuiButton scrollDownButton;
 
-	public GuiOreDictItemSink(IInventory playerInventory, ModuleOreDictItemSink oreDictModule) {
-		super(null, oreDictModule);
+	public GuiOreDictItemSink(Container playerInventory, ModuleOreDictItemSink oreDictModule) {
+		super(buildDummy(playerInventory, oreDictModule), oreDictModule);
 
 		propertyLayer = new PropertyLayer(oreDictModule.getProperties());
 		oreListOverlay = propertyLayer.overlay(oreDictModule.oreList);
 
-		tmpInv = new ItemIdentifierInventory(1, "Analyse Slot", 1);
+		tmpInv = tmpInvStatic;
 
-		DummyContainer dummy = new DummyContainer(playerInventory, tmpInv);
+		imageWidth = 175;
+		imageHeight = 208;
+	}
+	private static DummyContainer buildDummy(Container playerInventory, ModuleOreDictItemSink oreDictModule) {
+		tmpInvStatic = new ItemIdentifierInventory(1, "Analyse Slot", 1);
+		DummyContainer dummy = new DummyContainer(playerInventory, tmpInvStatic);
 		dummy.addDummySlot(0, 7, 8);
 
 		dummy.addNormalSlotsForPlayerInventory(7, 126);
+		return dummy;
+	}
 
-		inventorySlots = dummy;
-		xSize = 175;
-		ySize = 208;
+
+	@Override
+	public void init() {
+		super.init();
+		scrollUpButton = new SmallGuiButton(0, leftPos + 159, topPos + 5, 10, 10, "");
+		scrollUpButton.setPressListener(b -> { if (currentOffset > 0) currentOffset--; });
+		addRenderableWidget(scrollUpButton);
+		scrollDownButton = new SmallGuiButton(1, leftPos + 159, topPos + 17, 10, 10, "");
+		scrollDownButton.setPressListener(b -> { if (currentOffset < unsunkNames.size() - 2) currentOffset++; });
+		addRenderableWidget(scrollDownButton);
+		scrollUpButton.active = true;
+		scrollDownButton.active = true;
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
-		buttonList.add(new SmallGuiButton(0, guiLeft + 159, guiTop + 5, 10, 10, ""));
-		buttonList.add(new SmallGuiButton(1, guiLeft + 159, guiTop + 17, 10, 10, ""));
-		buttonList.get(0).enabled = true;
-		buttonList.get(1).enabled = true;
-	}
-
-	@Override
-	public void onGuiClosed() {
-		super.onGuiClosed();
+	public void onClose() {
+		super.onClose();
 		propertyLayer.unregister();
-		if (this.mc.player != null && !propertyLayer.getProperties().isEmpty()) {
+		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
 			MainProxy.sendPacketToServer(ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(module));
 		}
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton par1GuiButton) throws IOException {
-		if (par1GuiButton.id == 0) {
-			currentOffset -= 1;
-		} else if (par1GuiButton.id == 1) {
-			currentOffset += 1;
-		} else {
-			super.actionPerformed(par1GuiButton);
-		}
-	}
-
-	@Override
-	protected void mouseClicked(int i, int j, int k) throws IOException {
-		int x = i - guiLeft;
-		int y = j - guiTop;
+	public boolean mouseClicked(double i, double j, int k) {
+		int x = (int) i - leftPos;
+		int y = (int) j - topPos;
 		if (0 < x && x < 175 && 0 < y && y < 208) {
 			mouseX = x;
 			mouseY = y;
 		}
-		super.mouseClicked(i, j, k);
+		return super.mouseClicked(i, j, k);
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
-		int pointerX = var2 - guiLeft;
-		int pointerY = var3 - guiTop;
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 7, guiTop + 126);
-		GuiGraphics.drawSlotBackground(mc, guiLeft + 6, guiTop + 7);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+		int pointerX = var2 - leftPos;
+		int pointerY = var3 - topPos;
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 7, topPos + 126);
+		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 6, topPos + 7);
 
 		if (tmpInv.getIDStackInSlot(0) != null) {
-			List<String> oreNames = getOreNames(tmpInv.getStackInSlot(0));
+			List<String> oreNames = getOreNames(tmpInv.getItem(0));
 			oreNames.stream().filter(name -> !unsunkNames.contains(name)).forEach(unsunkNames::add);
 			tmpInv.clearInventorySlotContents(0);
 		}
@@ -120,14 +119,14 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 		}
 
 		//draw unsunk list and highlight bar, handle clicks
-		Gui.drawRect(guiLeft + 26, guiTop + 5, guiLeft + 159, guiTop + 27, Color.DARK_GREY.getValue());
+		guiGraphics.fill(leftPos + 26, topPos + 5, leftPos + 159, topPos + 27, Color.DARK_GREY.getValue());
 		final ArrayList<String> oresToAdd = oreListOverlay.read(oreList -> {
 			ArrayList<String> oresToAddInner = new ArrayList<>();
 			for (int i = 0; i + currentOffset < unsunkNames.size() && i < 2; i++) {
 				if (27 <= pointerX && pointerX < 158 && 6 + (10 * i) <= pointerY && pointerY < 6 + (10 * (i + 1))) {
-					Gui.drawRect(guiLeft + 27, guiTop + 6 + (10 * i), guiLeft + 158, guiTop + 6 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
+					guiGraphics.fill(leftPos + 27, topPos + 6 + (10 * i), leftPos + 158, topPos + 6 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
 				}
-				mc.fontRenderer.drawString(unsunkNames.get(currentOffset + i), guiLeft + 28, guiTop + 7 + (10 * i), 0x404040);
+				guiGraphics.drawString(minecraft.font, unsunkNames.get(currentOffset + i), leftPos + 28, topPos + 7 + (10 * i), 0x404040);
 				if (27 <= mouseX && mouseX < 158 && 6 + (10 * i) <= mouseY && mouseY < 6 + (10 * (i + 1))) {
 					mouseX = 0;
 					mouseY = 0;
@@ -154,14 +153,14 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 		}
 
 		//draw main list and highlight bar, handle clicks
-		Gui.drawRect(guiLeft + 5, guiTop + 30, guiLeft + 169, guiTop + 122, Color.DARK_GREY.getValue());
+		guiGraphics.fill(leftPos + 5, topPos + 30, leftPos + 169, topPos + 122, Color.DARK_GREY.getValue());
 		final ArrayList<String> oresToRemove = oreListOverlay.read(oreList -> {
 			ArrayList<String> oresToRemoveInner = new ArrayList<>();
 			for (int i = 0; i < oreList.size() && i < 9; i++) {
 				if (6 <= pointerX && pointerX < 168 && 31 + (10 * i) <= pointerY && pointerY < 31 + (10 * (i + 1))) {
-					Gui.drawRect(guiLeft + 6, guiTop + 31 + (10 * i), guiLeft + 168, guiTop + 31 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
+					guiGraphics.fill(leftPos + 6, topPos + 31 + (10 * i), leftPos + 168, topPos + 31 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
 				}
-				mc.fontRenderer.drawString(oreList.get(i), guiLeft + 7, guiTop + 32 + (10 * i), 0x404040);
+				guiGraphics.drawString(minecraft.font, oreList.get(i), leftPos + 7, topPos + 32 + (10 * i), 0x404040);
 				if (6 <= mouseX && mouseX < 168 && 31 + (10 * i) <= mouseY && mouseY < 31 + (10 * (i + 1))) {
 					mouseX = 0;
 					mouseY = 0;
@@ -186,14 +185,13 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	}
 
 	private List<String> getOreNames(@Nonnull ItemStack stack) {
-		int[] oreids = OreDictionary.getOreIDs(stack);
-		List<String> oreNames = new ArrayList<>(oreids.length);
-		for (int oreid : oreids) {
-			String oreName = OreDictionary.getOreName(oreid);
-			if (oreName != null && !oreName.equals("Unknown") && !oreNames.contains(oreName)) {
+		List<String> oreNames = new ArrayList<>();
+		stack.getTags().forEach(tag -> {
+			String oreName = tag.location().toString();
+			if (!oreNames.contains(oreName)) {
 				oreNames.add(oreName);
 			}
-		}
+		});
 		return oreNames;
 	}
 }

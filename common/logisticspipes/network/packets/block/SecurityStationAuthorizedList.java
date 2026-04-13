@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringListPacket;
@@ -20,7 +20,7 @@ public class SecurityStationAuthorizedList extends StringListPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		SimpleServiceLocator.securityStationManager.setClientAuthorizationList(getStringList());
 	}
 

@@ -4,20 +4,19 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.energy.CapabilityEnergy;
+
+
+// CapabilityEnergy removed in NeoForge 1.20.1 — use ForgeCapabilities.EnergyStorage.BLOCK
 import net.minecraftforge.energy.IEnergyStorage;
 
-import buildcraft.api.mj.IMjConnector;
-import buildcraft.api.mj.IMjReceiver;
-import ic2.api.energy.tile.IEnergyEmitter;
-import ic2.api.energy.tile.IEnergySink;
+// import buildcraft.api.mj.IMjConnector;
+// import buildcraft.api.mj.IMjReceiver;
+// IC2 imports removed — IC2 has no 1.20.1 port; IEnergySink interface added at runtime via @ModDependentInterface ASM
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -49,15 +48,14 @@ import logisticspipes.utils.PlayerCollectionList;
 
 @ModDependentInterface(modId = { LPConstants.ic2ModID }, interfacePath = { "ic2.api.energy.tile.IEnergySink" })
 @CCType(name = "LogisticsPowerJunction")
-public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenControler, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler, IEnergySink {
+public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenControler, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler
+		// IEnergySink — added at runtime by @ModDependentInterface ASM when IC2 is present
+{
 
 	public Object OPENPERIPHERAL_IGNORE; //Tell OpenPeripheral to ignore this class
 
-	@CapabilityInject(IMjConnector.class)
-	private static Capability<IMjConnector> MJ_CONN = null;
-
-	@CapabilityInject(IMjReceiver.class)
-	private static Capability<IMjReceiver> MJ_RECV = null;
+	// TODO: BuildCraft MJ capabilities (IMjConnector, IMjReceiver) — deferred until BuildCraft 1.20.1 is available.
+	// Capability<T> API removed in NeoForge 1.20.1; use BlockCapability when migrating.
 
 	// true if it needs more power, turns off at full, turns on at 50%.
 	public boolean needMorePowerTriggerCheck = true;
@@ -129,9 +127,12 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 
 	private Object mjReceiver;
 
-	public LogisticsPowerJunctionTileEntity() {
+	public LogisticsPowerJunctionTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(logisticspipes.LPRegistries.BE_POWER_JUNCTION.get(), pos, state);
 		HUD = new HUDPowerLevel(this);
-		mjReceiver = SimpleServiceLocator.buildCraftProxy.createMjReceiver(this);
+		// TODO(1.20.1): BuildCraft MJ API not ported — receiver disabled
+		// mjReceiver = SimpleServiceLocator.buildCraftProxy.createMjReceiver(this);
+		mjReceiver = null;
 	}
 
 	@Override
@@ -140,7 +141,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 			return false;
 		}
 		if (canUseEnergy(amount, null)) {
-			this.markDirty();
+			this.setChanged();
 			internalStorage -= (int) ((amount * Configs.POWER_USAGE_MULTIPLIER) + 0.5D);
 			if (internalStorage < LogisticsPowerJunctionTileEntity.MAX_STORAGE / 2) {
 				needMorePowerTriggerCheck = true;
@@ -168,8 +169,8 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	}
 
 	public void updateClients() {
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerJunctionLevel.class).setInteger(internalStorage).setBlockPos(pos), guiListener);
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerJunctionLevel.class).setInteger(internalStorage).setBlockPos(pos), watcherList);
+		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerJunctionLevel.class).putInt(internalStorage).setBlockPos(getBlockPos()), guiListener);
+		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerJunctionLevel.class).putInt(internalStorage).setBlockPos(getBlockPos()), watcherList);
 		lastUpdateStorage = internalStorage;
 	}
 
@@ -189,24 +190,23 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		if (internalStorage == LogisticsPowerJunctionTileEntity.MAX_STORAGE) {
 			needMorePowerTriggerCheck = false;
 		}
-		this.markDirty();
+		this.setChanged();
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound par1nbtTagCompound) {
-		super.readFromNBT(par1nbtTagCompound);
-		internalStorage = par1nbtTagCompound.getInteger("powerLevel");
-		if (par1nbtTagCompound.hasKey("needMorePowerTriggerCheck")) {
+	public void load(CompoundTag par1nbtTagCompound) {
+		super.load(par1nbtTagCompound);
+		internalStorage = par1nbtTagCompound.getInt("powerLevel");
+		if (par1nbtTagCompound.contains("needMorePowerTriggerCheck")) {
 			needMorePowerTriggerCheck = par1nbtTagCompound.getBoolean("needMorePowerTriggerCheck");
 		}
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound par1nbtTagCompound) {
-		par1nbtTagCompound = super.writeToNBT(par1nbtTagCompound);
-		par1nbtTagCompound.setInteger("powerLevel", internalStorage);
-		par1nbtTagCompound.setBoolean("needMorePowerTriggerCheck", needMorePowerTriggerCheck);
-		return par1nbtTagCompound;
+	public void saveAdditional(CompoundTag par1nbtTagCompound) {
+		super.saveAdditional(par1nbtTagCompound);
+		par1nbtTagCompound.putInt("powerLevel", internalStorage);
+		par1nbtTagCompound.putBoolean("needMorePowerTriggerCheck", needMorePowerTriggerCheck);
 	}
 
 	@Override
@@ -230,8 +230,8 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	}
 
 	@Override
-	public void invalidate() {
-		super.invalidate();
+	public void setRemoved() {
+		super.setRemoved();
 		if (MainProxy.isClient(getWorld())) {
 			LogisticsHUDRenderer.instance().remove(this);
 		}
@@ -242,8 +242,8 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
+	public void onLoad() {
+		super.onLoad();
 		if (MainProxy.isClient(getWorld())) {
 			init = false;
 		}
@@ -252,17 +252,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		}
 	}
 
-	@Override
-	public void onChunkUnload() {
-		super.onChunkUnload();
-		if (MainProxy.isClient(getWorld())) {
-			LogisticsHUDRenderer.instance().remove(this);
-		}
-		if (addedToEnergyNet) {
-			SimpleServiceLocator.IC2Proxy.unregisterToEneryNet(this);
-			addedToEnergyNet = false;
-		}
-	}
+	// onChunkUnload removed in 1.20.1 — setRemoved() covers this case
 
 	@Override
 	@CCCommand(description = "Returns the currently stored power")
@@ -292,13 +282,13 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	}
 
 	@Override
-	public void guiOpenedByPlayer(EntityPlayer player) {
+	public void guiOpenedByPlayer(Player player) {
 		guiListener.add(player);
 		updateClients();
 	}
 
 	@Override
-	public void guiClosedByPlayer(EntityPlayer player) {
+	public void guiClosedByPlayer(Player player) {
 		guiListener.remove(player);
 	}
 
@@ -314,18 +304,23 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	}
 
 	@Override
+	public net.minecraft.world.level.Level getLevelForHUD() {
+		return getWorld();
+	}
+
+	@Override
 	public int getX() {
-		return pos.getX();
+		return getBlockPos().getX();
 	}
 
 	@Override
 	public int getY() {
-		return pos.getY();
+		return getBlockPos().getY();
 	}
 
 	@Override
 	public int getZ() {
-		return pos.getZ();
+		return getBlockPos().getZ();
 	}
 
 	@Override
@@ -339,30 +334,30 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	}
 
 	@Override
-	public void playerStartWatching(EntityPlayer player) {
+	public void playerStartWatching(Player player) {
 		watcherList.add(player);
 		updateClients();
 	}
 
 	@Override
-	public void playerStopWatching(EntityPlayer player) {
+	public void playerStopWatching(Player player) {
 		watcherList.remove(player);
 	}
 
 	@Override
 	public boolean isHUDExistent() {
-		return getWorld().getTileEntity(pos) == this;
+		return getWorld().getBlockEntity(getBlockPos()) == this;
 	}
 
 	@Override
-	public void addInfoToCrashReport(CrashReportCategory par1CrashReportCategory) {
-		super.addInfoToCrashReport(par1CrashReportCategory);
-		par1CrashReportCategory.addCrashSection("LP-Version", LogisticsPipes.getVersionString());
+	public void fillCrashReportCategory(CrashReportCategory par1CrashReportCategory) {
+		super.fillCrashReportCategory(par1CrashReportCategory);
+		par1CrashReportCategory.setDetail("LP-Version", LogisticsPipes.getVersionString());
 	}
 
-	@Override
+	// @Override removed — IEnergySink not in implements
 	@ModDependentMethod(modId = LPConstants.ic2ModID)
-	public boolean acceptsEnergyFrom(IEnergyEmitter tile, EnumFacing dir) {
+	public boolean acceptsEnergyFrom(Object tile, Direction dir) { // was: IEnergyEmitter tile
 		return true;
 	}
 
@@ -374,7 +369,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		}
 	}
 
-	@Override
+	// @Override removed — IEnergySink not in implements
 	@ModDependentMethod(modId = LPConstants.ic2ModID)
 	public double getDemandedEnergy() {
 		if (!addedToEnergyNet) {
@@ -385,15 +380,15 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		return (freeSpace() + LogisticsPowerJunctionTileEntity.IC2Multiplier - 1) / LogisticsPowerJunctionTileEntity.IC2Multiplier;
 	}
 
-	@Override
+	// @Override removed — IEnergySink not in implements
 	@ModDependentMethod(modId = LPConstants.ic2ModID)
-	public double injectEnergy(EnumFacing directionFrom, double amount, double voltage) {
+	public double injectEnergy(Direction directionFrom, double amount, double voltage) {
 		internalBuffer += amount * LogisticsPowerJunctionTileEntity.IC2Multiplier;
 		transferFromIC2Buffer();
 		return 0;
 	}
 
-	@Override
+	// @Override removed — IEnergySink not in implements
 	@ModDependentMethod(modId = LPConstants.ic2ModID)
 	public int getSinkTier() {
 		return Integer.MAX_VALUE;
@@ -401,30 +396,12 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 
 	@Override
 	public boolean isHUDInvalid() {
-		return isInvalid();
+		return isRemoved();
 	}
 
-	@Override
-	public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-		if (capability == CapabilityEnergy.ENERGY) {
-			return true;
-		}
-		if (capability == MJ_CONN || capability == MJ_RECV) {
-			return true;
-		}
-		return super.hasCapability(capability, facing);
-	}
-
-	@Nullable
-	@Override
-	public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-		if (capability == CapabilityEnergy.ENERGY) {
-			return (T) energyInterface;
-		}
-		if (capability == MJ_CONN || capability == MJ_RECV) {
-			return (T) mjReceiver;
-		}
-		return super.getCapability(capability, facing);
+	/** Used by RegisterCapabilitiesEvent wiring in LPRegistries. */
+	public net.minecraftforge.energy.IEnergyStorage getEnergyInterface() {
+		return energyInterface;
 	}
 
 	@Override

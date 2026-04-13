@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
+import net.minecraft.nbt.CompoundTag;
 
-import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 import lombok.Getter;
 
@@ -107,7 +107,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 		if (!isEnabled()) {
 			return;
 		}
-		if (MainProxy.isClient(Objects.requireNonNull(container).getWorld())) {
+		if (MainProxy.isClient(Objects.requireNonNull(container).getLevel())) {
 			return;
 		}
 		super.throttledUpdateEntity();
@@ -132,7 +132,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 
 			//Check what is inside the connected tank
 			fluidHandlerDirectionPair.getValue2().tanks()
-					.map(tank -> FluidIdentifierStack.getFromStack(tank.getContents()))
+					.map(tank -> FluidIdentifierStack.getFromStack(tank))
 					.filter(Objects::nonNull)
 					.forEach(fluid -> haveFluids.merge(fluid.getFluid(), fluid.getAmount(), Integer::sum));
 
@@ -141,14 +141,14 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 			if (directionOrdinal < ((PipeFluidTransportLogistics) transport).sideTanks.length) {
 				FluidTank sideTank = ((PipeFluidTransportLogistics) transport).sideTanks[directionOrdinal];
 				if (sideTank != null && sideTank.getFluid() != null && wantFluids.containsKey(FluidIdentifier.get(sideTank.getFluid()))) {
-					haveFluids.merge(FluidIdentifier.get(sideTank.getFluid()), sideTank.getFluid().amount, Integer::sum);
+					haveFluids.merge(FluidIdentifier.get(sideTank.getFluid()), sideTank.getFluid().getAmount(), Integer::sum);
 				}
 			}
 
 			//What does our center internal tank have
 			FluidTank centerTank = ((PipeFluidTransportLogistics) transport).internalTank;
 			if (centerTank != null && centerTank.getFluid() != null && wantFluids.containsKey(FluidIdentifier.get(centerTank.getFluid()))) {
-				haveFluids.merge(FluidIdentifier.get(centerTank.getFluid()), centerTank.getFluid().amount, Integer::sum);
+				haveFluids.merge(FluidIdentifier.get(centerTank.getFluid()), centerTank.getFluid().getAmount(), Integer::sum);
 			}
 
 			//HashMap<Integer, Integer> needFluids = new HashMap<Integer, Integer>();
@@ -208,21 +208,21 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
+	public void readFromNBT(CompoundTag nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
 		dummyInventory.readFromNBT(nbttagcompound, "");
 		_requestPartials = nbttagcompound.getBoolean("requestpartials");
-		amount = nbttagcompound.getInteger("amount");
+		amount = nbttagcompound.getInt("amount");
 		_bucketMinimum = MinMode.values()[nbttagcompound.getByte("_bucketMinimum")];
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
 		dummyInventory.writeToNBT(nbttagcompound, "");
-		nbttagcompound.setBoolean("requestpartials", _requestPartials);
-		nbttagcompound.setInteger("amount", amount);
-		nbttagcompound.setByte("_bucketMinimum", (byte) _bucketMinimum.ordinal());
+		nbttagcompound.putBoolean("requestpartials", _requestPartials);
+		nbttagcompound.putInt("amount", amount);
+		nbttagcompound.putByte("_bucketMinimum", (byte) _bucketMinimum.ordinal());
 	}
 
 	private void decreaseRequested(FluidIdentifier liquid, int remaining) {
@@ -281,11 +281,13 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	}
 
 	@Override
-	public void onWrenchClicked(EntityPlayer entityplayer) {
-		entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_FluidSupplier_MK2_ID, getWorld(), getX(), getY(), getZ());
+	public void onWrenchClicked(Player entityplayer) {
+		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.FluidSupplierMk2Gui.class)
+				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
+				.open(entityplayer);
 	}
 
-	public IInventory getDummyInventory() {
+	public Container getDummyInventory() {
 		return dummyInventory;
 	}
 
@@ -294,17 +296,17 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	}
 
 	public void setAmount(int amount) {
-		if (MainProxy.isClient(Objects.requireNonNull(container).getWorld())) {
+		if (MainProxy.isClient(Objects.requireNonNull(container).getLevel())) {
 			this.amount = amount;
 		}
 	}
 
-	public void changeFluidAmount(int change, EntityPlayer player) {
+	public void changeFluidAmount(int change, Player player) {
 		amount += change;
 		if (amount <= 0) {
 			amount = 0;
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FluidSupplierAmount.class).setInteger(amount).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FluidSupplierAmount.class).putInt(amount).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
 	}
 
 	@Override

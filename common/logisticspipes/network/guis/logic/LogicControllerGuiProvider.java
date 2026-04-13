@@ -1,8 +1,8 @@
 package logisticspipes.network.guis.logic;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.logic.gui.LogicLayoutGui;
 import logisticspipes.logic.interfaces.ILogicControllerTile;
@@ -19,8 +19,8 @@ public class LogicControllerGuiProvider extends CoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		TileEntity pipe = getTileAs(player.world, TileEntity.class);
+	public Object getClientGui(Player player) {
+		BlockEntity pipe = getTileAs(player.level(), BlockEntity.class);
 		if (pipe instanceof ILogicControllerTile) {
 			return new LogicLayoutGui(((ILogicControllerTile) pipe).getLogicController(), player);
 		}
@@ -28,10 +28,10 @@ public class LogicControllerGuiProvider extends CoordinatesGuiProvider {
 	}
 
 	@Override
-	public Container getContainer(EntityPlayer player) {
-		TileEntity pipe = getTileAs(player.world, TileEntity.class);
+	public AbstractContainerMenu getContainer(Player player) {
+		BlockEntity pipe = getTileAs(player.level(), BlockEntity.class);
 		if (pipe instanceof ILogicControllerTile) {
-			DummyContainer dummy = new DummyContainer(player.inventory, null);
+			DummyContainer dummy = new DummyContainer(player.getInventory(), null);
 			dummy.addNormalSlotsForPlayerInventory(50, 190);
 			return dummy;
 		}

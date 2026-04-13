@@ -3,10 +3,10 @@ package logisticspipes.renderer.newpipe;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.renderer.GLAllocation;
+// import net.minecraft.client.renderer.GLAllocation; // removed — display lists not available
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class GLRenderListHandler {
 
@@ -21,12 +21,12 @@ public class GLRenderListHandler {
 		return list;
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void tick() {
 		synchronized (lockCollection) {
 			List<GLRenderList> newCollection = new ArrayList<>(collection);
 			collection.stream().filter(ref -> !ref.check()).forEach(ref -> {
-				GLAllocation.deleteDisplayLists(ref.getID());
+				// GLAllocation.deleteDisplayLists removed in 1.20.1 — GL display lists not available
 				newCollection.remove(ref);
 			});
 			if (newCollection.size() != collection.size()) {

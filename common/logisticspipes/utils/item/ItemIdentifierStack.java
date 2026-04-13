@@ -10,11 +10,11 @@ package logisticspipes.utils.item;
 import java.util.LinkedList;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
@@ -37,7 +37,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 	}
 
 	public ItemIdentifierStack(ItemIdentifierStack copy) {
-		this(copy._item, copy.stackSize);
+		this(copy._item, copy.getStackSize());
 	}
 
 	public ItemIdentifier getItem() {
@@ -74,7 +74,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 	}
 
 	@Nonnull
-	public EntityItem makeEntityItem(World world, double x, double y, double z) {
+	public ItemEntity makeEntityItem(Level world, double x, double y, double z) {
 		return _item.makeEntityItem(stackSize, world, x, y, z);
 	}
 
@@ -105,34 +105,34 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 		return getStackSize() + " " + _item.getFriendlyName();
 	}
 
-	public static LinkedList<ItemIdentifierStack> getListFromInventory(IInventory inv) {
+	public static LinkedList<ItemIdentifierStack> getListFromInventory(Container inv) {
 		return ItemIdentifierStack.getListFromInventory(inv, false);
 	}
 
-	public static LinkedList<ItemIdentifierStack> getListFromInventory(IInventory inv, boolean removeNull) {
+	public static LinkedList<ItemIdentifierStack> getListFromInventory(Container inv, boolean removeNull) {
 		LinkedList<ItemIdentifierStack> list = new LinkedList<>();
-		for (int i = 0; i < inv.getSizeInventory(); i++) {
-			if (inv.getStackInSlot(i).isEmpty()) {
+		for (int i = 0; i < inv.getContainerSize(); i++) {
+			if (inv.getItem(i).isEmpty()) {
 				if (!removeNull) {
 					list.add(null);
 				}
 			} else {
-				list.add(ItemIdentifierStack.getFromStack(inv.getStackInSlot(i)));
+				list.add(ItemIdentifierStack.getFromStack(inv.getItem(i)));
 			}
 		}
 		return list;
 	}
 
-	public static LinkedList<ItemIdentifierStack> getListSendQueue(LinkedList<Triplet<IRoutedItem, EnumFacing, ItemSendMode>> _sendQueue) {
+	public static LinkedList<ItemIdentifierStack> getListSendQueue(LinkedList<Triplet<IRoutedItem, Direction, ItemSendMode>> _sendQueue) {
 		LinkedList<ItemIdentifierStack> list = new LinkedList<>();
-		for (Triplet<IRoutedItem, EnumFacing, ItemSendMode> part : _sendQueue) {
+		for (Triplet<IRoutedItem, Direction, ItemSendMode> part : _sendQueue) {
 			if (part == null) {
 				list.add(null);
 			} else {
 				boolean added = false;
 				for (ItemIdentifierStack stack : list) {
 					if (stack.getItem().equals(part.getValue1().getItemIdentifierStack().getItem())) {
-						stack.setStackSize(stack.getStackSize() + part.getValue1().getItemIdentifierStack().stackSize);
+						stack.setStackSize(stack.getStackSize() + part.getValue1().getItemIdentifierStack().getStackSize());
 						added = true;
 						break;
 					}

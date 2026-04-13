@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -15,9 +15,9 @@ public class GuiClosePacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		// always mark the GUI origin's chunk dirty - something may have changed in the GUI
-		getTileAs(player.world, TileEntity.class).markDirty();
+		getTileAs(player.level(), BlockEntity.class).setChanged();
 	}
 
 	@Override

@@ -1,6 +1,3 @@
 {
-	"parent": "block/cube_all",
-	"textures": {
-		"all": "logisticspipes:blocks/pipe"
-	}
+  "parent": "logisticspipes:block/solid_placeholder"
 }

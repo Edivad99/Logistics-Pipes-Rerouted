@@ -1,9 +1,10 @@
 package logisticspipes.gui.hud;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.io.IOException;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
+
+import net.minecraft.world.entity.player.Player;
 
 import lombok.SneakyThrows;
 
@@ -15,62 +16,63 @@ import logisticspipes.network.packets.hud.HUDSettingsPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import javax.annotation.Nonnull;
 
 public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 
 	private int slot;
-	private EntityPlayer player;
+	private Player player;
 
-	public GuiHUDSettings(EntityPlayer player, int slot) {
-		super(180, 160, 0, 0);
+	public GuiHUDSettings(Player player, int slot) {
+		super(buildDummy(player, slot), 180, 160, 0, 0);
 		this.slot = slot;
 		this.player = player;
-		DummyContainer dummy = new DummyContainer(player.inventory, null);
+	}
+	private static DummyContainer buildDummy(Player player, int slot) {
+		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
 		dummy.addRestrictedHotbarForPlayerInventory(10, 134);
 		dummy.addRestrictedArmorForPlayerInventory(10, 65);
-		inventorySlots = dummy;
+		return dummy;
 	}
+
 
 	@Override
 	@SneakyThrows(IOException.class)
-	public void initGui() {
-		super.initGui();
-		if (!player.inventory.getStackInSlot(slot).isEmpty()) {
-			IHUDConfig config = new HUDConfig(player.inventory.getStackInSlot(slot));
-			buttonList.add(new GuiCheckBox(0, guiLeft + 30, guiTop + 10, 12, 12, config.isChassisHUD()));
-			buttonList.add(new GuiCheckBox(1, guiLeft + 30, guiTop + 30, 12, 12, config.isHUDCrafting()));
-			buttonList.add(new GuiCheckBox(2, guiLeft + 30, guiTop + 50, 12, 12, config.isHUDInvSysCon()));
-			buttonList.add(new GuiCheckBox(3, guiLeft + 30, guiTop + 70, 12, 12, config.isHUDPowerLevel()));
-			buttonList.add(new GuiCheckBox(4, guiLeft + 30, guiTop + 90, 12, 12, config.isHUDProvider()));
-			buttonList.add(new GuiCheckBox(5, guiLeft + 30, guiTop + 110, 12, 12, config.isHUDSatellite()));
+	public void init() {
+		super.init();
+		if (!player.getInventory().getItem(slot).isEmpty()) {
+			IHUDConfig config = new HUDConfig(player.getInventory().getItem(slot));
+			addRenderableWidget(wire(new GuiCheckBox(0, leftPos + 30, topPos + 10, 12, 12, config.isChassisHUD())));
+			addRenderableWidget(wire(new GuiCheckBox(1, leftPos + 30, topPos + 30, 12, 12, config.isHUDCrafting())));
+			addRenderableWidget(wire(new GuiCheckBox(2, leftPos + 30, topPos + 50, 12, 12, config.isHUDInvSysCon())));
+			addRenderableWidget(wire(new GuiCheckBox(3, leftPos + 30, topPos + 70, 12, 12, config.isHUDPowerLevel())));
+			addRenderableWidget(wire(new GuiCheckBox(4, leftPos + 30, topPos + 90, 12, 12, config.isHUDProvider())));
+			addRenderableWidget(wire(new GuiCheckBox(5, leftPos + 30, topPos + 110, 12, 12, config.isHUDSatellite())));
 		} else {
 			closeGui();
 		}
 	}
 
-	@Override
-	protected void actionPerformed(GuiButton button) {
-		if (buttonList.get(button.id) instanceof GuiCheckBox) {
-			((GuiCheckBox) buttonList.get(button.id)).change();
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDSettingsPacket.class).setButtonId(button.id).setState(((GuiCheckBox) buttonList.get(button.id)).getState()).setSlot(slot));
-		}
+	private GuiCheckBox wire(GuiCheckBox cb) {
+		cb.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDSettingsPacket.class).setButtonId(b.id).setState(b.getState()).setSlot(slot)));
+		return cb;
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
-		if (player.inventory.getStackInSlot(slot).isEmpty() || player.inventory.getStackInSlot(slot).getItem() != LPItems.hudGlasses) {
-			mc.player.closeScreen();
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+		if (player.getInventory().getItem(slot).isEmpty() || player.getInventory().getItem(slot).getItem() != LPItems.hudGlasses.get()) {
+			minecraft.player.closeContainer();
 		}
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		mc.fontRenderer.drawString("HUD Chassis Pipe", guiLeft + 50, guiTop + 13, 0x4c4c4c);
-		mc.fontRenderer.drawString("HUD Crafting Pipe", guiLeft + 50, guiTop + 33, 0x4c4c4c);
-		mc.fontRenderer.drawString("HUD InvSysCon Pipe", guiLeft + 50, guiTop + 53, 0x4c4c4c);
-		mc.fontRenderer.drawString("HUD Power Junction", guiLeft + 50, guiTop + 73, 0x4c4c4c);
-		mc.fontRenderer.drawString("HUD Provider Pipe", guiLeft + 50, guiTop + 93, 0x4c4c4c);
-		mc.fontRenderer.drawString("HUD Satellite Pipe", guiLeft + 50, guiTop + 113, 0x4c4c4c);
-		GuiGraphics.drawPlayerHotbarBackground(mc, guiLeft + 10, guiTop + 134);
-		GuiGraphics.drawPlayerArmorBackground(mc, guiLeft + 10, guiTop + 65);
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		guiGraphics.drawString(minecraft.font, "HUD Chassis Pipe", leftPos + 50, topPos + 13, 0x4c4c4c);
+		guiGraphics.drawString(minecraft.font, "HUD Crafting Pipe", leftPos + 50, topPos + 33, 0x4c4c4c);
+		guiGraphics.drawString(minecraft.font, "HUD InvSysCon Pipe", leftPos + 50, topPos + 53, 0x4c4c4c);
+		guiGraphics.drawString(minecraft.font, "HUD Power Junction", leftPos + 50, topPos + 73, 0x4c4c4c);
+		guiGraphics.drawString(minecraft.font, "HUD Provider Pipe", leftPos + 50, topPos + 93, 0x4c4c4c);
+		guiGraphics.drawString(minecraft.font, "HUD Satellite Pipe", leftPos + 50, topPos + 113, 0x4c4c4c);
+		LPGuiGraphics.drawPlayerHotbarBackground(minecraft, leftPos + 10, topPos + 134);
+		LPGuiGraphics.drawPlayerArmorBackground(minecraft, leftPos + 10, topPos + 65);
 	}
 }

@@ -1,10 +1,10 @@
 package logisticspipes.proxy.interfaces;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public interface IGenericProgressProvider {
 
-	boolean isType(TileEntity tile);
+	boolean isType(BlockEntity tile);
 
-	byte getProgress(TileEntity tile);
+	byte getProgress(BlockEntity tile);
 }

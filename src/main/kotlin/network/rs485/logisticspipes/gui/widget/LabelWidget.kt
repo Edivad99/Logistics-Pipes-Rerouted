@@ -37,8 +37,9 @@
 
 package network.rs485.logisticspipes.gui.widget
 
+// TODO: Rendering deferred — LabelWidget migrated to 1.20.1 stub (GlStateManager removed).
+
 import network.rs485.logisticspipes.gui.*
-import net.minecraft.client.renderer.GlStateManager
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.gui.guidebook.MouseHoverable
 import network.rs485.logisticspipes.util.IRectangle
@@ -82,7 +83,7 @@ class LabelWidget(
         }
     }
 
-    override val minHeight: Int = GuiDrawer.mcFontRenderer.FONT_HEIGHT + 1
+    override val minHeight: Int = GuiDrawer.mcFontRenderer.lineHeight + 1
 
     override val maxWidth: Int = parent.height
     override val maxHeight: Int = parent.height
@@ -108,29 +109,7 @@ class LabelWidget(
     }
 
     override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        val hovering = isMouseHovering(mouseX, mouseY)
-        GlStateManager.pushMatrix()
-        GlStateManager.enableDepth()
-        if (hovering && overflowing && extendable) {
-            GuiDrawer.drawRect(fullBody.translated(absoluteBody), backgroundColor)
-        }
-        val (effectiveAlignment, effectiveText) = if (overflowing) {
-            HorizontalAlignment.LEFT to if (hovering && extendable) text else trimmedText
-        } else {
-            textAlignment to text
-        }
-        GuiDrawer.mcFontRenderer.drawString(
-            effectiveText,
-            when (effectiveAlignment) {
-                HorizontalAlignment.LEFT -> absoluteBody.roundedLeft
-                HorizontalAlignment.CENTER -> absoluteBody.roundedLeft + (width - effectiveText.width()) / 2
-                HorizontalAlignment.RIGHT -> absoluteBody.roundedRight - effectiveText.width()
-            },
-            absoluteBody.roundedY,
-            textColor
-        )
-        GlStateManager.disableDepth()
-        GlStateManager.popMatrix()
+        // TODO: deferred rendering — GlStateManager removed; migrate to GuiGraphics
     }
 
     private fun trimText(text: String): String {
@@ -150,7 +129,7 @@ class LabelWidget(
 
     override fun isMouseHovering(mouseX: Float, mouseY: Float): Boolean = absoluteBody.contains(mouseX, mouseY)
 
-    private fun String.width() = GuiDrawer.mcFontRenderer.getStringWidth(this)
+    private fun String.width() = GuiDrawer.mcFontRenderer.width(this)
 
     override fun toString(): String {
         return "LabelWidget: $text, $absoluteBody"

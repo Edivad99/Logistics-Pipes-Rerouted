@@ -2,23 +2,22 @@ package logisticspipes.utils;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.items.ItemModule;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 
-public class CardManagementInventory implements IInventory {
+public class CardManagementInventory implements Container {
 
 	ItemIdentifierInventory inv = new ItemIdentifierInventory(4, "", 1);
 
 	@Override
-	public int getSizeInventory() {
+	public int getContainerSize() {
 		return 10;
 	}
 
@@ -29,32 +28,32 @@ public class CardManagementInventory implements IInventory {
 
 	@Nonnull
 	@Override
-	public ItemStack getStackInSlot(int i) {
+	public ItemStack getItem(int i) {
 		if (i > -1 && i < 4) {
-			return inv.getStackInSlot(i);
+			return inv.getItem(i);
 		}
-		ItemStack card = inv.getStackInSlot(3);
+		ItemStack card = inv.getItem(3);
 		if (!card.isEmpty()) {
-			NBTTagCompound nbt = card.getTagCompound();
+			CompoundTag nbt = card.getTag();
 			if (nbt == null) {
-				nbt = new NBTTagCompound();
+				nbt = new CompoundTag();
 			}
-			NBTTagCompound colors = nbt.getCompoundTag("colors");
+			CompoundTag colors = nbt.getCompound("colors");
 			int slot = i - 4;
 
 			int colorCode;
-			if (colors.hasKey("color:" + slot)) {
-				colorCode = colors.getInteger("color:" + slot);
+			if (colors.contains("color:" + slot)) {
+				colorCode = colors.getInt("color:" + slot);
 			} else {
-				colors.setInteger("color:" + slot, 16);
+				colors.putInt("color:" + slot, 16);
 				colorCode = 16;
 			}
 
 			MinecraftColor color = MinecraftColor.values()[colorCode];
 
-			nbt.setTag("colors", colors);
-			card.setTagCompound(nbt);
-			inv.setInventorySlotContents(3, card);
+			nbt.put("colors", colors);
+			card.setTag(nbt);
+			inv.setItem(3, card);
 
 			return color.getItemStack();
 		}
@@ -64,91 +63,88 @@ public class CardManagementInventory implements IInventory {
 
 	@Nonnull
 	@Override
-	public ItemStack decrStackSize(int i, int j) {
+	public ItemStack removeItem(int i, int j) {
 		if (i > -1 && i < 4) {
-			return inv.decrStackSize(i, j);
+			return inv.removeItem(i, j);
 		}
 		return ItemStack.EMPTY;
 	}
 
 	@Nonnull
 	@Override
-	public ItemStack removeStackFromSlot(int i) {
+	public ItemStack removeItemNoUpdate(int i) {
 		if (i > -1 && i < 4) {
-			return inv.removeStackFromSlot(i);
+			return inv.removeItemNoUpdate(i);
 		}
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public void setInventorySlotContents(int i, @Nonnull ItemStack itemstack) {
+	public void setItem(int i, @Nonnull ItemStack itemstack) {
 		if (i > -1 && i < 4) {
-			if (i == 0 && !itemstack.isEmpty() && !inv.getStackInSlot(1).isEmpty() && inv.getStackInSlot(2).isEmpty() && inv.getStackInSlot(1).getItemDamage() == itemstack.getItemDamage()) {
-				itemstack.setTagCompound(inv.getStackInSlot(1).getTagCompound());
-				inv.setInventorySlotContents(2, itemstack);
+			if (i == 0 && !itemstack.isEmpty() && !inv.getItem(1).isEmpty() && inv.getItem(2).isEmpty() && inv.getItem(1).getDamageValue() == itemstack.getDamageValue()) {
+				itemstack.setTag(inv.getItem(1).getTag());
+				inv.setItem(2, itemstack);
 				return;
 			}
-			if (i == 1 && !itemstack.isEmpty() && !inv.getStackInSlot(0).isEmpty() && inv.getStackInSlot(2).isEmpty() && inv.getStackInSlot(0).getItemDamage() == itemstack.getItemDamage()) {
-				itemstack.setTagCompound(inv.getStackInSlot(0).getTagCompound());
-				inv.setInventorySlotContents(2, itemstack);
+			if (i == 1 && !itemstack.isEmpty() && !inv.getItem(0).isEmpty() && inv.getItem(2).isEmpty() && inv.getItem(0).getDamageValue() == itemstack.getDamageValue()) {
+				itemstack.setTag(inv.getItem(0).getTag());
+				inv.setItem(2, itemstack);
 				return;
 			}
-			inv.setInventorySlotContents(i, itemstack);
+			inv.setItem(i, itemstack);
 			return;
 		}
-		ItemStack card = inv.getStackInSlot(3);
+		ItemStack card = inv.getItem(3);
 		if (!card.isEmpty()) {
-			NBTTagCompound nbt = card.getTagCompound();
+			CompoundTag nbt = card.getTag();
 			if (nbt == null) {
-				nbt = new NBTTagCompound();
+				nbt = new CompoundTag();
 			}
-			NBTTagCompound colors = nbt.getCompoundTag("colors");
+			CompoundTag colors = nbt.getCompound("colors");
 			int slot = i - 4;
-			colors.setInteger("color:" + slot, MinecraftColor.getColor(itemstack).ordinal());
-			nbt.setTag("colors", colors);
-			card.setTagCompound(nbt);
-			inv.setInventorySlotContents(3, card);
+			colors.putInt("color:" + slot, MinecraftColor.getColor(itemstack).ordinal());
+			nbt.put("colors", colors);
+			card.setTag(nbt);
+			inv.setItem(3, card);
 		}
 	}
 
 	@Nonnull
-	@Override
 	public String getName() {
 		return "Card Managment Inventory";
 	}
 
 	@Nonnull
-	@Override
-	public ITextComponent getDisplayName() {
-		return new TextComponentString("");
+	public Component getDisplayName() {
+		return Component.literal("");
 	}
 
-	@Override
 	public boolean hasCustomName() {
 		return false;
 	}
 
 	@Override
-	public int getInventoryStackLimit() {
+	public int getMaxStackSize() {
 		return 64;
 	}
 
 	@Override
-	public boolean isUsableByPlayer(@Nonnull EntityPlayer entityplayer) {
+	public boolean stillValid(@Nonnull Player entityplayer) {
 		return true;
 	}
 
 	@Override
-	public void markDirty() {}
+	public void setChanged() {}
 
 	@Override
-	public void openInventory(@Nonnull EntityPlayer player) {}
+	public void startOpen(@Nonnull Player player) {}
 
 	@Override
-	public void closeInventory(@Nonnull EntityPlayer player) {}
+	public void stopOpen(@Nonnull Player player) {}
 
 	@Override
-	public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
+	public boolean canPlaceItem(int i, @Nonnull ItemStack itemstack) {
 		if (itemstack.isEmpty()) {
 			return false;
 		}
@@ -160,27 +156,24 @@ public class CardManagementInventory implements IInventory {
 		return false;
 	}
 
-	public void close(EntityPlayer player, int x, int y, int z) {
-		inv.dropContents(player.world, x, y, z);
+	public void close(Player player, int x, int y, int z) {
+		inv.dropContents(player.level(), x, y, z);
 	}
 
-	@Override
 	public int getField(int id) {
 		return 0;
 	}
 
-	@Override
 	public void setField(int id, int value) {
 
 	}
 
-	@Override
 	public int getFieldCount() {
 		return 0;
 	}
 
 	@Override
-	public void clear() {
+	public void clearContent() {
 
 	}
 }

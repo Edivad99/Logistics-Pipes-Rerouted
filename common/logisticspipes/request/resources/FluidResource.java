@@ -104,7 +104,7 @@ public class FluidResource implements IResource {
 		}
 		builder.append(amount);
 		builder.append("mB ");
-		builder.append(liquid.makeFluidStack(0).getLocalizedName());
+		builder.append(liquid.makeFluidStack(0).getDisplayName().getString());
 		if (code != ColorCode.NONE) {
 			builder.append(ChatColor.WHITE);
 		}

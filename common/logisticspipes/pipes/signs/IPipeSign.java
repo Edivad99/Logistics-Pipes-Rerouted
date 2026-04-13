@@ -1,12 +1,14 @@
 package logisticspipes.pipes.signs;
 
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import com.mojang.blaze3d.pipeline.RenderTarget; // was net.minecraft.client.shader.Framebuffer
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -17,27 +19,32 @@ public interface IPipeSign {
 	// Methods used when assigning a sign
 	boolean isAllowedFor(CoreRoutedPipe pipe);
 
-	void addSignTo(CoreRoutedPipe pipe, EnumFacing dir, EntityPlayer player);
+	void addSignTo(CoreRoutedPipe pipe, Direction dir, Player player);
 
 	// For Final Pipe
-	void readFromNBT(NBTTagCompound tag);
+	void readFromNBT(CompoundTag tag);
 
-	void writeToNBT(NBTTagCompound tag);
+	void writeToNBT(CompoundTag tag);
 
-	void init(CoreRoutedPipe pipe, EnumFacing dir);
+	void init(CoreRoutedPipe pipe, Direction dir);
 
-	void activate(EntityPlayer player);
+	void activate(Player player);
 
 	ModernPacket getPacket();
 
 	void updateServerSide();
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer);
 
-	@SideOnly(Side.CLIENT)
-	Framebuffer getMCFrameBufferForSign();
+	@OnlyIn(Dist.CLIENT)
+	default void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+		render(pipe, renderer);
+	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
+	RenderTarget getMCFrameBufferForSign(); // was Framebuffer
+
+	@OnlyIn(Dist.CLIENT)
 	boolean doesFrameBufferNeedUpdating(CoreRoutedPipe pipe, LogisticsRenderPipe renderer);
 }

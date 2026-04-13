@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +34,7 @@ public class CraftingModuleInHand extends ModuleInHandGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
+	public Object getClientGui(Player player) {
 		LogisticsModule module = ItemModule.getLogisticsModule(player, getInvSlot());
 		if (!(module instanceof ModuleCrafter)) {
 			return null;
@@ -44,7 +44,7 @@ public class CraftingModuleInHand extends ModuleInHandGuiProvider {
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
+	public DummyContainer getContainer(Player player) {
 		DummyModuleContainer dummy = new DummyModuleContainer(player, getInvSlot());
 		if (!(dummy.getModule() instanceof ModuleCrafter)) {
 			return null;

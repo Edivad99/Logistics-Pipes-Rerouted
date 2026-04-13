@@ -3,9 +3,9 @@ package logisticspipes.network.abstractpackets;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -36,8 +36,8 @@ public abstract class CoordinatesPacket extends ModernPacket {
 
 	@Nonnull
 	@SuppressWarnings("unchecked")
-	public static <T> T getTileAs(Object whosAsking, World world, BlockPos blockPos, Class<T> clazz) {
-		final TileEntity tile = getWorldTile(whosAsking, world, blockPos);
+	public static <T> T getTileAs(Object whosAsking, Level world, BlockPos blockPos, Class<T> clazz) {
+		final BlockEntity tile = getWorldTile(whosAsking, world, blockPos);
 		if (tile != null) {
 			if (clazz.isAssignableFrom(tile.getClass())) {
 				return (T) tile;
@@ -48,15 +48,15 @@ public abstract class CoordinatesPacket extends ModernPacket {
 		}
 	}
 
-	private static TileEntity getWorldTile(Object whosAsking, World world, BlockPos blockPos) {
+	private static BlockEntity getWorldTile(Object whosAsking, Level world, BlockPos blockPos) {
 		if (world == null) {
 			throw new TargetNotFoundException("World was null", whosAsking);
 		}
-		if (world.isAirBlock(blockPos)) {
+		if (world.isEmptyBlock(blockPos)) {
 			throw new TargetNotFoundException("Only found air at: " + blockPos, whosAsking);
 		}
 
-		return world.getTileEntity(blockPos);
+		return world.getBlockEntity(blockPos);
 	}
 
 	@Override
@@ -76,11 +76,11 @@ public abstract class CoordinatesPacket extends ModernPacket {
 
 	}
 
-	public CoordinatesPacket setTilePos(TileEntity tile) {
-		setDimension(tile.getWorld());
-		setPosX(tile.getPos().getX());
-		setPosY(tile.getPos().getY());
-		setPosZ(tile.getPos().getZ());
+	public CoordinatesPacket setTilePos(BlockEntity tile) {
+		setDimension(tile.getLevel());
+		setPosX(tile.getBlockPos().getX());
+		setPosY(tile.getBlockPos().getY());
+		setPosZ(tile.getBlockPos().getZ());
 		return this;
 	}
 
@@ -92,9 +92,9 @@ public abstract class CoordinatesPacket extends ModernPacket {
 	}
 
 	public CoordinatesPacket setPacketPos(CoordinatesPacket packet) {
-		posX = packet.posX;
-		posY = packet.posY;
-		posZ = packet.posZ;
+		posX = packet.getPosX();
+		posY = packet.getPosY();
+		posZ = packet.getPosZ();
 		return this;
 	}
 
@@ -105,10 +105,10 @@ public abstract class CoordinatesPacket extends ModernPacket {
 		return this;
 	}
 
-	public TileEntity getTileAs(World world, Function<TileEntity, Boolean> validateResult) {
-		TileEntity tile = getTileAs(world, TileEntity.class);
+	public BlockEntity getTileAs(Level world, Function<BlockEntity, Boolean> validateResult) {
+		BlockEntity tile = getTileAs(world, BlockEntity.class);
 		if (!validateResult.apply(tile)) {
-			throw new TargetNotFoundException("TileEntity condition not met", this);
+			throw new TargetNotFoundException("BlockEntity condition not met", this);
 		}
 		return tile;
 	}
@@ -116,7 +116,7 @@ public abstract class CoordinatesPacket extends ModernPacket {
 	/**
 	 * Retrieves tileEntity at packet coordinates if any.
 	 */
-	public <T> T getTileAs(World world, Class<T> clazz) {
+	public <T> T getTileAs(Level world, Class<T> clazz) {
 		return getTileAs(this, world, new BlockPos(getPosX(), getPosY(), getPosZ()), clazz);
 	}
 
@@ -124,8 +124,8 @@ public abstract class CoordinatesPacket extends ModernPacket {
 	 * Retrieves tileEntity or CoreUnroutedPipe at packet coordinates if any.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getTileOrPipe(World world, Class<T> clazz) {
-		final TileEntity tile = getWorldTile(this, world, new BlockPos(getPosX(), getPosY(), getPosZ()));
+	public <T> T getTileOrPipe(Level world, Class<T> clazz) {
+		final BlockEntity tile = getWorldTile(this, world, new BlockPos(getPosX(), getPosY(), getPosZ()));
 		if (tile != null) {
 			if (clazz.isAssignableFrom(tile.getClass())) {
 				return (T) tile;
@@ -146,12 +146,12 @@ public abstract class CoordinatesPacket extends ModernPacket {
 	 * Retrieves pipe at packet coordinates if any.
 	 */
 	@Deprecated
-	public LogisticsTileGenericPipe getPipe(World world) {
+	public LogisticsTileGenericPipe getPipe(Level world) {
 		return getPipe(world, LTGPCompletionCheck.NONE);
 	}
 
 	@Nonnull
-	public LogisticsTileGenericPipe getPipe(World world, LTGPCompletionCheck check) {
+	public LogisticsTileGenericPipe getPipe(Level world, LTGPCompletionCheck check) {
 		LogisticsTileGenericPipe pipe = getTileAs(world, LogisticsTileGenericPipe.class);
 		if (check == LTGPCompletionCheck.PIPE || check == LTGPCompletionCheck.TRANSPORT) {
 			if (pipe.pipe == null) {

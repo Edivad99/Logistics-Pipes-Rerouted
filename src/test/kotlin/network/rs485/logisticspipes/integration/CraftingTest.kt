@@ -55,13 +55,13 @@ import logisticspipes.pipes.PipeItemsRequestLogistics
 import logisticspipes.pipes.upgrades.FuzzyUpgrade
 import logisticspipes.pipes.upgrades.UpgradeManager
 import logisticspipes.utils.item.ItemIdentifier
-import net.minecraft.block.BlockChest
-import net.minecraft.block.BlockPlanks
-import net.minecraft.init.Blocks
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntityChest
-import net.minecraft.util.EnumFacing
+import net.minecraft.world.level.block.Block
+// BlockPlanks removed — planks are a vanilla Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.ChestBlockEntity
+import net.minecraft.core.Direction
 import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -70,7 +70,7 @@ import kotlinx.coroutines.delay
 
 @Suppress("FunctionName")
 object CraftingTest {
-    private val fuzzyUpgradeItem = Item.REGISTRY.getObject(LPItems.upgrades[FuzzyUpgrade.getName()])!!
+    private val fuzzyUpgradeItem = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(LPItems.upgrades[FuzzyUpgrade.getName()])!!
 
     suspend fun `test single fuzzy ingredient crafting fails multi-request with mixed OreDict input`(
         loggerIn: (Any) -> Unit,
@@ -79,8 +79,8 @@ object CraftingTest {
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
             providerStacks = arrayOf(
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata),
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.DARK_OAK.metadata),
+                ItemStack(Blocks.OAK_PLANKS, 4),
+                ItemStack(Blocks.DARK_OAK_PLANKS, 4),
             ),
         )
         selector.finalize()
@@ -104,8 +104,8 @@ object CraftingTest {
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
             providerStacks = arrayOf(
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata),
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.DARK_OAK.metadata),
+                ItemStack(Blocks.OAK_PLANKS, 4),
+                ItemStack(Blocks.DARK_OAK_PLANKS, 4),
             ),
         )
         selector.finalize()
@@ -125,12 +125,12 @@ object CraftingTest {
         loggerIn: (Any) -> Unit,
         selector: BlockPosSelector,
     ) = skippedTest(loggerIn, selector) {
-        val trapItems = ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata)
+        val trapItems = ItemStack(Blocks.OAK_PLANKS, 4)
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
             providerStacks = arrayOf(
                 trapItems,
-                ItemStack(Blocks.PLANKS, 8, BlockPlanks.EnumType.DARK_OAK.metadata),
+                ItemStack(Blocks.DARK_OAK_PLANKS, 8),
             ),
         )
         selector.finalize()
@@ -151,12 +151,12 @@ object CraftingTest {
         loggerIn: (Any) -> Unit,
         selector: BlockPosSelector,
     ) = skippedTest(loggerIn, selector) {
-        val trapItems = ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata)
+        val trapItems = ItemStack(Blocks.OAK_PLANKS, 4)
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
             providerStacks = arrayOf(
                 trapItems,
-                ItemStack(Blocks.PLANKS, 8, BlockPlanks.EnumType.DARK_OAK.metadata),
+                ItemStack(Blocks.DARK_OAK_PLANKS, 8),
             ),
         )
         selector.finalize()
@@ -181,14 +181,14 @@ object CraftingTest {
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
             providerStacks = arrayOf(
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata),
+                ItemStack(Blocks.OAK_PLANKS, 4),
             ),
         )
-        selector.direction(EnumFacing.NORTH)
+        selector.direction(Direction.NORTH)
             .apply {
-                place(PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic)))
-                setupProvidingChest(EnumFacing.WEST,
-                    ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.DARK_OAK.metadata))
+                place(PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic.get())))
+                setupProvidingChest(Direction.WEST,
+                    ItemStack(Blocks.DARK_OAK_PLANKS, 4))
             }
             .finalize()
         delay(5000)
@@ -210,17 +210,17 @@ object CraftingTest {
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
             providerStacks = arrayOf(
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata),
+                ItemStack(Blocks.OAK_PLANKS, 4),
             ),
         )
         selector
-            .direction(EnumFacing.NORTH)
+            .direction(Direction.NORTH)
             .place(UnroutedPipePlacer)
-            .direction(EnumFacing.NORTH)
-            .place(PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic)))
+            .direction(Direction.NORTH)
+            .place(PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic.get())))
             .apply {
-                setupProvidingChest(EnumFacing.WEST,
-                    ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.DARK_OAK.metadata))
+                setupProvidingChest(Direction.WEST,
+                    ItemStack(Blocks.DARK_OAK_PLANKS, 4))
             }
             .finalize()
         delay(5000)
@@ -242,14 +242,14 @@ object CraftingTest {
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
             providerStacks = arrayOf(
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata),
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.DARK_OAK.metadata),
+                ItemStack(Blocks.OAK_PLANKS, 4),
+                ItemStack(Blocks.DARK_OAK_PLANKS, 4),
             ),
         )
         selector.finalize()
         (0 until 8).forEach {
-            setup.craftingPipe.dummyInventory.setInventorySlotContents(it,
-                ItemStack(Blocks.PLANKS, 1, BlockPlanks.EnumType.OAK.metadata))
+            setup.craftingPipe.dummyInventory.setItem(it,
+                ItemStack(Blocks.OAK_PLANKS, 1))
             FuzzyUtil.set(setup.craftingPipe.logisticsModule.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
         }
         delay(5000)
@@ -271,14 +271,14 @@ object CraftingTest {
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
             providerStacks = arrayOf(
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata),
-                ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.DARK_OAK.metadata),
+                ItemStack(Blocks.OAK_PLANKS, 4),
+                ItemStack(Blocks.DARK_OAK_PLANKS, 4),
             ),
         )
         selector.finalize()
         (0 until 8).forEach {
-            setup.craftingPipe.dummyInventory.setInventorySlotContents(it,
-                ItemStack(Blocks.PLANKS, 1, BlockPlanks.EnumType.OAK.metadata))
+            setup.craftingPipe.dummyInventory.setItem(it,
+                ItemStack(Blocks.OAK_PLANKS, 1))
             FuzzyUtil.set(setup.craftingPipe.logisticsModule.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
         }
         delay(5000)
@@ -301,9 +301,9 @@ object CraftingTest {
         loggerIn: (Any) -> Unit,
         selector: BlockPosSelector,
     ) = regularTest(loggerIn, selector) {
-        val oakPlanksStack = ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata)
+        val oakPlanksStack = ItemStack(Blocks.OAK_PLANKS, 4)
         val oakPlankItemIdent = ItemIdentifier.get(oakPlanksStack)
-        val darkOakPlanksStack = ItemStack(Blocks.PLANKS, 8, BlockPlanks.EnumType.DARK_OAK.metadata)
+        val darkOakPlanksStack = ItemStack(Blocks.DARK_OAK_PLANKS, 8)
         val darkOakPlankItemIdent = ItemIdentifier.get(darkOakPlanksStack)
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
@@ -311,8 +311,8 @@ object CraftingTest {
         )
         selector.finalize()
         (0 until 8).forEach {
-            setup.craftingPipe.dummyInventory.setInventorySlotContents(it,
-                ItemStack(Blocks.PLANKS, 1, BlockPlanks.EnumType.OAK.metadata))
+            setup.craftingPipe.dummyInventory.setItem(it,
+                ItemStack(Blocks.OAK_PLANKS, 1))
             FuzzyUtil.set(setup.craftingPipe.logisticsModule.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
         }
         delay(5000)
@@ -333,9 +333,9 @@ object CraftingTest {
         loggerIn: (Any) -> Unit,
         selector: BlockPosSelector,
     ) = regularTest(loggerIn, selector) {
-        val oakPlanksStack = ItemStack(Blocks.PLANKS, 4, BlockPlanks.EnumType.OAK.metadata)
+        val oakPlanksStack = ItemStack(Blocks.OAK_PLANKS, 4)
         val oakPlankItemIdent = ItemIdentifier.get(oakPlanksStack)
-        val darkOakPlanksStack = ItemStack(Blocks.PLANKS, 8, BlockPlanks.EnumType.DARK_OAK.metadata)
+        val darkOakPlanksStack = ItemStack(Blocks.DARK_OAK_PLANKS, 8)
         val darkOakPlankItemIdent = ItemIdentifier.get(darkOakPlanksStack)
         val setup = `setup fuzzy crafting chest`(
             selector = selector,
@@ -343,8 +343,8 @@ object CraftingTest {
         )
         selector.finalize()
         (0 until 8).forEach {
-            setup.craftingPipe.dummyInventory.setInventorySlotContents(it,
-                ItemStack(Blocks.PLANKS, 1, BlockPlanks.EnumType.OAK.metadata))
+            setup.craftingPipe.dummyInventory.setItem(it,
+                ItemStack(Blocks.OAK_PLANKS, 1))
             FuzzyUtil.set(setup.craftingPipe.logisticsModule.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
         }
         delay(5000)
@@ -368,10 +368,10 @@ object CraftingTest {
         extraCraftingTableConfigurator: LogisticsCraftingTableTileEntity.() -> Unit = {},
     ): FuzzyCraftingSetup {
         val fuzzyCraftingTableHasRecipe = CompletableDeferred<Unit>()
-        val fuzzyCraftingTablePlacer = BlockPlacer(block = LPBlocks.crafterFuzzy) { placer ->
+        val fuzzyCraftingTablePlacer = BlockPlacer(block = LPBlocks.crafterFuzzy.get()) { placer ->
             placer.getTileEntity<LogisticsCraftingTableTileEntity>().apply {
                 (0 until 9).filter { it != 4 }.forEach {
-                    matrix.setInventorySlotContents(it, ItemStack(Blocks.PLANKS))
+                    matrix.setItem(it, ItemStack(Blocks.OAK_PLANKS))
                     FuzzyUtil.set(inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
                 }
                 extraCraftingTableConfigurator()
@@ -381,10 +381,10 @@ object CraftingTest {
         }
 
         val craftingPipeInitialized = CompletableDeferred<PipeItemsCraftingLogistics>()
-        val craftingPipePlacer = PipePlacer(PipeItemsCraftingLogistics(LPItems.pipeCrafting)) {
+        val craftingPipePlacer = PipePlacer(PipeItemsCraftingLogistics(LPItems.pipeCrafting.get())) {
             (it.pipe.upgradeManager as UpgradeManager).inv.apply {
-                setInventorySlotContents(0, ItemStack(fuzzyUpgradeItem))
-                markDirty()
+                setItem(0, ItemStack(fuzzyUpgradeItem))
+                setChanged()
             }
             it.waitForPipeInitialization()
             assertTrue(message = "Expected crafting pipe to have fuzzy upgrade") {
@@ -395,7 +395,7 @@ object CraftingTest {
         }
 
         return selector.place(fuzzyCraftingTablePlacer)
-            .direction(EnumFacing.NORTH)
+            .direction(Direction.NORTH)
             .place(craftingPipePlacer)
             .configure(configurator(name = "crafting recipe importer") {
                 fuzzyCraftingTableHasRecipe.await()
@@ -403,9 +403,9 @@ object CraftingTest {
                 craftingPipe.logisticsModule.importFromCraftingTable(null)
             })
             .run {
-                setupLogisticsPower(EnumFacing.EAST, 100000F)
-                val (_, providerChestPlacer) = setupProvidingChest(EnumFacing.WEST, *providerStacks)
-                val (requesterPipePlacer, requesterChestPlacer) = setupRequestingChest(EnumFacing.UP)
+                setupLogisticsPower(Direction.EAST, 100000F)
+                val (_, providerChestPlacer) = setupProvidingChest(Direction.WEST, *providerStacks)
+                val (requesterPipePlacer, requesterChestPlacer) = setupRequestingChest(Direction.UP)
                 object : FuzzyCraftingSetup {
                     override val requesterPipePlacer = requesterPipePlacer
                     override val requesterChestPlacer = requesterChestPlacer
@@ -420,19 +420,19 @@ object CraftingTest {
         val requesterPipePlacer: PipePlacer<PipeItemsRequestLogistics>
         val requesterPipe: PipeItemsRequestLogistics
             get() = requesterPipePlacer.pipe
-        val requesterChestPlacer: BlockPlacer<BlockChest>
-        val requesterChest: TileEntityChest
-            get() = requesterChestPlacer.getTileEntity()
-        val providerChestPlacer: BlockPlacer<BlockChest>
-        val providerChest: TileEntityChest
-            get() = providerChestPlacer.getTileEntity()
+        val requesterChestPlacer: BlockPlacer<Block>
+        val requesterChest: ChestBlockEntity
+            get() = requesterChestPlacer.getTileEntity<ChestBlockEntity>()
+        val providerChestPlacer: BlockPlacer<Block>
+        val providerChest: ChestBlockEntity
+            get() = providerChestPlacer.getTileEntity<ChestBlockEntity>()
         val craftingPipePlacer: PipePlacer<PipeItemsCraftingLogistics>
         val craftingPipe: PipeItemsCraftingLogistics
             get() = craftingPipePlacer.pipe
         val fuzzyCraftingTablePlacer: BlockPlacer<LogisticsSolidBlock>
         @Suppress("unused")
         val fuzzyCraftingTable: LogisticsCraftingTableTileEntity
-            get() = fuzzyCraftingTablePlacer.getTileEntity()
+            get() = fuzzyCraftingTablePlacer.getTileEntity<LogisticsCraftingTableTileEntity>()
     }
 
 }

@@ -3,9 +3,9 @@ package logisticspipes.network.abstractpackets;
 import java.util.List;
 import java.util.Set;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 
 import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -16,7 +16,7 @@ public abstract class InventoryModuleCoordinatesPacket extends ModuleCoordinates
 	private static final byte STACK_MARKER = 0;
 	private static final byte IDENT_MARKER = 1;
 
-	private IInventory inventory;
+	private Container inventory;
 
 	private NonNullList<ItemStack> stackList;
 
@@ -34,9 +34,9 @@ public abstract class InventoryModuleCoordinatesPacket extends ModuleCoordinates
 
 		if (inventory != null) {
 			output.writeByte(STACK_MARKER);
-			output.writeInt(inventory.getSizeInventory());
-			for (int i = 0; i < inventory.getSizeInventory(); i++) {
-				output.writeItemStack(inventory.getStackInSlot(i));
+			output.writeInt(inventory.getContainerSize());
+			for (int i = 0; i < inventory.getContainerSize(); i++) {
+				output.writeItemStack(inventory.getItem(i));
 			}
 		} else if (stackList != null) {
 			output.writeByte(STACK_MARKER);
@@ -84,7 +84,7 @@ public abstract class InventoryModuleCoordinatesPacket extends ModuleCoordinates
 		return this;
 	}
 
-	public InventoryModuleCoordinatesPacket setInventory(IInventory inventory) {
+	public InventoryModuleCoordinatesPacket setInventory(Container inventory) {
 		this.inventory = inventory;
 		return this;
 	}

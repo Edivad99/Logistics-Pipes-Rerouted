@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundTag
 import java.util.*
 
 private val zero = UUID(0L, 0L)
@@ -46,12 +46,11 @@ fun isZero(uuid: UUID) = uuid == zero
 
 class UUIDProperty(initialValue: UUID?, override val tagKey: String) : ValueProperty<UUID>(initialValue ?: zero) {
 
-    override fun readFromNBT(tag: NBTTagCompound) {
-        // FIXME after 1.12: remove support for empty string
-        if (tag.hasKey(tagKey)) tag.getString(tagKey).takeUnless(String::isEmpty)?.also { value = UUID.fromString(it) }
+    override fun readFromNBT(tag: CompoundTag) {
+        if (tag.contains(tagKey)) tag.getString(tagKey).takeUnless(String::isEmpty)?.also { value = UUID.fromString(it) }
     }
 
-    override fun writeToNBT(tag: NBTTagCompound) = tag.setString(tagKey, value.toString())
+    override fun writeToNBT(tag: CompoundTag) = tag.putString(tagKey, value.toString())
 
     override fun copyValue(): UUID = value
 
@@ -79,9 +78,9 @@ class UUIDListProperty : ListProperty<UUID> {
 
     override fun defaultValue(idx: Int): UUID = zero
 
-    override fun readSingleFromNBT(tag: NBTTagCompound, key: String): UUID = UUID.fromString(tag.getString(key))
+    override fun readSingleFromNBT(tag: CompoundTag, key: String): UUID = UUID.fromString(tag.getString(key))
 
-    override fun writeSingleToNBT(tag: NBTTagCompound, key: String, value: UUID) = tag.setString(key, value.toString())
+    override fun writeSingleToNBT(tag: CompoundTag, key: String, value: UUID) = tag.putString(key, value.toString())
 
     // UUID objects are immutable
     override fun copyValue(obj: UUID): UUID = obj

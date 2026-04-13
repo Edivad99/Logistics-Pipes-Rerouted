@@ -1,13 +1,12 @@
 package logisticspipes.transport;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -20,19 +19,19 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
-	public FluidTank[] sideTanks = new FluidTank[EnumFacing.VALUES.length];
+	public FluidTank[] sideTanks = new FluidTank[Direction.values().length];
 	public FluidTank internalTank = new FluidTank(getInnerCapacity());
 
 	public FluidStack[] renderCache = new FluidStack[7];
 
 	public PipeFluidTransportLogistics() {
 		super(true);
-		for (EnumFacing dir : EnumFacing.VALUES) {
+		for (Direction dir : Direction.values()) {
 			sideTanks[dir.ordinal()] = new FluidTank(getSideCapacity());
 		}
 	}
 
-	public IFluidHandler getIFluidHandler(EnumFacing face) {
+	public IFluidHandler getIFluidHandler(Direction face) {
 		return new FluidHandler(face);
 	}
 
@@ -40,107 +39,124 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 		return (FluidRoutedPipe) getPipe();
 	}
 
-	/**
-	 * For internal use only
-	 */
-	public IFluidTankProperties[] getTankProperties(EnumFacing from) {
-		if (from == null) return internalTank.getTankProperties();
-		return sideTanks[from.ordinal()].getTankProperties();
+	/** Returns the current fluid in the side tank for the given direction, or the internal tank if null. */
+	public FluidStack getFluidInSideTank(Direction from) {
+		if (from == null) return internalTank.getFluid();
+		return sideTanks[from.ordinal()].getFluid();
 	}
 
-	public int fill(EnumFacing from, FluidStack resource, boolean doFill) {
-		if (from.ordinal() < EnumFacing.VALUES.length && getFluidPipe().canReceiveFluid()) {
-			return sideTanks[from.ordinal()].fill(resource, doFill);
+	public int fill(Direction from, FluidStack resource, boolean doFill) {
+		if (from.ordinal() < Direction.values().length && getFluidPipe().canReceiveFluid()) {
+			return sideTanks[from.ordinal()].fill(resource,
+					doFill ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE);
 		} else {
 			return 0;
 		}
 	}
 
-	public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain) {
-		if (from.ordinal() < EnumFacing.VALUES.length) {
-			return sideTanks[from.ordinal()].drain(maxDrain, doDrain);
+	public FluidStack drain(Direction from, int maxDrain, boolean doDrain) {
+		if (from.ordinal() < Direction.values().length) {
+			return sideTanks[from.ordinal()].drain(maxDrain,
+					doDrain ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE);
 		} else {
 			return null;
 		}
 	}
 
-	public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain) {
+	public FluidStack drain(Direction from, FluidStack resource, boolean doDrain) {
 		if (sideTanks[from.ordinal()].getFluid() == null || !(sideTanks[from.ordinal()].getFluid().isFluidEqual(resource))) {
 			return new FluidStack(resource.getFluid(), 0);
 		}
-		return drain(from, resource.amount, doDrain);
+		return drain(from, resource.getAmount(), doDrain);
 	}
 
 	public class FluidHandler implements IFluidHandler {
 
-		private EnumFacing from;
+		private final Direction from;
 
-		FluidHandler(EnumFacing from) {
+		FluidHandler(Direction from) {
 			this.from = from;
 		}
 
 		@Override
-		public int fill(FluidStack resource, boolean doFill) {
-			if (from.ordinal() < EnumFacing.VALUES.length && getFluidPipe().canReceiveFluid()) {
-				return sideTanks[from.ordinal()].fill(resource, doFill);
+		public int getTanks() {
+			return 1;
+		}
+
+		@Override
+		public FluidStack getFluidInTank(int tank) {
+			if (from.ordinal() < Direction.values().length) {
+				return sideTanks[from.ordinal()].getFluid();
+			}
+			return FluidStack.EMPTY;
+		}
+
+		@Override
+		public int getTankCapacity(int tank) {
+			if (from.ordinal() < Direction.values().length) {
+				return sideTanks[from.ordinal()].getCapacity();
+			}
+			return 0;
+		}
+
+		@Override
+		public boolean isFluidValid(int tank, FluidStack stack) {
+			return true;
+		}
+
+		@Override
+		public int fill(FluidStack resource, FluidAction action) {
+			if (from.ordinal() < Direction.values().length && getFluidPipe().canReceiveFluid()) {
+				return sideTanks[from.ordinal()].fill(resource, action);
 			} else {
 				return 0;
 			}
 		}
 
 		@Override
-		public FluidStack drain(int maxDrain, boolean doDrain) {
-			if (from.ordinal() < EnumFacing.VALUES.length) {
-				return sideTanks[from.ordinal()].drain(maxDrain, doDrain);
+		public FluidStack drain(int maxDrain, FluidAction action) {
+			if (from.ordinal() < Direction.values().length) {
+				return sideTanks[from.ordinal()].drain(maxDrain, action);
 			} else {
-				return null;
+				return FluidStack.EMPTY;
 			}
 		}
 
 		@Override
-		public FluidStack drain(FluidStack resource, boolean doDrain) {
+		public FluidStack drain(FluidStack resource, FluidAction action) {
 			if (sideTanks[from.ordinal()].getFluid() == null || !(sideTanks[from.ordinal()].getFluid().isFluidEqual(resource))) {
 				return new FluidStack(resource.getFluid(), 0);
 			}
-			return drain(resource.amount, doDrain);
-		}
-
-		@Override
-		public IFluidTankProperties[] getTankProperties() {
-			if (from.ordinal() < EnumFacing.VALUES.length) {
-				return sideTanks[from.ordinal()].getTankProperties();
-			} else {
-				return null;
-			}
+			return drain(resource.getAmount(), action);
 		}
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
+	public void readFromNBT(CompoundTag nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
 
-		for (EnumFacing direction : EnumFacing.VALUES) {
-			if (nbttagcompound.hasKey("tank[" + direction.ordinal() + "]")) {
-				sideTanks[direction.ordinal()].readFromNBT(nbttagcompound.getCompoundTag("tank[" + direction.ordinal() + "]"));
+		for (Direction direction : Direction.values()) {
+			if (nbttagcompound.contains("tank[" + direction.ordinal() + "]")) {
+				sideTanks[direction.ordinal()].readFromNBT(nbttagcompound.getCompound("tank[" + direction.ordinal() + "]"));
 			}
 		}
-		if (nbttagcompound.hasKey("tank[middle]")) {
-			internalTank.readFromNBT(nbttagcompound.getCompoundTag("tank[middle]"));
+		if (nbttagcompound.contains("tank[middle]")) {
+			internalTank.readFromNBT(nbttagcompound.getCompound("tank[middle]"));
 		}
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
 
-		for (EnumFacing direction : EnumFacing.VALUES) {
-			NBTTagCompound subTag = new NBTTagCompound();
+		for (Direction direction : Direction.values()) {
+			CompoundTag subTag = new CompoundTag();
 			sideTanks[direction.ordinal()].writeToNBT(subTag);
-			nbttagcompound.setTag("tank[" + direction.ordinal() + "]", subTag);
+			nbttagcompound.put("tank[" + direction.ordinal() + "]", subTag);
 		}
-		NBTTagCompound subTag = new NBTTagCompound();
+		CompoundTag subTag = new CompoundTag();
 		internalTank.writeToNBT(subTag);
-		nbttagcompound.setTag("tank[middle]", subTag);
+		nbttagcompound.put("tank[middle]", subTag);
 	}
 
 	public int getInnerCapacity() {
@@ -155,17 +171,17 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 	public void onNeighborBlockChange() {
 		super.onNeighborBlockChange();
 
-		for (EnumFacing direction : EnumFacing.VALUES) {
+		for (Direction direction : Direction.values()) {
 			if (!MainProxy.checkPipesConnections(container, container.getTile(PipeFluidTransportLogistics.orientations[direction.ordinal()]), PipeFluidTransportLogistics.orientations[direction.ordinal()])) {
 				if (MainProxy.isServer(getWorld())) {
 					FluidStack stack = sideTanks[direction.ordinal()].getFluid();
-					if (stack != null) {
-						sideTanks[direction.ordinal()].setFluid(null);
-						internalTank.fill(stack, true);
+					if (stack != null && !stack.isEmpty()) {
+						sideTanks[direction.ordinal()].setFluid(FluidStack.EMPTY);
+						internalTank.fill(stack, IFluidHandler.FluidAction.EXECUTE);
 					}
 				}
 				if (renderCache[direction.ordinal()] != null) {
-					renderCache[direction.ordinal()].amount = 1;
+					renderCache[direction.ordinal()].setAmount(1);
 				}
 			}
 		}
@@ -184,7 +200,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 	private long clientSyncCounter = 30;
 	public byte initClient = 0;
 
-	private static final EnumFacing[] orientations = EnumFacing.values();
+	private static final Direction[] orientations = Direction.values();
 
 	private void updateFluid() {
 		if (MainProxy.isClient(getWorld())) {
@@ -227,7 +243,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 		FluidStack[] renderCache = this.renderCache.clone();
 
-		for (EnumFacing dir : PipeFluidTransportLogistics.orientations) {
+		for (Direction dir : PipeFluidTransportLogistics.orientations) {
 			FluidStack current;
 			if (dir != null) {
 				current = sideTanks[dir.ordinal()].getFluid();
@@ -236,13 +252,13 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 			}
 			FluidStack prev = renderCache[dir.ordinal()];
 
-			if (prev == null && current == null) {
+			if (prev == null && (current == null || current.isEmpty())) {
 				continue;
 			} else if (prev == null) {
 				changed = true;
 				renderCache[dir.ordinal()] = current.copy();
 				continue;
-			} else if (current == null) {
+			} else if (current == null || current.isEmpty()) {
 				changed = true;
 				renderCache[dir.ordinal()] = null;
 				continue;
@@ -250,12 +266,12 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 			if (prev.getFluid() != current.getFluid() || initPacket) {
 				changed = true;
-				renderCache[dir.ordinal()] = new FluidStack(current.getFluid(), renderCache[dir.ordinal()].amount);
+				renderCache[dir.ordinal()] = new FluidStack(current.getFluid(), renderCache[dir.ordinal()].getAmount());
 			}
 
-			if (prev.amount != current.amount || initPacket) {
+			if (prev.getAmount() != current.getAmount() || initPacket) {
 				changed = true;
-				renderCache[dir.ordinal()].amount = current.amount;
+				renderCache[dir.ordinal()].setAmount(current.getAmount());
 			}
 		}
 
@@ -276,7 +292,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 	}
 
 	@Override
-	protected boolean isPipeCheck(TileEntity tile) {
+	protected boolean isPipeCheck(BlockEntity tile) {
 		return SimpleServiceLocator.pipeInformationManager.isPipe(tile);
 	}
 }

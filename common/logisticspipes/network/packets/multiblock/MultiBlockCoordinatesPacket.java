@@ -3,7 +3,7 @@ package logisticspipes.network.packets.multiblock;
 import java.util.List;
 import java.util.Set;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -47,8 +47,8 @@ public class MultiBlockCoordinatesPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericSubMultiBlock block = this.getTileAs(player.getEntityWorld(), LogisticsTileGenericSubMultiBlock.class);
+	public void processPacket(Player player) {
+		LogisticsTileGenericSubMultiBlock block = this.getTileAs(player.level(), LogisticsTileGenericSubMultiBlock.class);
 		block.setPosition(targetPos, subTypes);
 	}
 

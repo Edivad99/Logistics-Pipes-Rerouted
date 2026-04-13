@@ -1,10 +1,10 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -26,20 +26,20 @@ public class SecurityStationOpenPlayer extends NBTCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (MainProxy.isClient(player.world)) {
+	public void processPacket(Player player) {
+		if (MainProxy.isClient(player.level())) {
 			handleClientSide(player);
 		} else {
 
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
-	private void handleClientSide(EntityPlayer player) {
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiSecurityStation) {
+	@OnlyIn(Dist.CLIENT)
+	private void handleClientSide(Player player) {
+		if (Minecraft.getInstance().screen instanceof GuiSecurityStation) {
 			SecuritySettings setting = new SecuritySettings(null);
 			setting.readFromNBT(getTag());
-			((GuiSecurityStation) FMLClientHandler.instance().getClient().currentScreen).handlePlayerSecurityOpen(setting);
+			((GuiSecurityStation) Minecraft.getInstance().screen).handlePlayerSecurityOpen(setting);
 		}
 	}
 }

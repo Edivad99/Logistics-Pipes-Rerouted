@@ -4,11 +4,10 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import kotlin.Unit;
 import lombok.Getter;
@@ -82,19 +81,19 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 			if (LogisticsPipes.isDEBUG()) {
 				throw new IllegalStateException("Module has no service, but getBlockPos was called");
 			}
-			return BlockPos.ORIGIN;
+			return BlockPos.ZERO;
 		} else if (slot.isInWorld()) {
 			return service.getPos();
 		} else {
 			if (LogisticsPipes.isDEBUG()) {
 				throw new IllegalStateException("Module is not in world, but getBlockPos was called");
 			}
-			return BlockPos.ORIGIN;
+			return BlockPos.ZERO;
 		}
 	}
 
 	@Nullable
-	public World getWorld() {
+	public Level getWorld() {
 		final IWorldProvider worldProvider = _world;
 		if (worldProvider == null) return null;
 		return worldProvider.getWorld();
@@ -109,12 +108,12 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull NBTTagCompound tag) {
+	public void readFromNBT(@Nonnull CompoundTag tag) {
 		PropertyHolder.readFromNBT(tag, this);
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull NBTTagCompound tag) {
+	public void writeToNBT(@Nonnull CompoundTag tag) {
 		PropertyHolder.writeToNBT(tag, this);
 	}
 
@@ -230,7 +229,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 			return;
 		}
 		if (_service != null) {
-			final IBlockAccess blockAccess = _world == null ? null : _world.getWorld();
+			final Level blockAccess = _world == null ? null : _world.getWorld();
 			MainProxy.runOnServer(blockAccess, () -> () ->
 					UtilKt.addObserver(getProperties(), (prop) -> {
 						_service.markTileDirty();

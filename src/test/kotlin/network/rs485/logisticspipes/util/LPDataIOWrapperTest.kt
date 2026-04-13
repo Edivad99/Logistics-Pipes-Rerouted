@@ -38,18 +38,29 @@
 package network.rs485.logisticspipes.util
 
 import io.netty.buffer.Unpooled
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.NonNullList
+import net.minecraft.SharedConstants
+import net.minecraft.server.Bootstrap
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
+import net.minecraft.core.NonNullList
 import network.rs485.logisticspipes.util.TestUtil.Companion.getBytesFromInteger
 import network.rs485.util.use
+import org.junit.jupiter.api.BeforeAll
 import java.util.*
 import kotlin.test.*
 
 private const val BUFFER_EMPTY_MSG = "Buffer must be empty"
 
 class LPDataIOWrapperTest {
+    companion object {
+        @JvmStatic
+        @BeforeAll
+        fun bootstrap() {
+            SharedConstants.tryDetectVersion()
+            Bootstrap.bootStrap()
+        }
+    }
     @Test
     fun `test reading and writing to direct buffer`() {
         Unpooled.directBuffer().use { directBuf ->
@@ -298,8 +309,8 @@ class LPDataIOWrapperTest {
     }
 
     @Test
-    fun `test writeFacing and readFacing for a single EnumFacing value`() {
-        val value = EnumFacing.UP
+    fun `test writeFacing and readFacing for a single Direction value`() {
+        val value = Direction.UP
         Unpooled.buffer(Long.SIZE_BYTES).use { testBuffer ->
             LPDataIOWrapper.writeData(testBuffer) { output: LPDataOutput -> output.writeFacing(value) }
             LPDataIOWrapper.provideData(testBuffer) { input: LPDataInput ->
@@ -532,22 +543,22 @@ class LPDataIOWrapperTest {
     }
 
     @Test
-    fun `test writeNBTTagCompound and readNBTTagCompound with plenty information`() {
-        val tag = NBTTagCompound()
-        tag.setBoolean("bool", true)
-        tag.setByte("byte", 127.toByte())
-        tag.setByteArray("byteArray", byteArrayOf(-1, 127, 0, 12))
-        tag.setDouble("double", 0.12)
-        tag.setFloat("float", 0.13f)
-        tag.setIntArray("intArray", intArrayOf(Int.MIN_VALUE, 0, Int.MAX_VALUE, -1))
-        tag.setInteger("int", 12)
-        tag.setLong("long", -1)
-        tag.setShort("short", 15.toShort())
-        tag.setString("string", "text")
-        tag.setTag("tag", NBTTagCompound())
-        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeNBTTagCompound(tag) }
+    fun `test writeCompoundTag and readCompoundTag with plenty information`() {
+        val tag = CompoundTag()
+        tag.putBoolean("bool", true)
+        tag.putByte("byte", 127.toByte())
+        tag.putByteArray("byteArray", byteArrayOf(-1, 127, 0, 12))
+        tag.putDouble("double", 0.12)
+        tag.putFloat("float", 0.13f)
+        tag.putIntArray("intArray", intArrayOf(Int.MIN_VALUE, 0, Int.MAX_VALUE, -1))
+        tag.putInt("int", 12)
+        tag.putLong("long", -1)
+        tag.putShort("short", 15.toShort())
+        tag.putString("string", "text")
+        tag.put("tag", CompoundTag())
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCompoundTag(tag) }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readNBTTagCompound()
+            val actual = input.readCompoundTag()
 
             assertEquals(tag, actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
@@ -555,10 +566,10 @@ class LPDataIOWrapperTest {
     }
 
     @Test
-    fun `test writeNBTTagCompound and readNBTTagCompound with null`() {
-        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeNBTTagCompound(null) }
+    fun `test writeCompoundTag and readCompoundTag with null`() {
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCompoundTag(null) }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readNBTTagCompound()
+            val actual = input.readCompoundTag()
 
             assertNull(actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)

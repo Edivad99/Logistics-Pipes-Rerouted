@@ -1,8 +1,9 @@
 package logisticspipes.network.packets;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
+
 
 import logisticspipes.interfaces.PlayerListReciver;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -22,9 +23,9 @@ public class PlayerList extends StringListPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof PlayerListReciver) {
-			((PlayerListReciver) FMLClientHandler.instance().getClient().currentScreen).receivePlayerList(getStringList());
+	public void processPacket(Player player) {
+		if (Minecraft.getInstance().screen instanceof PlayerListReciver) {
+			((PlayerListReciver) Minecraft.getInstance().screen).receivePlayerList(getStringList());
 		}
 	}
 }

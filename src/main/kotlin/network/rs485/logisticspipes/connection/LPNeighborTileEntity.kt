@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -42,35 +42,35 @@ import logisticspipes.interfaces.ITankUtil
 import logisticspipes.pipes.PipeFluidUtil
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe
 import logisticspipes.proxy.SimpleServiceLocator
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
 import java.util.*
 import javax.annotation.Nonnull
 import javax.annotation.Nullable
 
 @Nullable
-fun <T : TileEntity> NeighborTileEntity<T>.getInventoryUtil(): IInventoryUtil? =
+fun <T : BlockEntity> NeighborTileEntity<T>.getInventoryUtil(): IInventoryUtil? =
     SimpleServiceLocator.inventoryUtilFactory.getInventoryUtil(tileEntity, getOurDirection())
 
 @Nullable
-fun <T : TileEntity> NeighborTileEntity<T>.getTankUtil(): ITankUtil? =
+fun <T : BlockEntity> NeighborTileEntity<T>.getTankUtil(): ITankUtil? =
     PipeFluidUtil.getTankUtilForTE(tileEntity, getOurDirection())
 
 @Nonnull
-fun <T : TileEntity> NeighborTileEntity<T>.sneakyInsertion(): LPNeighborTileEntitySneakyInsertion<T> =
+fun <T : BlockEntity> NeighborTileEntity<T>.sneakyInsertion(): LPNeighborTileEntitySneakyInsertion<T> =
     LPNeighborTileEntitySneakyInsertion(tileEntity, direction)
 
 @Nonnull
-fun <T : TileEntity, C : T> NeighborTileEntity<T>.optionalIs(clazz: Class<C>): Optional<LPNeighborTileEntity<C>> =
+fun <T : BlockEntity, C : T> NeighborTileEntity<T>.optionalIs(clazz: Class<C>): Optional<LPNeighborTileEntity<C>> =
     if (clazz.isInstance(tileEntity)) {
         Optional.of(LPNeighborTileEntity(clazz.cast(tileEntity), direction))
     } else {
         Optional.empty()
     }
 
-open class LPNeighborTileEntity<T : TileEntity>(
+open class LPNeighborTileEntity<T : BlockEntity>(
     tileEntity: T,
-    direction: EnumFacing,
+    direction: Direction,
 ) : NeighborTileEntity<T>(tileEntity, direction) {
 
     override fun isLogisticsPipe(): Boolean = tileEntity is LogisticsTileGenericPipe

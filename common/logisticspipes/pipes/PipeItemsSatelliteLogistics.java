@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.nbt.CompoundTag;
 
 import lombok.Getter;
 
@@ -105,12 +105,12 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
 	}
 
 	private void addToList(ItemIdentifierStack stack) {
@@ -139,7 +139,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
-	public void playerStartWatching(EntityPlayer player, int mode) {
+	public void playerStartWatching(Player player, int mode) {
 		if (mode == 1) {
 			localModeWatchers.add(player);
 			final ModernPacket packet = PacketHandler.getPacket(SyncSatelliteNamePacket.class).setString(satellitePipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
@@ -151,7 +151,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
-	public void playerStopWatching(EntityPlayer player, int mode) {
+	public void playerStopWatching(Player player, int mode) {
 		super.playerStopWatching(player, mode);
 		localModeWatchers.remove(player);
 	}
@@ -163,15 +163,20 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
+	public net.minecraft.world.level.Level getLevelForHUD() {
+		return getWorld();
+	}
+
+	@Override
 	public IHeadUpDisplayRenderer getRenderer() {
 		return HUD;
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
+	public void readFromNBT(CompoundTag nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
-		if (nbttagcompound.hasKey("satelliteid")) {
-			int satelliteId = nbttagcompound.getInteger("satelliteid");
+		if (nbttagcompound.contains("satelliteid")) {
+			int satelliteId = nbttagcompound.getInt("satelliteid");
 			satellitePipeName = Integer.toString(satelliteId);
 		} else {
 			satellitePipeName = nbttagcompound.getString("satellitePipeName");
@@ -182,8 +187,8 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setString("satellitePipeName", satellitePipeName);
+	public void writeToNBT(CompoundTag nbttagcompound) {
+		nbttagcompound.putString("satellitePipeName", satellitePipeName);
 		super.writeToNBT(nbttagcompound);
 	}
 
@@ -211,11 +216,13 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
-	public void onWrenchClicked(EntityPlayer entityplayer) {
+	public void onWrenchClicked(Player entityplayer) {
 		// Send the satellite id when opening gui
 		final ModernPacket packet = PacketHandler.getPacket(SyncSatelliteNamePacket.class).setString(satellitePipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
 		MainProxy.sendPacketToPlayer(packet, entityplayer);
-		entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_SatellitePipe_ID, getWorld(), getX(), getY(), getZ());
+		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.SatelliteGui.class)
+				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
+				.open(entityplayer);
 	}
 
 	@Override

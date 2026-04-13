@@ -3,7 +3,7 @@ package logisticspipes.interfaces.routing;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.PlayerIdentifier;
@@ -12,7 +12,7 @@ public interface IChannelManager {
 
 	List<ChannelInformation> getChannels();
 
-	List<ChannelInformation> getAllowedChannels(EntityPlayer playerIdentifier);
+	List<ChannelInformation> getAllowedChannels(Player playerIdentifier);
 
 	ChannelInformation createNewChannel(String name, PlayerIdentifier owner, ChannelInformation.AccessRights rights, UUID responsibleSecurityID);
 

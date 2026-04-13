@@ -2,8 +2,8 @@ package logisticspipes.network.guis.block;
 
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,18 +30,17 @@ public class StatisticsGui extends CoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		LogisticsStatisticsTileEntity statisticsTable = getTileAs(player.world, LogisticsStatisticsTileEntity.class);
+	public Object getClientGui(Player player) {
+		LogisticsStatisticsTileEntity statisticsTable = getTileAs(player.level(), LogisticsStatisticsTileEntity.class);
 		statisticsTable.tasks = trackingList;
 		GuiStatistics gui = new GuiStatistics(statisticsTable);
-		gui.inventorySlots = new DummyContainer(player.inventory, null);
 		return gui;
 	}
 
 	@Override
-	public Container getContainer(EntityPlayer player) {
+	public AbstractContainerMenu getContainer(Player player) {
 		// ensures tile at position is a statistics table
-		getTileAs(player.world, LogisticsStatisticsTileEntity.class);
+		getTileAs(player.level(), LogisticsStatisticsTileEntity.class);
 		return new DummyContainer(player, null);
 	}
 

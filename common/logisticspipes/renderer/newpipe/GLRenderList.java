@@ -1,12 +1,12 @@
 package logisticspipes.renderer.newpipe;
 
-import net.minecraft.client.renderer.GLAllocation;
+// import net.minecraft.client.renderer.GLAllocation; // removed — display lists not available
 
-import org.lwjgl.opengl.GL11;
+
 
 public class GLRenderList {
 
-	private final int listID = GLAllocation.generateDisplayLists(1);
+	private final int listID = 0; // TODO: GLAllocation removed in 1.20.1 — display lists not available; replace with vertex buffers
 	public boolean isValid = true;
 	private long lastUsed = System.currentTimeMillis();
 	private boolean isFilled = false;
@@ -16,25 +16,16 @@ public class GLRenderList {
 	}
 
 	public void startListCompile() {
-		if (!isValid) {
-			throw new UnsupportedOperationException("Can't use a removed list");
-		}
-		GL11.glNewList(listID, GL11.GL_COMPILE);
+		// no-op: GL display lists removed in 1.20.1; replace with vertex buffers when rendering is ported
 	}
 
 	public void stopCompile() {
-		if (!isValid) {
-			throw new UnsupportedOperationException("Can't use a removed list");
-		}
-		GL11.glEndList();
+		// no-op: GL display lists removed in 1.20.1
 		isFilled = true;
 	}
 
 	public void render() {
-		if (!isValid) {
-			throw new UnsupportedOperationException("Can't use a removed list");
-		}
-		GL11.glCallList(listID);
+		// no-op: GL display lists removed in 1.20.1; replace with vertex buffers when rendering is ported
 		lastUsed = System.currentTimeMillis();
 	}
 

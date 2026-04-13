@@ -7,9 +7,9 @@
 
 package logisticspipes.utils.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
 
 import lombok.Setter;
 
@@ -18,19 +18,19 @@ public class DummySlot extends Slot {
 	@Setter
 	private boolean redirectCall = false;
 
-	public DummySlot(IInventory iinventory, int i, int j, int k) {
+	public DummySlot(Container iinventory, int i, int j, int k) {
 		super(iinventory, i, j, k);
 	}
 
 	@Override
-	public boolean canTakeStack(EntityPlayer par1EntityPlayer) {
+	public boolean mayPickup(Player par1Player) {
 		return false;
 	}
 
 	@Override
-	public int getSlotStackLimit() {
+	public int getMaxStackSize() {
 		if (redirectCall) {
-			return super.getSlotStackLimit();
+			return super.getMaxStackSize();
 		}
 		return 0;
 	}

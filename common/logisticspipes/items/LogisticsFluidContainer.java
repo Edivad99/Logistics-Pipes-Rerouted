@@ -1,20 +1,20 @@
 package logisticspipes.items;
 
+import net.minecraft.client.gui.screens.Screen;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.translation.I18n;
-import net.minecraft.world.World;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+// net.minecraft.world.item.CreativeModeTab removed — use CreativeModeTab
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.level.Level;
 
-import org.lwjgl.input.Keyboard;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -26,7 +26,7 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
 	static int capacity = 8000;
 
 	public LogisticsFluidContainer() {
-		setMaxStackSize(1);
+		super(new net.minecraft.world.item.Item.Properties().stacksTo(1));
 	}
 
 	@Override
@@ -41,40 +41,40 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
 
 	@Override
 	@Nonnull
-	public String getTranslationKey(@Nonnull ItemStack stack) {
+	public String getDescriptionId(@Nonnull ItemStack stack) {
 		FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(stack));
 		if (fluidStack != null) {
-			String s = fluidStack.makeFluidStack().getFluid().getUnlocalizedName();
+			// Fluid.getDescriptionId() removed in 1.20.1; use FluidStack.getDisplayName()
+			String s = fluidStack.makeFluidStack().getDisplayName().getString();
 			if (s != null) {
 				return s;
 			}
 		}
-		return super.getTranslationKey(stack);
+		return super.getDescriptionId(stack);
 	}
 
 	@Override
 	@Nonnull
-	public String getItemStackDisplayName(@Nonnull ItemStack itemstack) {
-		String translationKey = getTranslationKey(itemstack);
-		String unlocalizedNameInefficiently = getUnlocalizedNameInefficiently(itemstack); // Fix for Logistics fluid container naming
-		return I18n.translateToLocal(translationKey + (translationKey.equals(unlocalizedNameInefficiently) ? ".name" : "")).trim();
+	public net.minecraft.network.chat.Component getName(@Nonnull ItemStack itemstack) {
+		// getUnlocalizedNameInefficiently removed in 1.20.1; use getDescriptionId() for base key
+		String translationKey = getDescriptionId(itemstack);
+		String baseKey = getDescriptionId();
+		return net.minecraft.network.chat.Component.literal(
+				I18n.get(translationKey + (translationKey.equals(baseKey) ? ".name" : "")).trim());
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		super.addInformation(stack, worldIn, tooltip, flagIn);
-		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+	@OnlyIn(Dist.CLIENT)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
+		super.appendHoverText(stack, worldIn, tooltip, flagIn);
+		if (Screen.hasShiftDown()) {
 			FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(stack));
 			if (fluidStack != null) {
-				tooltip.add("Type:  " + fluidStack.makeFluidStack().getFluid().getLocalizedName(fluidStack.makeFluidStack()));
-				tooltip.add("Value: " + fluidStack.getAmount() + "mB");
+				tooltip.add(net.minecraft.network.chat.Component.literal("Type:  " + fluidStack.makeFluidStack().getDisplayName().getString()));
+				tooltip.add(net.minecraft.network.chat.Component.literal("Value: " + fluidStack.getAmount() + "mB"));
 			}
 		}
 	}
 
-	@Override
-	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
-		// don't add to creative tabs in any way
-	}
+	// fillItemCategory removed in 1.20.1 — creative tab content registered via BuildCreativeModeTabContentsEvent
 }

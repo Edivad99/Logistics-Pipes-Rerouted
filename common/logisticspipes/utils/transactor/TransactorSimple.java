@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 
 import net.minecraftforge.items.IItemHandler;
 
@@ -18,12 +18,12 @@ public class TransactorSimple extends Transactor {
 	}
 
 	@Override
-	public int inject(@Nonnull ItemStack stack, EnumFacing orientation, boolean doAdd) {
+	public int inject(@Nonnull ItemStack stack, Direction orientation, boolean doAdd) {
 		List<IInvSlot> filledSlots = new ArrayList<>(inventory.getSlots());
 		List<IInvSlot> emptySlots = new ArrayList<>(inventory.getSlots());
 		for (IInvSlot slot : InventoryIterator.getIterable(inventory, orientation)) {
 			if (slot.canPutStackInSlot(stack)) {
-				if (slot.getStackInSlot().isEmpty()) {
+				if (slot.getItem().isEmpty()) {
 					emptySlots.add(slot);
 				} else {
 					filledSlots.add(slot);
@@ -46,7 +46,7 @@ public class TransactorSimple extends Transactor {
 		}
 
 		for (IInvSlot slot : slots) {
-			ItemStack stackInSlot = slot.getStackInSlot();
+			ItemStack stackInSlot = slot.getItem();
 			if (stackInSlot.isEmpty() || canStacksMerge(stackInSlot, stack)) {
 				int used = addToSlot(slot, stack, realInjected, doAdd);
 				if (used > 0) {
@@ -82,9 +82,9 @@ public class TransactorSimple extends Transactor {
 		if (stack1.isEmpty() || stack2.isEmpty()) {
 			return false;
 		}
-		if (!stack1.isItemEqual(stack2)) {
+		if (!ItemStack.isSameItem(stack1, stack2)) {
 			return false;
 		}
-		return ItemStack.areItemStackTagsEqual(stack1, stack2);
+		return ItemStack.isSameItemSameTags(stack1, stack2);
 	}
 }

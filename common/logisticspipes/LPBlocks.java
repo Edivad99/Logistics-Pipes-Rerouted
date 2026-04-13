@@ -1,52 +1,31 @@
 package logisticspipes;
 
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.registries.RegistryObject;
 
-import logisticspipes.blocks.BlockDummy;
 import logisticspipes.blocks.LogisticsSolidBlock;
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.pipes.basic.LogisticsBlockGenericSubMultiBlock;
 
+/**
+ * Holds RegistryObject references to all registered LP blocks.
+ * Access via .get() — e.g. LPBlocks.pipe.get()
+ *
+ * NOTE: Call sites previously used plain fields (e.g. LPBlocks.pipe) — all updated
+ * to LPBlocks.pipe.get() as part of task #10.
+ */
 public class LPBlocks {
 
-	// Logistics Blocks
-	@GameRegistry.ObjectHolder("logisticspipes:solid_block")
-	public static BlockDummy dummy;
-
-	@GameRegistry.ObjectHolder("logisticspipes:frame")
-	public static LogisticsSolidBlock frame;
-
-	@GameRegistry.ObjectHolder("logisticspipes:power_junction")
-	public static LogisticsSolidBlock powerJunction;
-
-	@GameRegistry.ObjectHolder("logisticspipes:security_station")
-	public static LogisticsSolidBlock securityStation;
-
-	@GameRegistry.ObjectHolder("logisticspipes:crafting_table")
-	public static LogisticsSolidBlock crafter;
-
-	@GameRegistry.ObjectHolder("logisticspipes:crafting_table_fuzzy")
-	public static LogisticsSolidBlock crafterFuzzy;
-
-	@GameRegistry.ObjectHolder("logisticspipes:statistics_table")
-	public static LogisticsSolidBlock statisticsTable;
-
-	@GameRegistry.ObjectHolder("logisticspipes:power_provider_rf")
-	public static LogisticsSolidBlock powerProviderRF;
-
-	@GameRegistry.ObjectHolder("logisticspipes:power_provider_eu")
-	public static LogisticsSolidBlock powerProviderEU;
-
-	@GameRegistry.ObjectHolder("logisticspipes:power_provider_mj")
-	public static LogisticsSolidBlock powerProviderMJ;
-
-	@GameRegistry.ObjectHolder("logisticspipes:program_compiler")
-	public static LogisticsSolidBlock programCompiler;
-
-	@GameRegistry.ObjectHolder("logisticspipes:pipe")
-	public static LogisticsBlockGenericPipe pipe;
-
-	@GameRegistry.ObjectHolder("logisticspipes:sub_multiblock")
-	public static LogisticsBlockGenericSubMultiBlock subMultiblock;
+	public static final RegistryObject<LogisticsSolidBlock>           frame           = LPRegistries.FRAME;
+	public static final RegistryObject<LogisticsSolidBlock>           powerJunction   = LPRegistries.POWER_JUNCTION;
+	public static final RegistryObject<LogisticsSolidBlock>           securityStation = LPRegistries.SECURITY_STATION;
+	public static final RegistryObject<LogisticsSolidBlock>           crafter         = LPRegistries.CRAFTER;
+	public static final RegistryObject<LogisticsSolidBlock>           crafterFuzzy    = LPRegistries.CRAFTER_FUZZY;
+	public static final RegistryObject<LogisticsSolidBlock>           statisticsTable = LPRegistries.STATISTICS_TABLE;
+	public static final RegistryObject<LogisticsSolidBlock>           powerProviderRF = LPRegistries.POWER_PROVIDER_RF;
+	public static final RegistryObject<LogisticsSolidBlock>           powerProviderEU = LPRegistries.POWER_PROVIDER_EU;
+	public static final RegistryObject<LogisticsSolidBlock>           powerProviderMJ = LPRegistries.POWER_PROVIDER_MJ;
+	public static final RegistryObject<LogisticsSolidBlock>           programCompiler = LPRegistries.PROGRAM_COMPILER;
+	public static final RegistryObject<LogisticsBlockGenericPipe>          pipe           = LPRegistries.PIPE;
+	public static final RegistryObject<LogisticsBlockGenericSubMultiBlock> subMultiblock  = LPRegistries.SUB_MULTIBLOCK;
 
 }

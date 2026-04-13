@@ -39,9 +39,9 @@ package network.rs485.logisticspipes.gui.widget
 
 import network.rs485.logisticspipes.property.IBitSet
 import network.rs485.logisticspipes.util.FuzzyFlag
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.Slot
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.Slot
 import java.util.*
 
 interface Fuzzy
@@ -50,22 +50,22 @@ interface Item
 interface Fluid
 
 sealed class GhostSlot(
-    inventoryIn: IInventory,
+    inventoryIn: Container,
     index: Int,
     xPosition: Int,
     yPosition: Int,
 ) : Slot(inventoryIn, index, xPosition, yPosition) {
-    override fun getSlotStackLimit(): Int {
+    override fun getMaxStackSize(): Int {
         return 0
     }
 
-    override fun canTakeStack(playerIn: EntityPlayer): Boolean {
+    override fun mayPickup(playerIn: Player): Boolean {
         return false
     }
 }
 
 class GhostItemSlot(
-    inventoryIn: IInventory,
+    inventoryIn: Container,
     index: Int,
     xPosition: Int,
     yPosition: Int,
@@ -77,7 +77,7 @@ class GhostItemSlot(
 ), Item
 
 open class FuzzyItemSlot(
-    inventoryIn: IInventory,
+    inventoryIn: Container,
     index: Int,
     xPosition: Int,
     yPosition: Int,
@@ -93,19 +93,19 @@ open class FuzzyItemSlot(
 class UnmodifiableItemSlot(
     slot: Slot,
 ) : GhostSlot(
-    inventoryIn = slot.inventory,
+    inventoryIn = slot.container,
     index = slot.slotIndex,
-    xPosition = slot.xPos,
-    yPosition = slot.yPos,
+    xPosition = slot.x,
+    yPosition = slot.y,
 ), Unmodifiable, Item
 
 class FuzzyUnmodifiableItemSlot(
     fuzzySlot: FuzzyItemSlot,
 ) : FuzzyItemSlot(
-    inventoryIn = fuzzySlot.inventory,
+    inventoryIn = fuzzySlot.container,
     index = fuzzySlot.slotIndex,
-    xPosition = fuzzySlot.xPos,
-    yPosition = fuzzySlot.yPos,
+    xPosition = fuzzySlot.x,
+    yPosition = fuzzySlot.y,
     usedFlags = fuzzySlot.usedFlags,
     flagGetter = fuzzySlot.flagGetter,
 ), Unmodifiable

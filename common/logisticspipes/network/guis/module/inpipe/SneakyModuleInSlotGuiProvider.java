@@ -1,7 +1,7 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
 
 import logisticspipes.gui.modules.GuiSneakyConfigurator;
 import logisticspipes.modules.LogisticsModule;
@@ -17,13 +17,13 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 @StaticResolve
 public class SneakyModuleInSlotGuiProvider extends ModuleCoordinatesGuiProvider {
 
-	private EnumFacing sneakyOrientation;
+	private Direction sneakyOrientation;
 
 	public SneakyModuleInSlotGuiProvider(int id) {
 		super(id);
 	}
 
-	public SneakyModuleInSlotGuiProvider setSneakyOrientation(EnumFacing sneakyOrientation) {
+	public SneakyModuleInSlotGuiProvider setSneakyOrientation(Direction sneakyOrientation) {
 		this.sneakyOrientation = sneakyOrientation;
 		return this;
 	}
@@ -41,22 +41,22 @@ public class SneakyModuleInSlotGuiProvider extends ModuleCoordinatesGuiProvider 
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		LogisticsModule module = this.getLogisticsModule(player.getEntityWorld(), LogisticsModule.class);
+	public Object getClientGui(Player player) {
+		LogisticsModule module = this.getLogisticsModule(player.level(), LogisticsModule.class);
 		if (!(module instanceof SneakyDirection && module instanceof Gui)) {
 			return null;
 		}
 		((SneakyDirection) module).setSneakyDirection(sneakyOrientation);
-		return new GuiSneakyConfigurator(player.inventory, module);
+		return new GuiSneakyConfigurator(player.getInventory(), module);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
-		LogisticsModule module = this.getLogisticsModule(player.getEntityWorld(), LogisticsModule.class);
+	public DummyContainer getContainer(Player player) {
+		LogisticsModule module = this.getLogisticsModule(player.level(), LogisticsModule.class);
 		if (!(module instanceof SneakyDirection && module instanceof Gui)) {
 			return null;
 		}
-		return new DummyContainer(player.inventory, null);
+		return new DummyContainer(player.getInventory(), null);
 	}
 
 	@Override

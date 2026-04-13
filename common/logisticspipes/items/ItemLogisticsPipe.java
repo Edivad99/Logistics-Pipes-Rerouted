@@ -7,28 +7,30 @@
 
 package logisticspipes.items;
 
+import java.util.function.Consumer;
+
 import javax.annotation.Nonnull;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import lombok.Getter;
-import org.apache.logging.log4j.Level;
+// import org.apache.logging.log4j.Level; // conflicts with net.minecraft.world.level.Level — use fully qualified
 
 import logisticspipes.LPBlocks;
 import logisticspipes.LogisticsPipes;
@@ -58,52 +60,57 @@ public class ItemLogisticsPipe extends LogisticsItem {
 
 	@Nonnull
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		Block block = LPBlocks.pipe;
+	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
+		Player player = _ctx.getPlayer();
+		Level world = _ctx.getLevel();
+		BlockPos pos = _ctx.getClickedPos();
+		InteractionHand hand = _ctx.getHand();
+		Direction facing = _ctx.getClickedFace();
+		Block block = LPBlocks.pipe.get();
 
-		IBlockState iblockstate = worldIn.getBlockState(pos);
+		BlockState iblockstate = world.getBlockState(pos);
 		Block worldBlock = iblockstate.getBlock();
 
-		if (!worldBlock.isReplaceable(worldIn, pos)) {
-			pos = pos.offset(facing);
+		if (!iblockstate.canBeReplaced()) {
+			pos = pos.relative(facing);
 		}
 
-		ItemStack itemstack = player.getHeldItem(hand);
+		ItemStack itemstack = player.getItemInHand(hand);
 
 		if (itemstack.isEmpty()) {
-			return EnumActionResult.FAIL;
+			return InteractionResult.FAIL;
 		}
 
 		if (!dummyPipe.isMultiBlock()) {
-			if (player.canPlayerEdit(pos, facing, itemstack) && worldIn.mayPlace(block, pos, false, facing, null)) {
+			if (player.mayUseItemAt(pos, facing, itemstack) && world.isEmptyBlock(pos)) {
 				CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.createPipe(this);
 
 				if (pipe == null) {
-					LogisticsPipes.log.log(Level.WARN, "Pipe failed to create during placement at {0},{1},{2}", new Object[] { pos.getX(), pos.getY(), pos.getZ() });
-					return EnumActionResult.PASS;
+					LogisticsPipes.log.warn("Pipe failed to create during placement at {},{},{}", pos.getX(), pos.getY(), pos.getZ());
+					return InteractionResult.PASS;
 				}
 
-				if (LogisticsBlockGenericPipe.placePipe(pipe, worldIn, pos, block, null)) {
-					IBlockState state = worldIn.getBlockState(pos);
+				if (LogisticsBlockGenericPipe.placePipe(pipe, world, pos, block, null)) {
+					BlockState state = world.getBlockState(pos);
 					if (state.getBlock() == block) {
 						//setTileEntityNBT(world, player, pos, stack);
-						block.onBlockPlacedBy(worldIn, pos, state, player, itemstack);
+						block.setPlacedBy(world, pos, state, player, itemstack);
 
-						if (player instanceof EntityPlayerMP)
-							CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, itemstack);
+						if (player instanceof ServerPlayer)
+							CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, pos, itemstack);
 
-						IBlockState newBlockState = worldIn.getBlockState(pos);
-						SoundType soundtype = newBlockState.getBlock().getSoundType(newBlockState, worldIn, pos, player);
-						worldIn.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
+						BlockState newBlockState = world.getBlockState(pos);
+						SoundType soundtype = newBlockState.getBlock().getSoundType(newBlockState, world, pos, player);
+						world.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
 								soundtype.getPitch() * 0.8F);
 
 						itemstack.shrink(1);
 					}
 				}
 
-				return EnumActionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			} else {
-				return EnumActionResult.FAIL;
+				return InteractionResult.FAIL;
 			}
 		} else {
 			CoreMultiBlockPipe multiPipe = (CoreMultiBlockPipe) dummyPipe;
@@ -114,7 +121,7 @@ public class ItemLogisticsPipe extends LogisticsItem {
 			LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> positions = multiPipe.getSubBlocks();
 			ITubeOrientation orientation = multiPipe.getTubeOrientation(player, pos.getX(), pos.getZ());
 			if (orientation == null) {
-				return EnumActionResult.FAIL;
+				return InteractionResult.FAIL;
 			}
 			orientation.rotatePositions(positions);
 			positions.stream().map(iPos -> iPos.add(placeAt)).forEach(globalPos::add);
@@ -122,8 +129,8 @@ public class ItemLogisticsPipe extends LogisticsItem {
 			placeAt.add(orientation.getOffset());
 
 			for (DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare> iPos : globalPos) {
-				if (!player.canPlayerEdit(iPos.getBlockPos(), facing, itemstack) || !worldIn.mayPlace(block, iPos.getBlockPos(), false, facing, null)) {
-					TileEntity tile = worldIn.getTileEntity(iPos.getBlockPos());
+				if (!player.mayUseItemAt(iPos.getBlockPos(), facing, itemstack) || !world.isEmptyBlock(iPos.getBlockPos())) {
+					BlockEntity tile = world.getBlockEntity(iPos.getBlockPos());
 					boolean canPlace = false;
 					if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 						if (CoreMultiBlockPipe.canShare(((LogisticsTileGenericSubMultiBlock) tile).getSubTypes(), iPos.getType())) {
@@ -140,36 +147,36 @@ public class ItemLogisticsPipe extends LogisticsItem {
 				CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.createPipe(this);
 
 				if (pipe == null) {
-					LogisticsPipes.log.log(Level.WARN, "Pipe failed to create during placement at {0},{1},{2}", new Object[] { pos.getX(), pos.getY(), pos.getZ() });
-					return EnumActionResult.SUCCESS;
+					LogisticsPipes.log.warn("Pipe failed to create during placement at {},{},{}", pos.getX(), pos.getY(), pos.getZ());
+					return InteractionResult.SUCCESS;
 				}
 
-				if (LogisticsBlockGenericPipe.placePipe(pipe, worldIn, placeAt.getBlockPos(), block, orientation)) {
-					IBlockState state = worldIn.getBlockState(placeAt.getBlockPos());
+				if (LogisticsBlockGenericPipe.placePipe(pipe, world, placeAt.getBlockPos(), block, orientation)) {
+					BlockState state = world.getBlockState(placeAt.getBlockPos());
 					if (state.getBlock() == block) {
 						//setTileEntityNBT(world, player, pos, stack);
-						block.onBlockPlacedBy(worldIn, pos, state, player, itemstack);
+						block.setPlacedBy(world, pos, state, player, itemstack);
 
-						if (player instanceof EntityPlayerMP)
-							CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, placeAt.getBlockPos(), itemstack);
+						if (player instanceof ServerPlayer)
+							CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, placeAt.getBlockPos(), itemstack);
 
-						IBlockState newBlockState = worldIn.getBlockState(placeAt.getBlockPos());
-						SoundType soundtype = newBlockState.getBlock().getSoundType(newBlockState, worldIn, placeAt.getBlockPos(), player);
-						worldIn.playSound(player, placeAt.getBlockPos(), soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
+						BlockState newBlockState = world.getBlockState(placeAt.getBlockPos());
+						SoundType soundtype = newBlockState.getBlock().getSoundType(newBlockState, world, placeAt.getBlockPos(), player);
+						world.playSound(player, placeAt.getBlockPos(), soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
 								soundtype.getPitch() * 0.8F);
 
 						itemstack.shrink(1);
 					}
 				}
 
-				return EnumActionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			} else {
-				return EnumActionResult.FAIL;
+				return InteractionResult.FAIL;
 			}
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void setPipesIcons(IIconProvider iconProvider) {
 	}
 
@@ -194,5 +201,22 @@ public class ItemLogisticsPipe extends LogisticsItem {
 
 	public void setDummyPipe(CoreUnroutedPipe pipe) {
 		dummyPipe = pipe;
+	}
+
+	@Override
+	public void initializeClient(Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+		consumer.accept(ClientExtensionsHolder.EXTENSIONS);
+	}
+
+	/** Holds client-only references; loaded lazily so dedicated servers never touch
+	 *  client-only classes like BlockEntityWithoutLevelRenderer. */
+	private static final class ClientExtensionsHolder {
+		static final net.minecraftforge.client.extensions.common.IClientItemExtensions EXTENSIONS =
+			new net.minecraftforge.client.extensions.common.IClientItemExtensions() {
+				@Override
+				public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+					return logisticspipes.renderer.LogisticsPipeItemRenderer.instance();
+				}
+			};
 	}
 }

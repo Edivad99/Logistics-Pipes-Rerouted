@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -37,21 +37,21 @@
 
 package network.rs485.logisticspipes.connection
 
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityHopper
-import net.minecraftforge.fml.common.Loader
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.HopperBlockEntity
+import net.minecraftforge.fml.ModList
 
 class PipeInventoryConnectionChecker {
     private val allowedConnectionClasses = mutableSetOf<Class<*>>()
-    private val cachedClasses = mutableMapOf<Class<TileEntity>, Boolean>()
+    private val cachedClasses = mutableMapOf<Class<BlockEntity>, Boolean>()
 
     init {
-        allowedConnectionClasses.add(TileEntityHopper::class.java)
+        allowedConnectionClasses.add(HopperBlockEntity::class.java)
         checkAndAddClass("gregtech", "gregtech.api.block.BlockStateTileEntity")
     }
 
     private fun checkAndAddClass(modId: String, className: String) {
-        if (Loader.isModLoaded(modId)) {
+        if (ModList.get().isLoaded(modId)) {
             try {
                 val clazz = Class.forName(className)
                 addSupportedClassType(clazz)
@@ -64,8 +64,9 @@ class PipeInventoryConnectionChecker {
         allowedConnectionClasses.add(clazz)
     }
 
-    fun shouldLPProvideInventoryTo(tile: TileEntity): Boolean {
-        return cachedClasses.computeIfAbsent(tile.javaClass) {
+    fun shouldLPProvideInventoryTo(tile: BlockEntity): Boolean {
+        @Suppress("UNCHECKED_CAST")
+        return cachedClasses.computeIfAbsent(tile.javaClass as Class<BlockEntity>) {
             var clazz = it as Class<*>
             while (clazz.superclass != Object::class.java) {
                 if (allowedConnectionClasses.contains(clazz)) {

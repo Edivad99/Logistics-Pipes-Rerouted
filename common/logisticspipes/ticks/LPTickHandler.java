@@ -4,14 +4,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import com.google.common.collect.MapMaker;
 import lombok.AccessLevel;
@@ -52,21 +51,21 @@ public class LPTickHandler {
 		}
 	}
 
-	private static Map<World, LPWorldInfo> worldInfo = new MapMaker().weakKeys().makeMap();
+	private static Map<Level, LPWorldInfo> worldInfo = new MapMaker().weakKeys().makeMap();
 
 	@SubscribeEvent
-	public void worldTick(WorldTickEvent event) {
+	public void worldTick(LevelTickEvent event) {
 		if (event.phase != Phase.END) {
 			return;
 		}
-		if (event.side != Side.SERVER) {
+		if (event.side != net.minecraftforge.fml.LogicalSide.SERVER) {
 			return;
 		}
-		LPWorldInfo info = LPTickHandler.getWorldInfo(event.world);
+		LPWorldInfo info = LPTickHandler.getWorldInfo(event.level);
 		info.worldTick++;
 	}
 
-	public static LPWorldInfo getWorldInfo(World world) {
+	public static LPWorldInfo getWorldInfo(Level world) {
 		LPWorldInfo info = LPTickHandler.worldInfo.get(world);
 		if (info == null) {
 			info = new LPWorldInfo();

@@ -2,7 +2,7 @@ package logisticspipes.proxy.interfaces;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.asm.IgnoreDisabledProxy;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
@@ -33,5 +33,5 @@ public interface IBCProxy {
 
 	Object createMjReceiver(@Nonnull LogisticsPowerJunctionTileEntity te);
 
-	boolean isBuildCraftPipe(TileEntity tile);
+	boolean isBuildCraftPipe(BlockEntity tile);
 }

@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.network.NewGuiHandler;
@@ -20,10 +20,10 @@ public class InvSysConOpenSelectChannelPopupPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (pipe.pipe instanceof PipeItemsInvSysConnector) {
-			IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(player.getEntityWorld());
+			IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(player.level());
 			NewGuiHandler.getGui(InvSysConSelectChannelPopupGUIProvider.class).setChannelInformations(manager.getAllowedChannels(player)).setTilePos(pipe).open(player);
 		}
 	}

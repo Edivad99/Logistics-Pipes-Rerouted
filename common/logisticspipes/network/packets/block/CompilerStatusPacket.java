@@ -2,9 +2,9 @@ package logisticspipes.network.packets.block;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -46,8 +46,8 @@ public class CompilerStatusPacket extends CoordinatesPacket {
 	private ItemStack programmer;
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsProgramCompilerTileEntity tile = this.getTileAs(player.world, LogisticsProgramCompilerTileEntity.class);
+	public void processPacket(Player player) {
+		LogisticsProgramCompilerTileEntity tile = this.getTileAs(player.level(), LogisticsProgramCompilerTileEntity.class);
 		tile.setStateOnClient(this);
 	}
 

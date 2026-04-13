@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.modules;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.network.abstractpackets.BooleanModuleCoordinatesPacket;
@@ -20,7 +20,7 @@ public class ItemSinkDefault extends BooleanModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		ModuleItemSink module = this.getLogisticsModule(player, ModuleItemSink.class);
 		if (module == null) {
 			return;

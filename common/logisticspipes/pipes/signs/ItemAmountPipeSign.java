@@ -1,23 +1,29 @@
 package logisticspipes.pipes.signs;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.client.gui.Font;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.MainTarget;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
@@ -43,11 +49,11 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	public ItemIdentifierInventory itemTypeInv = new ItemIdentifierInventory(1, "", 1);
 	public int amount = 100;
 	public CoreRoutedPipe pipe;
-	public EnumFacing dir;
+	public Direction dir;
 	private boolean hasUpdated = false;
 
-	@SideOnly(Side.CLIENT)
-	private Framebuffer fbo;
+	@OnlyIn(Dist.CLIENT)
+	private RenderTarget fbo;
 
 	public ItemAmountPipeSign() {
 		itemTypeInv.addListener(this);
@@ -59,28 +65,28 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
 	@Override
-	public void addSignTo(CoreRoutedPipe pipe, EnumFacing dir, EntityPlayer player) {
+	public void addSignTo(CoreRoutedPipe pipe, Direction dir, Player player) {
 		pipe.addPipeSign(dir, new ItemAmountPipeSign(), player);
 		openGUI(pipe, dir, player);
 	}
 
-	private void openGUI(CoreRoutedPipe pipe, EnumFacing dir, EntityPlayer player) {
+	private void openGUI(CoreRoutedPipe pipe, Direction dir, Player player) {
 		NewGuiHandler.getGui(ItemAmountSignGui.class).setDir(dir).setTilePos(pipe.container).open(player);
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound tag) {
+	public void readFromNBT(CompoundTag tag) {
 		itemTypeInv.readFromNBT(tag);
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound tag) {
+	public void writeToNBT(CompoundTag tag) {
 		itemTypeInv.writeToNBT(tag);
 	}
 
 	@Override
 	public ModernPacket getPacket() {
-		return PacketHandler.getPacket(ItemAmountSignUpdatePacket.class).setStack(itemTypeInv.getIDStackInSlot(0)).setInteger2(amount).setInteger(dir.ordinal()).setTilePos(pipe.container);
+		return PacketHandler.getPacket(ItemAmountSignUpdatePacket.class).setStack(itemTypeInv.getIDStackInSlot(0)).setInteger2(amount).putInt(dir.ordinal()).setTilePos(pipe.container);
 	}
 
 	@Override
@@ -120,7 +126,7 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 			if (exit.connectionDetails.contains(PipeRoutingConnectionType.canRequestFrom) && exit.connectionDetails.contains(PipeRoutingConnectionType.canRouteTo)) {
 				CoreRoutedPipe cachedPipe = exit.destination.getCachedPipe();
 				if (cachedPipe != null) {
-					List<Pair<EnumFacing, IPipeSign>> pipeSigns = cachedPipe.getPipeSigns();
+					List<Pair<Direction, IPipeSign>> pipeSigns = cachedPipe.getPipeSigns();
 					pipeSigns.stream()
 							.filter(signPair -> signPair != null && signPair.getValue2() instanceof ItemAmountPipeSign)
 							.forEach(signPair -> ((ItemAmountPipeSign) signPair.getValue2()).updateStats(availableItems, set));
@@ -145,83 +151,97 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
 	@Override
-	public void activate(EntityPlayer player) {
+	public void activate(Player player) {
 		openGUI(pipe, dir, player);
 	}
 
 	@Override
-	public void init(CoreRoutedPipe pipe, EnumFacing dir) {
+	public void init(CoreRoutedPipe pipe, Direction dir) {
 		this.pipe = pipe;
 		this.dir = dir;
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer) {
-		//TODO !!!
-		FontRenderer var17 = renderer.getFontRenderer();
+		// Legacy no-arg entrypoint — handled via the PoseStack overload below.
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+		Font var17 = net.minecraft.client.Minecraft.getInstance().font;
 		if (pipe != null) {
 			String name = "";
+			String idStr = "";
+			String displayAmount = null;
 			if (itemTypeInv != null && itemTypeInv.getIDStackInSlot(0) != null) {
 				ItemStack itemstack = itemTypeInv.getIDStackInSlot(0).unsafeMakeNormalStack();
 
-//				GL11.glDepthMask(true);
-				renderer.renderItemStackOnSign(itemstack);
+				renderer.renderItemStackOnSign(itemstack, poseStack, bufferSource, packedLight);
 				Item item = itemstack.getItem();
 
-				GL11.glDepthMask(false);
-				//GL11.glRotatef(-180.0F, 1.0F, 0.0F, 0.0F);
-				//GlStateManager.translate(0.5F, +0.08F, 0.0F);
-				GL11.glScalef(1.0F / 90.0F, 1.0F / 90.0F, 1.0F / 90.0F);
+				poseStack.pushPose();
+				poseStack.mulPose(new org.joml.Quaternionf().rotationX((float) Math.toRadians(-180)));
+				poseStack.translate(0.5F, 0.08F, 0.0F);
+				poseStack.scale(1.0F / 90.0F, 1.0F / 90.0F, 1.0F / 90.0F);
 
 				try {
-					name = item.getItemStackDisplayName(itemstack);
+					name = item.getName(itemstack).getString();
 				} catch (Exception e) {
 					try {
-						name = item.getTranslationKey();
+						name = item.getDescriptionId();
 					} catch (Exception ignored) {}
 				}
 
-				var17.drawString(String.format("ID: %d", Item.getIdFromItem(item)), -var17.getStringWidth(String.format("ID: %d", Item.getIdFromItem(item))) / 2, 0 * 10 - 4 * 5, 0);
-				String displayAmount = TextUtil.getThreeDigitFormattedNumber(amount, false);
-				var17.drawString("Amount:", -var17.getStringWidth("Amount:") / 2, 1 * 10 - 4 * 5, 0);
-				var17.drawString(displayAmount, -var17.getStringWidth(displayAmount) / 2, 2 * 10 - 4 * 5, 0);
+				idStr = String.format("ID: %d", BuiltInRegistries.ITEM.getId(item));
+				displayAmount = TextUtil.getThreeDigitFormattedNumber(amount, false);
 			} else {
-				GL11.glRotatef(-180.0F, 1.0F, 0.0F, 0.0F);
-				GL11.glTranslatef(0.5F, +0.08F, 0.0F);
-				GL11.glScalef(1.0F / 90.0F, 1.0F / 90.0F, 1.0F / 90.0F);
+				poseStack.pushPose();
+				poseStack.mulPose(new org.joml.Quaternionf().rotationX((float) Math.toRadians(-180)));
+				poseStack.translate(0.5F, 0.08F, 0.0F);
+				poseStack.scale(1.0F / 90.0F, 1.0F / 90.0F, 1.0F / 90.0F);
 				name = "Empty";
+			}
+
+			if (!idStr.isEmpty()) {
+				var17.drawInBatch(Component.literal(idStr), -var17.width(idStr) / 2.0F, 0 * 10 - 4 * 5, 0,
+						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+			}
+			if (displayAmount != null) {
+				var17.drawInBatch(Component.literal("Amount:"), -var17.width("Amount:") / 2.0F, 1 * 10 - 4 * 5, 0,
+						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+				var17.drawInBatch(Component.literal(displayAmount), -var17.width(displayAmount) / 2.0F, 2 * 10 - 4 * 5, 0,
+						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 			}
 
 			name = renderer.cut(name, var17);
 
-			var17.drawString(name, -var17.getStringWidth(name) / 2 - 15, 3 * 10 - 4 * 5, 0);
+			var17.drawInBatch(Component.literal(name), -var17.width(name) / 2.0F - 15, 3 * 10 - 4 * 5, 0,
+					false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 
-			GL11.glDepthMask(true);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			poseStack.popPose();
 		}
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public Framebuffer getMCFrameBufferForSign() {
-		if(!OpenGlHelper.isFramebufferEnabled()) {
-			return null;
-		}
+	@OnlyIn(Dist.CLIENT)
+	public RenderTarget getMCFrameBufferForSign() {
+		// OpenGlHelper.isFramebufferEnabled() removed in 1.20.1 — FBOs are always available
 		if(fbo == null) {
-			fbo = new Framebuffer(256, 256, true);
+			fbo = new MainTarget(256, 256);
 		}
 		return fbo;
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public boolean doesFrameBufferNeedUpdating(CoreRoutedPipe pipe, LogisticsRenderPipe renderer) {
 		return fbo == null;
 	}
 
 	@Override
-	public void InventoryChanged(IInventory inventory) {
+	public void InventoryChanged(Container inventory) {
 		if (inventory == itemTypeInv) {
 			sendUpdatePacket();
 		}

@@ -1,9 +1,10 @@
 package logisticspipes.commands.commands;
+import net.minecraft.world.entity.player.Player;
 
 import java.lang.reflect.Method;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.text.TextComponentString;
+// Player removed — use net.minecraft.commands.CommandSourceStack
+import net.minecraft.network.chat.Component;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -20,7 +21,7 @@ public class TestCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
+	public boolean isCommandUsableBy(Player sender) {
 		return true;
 	}
 
@@ -30,12 +31,12 @@ public class TestCommand implements ICommandHandler {
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
+	public void executeCommand(Player sender, String[] args) {
 		final Class<?> testClass;
 		try {
 			testClass = Class.forName("network.rs485.logisticspipes.integration.MinecraftTest");
 		} catch (ReflectiveOperationException e) {
-			sender.sendMessage(new TextComponentString(ChatColor.RED + "Error loading minecraft test class " + e));
+			sender.sendSystemMessage(Component.literal(ChatColor.RED + "Error loading minecraft test class " + e));
 			return;
 		}
 		final Object minecraftTestInstance;
@@ -43,19 +44,19 @@ public class TestCommand implements ICommandHandler {
 			minecraftTestInstance = testClass.getDeclaredField("INSTANCE").get(null);
 			final Method startTestsMethod = testClass.getDeclaredMethod("startTests", Function1.class);
 			final Job job = (Job) startTestsMethod.invoke(minecraftTestInstance, (Function1<Object, Unit>) msg -> {
-				sender.sendMessage(new TextComponentString(String.valueOf(msg)));
+				sender.sendSystemMessage(Component.literal(String.valueOf(msg)));
 				return Unit.INSTANCE;
 			});
 			job.invokeOnCompletion(throwable -> {
 				if (throwable == null) {
-					sender.sendMessage(new TextComponentString(ChatColor.GREEN + "SUCCESS"));
+					sender.sendSystemMessage(Component.literal(ChatColor.GREEN + "SUCCESS"));
 				} else {
-					sender.sendMessage(new TextComponentString(ChatColor.RED + "Tests failed with: " + throwable));
+					sender.sendSystemMessage(Component.literal(ChatColor.RED + "Tests failed with: " + throwable));
 				}
 				return Unit.INSTANCE;
 			});
 		} catch (ReflectiveOperationException | ClassCastException e) {
-			sender.sendMessage(new TextComponentString(ChatColor.RED + "Error accessing minecraft test instance " + e));
+			sender.sendSystemMessage(Component.literal(ChatColor.RED + "Error accessing minecraft test instance " + e));
 		}
 	}
 }

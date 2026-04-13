@@ -3,12 +3,12 @@ package logisticspipes.renderer;
 
 import java.util.Arrays;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.init.Blocks;
+// TODO: import Tessellator; // Tessellator removed in 1.20.1 — use BufferBuilder/RenderSystem
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.level.BlockGetter; // was BlockGetter
 
 public final class CustomBlockRenderer {
 
@@ -45,7 +45,7 @@ public final class CustomBlockRenderer {
 			setBounds(minX, minY, minZ, maxX, maxY, maxZ);
 		}
 
-		public float getBlockBrightness(IBlockAccess iblockaccess, int i, int j, int k) {
+		public float getBlockBrightness(BlockGetter iblockaccess, int i, int j, int k) {
 			return baseBlock.getMixedBrightnessForBlock(iblockaccess, i, j, k);
 		}
 
@@ -108,17 +108,17 @@ public final class CustomBlockRenderer {
 		}
 	}
 
-	public void renderBlock(RenderInfo info, IBlockAccess blockAccess, int x, int y, int z, boolean doLight, boolean doTessellating) {
+	public void renderBlock(RenderInfo info, BlockGetter blockAccess, int x, int y, int z, boolean doLight, boolean doTessellating) {
 		renderBlock(info, blockAccess, x, y, z, x, y, z, doLight, doTessellating);
 	}
 
-	public void renderBlock(RenderInfo info, IBlockAccess blockAccess, double x, double y, double z, int lightX, int lightY, int lightZ, boolean doLight, boolean doTessellating) {
+	public void renderBlock(RenderInfo info, BlockGetter blockAccess, double x, double y, double z, int lightX, int lightY, int lightZ, boolean doLight, boolean doTessellating) {
 		float lightBottom = 0.5F;
 		float lightTop = 1.0F;
 		float lightEastWest = 0.8F;
 		float lightNorthSouth = 0.6F;
 
-		Tessellator tessellator = Tessellator.instance;
+		// TODO: rendering deferred — // TODO: Tessellator tessellator = Tessellator.instance;
 
 		boolean realDoLight = doLight;
 
@@ -203,7 +203,7 @@ public final class CustomBlockRenderer {
 		// TODO: needs to cancel the test because the variable is now private... May need to
 		// duplicate the tessellator code.
 		//if (doTessellating && tessellator.isDrawing)
-		tessellator.draw();
+	// TODO: rendering deferred — 	tessellator.draw();
 	}
 }
 */

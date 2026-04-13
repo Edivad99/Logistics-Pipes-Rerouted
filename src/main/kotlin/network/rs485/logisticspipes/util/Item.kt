@@ -39,18 +39,18 @@ package network.rs485.logisticspipes.util
 
 import logisticspipes.utils.SinkReply
 import logisticspipes.utils.item.ItemIdentifier
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import kotlin.math.min
 
 
 fun ItemIdentifier.equalsWithNBT(stack: ItemStack): Boolean = this.item == stack.item &&
-        this.itemDamage == stack.itemDamage &&
-        ((this.tag == null && stack.tagCompound == null) ||
-                (this.tag != null && stack.tagCompound != null && this.tag == stack.tagCompound))
+        this.itemDamage == stack.damageValue &&
+        ((this.tag == null && stack.tag == null) ||
+                (this.tag != null && stack.tag != null && this.tag == stack.tag))
 
 fun IItemIdentifierInventory.matchingSequence(stack: ItemStack) =
-    (0 until sizeInventory).asSequence().map { getIDStackInSlot(it) }
+    (0 until containerSize).asSequence().map { getIDStackInSlot(it) }
         .filter { it != null && it.item.equalsWithoutNBT(stack) }
 
 

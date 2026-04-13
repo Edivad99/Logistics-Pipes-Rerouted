@@ -1,20 +1,8 @@
 package logisticspipes.proxy.te;
-
-import net.minecraft.tileentity.TileEntity;
-
-import cofh.core.block.TileNameable;
-
+// TODO: ThermalExpansion not ported to 1.20.1 — stub
+import net.minecraft.world.level.block.entity.BlockEntity;
 import logisticspipes.proxy.interfaces.IGenericProgressProvider;
-
 public class ThermalExpansionProgressProvider implements IGenericProgressProvider {
-
-	@Override
-	public boolean isType(TileEntity tile) {
-		return tile instanceof TileNameable;
-	}
-
-	@Override
-	public byte getProgress(TileEntity tile) {
-		return (byte) Math.max(0, Math.min(((TileNameable) tile).getScaledProgress(100), 100));
-	}
+    @Override public boolean isType(BlockEntity tile) { return false; }
+    @Override public byte getProgress(BlockEntity tile) { return 0; }
 }

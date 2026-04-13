@@ -14,11 +14,12 @@ public class PipeFXRenderHandler {
 			return;
 		}
 		try {
-			Minecraft mc = Minecraft.getMinecraft();
-			int var14 = mc.gameSettings.particleSetting;
-			double var15 = mc.getRenderViewEntity().posX - x;
-			double var17 = mc.getRenderViewEntity().posY - y;
-			double var19 = mc.getRenderViewEntity().posZ - z;
+			Minecraft mc = Minecraft.getInstance();
+			// particleSetting removed — check ParticleStatus in 1.20.1
+			int var14 = mc.options.particles().get().getId();
+			double var15 = mc.getCameraEntity().getX() - x;
+			double var17 = mc.getCameraEntity().getY() - y;
+			double var19 = mc.getCameraEntity().getZ() - z;
 			Particle effect;
 
 			double var22 = 16.0D;
@@ -35,9 +36,9 @@ public class PipeFXRenderHandler {
 			}
 
 			for (int i = 0; i < Math.sqrt(amount); i++) {
-				effect = provider.createGenericParticle(mc.world, x, y, z, amount);
+				effect = provider.createGenericParticle(mc.level, x, y, z, amount);
 				if (effect != null) {
-					mc.effectRenderer.addEffect(effect);
+					mc.particleEngine.add(effect);
 				}
 			}
 

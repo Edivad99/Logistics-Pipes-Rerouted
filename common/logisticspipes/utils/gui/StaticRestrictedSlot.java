@@ -1,8 +1,8 @@
 package logisticspipes.utils.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 
 import logisticspipes.interfaces.ISlotCheck;
 
@@ -10,12 +10,12 @@ public class StaticRestrictedSlot extends RestrictedSlot {
 
 	int limit;
 
-	public StaticRestrictedSlot(IInventory iinventory, int i, int j, int k, Item item, int stackLimit) {
+	public StaticRestrictedSlot(Container iinventory, int i, int j, int k, Item item, int stackLimit) {
 		super(iinventory, i, j, k, item);
 		limit = stackLimit;
 	}
 
-	public StaticRestrictedSlot(IInventory iinventory, int i, int j, int k, ISlotCheck slotCheck, int stackLimit) {
+	public StaticRestrictedSlot(Container iinventory, int i, int j, int k, ISlotCheck slotCheck, int stackLimit) {
 		super(iinventory, i, j, k, slotCheck);
 		limit = stackLimit;
 	}
@@ -24,16 +24,16 @@ public class StaticRestrictedSlot extends RestrictedSlot {
 	 * Return whether this slot's stack can be taken from this slot.
 	 */
 	@Override
-	public boolean canTakeStack(EntityPlayer par1EntityPlayer) {
+	public boolean mayPickup(Player par1Player) {
 		return false;
 	}
 
 	/**
 	 * Returns the maximum stack size for a given slot (usually the same as
-	 * getInventoryStackLimit(), but 1 in the case of armor slots)
+	 * getMaxStackSize(), but 1 in the case of armor slots)
 	 */
 	@Override
-	public int getSlotStackLimit() {
+	public int getMaxStackSize() {
 		return limit;
 	}
 }

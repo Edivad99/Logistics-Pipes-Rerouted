@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,12 +41,12 @@ public class FindMostLikelyRecipeComponents extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		TileEntity tile = this.getTileAs(player.getEntityWorld(), TileEntity.class);
+	public void processPacket(Player player) {
+		BlockEntity tile = this.getTileAs(player.level(), BlockEntity.class);
 		CoreRoutedPipe pipe = null;
 		if (tile instanceof LogisticsCraftingTableTileEntity) {
-			for (EnumFacing dir : EnumFacing.VALUES) {
-				TileEntity conn = CoordinateUtils.add(((LogisticsCraftingTableTileEntity) tile).getLPPosition(), dir).getTileEntity(player.getEntityWorld());
+			for (Direction dir : Direction.values()) {
+				BlockEntity conn = CoordinateUtils.add(((LogisticsCraftingTableTileEntity) tile).getLPPosition(), dir).getTileEntity(player.level());
 				if (conn instanceof LogisticsTileGenericPipe) {
 					if (((LogisticsTileGenericPipe) conn).pipe instanceof PipeItemsCraftingLogistics) {
 						pipe = (CoreRoutedPipe) ((LogisticsTileGenericPipe) conn).pipe;

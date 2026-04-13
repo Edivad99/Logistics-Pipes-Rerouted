@@ -44,13 +44,13 @@ import network.rs485.logisticspipes.property.layer.PropertyOverlay
 import network.rs485.logisticspipes.property.layer.PropertyOverlayInventoryAdapter
 import logisticspipes.modules.ModuleProvider
 import logisticspipes.utils.item.ItemIdentifierInventory
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 
 class ProviderContainer(
     providerModule: ModuleProvider,
-    playerInventoryIn: IInventory,
+    playerInventoryIn: Container,
     filterInventoryOverlay: PropertyOverlay<ItemIdentifierInventory, out InventoryProperty<ItemIdentifierInventory>>,
     moduleInHand: ItemStack,
 ) : LPBaseContainer<ModuleProvider>(providerModule) {
@@ -66,7 +66,7 @@ class ProviderContainer(
 
     // Add 3x3 grid of dummy slots.
     override fun addDummySlotsToContainer(
-        overlayInventory: IInventory,
+        overlayInventory: Container,
         baseProperty: InventoryProperty<*>?,
         startX: Int,
         startY: Int
@@ -91,11 +91,11 @@ class ProviderContainer(
     }
 
     override fun tryTransferSlotToGhostSlot(slotIdx: Int): Boolean {
-        val playerInvSlot = inventorySlots.getOrNull(slotIdx)?.takeIf { playerSlots.contains(it) } ?: return false
+        val playerInvSlot = slots.getOrNull(slotIdx)?.takeIf { playerSlots.contains(it) } ?: return false
         var firstFreeSlotId = Int.MAX_VALUE
         for (filterSlot in filterSlots.withIndex()) {
-            if (filterSlot.value.hasStack) {
-                if (filterSlot.value.stack.isItemEqual(playerInvSlot.stack)) {
+            if (filterSlot.value.hasItem()) {
+                if (ItemStack.isSameItem(filterSlot.value.item, playerInvSlot.item)) {
                     // item already in filter slots
                     return false
                 }
@@ -107,16 +107,16 @@ class ProviderContainer(
         return firstFreeSlotId.takeIf { it in filterSlots.indices }
             ?.let { filterSlots[it] as? GhostItemSlot }
             ?.let { firstFreeSlot ->
-                applyItemStackToGhostItemSlot(playerInvSlot.stack, firstFreeSlot)
+                applyItemStackToGhostItemSlot(playerInvSlot.item, firstFreeSlot)
                 true
             }
             ?: false
     }
 
-    override fun canInteractWith(playerIn: EntityPlayer): Boolean = true
+    override fun stillValid(playerIn: Player): Boolean = true
 
     override fun applyItemStackToGhostItemSlot(itemStack: ItemStack, slot: GhostSlot) {
         val copiedStack = itemStack.copy().apply { count = 1 }
-        slot.putStack(copiedStack)
+        slot.set(copiedStack)
     }
 }

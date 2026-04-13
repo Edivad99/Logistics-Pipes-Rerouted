@@ -5,10 +5,10 @@ import java.util.Objects;
 import java.util.Random;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.modules.LogisticsModule;
@@ -20,51 +20,51 @@ public class ItemModuleInformationManager {
 		if (module == null) {
 			return;
 		}
-		NBTTagCompound nbt = new NBTTagCompound();
+		CompoundTag nbt = new CompoundTag();
 		module.writeToNBT(nbt);
-		if (nbt.equals(new NBTTagCompound())) {
+		if (nbt.equals(new CompoundTag())) {
 			return;
 		}
 		if (MainProxy.isClient()) {
-			NBTTagList list = new NBTTagList();
+			ListTag list = new ListTag();
 			String info1 = "Please reopen the window";
 			String info2 = "to see the information.";
-			list.appendTag(new NBTTagString(info1));
-			list.appendTag(new NBTTagString(info2));
-			if (!stack.hasTagCompound()) {
-				stack.setTagCompound(new NBTTagCompound());
+			list.add(net.minecraft.nbt.StringTag.valueOf(info1));
+			list.add(net.minecraft.nbt.StringTag.valueOf(info2));
+			if (!stack.hasTag()) {
+				stack.setTag(new CompoundTag());
 			}
-			NBTTagCompound tag = Objects.requireNonNull(stack.getTagCompound());
-			tag.setTag("informationList", list);
-			tag.setDouble("Random-Stack-Prevent", new Random().nextDouble());
+			CompoundTag tag = Objects.requireNonNull(stack.getTag());
+			tag.put("informationList", list);
+			tag.putDouble("Random-Stack-Prevent", new Random().nextDouble());
 			return;
 		}
-		if (!stack.hasTagCompound()) {
-			stack.setTagCompound(new NBTTagCompound());
+		if (!stack.hasTag()) {
+			stack.setTag(new CompoundTag());
 		}
-		NBTTagCompound tag = Objects.requireNonNull(stack.getTagCompound());
-		tag.setTag("moduleInformation", nbt);
+		CompoundTag tag = Objects.requireNonNull(stack.getTag());
+		tag.put("moduleInformation", nbt);
 		if (module instanceof IClientInformationProvider) {
 			List<String> information = ((IClientInformationProvider) module).getClientInformation();
 			if (information.size() > 0) {
-				NBTTagList list = new NBTTagList();
+				ListTag list = new ListTag();
 				for (String info : information) {
-					list.appendTag(new NBTTagString(info));
+					list.add(net.minecraft.nbt.StringTag.valueOf(info));
 				}
-				tag.setTag("informationList", list);
+				tag.put("informationList", list);
 			}
 		}
-		tag.setDouble("Random-Stack-Prevent", new Random().nextDouble());
+		tag.putDouble("Random-Stack-Prevent", new Random().nextDouble());
 	}
 
 	public static void readInformation(@Nonnull ItemStack stack, LogisticsModule module) {
 		if (module == null) {
 			return;
 		}
-		if (stack.hasTagCompound()) {
-			NBTTagCompound nbt = Objects.requireNonNull(stack.getTagCompound());
-			if (nbt.hasKey("moduleInformation")) {
-				NBTTagCompound moduleInformation = nbt.getCompoundTag("moduleInformation");
+		if (stack.hasTag()) {
+			CompoundTag nbt = Objects.requireNonNull(stack.getTag());
+			if (nbt.contains("moduleInformation")) {
+				CompoundTag moduleInformation = nbt.getCompound("moduleInformation");
 				module.readFromNBT(moduleInformation);
 			}
 		}

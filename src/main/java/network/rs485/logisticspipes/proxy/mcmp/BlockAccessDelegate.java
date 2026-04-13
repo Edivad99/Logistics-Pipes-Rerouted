@@ -20,16 +20,20 @@
 
 package network.rs485.logisticspipes.proxy.mcmp;
 
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.level.BlockGetter;
 
 import lombok.experimental.Delegate;
 
-public class BlockAccessDelegate implements IBlockAccess {
+/**
+ * IBlockAccess was removed in 1.20.1 and replaced by BlockGetter.
+ * This delegate wraps a BlockGetter to allow overriding specific methods (e.g. getBlockEntity).
+ */
+public class BlockAccessDelegate implements BlockGetter {
 
 	@Delegate
-	protected final IBlockAccess access;
+	protected final BlockGetter access;
 
-	public BlockAccessDelegate(IBlockAccess access) {
+	public BlockAccessDelegate(BlockGetter access) {
 		this.access = access;
 	}
 }

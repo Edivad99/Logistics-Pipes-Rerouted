@@ -1,5 +1,6 @@
 package logisticspipes.renderer.newpipe;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,27 +12,26 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.Level;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -45,6 +45,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.object3d.interfaces.I3DOperation;
 import logisticspipes.proxy.object3d.interfaces.IBounds;
 import logisticspipes.proxy.object3d.interfaces.IModel3D;
+import logisticspipes.proxy.object3d.interfaces.IRenderState;
 import logisticspipes.proxy.object3d.interfaces.IVec3;
 import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
 import logisticspipes.proxy.object3d.operation.LPColourMultiplier;
@@ -63,62 +64,62 @@ import network.rs485.logisticspipes.world.DoubleCoordinates;
 public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 
 	enum Edge {
-		Upper_North(EnumFacing.UP, EnumFacing.NORTH),
-		Upper_South(EnumFacing.UP, EnumFacing.SOUTH),
-		Upper_East(EnumFacing.UP, EnumFacing.EAST),
-		Upper_West(EnumFacing.UP, EnumFacing.WEST),
-		Lower_North(EnumFacing.DOWN, EnumFacing.NORTH),
-		Lower_South(EnumFacing.DOWN, EnumFacing.SOUTH),
-		Lower_East(EnumFacing.DOWN, EnumFacing.EAST),
-		Lower_West(EnumFacing.DOWN, EnumFacing.WEST),
-		Middle_North_West(EnumFacing.NORTH, EnumFacing.WEST),
-		Middle_North_East(EnumFacing.NORTH, EnumFacing.EAST),
-		Lower_South_East(EnumFacing.SOUTH, EnumFacing.EAST),
-		Lower_South_West(EnumFacing.SOUTH, EnumFacing.WEST);
+		Upper_North(Direction.UP, Direction.NORTH),
+		Upper_South(Direction.UP, Direction.SOUTH),
+		Upper_East(Direction.UP, Direction.EAST),
+		Upper_West(Direction.UP, Direction.WEST),
+		Lower_North(Direction.DOWN, Direction.NORTH),
+		Lower_South(Direction.DOWN, Direction.SOUTH),
+		Lower_East(Direction.DOWN, Direction.EAST),
+		Lower_West(Direction.DOWN, Direction.WEST),
+		Middle_North_West(Direction.NORTH, Direction.WEST),
+		Middle_North_East(Direction.NORTH, Direction.EAST),
+		Lower_South_East(Direction.SOUTH, Direction.EAST),
+		Lower_South_West(Direction.SOUTH, Direction.WEST);
 
-		final EnumFacing part1;
-		final EnumFacing part2;
+		final Direction part1;
+		final Direction part2;
 
-		Edge(EnumFacing part1, EnumFacing part2) {
+		Edge(Direction part1, Direction part2) {
 			this.part1 = part1;
 			this.part2 = part2;
 		}
 	}
 
 	enum UpDown {
-		UP("U", EnumFacing.UP),
-		DOWN("D", EnumFacing.DOWN);
+		UP("U", Direction.UP),
+		DOWN("D", Direction.DOWN);
 
 		final String s;
-		final EnumFacing dir;
+		final Direction dir;
 
-		UpDown(String s, EnumFacing dir) {
+		UpDown(String s, Direction dir) {
 			this.s = s;
 			this.dir = dir;
 		}
 	}
 
 	enum NorthSouth {
-		NORTH("N", EnumFacing.NORTH),
-		SOUTH("S", EnumFacing.SOUTH);
+		NORTH("N", Direction.NORTH),
+		SOUTH("S", Direction.SOUTH);
 
 		final String s;
-		final EnumFacing dir;
+		final Direction dir;
 
-		NorthSouth(String s, EnumFacing dir) {
+		NorthSouth(String s, Direction dir) {
 			this.s = s;
 			this.dir = dir;
 		}
 	}
 
 	enum EastWest {
-		EAST("E", EnumFacing.EAST),
-		WEST("W", EnumFacing.WEST);
+		EAST("E", Direction.EAST),
+		WEST("W", Direction.WEST);
 
 		final String s;
-		final EnumFacing dir;
+		final Direction dir;
 
-		EastWest(String s, EnumFacing dir) {
+		EastWest(String s, Direction dir) {
 			this.s = s;
 			this.dir = dir;
 		}
@@ -146,14 +147,14 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 	}
 
 	enum Turn {
-		NORTH_SOUTH(EnumFacing.NORTH, EnumFacing.SOUTH),
-		EAST_WEST(EnumFacing.EAST, EnumFacing.WEST),
-		UP_DOWN(EnumFacing.UP, EnumFacing.DOWN);
+		NORTH_SOUTH(Direction.NORTH, Direction.SOUTH),
+		EAST_WEST(Direction.EAST, Direction.WEST),
+		UP_DOWN(Direction.UP, Direction.DOWN);
 
-		final EnumFacing dir1;
-		final EnumFacing dir2;
+		final Direction dir1;
+		final Direction dir2;
 
-		Turn(EnumFacing dir1, EnumFacing dir2) {
+		Turn(Direction dir1, Direction dir2) {
 			this.dir1 = dir1;
 			this.dir2 = dir2;
 		}
@@ -195,8 +196,8 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			this.number = number;
 		}
 
-		public EnumFacing getPointer() {
-			List<EnumFacing> canidates = new ArrayList<>();
+		public Direction getPointer() {
+			List<Direction> canidates = new ArrayList<>();
 			canidates.add(corner.ew.dir);
 			canidates.add(corner.ns.dir);
 			canidates.add(corner.ud.dir);
@@ -222,65 +223,65 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 	}
 
 	enum PipeSupport {
-		UP_UP(EnumFacing.UP, PipeSupportOri.UP_DOWN),
-		UP_SIDE(EnumFacing.UP, PipeSupportOri.SIDE),
-		DOWN_UP(EnumFacing.DOWN, PipeSupportOri.UP_DOWN),
-		DOWN_SIDE(EnumFacing.DOWN, PipeSupportOri.SIDE),
-		NORTH_UP(EnumFacing.NORTH, PipeSupportOri.UP_DOWN),
-		NORTH_SIDE(EnumFacing.NORTH, PipeSupportOri.SIDE),
-		SOUTH_UP(EnumFacing.SOUTH, PipeSupportOri.UP_DOWN),
-		SOUTH_SIDE(EnumFacing.SOUTH, PipeSupportOri.SIDE),
-		EAST_UP(EnumFacing.EAST, PipeSupportOri.UP_DOWN),
-		EAST_SIDE(EnumFacing.EAST, PipeSupportOri.SIDE),
-		WEST_UP(EnumFacing.WEST, PipeSupportOri.UP_DOWN),
-		WEST_SIDE(EnumFacing.WEST, PipeSupportOri.SIDE);
+		UP_UP(Direction.UP, PipeSupportOri.UP_DOWN),
+		UP_SIDE(Direction.UP, PipeSupportOri.SIDE),
+		DOWN_UP(Direction.DOWN, PipeSupportOri.UP_DOWN),
+		DOWN_SIDE(Direction.DOWN, PipeSupportOri.SIDE),
+		NORTH_UP(Direction.NORTH, PipeSupportOri.UP_DOWN),
+		NORTH_SIDE(Direction.NORTH, PipeSupportOri.SIDE),
+		SOUTH_UP(Direction.SOUTH, PipeSupportOri.UP_DOWN),
+		SOUTH_SIDE(Direction.SOUTH, PipeSupportOri.SIDE),
+		EAST_UP(Direction.EAST, PipeSupportOri.UP_DOWN),
+		EAST_SIDE(Direction.EAST, PipeSupportOri.SIDE),
+		WEST_UP(Direction.WEST, PipeSupportOri.UP_DOWN),
+		WEST_SIDE(Direction.WEST, PipeSupportOri.SIDE);
 
-		PipeSupport(EnumFacing dir, PipeSupportOri ori) {
+		PipeSupport(Direction dir, PipeSupportOri ori) {
 			this.dir = dir;
 			this.ori = ori;
 		}
 
-		final EnumFacing dir;
+		final Direction dir;
 		final PipeSupportOri ori;
 	}
 
 	enum PipeMount {
-		UP_NORTH(EnumFacing.UP, EnumFacing.NORTH),
-		UP_SOUTH(EnumFacing.UP, EnumFacing.SOUTH),
-		UP_EAST(EnumFacing.UP, EnumFacing.EAST),
-		UP_WEST(EnumFacing.UP, EnumFacing.WEST),
-		DOWN_NORTH(EnumFacing.DOWN, EnumFacing.NORTH),
-		DOWN_SOUTH(EnumFacing.DOWN, EnumFacing.SOUTH),
-		DOWN_EAST(EnumFacing.DOWN, EnumFacing.EAST),
-		DOWN_WEST(EnumFacing.DOWN, EnumFacing.WEST),
-		NORTH_UP(EnumFacing.NORTH, EnumFacing.UP),
-		NORTH_DOWN(EnumFacing.NORTH, EnumFacing.DOWN),
-		NORTH_EAST(EnumFacing.NORTH, EnumFacing.EAST),
-		NORTH_WEST(EnumFacing.NORTH, EnumFacing.WEST),
-		SOUTH_UP(EnumFacing.SOUTH, EnumFacing.UP),
-		SOUTH_DOWN(EnumFacing.SOUTH, EnumFacing.DOWN),
-		SOUTH_EAST(EnumFacing.SOUTH, EnumFacing.EAST),
-		SOUTH_WEST(EnumFacing.SOUTH, EnumFacing.WEST),
-		EAST_UP(EnumFacing.EAST, EnumFacing.UP),
-		EAST_DOWN(EnumFacing.EAST, EnumFacing.DOWN),
-		EAST_NORTH(EnumFacing.EAST, EnumFacing.NORTH),
-		EAST_SOUTH(EnumFacing.EAST, EnumFacing.SOUTH),
-		WEST_UP(EnumFacing.WEST, EnumFacing.UP),
-		WEST_DOWN(EnumFacing.WEST, EnumFacing.DOWN),
-		WEST_NORTH(EnumFacing.WEST, EnumFacing.NORTH),
-		WEST_SOUTH(EnumFacing.WEST, EnumFacing.SOUTH);
+		UP_NORTH(Direction.UP, Direction.NORTH),
+		UP_SOUTH(Direction.UP, Direction.SOUTH),
+		UP_EAST(Direction.UP, Direction.EAST),
+		UP_WEST(Direction.UP, Direction.WEST),
+		DOWN_NORTH(Direction.DOWN, Direction.NORTH),
+		DOWN_SOUTH(Direction.DOWN, Direction.SOUTH),
+		DOWN_EAST(Direction.DOWN, Direction.EAST),
+		DOWN_WEST(Direction.DOWN, Direction.WEST),
+		NORTH_UP(Direction.NORTH, Direction.UP),
+		NORTH_DOWN(Direction.NORTH, Direction.DOWN),
+		NORTH_EAST(Direction.NORTH, Direction.EAST),
+		NORTH_WEST(Direction.NORTH, Direction.WEST),
+		SOUTH_UP(Direction.SOUTH, Direction.UP),
+		SOUTH_DOWN(Direction.SOUTH, Direction.DOWN),
+		SOUTH_EAST(Direction.SOUTH, Direction.EAST),
+		SOUTH_WEST(Direction.SOUTH, Direction.WEST),
+		EAST_UP(Direction.EAST, Direction.UP),
+		EAST_DOWN(Direction.EAST, Direction.DOWN),
+		EAST_NORTH(Direction.EAST, Direction.NORTH),
+		EAST_SOUTH(Direction.EAST, Direction.SOUTH),
+		WEST_UP(Direction.WEST, Direction.UP),
+		WEST_DOWN(Direction.WEST, Direction.DOWN),
+		WEST_NORTH(Direction.WEST, Direction.NORTH),
+		WEST_SOUTH(Direction.WEST, Direction.SOUTH);
 
-		EnumFacing dir;
-		EnumFacing side;
+		Direction dir;
+		Direction side;
 
-		PipeMount(EnumFacing dir, EnumFacing side) {
+		PipeMount(Direction dir, Direction side) {
 			this.dir = dir;
 			this.side = side;
 		}
 	}
 
-	static Map<EnumFacing, List<IModel3D>> sideNormal = new HashMap<>();
-	static Map<EnumFacing, List<IModel3D>> sideBC = new HashMap<>();
+	public static Map<Direction, List<IModel3D>> sideNormal = new HashMap<>();
+	static Map<Direction, List<IModel3D>> sideBC = new HashMap<>();
 	static Map<Edge, IModel3D> edges = new HashMap<>();
 	static Map<Corner, List<IModel3D>> corners_M = new HashMap<>();
 	static Map<Corner, List<IModel3D>> corners_I3 = new HashMap<>();
@@ -289,9 +290,9 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 	static Map<PipeTurnCorner, IModel3D> spacers = new HashMap<>();
 	static Map<PipeMount, IModel3D> mounts = new HashMap<>();
 
-	static Map<EnumFacing, List<IModel3D>> texturePlate_Inner = new HashMap<>();
-	static Map<EnumFacing, List<IModel3D>> texturePlate_Outer = new HashMap<>();
-	static Map<EnumFacing, Quartet<List<IModel3D>, List<IModel3D>, List<IModel3D>, List<IModel3D>>> sideTexturePlate = new HashMap<>();
+	static Map<Direction, List<IModel3D>> texturePlate_Inner = new HashMap<>();
+	static Map<Direction, List<IModel3D>> texturePlate_Outer = new HashMap<>();
+	static Map<Direction, Quartet<List<IModel3D>, List<IModel3D>, List<IModel3D>, List<IModel3D>>> sideTexturePlate = new HashMap<>();
 	static Map<PipeMount, List<IModel3D>> textureConnectorPlate = new HashMap<>();
 
 	static Map<ScaleObject, IModel3D> scaleMap = new HashMap<>();
@@ -322,7 +323,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/logisticspipes/models/PipeModel_moved.obj"), 7, new LPScale(1 / 100f));
 			List<IModel3D> highlightList = new ArrayList<>();
 
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				LogisticsNewRenderPipe.sideNormal.put(dir, new ArrayList<>());
 				String grp = "Side_" + LogisticsNewRenderPipe.getDirAsString_Type1(dir);
 				pipePartModels.entrySet().stream()
@@ -333,7 +334,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				}
 			}
 
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				LogisticsNewRenderPipe.sideBC.put(dir, new ArrayList<>());
 				String grp = "Side_BC_" + LogisticsNewRenderPipe.getDirAsString_Type1(dir);
 				pipePartModels.entrySet().stream()
@@ -346,7 +347,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 
 			for (Edge edge : Edge.values()) {
 				String grp;
-				if (edge.part1 == EnumFacing.UP || edge.part1 == EnumFacing.DOWN) {
+				if (edge.part1 == Direction.UP || edge.part1 == Direction.DOWN) {
 					grp = "Edge_M_" + LogisticsNewRenderPipe.getDirAsString_Type1(edge.part1) + "_" + LogisticsNewRenderPipe.getDirAsString_Type1(edge.part2);
 				} else {
 					grp = "Edge_M_S_" + LogisticsNewRenderPipe.getDirAsString_Type1(edge.part1) + LogisticsNewRenderPipe.getDirAsString_Type1(edge.part2);
@@ -459,7 +460,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				}
 			}
 
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				LogisticsNewRenderPipe.texturePlate_Inner.put(dir, new ArrayList<>());
 				String grp = "Inner_Plate_" + LogisticsNewRenderPipe.getDirAsString_Type1(dir);
 				pipePartModels.entrySet().stream().filter(entry -> entry.getKey().contains(" " + grp))
@@ -469,7 +470,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				}
 			}
 
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				LogisticsNewRenderPipe.texturePlate_Outer.put(dir, new ArrayList<>());
 				String grp = "Texture_Plate_" + LogisticsNewRenderPipe.getDirAsString_Type1(dir);
 				pipePartModels.entrySet().stream().filter(entry -> entry.getKey().contains(" " + grp))
@@ -479,7 +480,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				}
 			}
 
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				LogisticsNewRenderPipe.sideTexturePlate.put(dir, new Quartet<>(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 				String grp = "Texture_Side_" + LogisticsNewRenderPipe.getDirAsString_Type1(dir);
 				for (Entry<String, IModel3D> entry : pipePartModels.entrySet()) {
@@ -542,7 +543,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		}
 	}
 
-	private static String getDirAsString_Type1(EnumFacing dir) {
+	private static String getDirAsString_Type1(Direction dir) {
 		switch (dir) {
 			case NORTH:
 				return "N";
@@ -566,22 +567,8 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		return m;
 	}
 
-	public static void registerTextures(TextureMap iconRegister) {
-		if (LogisticsNewRenderPipe.basicPipeTexture == null) {
-			LogisticsNewRenderPipe.basicPipeTexture = SimpleServiceLocator.cclProxy.createIconTransformer(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/PipeModel")));
-			LogisticsNewRenderPipe.inactiveTexture = SimpleServiceLocator.cclProxy.createIconTransformer(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/PipeModel-inactive")));
-			LogisticsNewRenderPipe.innerBoxTexture = SimpleServiceLocator.cclProxy.createIconTransformer(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/InnerBox")));
-			LogisticsNewRenderPipe.glassCenterTexture = SimpleServiceLocator.cclProxy.createIconTransformer(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/Glass_Texture_Center")));
-			LogisticsNewRenderPipe.statusTexture = SimpleServiceLocator.cclProxy.createIconTransformer(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/PipeModel-status")));
-			LogisticsNewRenderPipe.statusBCTexture = SimpleServiceLocator.cclProxy.createIconTransformer(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/PipeModel-status-BC")));
-		} else {
-			LogisticsNewRenderPipe.basicPipeTexture.update(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/PipeModel")));
-			LogisticsNewRenderPipe.inactiveTexture.update(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/PipeModel-inactive")));
-			LogisticsNewRenderPipe.innerBoxTexture.update(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/InnerBox")));
-			LogisticsNewRenderPipe.glassCenterTexture.update(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/Glass_Texture_Center")));
-			LogisticsNewRenderPipe.statusTexture.update(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/PipeModel-status")));
-			LogisticsNewRenderPipe.statusBCTexture.update(iconRegister.registerSprite(new ResourceLocation("logisticspipes", "blocks/pipes/PipeModel-status-BC")));
-		}
+	public static void registerTextures(TextureAtlas iconRegister) {
+		// Texture registration is handled by TextureRegistrar via TextureStitchEvent.Post.
 	}
 
 	private ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
@@ -610,7 +597,10 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			boolean recalculateList = checkAndCalculateRenderCache(pipeTile);
 			renderList(x, y, z, renderState.renderLists, renderState.cachedRenderer, recalculateList);
 			if (recalculateList) {
-				pipeTile.getWorld().markBlockRangeForRenderUpdate(pipeTile.getPos(), pipeTile.getPos());
+				net.minecraft.core.BlockPos bpos = pipeTile.getBlockPos();
+				net.minecraft.client.Minecraft.getInstance().levelRenderer.setBlocksDirty(
+						bpos.getX(), bpos.getY(), bpos.getZ(),
+						bpos.getX(), bpos.getY(), bpos.getZ());
 			}
 		}
 	}
@@ -640,60 +630,45 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 	}
 
 	private static void renderList(double x, double y, double z, Map<ResourceLocation, GLRenderList> renderLists, List<RenderEntry> cachedRenderer, boolean recalculateList) {
-		if (renderLists.isEmpty() || !renderLists.values().stream().allMatch(GLRenderList::isFilled) || recalculateList) {
-			Map<ResourceLocation, List<RenderEntry>> sorted = new HashMap<>();
-			for (RenderEntry model : cachedRenderer) {
-				if (!sorted.containsKey(model.getTexture())) {
-					sorted.put(model.getTexture(), new LinkedList<>());
-				}
-				sorted.get(model.getTexture()).add(model);
-			}
-
-			for (Entry<ResourceLocation, List<RenderEntry>> entries : sorted.entrySet()) {
-				if (entries.getKey().equals(TextureMap.LOCATION_BLOCKS_TEXTURE)) continue;
-				if (!renderLists.containsKey(entries.getKey())) {
-					renderLists.put(entries.getKey(), SimpleServiceLocator.renderListHandler.getNewRenderList());
-				}
-				GLRenderList renderList = renderLists.get(entries.getKey());
-				if (renderList.isFilled() && !recalculateList) {
-					continue;
-				}
-				renderList.startListCompile();
-
-				SimpleServiceLocator.cclProxy.getRenderState().reset();
-				SimpleServiceLocator.cclProxy.getRenderState().startDrawing(GL11.GL_QUADS, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
-
-				for (RenderEntry entry : entries.getValue()) {
-					entry.getModel().render(entry.getOperations());
-				}
-
-				SimpleServiceLocator.cclProxy.getRenderState().draw();
-				renderList.stopCompile();
-			}
+		// 1.20.1 rewrite: the old 1.12.2 code cached geometry into GL display lists
+		// (GLRenderList) keyed by texture. Display lists are removed in 1.20.1 and
+		// the modern pipeline already batches per-frame through MultiBufferSource,
+		// so the caching layer is both impossible and unnecessary. We now emit
+		// every RenderEntry directly through the VertexConsumer bound on
+		// LPRenderStateImpl by the outer BlockEntityRenderer.
+		//
+		// All pipe textures live on the block atlas (LOCATION_BLOCKS) and resolve
+		// through the TextureTransformation operation each entry carries, so we
+		// don't need per-texture RenderType selection here — the bound solid
+		// buffer is correct for every entry.
+		IRenderState rs = SimpleServiceLocator.cclProxy.getRenderState();
+		if (rs == null) return;
+		rs.reset();
+		for (RenderEntry entry : cachedRenderer) {
+			entry.getModel().render(entry.getOperations());
 		}
-		if (!renderLists.isEmpty()) {
-			GL11.glPushMatrix();
-			GL11.glTranslated(x, y, z);
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ZERO);
-			for (Entry<ResourceLocation, GLRenderList> entry : renderLists.entrySet()) {
-				Minecraft.getMinecraft().getTextureManager().bindTexture(entry.getKey());
-				entry.getValue().render();
-			}
-			GL11.glDisable(GL11.GL_BLEND);
-			GL11.glPopMatrix();
-		}
+		rs.draw();
 	}
 
 	private static void fillObjectsToRenderList(List<RenderEntry> objectsToRender, LogisticsTileGenericPipe pipeTile, PipeRenderState renderState) {
+		fillObjectsToRenderList(objectsToRender, pipeTile.pipe, pipeTile, renderState);
+	}
+
+	/** Tile-free overload for item (BEWLR) rendering. Pass the dummyPipe directly;
+	 *  neighbour-dependent adjustments fall back to unit bounds when no tile exists. */
+	public static void fillObjectsToRenderList(List<RenderEntry> objectsToRender, CoreUnroutedPipe pipe, PipeRenderState renderState) {
+		fillObjectsToRenderList(objectsToRender, pipe, null, renderState);
+	}
+
+	private static void fillObjectsToRenderList(List<RenderEntry> objectsToRender, CoreUnroutedPipe pipe, LogisticsTileGenericPipe pipeTile, PipeRenderState renderState) {
 		List<Edge> edgesToRender = new ArrayList<>(Arrays.asList(Edge.values()));
 		Map<Corner, Integer> connectionAtCorner = new HashMap<>();
 		List<PipeMount> mountCanidates = new ArrayList<>(Arrays.asList(PipeMount.values()));
 
 		int connectionCount = 0;
 
-		for (EnumFacing dir : EnumFacing.VALUES) {
-			if (renderState.pipeConnectionMatrix.isConnected(dir) || pipeTile.pipe.hasSpecialPipeEndAt(dir)) {
+		for (Direction dir : Direction.values()) {
+			if (renderState.pipeConnectionMatrix.isConnected(dir) || pipe.hasSpecialPipeEndAt(dir)) {
 				connectionCount++;
 				if (renderState.pipeConnectionMatrix.isTDConnected(dir) || renderState.pipeConnectionMatrix.isBCConnected(dir)) {
 					I3DOperation[] texture = new I3DOperation[] { LogisticsNewRenderPipe.basicPipeTexture };
@@ -711,7 +686,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 					for (IModel3D model : LogisticsNewRenderPipe.sideBC.get(dir)) {
 						objectsToRender.add(new RenderEntry(model, texture));
 					}
-				} else if (!pipeTile.pipe.hasSpecialPipeEndAt(dir)) {
+				} else if (!pipe.hasSpecialPipeEndAt(dir)) {
 					I3DOperation[] texture = new I3DOperation[] { LogisticsNewRenderPipe.basicPipeTexture };
 					if (renderState.textureMatrix.isRouted()) {
 						if (renderState.textureMatrix.isRoutedInDir(dir)) {
@@ -737,12 +712,13 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 						}
 					}
 					for (IModel3D model : LogisticsNewRenderPipe.sideNormal.get(dir)) {
-						double[] bounds = { Block.FULL_BLOCK_AABB.minY, Block.FULL_BLOCK_AABB.minZ, Block.FULL_BLOCK_AABB.minX, Block.FULL_BLOCK_AABB.maxY, Block.FULL_BLOCK_AABB.maxZ, Block.FULL_BLOCK_AABB.maxX };
-						if (pipeTile.getWorld() != null) { //This can be null in some cases now !!!
-							DoubleCoordinates coords = CoordinateUtils.add(new DoubleCoordinates((TileEntity) pipeTile), dir);
-							IBlockState blockState = coords.getBlockState(pipeTile.getWorld());
-							AxisAlignedBB bb = blockState.getCollisionBoundingBox(pipeTile.getWorld(), coords.getBlockPos());
-							if (bb == null) bb = Block.FULL_BLOCK_AABB;
+						double[] bounds = { 0, 0, 0, 1, 1, 1 }; // 1.20.1: Block.FULL_BLOCK_AABB removed; default to unit cube
+						if (pipeTile != null && pipeTile.getWorld() != null) { //This can be null in some cases now !!!
+							DoubleCoordinates coords = CoordinateUtils.add(new DoubleCoordinates((BlockEntity) pipeTile), dir);
+							BlockState blockState = coords.getBlockState(pipeTile.getWorld());
+							net.minecraft.world.phys.shapes.VoxelShape shape = blockState.getCollisionShape(pipeTile.getWorld(), coords.getBlockPos());
+							AABB bb = shape.isEmpty() ? null : shape.bounds();
+							if (bb == null) bb = new AABB(0, 0, 0, 1, 1, 1); // 1.20.1: Block.FULL_BLOCK_AABB removed
 							bounds = new double[] { bb.minY, bb.minZ, bb.minX, bb.maxY, bb.maxZ, bb.maxX };
 						}
 						double bound = bounds[dir.ordinal() / 2 + (dir.ordinal() % 2 == 0 ? 3 : 0)];
@@ -751,18 +727,18 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 						if (model2 == null) {
 							model2 = model.copy();
 							IVec3 min = model2.bounds().min();
-							model2.apply(new LPTranslation(min).inverse());
+							model2 = model2.apply(new LPTranslation(min).inverse());
 							double toAdd;
 							if (dir.ordinal() % 2 == 1) {
 								toAdd = 1 + (bound / LPConstants.PIPE_MIN_POS);
-								model2.apply(new LPScale(dir.getDirectionVec().getX() != 0 ? toAdd : 1, dir.getDirectionVec().getY() != 0 ? toAdd : 1, dir.getDirectionVec().getZ() != 0 ? toAdd : 1));
+								model2 = model2.apply(new LPScale(dir.getNormal().getX() != 0 ? toAdd : 1, dir.getNormal().getY() != 0 ? toAdd : 1, dir.getNormal().getZ() != 0 ? toAdd : 1));
 							} else {
 								bound = 1 - bound;
 								toAdd = 1 + (bound / LPConstants.PIPE_MIN_POS);
-								model2.apply(new LPScale(dir.getDirectionVec().getX() != 0 ? toAdd : 1, dir.getDirectionVec().getY() != 0 ? toAdd : 1, dir.getDirectionVec().getZ() != 0 ? toAdd : 1));
-								model2.apply(new LPTranslation(dir.getDirectionVec().getX() * bound, dir.getDirectionVec().getY() * bound, dir.getDirectionVec().getZ() * bound));
+								model2 = model2.apply(new LPScale(dir.getNormal().getX() != 0 ? toAdd : 1, dir.getNormal().getY() != 0 ? toAdd : 1, dir.getNormal().getZ() != 0 ? toAdd : 1));
+								model2 = model2.apply(new LPTranslation(dir.getNormal().getX() * bound, dir.getNormal().getY() * bound, dir.getNormal().getZ() * bound));
 							}
-							model2.apply(new LPTranslation(min));
+							model2 = model2.apply(new LPTranslation(min));
 							LogisticsNewRenderPipe.scaleMap.put(key, model2);
 						}
 						objectsToRender.add(new RenderEntry(model2, texture));
@@ -807,7 +783,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 					if (turn.corner != corner) {
 						continue;
 					}
-					if (renderState.pipeConnectionMatrix.isConnected(turn.getPointer()) || pipeTile.pipe.hasSpecialPipeEndAt(turn.getPointer())) {
+					if (renderState.pipeConnectionMatrix.isConnected(turn.getPointer()) || pipe.hasSpecialPipeEndAt(turn.getPointer())) {
 						objectsToRender.add(new RenderEntry(LogisticsNewRenderPipe.spacers.get(turn), cornerTexture));
 						break;
 					}
@@ -817,7 +793,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 					if (turn.corner != corner) {
 						continue;
 					}
-					if (!renderState.pipeConnectionMatrix.isConnected(turn.getPointer()) || pipeTile.pipe.hasSpecialPipeEndAt(turn.getPointer())) {
+					if (!renderState.pipeConnectionMatrix.isConnected(turn.getPointer()) || pipe.hasSpecialPipeEndAt(turn.getPointer())) {
 						objectsToRender.add(new RenderEntry(LogisticsNewRenderPipe.corners_I.get(turn), cornerTexture));
 						break;
 					}
@@ -834,13 +810,13 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				.forEach(objectsToRender::add);
 
 		for (int i = 0; i < 6; i += 2) {
-			EnumFacing dir = EnumFacing.byIndex(i);
-			List<EnumFacing> list = new ArrayList<>(Arrays.asList(EnumFacing.VALUES));
+			Direction dir = Direction.from3DDataValue(i);
+			List<Direction> list = new ArrayList<>(Arrays.asList(Direction.values()));
 			list.remove(dir);
 			list.remove(dir.getOpposite());
 			if (renderState.pipeConnectionMatrix.isConnected(dir) && renderState.pipeConnectionMatrix.isConnected(dir.getOpposite())) {
 				boolean found = false;
-				for (EnumFacing dir2 : list) {
+				for (Direction dir2 : list) {
 					if (renderState.pipeConnectionMatrix.isConnected(dir2)) {
 						found = true;
 						break;
@@ -874,12 +850,12 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		}
 
 		boolean[] solidSides = new boolean[6];
-		if (pipeTile.getWorld() != null) { // This can be null in some cases now !!!
-			for (EnumFacing dir : EnumFacing.VALUES) {
-				DoubleCoordinates pos = CoordinateUtils.add(new DoubleCoordinates((TileEntity) pipeTile), dir);
-				IBlockState blockState = pos.getBlockState(pipeTile.getWorld());
-				if (blockState.getBlock().isAir(blockState, pipeTile.getWorld(), pos.getBlockPos()) ||
-						!blockState.isSideSolid(pipeTile.getWorld(), pos.getBlockPos(), dir.getOpposite()) ||
+		if (pipeTile != null && pipeTile.getWorld() != null) { // This can be null in some cases now !!!
+			for (Direction dir : Direction.values()) {
+				DoubleCoordinates pos = CoordinateUtils.add(new DoubleCoordinates((BlockEntity) pipeTile), dir);
+				BlockState blockState = pos.getBlockState(pipeTile.getWorld());
+				if (blockState.isAir() ||
+						!blockState.isFaceSturdy(pipeTile.getWorld(), pos.getBlockPos(), dir.getOpposite()) ||
 						renderState.pipeConnectionMatrix.isConnected(dir)) {
 					mountCanidates.removeIf(mount -> mount.dir == dir);
 				} else {
@@ -887,19 +863,20 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				}
 			}
 
-			mountCanidates.removeIf(mount -> SimpleServiceLocator.mcmpProxy.hasParts(pipeTile));
+			// TODO(1.20.1): MCMP not ported — hasParts always false, no mounts removed
+			// mountCanidates.removeIf(mount -> SimpleServiceLocator.mcmpProxy.hasParts(pipeTile));
 		} else {
 			mountCanidates.clear();
 		}
 
 		if (!mountCanidates.isEmpty()) {
-			if (solidSides[EnumFacing.DOWN.ordinal()]) {
-				findOponentOnSameSide(mountCanidates, EnumFacing.DOWN);
-			} else if (solidSides[EnumFacing.UP.ordinal()]) {
-				findOponentOnSameSide(mountCanidates, EnumFacing.UP);
+			if (solidSides[Direction.DOWN.ordinal()]) {
+				findOponentOnSameSide(mountCanidates, Direction.DOWN);
+			} else if (solidSides[Direction.UP.ordinal()]) {
+				findOponentOnSameSide(mountCanidates, Direction.UP);
 			} else {
-				removeFromSide(mountCanidates, EnumFacing.DOWN);
-				removeFromSide(mountCanidates, EnumFacing.UP);
+				removeFromSide(mountCanidates, Direction.DOWN);
+				removeFromSide(mountCanidates, Direction.UP);
 				if (mountCanidates.size() > 2) {
 					removeIfHasOponentSide(mountCanidates);
 				}
@@ -920,10 +897,11 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 					.forEach(objectsToRender::add);
 		}
 
-		for (EnumFacing dir : EnumFacing.VALUES) {
+		for (Direction dir : Direction.values()) {
 			if (!renderState.pipeConnectionMatrix.isConnected(dir)) {
 				for (IModel3D model : LogisticsNewRenderPipe.texturePlate_Outer.get(dir)) {
-					TextureTransformation icon = Textures.LPnewPipeIconProvider.getIcon(renderState.textureMatrix.getTextureIndex());
+					int ti = renderState.textureMatrix.getTextureIndex();
+					TextureTransformation icon = Textures.LPnewPipeIconProvider.getIcon(ti);
 					if (icon != null) {
 						objectsToRender.add(new RenderEntry(model, new LPUVTransformationList(new LPUVScale(12f / 16, 12f / 16), icon)));
 					}
@@ -931,7 +909,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			}
 		}
 		if (renderState.textureMatrix.isFluid()) {
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				if (!renderState.pipeConnectionMatrix.isConnected(dir)) {
 					LogisticsNewRenderPipe.texturePlate_Inner.get(dir).stream()
 							.map(model -> new RenderEntry(model, new I3DOperation[] { LogisticsNewRenderPipe.glassCenterTexture }))
@@ -945,10 +923,11 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				}
 			}
 		}
-		SimpleServiceLocator.thermalDynamicsProxy.renderPipeConnections(pipeTile, objectsToRender);
+		// TODO(1.20.1): Thermal Dynamics not ported — no TD connection rendering
+		// SimpleServiceLocator.thermalDynamicsProxy.renderPipeConnections(pipeTile, objectsToRender);
 	}
 
-	private static void findOponentOnSameSide(List<PipeMount> mountCanidates, EnumFacing dir) {
+	private static void findOponentOnSameSide(List<PipeMount> mountCanidates, Direction dir) {
 		boolean[] sides = new boolean[6];
 		Iterator<PipeMount> iter = mountCanidates.iterator();
 		while (iter.hasNext()) {
@@ -962,16 +941,16 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		if (mountCanidates.size() <= 2) {
 			return;
 		}
-		List<EnumFacing> keep = new ArrayList<>();
+		List<Direction> keep = new ArrayList<>();
 		if (sides[2] && sides[3]) {
-			keep.add(EnumFacing.NORTH);
-			keep.add(EnumFacing.SOUTH);
+			keep.add(Direction.NORTH);
+			keep.add(Direction.SOUTH);
 		} else if (sides[4] && sides[5]) {
-			keep.add(EnumFacing.EAST);
-			keep.add(EnumFacing.WEST);
+			keep.add(Direction.EAST);
+			keep.add(Direction.WEST);
 		} else if (sides[0] && sides[1]) {
-			keep.add(EnumFacing.UP);
-			keep.add(EnumFacing.DOWN);
+			keep.add(Direction.UP);
+			keep.add(Direction.DOWN);
 		}
 		iter = mountCanidates.iterator();
 		while (iter.hasNext()) {
@@ -982,11 +961,11 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		}
 	}
 
-	private static void removeFromSide(List<PipeMount> mountCanidates, EnumFacing dir) {
+	private static void removeFromSide(List<PipeMount> mountCanidates, Direction dir) {
 		mountCanidates.removeIf(mount -> mount.dir == dir);
 	}
 
-	private static void reduceToOnePerSide(List<PipeMount> mountCanidates, EnumFacing dir, EnumFacing pref) {
+	private static void reduceToOnePerSide(List<PipeMount> mountCanidates, Direction dir, Direction pref) {
 		boolean found = false;
 		for (PipeMount mount : mountCanidates) {
 			if (mount.dir != dir) {
@@ -1013,7 +992,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		}
 	}
 
-	private static void reduceToOnePerSide(List<PipeMount> mountCanidates, EnumFacing dir) {
+	private static void reduceToOnePerSide(List<PipeMount> mountCanidates, Direction dir) {
 		boolean found = false;
 		Iterator<PipeMount> iter = mountCanidates.iterator();
 		while (iter.hasNext()) {
@@ -1035,15 +1014,15 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			sides[mount.dir.ordinal()] = true;
 		}
 		if (sides[2] && sides[3]) {
-			removeFromSide(mountCanidates, EnumFacing.EAST);
-			removeFromSide(mountCanidates, EnumFacing.WEST);
-			reduceToOnePerSide(mountCanidates, EnumFacing.NORTH);
-			reduceToOnePerSide(mountCanidates, EnumFacing.SOUTH);
+			removeFromSide(mountCanidates, Direction.EAST);
+			removeFromSide(mountCanidates, Direction.WEST);
+			reduceToOnePerSide(mountCanidates, Direction.NORTH);
+			reduceToOnePerSide(mountCanidates, Direction.SOUTH);
 		} else if (sides[4] && sides[5]) {
-			removeFromSide(mountCanidates, EnumFacing.NORTH);
-			removeFromSide(mountCanidates, EnumFacing.SOUTH);
-			reduceToOnePerSide(mountCanidates, EnumFacing.EAST);
-			reduceToOnePerSide(mountCanidates, EnumFacing.WEST);
+			removeFromSide(mountCanidates, Direction.NORTH);
+			removeFromSide(mountCanidates, Direction.SOUTH);
+			reduceToOnePerSide(mountCanidates, Direction.EAST);
+			reduceToOnePerSide(mountCanidates, Direction.WEST);
 		}
 	}
 
@@ -1053,17 +1032,17 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			sides[mount.dir.ordinal()] = true;
 		}
 		for (int i = 2; i < 6; i++) {
-			EnumFacing dir = EnumFacing.byIndex(i);
-			EnumFacing rot = dir.rotateY();
+			Direction dir = Direction.from3DDataValue(i);
+			Direction rot = dir.getClockWise();
 			if (sides[dir.ordinal()] && sides[rot.ordinal()]) {
-				reduceToOnePerSide(mountCanidates, dir, dir.rotateYCCW());
-				reduceToOnePerSide(mountCanidates, rot, rot.rotateY());
+				reduceToOnePerSide(mountCanidates, dir, dir.getCounterClockWise());
+				reduceToOnePerSide(mountCanidates, rot, rot.getClockWise());
 			}
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
-	public static void renderDestruction(CoreUnroutedPipe pipe, World world, int x, int y, int z, ParticleManager effectRenderer) {
+	@OnlyIn(Dist.CLIENT)
+	public static void renderDestruction(CoreUnroutedPipe pipe, net.minecraft.client.multiplayer.ClientLevel world, int x, int y, int z, ParticleEngine effectRenderer) {
 		if (pipe.container != null && pipe.container.renderState != null && pipe.container.renderState.cachedRenderer != null) {
 			for (RenderEntry entry : pipe.container.renderState.cachedRenderer) {
 				IModel3D model = entry.getModel().twoFacedCopy();
@@ -1072,12 +1051,12 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				double yMid = (bounds.min().y() + bounds.max().y()) / 2;
 				double zMid = (bounds.min().z() + bounds.max().z()) / 2;
 				model.apply(new LPTranslation(-xMid, -yMid, -zMid));
-				effectRenderer.addEffect(new EntityModelFX(world, x + xMid, y + yMid, z + zMid, model, entry.getOperations(), entry.getTexture()));
+				effectRenderer.add(new EntityModelFX(world, x + xMid, y + yMid, z + zMid, model, entry.getOperations(), entry.getTexture()));
 			}
 		}
 	}
 
-	public static void renderBoxWithDir(EnumFacing dir) {
+	public static void renderBoxWithDir(Direction dir) {
 		List<RenderEntry> objectsToRender = new ArrayList<>();
 		List<Edge> edgesToRender = new ArrayList<>(Arrays.asList(Edge.values()));
 		Map<Corner, Integer> connectionAtCorner = new HashMap<>();
@@ -1146,7 +1125,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			if (texture == null) {
 				throw new NullPointerException();
 			}
-			if (texture.equals(TextureMap.LOCATION_BLOCKS_TEXTURE)) {
+			if (texture.equals(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)) {
 				quads.addAll(model.getModel().renderToQuads(format, model.getOperations()));
 			}
 		}
@@ -1160,7 +1139,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 
 	public static List<RenderEntry> getBasicPipeFrameRenderList() {
 		if (pipeFrameRenderList.isEmpty()) {
-			LogisticsTileGenericPipe pipe = new LogisticsTileGenericPipe();
+			LogisticsTileGenericPipe pipe = new LogisticsTileGenericPipe(net.minecraft.core.BlockPos.ZERO, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
 			pipe.pipe = new PipeItemsBasicLogistics(null);
 			fillObjectsToRenderList(pipeFrameRenderList, pipe, pipe.renderState);
 		}

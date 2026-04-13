@@ -2,11 +2,11 @@ package logisticspipes.pipes;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.LPItems;
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -30,15 +30,15 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
 	}
 
 	@Override
-	public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
-		if (!entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() && entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == LPItems.remoteOrderer) {
+	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
+		if (!entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).getItem() == LPItems.remoteOrderer.get()) {
 			if (MainProxy.isServer(getWorld())) {
 				if (settings == null || settings.openRequest) {
-					ItemStack orderer = entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
+					ItemStack orderer = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
 					RemoteOrderer.connectToPipe(orderer, this);
-					entityplayer.sendMessage(new TextComponentTranslation("lp.chat.connectedtopipe"));
+					entityplayer.sendSystemMessage(Component.translatable("lp.chat.connectedtopipe"));
 				} else {
-					entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
+					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			return true;

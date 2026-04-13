@@ -15,11 +15,11 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -40,8 +40,8 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 	public final int blockDistance;
 	public final EnumSet<PipeRoutingConnectionType> connectionDetails;
 	public final @Nonnull IRouter destination;
-	public EnumFacing exitOrientation;
-	public EnumFacing insertOrientation;
+	public Direction exitOrientation;
+	public Direction insertOrientation;
 	public double distanceToDestination;
 	public IRouter root;
 	public List<IFilter> filters = Collections.unmodifiableList(new ArrayList<>(0));
@@ -51,7 +51,7 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 	 */
 	public ExitRouteDebug debug = new ExitRouteDebug();
 
-	public ExitRoute(@Nullable IRouter source, @Nonnull IRouter destination, @Nullable EnumFacing exitOrientation, @Nullable EnumFacing insertOrientation, double metric,
+	public ExitRoute(@Nullable IRouter source, @Nonnull IRouter destination, @Nullable Direction exitOrientation, @Nullable Direction insertOrientation, double metric,
 			EnumSet<PipeRoutingConnectionType> connectionDetails, int blockDistance) {
 		this.destination = destination;
 		this.root = source;
@@ -71,7 +71,7 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 		this.blockDistance = blockDistance;
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public ExitRoute(LPDataInput input) {
 		if (!input.readBoolean()) {
 			throw new RuntimeException("Cannot read an ExitRoute without destination");
@@ -119,10 +119,10 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 		filters = Collections.unmodifiableList(filter);
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private IRouter readRouter(LPDataInput input) {
 		DoubleCoordinates pos = new DoubleCoordinates(input);
-		TileEntity tile = pos.getTileEntity(MainProxy.getClientMainWorld());
+		BlockEntity tile = pos.getTileEntity(MainProxy.getClientMainWorld());
 		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe instanceof CoreRoutedPipe) {
 			return ((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).getRouter();
 		}

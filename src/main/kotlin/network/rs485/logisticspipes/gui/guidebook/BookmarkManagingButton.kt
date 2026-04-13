@@ -15,6 +15,11 @@
  * lines below and NOT the copyright line above) with the lines from the original
  * MIT license located here: http://opensource.org/licenses/MIT
  *
+ * This MIT license was reworded to only match this file. If you use the regular
+ * MIT license in your project, replace this copyright notice (this line and any
+ * lines below and NOT the copyright line above) with the lines from the original
+ * MIT license located here: http://opensource.org/licenses/MIT
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
@@ -37,14 +42,12 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.utils.MinecraftColor
-import net.minecraft.client.Minecraft
-import network.rs485.logisticspipes.gui.HorizontalAlignment
-import network.rs485.logisticspipes.gui.GuiDrawer
-import network.rs485.logisticspipes.gui.VerticalAlignment
+import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.TextUtil
 import java.util.*
+
+// TODO: Rendering deferred — BookmarkManagingButton migrated to 1.20.1 stub.
 
 val additionTexture = Rectangle(192, 0, 16, 16)
 val subtractionTexture = additionTexture.translated(additionTexture.width, 0.0f)
@@ -52,30 +55,21 @@ val subtractionTexture = additionTexture.translated(additionTexture.width, 0.0f)
 /*
 * This button's position is set based on the right and bottom constraints
 */
-class BookmarkManagingButton(x: Int, y: Int, onClickAction: (ButtonState) -> Boolean, val additionStateUpdater: (() -> ButtonState)): LPGuiButton(2, x - additionTexture.roundedWidth, y - additionTexture.roundedHeight, additionTexture.roundedWidth, additionTexture.roundedHeight) {
+class BookmarkManagingButton(
+    x: Int,
+    y: Int,
+    onClickAction: (ButtonState) -> Boolean,
+    val additionStateUpdater: (() -> ButtonState),
+) : LPGuiButton(2, x - additionTexture.roundedWidth, y - additionTexture.roundedHeight, additionTexture.roundedWidth, additionTexture.roundedHeight) {
+
     private var buttonState: ButtonState = ButtonState.ADD
     var onClickActionStated: (ButtonState) -> Boolean = onClickAction
 
-    override fun drawButton(mc: Minecraft, mouseX: Int, mouseY: Int, partialTicks: Float) {
-        if (visible) {
-            hovered = isHovered(mouseX, mouseY)
-            val yOffset = getHoverState(hovered) * additionTexture.roundedHeight
-            GuiDrawer.drawGuiTexturedRect(body, (if (buttonState == ButtonState.ADD) additionTexture else subtractionTexture).translated(0, yOffset), true, MinecraftColor.WHITE.colorCode)
-        }
+    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        // TODO: deferred rendering
     }
 
-    override fun drawButtonForegroundLayer(mouseX: Int, mouseY: Int) {
-        if (hovered && visible) {
-            drawTooltip(
-                    x = body.roundedLeft + body.roundedHeight / 2,
-                    y = body.roundedTop - 6,
-                    horizontalAlign = HorizontalAlignment.CENTER,
-                    verticalAlign = VerticalAlignment.BOTTOM
-            )
-        }
-   }
-
-    fun setX(newX: Int){
+    override fun setX(newX: Int) {
         body.setPos(newX.toFloat(), body.y0)
     }
 
@@ -84,12 +78,12 @@ class BookmarkManagingButton(x: Int, y: Int, onClickAction: (ButtonState) -> Boo
         visible = buttonState != ButtonState.DISABLED
     }
 
-    override fun getTooltipText(): String = when(buttonState){
+    override fun getTooltipText(): String = when (buttonState) {
         ButtonState.ADD, ButtonState.REMOVE -> TextUtil.translate("misc.guide_book.bookmark_button.${buttonState.toString().lowercase(Locale.getDefault())}")
         ButtonState.DISABLED -> ""
     }
 
-    override fun getHoverState(mouseOver: Boolean): Int = if(buttonState == ButtonState.DISABLED) 2 else if (hovered) 1 else 0
+    fun getButtonHoverState(mouseOver: Boolean): Int = if (buttonState == ButtonState.DISABLED) 2 else if (isHovered) 1 else 0
 
     override fun click(mouseButton: Int) = onClickActionStated(buttonState)
 

@@ -1,6 +1,6 @@
 package logisticspipes.interfaces;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public interface IHeadUpDisplayRendererProvider {
 
@@ -12,7 +12,7 @@ public interface IHeadUpDisplayRendererProvider {
 
 	int getZ();
 
-	World getWorldForHUD();
+	Level getLevelForHUD();
 
 	void startWatching();
 

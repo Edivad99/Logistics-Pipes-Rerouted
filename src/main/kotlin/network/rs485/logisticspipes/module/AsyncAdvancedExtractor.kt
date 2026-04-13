@@ -59,10 +59,9 @@ import logisticspipes.proxy.computers.interfaces.CCCommand
 import logisticspipes.utils.ISimpleInventoryEventHandler
 import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.IInventory
-import net.minecraft.util.EnumFacing
-import net.minecraft.world.IBlockAccess
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Player
+import net.minecraft.core.Direction
 import kotlinx.coroutines.Deferred
 
 
@@ -75,7 +74,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         val name: String = "extractor_advanced"
     }
 
-    private val filterInventory = ItemIdentifierInventoryProperty(ItemIdentifierInventory(9, "Item list", 1), "")
+    private val filterInventory = ItemIdentifierInventoryProperty(ItemIdentifierInventory(9, "Item list", 1), "filterInv")
     val itemsIncluded = BooleanProperty(true, "itemsIncluded")
     override val properties: List<Property<*>>
         get() = extractor.properties + listOf(filterInventory, itemsIncluded)
@@ -87,7 +86,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         },
     )
 
-    override var sneakyDirection: EnumFacing?
+    override var sneakyDirection: Direction?
         get() = extractor.sneakyDirection
         set(value) {
             extractor.sneakyDirection = value
@@ -109,8 +108,8 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         super.finishInit()
         if (isInitialized) return
         if (_service != null) {
-            val blockAccess: IBlockAccess? = _world?.world
-            MainProxy.runOnServer(blockAccess) {
+            val level = _world?.getWorld()
+            MainProxy.runOnServer(level) {
                 Runnable {
                     itemsIncluded.addObserver {
                         MainProxy.sendToPlayerList(
@@ -161,7 +160,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
     override fun handleInvContent(items: MutableCollection<ItemIdentifierStack>) =
         filterInventory.handleItemIdentifierList(items)
 
-    override fun InventoryChanged(inventory: IInventory?) {
+    override fun InventoryChanged(inventory: Container?) {
         MainProxy.runOnServer(world) {
             Runnable {
                 MainProxy.sendToPlayerList(
@@ -182,7 +181,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         return clientInformation
     }
 
-    override fun startWatching(player: EntityPlayer?) {
+    override fun startWatching(player: Player?) {
         extractor.startWatching(player)
         MainProxy.sendPacketToPlayer(
             PacketHandler.getPacket(ModuleInventory::class.java)
@@ -198,7 +197,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         )
     }
 
-    override fun stopWatching(player: EntityPlayer?) = extractor.stopWatching(player)
+    override fun stopWatching(player: Player?) = extractor.stopWatching(player)
 
     override fun startHUDWatching() {
         MainProxy.sendPacketToServer(

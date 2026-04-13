@@ -1,9 +1,10 @@
 package logisticspipes.textures;
 
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlas; // was TextureAtlas
+import net.minecraft.resources.ResourceLocation;
 
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
@@ -244,20 +245,11 @@ public class Textures {
 		//Transport
 		Textures.LOGISTICSPIPE_BASIC_TRANSPORT_TEXTURE = registerSmallTexture(par1IIconRegister, Textures.LOGISTICSPIPE_BASIC_TRANSPORT_TEXTURE_FILE);
 
-		if (MainProxy.isClient() && par1IIconRegister != null) {
-			Textures.LOGISTICS_REQUEST_TABLE = new Object[5];
-			for (int i = 0; i < 5; i++) {
-				Textures.LOGISTICS_REQUEST_TABLE[i] = ((TextureMap) par1IIconRegister).registerSprite(new ResourceLocation("logisticspipes:blocks/requesttable/" + i));
-			}
-			Textures.LOGISTICS_REQUEST_TABLE_NEW = ((TextureMap) par1IIconRegister).registerSprite(new ResourceLocation("logisticspipes:blocks/requesttable/requesttexture"));
-			Textures.LOGISTICS_REQUEST_TABLE_NEW_ROUTED = ((TextureMap) par1IIconRegister).registerSprite(new ResourceLocation("logisticspipes:blocks/requesttable/routed"));
-			Textures.LOGISTICS_REQUEST_TABLE_NEW_UNROUTED = ((TextureMap) par1IIconRegister).registerSprite(new ResourceLocation("logisticspipes:blocks/requesttable/unrouted"));
-			Textures.LOGISTICS_REQUEST_TABLE_NEW_EMPTY = ((TextureMap) par1IIconRegister).registerSprite(new ResourceLocation("logisticspipes:blocks/empty"));
-			Textures.LOGISTICS_SIDE_SELECTION = ((TextureMap) par1IIconRegister).registerSprite(new ResourceLocation("logisticspipes:blocks/sideSelection"));
-		}
+		// TODO: rendering deferred — TextureAtlas.registerSprite() removed in 1.20.1;
+		// sprite registration must use TextureStitchEvent.Pre or RegisterSpriteSheetIconEvent
 
 		if (LogisticsPipes.isDEBUG()) {
-			System.out.println("LP: pipetextures " + index);
+			LogisticsPipes.log.debug("LP: pipetextures {}", index);
 		}
 	}
 
@@ -316,7 +308,7 @@ public class Textures {
 
 	private int registerSingleTexture(Object par1IIconRegister, String fileName) {
 		int texture = index++;
-		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
 			MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, texture, fileName, Textures.LOGISTICSPIPE_UN_OVERLAY_TEXTURE_FILE, true);
 		}
 		return texture;

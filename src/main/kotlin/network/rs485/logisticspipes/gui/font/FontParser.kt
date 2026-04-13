@@ -39,7 +39,7 @@ package network.rs485.logisticspipes.gui.font
 
 import logisticspipes.LogisticsPipes
 import net.minecraft.client.Minecraft
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import java.io.IOException
 import java.util.*
 
@@ -47,7 +47,7 @@ object FontParser {
 
     fun read(resourceLocation: ResourceLocation): BDF? {
         return try {
-            read(Minecraft.getMinecraft().resourceManager.getResource(resourceLocation).inputStream.bufferedReader().use { it.readLines() })
+            read(Minecraft.getInstance().resourceManager.getResource(resourceLocation).map { it.open().bufferedReader().use { r -> r.readLines() } }.orElseThrow { IOException("Resource not found: ${resourceLocation.path}") })
         } catch (e: IOException) {
             LogisticsPipes.log.error("Font ${resourceLocation.path} not found, and will not be rendered.", e)
             null

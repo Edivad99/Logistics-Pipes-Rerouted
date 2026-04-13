@@ -10,10 +10,10 @@ import logisticspipes.interfaces.ISpecialTankAccessHandler;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.Level;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
 import net.minecraftforge.fluids.FluidStack;
 
 import appeng.api.AEApi;
@@ -37,18 +37,18 @@ public class AETankHandler implements ISpecialTankAccessHandler {
 	}
 
 	@Override
-	public boolean isType(TileEntity tile) {
+	public boolean isType(BlockEntity tile) {
 		return tile instanceof ITileStorageMonitorable && tile instanceof IGridHost;
 	}
 
 	@Override
-	public List<TileEntity> getBaseTilesFor(TileEntity tile) {
-		List<TileEntity> tiles = new ArrayList<>(1);
+	public List<BlockEntity> getBaseTilesFor(BlockEntity tile) {
+		List<BlockEntity> tiles = new ArrayList<>(1);
 		if (tile instanceof IGridHost) {
 			IGridHost host = (IGridHost) tile;
 			IGridNode node = host.getGridNode(null);
 			if (node != null) {
-				TileEntity base = getBaseTileEntity(node);
+				BlockEntity base = getBaseTileEntity(node);
 				if (base != null) {
 					tiles.add(base);
 					return tiles;
@@ -61,14 +61,14 @@ public class AETankHandler implements ISpecialTankAccessHandler {
 
 	@SuppressWarnings("unused")
 	@Override
-	public Map<FluidIdentifier, Long> getAvailableLiquid(TileEntity tile) {
+	public Map<FluidIdentifier, Long> getAvailableLiquid(BlockEntity tile) {
 		Map<FluidIdentifier, Long> map = new HashMap<>();
 		if (tile instanceof ITileStorageMonitorable) {
 			ITileStorageMonitorable mon = (ITileStorageMonitorable) tile;
 			if (mon == null) {
 				return map;
 			}
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				MachineSource source = new MachineSource(new LPActionHost(((IGridHost) tile).getGridNode(dir)));
 				IStorageMonitorable monitor = mon.getMonitorable(dir, source);
 				if (monitor == null || monitor.getFluidInventory() == null) {
@@ -77,7 +77,7 @@ public class AETankHandler implements ISpecialTankAccessHandler {
 				IMEMonitor<IAEFluidStack> fluids = monitor.getFluidInventory();
 				for (IAEFluidStack stack : fluids.getStorageList()) {
 					if (SimpleServiceLocator.extraCellsProxy.canSeeFluidInNetwork(stack.getFluid())) {
-						map.put(FluidIdentifier.get(stack.getFluid(), stack.getTagCompound() != null ? stack.getTagCompound().getNBTTagCompoundCopy() : null, null), stack.getStackSize());
+						map.put(FluidIdentifier.get(stack.getFluid(), stack.getTag() != null ? stack.getTag().getCompoundTagCopy() : null, null), stack.getStackSize());
 					}
 				}
 				return map;
@@ -88,13 +88,13 @@ public class AETankHandler implements ISpecialTankAccessHandler {
 
 	@SuppressWarnings("unused")
 	@Override
-	public FluidStack drainFrom(TileEntity tile, FluidIdentifier ident, Integer amount, boolean drain) {
+	public FluidStack drainFrom(BlockEntity tile, FluidIdentifier ident, Integer amount, boolean drain) {
 		if (tile instanceof ITileStorageMonitorable) {
 			ITileStorageMonitorable mon = (ITileStorageMonitorable) tile;
 			if (mon == null) {
 				return null;
 			}
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				MachineSource source = new MachineSource(new LPActionHost(((IGridHost) tile).getGridNode(dir)));
 				IStorageMonitorable monitor = mon.getMonitorable(dir, source);
 				if (monitor == null || monitor.getFluidInventory() == null) {
@@ -112,7 +112,7 @@ public class AETankHandler implements ISpecialTankAccessHandler {
 		return null;
 	}
 
-	private TileEntity getBaseTileEntity(IGridNode node) {
+	private BlockEntity getBaseTileEntity(IGridNode node) {
 		IGrid grid = node.getGrid();
 		if (grid == null) {
 			return null;
@@ -129,11 +129,11 @@ public class AETankHandler implements ISpecialTankAccessHandler {
 		if (coord == null) {
 			return null;
 		}
-		World world = coord.getWorld();
+		Level world = coord.getWorld();
 		if (world == null) {
 			return null;
 		}
-		return world.getTileEntity(coord.x, coord.y, coord.z);
+		return world.getBlockEntity(coord.x, coord.y, coord.z);
 	}
 
 	private class LPActionHost implements IActionHost {
@@ -148,12 +148,12 @@ public class AETankHandler implements ISpecialTankAccessHandler {
 		public void securityBreak() {}
 
 		@Override
-		public IGridNode getGridNode(EnumFacing paramEnumFacing) {
+		public IGridNode getGridNode(Direction paramDirection) {
 			return null;
 		}
 
 		@Override
-		public AECableType getCableConnectionType(EnumFacing paramEnumFacing) {
+		public AECableType getCableConnectionType(Direction paramDirection) {
 			return null;
 		}
 

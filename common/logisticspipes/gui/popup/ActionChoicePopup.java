@@ -1,9 +1,9 @@
 package logisticspipes.gui.popup;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 
-import logisticspipes.utils.gui.GuiGraphics;
+
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 
 public class ActionChoicePopup extends SubGuiScreen {
@@ -22,48 +22,39 @@ public class ActionChoicePopup extends SubGuiScreen {
 		this.leftAction = leftAction;
 		this.rightButton = rightButton;
 		this.rightAction = rightAction;
-		int sizeX = Minecraft.getMinecraft().fontRenderer.getStringWidth(message);
-		int leftX = Minecraft.getMinecraft().fontRenderer.getStringWidth(leftButton);
-		int rightX = Minecraft.getMinecraft().fontRenderer.getStringWidth(rightButton);
+		int sizeX = Minecraft.getInstance().font.width(message);
+		int leftX = Minecraft.getInstance().font.width(leftButton);
+		int rightX = Minecraft.getInstance().font.width(rightButton);
 		this.xSize = Math.max(sizeX + 20, leftX + rightX + 70);
 		this.ySize = 55;
 		this.buttonMin = xSize == leftX + rightX + 70;
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
-
+	public void init() {
+		super.init();
+		int lW = Minecraft.getInstance().font.width(leftButton) + 20;
+		int rW = Minecraft.getInstance().font.width(rightButton) + 20;
+		int lX, rX;
 		if (buttonMin) {
-			buttonList.add(new GuiButton(0, guiLeft + 10, guiTop + 25, Minecraft.getMinecraft().fontRenderer.getStringWidth(leftButton) + 20, 20, leftButton));
-			buttonList.add(new GuiButton(1, guiLeft + Minecraft.getMinecraft().fontRenderer.getStringWidth(leftButton) + 40, guiTop + 25,
-					Minecraft.getMinecraft().fontRenderer.getStringWidth(rightButton) + 20, 20, rightButton));
+			lX = guiLeft + 10;
+			rX = guiLeft + Minecraft.getInstance().font.width(leftButton) + 40;
 		} else {
-			buttonList.add(new GuiButton(0, guiLeft + (this.xSize / 4) - ((Minecraft.getMinecraft().fontRenderer.getStringWidth(leftButton) + 20) / 2),
-					guiTop + 25, Minecraft.getMinecraft().fontRenderer.getStringWidth(leftButton) + 20, 20, leftButton));
-			buttonList.add(new GuiButton(1, guiLeft + (this.xSize * 3 / 4) - ((Minecraft.getMinecraft().fontRenderer.getStringWidth(rightButton) + 20) / 2),
-					guiTop + 25, Minecraft.getMinecraft().fontRenderer.getStringWidth(rightButton) + 20, 20, rightButton));
+			lX = guiLeft + (this.xSize / 4) - (lW / 2);
+			rX = guiLeft + (this.xSize * 3 / 4) - (rW / 2);
 		}
+		logisticspipes.utils.gui.SmallGuiButton lBtn = new logisticspipes.utils.gui.SmallGuiButton(0, lX, guiTop + 25, lW, 20, leftButton);
+		lBtn.setPressListener(b -> { leftAction.run(); exitGui(); });
+		addRenderableWidget(lBtn);
+		logisticspipes.utils.gui.SmallGuiButton rBtn = new logisticspipes.utils.gui.SmallGuiButton(1, rX, guiTop + 25, rW, 20, rightButton);
+		rBtn.setPressListener(b -> { rightAction.run(); exitGui(); });
+		addRenderableWidget(rBtn);
 	}
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		mc.fontRenderer.drawStringWithShadow(message, xCenter - (mc.fontRenderer.getStringWidth(message) / 2f), guiTop + 6, 0xFFFFFF);
+		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		getGuiGraphics().drawString(minecraft.font, message, xCenter - minecraft.font.width(message) / 2, guiTop + 6, 0xFFFFFF, true);
 	}
 
-	@Override
-	protected void actionPerformed(GuiButton button) {
-		switch (button.id) {
-			case 0:
-				leftAction.run();
-				exitGui();
-				break;
-			case 1:
-				rightAction.run();
-				exitGui();
-				break;
-		}
-	}
 }

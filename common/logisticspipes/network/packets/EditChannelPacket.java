@@ -3,7 +3,7 @@ package logisticspipes.network.packets;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,8 +40,8 @@ public class EditChannelPacket extends AddNewChannelPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(player.getEntityWorld());
+	public void processPacket(Player player) {
+		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(player.level());
 		Optional<ChannelInformation> channelOpt = manager.getChannels().stream()
 				.filter(chan -> chan.getChannelIdentifier().equals(channelIdentifier))
 				.findFirst();

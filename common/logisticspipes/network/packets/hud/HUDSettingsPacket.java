@@ -1,8 +1,8 @@
 package logisticspipes.network.packets.hud;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,62 +40,63 @@ public class HUDSettingsPacket extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		final ItemStack equipment = player.inventory.getStackInSlot(slot);
-		if (equipment.getItem() != LPItems.hudGlasses) return;
+	public void processPacket(Player player) {
+		final ItemStack equipment = player.getInventory().getItem(slot);
+		if (equipment.getItem() != LPItems.hudGlasses.get()) return;
 		IHUDConfig config = new HUDConfig(equipment);
 		switch (buttonId) {
 			case 0:
 				config.setChassisHUD(state);
 				if (config.isChassisHUD()) {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.chassie.enabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.chassie.enabled"));
 				} else {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.chassie.disabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.chassie.disabled"));
 				}
 				break;
 			case 1:
 				config.setHUDCrafting(state);
 				if (config.isHUDCrafting()) {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.crafting.enabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.crafting.enabled"));
 				} else {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.crafting.disabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.crafting.disabled"));
 				}
 				break;
 			case 2:
 				config.setHUDInvSysCon(state);
 				if (config.isHUDInvSysCon()) {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.invsyscon.enabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.invsyscon.enabled"));
 				} else {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.invsyscon.disabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.invsyscon.disabled"));
 				}
 				break;
 			case 3:
 				config.setHUDPowerJunction(state);
 				if (config.isHUDPowerLevel()) {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.powerjunction.enabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.powerjunction.enabled"));
 				} else {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.powerjunction.disabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.powerjunction.disabled"));
 				}
 				break;
 			case 4:
 				config.setHUDProvider(state);
 				if (config.isHUDProvider()) {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.provider.enabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.provider.enabled"));
 				} else {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.provider.disabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.provider.disabled"));
 				}
 				break;
 			case 5:
 				config.setHUDSatellite(state);
 				if (config.isHUDSatellite()) {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.satellite.enabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.satellite.enabled"));
 				} else {
-					player.sendMessage(new TextComponentTranslation("lp.hud.config.satellite.disabled"));
+					player.sendSystemMessage(Component.translatable("lp.hud.config.satellite.disabled"));
 				}
 				break;
 		}
-		if (player.inventoryContainer != null) {
-			player.inventoryContainer.detectAndSendChanges();
+		// player.inventoryContainer removed in 1.20.1 — use player.inventoryMenu
+		if (player.inventoryMenu != null) {
+			player.inventoryMenu.broadcastChanges();
 		}
 	}
 

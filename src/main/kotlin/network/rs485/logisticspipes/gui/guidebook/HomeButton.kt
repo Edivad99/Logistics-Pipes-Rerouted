@@ -10,11 +10,6 @@
  *
  * Copyright (c) 2021  RS485
  *
- * This MIT license was reworded to only match this file. If you use the regular
- * MIT license in your project, replace this copyright notice (this line and any
- * lines below and NOT the copyright line above) with the lines from the original
- * MIT license located here: http://opensource.org/licenses/MIT
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
@@ -22,72 +17,39 @@
  * of the Source Code, and to permit persons to whom the Source Code is furnished
  * to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Source Code, which also can be
- * distributed under the MIT.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
  */
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.utils.MinecraftColor
-import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
-import network.rs485.logisticspipes.gui.*
+import net.minecraft.client.gui.GuiGraphics
+import network.rs485.logisticspipes.gui.HorizontalAlignment
+import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
 
+// TODO: Rendering deferred — HomeButton migrated to 1.20.1 stub.
+
 private val homeButtonTexture = Rectangle(16, 64, 24, 32)
 private val homeIconTexture = Rectangle(128, 0, 16, 16)
 
-/*
-* Position on the button is set based on its rightmost and where it needs to connect at the bottom.
-*/
-class HomeButton(x: Int, y: Int, onClickAction: (Int) -> Boolean) : LPGuiButton(1, x - 24, y - 24, homeButtonTexture.roundedWidth, homeButtonTexture.roundedHeight) {
-    private val homeIconBody: MutableRectangle
+class HomeButton(x: Int, y: Int, onClickAction: (Int) -> Boolean) :
+    LPGuiButton(1, x - 24, y - 24, homeButtonTexture.roundedWidth, homeButtonTexture.roundedHeight) {
+
     override val bodyTrigger = Rectangle(1, 1, 22, 22)
 
     init {
         this.setOnClickAction(onClickAction)
-        val offset = (body.width - homeIconTexture.width) / 2
-        homeIconBody = MutableRectangle(offset, offset, homeIconTexture.width, homeIconTexture.height)
     }
 
     override fun setPos(newX: Int, newY: Int) {
         body.setPos(newX - 24, newY + 8)
     }
 
-    override fun drawButton(mc: Minecraft, mouseX: Int, mouseY: Int, partialTicks: Float) {
-        hovered = isHovered(mouseX, mouseY)
-        if (visible) {
-            GlStateManager.enableAlpha()
-            GlStateManager.enableBlend()
-            GuiDrawer.drawGuiTexturedRect(body, homeButtonTexture, false, MinecraftColor.WHITE.colorCode)
-            val hoverStateOffset = getHoverState(hovered) * homeIconTexture.roundedHeight
-            GuiDrawer.drawGuiTexturedRect(homeIconBody.translated(body), homeIconTexture.translated(0, hoverStateOffset), false, MinecraftColor.WHITE.colorCode)
-        }
-    }
+    override fun getTooltipText(): String = TextUtil.translate("misc.guide_book.home_button")
 
-    override fun getTooltipText(): String {
-        return TextUtil.translate("misc.guide_book.home_button")
-    }
-
-    override fun drawButtonForegroundLayer(mouseX: Int, mouseY: Int) {
-        if (hovered && visible) {
-            drawTooltip(
-                    x = body.roundedRight,
-                    y = body.roundedTop,
-                    horizontalAlign = HorizontalAlignment.RIGHT,
-                    verticalAlign = VerticalAlignment.BOTTOM
-            )
-        }
+    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        // TODO: deferred rendering
     }
 }

@@ -1,6 +1,6 @@
 package logisticspipes.routing.debug;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
@@ -37,7 +37,7 @@ public class HUDRoutingTableDebugProvider implements IHeadUpDisplayRendererProvi
 	}
 
 	@Override
-	public World getWorldForHUD() {
+	public Level getLevelForHUD() {
 		return null;
 	}
 

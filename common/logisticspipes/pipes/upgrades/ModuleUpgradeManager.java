@@ -1,9 +1,9 @@
 package logisticspipes.pipes.upgrades;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 
@@ -25,7 +25,7 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 	private final IPipeUpgrade[] upgrades = new IPipeUpgrade[2];
 	private final PipeLogisticsChassis pipe; // FIXME: get rid of this pipe reference
 
-	private EnumFacing sneakyOrientation = null;
+	private Direction sneakyOrientation = null;
 	private boolean isAdvancedCrafter = false;
 	private boolean isFuzzyUpgrade = false;
 	private int liquidCrafter = 0;
@@ -94,7 +94,7 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 	}
 
 	@Override
-	public EnumFacing getSneakyOrientation() {
+	public Direction getSneakyOrientation() {
 		if (sneakyOrientation != null) {
 			return sneakyOrientation;
 		}
@@ -117,9 +117,9 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 	}
 
 	@Override
-	public void InventoryChanged(IInventory inventory) {
+	public void InventoryChanged(Container inventory) {
 		boolean needUpdate = false;
-		for (int i = 0; i < inv.getSizeInventory(); i++) {
+		for (int i = 0; i < inv.getContainerSize(); i++) {
 			if (inv.isSlotEmpty(i)) {
 				if (upgrades[i] != null) {
 					needUpdate |= removeUpgrade(i, upgrades);
@@ -143,26 +143,26 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 		for (int i = 0; i < upgrades.length; i++) {
 			IPipeUpgrade upgrade = upgrades[i];
 			if (upgrade instanceof SneakyUpgradeConfig && sneakyOrientation == null) {
-				ItemStack stack = inv.getStackInSlot(i);
+				ItemStack stack = inv.getItem(i);
 				sneakyOrientation = ((SneakyUpgradeConfig) upgrade).getSide(stack);
 			} else if (upgrade instanceof AdvancedSatelliteUpgrade) {
 				isAdvancedCrafter = true;
 			} else if (upgrade instanceof FuzzyUpgrade) {
 				isFuzzyUpgrade = true;
 			} else if (upgrade instanceof FluidCraftingUpgrade) {
-				liquidCrafter += inv.getStackInSlot(i).getCount();
+				liquidCrafter += inv.getItem(i).getCount();
 			} else if (upgrade instanceof CraftingByproductUpgrade) {
 				hasByproductExtractor = true;
 			} else if (upgrade instanceof PatternUpgrade) {
 				hasPatternUpgrade = true;
 			} else if (upgrade instanceof CraftingCleanupUpgrade) {
-				craftingCleanup += inv.getStackInSlot(i).getCount();
+				craftingCleanup += inv.getItem(i).getCount();
 			} else if (upgrade instanceof ActionSpeedUpgrade) {
-				actionSpeedUpgrade += inv.getStackInSlot(i).getCount();
+				actionSpeedUpgrade += inv.getItem(i).getCount();
 			} else if (upgrade instanceof ItemExtractionUpgrade) {
-				itemExtractionUpgrade += inv.getStackInSlot(i).getCount();
+				itemExtractionUpgrade += inv.getItem(i).getCount();
 			} else if (upgrade instanceof ItemStackExtractionUpgrade) {
-				itemStackExtractionUpgrade += inv.getStackInSlot(i).getCount();
+				itemStackExtractionUpgrade += inv.getItem(i).getCount();
 			}
 			if (upgrade instanceof IConfigPipeUpgrade) {
 				guiUpgrades[i] = true;
@@ -182,24 +182,24 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 		}
 	}
 
-	public void readFromNBT(NBTTagCompound nbttagcompound, String prefix) {
+	public void readFromNBT(CompoundTag nbttagcompound, String prefix) {
 		internalInv.readFromNBT(nbttagcompound, "ModuleUpgradeInventory_" + prefix);
 	}
 
-	public void writeToNBT(NBTTagCompound nbttagcompound, String prefix) {
+	public void writeToNBT(CompoundTag nbttagcompound, String prefix) {
 		internalInv.writeToNBT(nbttagcompound, "ModuleUpgradeInventory_" + prefix);
 		InventoryChanged(inv);
 	}
 
-	private boolean updateModule(int slot, IPipeUpgrade[] upgrades, IInventory inv) {
-		ItemStack stackInSlot = inv.getStackInSlot(slot);
+	private boolean updateModule(int slot, IPipeUpgrade[] upgrades, Container inv) {
+		ItemStack stackInSlot = inv.getItem(slot);
 		if (stackInSlot.isEmpty() || !(stackInSlot.getItem() instanceof ItemUpgrade)) {
 			upgrades[slot] = null;
 		} else {
 			upgrades[slot] = ((ItemUpgrade) stackInSlot.getItem()).getUpgradeForItem(stackInSlot, upgrades[slot]);
 		}
 		if (upgrades[slot] == null) {
-			inv.setInventorySlotContents(slot, ItemStack.EMPTY);
+			inv.setItem(slot, ItemStack.EMPTY);
 			return false;
 		} else {
 			return upgrades[slot].needsUpdate();

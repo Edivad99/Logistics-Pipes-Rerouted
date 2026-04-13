@@ -2,10 +2,10 @@ package logisticspipes.pipes.basic;
 
 import java.util.List;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
 import logisticspipes.blocks.powertile.LogisticsPowerProviderTileEntity;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
@@ -31,22 +31,22 @@ public class PowerSupplierHandler {
 		this.pipe = pipe;
 	}
 
-	public void writeToNBT(NBTTagCompound nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound) {
 		if (internalBufferRF > 0) {
-			nbttagcompound.setDouble("bufferRF", internalBufferRF);
+			nbttagcompound.putDouble("bufferRF", internalBufferRF);
 		}
 		if (internalBufferIC2 > 0) {
-			nbttagcompound.setDouble("bufferEU", internalBufferIC2);
+			nbttagcompound.putDouble("bufferEU", internalBufferIC2);
 		}
 	}
 
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		if (nbttagcompound.getTag("bufferRF") instanceof NBTTagFloat) { // support for old float
+	public void readFromNBT(CompoundTag nbttagcompound) {
+		if (nbttagcompound.get("bufferRF") instanceof FloatTag) { // support for old float
 			internalBufferRF = nbttagcompound.getFloat("bufferRF");
 		} else {
 			internalBufferRF = nbttagcompound.getDouble("bufferRF");
 		}
-		if (nbttagcompound.getTag("bufferEU") instanceof NBTTagFloat) { // support for old float
+		if (nbttagcompound.get("bufferEU") instanceof FloatTag) { // support for old float
 			internalBufferRF = nbttagcompound.getFloat("bufferEU");
 		} else {
 			internalBufferRF = nbttagcompound.getDouble("bufferEU");
@@ -57,20 +57,21 @@ public class PowerSupplierHandler {
 		if (SimpleServiceLocator.powerProxy.isAvailable() && pipe.getUpgradeManager().hasRFPowerSupplierUpgrade()) {
 			if (requestRFPower()) return;
 		}
-		if (SimpleServiceLocator.IC2Proxy.hasIC2() && pipe.getUpgradeManager().getIC2PowerLevel() > 0) {
-			requestICPower();
-		}
+		// TODO(1.20.1): IC2 not ported — IC2 power path disabled
+		// if (SimpleServiceLocator.IC2Proxy.hasIC2() && pipe.getUpgradeManager().getIC2PowerLevel() > 0) {
+		// 	requestICPower();
+		// }
 	}
 
 	private void requestICPower() {
 		//Use Buffer
 
-		final List<LPNeighborTileEntity<TileEntity>> adjacentTileEntities = new WorldCoordinatesWrapper(pipe.container).allNeighborTileEntities();
+		final List<LPNeighborTileEntity<BlockEntity>> adjacentTileEntities = new WorldCoordinatesWrapper(pipe.container).allNeighborTileEntities();
 
 		double globalNeed = 0;
 		double[] need = new double[adjacentTileEntities.size()];
 		int i = 0;
-		for (NeighborTileEntity<TileEntity> adjacent : adjacentTileEntities) {
+		for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
 			if (SimpleServiceLocator.IC2Proxy.isEnergySink(adjacent.getTileEntity())) {
 				if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
 					if (SimpleServiceLocator.IC2Proxy.acceptsEnergyFrom(adjacent.getTileEntity(), pipe.container, adjacent.getOurDirection())) { // TODO pipe.container must be IEnergySource
@@ -84,7 +85,7 @@ public class PowerSupplierHandler {
 		if (globalNeed != 0 && !Double.isNaN(globalNeed)) {
 			double fullfillable = Math.min(1, internalBufferIC2 / globalNeed);
 			i = 0;
-			for (NeighborTileEntity<TileEntity> adjacent : adjacentTileEntities) {
+			for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
 				if (SimpleServiceLocator.IC2Proxy.isEnergySink(adjacent.getTileEntity()) && pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())
 						&& SimpleServiceLocator.IC2Proxy.acceptsEnergyFrom(adjacent.getTileEntity(), pipe.container, adjacent.getOurDirection())) { // TODO pipe.container must be IEnergySource
 					if (internalBufferIC2 + 1 < need[i] * fullfillable) {
@@ -153,12 +154,12 @@ public class PowerSupplierHandler {
 	private boolean requestRFPower() {
 		//Use Buffer
 
-		final List<LPNeighborTileEntity<TileEntity>> adjacentTileEntities = new WorldCoordinatesWrapper(pipe.container).allNeighborTileEntities();
+		final List<LPNeighborTileEntity<BlockEntity>> adjacentTileEntities = new WorldCoordinatesWrapper(pipe.container).allNeighborTileEntities();
 
 		double globalNeed = 0;
 		double[] need = new double[adjacentTileEntities.size()];
 		int i = 0;
-		for (NeighborTileEntity<TileEntity> adjacent : adjacentTileEntities) {
+		for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
 			if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection())) {
 				if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
 					ICoFHEnergyReceiver energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection());
@@ -171,10 +172,10 @@ public class PowerSupplierHandler {
 		if (globalNeed != 0 && !Double.isNaN(globalNeed)) {
 			double fullfillable = Math.min(1, internalBufferRF / globalNeed);
 			i = 0;
-			for (NeighborTileEntity<TileEntity> adjacent : adjacentTileEntities) {
+			for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
 				if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection())) {
 					if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
-						EnumFacing oppositeDir = adjacent.getOurDirection();
+						Direction oppositeDir = adjacent.getOurDirection();
 						ICoFHEnergyReceiver energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getTileEntity(), oppositeDir);
 						if (internalBufferRF + 1 < need[i] * fullfillable) {
 							return true;

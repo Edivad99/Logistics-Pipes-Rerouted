@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -40,22 +40,22 @@ package network.rs485.logisticspipes.world
 import logisticspipes.LogisticsPipes
 import logisticspipes.proxy.MainProxy
 import logisticspipes.proxy.SimpleServiceLocator
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntity
 import network.rs485.logisticspipes.connection.LPNeighborTileEntity
 
-data class WorldCoordinatesWrapper(private val world: World, private val pos: BlockPos) {
-    constructor(tileEntity: TileEntity) : this(tileEntity.world, tileEntity.pos)
+data class WorldCoordinatesWrapper(private val world: Level, private val pos: BlockPos) {
+    constructor(tileEntity: BlockEntity) : this(tileEntity.level!!, tileEntity.blockPos)
 
-    val tileEntity: TileEntity?
-        get() = world.getTileEntity(pos)
+    val tileEntity: BlockEntity?
+        get() = world.getBlockEntity(pos)
 
-    fun allNeighborTileEntities(): List<LPNeighborTileEntity<TileEntity>> =
-        EnumFacing.VALUES.mapNotNull { direction: EnumFacing -> getNeighbor(direction) }
+    fun allNeighborTileEntities(): List<LPNeighborTileEntity<BlockEntity>> =
+        Direction.values().mapNotNull { direction: Direction -> getNeighbor(direction) }
 
-    fun connectedTileEntities(): List<LPNeighborTileEntity<TileEntity>> {
+    fun connectedTileEntities(): List<LPNeighborTileEntity<BlockEntity>> {
         val pipe = tileEntity
         if (SimpleServiceLocator.pipeInformationManager.isNotAPipe(pipe)) {
             LogisticsPipes.log.warn("The coordinates didn't hold a pipe at all", Throwable("Stack trace"))
@@ -64,8 +64,8 @@ data class WorldCoordinatesWrapper(private val world: World, private val pos: Bl
         return allNeighborTileEntities().filter { adjacent -> MainProxy.checkPipesConnections(pipe, adjacent.tileEntity, adjacent.direction) }
     }
 
-    fun getNeighbor(direction: EnumFacing): LPNeighborTileEntity<TileEntity>? {
-        val tileEntity = world.getTileEntity(pos.offset(direction)) ?: return null
+    fun getNeighbor(direction: Direction): LPNeighborTileEntity<BlockEntity>? {
+        val tileEntity = world.getBlockEntity(pos.relative(direction)) ?: return null
         return LPNeighborTileEntity(tileEntity, direction)
     }
 

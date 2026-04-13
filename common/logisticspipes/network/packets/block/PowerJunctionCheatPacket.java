@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
@@ -21,11 +21,11 @@ public class PowerJunctionCheatPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		if (!LogisticsPipes.isDEBUG()) {
 			return;
 		}
-		final LogisticsPowerJunctionTileEntity tile = this.getTileAs(player.world, LogisticsPowerJunctionTileEntity.class);
+		final LogisticsPowerJunctionTileEntity tile = this.getTileAs(player.level(), LogisticsPowerJunctionTileEntity.class);
 		if (tile != null) {
 			tile.addEnergy(100000);
 		}

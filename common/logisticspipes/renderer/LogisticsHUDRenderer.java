@@ -1,5 +1,17 @@
 package logisticspipes.renderer;
+import net.minecraft.client.gui.GuiGraphics;
 
+import net.minecraft.client.gui.screens.Screen;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import org.joml.Quaternionf;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -8,22 +20,18 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.HitResult;
 
-import net.minecraftforge.client.GuiIngameForge;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+
+
 
 import logisticspipes.api.IHUDArmor;
 import logisticspipes.config.Configs;
@@ -37,7 +45,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import logisticspipes.utils.math.Vector3d;
@@ -101,7 +109,7 @@ public class LogisticsHUDRenderer {
 			if (!(pipe instanceof IHeadUpDisplayRendererProvider)) {
 				continue;
 			}
-			if (pipe.getWorld().provider.getDimension() == FMLClientHandler.instance().getClient().world.provider.getDimension()) {
+			if (pipe.getWorld() == Minecraft.getInstance().level) {
 				double dis = Math.hypot(pipe.getX() - x + 0.5, Math.hypot(pipe.getY() - y + 0.5, pipe.getZ() - z + 0.5));
 				if (dis < Configs.LOGISTICS_HUD_RENDER_DISTANCE && dis > 0.75) {
 					newList.add(new Pair<>(dis, (IHeadUpDisplayRendererProvider) pipe));
@@ -113,7 +121,7 @@ public class LogisticsHUDRenderer {
 		}
 
 		List<IHeadUpDisplayBlockRendererProvider> remove = new ArrayList<>();
-		providers.stream().filter(provider -> provider.getWorldForHUD().provider.getDimension() == FMLClientHandler.instance().getClient().world.provider.getDimension())
+		providers.stream().filter(provider -> provider.getLevelForHUD() == Minecraft.getInstance().level)
 				.forEach(provider -> {
 					double dis = Math.hypot(provider.getX() - x + 0.5, Math.hypot(provider.getY() - y + 0.5, provider.getZ() - z + 0.5));
 					if (dis < Configs.LOGISTICS_HUD_RENDER_DISTANCE && dis > 0.75 && !provider.isHUDInvalid() && provider.isHUDExistent()) {
@@ -153,8 +161,8 @@ public class LogisticsHUDRenderer {
 	}
 
 	private boolean playerWearsHUD() {
-		return FMLClientHandler.instance().getClient().player != null && FMLClientHandler.instance().getClient().player.inventory != null && FMLClientHandler.instance().getClient().player.inventory.armorInventory != null && !FMLClientHandler.instance().getClient().player.inventory.armorInventory.get(3).isEmpty()
-				&& checkItemStackForHUD(FMLClientHandler.instance().getClient().player.inventory.armorInventory.get(3));
+		return Minecraft.getInstance().player != null && Minecraft.getInstance().player.getInventory() != null && Minecraft.getInstance().player.getInventory().armor != null && !Minecraft.getInstance().player.getInventory().armor.get(3).isEmpty()
+				&& checkItemStackForHUD(Minecraft.getInstance().player.getInventory().armor.get(3));
 	}
 
 	private boolean checkItemStackForHUD(@Nonnull ItemStack stack) {
@@ -169,42 +177,38 @@ public class LogisticsHUDRenderer {
 	//TODO: only load this once, rather than twice
 	private static final ResourceLocation TEXTURE = new ResourceLocation("textures/gui/icons.png");
 
-	public void renderPlayerDisplay(long renderTicks) {
+	public void renderPlayerDisplay(long renderTicks, GuiGraphics guiGraphics) {
 		if (!displayRenderer()) {
 			return;
 		}
-		Minecraft mc = FMLClientHandler.instance().getClient();
+		Minecraft mc = Minecraft.getInstance();
 		if (displayHUD() && displayCross) {
-			ScaledResolution res = new ScaledResolution(mc);
-			int width = res.getScaledWidth();
-			int height = res.getScaledHeight();
-			if (GuiIngameForge.renderCrosshairs && mc.ingameGUI != null) {
-				mc.renderEngine.bindTexture(LogisticsHUDRenderer.TEXTURE);
-				GL11.glColor4d(0.0D, 0.0D, 0.0D, 1.0D);
-				GL11.glDisable(GL11.GL_BLEND);
-				mc.ingameGUI.drawTexturedModalRect(width / 2 - 7, height / 2 - 7, 0, 0, 16, 16);
+			int width = mc.getWindow().getGuiScaledWidth();
+			int height = mc.getWindow().getGuiScaledHeight();
+			if (mc.gui != null && guiGraphics != null) {
+				guiGraphics.blit(TEXTURE, width / 2 - 7, height / 2 - 7, 0, 0, 16, 16);
 			}
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
-	public void renderWorldRelative(long renderTicks, float partialTick) {
+	@OnlyIn(Dist.CLIENT)
+	public void renderWorldRelative(long renderTicks, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		if (!displayRenderer()) {
 			return;
 		}
-		Minecraft mc = FMLClientHandler.instance().getClient();
-		EntityPlayer player = mc.player;
-		if (list.size() == 0 || Math.hypot(lastXPos - player.posX, Math.hypot(lastYPos - player.posY, lastZPos - player.posZ)) > 0.5 || (renderTicks % 10 == 0 && (lastXPos != player.posX || lastYPos != player.posY || lastZPos != player.posZ)) || renderTicks % 600 == 0) {
-			refreshList(player.posX, player.posY, player.posZ);
-			lastXPos = player.posX;
-			lastYPos = player.posY;
-			lastZPos = player.posZ;
+		Minecraft mc = Minecraft.getInstance();
+		Player player = mc.player;
+		if (list.size() == 0 || Math.hypot(lastXPos - player.getX(), Math.hypot(lastYPos - player.getY(), lastZPos - player.getZ())) > 0.5 || (renderTicks % 10 == 0 && (lastXPos != player.getX() || lastYPos != player.getY() || lastZPos != player.getZ())) || renderTicks % 600 == 0) {
+			refreshList(player.getX(), player.getY(), player.getZ());
+			lastXPos = player.getX();
+			lastYPos = player.getY();
+			lastZPos = player.getZ();
 		}
 		boolean cursorHandled = false;
 		displayCross = false;
 		IHUDConfig config;
 		if (debugHUD == null) {
-			config = new HUDConfig(mc.player.inventory.armorInventory.get(3));
+			config = new HUDConfig(mc.player.getInventory().armor.get(3));
 		} else {
 			config = new IHUDConfig() {
 
@@ -268,21 +272,21 @@ public class LogisticsHUDRenderer {
 				continue;
 			}
 			if (renderer.getRenderer().display(config)) {
-				GL11.glPushMatrix();
+				poseStack.pushPose();
 				if (!cursorHandled) {
-					double x = renderer.getX() + 0.5 - player.posX;
-					double y = renderer.getY() + 0.5 - player.posY;
-					double z = renderer.getZ() + 0.5 - player.posZ;
+					double x = renderer.getX() + 0.5 - player.getX();
+					double y = renderer.getY() + 0.5 - player.getY();
+					double z = renderer.getZ() + 0.5 - player.getZ();
 					if (Math.hypot(x, Math.hypot(y, z)) < 0.75 || (renderer instanceof IHeadUpDisplayBlockRendererProvider && (((IHeadUpDisplayBlockRendererProvider) renderer).isHUDInvalid() || !((IHeadUpDisplayBlockRendererProvider) renderer).isHUDExistent()))) {
-						refreshList(player.posX, player.posY, player.posZ);
-						GL11.glPopMatrix();
+						refreshList(player.getX(), player.getY(), player.getZ());
+						poseStack.popPose();
 						break;
 					}
 					int[] pos = getCursor(renderer);
 					if (pos.length == 2) {
 						if (renderer.getRenderer().cursorOnWindow(pos[0], pos[1])) {
 							renderer.getRenderer().handleCursor(pos[0], pos[1]);
-							if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) { //if(FMLClientHandler.instance().getClient().player.isSneaking()) {
+							if (Screen.hasShiftDown()) { //if(Minecraft.getInstance().player.isCrouching()) {
 								thisIsLast = renderer;
 								displayCross = true;
 							}
@@ -290,259 +294,163 @@ public class LogisticsHUDRenderer {
 						}
 					}
 				}
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				RenderSystem.enableBlend();
+				RenderSystem.defaultBlendFunc();
 				if (thisIsLast != renderer) {
-					displayOneView(renderer, config, partialTick, false);
+					displayOneView(renderer, config, partialTick, false, poseStack, bufferSource, packedLight);
 				}
-				GL11.glPopMatrix();
+				poseStack.popPose();
 			}
 		}
 		if (thisIsLast != null) {
-			GL11.glPushMatrix();
-			GL11.glDisable(GL11.GL_BLEND);
-			GL11.glDisable(GL11.GL_DEPTH_TEST);
-			displayOneView(thisIsLast, config, partialTick, true);
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			GL11.glPopMatrix();
+			poseStack.pushPose();
+			RenderSystem.disableBlend();
+			RenderSystem.disableDepthTest();
+			displayOneView(thisIsLast, config, partialTick, true, poseStack, bufferSource, packedLight);
+			RenderSystem.enableBlend();
+			RenderSystem.enableDepthTest();
+			poseStack.popPose();
 		}
 
-		GL11.glPushMatrix();
-		RayTraceResult box = mc.objectMouseOver;
-		if (box != null && box.typeOfHit == RayTraceResult.Type.BLOCK) {
-			if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+		poseStack.pushPose();
+		HitResult box = mc.hitResult;
+		if (box != null && box.getType() == HitResult.Type.BLOCK) {
+			if (Screen.hasControlDown()) {
 				progress = Math.min(progress + (2 * Math.max(1, (int) Math.floor((System.currentTimeMillis() - last) / 50.0D))), 100);
 			} else {
 				progress = Math.max(progress - (2 * Math.max(1, (int) Math.floor((System.currentTimeMillis() - last) / 50.0D))), 0);
 			}
 			if (progress != 0) {
-				List<String> textData = SimpleServiceLocator.neiProxy.getInfoForPosition(player.world, player, box);
-
-				//TileEntity tile = new DoubleCoordinates(box.blockX, box.blockY, box.blockZ).getTileEntity(DimensionManager.getWorld(0));
-				//Insert debug code here
-
-				if (!textData.isEmpty()) {
-					double xCoord = box.getBlockPos().getX() + 0.5D;
-					double yCoord = box.getBlockPos().getY() + 0.5D;
-					double zCoord = box.getBlockPos().getZ() + 0.5D;
-
-					double x = xCoord - player.prevPosX - ((player.posX - player.prevPosX) * partialTick);
-					double y = yCoord - player.prevPosY - ((player.posY - player.prevPosY) * partialTick);
-					double z = zCoord - player.prevPosZ - ((player.posZ - player.prevPosZ) * partialTick);
-
-					GL11.glDisable(GL11.GL_DEPTH_TEST);
-
-					GL11.glTranslatef((float) x, (float) y, (float) z);
-					GL11.glRotatef(90.0F, 1.0F, 0.0F, 0.0F);
-					GL11.glRotatef(getAngle(z, x) + 110F, 0.0F, 0.0F, 1.0F);
-					GL11.glRotatef((-1) * getAngle(Math.hypot(x + 0.8, z + 0.8), y + 0.5) + 180, 1.0F, 0.0F, 0.0F);
-
-					double dProgress = progress / 100D;
-
-					GL11.glTranslated(0.4D * dProgress + 0.6D, -0.2D * dProgress - 0.6D, -0.0D);
-
-					GL11.glScalef(0.01F, 0.01F, 1F);
-
-					int heigth = Math.max(32, 10 * textData.size() + 15);
-					int width = 0;
-					for (String s : textData) {
-						width = Math.max(width, mc.fontRenderer.getStringWidth(s) + 22);
-					}
-					width = Math.max(32, width + 15);
-
-					GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 96);
-					GuiGraphics.drawGuiBackGround(mc, (int) ((-0.5 * (width - 32)) * dProgress) - 16, (int) ((-0.5 * (heigth - 32)) * dProgress) - 16, (int) ((0.5 * (width - 32)) * dProgress) + 16, (int) ((0.5 * (heigth - 32)) * dProgress) + 16, 0, false);
-					GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 127);
-
-					if (progress == 100) {
-						GL11.glTranslated((int) ((-0.5 * (width - 32)) * dProgress) - 16, (int) ((-0.5 * (heigth - 32)) * dProgress) - 16, -0.0001D);
-						for (int i = 0; i < textData.size(); i++) {
-							mc.fontRenderer.drawString(textData.get(i), 28, 8 + i * 10, 0x000000);
-						}
-
-						ItemStack stack = SimpleServiceLocator.neiProxy.getItemForPosition(player.world, player, box);
-
-						if (!stack.isEmpty()) {
-							float scaleX = 1.5F * 0.8F;
-							float scaleY = 1.5F * 0.8F;
-							float scaleZ = -0.0001F;
-
-							GL11.glScalef(scaleX, scaleY, scaleZ);
-
-							ItemStackRenderer itemStackRenderer = new ItemStackRenderer(5, 6, 0.0F, true, true);
-							itemStackRenderer.setItemstack(stack).setDisplayAmount(DisplayAmount.NEVER);
-							itemStackRenderer.setScaleX(scaleX).setScaleY(scaleY).setScaleZ(scaleZ);
-
-							itemStackRenderer.renderInGui();
-						}
-					}
-
-					GL11.glEnable(GL11.GL_DEPTH_TEST);
-				}
+				// HUD world-space info panel — requires NEI/info provider not yet ported to 1.20.1
 			}
-		} else if (!Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+		} else if (!Screen.hasControlDown()) {
 			progress = 0;
 		}
-		GL11.glPopMatrix();
+		poseStack.popPose();
 
 		//Render Laser
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		//GL11.glEnable(GL11.GL_LIGHTING);
-		for (LaserData data : lasers) {
-			GL11.glPushMatrix();
-
-			double x = data.getPosX() + 0.5 - player.prevPosX - ((player.posX - player.prevPosX) * partialTick);
-			double y = data.getPosY() + 0.5 - player.prevPosY - ((player.posY - player.prevPosY) * partialTick);
-			double z = data.getPosZ() + 0.5 - player.prevPosZ - ((player.posZ - player.prevPosZ) * partialTick);
-			GL11.glTranslatef((float) x, (float) y, (float) z);
-
-			switch (data.getDir()) {
-				case NORTH:
-					GL11.glRotatef(90.0F, 0.0F, 1.0F, 0.0F);
-					break;
-				case SOUTH:
-					GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
-					break;
-				case EAST:
-					break;
-				case WEST:
-					GL11.glRotatef(180.0F, 0.0F, 1.0F, 0.0F);
-					break;
-				case UP:
-					GL11.glRotatef(90.0F, 0.0F, 0.0F, 1.0F);
-					break;
-				case DOWN:
-					GL11.glRotatef(-90.0F, 0.0F, 0.0F, 1.0F);
-					break;
-				default:
-					break;
-			}
-
-			GL11.glScalef(0.01F, 0.01F, 0.01F);
-
-			Tessellator tessellator = Tessellator.getInstance();
-
-			for (float i = 0; i < 6 * data.getLength(); i++) {
-				setColor(i, data.getConnectionType());
-
-				float shift = 100f * i / 6f;
-				float start = 0.0f;
-				if (data.isStartPipe() && i == 0) {
-					start = -6.0f;
+		RenderSystem.disableDepthTest();
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+		if (!lasers.isEmpty()) {
+			RenderSystem.setShader(GameRenderer::getPositionColorShader);
+			Tesselator tes = Tesselator.getInstance();
+			BufferBuilder bb = tes.getBuilder();
+			for (LaserData data : lasers) {
+				poseStack.pushPose();
+				double x = data.getPosX() + 0.5 - player.xo - ((player.getX() - player.xo) * partialTick);
+				double y = data.getPosY() + 0.5 - player.yo - ((player.getY() - player.yo) * partialTick);
+				double z = data.getPosZ() + 0.5 - player.zo - ((player.getZ() - player.zo) * partialTick);
+				poseStack.translate((float) x, (float) y, (float) z);
+				switch (data.getDir()) {
+					case NORTH: poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians( 90.0F))); break;
+					case SOUTH: poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians(-90.0F))); break;
+					case WEST:  poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians(180.0F))); break;
+					case UP:    poseStack.mulPose(new Quaternionf().rotationZ( (float) Math.toRadians( 90.0F))); break;
+					case DOWN:  poseStack.mulPose(new Quaternionf().rotationZ( (float) Math.toRadians(-90.0F))); break;
+					default: break;
 				}
+				poseStack.scale(0.01F, 0.01F, 0.01F);
+				org.joml.Matrix4f mat = poseStack.last().pose();
 
-				BufferBuilder buffer = tessellator.getBuffer();
-				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-				buffer.pos(19.7f + shift, 3.0f, -3.0f);
-				buffer.pos(3.0f + shift + start, 3.0f, -3.0f);
-				buffer.pos(3.0f + shift + start, 3.0f, 3.0f);
-				buffer.pos(19.7f + shift, 3.0f, 3.0f);
-				tessellator.draw();
-
-				buffer = tessellator.getBuffer();
-				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-				buffer.pos(19.7f + shift, -3.0f, 3.0f);
-				buffer.pos(3.0f + shift + start, -3.0f, 3.0f);
-				buffer.pos(3.0f + shift + start, -3.0f, -3.0f);
-				buffer.pos(19.7f + shift, -3.0f, -3.0f);
-				tessellator.draw();
-
-				buffer = tessellator.getBuffer();
-				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-				buffer.pos(19.7f + shift, 3.0f, 3.0f);
-				buffer.pos(3.0f + shift + start, 3.0f, 3.0f);
-				buffer.pos(3.0f + shift + start, -3.0f, 3.0f);
-				buffer.pos(19.7f + shift, -3.0f, 3.0f);
-				tessellator.draw();
-
-				buffer = tessellator.getBuffer();
-				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-				buffer.pos(19.7f + shift, -3.0f, -3.0f);
-				buffer.pos(3.0f + shift + start, -3.0f, -3.0f);
-				buffer.pos(3.0f + shift + start, 3.0f, -3.0f);
-				buffer.pos(19.7f + shift, 3.0f, -3.0f);
-				tessellator.draw();
+				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+				for (float i = 0; i < 6 * data.getLength(); i += 1.0f) {
+					int[] c = getLaserColor(i, data.getConnectionType());
+					float shift = 100f * i / 6f;
+					float s = (data.isStartPipe() && i == 0) ? -6.0f : 0.0f;
+					// Top
+					bb.vertex(mat, 19.7f+shift, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,  3.0f+shift+s, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,  3.0f+shift+s, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat, 19.7f+shift, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					// Bottom
+					bb.vertex(mat, 19.7f+shift,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,  3.0f+shift+s,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,  3.0f+shift+s,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat, 19.7f+shift,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					// +Z side
+					bb.vertex(mat, 19.7f+shift, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,  3.0f+shift+s, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,  3.0f+shift+s,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat, 19.7f+shift,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					// -Z side
+					bb.vertex(mat, 19.7f+shift,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,  3.0f+shift+s,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,  3.0f+shift+s, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat, 19.7f+shift, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+				}
+				if (data.isStartPipe()) {
+					int[] c = getLaserColor(0, data.getConnectionType());
+					bb.vertex(mat,-3, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,-3, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,-3,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,-3,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+				}
+				if (data.isFinalPipe()) {
+					int[] c = getLaserColor(6 * (float) data.getLength() - 1, data.getConnectionType());
+					float ex = 100.0f * data.getLength() + 3f;
+					bb.vertex(mat,ex, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,ex, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,ex,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.vertex(mat,ex,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+				}
+				BufferUploader.drawWithShader(bb.end());
+				poseStack.popPose();
 			}
-
-			if (data.isStartPipe()) {
-				setColor(0, data.getConnectionType());
-				BufferBuilder buffer = tessellator.getBuffer();
-				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-				buffer.pos(-3.0f, 3.0f, 3.0f);
-				buffer.pos(-3.0f, 3.0f, -3.0f);
-				buffer.pos(-3.0f, -3.0f, -3.0f);
-				buffer.pos(-3.0f, -3.0f, 3.0f);
-				tessellator.draw();
-			}
-
-			if (data.isFinalPipe()) {
-				setColor(6 * data.getLength() - 1, data.getConnectionType());
-				BufferBuilder buffer = tessellator.getBuffer();
-				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-				buffer.pos(100.0f * data.getLength() + 3f, 3.0f, -3.0f);
-				buffer.pos(100.0f * data.getLength() + 3f, 3.0f, 3.0f);
-				buffer.pos(100.0f * data.getLength() + 3f, -3.0f, 3.0f);
-				buffer.pos(100.0f * data.getLength() + 3f, -3.0f, -3.0f);
-				tessellator.draw();
-			}
-
-			GL11.glPopMatrix();
 		}
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		RenderSystem.enableDepthTest();
 		last = System.currentTimeMillis();
 	}
 
-	private void setColor(float i, EnumSet<PipeRoutingConnectionType> flags) {
-		GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+	private int[] getLaserColor(float i, EnumSet<PipeRoutingConnectionType> flags) {
 		if (!flags.isEmpty()) {
 			int k = 0;
 			for (PipeRoutingConnectionType type : PipeRoutingConnectionType.values) {
-				if (flags.contains(type)) {
-					k++;
-				}
-				if (k - 1 == (int) i % flags.size()) {
-					setColor(type);
-					break;
-				}
+				if (flags.contains(type)) k++;
+				if (k - 1 == (int) i % flags.size()) return getLaserTypeColor(type);
 			}
 		}
+		return new int[]{255, 255, 255, 128};
 	}
 
-	private void setColor(PipeRoutingConnectionType type) {
+	private int[] getLaserTypeColor(PipeRoutingConnectionType type) {
 		switch (type) {
-			case canRouteTo:
-				GL11.glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
-				break;
-			case canRequestFrom:
-				GL11.glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
-				break;
-			case canPowerFrom:
-				GL11.glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
-				break;
-			default:
+			case canRouteTo:     return new int[]{255, 255,   0, 128};
+			case canRequestFrom: return new int[]{  0, 255,   0, 128};
+			case canPowerFrom:   return new int[]{  0,   0, 255, 128};
+			default:             return new int[]{255, 255, 255, 128};
 		}
 	}
 
-	private void displayOneView(IHeadUpDisplayRendererProvider renderer, IHUDConfig config, float partialTick, boolean shifted) {
-		Minecraft mc = FMLClientHandler.instance().getClient();
-		EntityPlayer player = mc.player;
-		double x = renderer.getX() + 0.5 - player.prevPosX - ((player.posX - player.prevPosX) * partialTick);
-		double y = renderer.getY() + 0.5 - player.prevPosY - ((player.posY - player.prevPosY) * partialTick);
-		double z = renderer.getZ() + 0.5 - player.prevPosZ - ((player.posZ - player.prevPosZ) * partialTick);
-		GL11.glTranslatef((float) x, (float) y, (float) z);
-		GL11.glRotatef(90.0F, 1.0F, 0.0F, 0.0F);
-		GL11.glRotatef(getAngle(z, x) + 90, 0.0F, 0.0F, 1.0F);
-		GL11.glRotatef((-1) * getAngle(Math.hypot(x, z), y - player.getEyeHeight()) + 180, 1.0F, 0.0F, 0.0F);
-
-		GL11.glTranslatef(0.0F, 0.0F, -0.4F);
-
-		GL11.glScalef(0.01F, 0.01F, 1F);
-
-		renderer.getRenderer().renderHeadUpDisplay(Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
+	private void displayOneView(IHeadUpDisplayRendererProvider renderer, IHUDConfig config, float partialTick, boolean shifted, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+		Minecraft mc = Minecraft.getInstance();
+		Player player = mc.player;
+		double x = renderer.getX() + 0.5 - player.xo - ((player.getX() - player.xo) * partialTick);
+		double y = renderer.getY() + 0.5 - player.yo - ((player.getY() - player.yo) * partialTick);
+		double z = renderer.getZ() + 0.5 - player.zo - ((player.getZ() - player.zo) * partialTick);
+		// HUD sub-renderers draw into a GuiGraphics stashed on SimpleGraphics so their existing
+		// guiGraphics.drawString/fill/renderItem calls work without a signature change.
+		// The public 2-arg GuiGraphics ctor creates its own internal PoseStack, so we apply the
+		// HUD billboard transforms to gg.pose() rather than the external poseStack.
+		net.minecraft.client.gui.GuiGraphics previous = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		if (bufferSource instanceof net.minecraft.client.renderer.MultiBufferSource.BufferSource bs) {
+			net.minecraft.client.gui.GuiGraphics gg = new net.minecraft.client.gui.GuiGraphics(mc, bs);
+			com.mojang.blaze3d.vertex.PoseStack ggPose = gg.pose();
+			ggPose.pushPose();
+			ggPose.translate((float) x, (float) y, (float) z);
+			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
+			ggPose.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
+			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y - player.getEyeHeight()) + 180)));
+			ggPose.translate(0.0F, 0.0F, -0.4F);
+			ggPose.scale(0.01F, 0.01F, 1F);
+			logisticspipes.utils.gui.SimpleGraphics.guiGraphics = gg;
+			try {
+				renderer.getRenderer().renderHeadUpDisplay(Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
+			} finally {
+				logisticspipes.utils.gui.SimpleGraphics.guiGraphics = previous;
+				ggPose.popPose();
+			}
+		}
 	}
 
 	private float getAngle(double x, double y) {
@@ -558,14 +466,14 @@ public class LogisticsHUDRenderer {
 	}
 
 	private int[] getCursor(IHeadUpDisplayRendererProvider renderer) {
-		Minecraft mc = FMLClientHandler.instance().getClient();
-		EntityPlayer player = mc.player;
+		Minecraft mc = Minecraft.getInstance();
+		Player player = mc.player;
 
-		Vector3d playerView = Vector3d.getFromAngles((270 - player.rotationYaw) / 360 * -2 * Math.PI, (player.rotationPitch) / 360 * -2 * Math.PI);
+		Vector3d playerView = Vector3d.getFromAngles((270 - player.getYRot()) / 360 * -2 * Math.PI, (player.getXRot()) / 360 * -2 * Math.PI);
 		Vector3d playerPos = new Vector3d();
-		playerPos.x = player.posX;
-		playerPos.y = player.posY + player.getEyeHeight();
-		playerPos.z = player.posZ;
+		playerPos.x = player.getX();
+		playerPos.y = player.getY() + player.getEyeHeight();
+		playerPos.z = player.getZ();
 
 		Vector3d panelPos = new Vector3d();
 		panelPos.x = renderer.getX() + 0.5;
@@ -650,7 +558,8 @@ public class LogisticsHUDRenderer {
 	}
 
 	private boolean displayHUD() {
-		return (playerWearsHUD() || debugHUD != null) && FMLClientHandler.instance().getClient().currentScreen == null && FMLClientHandler.instance().getClient().gameSettings.thirdPersonView == 0 && !FMLClientHandler.instance().getClient().gameSettings.hideGUI;
+		Minecraft mc = Minecraft.getInstance();
+		return (playerWearsHUD() || debugHUD != null) && mc.screen == null && mc.options.getCameraType().isFirstPerson() && !mc.options.hideGui;
 	}
 
 	public void resetLasers() {

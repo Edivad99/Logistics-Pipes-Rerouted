@@ -3,16 +3,16 @@ package logisticspipes.utils.string;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;
 
 public final class StringUtils {
 	public static final List<String> UNTRANSLATED_STRINGS = new ArrayList<>();
 
 	private StringUtils() {}
 
-	public static String getWithMaxWidth(String name, int width, FontRenderer fontRenderer) {
+	public static String getWithMaxWidth(String name, int width, Font font) {
 		boolean changed = false;
-		while (fontRenderer.getStringWidth(name) > width) {
+		while (font.width(name) > width) {
 			name = name.substring(0, name.length() - 2);
 			changed = true;
 		}

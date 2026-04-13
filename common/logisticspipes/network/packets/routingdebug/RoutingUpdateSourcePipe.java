@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.routingdebug;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +25,7 @@ public class RoutingUpdateSourcePipe extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		if (exitRoute != null) {
 			ClientViewController.instance().handlePacket(this);
 		}

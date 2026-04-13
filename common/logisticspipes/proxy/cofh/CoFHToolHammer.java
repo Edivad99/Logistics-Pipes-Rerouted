@@ -1,36 +1,9 @@
 package logisticspipes.proxy.cofh;
-
+// TODO: CoFH API not ported to 1.20.1 — stub
 import javax.annotation.Nonnull;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-
-import cofh.api.item.IToolHammer;
-
+import net.minecraft.world.item.ItemStack;
 import logisticspipes.api.ILPPipeConfigTool;
-import logisticspipes.api.ILPPipeTile;
 import logisticspipes.proxy.interfaces.ILPPipeConfigToolWrapper;
-
 public class CoFHToolHammer implements ILPPipeConfigToolWrapper {
-
-	@Override
-	public ILPPipeConfigTool getWrappedTool(@Nonnull ItemStack stack) {
-		if (stack.getItem() instanceof IToolHammer) {
-			return new ILPPipeConfigTool() {
-
-				@Override
-				public boolean canWrench(EntityPlayer player, @Nonnull ItemStack wrench, ILPPipeTile pipe) {
-					if (wrench.isEmpty() || !(wrench.getItem() instanceof IToolHammer)) return false;
-					return ((IToolHammer) wrench.getItem()).isUsable(wrench, player, pipe.getBlockPos());
-				}
-
-				@Override
-				public void wrenchUsed(EntityPlayer player, @Nonnull ItemStack wrench, ILPPipeTile pipe) {
-					if (wrench.isEmpty() || !(wrench.getItem() instanceof IToolHammer)) return;
-					((IToolHammer) wrench.getItem()).toolUsed(wrench, player, pipe.getBlockPos());
-				}
-			};
-		}
-		return null;
-	}
+    @Override public ILPPipeConfigTool getWrappedTool(@Nonnull ItemStack stack) { return null; }
 }

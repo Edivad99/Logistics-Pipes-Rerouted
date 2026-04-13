@@ -2,9 +2,9 @@ package logisticspipes.routing.pathfinder.changedetection;
 
 import java.util.ArrayList;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.asm.te.ITileEntityChangeListener;
@@ -20,12 +20,22 @@ import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class TEControl {
 
-	public static void validate(final TileEntity tile) {
-		final World world = tile.getWorld();
+	/**
+	 * Called when a block entity is loaded/placed.
+	 *
+	 * Previously injected into ALL TileEntities via ASM. Now called directly from
+	 * {@link LogisticsTileGenericPipe#onLoad()} for LP pipes.
+	 *
+	 * Non-LP neighbour changes are handled by BlockChangeListener which
+	 * listens for BlockEvent.EntityPlaceEvent / BlockEvent.BreakEvent.
+	 * Previously injected into ALL TileEntities via ASM.
+	 */
+	public static void validate(final BlockEntity tile) {
+		final Level world = tile.getLevel();
 		if (!MainProxy.isServer(world)) {
 			return;
 		}
-		if (tile.getClass().getName().startsWith("net.minecraft.tileentity")) {
+		if (tile.getClass().getName().startsWith("net.minecraft.world.level.block.entity")) {
 			return;
 		}
 
@@ -34,6 +44,9 @@ public class TEControl {
 			return;
 		}
 
+		if (!(tile instanceof ILPTEInformation)) {
+			return;
+		}
 		if (SimpleServiceLocator.pipeInformationManager.isPipe(tile, false, ConnectionType.UNDEFINED) || SimpleServiceLocator.specialtileconnection.isType(tile)) {
 			((ILPTEInformation) tile).setLPTileEntityObject(new LPTileEntityObject());
 			((ILPTEInformation) tile).getLPTileEntityObject().initialised = LPTickHandler.getWorldInfo(world).getWorldTick();
@@ -44,13 +57,13 @@ public class TEControl {
 				if (!SimpleServiceLocator.pipeInformationManager.isPipe(tile, true, ConnectionType.UNDEFINED)) {
 					return null;
 				}
-				for (EnumFacing dir : EnumFacing.VALUES) {
+				for (Direction dir : Direction.values()) {
 					DoubleCoordinates newPos = CoordinateUtils.sum(pos, dir);
 					if (!newPos.blockExists(world)) {
 						continue;
 					}
-					TileEntity nextTile = newPos.getTileEntity(world);
-					if (nextTile != null && ((ILPTEInformation) nextTile).getLPTileEntityObject() != null) {
+					BlockEntity nextTile = newPos.getTileEntity(world);
+					if (nextTile instanceof ILPTEInformation && ((ILPTEInformation) nextTile).getLPTileEntityObject() != null) {
 						if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
 							SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile).refreshTileCacheOnSide(dir.getOpposite());
 						}
@@ -68,24 +81,36 @@ public class TEControl {
 		}
 	}
 
-	public static void invalidate(final TileEntity tile) {
-		final World world = tile.getWorld();
+	/**
+	 * Called when a block entity is invalidated/removed.
+	 *
+	 * Previously injected into ALL TileEntities via ASM. Now called directly from
+	 * {@link LogisticsTileGenericPipe#setRemoved()} for LP pipes.
+	 *
+	 * Non-LP neighbours: covered by LogisticsEventListener.onNeighborNotify (BlockEvent.NeighborNotifyEvent)
+	 * which flags adjacent routers for recheck when any block changes.
+	 */
+	public static void invalidate(final BlockEntity tile) {
+		final Level world = tile.getLevel();
 		if (!MainProxy.isServer(world)) {
 			return;
 		}
 		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).isRoutingPipe()) {
 			return;
 		}
+		if (!(tile instanceof ILPTEInformation)) {
+			return;
+		}
 		if (((ILPTEInformation) tile).getLPTileEntityObject() != null) {
 			QueuedTasks.queueTask(() -> {
 				DoubleCoordinates pos = new DoubleCoordinates(tile);
-				for (EnumFacing dir : EnumFacing.VALUES) {
+				for (Direction dir : Direction.values()) {
 					DoubleCoordinates newPos = CoordinateUtils.sum(pos, dir);
 					if (!newPos.blockExists(world)) {
 						continue;
 					}
-					TileEntity nextTile = newPos.getTileEntity(world);
-					if (nextTile != null && ((ILPTEInformation) nextTile).getLPTileEntityObject() != null) {
+					BlockEntity nextTile = newPos.getTileEntity(world);
+					if (nextTile instanceof ILPTEInformation && ((ILPTEInformation) nextTile).getLPTileEntityObject() != null) {
 						if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
 							SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile).refreshTileCacheOnSide(dir.getOpposite());
 						}

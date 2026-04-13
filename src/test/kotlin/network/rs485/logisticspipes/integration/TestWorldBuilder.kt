@@ -40,104 +40,66 @@ package network.rs485.logisticspipes.integration
 import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.WorldBuilder
 import network.rs485.minecraft.minus
-import logisticspipes.LogisticsPipes
-import net.minecraftforge.common.ForgeChunkManager
-import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.item.EntityItem
-import net.minecraft.init.Blocks
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.util.math.Vec3i
-import net.minecraft.world.WorldServer
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.ChunkPos
+import net.minecraft.core.Vec3i
+import net.minecraft.server.level.ServerLevel
 import kotlin.math.min
 
 const val LEVEL = 100
 val ONE_VECTOR = Vec3i(1, 1, 1)
 
-class TestWorldBuilder(override val world: WorldServer, val firstBlockPos: BlockPos) : WorldBuilder {
+class TestWorldBuilder(override val world: ServerLevel, val firstBlockPos: BlockPos) : WorldBuilder {
 
     private val selectors = ArrayList<Pair<BlockPosSelector, BlockPos>>()
 
-    // TODO: grouping and expanding groups in z needs collecting all selectors/builds before configuration
     private var nextPos = firstBlockPos
     private var lowest = LEVEL
 
-    private val tickets: HashSet<ForgeChunkManager.Ticket> = HashSet()
     private val chunksToLoad: MutableSet<ChunkPos> = HashSet()
 
     fun newSelector() = BlockPosSelector(worldBuilder = this)
 
-    init {
-        ForgeChunkManager.setForcedChunkLoadingCallback(LogisticsPipes.instance) { ticketsIn, world ->
-            if (world == this@TestWorldBuilder.world) tickets.addAll(ticketsIn!!)
-        }
-        tickets.add(ForgeChunkManager.requestTicket(LogisticsPipes.instance, world, ForgeChunkManager.Type.NORMAL)!!)
-    }
-
     override fun finalPosition(selector: BlockPosSelector): BlockPos = (nextPos - selector.localStart).also {
         selectors.add(selector to it)
-        val start = it.add(selector.localStart)
+        val start = it.offset(selector.localStart)
         val borderStart = start.subtract(ONE_VECTOR)
-        val end = it.add(selector.localEnd)
-        val borderEnd = end.add(ONE_VECTOR)
+        val end = it.offset(selector.localEnd)
+        val borderEnd = end.offset(ONE_VECTOR)
         lowest = min(lowest, borderStart.y)
         nextPos = BlockPos(borderEnd.x + 2, LEVEL, 0)
-        world.setBlocksToAir(start = borderStart, end = borderEnd)
-        world.removeItemsOnGround(start = borderStart, end = borderEnd)
-        world.setBlocks(
-            start = BlockPos(borderStart.x, lowest, borderStart.z),
-            end = BlockPos(borderStart.x, lowest, borderEnd.z),
-            state = Blocks.DOUBLE_STONE_SLAB.defaultState,
-        )
-        world.setBlocks(
-            start = BlockPos(borderStart.x, lowest, borderEnd.z),
-            end = BlockPos(borderEnd.x, lowest, borderEnd.z),
-            state = Blocks.DOUBLE_STONE_SLAB.defaultState,
-        )
-        world.setBlocks(
-            start = BlockPos(borderEnd.x, lowest, borderStart.z),
-            end = BlockPos(borderEnd.x, lowest, borderEnd.z),
-            state = Blocks.DOUBLE_STONE_SLAB.defaultState,
-        )
-        world.setBlocks(
-            start = BlockPos(borderStart.x, lowest, borderStart.z),
-            end = BlockPos(borderEnd.x, lowest, borderStart.z),
-            state = Blocks.DOUBLE_STONE_SLAB.defaultState,
-        )
-        world.setBlocks(
-            start = BlockPos(start.x, lowest, start.z),
-            end = BlockPos(end.x, lowest, end.z),
-            state = Blocks.STONE.defaultState,
-        )
+        world.setBlocksInRange(borderStart, borderEnd, Blocks.AIR.defaultBlockState())
+        // Border platform
+        val slabState = Blocks.SMOOTH_STONE_SLAB.defaultBlockState()
+        world.setBlocksInRange(BlockPos(borderStart.x, lowest, borderStart.z), BlockPos(borderStart.x, lowest, borderEnd.z), slabState)
+        world.setBlocksInRange(BlockPos(borderStart.x, lowest, borderEnd.z), BlockPos(borderEnd.x, lowest, borderEnd.z), slabState)
+        world.setBlocksInRange(BlockPos(borderEnd.x, lowest, borderStart.z), BlockPos(borderEnd.x, lowest, borderEnd.z), slabState)
+        world.setBlocksInRange(BlockPos(borderStart.x, lowest, borderStart.z), BlockPos(borderEnd.x, lowest, borderStart.z), slabState)
+        world.setBlocksInRange(BlockPos(start.x, lowest, start.z), BlockPos(end.x, lowest, end.z), Blocks.STONE.defaultBlockState())
     }
 
     override fun loadChunk(pos: ChunkPos) {
-        if (chunksToLoad.add(pos)) ForgeChunkManager.forceChunk(tickets.first(), pos)
+        if (chunksToLoad.add(pos)) {
+            world.setChunkForced(pos.x, pos.z, true)
+        }
     }
 
     fun buildSpawnPlatform(): BlockPos {
         val start = firstBlockPos.subtract(ONE_VECTOR)
-        world.setBlocks(
-            start = BlockPos(start.x - 5, start.y, start.z),
-            end = BlockPos(start.x - 1, start.y, start.z + 4),
-            state = Blocks.OBSIDIAN.defaultState,
+        world.setBlocksInRange(
+            BlockPos(start.x - 5, start.y, start.z),
+            BlockPos(start.x - 1, start.y, start.z + 4),
+            Blocks.OBSIDIAN.defaultBlockState(),
         )
         return BlockPos(start.x - 3, firstBlockPos.y, start.z + 2)
     }
 
 }
 
-private fun WorldServer.setBlocks(start: BlockPos, end: BlockPos, state: IBlockState) =
-    blocksIn(start, end).forEach { setBlockState(it, state) }
-
-private fun WorldServer.setBlocksToAir(start: BlockPos, end: BlockPos) =
-    blocksIn(start, end).forEach(::setBlockToAir)
-
-private fun WorldServer.removeItemsOnGround(start: BlockPos, end: BlockPos) =
-    blocksIn(start, end).map { getChunk(it) }.distinct()
-        .forEach { chunk ->
-            chunk.entityLists.flatMap { it.getByClass(EntityItem::class.java) }.forEach { removeEntity(it) }
-        }
+private fun ServerLevel.setBlocksInRange(start: BlockPos, end: BlockPos, state: BlockState) =
+    blocksIn(start, end).forEach { setBlock(it, state, 3) }
 
 private fun blocksIn(start: BlockPos, end: BlockPos): List<BlockPos> {
     assert(start.x <= end.x)

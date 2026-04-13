@@ -5,25 +5,25 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 
 public class ItemDisk extends LogisticsItem {
 
 	@Override
-	public int getItemStackLimit() {
+	public int getMaxStackSize(@Nonnull ItemStack stack) {
 		return 1;
 	}
 
 	@Override
-	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		if (!stack.isEmpty() && stack.hasTagCompound()) {
-			final NBTTagCompound tag = Objects.requireNonNull(stack.getTagCompound());
-			if (tag.hasKey("name")) {
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
+		if (!stack.isEmpty() && stack.hasTag()) {
+			final CompoundTag tag = Objects.requireNonNull(stack.getTag());
+			if (tag.contains("name")) {
 				String name = "\u00a78" + tag.getString("name");
-				tooltip.add(name);
+				tooltip.add(net.minecraft.network.chat.Component.literal(name));
 			}
 		}
 	}

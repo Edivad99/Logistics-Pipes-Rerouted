@@ -45,9 +45,9 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
 import logisticspipes.proxy.MainProxy
 import logisticspipes.utils.PlayerCollectionList
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -118,16 +118,16 @@ class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsync
 
     override fun runSyncWork() = quicksort.runSyncWork()
 
-    override fun readFromNBT(tag: NBTTagCompound) {
+    override fun readFromNBT(tag: CompoundTag) {
         super.readFromNBT(tag)
         quicksort.readFromNBT(tag)
-        timeout = tag.getInteger("Timeout")
+        timeout = tag.getInt("Timeout")
     }
 
-    override fun writeToNBT(tag: NBTTagCompound) {
+    override fun writeToNBT(tag: CompoundTag) {
         super.writeToNBT(tag)
         quicksort.writeToNBT(tag)
-        tag.setInteger("Timeout", timeout)
+        tag.putInt("Timeout", timeout)
     }
 
     override fun finishInit() {
@@ -145,13 +145,13 @@ class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsync
 
     override fun getClientInformation(): MutableList<String> = mutableListOf("Timeout: $timeout")
 
-    override fun startWatching(player: EntityPlayer?) {
+    override fun startWatching(player: Player?) {
         localModeWatchers.add(player)
 //        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CCBasedQuickSortMode::class.java).setTimeOut(timeout).setModulePos(this), player)
 //        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CCBasedQuickSortSinkSize::class.java).setSinkSize(sinkSize).setModulePos(this), player)
     }
 
-    override fun stopWatching(player: EntityPlayer?) {
+    override fun stopWatching(player: Player?) {
         localModeWatchers.remove(player)
     }
 

@@ -1,15 +1,15 @@
 package logisticspipes.proxy.interfaces;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.recipes.CraftingParts;
 
 public interface ICCProxy {
 
-	boolean isTurtle(TileEntity tile);
+	boolean isTurtle(BlockEntity tile);
 
-	boolean isComputer(TileEntity tile);
+	boolean isComputer(BlockEntity tile);
 
 	boolean isCC();
 

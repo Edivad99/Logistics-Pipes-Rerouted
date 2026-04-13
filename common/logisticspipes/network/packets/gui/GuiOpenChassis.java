@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.NewGuiHandler;
@@ -19,8 +19,8 @@ public class GuiOpenChassis extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (pipe.pipe instanceof CoreRoutedPipe) {
 			NewGuiHandler.getGui(ChassisGuiProvider.class).setFlag(pipe.pipe.getUpgradeManager().hasUpgradeModuleUpgrade()).setSlot(ModulePositionType.IN_PIPE).setPositionInt(0).setPosX(getPosX()).setPosY(getPosY()).setPosZ(getPosZ()).open(player);
 		}

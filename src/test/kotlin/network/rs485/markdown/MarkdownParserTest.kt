@@ -817,9 +817,9 @@ internal class MarkdownParserTest {
         val expectedParagraphs = listOf(
             RegularParagraph(
                 listOf(
-                    listOf(TextFormatting(EnumSet.of(TextFormat.Italic))),
+                    listOf(ChatFormatting(EnumSet.of(TextFormat.Italic))),
                     splitAndFormatWords(str),
-                    listOf(TextFormatting(TextFormat.none)),
+                    listOf(ChatFormatting(TextFormat.none)),
                 ).flatten()
             )
         )
@@ -834,11 +834,11 @@ internal class MarkdownParserTest {
         val expectedParagraphs = listOf(
             RegularParagraph(
                 listOf(
-                    TextFormatting(EnumSet.of(TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic)),
                     Word("a"),
-                    TextFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
                     Word("b"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                 )
             )
         )
@@ -853,11 +853,11 @@ internal class MarkdownParserTest {
         val expectedParagraphs = listOf(
             RegularParagraph(
                 listOf(
-                    TextFormatting(EnumSet.of(TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Bold)),
                     Word("a"),
-                    TextFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
                     Word("b"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                 )
             )
         )
@@ -872,13 +872,13 @@ internal class MarkdownParserTest {
         val expectedParagraphs = listOf(
             RegularParagraph(
                 listOf(
-                    TextFormatting(EnumSet.of(TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic)),
                     Word("a"),
-                    TextFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
                     Word("b"),
-                    TextFormatting(EnumSet.of(TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic)),
                     Word("c"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                 )
             )
         )
@@ -893,13 +893,13 @@ internal class MarkdownParserTest {
         val expectedParagraphs = listOf(
             RegularParagraph(
                 listOf(
-                    TextFormatting(EnumSet.of(TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Bold)),
                     Word("a"),
-                    TextFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
                     Word("b"),
-                    TextFormatting(EnumSet.of(TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Bold)),
                     Word("c"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                 )
             )
         )
@@ -916,15 +916,15 @@ internal class MarkdownParserTest {
                 listOf(
                     Word("This"),
                     Space,
-                    TextFormatting(EnumSet.of(TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic)),
                     Word("is"),
                     Space,
-                    TextFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
                     Word("weirdly"),
-                    TextFormatting(EnumSet.of(TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Bold)),
                     Space,
                     Word("abnormal"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                     Space,
                     Word("markdown"),
                 )
@@ -943,15 +943,15 @@ internal class MarkdownParserTest {
                 listOf(
                     Word("This"),
                     Space,
-                    TextFormatting(EnumSet.of(TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Bold)),
                     Word("is"),
                     Space,
-                    TextFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic, TextFormat.Bold)),
                     Word("weirdly"),
-                    TextFormatting(EnumSet.of(TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic)),
                     Space,
                     Word("abnormal"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                     Space,
                     Word("markdown"),
                 )
@@ -970,22 +970,22 @@ internal class MarkdownParserTest {
                 listOf(
                     Word("This"),
                     Space,
-                    TextFormatting(EnumSet.of(TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic)),
                     Word("is"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                     Space,
                     Word("example"),
                     Space,
-                    TextFormatting(EnumSet.of(TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Bold)),
                     Word("Markdown"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                     Word("."),
                     Space,
                     Word("This"),
                     Space,
-                    TextFormatting(EnumSet.of(TextFormat.Bold, TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Bold, TextFormat.Italic)),
                     Word("should"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                     Space,
                     Word("work."),
                 )
@@ -1002,13 +1002,13 @@ internal class MarkdownParserTest {
         val expectedParagraphs = listOf(
             RegularParagraph(
                 listOf(
-                    TextFormatting(EnumSet.of(TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic)),
                     Word("a"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                     Space,
-                    TextFormatting(EnumSet.of(TextFormat.Bold)),
+                    ChatFormatting(EnumSet.of(TextFormat.Bold)),
                     Word("b"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                 )
             )
         )
@@ -1023,9 +1023,9 @@ internal class MarkdownParserTest {
         val expectedParagraphs = listOf(
             RegularParagraph(
                 listOf(
-                    TextFormatting(EnumSet.of(TextFormat.Italic)),
+                    ChatFormatting(EnumSet.of(TextFormat.Italic)),
                     Word("a"),
-                    TextFormatting(TextFormat.none),
+                    ChatFormatting(TextFormat.none),
                 )
             )
         )

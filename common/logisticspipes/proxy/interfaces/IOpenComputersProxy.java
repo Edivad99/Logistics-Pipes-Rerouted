@@ -1,7 +1,7 @@
 package logisticspipes.proxy.interfaces;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.blocks.LogisticsSolidTileEntity;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -13,13 +13,13 @@ public interface IOpenComputersProxy {
 
 	void initLogisticsSolidTileEntity(LogisticsSolidTileEntity tile);
 
-	void addToNetwork(TileEntity tile);
+	void addToNetwork(BlockEntity tile);
 
 	void handleInvalidate(IOCTile tile);
 
 	void handleChunkUnload(IOCTile tile);
 
-	void handleWriteToNBT(IOCTile tile, NBTTagCompound nbt);
+	void handleWriteToNBT(IOCTile tile, CompoundTag nbt);
 
-	void handleReadFromNBT(IOCTile tile, NBTTagCompound nbt);
+	void handleReadFromNBT(IOCTile tile, CompoundTag nbt);
 }

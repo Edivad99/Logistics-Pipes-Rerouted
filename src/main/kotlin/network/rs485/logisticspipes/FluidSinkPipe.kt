@@ -49,8 +49,8 @@ import logisticspipes.utils.FluidIdentifierStack
 import logisticspipes.utils.FluidSinkReply
 import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.item.ItemIdentifierInventory
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.Item
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
 
 abstract class FluidSinkPipe(
     item: Item, inventoryName: String, inventorySize: Int
@@ -58,8 +58,7 @@ abstract class FluidSinkPipe(
 
     private val guiOpenedBy = PlayerCollectionList()
 
-    // FIXME: after 1.12 give this a proper tag key
-    val sinkInv = ItemIdentifierInventoryProperty(ItemIdentifierInventory(inventorySize, inventoryName, 1, true), "")
+    val sinkInv = ItemIdentifierInventoryProperty(ItemIdentifierInventory(inventorySize, inventoryName, 1, true), "sinkInv")
 
     override val properties: List<Property<*>> = listOf(sinkInv)
 
@@ -78,8 +77,8 @@ abstract class FluidSinkPipe(
             val onTheWay: Int = this.countOnRoute(stack.fluid)
             var freeSpace = -onTheWay.toLong()
             for (pair in getAdjacentTanks(true)) {
-                val dirOrdinal = pair.component1().direction.ordinal
-                val tank = (transport as PipeFluidTransportLogistics).sideTanks[dirOrdinal]
+                val dir = pair.component1().direction
+                val tank = (transport as PipeFluidTransportLogistics).getIFluidHandler(dir)
                 freeSpace += pair.component2().getFreeSpaceInsideTank(stack.fluid).toLong()
                 freeSpace += stack.fluid.getFreeSpaceInsideTank(tank).toLong()
                 if (freeSpace >= stack.amount) {
@@ -91,11 +90,11 @@ abstract class FluidSinkPipe(
         return null
     }
 
-    fun guiOpenedByPlayer(player: EntityPlayer?) {
+    fun guiOpenedByPlayer(player: Player?) {
         guiOpenedBy.add(player)
     }
 
-    fun guiClosedByPlayer(player: EntityPlayer?) {
+    fun guiClosedByPlayer(player: Player?) {
         guiOpenedBy.remove(player)
     }
 

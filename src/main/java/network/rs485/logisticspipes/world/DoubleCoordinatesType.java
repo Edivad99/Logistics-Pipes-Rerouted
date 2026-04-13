@@ -1,8 +1,8 @@
 package network.rs485.logisticspipes.world;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 
 import lombok.Getter;
 
@@ -25,7 +25,7 @@ public class DoubleCoordinatesType<T> extends DoubleCoordinates {
 		this.type = type;
 	}
 
-	public DoubleCoordinatesType(TileEntity tile, T type) {
+	public DoubleCoordinatesType(BlockEntity tile, T type) {
 		super(tile);
 		this.type = type;
 	}

@@ -3,27 +3,28 @@ package logisticspipes.proxy.interfaces;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface INEIProxy {
 
 	@Nonnull
-	ItemStack getItemForPosition(World world, EntityPlayer player, RayTraceResult objectMouseOver);
+	ItemStack getItemForPosition(Level world, Player player, HitResult objectMouseOver);
 
-	List<String> getInfoForPosition(World world, EntityPlayer player, RayTraceResult objectMouseOver);
+	List<String> getInfoForPosition(Level world, Player player, HitResult objectMouseOver);
 
-	@SideOnly(Side.CLIENT)
-	boolean renderItemToolTip(int posX, int posY, List<String> msg, TextFormatting rarityColor, @Nonnull ItemStack stack);
+	@OnlyIn(Dist.CLIENT)
+	boolean renderItemToolTip(int posX, int posY, List<String> msg, ChatFormatting rarityColor, @Nonnull ItemStack stack);
 
-	@SideOnly(Side.CLIENT)
-	List<String> getItemToolTip(@Nonnull ItemStack var22, EntityPlayer thePlayer, ITooltipFlag advancedItemTooltips, GuiContainer screen);
+	@OnlyIn(Dist.CLIENT)
+	List<String> getItemToolTip(@Nonnull ItemStack var22, Player thePlayer, TooltipFlag advancedItemTooltips, AbstractContainerScreen screen);
 }

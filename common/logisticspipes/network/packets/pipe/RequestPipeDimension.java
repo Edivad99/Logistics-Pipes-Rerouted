@@ -1,8 +1,9 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
+
 
 import logisticspipes.gui.orderer.GuiOrderer;
 import logisticspipes.network.abstractpackets.IntegerPacket;
@@ -22,10 +23,10 @@ public class RequestPipeDimension extends IntegerPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiOrderer) {
-			((GuiOrderer) FMLClientHandler.instance().getClient().currentScreen).dimension = getInteger();
-			((GuiOrderer) FMLClientHandler.instance().getClient().currentScreen).refreshItems();
+	public void processPacket(Player player) {
+		if (Minecraft.getInstance().screen instanceof GuiOrderer) {
+			((GuiOrderer) Minecraft.getInstance().screen).dimension = getInteger();
+			((GuiOrderer) Minecraft.getInstance().screen).refreshItems();
 		} else {
 			GuiOrderer.dimensioncache = getInteger();
 			GuiOrderer.cachetime = System.currentTimeMillis();

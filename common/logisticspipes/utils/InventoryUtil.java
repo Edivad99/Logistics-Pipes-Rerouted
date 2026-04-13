@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import net.minecraftforge.items.IItemHandler;
 
@@ -159,19 +159,19 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 	}
 
 	@Override
-	public int getSizeInventory() {
+	public int getContainerSize() {
 		return inventory.getSlots();
 	}
 
 	@Override
 	@Nonnull
-	public ItemStack getStackInSlot(int i) {
+	public ItemStack getItem(int i) {
 		return inventory.getStackInSlot(i);
 	}
 
 	@Override
 	@Nonnull
-	public ItemStack decrStackSize(int i, int j) {
+	public ItemStack removeItem(int i, int j) {
 		return inventory.extractItem(i, j, false);
 	}
 

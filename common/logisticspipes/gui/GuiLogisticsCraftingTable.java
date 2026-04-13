@@ -2,22 +2,21 @@ package logisticspipes.gui;
 
 import java.util.Arrays;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.CraftingCycleRecipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
+import javax.annotation.Nonnull;
 
 public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
@@ -27,12 +26,15 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 	private int fuzzyPanelHover = -1;
 	private int fuzzyPanelHoverTime = 0;
 
-	private GuiButton[] cycleButtons = new GuiButton[2];
+	private net.minecraft.client.gui.components.AbstractButton[] cycleButtons = new net.minecraft.client.gui.components.AbstractButton[2];
 
-	public GuiLogisticsCraftingTable(EntityPlayer player, LogisticsCraftingTableTileEntity crafter) {
-		super(176, 218, 0, 0);
-		DummyContainer dummy = new DummyContainer(player.inventory, crafter.matrix);
-		dummy.guiHolderForJEI = this;
+	public GuiLogisticsCraftingTable(Player player, LogisticsCraftingTableTileEntity crafter) {
+		super(buildDummy(player, crafter), 176, 218, 0, 0);
+		_crafter = crafter;
+		((DummyContainer) this.menu).guiHolderForJEI = this;
+	}
+	private static DummyContainer buildDummy(Player player, LogisticsCraftingTableTileEntity crafter) {
+		DummyContainer dummy = new DummyContainer(player.getInventory(), crafter.matrix);
 
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
@@ -54,37 +56,40 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 			}
 		}
 		dummy.addNormalSlotsForPlayerInventory(8, 135);
-		inventorySlots = dummy;
-		_crafter = crafter;
+		return dummy;
+	}
+
+
+	@Override
+	public void init() {
+		super.init();
+		SmallGuiButton upBtn = new SmallGuiButton(0, leftPos + 144, topPos + 25, 15, 10, "/\\");
+		upBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(false).setTilePos(_crafter)));
+		(cycleButtons[0] = addRenderableWidget(upBtn)).visible = false;
+		SmallGuiButton dnBtn = new SmallGuiButton(1, leftPos + 144, topPos + 37, 15, 10, "\\/");
+		dnBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(true).setTilePos(_crafter)));
+		(cycleButtons[1] = addRenderableWidget(dnBtn)).visible = false;
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
-		(cycleButtons[0] = addButton(new SmallGuiButton(0, guiLeft + 144, guiTop + 25, 15, 10, "/\\"))).visible = false;
-		(cycleButtons[1] = addButton(new SmallGuiButton(1, guiLeft + 144, guiTop + 37, 15, 10, "\\/"))).visible = false;
-	}
-
-	@Override
-	protected void drawGuiContainerBackgroundLayer(float fA, int iA, int jA) {
-		for (GuiButton cycleButton : cycleButtons) {
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float fA, int iA, int jA) {
+		for (net.minecraft.client.gui.components.AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _crafter.targetType != null;
 		}
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
-				GuiGraphics.drawSlotBackground(mc, guiLeft + 34 + x * 18, guiTop + 9 + y * 18);
+				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 34 + x * 18, topPos + 9 + y * 18);
 			}
 		}
-		GuiGraphics.drawSlotBackground(mc, guiLeft + 124, guiTop + 27);
+		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 124, topPos + 27);
 		for (int x = 0; x < 9; x++) {
 			for (int y = 0; y < 2; y++) {
-				GuiGraphics.drawSlotBackground(mc, guiLeft + 7 + x * 18, guiTop + 79 + y * 18);
+				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 7 + x * 18, topPos + 79 + y * 18);
 			}
 		}
-		GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 8, guiTop + 135);
+		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 8, topPos + 135);
 
 		ItemIdentifierStack[] items = new ItemIdentifierStack[9];
 		for (int i = 0; i < 9; i++) {
@@ -93,19 +98,10 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 			}
 		}
 
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(Arrays.asList(items), null, 0, guiLeft + 8, guiTop + 79, 9, 9, 18, 18, 0.0F, DisplayAmount.NEVER);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(Arrays.asList(items), null, 0, leftPos + 8, topPos + 79, 9, 9, 18, 18, 0.0F, DisplayAmount.NEVER);
 
-		GlStateManager.translate(0, 0, 200F);
 		for (int a = 0; a < 9; a++) {
-			Gui.drawRect(guiLeft + 8 + (a * 18), guiTop + 80, guiLeft + 24 + (a * 18), guiTop + 96, 0xc08b8b8b);
-		}
-		GlStateManager.translate(0, 0, -200F);
-	}
-
-	@Override
-	protected void actionPerformed(GuiButton button) {
-		if (button.id == 0 || button.id == 1) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(button.id == 1).setTilePos(_crafter));
+			guiGraphics.fill(leftPos + 8 + (a * 18), topPos + 80, leftPos + 24 + (a * 18), topPos + 96, 0xc08b8b8b);
 		}
 	}
 

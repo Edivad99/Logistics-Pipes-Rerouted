@@ -4,9 +4,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
 
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.transport.LPTravelingItem;
@@ -44,7 +44,7 @@ public class QueuedTasks {
 				try {
 					call.call();
 				} catch (Exception e) {
-					e.printStackTrace();
+					logisticspipes.LogisticsPipes.log.error("Exception in queued task", e);
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.modules.GuiStringBasedItemSink;
 import logisticspipes.interfaces.IStringBasedModule;
@@ -19,22 +19,22 @@ public class StringBasedItemSinkModuleGuiSlot extends NBTModuleCoordinatesGuiPro
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		LogisticsModule module = this.getLogisticsModule(player.getEntityWorld(), LogisticsModule.class);
+	public Object getClientGui(Player player) {
+		LogisticsModule module = this.getLogisticsModule(player.level(), LogisticsModule.class);
 		if (!(module instanceof IStringBasedModule)) {
 			return null;
 		}
 		module.readFromNBT(getNbt());
-		return new GuiStringBasedItemSink(player.inventory, module);
+		return new GuiStringBasedItemSink(player.getInventory(), module);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
-		IStringBasedModule module = this.getLogisticsModule(player.getEntityWorld(), IStringBasedModule.class);
+	public DummyContainer getContainer(Player player) {
+		IStringBasedModule module = this.getLogisticsModule(player.level(), IStringBasedModule.class);
 		if (module == null) {
 			return null;
 		}
-		DummyContainer dummy = new DummyContainer(player.inventory, new ItemIdentifierInventory(1, "TMP", 1));
+		DummyContainer dummy = new DummyContainer(player.getInventory(), new ItemIdentifierInventory(1, "TMP", 1));
 		dummy.addDummySlot(0, 0, 0);
 		dummy.addNormalSlotsForPlayerInventory(0, 0);
 		return dummy;

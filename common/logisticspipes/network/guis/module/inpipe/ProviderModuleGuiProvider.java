@@ -1,8 +1,8 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,15 +35,15 @@ public class ProviderModuleGuiProvider extends ModuleCoordinatesGuiProvider {
 
 	@Getter
 	@Setter
-	private EnumFacing sneakyOrientation;
+	private Direction sneakyOrientation;
 
 	public ProviderModuleGuiProvider(int id) {
 		super(id);
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		ModuleProvider module = this.getLogisticsModule(player.getEntityWorld(), ModuleProvider.class);
+	public Object getClientGui(Player player) {
+		ModuleProvider module = this.getLogisticsModule(player.level(), ModuleProvider.class);
 		if (module == null) {
 			return null;
 		}
@@ -51,16 +51,16 @@ public class ProviderModuleGuiProvider extends ModuleCoordinatesGuiProvider {
 		module.providerMode.setValue(ProviderMode.modeFromIntSafe(extractorMode));
 		module.setSneakyDirection(sneakyOrientation);
 		module.isActive.setValue(isActive);
-		return ProviderGui.create(player.inventory, module, ItemStack.EMPTY);
+		return ProviderGui.create(player.getInventory(), module, ItemStack.EMPTY);
 	}
 
 	@Override
-	public ProviderContainer getContainer(EntityPlayer player) {
-		ModuleProvider module = this.getLogisticsModule(player.getEntityWorld(), ModuleProvider.class);
+	public ProviderContainer getContainer(Player player) {
+		ModuleProvider module = this.getLogisticsModule(player.level(), ModuleProvider.class);
 		if (module == null) {
 			return null;
 		}
-		return new ProviderContainer(module, player.inventory, new SimplePropertyOverlay<>(module.filterInventory), ItemStack.EMPTY);
+		return new ProviderContainer(module, player.getInventory(), new SimplePropertyOverlay<>(module.filterInventory), ItemStack.EMPTY);
 	}
 
 	@Override

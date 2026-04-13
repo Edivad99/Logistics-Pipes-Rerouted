@@ -1,28 +1,41 @@
 package logisticspipes.utils.gui;
 
-import javax.annotation.Nonnull;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-
-public class GuiStringHandlerButton extends GuiButton {
+public class GuiStringHandlerButton extends Button {
 
 	private final StringHandler handler;
 
+	// par1 = legacy id (discarded), par2 = x, par3 = y
 	public GuiStringHandlerButton(int par1, int par2, int par3, StringHandler handler) {
-		super(par1, par2, par3, "");
+		super(par2, par3, 200, 20, Component.literal(handler.getContent()), b -> {}, DEFAULT_NARRATION);
 		this.handler = handler;
 	}
 
+	// par1 = legacy id (discarded), par2 = x, par3 = y, with onPress callback
+	public GuiStringHandlerButton(int par1, int par2, int par3, StringHandler handler, Runnable onPress) {
+		super(par2, par3, 200, 20, Component.literal(handler.getContent()), b -> onPress.run(), DEFAULT_NARRATION);
+		this.handler = handler;
+	}
+
+	// par1 = legacy id (discarded), par2 = x, par3 = y, par4 = width, par5 = height
 	public GuiStringHandlerButton(int par1, int par2, int par3, int par4, int par5, StringHandler handler) {
-		super(par1, par2, par3, par4, par5, "");
+		super(par2, par3, par4, par5, Component.literal(handler.getContent()), b -> {}, DEFAULT_NARRATION);
+		this.handler = handler;
+	}
+
+	// par1 = legacy id (discarded), par2 = x, par3 = y, par4 = width, par5 = height, with onPress callback
+	public GuiStringHandlerButton(int par1, int par2, int par3, int par4, int par5, StringHandler handler, Runnable onPress) {
+		super(par2, par3, par4, par5, Component.literal(handler.getContent()), b -> onPress.run(), DEFAULT_NARRATION);
 		this.handler = handler;
 	}
 
 	@Override
-	public void drawButton(@Nonnull Minecraft par1Minecraft, int par2, int par3, float partial) {
-		displayString = handler.getContent();
-		super.drawButton(par1Minecraft, par2, par3, partial);
+	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		setMessage(Component.literal(handler.getContent()));
+		super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
 	}
 
 	public interface StringHandler {

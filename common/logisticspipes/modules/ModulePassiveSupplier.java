@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
@@ -45,7 +45,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 		IModuleInventoryReceive, ISimpleInventoryEventHandler {
 
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(9, "Requested items", 64), "");
+			new ItemIdentifierInventory(9, "Requested items", 64), "filterInv");
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
@@ -73,7 +73,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 
 	@Override
 	@Nonnull
-	public IInventory getFilterInventory() {
+	public Container getFilterInventory() {
 		return filterInventory;
 	}
 
@@ -141,14 +141,14 @@ public class ModulePassiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void startWatching(EntityPlayer player) {
+	public void startWatching(Player player) {
 		localModeWatchers.add(player);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
 				.setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory)).setModulePos(this), player);
 	}
 
 	@Override
-	public void stopWatching(EntityPlayer player) {
+	public void stopWatching(Player player) {
 		localModeWatchers.remove(player);
 	}
 
@@ -163,7 +163,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void InventoryChanged(IInventory inventory) {
+	public void InventoryChanged(Container inventory) {
 		MainProxy.runOnServer(getWorld(), () -> () ->
 				MainProxy.sendToPlayerList(
 						PacketHandler.getPacket(ModuleInventory.class)

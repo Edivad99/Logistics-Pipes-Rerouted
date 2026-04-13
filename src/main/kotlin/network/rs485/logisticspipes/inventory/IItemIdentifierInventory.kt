@@ -42,13 +42,13 @@ import logisticspipes.utils.ISimpleInventoryEventHandler
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
 import logisticspipes.utils.tuples.Pair
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 
-interface IItemIdentifierInventory : IInventory, ILPCCTypeHolder, IClientInformationProvider {
+interface IItemIdentifierInventory : Container, ILPCCTypeHolder, IClientInformationProvider {
     val itemsAndCount: Map<ItemIdentifier, Int>
     val slotAccess: SlotAccess
     fun getIDStackInSlot(i: Int): ItemIdentifierStack?
-    fun setInventorySlotContents(i: Int, itemstack: ItemIdentifierStack?)
+    fun setItem(i: Int, itemstack: ItemIdentifierStack?)
     fun containsItem(item: ItemIdentifier?): Boolean
     fun handleItemIdentifierList(_allItems: Collection<ItemIdentifierStack>)
     fun addListener(listener: ISimpleInventoryEventHandler)

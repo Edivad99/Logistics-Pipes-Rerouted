@@ -6,63 +6,68 @@
  */
 
 package logisticspipes.utils.gui;
+import net.minecraft.client.gui.GuiGraphics;
 
 import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.utils.Color;
 
-public class SmallGuiButton extends GuiButton {
+public class SmallGuiButton extends AbstractButton {
 
+	/** Replaces the old Button.id field removed in 1.20.1 */
+	public final int id;
 	private final int stringOffset;
+	private java.util.function.Consumer<SmallGuiButton> pressListener = b -> {};
 
 	public SmallGuiButton(int buttonId, int x, int y, int width, int height, String label) {
 		this(buttonId, x, y, width, height, label, 0);
 	}
 
 	public SmallGuiButton(int buttonId, int x, int y, int width, int height, String label, int offset) {
-		super(buttonId, x, y, width, height, label);
-		stringOffset = offset;
+		super(x, y, width, height, Component.literal(label));
+		this.id = buttonId;
+		this.stringOffset = offset;
 	}
 
-	public SmallGuiButton(int i, int j, int k, String s) {
-		super(i, j, k, s);
-		stringOffset = 0;
-		// TODO Auto-generated constructor stub
+	public SmallGuiButton(int buttonId, int x, int y, String label) {
+		super(x, y, 20, 20, Component.literal(label));
+		this.id = buttonId;
+		this.stringOffset = 0;
+	}
+
+	public void setPressListener(java.util.function.Consumer<SmallGuiButton> listener) {
+		this.pressListener = listener;
 	}
 
 	@Override
-	public void drawButton(@Nonnull Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
-		if (!visible) {
-			return;
-		}
-		FontRenderer fontrenderer = minecraft.fontRenderer;
-		minecraft.renderEngine.bindTexture(GuiButton.BUTTON_TEXTURES);
-		// GL11.glBindTexture(3553 /*GL_TEXTURE_2D*/, minecraft.renderEngine.getTexture("/gui/gui.png"));
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		boolean flag = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
-		int k = getHoverState(flag);
-
-		drawTexturedModalRect(x, y, 0, 46 + k * 20, width / 2, height / 2);
-		drawTexturedModalRect(x + width / 2, y, 200 - width / 2, 46 + k * 20, width / 2, height / 2);
-
-		drawTexturedModalRect(x, y + height / 2, 0, 46 + 25 - height + k * 20, width / 2, height / 2);
-		drawTexturedModalRect(x + width / 2, y + height / 2, 200 - width / 2, 46 + 25 - height + k * 20, width / 2, height / 2);
-
-		mouseDragged(minecraft, mouseX, mouseY);
-
-		int color = Color.getValue(Color.LIGHTER_GREY);
-		if (!enabled) {
-			color = Color.getValue(Color.GREY);
-		} else if (flag) {
-			color = Color.getValue(Color.LIGHT_YELLOW);
-		}
-		drawCenteredString(fontrenderer, displayString, x + width / 2, y + (height - 8) / 2 + stringOffset, color);
+	public void onPress() {
+		pressListener.accept(this);
 	}
 
+	@Override
+	public void renderWidget(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		Font fontrenderer = Minecraft.getInstance().font;
+		boolean flag = isHovered();
+		// Background fill
+		int bg = !active ? 0xff444444 : flag ? 0xff888888 : 0xff666666;
+		guiGraphics.fill(getX(), getY(), getX() + width, getY() + height, bg);
+		// Simple beveled border: lighter top/left, darker bottom/right
+		guiGraphics.fill(getX(), getY(), getX() + width, getY() + 1, 0xffaaaaaa);
+		guiGraphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, 0xff333333);
+		guiGraphics.fill(getX(), getY(), getX() + 1, getY() + height, 0xffaaaaaa);
+		guiGraphics.fill(getX() + width - 1, getY(), getX() + width, getY() + height, 0xff333333);
+		// Label
+		int color = !active ? Color.getValue(Color.GREY) : flag ? Color.getValue(Color.LIGHT_YELLOW) : Color.getValue(Color.LIGHTER_GREY);
+		guiGraphics.drawCenteredString(fontrenderer, getMessage(), getX() + width / 2, getY() + (height - 8) / 2 + stringOffset, color);
+	}
+
+	@Override
+	protected void updateWidgetNarration(@Nonnull net.minecraft.client.gui.narration.NarrationElementOutput narrationElementOutput) {
+		defaultButtonNarrationText(narrationElementOutput);
+	}
 }

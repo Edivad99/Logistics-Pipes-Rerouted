@@ -9,9 +9,9 @@ package logisticspipes.pipes;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
@@ -34,17 +34,17 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 		super(new PipeTransportLogistics(true) {
 
 			@Override
-			public boolean canPipeConnect(TileEntity tile, EnumFacing dir) {
+			public boolean canPipeConnect(BlockEntity tile, Direction dir) {
 				if (super.canPipeConnect(tile, dir)) {
 					return true;
 				}
 				if (tile instanceof LogisticsSecurityTileEntity) {
-					EnumFacing ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
-					return ori != null && ori != EnumFacing.DOWN && ori != EnumFacing.UP;
+					Direction ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
+					return ori != null && ori != Direction.DOWN && ori != Direction.UP;
 				}
 				if (tile instanceof LogisticsProgramCompilerTileEntity) {
-					EnumFacing ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
-					return ori != null && ori != EnumFacing.DOWN;
+					Direction ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
+					return ori != null && ori != Direction.DOWN;
 				}
 				return false;
 			}
@@ -55,7 +55,7 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public TextureType getNonRoutedTexture(EnumFacing connection) {
+	public TextureType getNonRoutedTexture(Direction connection) {
 		if (isSecurityProvider(connection)) {
 			return Textures.LOGISTICSPIPE_SECURITY_TEXTURE;
 		}
@@ -63,15 +63,15 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public boolean isLockedExit(EnumFacing orientation) {
+	public boolean isLockedExit(Direction orientation) {
 		if (isPowerJunction(orientation) || isSecurityProvider(orientation)) {
 			return true;
 		}
 		return super.isLockedExit(orientation);
 	}
 
-	private boolean isPowerJunction(EnumFacing ori) {
-		TileEntity tilePipe = container.getTile(ori);
+	private boolean isPowerJunction(Direction ori) {
+		BlockEntity tilePipe = container.getTile(ori);
 		if (tilePipe == null || !container.canPipeConnect(tilePipe, ori)) {
 			return false;
 		}
@@ -79,8 +79,8 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 		return tilePipe instanceof LogisticsPowerJunctionTileEntity;
 	}
 
-	private boolean isSecurityProvider(EnumFacing ori) {
-		TileEntity tilePipe = container.getTile(ori);
+	private boolean isSecurityProvider(Direction ori) {
+		BlockEntity tilePipe = container.getTile(ori);
 		if (tilePipe == null || !container.canPipeConnect(tilePipe, ori)) {
 			return false;
 		}
@@ -103,7 +103,7 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void setTile(TileEntity tile) {
+	public void setTile(BlockEntity tile) {
 		super.setTile(tile);
 		itemSinkModule.registerPosition(ModulePositionType.IN_PIPE, 0);
 	}

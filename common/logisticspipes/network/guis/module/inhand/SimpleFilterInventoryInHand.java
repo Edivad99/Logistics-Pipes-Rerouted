@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.modules.GuiSimpleFilter;
 import logisticspipes.items.ItemModule;
@@ -21,16 +21,16 @@ public class SimpleFilterInventoryInHand extends ModuleInHandGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
+	public Object getClientGui(Player player) {
 		LogisticsModule module = ItemModule.getLogisticsModule(player, getInvSlot());
 		if (!(module instanceof Gui && module instanceof SimpleFilter)) {
 			return null;
 		}
-		return new GuiSimpleFilter(player.inventory, module);
+		return new GuiSimpleFilter(player.getInventory(), module);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
+	public DummyContainer getContainer(Player player) {
 		DummyModuleContainer dummy = new DummyModuleContainer(player, getInvSlot());
 		if (!(dummy.getModule() instanceof SimpleFilter)) {
 			return null;

@@ -3,7 +3,7 @@ package logisticspipes.network.packets.block;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.network.PacketHandler;
@@ -24,8 +24,8 @@ public class RequestRunningCraftingTasks extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsStatisticsTileEntity tile = this.getTileAs(player.getEntityWorld(), LogisticsStatisticsTileEntity.class);
+	public void processPacket(Player player) {
+		LogisticsStatisticsTileEntity tile = this.getTileAs(player.level(), LogisticsStatisticsTileEntity.class);
 		CoreRoutedPipe pipe = tile.getConnectedPipe();
 		if (pipe == null) {
 			return;
@@ -39,7 +39,7 @@ public class RequestRunningCraftingTasks extends CoordinatesPacket {
 			}
 			if (r.destination.getPipe() instanceof PipeItemsCraftingLogistics) {
 				PipeItemsCraftingLogistics crafting = (PipeItemsCraftingLogistics) r.destination.getPipe();
-				List<ItemIdentifierStack> content = crafting.getItemOrderManager().getContentList(player.getEntityWorld());
+				List<ItemIdentifierStack> content = crafting.getItemOrderManager().getContentList(player.level());
 				items.addAll(content);
 			}
 		}

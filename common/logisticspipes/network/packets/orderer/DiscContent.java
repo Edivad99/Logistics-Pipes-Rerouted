@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.orderer;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.LPItems;
 import logisticspipes.network.abstractpackets.ItemPacket;
@@ -24,16 +24,16 @@ public class DiscContent extends ItemPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		final LogisticsTileGenericPipe tile = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		final LogisticsTileGenericPipe tile = this.getPipe(player.level());
 		if (tile == null) {
 			return;
 		}
 		if (tile.pipe instanceof PipeItemsRequestLogisticsMk2) {
-			if (MainProxy.isServer(tile.getWorld())) {
-				if (!((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().isEmpty() && ((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().getItem().equals(LPItems.disk)) {
-					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.disk)) {
-						((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().setTagCompound(getStack().getTagCompound());
+			if (MainProxy.isServer(tile.getLevel())) {
+				if (!((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().isEmpty() && ((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().getItem().equals(LPItems.disk.get())) {
+					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.disk.get())) {
+						((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().setTag(getStack().getTag());
 					}
 				}
 			} else {
@@ -41,14 +41,14 @@ public class DiscContent extends ItemPacket {
 			}
 		}
 		if (tile.pipe instanceof PipeBlockRequestTable) {
-			if (MainProxy.isServer(tile.getWorld())) {
-				if (!((PipeBlockRequestTable) tile.pipe).diskInv.getStackInSlot(0).isEmpty() && ((PipeBlockRequestTable) tile.pipe).diskInv.getStackInSlot(0).getItem().equals(LPItems.disk)) {
-					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.disk)) {
-						((PipeBlockRequestTable) tile.pipe).diskInv.getStackInSlot(0).setTagCompound(getStack().getTagCompound());
+			if (MainProxy.isServer(tile.getLevel())) {
+				if (!((PipeBlockRequestTable) tile.pipe).diskInv.getItem(0).isEmpty() && ((PipeBlockRequestTable) tile.pipe).diskInv.getItem(0).getItem().equals(LPItems.disk.get())) {
+					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.disk.get())) {
+						((PipeBlockRequestTable) tile.pipe).diskInv.getItem(0).setTag(getStack().getTag());
 					}
 				}
 			} else {
-				((PipeBlockRequestTable) tile.pipe).diskInv.setInventorySlotContents(0, getStack());
+				((PipeBlockRequestTable) tile.pipe).diskInv.setItem(0, getStack());
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 package logisticspipes.asm.wrapper;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
@@ -26,7 +26,7 @@ class CraftingRecipeProviderWrapper extends AbstractWrapper implements ICrafting
 	}
 
 	@Override
-	public boolean canOpenGui(TileEntity tile) {
+	public boolean canOpenGui(BlockEntity tile) {
 		if (isEnabled()) {
 			try {
 				return provider.canOpenGui(tile);
@@ -38,7 +38,7 @@ class CraftingRecipeProviderWrapper extends AbstractWrapper implements ICrafting
 	}
 
 	@Override
-	public boolean importRecipe(TileEntity tile, IItemIdentifierInventory inventory) {
+	public boolean importRecipe(BlockEntity tile, IItemIdentifierInventory inventory) {
 		if (isEnabled()) {
 			try {
 				return provider.importRecipe(tile, inventory);

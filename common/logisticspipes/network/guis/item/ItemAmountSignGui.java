@@ -2,8 +2,8 @@ package logisticspipes.network.guis.item;
 
 import java.util.Objects;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,15 +24,15 @@ public class ItemAmountSignGui extends CoordinatesGuiProvider {
 
 	@Getter
 	@Setter
-	private EnumFacing dir;
+	private Direction dir;
 
 	public ItemAmountSignGui(int id) {
 		super(id);
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = getTileAs(player.world, LogisticsTileGenericPipe.class);
+	public Object getClientGui(Player player) {
+		LogisticsTileGenericPipe pipe = getTileAs(player.level(), LogisticsTileGenericPipe.class);
 		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
 			return null;
 		}
@@ -40,14 +40,14 @@ public class ItemAmountSignGui extends CoordinatesGuiProvider {
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = getTileAs(player.world, LogisticsTileGenericPipe.class);
+	public DummyContainer getContainer(Player player) {
+		LogisticsTileGenericPipe pipe = getTileAs(player.level(), LogisticsTileGenericPipe.class);
 		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
 			return null;
 		}
 		ItemAmountPipeSign sign = ((ItemAmountPipeSign) ((CoreRoutedPipe) pipe.pipe).getPipeSign(dir));
 		Objects.requireNonNull(sign);
-		DummyContainer dummy = new DummyContainer(player.inventory, sign.itemTypeInv);
+		DummyContainer dummy = new DummyContainer(player.getInventory(), sign.itemTypeInv);
 		dummy.addDummySlot(0, 0, 0);
 		dummy.addNormalSlotsForPlayerInventory(0, 0);
 		return dummy;

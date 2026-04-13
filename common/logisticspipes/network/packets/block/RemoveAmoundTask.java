@@ -2,7 +2,7 @@ package logisticspipes.network.packets.block;
 
 import java.util.Iterator;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,8 +28,8 @@ public class RemoveAmoundTask extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsStatisticsTileEntity tile = this.getTileAs(player.getEntityWorld(), LogisticsStatisticsTileEntity.class);
+	public void processPacket(Player player) {
+		LogisticsStatisticsTileEntity tile = this.getTileAs(player.level(), LogisticsStatisticsTileEntity.class);
 		Iterator<TrackingTask> iter = tile.tasks.iterator();
 		while (iter.hasNext()) {
 			TrackingTask task = iter.next();

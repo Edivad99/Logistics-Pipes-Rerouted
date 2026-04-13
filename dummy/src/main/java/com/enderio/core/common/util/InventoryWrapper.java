@@ -3,35 +3,35 @@ package com.enderio.core.common.util;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Component;
 
-public class InventoryWrapper implements ISidedInventory {
+public class InventoryWrapper implements WorldlyContainer {
 
-	public static ISidedInventory asSidedInventory(IInventory inv) {
+	public static WorldlyContainer asSidedInventory(Container inv) {
 		if (inv == null) {
 			return null;
 		}
-		if (inv instanceof ISidedInventory) {
-			return (ISidedInventory) inv;
+		if (inv instanceof WorldlyContainer) {
+			return (WorldlyContainer) inv;
 		}
 		return new InventoryWrapper(inv);
 	}
 
-	public InventoryWrapper(IInventory inventory) {
+	public InventoryWrapper(Container inventory) {
 	}
 
-	public IInventory getWrappedInv() {
+	public Container getWrappedInv() {
 		return null;
 	}
 
 	@Override
-	public int getSizeInventory() {
+	public int getContainerSize() {
 		return 0;
 	}
 
@@ -42,68 +42,68 @@ public class InventoryWrapper implements ISidedInventory {
 
 	@Override
 	@Nonnull
-	public ItemStack getStackInSlot(int slot) {
+	public ItemStack getItem(int slot) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
 	@Nonnull
-	public ItemStack decrStackSize(int slot, int amount) {
+	public ItemStack removeItem(int slot, int amount) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public void setInventorySlotContents(int slot, @Nullable ItemStack itemStack) {
+	public void setItem(int slot, @Nullable ItemStack itemStack) {
 
 	}
 
 	@Override
-	public int getInventoryStackLimit() {
+	public int getMaxStackSize() {
 		return 0;
 	}
 
 	@Override
-	public void markDirty() {
+	public void setChanged() {
 	}
 
 	@Override
-	public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
+	public boolean stillValid(@Nonnull Player player) {
 		return false;
 	}
 
 	@Override
-	public boolean isItemValidForSlot(int slot, @Nonnull ItemStack itemStack) {
+	public boolean canPlaceItem(int slot, @Nonnull ItemStack itemStack) {
 		return false;
 	}
 
 	@Override
 	@Nonnull
-	public int[] getSlotsForFace(@Nonnull EnumFacing side) {
+	public int[] getSlotsForFace(@Nonnull Direction side) {
 		return new int[0];
 	}
 
 	@Override
-	public boolean canInsertItem(int slot, @Nonnull ItemStack itemStack, @Nonnull EnumFacing side) {
-		return isItemValidForSlot(slot, itemStack);
+	public boolean canInsertItem(int slot, @Nonnull ItemStack itemStack, @Nonnull Direction side) {
+		return canPlaceItem(slot, itemStack);
 	}
 
 	@Override
-	public boolean canExtractItem(int slot, @Nonnull ItemStack itemStack, @Nonnull EnumFacing side) {
-		return slot >= 0 && slot < getSizeInventory();
+	public boolean canExtractItem(int slot, @Nonnull ItemStack itemStack, @Nonnull Direction side) {
+		return slot >= 0 && slot < getContainerSize();
 	}
 
 	@Override
 	@Nonnull
-	public ItemStack removeStackFromSlot(int index) {
+	public ItemStack removeItemNoUpdate(int index) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public void openInventory(@Nonnull EntityPlayer player) {
+	public void startOpen(@Nonnull Player player) {
 	}
 
 	@Override
-	public void closeInventory(@Nonnull EntityPlayer player) {
+	public void stopOpen(@Nonnull Player player) {
 	}
 
 	@Override
@@ -137,8 +137,8 @@ public class InventoryWrapper implements ISidedInventory {
 
 	@Override
 	@Nonnull
-	public ITextComponent getDisplayName() {
-		return new TextComponentString("");
+	public Component getDisplayName() {
+		return Component.literal("");
 	}
 
 }

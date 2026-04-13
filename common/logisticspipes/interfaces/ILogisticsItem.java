@@ -1,13 +1,15 @@
 package logisticspipes.interfaces;
 
-import net.minecraft.item.Item;
+import net.minecraft.core.registries.BuiltInRegistries;
+
+import net.minecraft.world.item.Item;
 
 import org.apache.commons.lang3.NotImplementedException;
 
 public interface ILogisticsItem {
 
 	default String getModelPath() {
-		return getItem().getRegistryName().getPath();
+		return BuiltInRegistries.ITEM.getKey(getItem()).getPath();
 	}
 
 	default int getModelCount() {

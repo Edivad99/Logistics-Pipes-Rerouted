@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -18,8 +18,8 @@ public class ClearCraftingGridPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		TileEntity table = this.getTileAs(player.getEntityWorld(), TileEntity.class);
+	public void processPacket(Player player) {
+		BlockEntity table = this.getTileAs(player.level(), BlockEntity.class);
 		if (table instanceof LogisticsCraftingTableTileEntity) {
 		} else if (table instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) table).pipe instanceof PipeBlockRequestTable) {
 			((PipeBlockRequestTable) ((LogisticsTileGenericPipe) table).pipe).matrix.clearGrid();

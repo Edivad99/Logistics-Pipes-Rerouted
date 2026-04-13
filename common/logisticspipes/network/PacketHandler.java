@@ -1,6 +1,5 @@
 package logisticspipes.network;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -9,22 +8,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
+import javax.annotation.Nonnull;
 
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.simple.SimpleChannel;
+
+import java.util.function.Supplier;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import static io.netty.buffer.Unpooled.buffer;
-import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageCodec;
-import io.netty.util.AttributeKey;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -35,193 +38,207 @@ import logisticspipes.utils.StaticResolverUtil;
 import network.rs485.logisticspipes.util.LPDataIOWrapper;
 import network.rs485.logisticspipes.util.LPDataInput;
 
-/*
- *  Basically FML SimpleIndexedCodec, except with static registration of LP ModernPackets and short instead of byte discriminator
+/**
+ * Central packet registry and dispatcher for LogisticsPipes.
+ *
+ * All LP packets share a single {@link LPPacketPayload} channel multiplexed by a short ID.
+ * Registration happens in {@link logisticspipes.LogisticsPipes} via {@code RegisterPayloadsEvent}.
  */
-@Sharable
-public class PacketHandler extends MessageToMessageCodec<FMLProxyPacket, ModernPacket> {
+public class PacketHandler {
 
-	public static final Map<Integer, StackTraceElement[]> debugMap = new HashMap<>();
-	protected static final AttributeKey<ThreadLocal<WeakReference<FMLProxyPacket>>> INBOUNDPACKETTRACKER = AttributeKey.valueOf("lp:inboundpacket");
-	public static List<ModernPacket> packetlist;
-	public static Map<Class<? extends ModernPacket>, ModernPacket> packetmap;
-	private static int packetDebugID = 1;
+    private static final String PROTOCOL_VERSION = "1";
+    public static final ResourceLocation CHANNEL_ID = new ResourceLocation("logisticspipes", "packet");
+    public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
+            .named(CHANNEL_ID)
+            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
+            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
+            .networkProtocolVersion(() -> PROTOCOL_VERSION)
+            .simpleChannel();
 
-	@SuppressWarnings("unchecked") // Suppressed because this cast should never fail.
-	public static <T extends ModernPacket> T getPacket(Class<T> clazz) {
-		T packet = (T) PacketHandler.packetmap.get(clazz).template();
-		if (LogisticsPipes.isDEBUG() && MainProxy.proxy.getSide().equals("Client")) {
-			StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-			synchronized (PacketHandler.debugMap) { //Unique id
-				int id = PacketHandler.packetDebugID++;
-				PacketHandler.debugMap.put(id, trace);
-				packet.setDebugId(id);
-			}
-		}
-		return packet;
-	}
+    public static void registerMessages() {
+        CHANNEL.messageBuilder(LPPacketPayload.class, 0)
+                .encoder(LPPacketPayload::write)
+                .decoder(LPPacketPayload::decode)
+                .consumerMainThread(PacketHandler::handlePayload)
+                .add();
+    }
 
-	/*
-	 * enumerates all ModernPackets, sets their IDs and populate packetlist/packetmap
-	 */
-	public static void initialize() {
-		Set<Class<? extends ModernPacket>> classes = StaticResolverUtil.findClassesByType(ModernPacket.class);
+    private static void handlePayload(LPPacketPayload payload, Supplier<NetworkEvent.Context> ctxSup) {
+        NetworkEvent.Context ctx = ctxSup.get();
+        try {
+            Player player = ctx.getSender();
+            if (player == null) {
+                player = MainProxy.proxy.getClientPlayer();
+            }
+            if (player != null) {
+                onPacketData(payload.getData(), player);
+            }
+        } finally {
+            payload.release();
+            ctx.setPacketHandled(true);
+        }
+    }
 
-		loadPackets(classes);
+    public static final Map<Integer, StackTraceElement[]> debugMap = new HashMap<>();
+    public static List<ModernPacket> packetlist;
+    public static Map<Class<? extends ModernPacket>, ModernPacket> packetmap;
+    private static int packetDebugID = 1;
 
-		if (PacketHandler.packetlist.isEmpty()) {
-			throw new RuntimeException("Cannot load Packet Classes");
-		}
-	}
+    // ── Registration ─────────────────────────────────────────────────────────
 
-	private static void loadPackets(Set<Class<? extends ModernPacket>> classesIn) {
-		List<Class<? extends ModernPacket>> classes = classesIn.stream()
-				.sorted(Comparator.comparing(Class::getCanonicalName))
-				.collect(Collectors.toList());
+    @SuppressWarnings("unchecked")
+    public static <T extends ModernPacket> T getPacket(Class<T> clazz) {
+        T packet = (T) PacketHandler.packetmap.get(clazz).template();
+        if (LogisticsPipes.isDEBUG() && MainProxy.proxy.getSide().equals("Client")) {
+            StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+            synchronized (PacketHandler.debugMap) {
+                int id = PacketHandler.packetDebugID++;
+                PacketHandler.debugMap.put(id, trace);
+                packet.setDebugId(id);
+            }
+        }
+        return packet;
+    }
 
-		PacketHandler.packetlist = new ArrayList<>(classes.size());
-		PacketHandler.packetmap = new HashMap<>(classes.size());
+    /** Enumerates all ModernPacket subclasses, assigns IDs, and populates packetlist/packetmap. */
+    public static void initialize() {
+        Set<Class<? extends ModernPacket>> classes = StaticResolverUtil.findClassesByType(ModernPacket.class);
+        loadPackets(classes);
+        if (PacketHandler.packetlist.isEmpty()) {
+            throw new RuntimeException("Cannot load Packet Classes");
+        }
+    }
 
-		int currentId = 0;
-		for (Class<? extends ModernPacket> cls : classes) {
-			try {
-				final ModernPacket instance = cls.getConstructor(int.class).newInstance(currentId);
-				PacketHandler.packetlist.add(instance);
-				PacketHandler.packetmap.put(cls, instance);
-				currentId++;
-			} catch (Throwable ignoredButPrinted) {
-				ignoredButPrinted.printStackTrace();
-			}
-		}
-	}
+    private static void loadPackets(Set<Class<? extends ModernPacket>> classesIn) {
+        List<Class<? extends ModernPacket>> classes = classesIn.stream()
+                .sorted(Comparator.comparing(Class::getCanonicalName))
+                .collect(Collectors.toList());
 
-	//Used to provide the Description packet
-	public static FMLProxyPacket toFMLPacket(ModernPacket msg) {
-		return toFMLPacket(msg, MainProxy.networkChannelName);
-	}
+        PacketHandler.packetlist = new ArrayList<>(classes.size());
+        PacketHandler.packetmap = new HashMap<>(classes.size());
 
-	private static FMLProxyPacket toFMLPacket(ModernPacket msg, String channel) {
-		ByteBuf buffer = Unpooled.buffer();
-		fillByteBuf(msg, buffer);
+        int currentId = 0;
+        for (Class<? extends ModernPacket> cls : classes) {
+            try {
+                final ModernPacket instance = cls.getConstructor(int.class).newInstance(currentId);
+                PacketHandler.packetlist.add(instance);
+                PacketHandler.packetmap.put(cls, instance);
+                currentId++;
+            } catch (Throwable ignoredButPrinted) {
+                ignoredButPrinted.printStackTrace();
+            }
+        }
+    }
 
-		return new FMLProxyPacket(new PacketBuffer(buffer), channel);
-	}
+    // ── Binary serialization ─────────────────────────────────────────────────
 
-	public static void fillByteBuf(ModernPacket msg, ByteBuf buffer) {
-		buffer.writeShort(msg.getId());
-		buffer.writeInt(msg.getDebugId());
+    /**
+     * Writes a ModernPacket into a raw ByteBuf (short id + int debugId + LP body).
+     * Used both for network sending and for NBT embedding.
+     */
+    public static void fillByteBuf(@Nonnull ModernPacket msg, @Nonnull ByteBuf buffer) {
+        buffer.writeShort(msg.getId());
+        buffer.writeInt(msg.getDebugId());
+        LPDataIOWrapper.writeData(buffer, msg::writeData);
+    }
 
-		LPDataIOWrapper.writeData(buffer, msg::writeData);
-	}
+    public static void addPacketToNBT(ModernPacket packet, CompoundTag nbt) {
+        ByteBuf dataBuffer = buffer();
+        PacketHandler.fillByteBuf(packet, dataBuffer);
 
-	public static void addPacketToNBT(ModernPacket packet, NBTTagCompound nbt) {
-		ByteBuf dataBuffer = buffer();
-		PacketHandler.fillByteBuf(packet, dataBuffer);
+        byte[] data = new byte[dataBuffer.readableBytes()];
+        dataBuffer.getBytes(0, data);
+        dataBuffer.release();
 
-		byte[] data = new byte[dataBuffer.readableBytes()];
-		dataBuffer.getBytes(0, data);
-		dataBuffer.release();
+        nbt.putByteArray("LogisticsPipes:PacketData", data);
+    }
 
-		nbt.setByteArray("LogisticsPipes:PacketData", data);
-	}
+    @OnlyIn(Dist.CLIENT)
+    public static void queueAndRemovePacketFromNBT(CompoundTag nbt) {
+        byte[] data = nbt.getByteArray("LogisticsPipes:PacketData");
+        if (data.length > 0) {
+            LPDataIOWrapper.provideData(data, dataInput -> {
+                final int packetID = dataInput.readShort();
+                final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
+                packet.setDebugId(dataInput.readInt());
+                packet.readData(dataInput);
+                SimpleServiceLocator.clientBufferHandler.queuePacket(packet, MainProxy.proxy.getClientPlayer());
+            });
+        }
+        nbt.remove("LogisticsPipes:PacketData");
+    }
 
-	@SideOnly(Side.CLIENT)
-	public static void queueAndRemovePacketFromNBT(NBTTagCompound nbt) {
-		byte[] data = nbt.getByteArray("LogisticsPipes:PacketData");
-		if (data.length > 0) {
-			LPDataIOWrapper.provideData(data, dataInput -> {
-				final int packetID = dataInput.readShort();
-				final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
-				packet.setDebugId(dataInput.readInt());
-				packet.readData(dataInput);
-				SimpleServiceLocator.clientBufferHandler.queuePacket(packet, MainProxy.proxy.getClientPlayer());
-			});
-		}
-		nbt.removeTag("LogisticsPipes:PacketData");
-	}
+    // ── Sending ──────────────────────────────────────────────────────────────
 
-	//hacky callback to process packets coming from by the packetbufferhandler decompressors
-	//TODO replace with proper netty implementation
-	public static void onPacketData(final LPDataInput data, final EntityPlayer player) {
-		if (player == null) {
-			return;
-		}
-		final int packetID = data.readShort();
-		final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
-		packet.setDebugId(data.readInt());
-		packet.readData(data);
-		PacketHandler.onPacketData(packet, player);
-	}
+    private static LPPacketPayload buildPayload(@Nonnull ModernPacket msg) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        fillByteBuf(msg, buf);
+        return LPPacketPayload.of(buf);
+    }
 
-	public static void onPacketData(ModernPacket packet, final EntityPlayer player) {
-		try {
-			packet.processPacket(player);
-			if (LogisticsPipes.isDEBUG()) {
-				PacketHandler.debugMap.remove(packet.getDebugId());
-			}
-		} catch (DelayPacketException e) {
-			if (packet.retry() && MainProxy.isClient(player.getEntityWorld())) {
-				SimpleServiceLocator.clientBufferHandler.queuePacket(packet, player);
-			} else if (LogisticsPipes.isDEBUG()) {
-				LogisticsPipes.log.error(packet.getClass().getName());
-				LogisticsPipes.log.error(packet.toString());
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static LPPacketPayload buildPayloadPublic(@Nonnull ModernPacket msg) {
+        return buildPayload(msg);
+    }
 
-	@Override
-	public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-		super.handlerAdded(ctx);
-		ctx.channel().attr(INBOUNDPACKETTRACKER).set(new ThreadLocal<>());
-	}
+    /** Sends a packet from the client to the server. Must only be called client-side. */
+    @OnlyIn(Dist.CLIENT)
+    public static void sendToServer(@Nonnull ModernPacket msg) {
+        CHANNEL.sendToServer(buildPayload(msg));
+    }
 
-	@Override
-	protected final void encode(ChannelHandlerContext ctx, ModernPacket msg, List<Object> out) {
-		FMLProxyPacket proxy = PacketHandler.toFMLPacket(msg, ctx.channel().attr(NetworkRegistry.FML_CHANNEL).get());
-		WeakReference<FMLProxyPacket> ref = ctx.channel().attr(INBOUNDPACKETTRACKER).get().get();
-		FMLProxyPacket old = ref == null ? null : ref.get();
-		if (old != null) {
-			proxy.setDispatcher(old.getDispatcher());
-		}
-		out.add(proxy);
-	}
+    /** Sends a packet from the server to a specific player. Must only be called server-side. */
+    public static void sendToPlayer(@Nonnull ModernPacket msg, @Nonnull Player player) {
+        if (!(player instanceof ServerPlayer sp)) {
+            LogisticsPipes.log.warn("sendToPlayer: player is not a ServerPlayer, skipping");
+            return;
+        }
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), buildPayload(msg));
+    }
 
-	@Override
-	protected final void decode(ChannelHandlerContext ctx, FMLProxyPacket msg, List<Object> out) {
-		ByteBuf payload = msg.payload();
-		int packetID = payload.readShort();
-		final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
-		packet.setDebugId(payload.readInt());
-		ctx.channel().attr(INBOUNDPACKETTRACKER).get().set(new WeakReference<>(msg));
+    /** Sends a packet to every connected player. Must only be called server-side. */
+    public static void sendToAll(@Nonnull ModernPacket msg) {
+        CHANNEL.send(PacketDistributor.ALL.noArg(), buildPayload(msg));
+    }
 
-		LPDataIOWrapper.provideData(payload.slice(), packet::readData);
-		payload.release();
+    // ── Dispatch ──────────────────────────────────────────────────────────────
 
-		EntityPlayer player = MainProxy.proxy.getEntityPlayerFromNetHandler(msg.handler());
+    /** Decodes and dispatches a raw LP packet from a FriendlyByteBuf. */
+    public static void onPacketData(@Nonnull final FriendlyByteBuf data, @Nonnull final Player player) {
+        LPDataIOWrapper.provideData(data, input -> {
+            final int packetID = input.readShort();
+            final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
+            packet.setDebugId(input.readInt());
+            packet.readData(input);
+            onPacketData(packet, player);
+        });
+    }
 
-		if (player != null) {
-			out.add(new InboundModernPacketWrapper(packet, player));
-		}
-	}
+    /** Decodes a raw LP packet from an LPDataInput (used by NBT-embedded packets). */
+    public static void onPacketData(@Nonnull final LPDataInput data, @Nonnull final Player player) {
+        final int packetID = data.readShort();
+        final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
+        packet.setDebugId(data.readInt());
+        packet.readData(data);
+        onPacketData(packet, player);
+    }
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		LogisticsPipes.log.error("LogisticsPipes PacketHandler exception caught", cause);
-		super.exceptionCaught(ctx, cause);
-	}
-
-	//horrible hack to carry the proper player for the side along...
-	static class InboundModernPacketWrapper {
-
-		final ModernPacket packet;
-		final EntityPlayer player;
-
-		InboundModernPacketWrapper(ModernPacket p, EntityPlayer e) {
-			packet = p;
-			player = e;
-		}
-	}
+    /** Processes a fully-decoded ModernPacket on the correct thread. */
+    public static void onPacketData(@Nonnull ModernPacket packet, @Nonnull final Player player) {
+        try {
+            packet.processPacket(player);
+            if (LogisticsPipes.isDEBUG()) {
+                PacketHandler.debugMap.remove(packet.getDebugId());
+            }
+        } catch (DelayPacketException e) {
+            if (packet.retry() && MainProxy.isClient(player.level())) {
+                SimpleServiceLocator.clientBufferHandler.queuePacket(packet, player);
+            } else if (LogisticsPipes.isDEBUG()) {
+                LogisticsPipes.log.error(packet.getClass().getName());
+                LogisticsPipes.log.error(packet.toString());
+                LogisticsPipes.log.error("Packet handling error", e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

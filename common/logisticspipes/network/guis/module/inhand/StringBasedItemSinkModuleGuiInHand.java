@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.modules.GuiStringBasedItemSink;
 import logisticspipes.interfaces.IStringBasedModule;
@@ -21,16 +21,16 @@ public class StringBasedItemSinkModuleGuiInHand extends ModuleInHandGuiProvider 
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
+	public Object getClientGui(Player player) {
 		LogisticsModule module = ItemModule.getLogisticsModule(player, getInvSlot());
 		if (!(module instanceof IStringBasedModule)) {
 			return null;
 		}
-		return new GuiStringBasedItemSink(player.inventory, module);
+		return new GuiStringBasedItemSink(player.getInventory(), module);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
+	public DummyContainer getContainer(Player player) {
 		DummyModuleContainer dummy = new DummyModuleContainer(player, getInvSlot());
 		if (!(dummy.getModule() instanceof IStringBasedModule)) {
 			return null;

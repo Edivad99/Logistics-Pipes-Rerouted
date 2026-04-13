@@ -4,12 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter; // was BlockGetter
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -63,12 +63,12 @@ public class PipeRenderState implements IClientState {
 		return pipeConnectionMatrix.isDirty() || textureMatrix.isDirty();
 	}
 
-	public void checkForRenderUpdate(IBlockAccess worldIn, BlockPos blockPos) {
+	public void checkForRenderUpdate(BlockGetter worldIn, BlockPos blockPos) {
 		boolean[] solidSides = new boolean[6];
-		for (EnumFacing dir : EnumFacing.VALUES) {
+		for (Direction dir : Direction.values()) {
 			DoubleCoordinates pos = CoordinateUtils.add(new DoubleCoordinates(blockPos), dir);
-			IBlockState blockSide = pos.getBlockState(worldIn);
-			if (blockSide.isSideSolid(worldIn, pos.getBlockPos(), dir.getOpposite()) && !pipeConnectionMatrix.isConnected(dir)) {
+			BlockState blockSide = pos.getBlockState(worldIn);
+			if (blockSide.isFaceSturdy(worldIn, pos.getBlockPos(), dir.getOpposite()) && !pipeConnectionMatrix.isConnected(dir)) {
 				solidSides[dir.ordinal()] = true;
 			}
 		}
@@ -77,7 +77,7 @@ public class PipeRenderState implements IClientState {
 			clearRenderCaches();
 		}
 		DoubleCoordinates pos = new DoubleCoordinates(blockPos);
-		TileEntity tile = pos.getTileEntity(worldIn);
+		BlockEntity tile = pos.getTileEntity(worldIn);
 		if (tile instanceof LogisticsTileGenericPipe) {
 			boolean hasParts = SimpleServiceLocator.mcmpProxy.hasParts((LogisticsTileGenericPipe) tile);
 			if (savedStateHasMCMultiParts != hasParts) {

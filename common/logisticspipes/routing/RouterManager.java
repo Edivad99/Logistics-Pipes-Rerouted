@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.ISecurityStationManager;
@@ -46,7 +46,7 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 
 	@Nullable
 	public IRouter getRouter(int id) {
-		//TODO: isClient without a world is expensive
+		// MainProxy.isClient() checks Thread.currentThread() — fast, no world needed
 		if (id <= 0 || MainProxy.isClient()) {
 			return null;
 		} else {
@@ -75,37 +75,42 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 	}
 
 	public void removeRouter(int id) {
-		//TODO: isClient without a world is expensive
+		// MainProxy.isClient() checks Thread.currentThread() — fast, no world needed
 		if (!MainProxy.isClient()) {
 			_routersServer.set(id, null);
 		}
 	}
 
 	@Nonnull
-	public IRouter getOrCreateRouter(UUID UUid, World world, int xCoord, int yCoord, int zCoord) {
+	public IRouter getOrCreateRouter(UUID UUid, Level world, int xCoord, int yCoord, int zCoord) {
 		IRouter r;
 		int id = getIDforUUID(UUid);
 		if (id > 0) {
 			getRouter(id);
 		}
+		// IRouter / ServerRouter / ClientRouter and the ModernPacket wire format all
+		// carry the dimension as an int. ResourceLocation.hashCode() is deterministic
+		// (identical on client and server for the same dimension id) and collision-free
+		// in practice for realistic dimension counts, so it is used as the mapping.
+		int dimId = world.dimension().location().hashCode();
 		if (MainProxy.isClient(world)) {
 			synchronized (_routersClient) {
 				for (IRouter r2 : _routersClient) {
-					if (r2.isAt(world.provider.getDimension(), xCoord, yCoord, zCoord)) {
+					if (r2.isAt(dimId, xCoord, yCoord, zCoord)) {
 						return r2;
 					}
 				}
-				r = new ClientRouter(UUid, world.provider.getDimension(), xCoord, yCoord, zCoord);
+				r = new ClientRouter(UUid, dimId, xCoord, yCoord, zCoord);
 				_routersClient.add(r);
 			}
 		} else {
 			synchronized (_routersServer) {
 				for (IRouter r2 : _routersServer) {
-					if (r2 != null && r2.isAt(world.provider.getDimension(), xCoord, yCoord, zCoord)) {
+					if (r2 != null && r2.isAt(dimId, xCoord, yCoord, zCoord)) {
 						return r2;
 					}
 				}
-				final ServerRouter serverRouter = new ServerRouter(UUid, world.provider.getDimension(), xCoord, yCoord, zCoord);
+				final ServerRouter serverRouter = new ServerRouter(UUid, dimId, xCoord, yCoord, zCoord);
 
 				int rId = serverRouter.getSimpleID();
 				if (_routersServer.size() <= rId) {
@@ -291,11 +296,11 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 	}
 
 	@Override
-	public void sendClientAuthorizationList(EntityPlayer player) {
+	public void sendClientAuthorizationList(Player player) {
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationAuthorizedList.class).setStringList(_authorized), player);
 	}
 
 	public void printAllRouters() {
-		_routersServer.stream().filter(router -> router != null).forEach(router -> System.out.println(router.toString()));
+		_routersServer.stream().filter(router -> router != null).forEach(router -> logisticspipes.LogisticsPipes.log.info("{}", router));
 	}
 }

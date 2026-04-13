@@ -1,11 +1,11 @@
 package logisticspipes.proxy.object3d.interfaces;
 
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter; // was IBlockAccess
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface IRenderState {
 
@@ -15,9 +15,9 @@ public interface IRenderState {
 
 	void draw();
 
-	void setBrightness(IBlockAccess world, BlockPos pos);
+	void setBrightness(BlockGetter world, BlockPos pos);
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	void startDrawing(int mode, VertexFormat format);
 
 }

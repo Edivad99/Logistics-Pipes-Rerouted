@@ -14,9 +14,9 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -55,17 +55,20 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 		return null;
 	}
 
-	public void openGui(EntityPlayer entityplayer) {
-		entityplayer.openGui(LogisticsPipes.instance, GuiIDs.GUI_Normal_Orderer_ID, getWorld(), getX(), getY(), getZ());
+	public void openGui(Player entityplayer) {
+		logisticspipes.network.guis.pipe.NormalOrdererGui gui = logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
+		gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
+		gui.setDim(getWorld().dimension().location().hashCode());
+		gui.open(entityplayer);
 	}
 
 	@Override
-	public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
 		if (MainProxy.isServer(getWorld())) {
 			if (settings == null || settings.openRequest) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.sendMessage(new TextComponentString("Permission denied"));
+				entityplayer.sendSystemMessage(Component.literal("Permission denied"));
 			}
 		}
 		return true;
@@ -74,7 +77,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 	@Override
 	public void enabledUpdateEntity() {
 		super.enabledUpdateEntity();
-		if (getWorld().getTotalWorldTime() % 1200 == 0) {
+		if (getWorld().getGameTime() % 1200 == 0) {
 			_history.addLast(SimpleServiceLocator.logisticsManager.getAvailableItems(getRouter().getIRoutersByCost()));
 			if (_history.size() > 20) {
 				_history.removeFirst();

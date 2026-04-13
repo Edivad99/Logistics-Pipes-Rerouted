@@ -1,45 +1,36 @@
 package logisticspipes.modplugins.jei;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import mezz.jei.api.IJeiRuntime;
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.IModRegistry;
-import mezz.jei.api.JEIPlugin;
-import mezz.jei.api.recipe.IFocus;
-import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.recipe.IFocusFactory;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.runtime.IJeiRuntime;
 
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import network.rs485.logisticspipes.compat.JEIAdvancedGuiHandler;
-import network.rs485.logisticspipes.compat.JEIGhostIngredientHandler;
-import network.rs485.logisticspipes.gui.BaseGuiContainer;
+public class JEIPluginLoader {
 
-@JEIPlugin
-public class JEIPluginLoader implements IModPlugin {
+    @Nullable
+    private static IJeiRuntime jeiRuntime = null;
 
-	private static IJeiRuntime jeiRuntime;
+    public static void setRuntime(@Nonnull IJeiRuntime runtime) {
+        jeiRuntime = runtime;
+    }
 
-	@Override
-	public void register(IModRegistry registry) {
-		IRecipeTransferRegistry recipeTransferRegistry = registry.getRecipeTransferRegistry();
-		recipeTransferRegistry.addUniversalRecipeTransferHandler(new RecipeTransferHandler(registry.getJeiHelpers().recipeTransferHandlerHelper()));
-		registry.addGhostIngredientHandler(LogisticsBaseGuiScreen.class, new GhostIngredientHandler());
-		registry.addGhostIngredientHandler(BaseGuiContainer.class, new JEIGhostIngredientHandler());
-		registry.addAdvancedGuiHandlers(new AdvancedGuiHandler(), new JEIAdvancedGuiHandler());
-	}
+    public static void clearRuntime() {
+        jeiRuntime = null;
+    }
 
-	@Override
-	public void onRuntimeAvailable(@Nonnull IJeiRuntime jeiRuntime) {
-		JEIPluginLoader.jeiRuntime = jeiRuntime;
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void showRecipe(ItemStack stack) {
-		jeiRuntime.getRecipesGui().show(jeiRuntime.getRecipeRegistry().createFocus(IFocus.Mode.OUTPUT, stack));
-	}
+    @OnlyIn(Dist.CLIENT)
+    public static void showRecipe(@Nonnull ItemStack stack) {
+        if (jeiRuntime == null || stack.isEmpty()) return;
+        IFocusFactory focusFactory = jeiRuntime.getJeiHelpers().getFocusFactory();
+        jeiRuntime.getRecipesGui().show(
+                focusFactory.createFocus(RecipeIngredientRole.OUTPUT, VanillaTypes.ITEM_STACK, stack));
+    }
 }

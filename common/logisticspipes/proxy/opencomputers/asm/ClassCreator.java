@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.launchwrapper.Launch;
+
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -133,6 +133,6 @@ public class ClassCreator {
 			ClassCreator.m_defineClass = ClassLoader.class.getDeclaredMethod("defineClass", byte[].class, int.class, int.class);
 			ClassCreator.m_defineClass.setAccessible(true);
 		}
-		return (Class<?>) ClassCreator.m_defineClass.invoke(Launch.classLoader, data, 0, data.length);
+		return (Class<?>) ClassCreator.m_defineClass.invoke(ClassCreator.class.getClassLoader(), data, 0, data.length); // Launch.classLoader removed in modern NeoForge
 	}
 }

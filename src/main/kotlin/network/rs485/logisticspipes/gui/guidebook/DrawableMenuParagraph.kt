@@ -37,11 +37,9 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.LPItems
+// TODO: Rendering deferred — DrawableMenuParagraph item rendering migrated to 1.20.1 stub (Item.REGISTRY removed).
+
 import logisticspipes.utils.MinecraftColor
-import logisticspipes.utils.item.ItemStackRenderer
-import net.minecraft.item.Item
-import net.minecraft.util.ResourceLocation
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.widget.Tooltipped
 import network.rs485.logisticspipes.util.IRectangle
@@ -139,12 +137,6 @@ class DrawableMenuTile(private val linkedPage: String, private val pageName: Str
     override val relativeBody = MutableRectangle()
     override var parent: Drawable? = null
 
-    companion object {
-        val itemStackRenderer by lazy {
-            ItemStackRenderer(0, 0, 0f, true, false)
-        }
-    }
-
     init {
         relativeBody.setSize(tileSize, tileSize)
         iconBody.setSize((16 * iconScale).toInt(), (16 * iconScale).toInt())
@@ -170,11 +162,7 @@ class DrawableMenuTile(private val linkedPage: String, private val pageName: Str
         if (hovered) {
             GuiDrawer.drawInteractionIndicator(mouseX, mouseY)
         }
-        val itemRect = iconBody.translated(absoluteBody)
-        if (visibleArea.intersects(itemRect)) {
-            val item = Item.REGISTRY.getObject(ResourceLocation(icon)) ?: LPItems.brokenItem
-            itemStackRenderer.renderItemInGui(itemRect.left, itemRect.top, item, 0.0f, iconScale)
-        }
+        // TODO: deferred item rendering — Item.REGISTRY removed; use BuiltInRegistries.ITEM or ForgeRegistries.ITEMS
     }
 
     override fun setPos(x: Int, y: Int): Pair<Int, Int> {
@@ -192,14 +180,8 @@ class DrawableMenuListEntry(private val linkedPage: String, private val pageName
     override val relativeBody = MutableRectangle()
     override var parent: Drawable? = null
 
-    companion object {
-        val itemStackRenderer by lazy {
-            ItemStackRenderer(0, 0, 0f, true, false)
-        }
-    }
-
     init {
-        relativeBody.setSize(4 * itemOffset + iconSize + GuiDrawer.lpFontRenderer.getStringWidth(pageName), listEntryHeight)
+        relativeBody.setSize(4 * itemOffset + iconSize + GuiDrawer.lpFontRenderer.width(pageName), listEntryHeight)
         itemRect.setSize(iconSize, iconSize)
     }
 
@@ -229,8 +211,7 @@ class DrawableMenuListEntry(private val linkedPage: String, private val pageName
                 format = EnumSet.of(TextFormat.Shadow),
                 scale = 1.0f
             )
-            val item = Item.REGISTRY.getObject(ResourceLocation(icon)) ?: LPItems.brokenItem
-            itemStackRenderer.renderItemInGui(itemRect.left, itemRect.top, item, 0.0f, iconScale)
+            // TODO: deferred item rendering — Item.REGISTRY removed; use BuiltInRegistries.ITEM or ForgeRegistries.ITEMS
         }
         if (hovered) {
             GuiDrawer.drawInteractionIndicator(mouseX, mouseY)

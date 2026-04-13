@@ -1,8 +1,8 @@
 package logisticspipes.commands.commands.debug;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.text.TextComponentString;
+// Player removed — use net.minecraft.commands.CommandSourceStack
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.network.PacketHandler;
@@ -17,18 +17,18 @@ public class TargetCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
-		return sender instanceof EntityPlayer;
+	public boolean isCommandUsableBy(Player sender) {
+		return sender instanceof Player;
 	}
 
 	@Override
 	public String[] getDescription() {
-		return new String[] { "Starts debugging the TileEntity", "or Entity you are currently looking at." };
+		return new String[] { "Starts debugging the BlockEntity", "or Entity you are currently looking at." };
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DebugAskForTarget.class), (EntityPlayer) sender);
-		sender.sendMessage(new TextComponentString("Asking for Target."));
+	public void executeCommand(Player sender, String[] args) {
+		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DebugAskForTarget.class), (Player) sender);
+		sender.sendSystemMessage(Component.literal("Asking for Target."));
 	}
 }

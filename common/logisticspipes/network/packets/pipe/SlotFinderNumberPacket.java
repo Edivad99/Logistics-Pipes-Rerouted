@@ -1,14 +1,13 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.network.chat.Component;
 
-import net.minecraftforge.items.CapabilityItemHandler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -51,50 +50,50 @@ public class SlotFinderNumberPacket extends ModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		TileEntity inv = this.getTileAs(player.world, tile -> tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null));
+	public void processPacket(Player player) {
+		BlockEntity inv = this.getTileAs(player.level(), BlockEntity.class);
 		IInventoryUtil util = SimpleServiceLocator.inventoryUtilFactory.getInventoryUtil(inv, null);
 		if (util == null) return;
 		Slot result = null;
-		if (player.openContainer.inventorySlots.get(inventorySlot).slotNumber == inventorySlot) {
-			result = player.openContainer.inventorySlots.get(inventorySlot);
+		if (player.containerMenu.slots.get(inventorySlot).index == inventorySlot) {
+			result = player.containerMenu.slots.get(inventorySlot);
 		}
 		if (result == null) {
-			for (Slot slotObject : player.openContainer.inventorySlots) {
-				if (slotObject.slotNumber == inventorySlot) {
+			for (Slot slotObject : player.containerMenu.slots) {
+				if (slotObject.index == inventorySlot) {
 					result = slotObject;
 					break;
 				}
 			}
 		}
 		if (result == null) {
-			player.sendMessage(new TextComponentTranslation("lp.chat.slotnotfound"));
+			player.sendSystemMessage(Component.translatable("lp.chat.slotnotfound"));
 			return;
 		}
 		int resultIndex = -1;
-		ItemStack content = result.getStack();
+		ItemStack content = result.getItem();
 		if (!content.isEmpty()) {
-			for (int i = 0; i < util.getSizeInventory(); i++) {
-				if (content == util.getStackInSlot(i)) {
+			for (int i = 0; i < util.getContainerSize(); i++) {
+				if (content == util.getItem(i)) {
 					resultIndex = i;
 					break;
 				}
 			}
 		} else {
-			ItemStack dummyStack = new ItemStack(Blocks.DIRT, 1, 0);
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setBoolean("LPStackFinderBoolean", true); //Make it unique
-			dummyStack.setTagCompound(nbt); // dummyStack: yay, I am unique
-			result.putStack(dummyStack);
-			for (int i = 0; i < util.getSizeInventory(); i++) {
-				if (dummyStack == util.getStackInSlot(i)) {
+			ItemStack dummyStack = new ItemStack(Blocks.DIRT, 1);
+			CompoundTag nbt = new CompoundTag();
+			nbt.putBoolean("LPStackFinderBoolean", true); //Make it unique
+			dummyStack.setTag(nbt); // dummyStack: yay, I am unique
+			result.set(dummyStack);
+			for (int i = 0; i < util.getContainerSize(); i++) {
+				if (dummyStack == util.getItem(i)) {
 					resultIndex = i;
 					break;
 				}
 			}
 			if (resultIndex == -1) {
-				for (int i = 0; i < util.getSizeInventory(); i++) {
-					ItemStack stack = util.getStackInSlot(i);
+				for (int i = 0; i < util.getContainerSize(); i++) {
+					ItemStack stack = util.getItem(i);
 					if (stack.isEmpty()) {
 						continue;
 					}
@@ -104,11 +103,11 @@ public class SlotFinderNumberPacket extends ModuleCoordinatesPacket {
 					}
 				}
 			}
-			result.putStack(ItemStack.EMPTY);
+			result.set(ItemStack.EMPTY);
 		}
 
 		if (resultIndex == -1) {
-			player.sendMessage(new TextComponentTranslation("lp.chat.slotnotfound"));
+			player.sendSystemMessage(Component.translatable("lp.chat.slotnotfound"));
 		} else {
 			//Copy pipe to coordinates to use the getPipe method
 			setPosX(getPipePosX());

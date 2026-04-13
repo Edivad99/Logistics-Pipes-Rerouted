@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 
 import com.google.common.collect.ImmutableList;
 
@@ -82,13 +82,13 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 
 	public final ArrayList<ItemIdentifierStack> displayList = new ArrayList<>();
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(9, "Items to provide (or empty for all)", 1), "");
+			new ItemIdentifierInventory(9, "Items to provide (or empty for all)", 1), "filterInv");
 	public final BooleanProperty isActive = new BooleanProperty(false, "isActive");
 	public final BooleanProperty isExclusionFilter = new BooleanProperty(false, "filterisexclude");
 	public final EnumProperty<ProviderMode> providerMode =
 			new EnumProperty<>(ProviderMode.DEFAULT, "extractionMode", ProviderMode.values());
-	public final NullableEnumProperty<EnumFacing> sneakyDirection =
-			new NullableEnumProperty<>(null, "sneakydirection", EnumFacing.values());
+	public final NullableEnumProperty<Direction> sneakyDirection =
+			new NullableEnumProperty<>(null, "sneakydirection", Direction.values());
 	public final ImmutableList<Property<?>> propertyList = ImmutableList.<Property<?>>builder()
 			.add(filterInventory)
 			.add(isActive)
@@ -123,12 +123,12 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	@Override
-	public EnumFacing getSneakyDirection() {
+	public Direction getSneakyDirection() {
 		return sneakyDirection.getValue();
 	}
 
 	@Override
-	public void setSneakyDirection(EnumFacing direction) {
+	public void setSneakyDirection(Direction direction) {
 		sneakyDirection.setValue(direction);
 		MainProxy.runOnServer(getWorld(), () -> () ->
 				MainProxy.sendToPlayerList(
@@ -297,7 +297,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 
 		ItemIdentifier item = stack.getItem();
 
-		Iterator<Pair<IInventoryUtil, EnumFacing>> iterator = service.getAvailableAdjacent().inventories().stream()
+		Iterator<Pair<IInventoryUtil, Direction>> iterator = service.getAvailableAdjacent().inventories().stream()
 				.flatMap(neighbor -> {
 					final IInventoryUtil invUtil = getInventoryUtilWithMode(neighbor);
 					if (invUtil == null) return Stream.empty();
@@ -305,7 +305,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 				}).iterator();
 
 		while (iterator.hasNext()) {
-			final Pair<IInventoryUtil, EnumFacing> current = iterator.next();
+			final Pair<IInventoryUtil, Direction> current = iterator.next();
 			int available = current.getValue1().itemCount(item);
 			if (available == 0) {
 				continue;
@@ -376,7 +376,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		return list;
 	}
 
-	private void checkUpdate(EntityPlayer player) {
+	private void checkUpdate(Player player) {
 		if (localModeWatchers.size() == 0 && player == null) {
 			return;
 		}
@@ -412,13 +412,13 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	@Override
-	public void startWatching(EntityPlayer player) {
+	public void startWatching(Player player) {
 		localModeWatchers.add(player);
 		checkUpdate(player);
 	}
 
 	@Override
-	public void stopWatching(EntityPlayer player) {
+	public void stopWatching(Player player) {
 		localModeWatchers.remove(player);
 	}
 
@@ -477,7 +477,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		return NewGuiHandler.getGui(ProviderModuleInHand.class);
 	}
 
-	private IInventoryUtil getInventoryUtilWithMode(NeighborTileEntity<TileEntity> neighbor) {
+	private IInventoryUtil getInventoryUtilWithMode(NeighborTileEntity<BlockEntity> neighbor) {
 		return SimpleServiceLocator.inventoryUtilFactory
 				.getHidingInventoryUtil(neighbor.getTileEntity(), neighbor.getOurDirection(), providerMode.getValue());
 	}

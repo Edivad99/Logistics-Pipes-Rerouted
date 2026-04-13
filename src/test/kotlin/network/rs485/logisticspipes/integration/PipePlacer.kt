@@ -39,8 +39,8 @@ package network.rs485.logisticspipes.integration
 import logisticspipes.LPBlocks
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.WorldServer
+import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
 import network.rs485.minecraft.Configurator
 import network.rs485.minecraft.Placer
 import network.rs485.minecraft.configurator
@@ -55,16 +55,16 @@ class PipePlacer<T : CoreRoutedPipe>(
     },
 ) : Placer {
 
-    private lateinit var world: WorldServer
+    private lateinit var world: ServerLevel
     private lateinit var pos: BlockPos
     private var placed = false
 
-    override suspend fun place(world: WorldServer, pos: BlockPos): Configurator {
+    override suspend fun place(world: ServerLevel, pos: BlockPos): Configurator {
         placed = true
         this.pos = pos
         this.world = world
         assertTrue(message = "Expected $pipe to be placed at $pos (${world})") {
-            LogisticsBlockGenericPipe.placePipe(pipe, world, pos, LPBlocks.pipe)
+            LogisticsBlockGenericPipe.placePipe(pipe, world, pos, LPBlocks.pipe.get())
         }
         return configurator(name = "$pipe at $pos") { pipePlacerConfigurator(this@PipePlacer) }
     }

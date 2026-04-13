@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -47,29 +47,26 @@ import logisticspipes.utils.SpecialTankUtil
 import logisticspipes.utils.TankUtil
 import logisticspipes.utils.item.ItemIdentifierStack
 import logisticspipes.utils.tuples.Pair
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
-import net.minecraftforge.fluids.capability.IFluidTankProperties
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraftforge.common.capabilities.ForgeCapabilities
 import network.rs485.logisticspipes.connection.getTankUtil
-import kotlin.streams.toList
 
 object PipeFluidUtil {
 
-    fun getTankUtilForTE(tile: TileEntity?, dirOnEntity: EnumFacing?): ITankUtil? {
+    fun getTankUtilForTE(tile: BlockEntity?, dirOnEntity: Direction?): ITankUtil? {
+        // NeoForge 1.20.1: BlockCapability queried via static method
         if (SimpleServiceLocator.specialTankHandler.hasHandlerFor(tile)) {
             val handler = SimpleServiceLocator.specialTankHandler.getTankHandlerFor(tile)
-            if (handler is ISpecialTankAccessHandler) {
-                if (tile!!.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, dirOnEntity)) {
-                    val fluidHandler = tile.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, dirOnEntity)
-                    if (fluidHandler != null) {
-                        return SpecialTankUtil(fluidHandler, tile, handler)
-                    }
+            if (handler is ISpecialTankAccessHandler && tile != null) {
+                val fluidHandler = tile.getCapability(ForgeCapabilities.FLUID_HANDLER, dirOnEntity).orElse(null)
+                if (fluidHandler != null) {
+                    return SpecialTankUtil(fluidHandler, tile, handler)
                 }
             }
         }
-        if (tile != null && tile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, dirOnEntity)) {
-            val fluidHandler = tile.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, dirOnEntity)
+        if (tile != null) {
+            val fluidHandler = tile.getCapability(ForgeCapabilities.FLUID_HANDLER, dirOnEntity).orElse(null)
             if (fluidHandler != null) {
                 return TankUtil(fluidHandler)
             }
@@ -85,13 +82,15 @@ object PipeFluidUtil {
             }
 
 
-    fun FluidRoutedPipe.getAllTankTiles(): List<TileEntity> = getAdjacentTanks(false)
+    fun FluidRoutedPipe.getAllTankTiles(): List<BlockEntity> = getAdjacentTanks(false)
         .flatMap { pair -> SimpleServiceLocator.specialTankHandler.getBaseTileFor(pair.component1().tileEntity) }
 
     fun PipeFluidSatellite.fluidsToItemList(): List<ItemIdentifierStack> {
         val fluidIdentStacks = getAdjacentTanks(false)
-            .flatMap { (_, util) -> util.tanks().toList() }
-            .mapNotNull { tank: IFluidTankProperties -> FluidIdentifierStack.getFromStack(tank.contents) }
+            .flatMap { (_, util) ->
+                util.tanks().toList()
+                    .mapNotNull { stack -> FluidIdentifierStack.getFromStack(stack) }
+            }
         val distinctionSet = HashSet<FluidIdentifier>()
         val outputList = ArrayList<ItemIdentifierStack>()
         for (identStack in fluidIdentStacks) {

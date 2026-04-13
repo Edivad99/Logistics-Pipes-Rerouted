@@ -6,9 +6,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,18 +27,18 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 
 	@AllArgsConstructor
 	public enum Sides {
-		UP(EnumFacing.UP, "LPDIS-UP"),
-		DOWN(EnumFacing.DOWN, "LPDIS-DOWN"),
-		NORTH(EnumFacing.NORTH, "LPDIS-NORTH"),
-		SOUTH(EnumFacing.SOUTH, "LPDIS-SOUTH"),
-		EAST(EnumFacing.EAST, "LPDIS-EAST"),
-		WEST(EnumFacing.WEST, "LPDIS-WEST");
+		UP(Direction.UP, "LPDIS-UP"),
+		DOWN(Direction.DOWN, "LPDIS-DOWN"),
+		NORTH(Direction.NORTH, "LPDIS-NORTH"),
+		SOUTH(Direction.SOUTH, "LPDIS-SOUTH"),
+		EAST(Direction.EAST, "LPDIS-EAST"),
+		WEST(Direction.WEST, "LPDIS-WEST");
 		@Getter
-		private EnumFacing dir;
+		private Direction dir;
 		@Getter
 		private String lpName;
 
-		public static String getNameForDirection(EnumFacing fd) {
+		public static String getNameForDirection(Direction fd) {
 			Optional<Sides> opt = Arrays.stream(values()).filter(side -> side.getDir() == fd).findFirst();
 			if (opt.isPresent()) {
 				return opt.get().getLpName();
@@ -78,12 +78,12 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 	}
 
 	@Nonnull
-	public Stream<EnumFacing> getSides(@Nonnull ItemStack stack) {
+	public Stream<Direction> getSides(@Nonnull ItemStack stack) {
 		if (stack.isEmpty()) return Stream.empty();
-		if (!stack.hasTagCompound()) {
-			stack.setTagCompound(new NBTTagCompound());
+		if (!stack.hasTag()) {
+			stack.setTag(new CompoundTag());
 		}
-		final NBTTagCompound tag = Objects.requireNonNull(stack.getTagCompound());
+		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
 		return Arrays.stream(Sides.values()).filter(side -> tag.getBoolean(side.getLpName())).map(Sides::getDir);
 	}
 }

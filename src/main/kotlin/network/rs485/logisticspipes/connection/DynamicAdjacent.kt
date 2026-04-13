@@ -19,8 +19,8 @@
  * this file and associated documentation files (the "Source Code"), to deal in
  * the Source Code without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Source Code, which also can be
@@ -38,25 +38,25 @@
 package network.rs485.logisticspipes.connection
 
 import logisticspipes.pipes.basic.CoreRoutedPipe
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
 import java.util.*
 
 class DynamicAdjacent(private val parent: CoreRoutedPipe, private val cache: Array<ConnectionType?>) : Adjacent {
     override fun connectedPos(): Map<BlockPos, ConnectionType> = cache
-        .mapIndexedNotNull { index, type -> type?.let { parent.pos.offset(EnumFacing.VALUES[index]) to type } }
+        .mapIndexedNotNull { index, type -> type?.let { parent.getPos().relative(Direction.values()[index]) to type } }
         .let { it.associateTo(LinkedHashMap(it.size)) { pair -> pair } }
 
-    override fun get(direction: EnumFacing): ConnectionType? = cache[direction.index]
+    override fun get(direction: Direction): ConnectionType? = cache[direction.get3DDataValue()]
 
-    override fun optionalGet(direction: EnumFacing): Optional<ConnectionType> = Optional.ofNullable(cache[direction.index])
+    override fun optionalGet(direction: Direction): Optional<ConnectionType> = Optional.ofNullable(cache[direction.get3DDataValue()])
 
-    override fun neighbors(): Map<NeighborTileEntity<TileEntity>, ConnectionType> = cache
+    override fun neighbors(): Map<NeighborTileEntity<BlockEntity>, ConnectionType> = cache
         .mapIndexedNotNull { index, connectionType ->
             connectionType?.let {
-                EnumFacing.VALUES[index].let { dir ->
-                    parent.world.getTileEntity(parent.pos.offset(dir))?.let { LPNeighborTileEntity(it, dir) to connectionType }
+                Direction.values()[index].let { dir ->
+                    parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))?.let { LPNeighborTileEntity(it, dir) to connectionType }
                 }
             }
         }
@@ -65,20 +65,20 @@ class DynamicAdjacent(private val parent: CoreRoutedPipe, private val cache: Arr
     override fun inventories() = cache
         .filter { it?.isItem() ?: false }
         .mapIndexedNotNull { index, _ ->
-            EnumFacing.VALUES[index].let { dir ->
-                parent.world.getTileEntity(parent.pos.offset(dir))?.let { it to dir }
+            Direction.values()[index].let { dir ->
+                parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))?.let { it to dir }
             }
         }
         .mapNotNull { (tile, dir) -> LPNeighborTileEntity(tile, dir).takeIf { it.canHandleItems() } }
 
-    override fun fluidTanks(): List<NeighborTileEntity<TileEntity>> = cache
+    override fun fluidTanks(): List<NeighborTileEntity<BlockEntity>> = cache
         .filter { it?.isFluid() ?: false }
         .mapIndexedNotNull { index, _ ->
-            EnumFacing.VALUES[index].let { dir ->
-                parent.world.getTileEntity(parent.pos.offset(dir))?.let { it to dir }
+            Direction.values()[index].let { dir ->
+                parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))?.let { it to dir }
             }
         }
         .mapNotNull { (tile, dir) -> LPNeighborTileEntity(tile, dir).takeIf { it.canHandleFluids() } }
 
-    override fun toString(): String = "DynamicAdjacent(${EnumFacing.VALUES.withIndex().joinToString { "{${it.value.name2}: ${cache[it.index]}}" }})"
+    override fun toString(): String = "DynamicAdjacent(${Direction.values().withIndex().joinToString { "{${it.value.getName()}: ${cache[it.index]}}" }})"
 }

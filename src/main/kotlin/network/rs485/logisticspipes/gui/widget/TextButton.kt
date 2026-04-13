@@ -37,8 +37,9 @@
 
 package network.rs485.logisticspipes.gui.widget
 
+// TODO: Rendering deferred — TextButton migrated to 1.20.1 stub (GlStateManager removed).
+
 import logisticspipes.utils.Color
-import net.minecraft.client.renderer.GlStateManager
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.Margin
 import network.rs485.logisticspipes.gui.Size
@@ -80,7 +81,7 @@ open class TextButton(
             trimmedText = trimText(value)
         }
     private var trimmedText: String = trimText(text)
-    val yOffset: Int = ((relativeBody.roundedHeight - helper.mcFontRenderer.FONT_HEIGHT) / 2) + 1
+    val yOffset: Int = ((relativeBody.roundedHeight - helper.mcFontRenderer.lineHeight) / 2) + 1
     private val centerX: Float
         get() = relativeBody.width / 2
 
@@ -95,18 +96,7 @@ open class TextButton(
 
     override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         super.draw(mouseX, mouseY, delta, visibleArea)
-        val color = if (!enabled) {
-            Color.TEXT_DISABLED
-        } else if (isMouseHovering(mouseX, mouseY)) {
-            Color.TEXT_HOVERED
-        } else {
-            Color.TEXT_WHITE
-        }
-        val yOffset: Int = ((relativeBody.roundedHeight - helper.mcFontRenderer.FONT_HEIGHT) / 2) + 1
-        GlStateManager.enableBlend()
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA)
-        helper.drawCenteredString(trimmedText, (absoluteBody.left + centerX).roundToInt(), absoluteBody.roundedY + yOffset, color.value, true)
-        GlStateManager.disableBlend()
+        // TODO: deferred rendering — GlStateManager.enableBlend/blendFunc/drawCenteredString removed; migrate to GuiGraphics
     }
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int): Boolean = if (enabled) {

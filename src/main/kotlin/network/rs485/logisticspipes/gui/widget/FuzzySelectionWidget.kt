@@ -86,7 +86,7 @@ class FuzzySelectionWidget(
     }
 
     private fun calculateWidth(flags: Set<FuzzyFlag>): Int = flags.maxOfOrNull {
-        Minecraft.getMinecraft().fontRenderer.getStringWidth(
+        Minecraft.getInstance().font.width(
             TextUtil.translate("$flagPrefix${it.name.lowercase()}") + border * 2,
         )
     } ?: 0
@@ -98,7 +98,7 @@ class FuzzySelectionWidget(
             if ((isMouseHovering(
                     mouseX,
                     mouseY,
-                ) || (Minecraft.getMinecraft().currentScreen as BaseGuiContainer).hoveredSlot == currentSlot) && currentSlot != null
+                ) || (Minecraft.getInstance().screen as? BaseGuiContainer)?.currentHoveredSlot == currentSlot) && currentSlot != null
             ) {
                 currentSlot?.let { slot ->
                     GuiDrawer.drawGuiBackground(relativeBody)
@@ -110,13 +110,7 @@ class FuzzySelectionWidget(
                         } else {
                             Color.TEXT_DARK.value
                         }
-                        // TODO maybe draw string with shadow when hovered
-                        GuiDrawer.mcFontRenderer.drawString(
-                            TextUtil.translate(flagPrefix + flag.name.lowercase()),
-                            relativeBody.roundedX + border,
-                            relativeBody.roundedY + yOffset,
-                            color,
-                        )
+                        // TODO: deferred rendering — drawString removed from Font in 1.20.1; migrate to GuiGraphics.drawString
                         yOffset += 10
                     }
                 }

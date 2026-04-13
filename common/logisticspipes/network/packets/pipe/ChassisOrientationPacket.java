@@ -2,8 +2,8 @@ package logisticspipes.network.packets.pipe;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,15 +20,15 @@ public class ChassisOrientationPacket extends CoordinatesPacket {
 	@Getter
 	@Setter
 	@Nullable
-	private EnumFacing dir;
+	private Direction dir;
 
 	public ChassisOrientationPacket(int id) {
 		super(id);
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = this.getPipe(player.world, LTGPCompletionCheck.PIPE);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.PIPE);
 		if (pipe.pipe instanceof PipeLogisticsChassis) {
 			((PipeLogisticsChassis) pipe.pipe).setPointedOrientation(dir);
 		}

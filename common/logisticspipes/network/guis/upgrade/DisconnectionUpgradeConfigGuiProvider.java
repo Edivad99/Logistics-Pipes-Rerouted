@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.upgrade;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.popup.DisconnectionConfigurationPopup;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -18,8 +18,8 @@ public class DisconnectionUpgradeConfigGuiProvider extends UpgradeCoordinatesGui
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		LogisticsTileGenericPipe bPipe = getTileAs(player.world, LogisticsTileGenericPipe.class);
+	public Object getClientGui(Player player) {
+		LogisticsTileGenericPipe bPipe = getTileAs(player.level(), LogisticsTileGenericPipe.class);
 		if (!(bPipe.pipe instanceof CoreRoutedPipe)) {
 			return null;
 		}

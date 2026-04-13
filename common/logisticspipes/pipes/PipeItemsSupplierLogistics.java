@@ -10,7 +10,7 @@ package logisticspipes.pipes;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;

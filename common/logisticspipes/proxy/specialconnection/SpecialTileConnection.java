@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.interfaces.routing.ISpecialTileConnection;
 import logisticspipes.logisticspipes.IRoutedItem;
@@ -19,7 +19,7 @@ public class SpecialTileConnection {
 		}
 	}
 
-	public Collection<TileEntity> getConnectedPipes(TileEntity tile) {
+	public Collection<BlockEntity> getConnectedPipes(BlockEntity tile) {
 		for (ISpecialTileConnection connectionHandler : handler) {
 			if (connectionHandler.isType(tile)) {
 				return connectionHandler.getConnections(tile);
@@ -28,7 +28,7 @@ public class SpecialTileConnection {
 		return new ArrayList<>();
 	}
 
-	public boolean needsInformationTransition(TileEntity tile) {
+	public boolean needsInformationTransition(BlockEntity tile) {
 		for (ISpecialTileConnection connectionHandler : handler) {
 			if (connectionHandler.isType(tile)) {
 				return connectionHandler.needsInformationTransition();
@@ -37,7 +37,7 @@ public class SpecialTileConnection {
 		return false;
 	}
 
-	public void transmit(TileEntity tile, IRoutedItem arrivingItem) {
+	public void transmit(BlockEntity tile, IRoutedItem arrivingItem) {
 		for (ISpecialTileConnection connectionHandler : handler) {
 			if (connectionHandler.isType(tile)) {
 				connectionHandler.transmit(tile, arrivingItem);
@@ -46,7 +46,7 @@ public class SpecialTileConnection {
 		}
 	}
 
-	public boolean isType(TileEntity tile) {
+	public boolean isType(BlockEntity tile) {
 		for (ISpecialTileConnection connectionHandler : handler) {
 			if (connectionHandler.isType(tile)) {
 				return true;

@@ -46,11 +46,11 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 
 import io.netty.buffer.ByteBuf;
 
@@ -107,7 +107,7 @@ public interface LPDataInput {
 	String readUTF();
 
 	@Nullable
-	EnumFacing readFacing();
+	Direction readFacing();
 
 	@Nullable
 	ResourceLocation readResourceLocation();
@@ -119,7 +119,7 @@ public interface LPDataInput {
 	BitSet readBitSet();
 
 	@Nullable
-	NBTTagCompound readNBTTagCompound();
+	CompoundTag readCompoundTag();
 
 	@Nullable
 	boolean[] readBooleanArray();

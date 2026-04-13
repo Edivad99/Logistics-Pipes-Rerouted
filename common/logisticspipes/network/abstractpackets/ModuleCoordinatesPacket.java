@@ -1,8 +1,8 @@
 package logisticspipes.network.abstractpackets;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.Level;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -71,22 +71,22 @@ public abstract class ModuleCoordinatesPacket extends CoordinatesPacket {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getLogisticsModule(EntityPlayer player, Class<T> clazz) {
+	public <T> T getLogisticsModule(Player player, Class<T> clazz) {
 		LogisticsModule module;
 		if (type == ModulePositionType.IN_PIPE) {
 			moduleBased = true;
-			LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.NONE);
+			LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.NONE);
 			moduleBased = false;
 			if (!(pipe.pipe instanceof CoreRoutedPipe)) {
 				throw new TargetNotFoundException("Couldn't find " + clazz.getName() + ", pipe didn't exsist", this);
 			}
 			module = ((CoreRoutedPipe) pipe.pipe).getLogisticsModule();
 		} else if (type == ModulePositionType.IN_HAND) {
-			if (MainProxy.isServer(player.getEntityWorld())) {
-				if (player.openContainer instanceof DummyModuleContainer) {
-					DummyModuleContainer dummy = (DummyModuleContainer) player.openContainer;
+			if (MainProxy.isServer(player.level())) {
+				if (player.containerMenu instanceof DummyModuleContainer) {
+					DummyModuleContainer dummy = (DummyModuleContainer) player.containerMenu;
 					module = dummy.getModule();
-				} else if (player.openContainer instanceof ContainerPlayer) {
+				} else if (player.containerMenu instanceof InventoryMenu) {
 					module = ItemModule.getLogisticsModule(player, getPositionInt());
 					if (module == null) {
 						throw new TargetNotFoundException("Couldn't find " + clazz.getName() + ", module not found at slot " + getPositionInt(), this);
@@ -105,7 +105,7 @@ public abstract class ModuleCoordinatesPacket extends CoordinatesPacket {
 			}
 		} else {
 			moduleBased = true;
-			LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.NONE);
+			LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.NONE);
 			moduleBased = false;
 			if (!(pipe.pipe instanceof CoreRoutedPipe)) {
 				throw new TargetNotFoundException("Couldn't find " + clazz.getName() + ", pipe didn't exsist", this);
@@ -128,7 +128,7 @@ public abstract class ModuleCoordinatesPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public <T> T getTileAs(World world, Class<T> clazz) {
+	public <T> T getTileAs(Level world, Class<T> clazz) {
 		if (LogisticsPipes.isDEBUG() && !moduleBased && type != null) {
 			new Exception("ModulePacket was asked for a pipe").printStackTrace();
 		}

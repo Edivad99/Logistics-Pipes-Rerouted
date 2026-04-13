@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.LPItems;
 import logisticspipes.items.ItemLogisticsProgrammer;
@@ -33,9 +33,9 @@ public abstract class CraftingPartRecipes implements IRecipeProvider {
 
 			if (true) { // TODO: Add Config Option
 				craftingPartList.add(new CraftingParts(
-						new ItemStack(LPItems.chipFPGA, 1),
-						new ItemStack(LPItems.chipBasic, 1),
-						new ItemStack(LPItems.chipAdvanced, 1)));
+						new ItemStack(LPItems.chipFPGA.get(), 1),
+						new ItemStack(LPItems.chipBasic.get(), 1),
+						new ItemStack(LPItems.chipAdvanced.get(), 1)));
 			}
 		}
 
@@ -49,10 +49,10 @@ public abstract class CraftingPartRecipes implements IRecipeProvider {
 
 	@Nonnull
 	protected Ingredient programmerIngredient(String recipeTarget) {
-		ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
-		final NBTTagCompound tag = new NBTTagCompound();
-		tag.setString(ItemLogisticsProgrammer.RECIPE_TARGET, recipeTarget);
-		programmerStack.setTagCompound(tag);
+		ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer.get());
+		final CompoundTag tag = new CompoundTag();
+		tag.putString(ItemLogisticsProgrammer.RECIPE_TARGET, recipeTarget);
+		programmerStack.setTag(tag);
 		return NBTIngredient.fromStacks(programmerStack);
 	}
 

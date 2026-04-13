@@ -8,6 +8,10 @@
 
 package logisticspipes.utils.item;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+
+import logisticspipes.LogisticsPipes;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -24,31 +28,29 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagByte;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagLong;
-import net.minecraft.nbt.NBTTagShort;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+// net.minecraft.world.item.CreativeModeTab removed — use CreativeModeTab
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.ByteArrayTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.ShortTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
 
 import lombok.AllArgsConstructor;
@@ -58,7 +60,7 @@ import logisticspipes.asm.addinfo.IAddInfoProvider;
 import logisticspipes.items.LogisticsFluidContainer;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
-import logisticspipes.utils.FinalNBTTagCompound;
+import logisticspipes.utils.FinalCompoundTag;
 import logisticspipes.utils.ReflectionHelper;
 
 /**
@@ -76,9 +78,9 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
 		public final Item item;
 		public final int itemDamage;
-		public final FinalNBTTagCompound tag;
+		public final FinalCompoundTag tag;
 
-		public ItemKey(Item i, int d, FinalNBTTagCompound t) {
+		public ItemKey(Item i, int d, FinalCompoundTag t) {
 			item = i;
 			itemDamage = d;
 			tag = t;
@@ -231,7 +233,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	private static final ItemIdentifierCleanupThread cleanupThread = new ItemIdentifierCleanupThread();
 
 	//Hide default constructor
-	private ItemIdentifier(Item item, int itemDamage, FinalNBTTagCompound tag, int uniqueID) {
+	private ItemIdentifier(Item item, int itemDamage, FinalCompoundTag tag, int uniqueID) {
 		this.item = item;
 		this.itemDamage = itemDamage;
 		this.tag = tag;
@@ -240,7 +242,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
 	public final Item item;
 	public final int itemDamage;
-	public final FinalNBTTagCompound tag;
+	public final FinalCompoundTag tag;
 	public final int uniqueID;
 
 	private int maxStackSize = 0;
@@ -296,7 +298,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return ret;
 	}
 
-	private static ItemIdentifier getOrCreateTag(Item item, int damage, FinalNBTTagCompound tag) {
+	private static ItemIdentifier getOrCreateTag(Item item, int damage, FinalCompoundTag tag) {
 		ItemKey k = new ItemKey(item, damage, tag);
 		ItemIdentifier.keyRefRlock.lock();
 		IDReference r = ItemIdentifier.keyRefMap.get(k);
@@ -327,7 +329,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		} else {
 			nextUniqueID = r.uniqueID;
 		}
-		FinalNBTTagCompound finaltag = new FinalNBTTagCompound(tag);
+		FinalCompoundTag finaltag = new FinalCompoundTag(tag);
 		ItemKey realKey = new ItemKey(item, damage, finaltag);
 		ItemIdentifier ret = new ItemIdentifier(item, damage, finaltag, nextUniqueID);
 		ItemIdentifier.keyRefMap.put(realKey, new IDReference(realKey, nextUniqueID, ret));
@@ -335,11 +337,11 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return ret;
 	}
 
-	public static ItemIdentifier get(Item item, int itemUndamagableDamage, NBTTagCompound tag) {
+	public static ItemIdentifier get(Item item, int itemUndamagableDamage, CompoundTag tag) {
 		return get(item, itemUndamagableDamage, tag, null);
 	}
 
-	private static ItemIdentifier get(Item item, int itemUndamagableDamage, NBTTagCompound tag, ItemIdentifier proposal) {
+	private static ItemIdentifier get(Item item, int itemUndamagableDamage, CompoundTag tag, ItemIdentifier proposal) {
 		if (itemUndamagableDamage < 0) {
 			throw new IllegalArgumentException("Item Damage out of range");
 		}
@@ -351,7 +353,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 			return ItemIdentifier.getOrCreateDamage(item, itemUndamagableDamage, proposal);
 		} else {
 			//tag
-			return ItemIdentifier.getOrCreateTag(item, itemUndamagableDamage, new FinalNBTTagCompound(tag));
+			return ItemIdentifier.getOrCreateTag(item, itemUndamagableDamage, new FinalCompoundTag(tag));
 		}
 	}
 
@@ -366,15 +368,15 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	public static ItemIdentifier get(@Nonnull ItemStack itemStack) {
 		ItemIdentifier proposal = null;
 		IAddInfoProvider prov = null;
-		if (((Object) itemStack) instanceof IAddInfoProvider && !itemStack.hasTagCompound()) {
+		if (((Object) itemStack) instanceof IAddInfoProvider && !itemStack.hasTag()) {
 			prov = (IAddInfoProvider) (Object) itemStack;
 			ItemStackAddInfo info = prov.getLogisticsPipesAddInfo(ItemStackAddInfo.class);
 			if (info != null) {
 				proposal = info.ident;
 			}
 		}
-		ItemIdentifier ident = ItemIdentifier.get(itemStack.getItem(), itemStack.getItemDamage(), itemStack.getTagCompound(), proposal);
-		if (ident != proposal && prov != null && !itemStack.hasTagCompound()) {
+		ItemIdentifier ident = ItemIdentifier.get(itemStack.getItem(), itemStack.getDamageValue(), itemStack.getTag(), proposal);
+		if (ident != proposal && prov != null && !itemStack.hasTag()) {
 			prov.setLogisticsPipesAddInfo(new ItemStackAddInfo(ident));
 		}
 		return ident;
@@ -398,11 +400,11 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
 	public ItemIdentifier getUndamaged() {
 		if (_IDIgnoringDamage == null) {
-			if (!unsafeMakeNormalStack(1).isItemStackDamageable()) {
+			if (!unsafeMakeNormalStack(1).isDamageableItem()) {
 				_IDIgnoringDamage = this;
 			} else {
 				ItemStack tstack = makeNormalStack(1);
-				tstack.setItemDamage(0);
+				tstack.setDamageValue(0);
 				_IDIgnoringDamage = ItemIdentifier.get(tstack);
 			}
 		}
@@ -432,12 +434,12 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	}
 
 	public String getDebugName() {
-		return item.getTranslationKey() + "(ID: " + Item.getIdFromItem(item) + ", Damage: " + itemDamage + ")";
+		return item.getDescriptionId() + "(ID: " + BuiltInRegistries.ITEM.getId(item) + ", Damage: " + itemDamage + ")";
 	}
 
 	@Nonnull
 	private String getName(@Nonnull ItemStack stack) {
-		return item.getItemStackDisplayName(stack);
+		return stack.getHoverName().getString();
 	}
 
 	@Nonnull
@@ -451,39 +453,22 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
 	public String getModName() {
 		if (modName == null) {
-			ResourceLocation rl = item.getRegistryName();
-			assert rl != null;
-			Map<String, ModContainer> modList = Loader.instance().getIndexedModList();
-			ModContainer mc = modList.get(rl.getNamespace());
-			if (mc == null) {
-				// get mod that really registered this item
-				Map<ResourceLocation, String> map = ReflectionHelper.invokePrivateMethod(ForgeRegistry.class, ForgeRegistries.ITEMS, "getOverrideOwners", "getOverrideOwners", new Class[0], new Object[0]);
-
-				final String key = map.get(rl);
-				if (key != null)
-					mc = modList.get(key);
+			ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
+			if (rl != null) {
+				modName = ModList.get().getModContainerById(rl.getNamespace())
+						.map(mc -> mc.getModInfo().getDisplayName())
+						.orElse("UNKNOWN");
+			} else {
+				modName = "UNKNOWN";
 			}
-
-			modName = mc != null ? mc.getName() : "UNKNOWN";
 		}
 		return modName;
 	}
 
 	public String getCreativeTabName() {
-		if (creativeTabName == null) {
-			CreativeTabs tab = item.getCreativeTab();
-
-			if (tab == null && item instanceof ItemBlock) {
-				Block block = Block.getBlockFromItem(item);
-				if (block != Blocks.AIR) {
-					tab = block.getCreativeTab();
-				}
-			}
-
-			if (tab != null) {
-				creativeTabName = tab.tabLabel;
-			}
-		}
+		// TODO: In 1.20.1 items are not bound to a single creative tab.
+		// Iterate net.minecraft.world.item.CreativeModeTabs or the registry to find
+		// which tab(s) contain this item, then return tab.getDisplayName().getString().
 		return creativeTabName;
 	}
 
@@ -494,30 +479,32 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
 	@Nonnull
 	public ItemStack unsafeMakeNormalStack(int stackSize) {
-		ItemStack stack = new ItemStack(item, stackSize, itemDamage);
-		stack.setTagCompound(tag);
+		ItemStack stack = new ItemStack(item, stackSize);
+		if (itemDamage != 0) stack.setDamageValue(itemDamage);
+		stack.setTag(tag);
 		return stack;
 	}
 
 	@Nonnull
 	public ItemStack makeNormalStack(int stackSize) {
-		ItemStack stack = new ItemStack(item, stackSize, itemDamage);
+		ItemStack stack = new ItemStack(item, stackSize);
+		if (itemDamage != 0) stack.setDamageValue(itemDamage);
 		if (tag != null) {
-			stack.setTagCompound(tag.copy());
+			stack.setTag(tag.copy());
 		}
 		return stack;
 	}
 
 	@Nonnull
-	public EntityItem makeEntityItem(int stackSize, World world, double x, double y, double z) {
-		return new EntityItem(world, x, y, z, makeNormalStack(stackSize));
+	public ItemEntity makeEntityItem(int stackSize, Level world, double x, double y, double z) {
+		return new ItemEntity(world, x, y, z, makeNormalStack(stackSize));
 	}
 
 	public int getMaxStackSize() {
 		if (maxStackSize == 0) {
 			ItemStack tstack = unsafeMakeNormalStack(1);
 			int tstacksize = tstack.getMaxStackSize();
-			if (tstack.isItemStackDamageable() && tstack.isItemDamaged()) {
+			if (tstack.isDamageableItem() && tstack.isDamaged()) {
 				tstacksize = 1;
 			}
 			tstacksize = Math.max(1, Math.min(64, tstacksize));
@@ -546,95 +533,95 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return map;
 	}
 
-	public static Map<Object, Object> getNBTBaseAsMap(NBTBase nbt) throws SecurityException, IllegalArgumentException {
+	public static Map<Object, Object> getNBTBaseAsMap(net.minecraft.nbt.Tag nbt) throws SecurityException, IllegalArgumentException {
 		if (nbt == null) return null;
 
-		if (nbt instanceof NBTTagByte) {
+		if (nbt instanceof ByteTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagByte");
-			map.put("value", ((NBTTagByte) nbt).getByte());
+			map.put("type", "ByteTag");
+			map.put("value", ((ByteTag) nbt).getAsByte());
 			return map;
-		} else if (nbt instanceof NBTTagByteArray) {
+		} else if (nbt instanceof ByteArrayTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagByteArray");
-			map.put("value", ItemIdentifier.getArrayAsMap(((NBTTagByteArray) nbt).getByteArray()));
+			map.put("type", "ByteArrayTag");
+			map.put("value", ItemIdentifier.getArrayAsMap(((ByteArrayTag) nbt).getAsByteArray()));
 			return map;
-		} else if (nbt instanceof NBTTagDouble) {
+		} else if (nbt instanceof DoubleTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagDouble");
-			map.put("value", ((NBTTagDouble) nbt).getDouble());
+			map.put("type", "DoubleTag");
+			map.put("value", ((DoubleTag) nbt).getAsDouble());
 			return map;
-		} else if (nbt instanceof NBTTagFloat) {
+		} else if (nbt instanceof FloatTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagFloat");
-			map.put("value", ((NBTTagFloat) nbt).getFloat());
+			map.put("type", "FloatTag");
+			map.put("value", ((FloatTag) nbt).getAsFloat());
 			return map;
-		} else if (nbt instanceof NBTTagInt) {
+		} else if (nbt instanceof IntTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagInt");
-			map.put("value", ((NBTTagInt) nbt).getInt());
+			map.put("type", "IntTag");
+			map.put("value", ((IntTag) nbt).getAsInt());
 			return map;
-		} else if (nbt instanceof NBTTagIntArray) {
+		} else if (nbt instanceof IntArrayTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagIntArray");
-			map.put("value", ItemIdentifier.getArrayAsMap(((NBTTagIntArray) nbt).getIntArray()));
+			map.put("type", "IntArrayTag");
+			map.put("value", ItemIdentifier.getArrayAsMap(((IntArrayTag) nbt).getAsIntArray()));
 			return map;
-		} else if (nbt instanceof NBTTagList) {
+		} else if (nbt instanceof ListTag) {
 			HashMap<Integer, Object> content = new HashMap<>();
 			int i = 1;
-			for (Object object : ((NBTTagList) nbt)) {
-				if (object instanceof NBTBase) {
-					content.put(i, ItemIdentifier.getNBTBaseAsMap((NBTBase) object));
+			for (Object object : ((ListTag) nbt)) {
+				if (object instanceof net.minecraft.nbt.Tag) {
+					content.put(i, ItemIdentifier.getNBTBaseAsMap((net.minecraft.nbt.Tag) object));
 				}
 				i++;
 			}
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagList");
+			map.put("type", "ListTag");
 			map.put("value", content);
 			return map;
-		} else if (nbt instanceof NBTTagCompound) {
+		} else if (nbt instanceof CompoundTag) {
 			HashMap<Object, Object> content = new HashMap<>();
 			HashMap<Integer, Object> keys = new HashMap<>();
 			int i = 1;
-			for (String key : ((NBTTagCompound) nbt).getKeySet()) {
-				NBTBase value = ((NBTTagCompound) nbt).getTag(key);
+			for (String key : ((CompoundTag) nbt).getAllKeys()) {
+				net.minecraft.nbt.Tag value = ((CompoundTag) nbt).get(key);
 				content.put(key, ItemIdentifier.getNBTBaseAsMap(value));
 				keys.put(i, key);
 				i++;
 			}
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagCompound");
+			map.put("type", "CompoundTag");
 			map.put("value", content);
 			map.put("keys", keys);
 			return map;
-		} else if (nbt instanceof NBTTagLong) {
+		} else if (nbt instanceof LongTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagLong");
-			map.put("value", ((NBTTagLong) nbt).getLong());
+			map.put("type", "LongTag");
+			map.put("value", ((LongTag) nbt).getAsLong());
 			return map;
-		} else if (nbt instanceof NBTTagShort) {
+		} else if (nbt instanceof ShortTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagShort");
-			map.put("value", ((NBTTagShort) nbt).getShort());
+			map.put("type", "ShortTag");
+			map.put("value", ((ShortTag) nbt).getAsShort());
 			return map;
-		} else if (nbt instanceof NBTTagString) {
+		} else if (nbt instanceof StringTag) {
 			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "NBTTagString");
-			map.put("value", ((NBTTagString) nbt).getString());
+			map.put("type", "StringTag");
+			map.put("value", ((StringTag) nbt).getAsString());
 			return map;
 		} else {
-			throw new UnsupportedOperationException("Unsupported NBTBase of type:" + nbt.getClass().getName());
+			throw new UnsupportedOperationException("Unsupported net.minecraft.nbt.Tag of type:" + nbt.getClass().getName());
 		}
 	}
 
 	@Override
 	public String toString() {
-		return getModName() + ":" + getFriendlyName() + ", " + Item.getIdFromItem(item) + ":" + itemDamage;
+		return getModName() + ":" + getFriendlyName() + ", " + BuiltInRegistries.ITEM.getId(item) + ":" + itemDamage;
 	}
 
 	@Override
 	public int compareTo(ItemIdentifier o) {
-		int c = Item.getIdFromItem(item) - Item.getIdFromItem(o.item);
+		int c = BuiltInRegistries.ITEM.getId(item) - BuiltInRegistries.ITEM.getId(o.item);
 		if (c != 0) {
 			return c;
 		}
@@ -678,7 +665,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	}
 
 	public boolean equalsWithoutNBT(@Nonnull ItemStack stack) {
-		return item == stack.getItem() && itemDamage == stack.getItemDamage();
+		return item == stack.getItem() && itemDamage == stack.getDamageValue();
 	}
 
 	public boolean equalsWithoutNBT(ItemIdentifier item) {
@@ -686,7 +673,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	}
 
 	public boolean isDamageable() {
-		return unsafeMakeNormalStack(1).isItemStackDamageable();
+		return unsafeMakeNormalStack(1).isDamageableItem();
 	}
 
 	public boolean isFluidContainer() {
@@ -703,77 +690,80 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	}
 
 	public void debugDumpData(boolean isClient) {
-		System.out.println((isClient ? "Client" : "Server") + " Item: " + Item.getIdFromItem(item) + ":" + itemDamage + " uniqueID " + uniqueID);
 		StringBuilder sb = new StringBuilder();
+		sb.append(isClient ? "Client" : "Server").append(" Item: ")
+			.append(BuiltInRegistries.ITEM.getId(item)).append(':').append(itemDamage)
+			.append(" uniqueID ").append(uniqueID).append('\n');
 		sb.append("Tag: ");
 		debugDumpTag(tag, sb);
-		System.out.println(sb.toString());
-		System.out.println("Damageable: " + isDamageable());
-		System.out.println("MaxStackSize: " + getMaxStackSize());
+		sb.append('\n');
+		sb.append("Damageable: ").append(isDamageable()).append('\n');
+		sb.append("MaxStackSize: ").append(getMaxStackSize()).append('\n');
 		if (getUndamaged() == this) {
-			System.out.println("Undamaged: this");
+			sb.append("Undamaged: this\n");
 		} else {
-			System.out.println("Undamaged:");
+			sb.append("Undamaged: (see recursive dump)\n");
 			getUndamaged().debugDumpData(isClient);
 		}
-		System.out.println("Mod: " + getModName());
-		System.out.println("CreativeTab: " + getCreativeTabName());
+		sb.append("Mod: ").append(getModName()).append('\n');
+		sb.append("CreativeTab: ").append(getCreativeTabName());
+		LogisticsPipes.log.info("{}", sb);
 		if (getDictIdentifiers() != null) {
 			getDictIdentifiers().debugDumpData(isClient);
 		}
 	}
 
-	private void debugDumpTag(NBTBase nbt, StringBuilder sb) {
+	private void debugDumpTag(net.minecraft.nbt.Tag nbt, StringBuilder sb) {
 		if (nbt == null) {
 			sb.append("null");
 			return;
 		}
-		if (nbt instanceof NBTTagByte) {
-			sb.append("TagByte(data=").append(((NBTTagByte) nbt).getByte()).append(")");
-		} else if (nbt instanceof NBTTagShort) {
-			sb.append("TagShort(data=").append(((NBTTagShort) nbt).getShort()).append(")");
-		} else if (nbt instanceof NBTTagInt) {
-			sb.append("TagInt(data=").append(((NBTTagInt) nbt).getInt()).append(")");
-		} else if (nbt instanceof NBTTagLong) {
-			sb.append("TagLong(data=").append(((NBTTagLong) nbt).getLong()).append(")");
-		} else if (nbt instanceof NBTTagFloat) {
-			sb.append("TagFloat(data=").append(((NBTTagFloat) nbt).getFloat()).append(")");
-		} else if (nbt instanceof NBTTagDouble) {
-			sb.append("TagDouble(data=").append(((NBTTagDouble) nbt).getDouble()).append(")");
-		} else if (nbt instanceof NBTTagString) {
-			sb.append("TagString(data=\"").append(((NBTTagString) nbt).getString()).append("\")");
-		} else if (nbt instanceof NBTTagByteArray) {
+		if (nbt instanceof ByteTag) {
+			sb.append("TagByte(data=").append(((ByteTag) nbt).getAsByte()).append(")");
+		} else if (nbt instanceof ShortTag) {
+			sb.append("TagShort(data=").append(((ShortTag) nbt).getAsShort()).append(")");
+		} else if (nbt instanceof IntTag) {
+			sb.append("TagInt(data=").append(((IntTag) nbt).getAsInt()).append(")");
+		} else if (nbt instanceof LongTag) {
+			sb.append("TagLong(data=").append(((LongTag) nbt).getAsLong()).append(")");
+		} else if (nbt instanceof FloatTag) {
+			sb.append("TagFloat(data=").append(((FloatTag) nbt).getAsFloat()).append(")");
+		} else if (nbt instanceof DoubleTag) {
+			sb.append("TagDouble(data=").append(((DoubleTag) nbt).getAsDouble()).append(")");
+		} else if (nbt instanceof StringTag) {
+			sb.append("TagString(data=\"").append(((StringTag) nbt).getAsString()).append("\")");
+		} else if (nbt instanceof ByteArrayTag) {
 			sb.append("TagByteArray(data=");
-			for (int i = 0; i < ((NBTTagByteArray) nbt).getByteArray().length; i++) {
-				sb.append(((NBTTagByteArray) nbt).getByteArray()[i]);
-				if (i < ((NBTTagByteArray) nbt).getByteArray().length - 1) {
+			for (int i = 0; i < ((ByteArrayTag) nbt).getAsByteArray().length; i++) {
+				sb.append(((ByteArrayTag) nbt).getAsByteArray()[i]);
+				if (i < ((ByteArrayTag) nbt).getAsByteArray().length - 1) {
 					sb.append(",");
 				}
 			}
 			sb.append(")");
-		} else if (nbt instanceof NBTTagIntArray) {
+		} else if (nbt instanceof IntArrayTag) {
 			sb.append("TagIntArray(data=");
-			for (int i = 0; i < ((NBTTagIntArray) nbt).getIntArray().length; i++) {
-				sb.append(((NBTTagIntArray) nbt).getIntArray()[i]);
-				if (i < ((NBTTagIntArray) nbt).getIntArray().length - 1) {
+			for (int i = 0; i < ((IntArrayTag) nbt).getAsIntArray().length; i++) {
+				sb.append(((IntArrayTag) nbt).getAsIntArray()[i]);
+				if (i < ((IntArrayTag) nbt).getAsIntArray().length - 1) {
 					sb.append(",");
 				}
 			}
 			sb.append(")");
-		} else if (nbt instanceof NBTTagList) {
+		} else if (nbt instanceof ListTag) {
 			sb.append("TagList(data=");
-			for (int i = 0; i < ((NBTTagList) nbt).tagCount(); i++) {
-				debugDumpTag((((NBTTagList) nbt).get(i)), sb);
-				if (i < ((NBTTagList) nbt).tagCount() - 1) {
+			for (int i = 0; i < ((ListTag) nbt).size(); i++) {
+				debugDumpTag((((ListTag) nbt).get(i)), sb);
+				if (i < ((ListTag) nbt).size() - 1) {
 					sb.append(",");
 				}
 			}
 			sb.append(")");
-		} else if (nbt instanceof NBTTagCompound) {
+		} else if (nbt instanceof CompoundTag) {
 			sb.append("TagCompound(data=");
-			for (Iterator<String> iter = ((NBTTagCompound) nbt).getKeySet().iterator(); iter.hasNext(); ) {
+			for (Iterator<String> iter = ((CompoundTag) nbt).getAllKeys().iterator(); iter.hasNext(); ) {
 				String key = iter.next();
-				NBTBase value = ((NBTTagCompound) nbt).getTag(key);
+				net.minecraft.nbt.Tag value = ((CompoundTag) nbt).get(key);
 				sb.append("\"").append(key).append("\"=");
 				debugDumpTag((value), sb);
 				if (iter.hasNext()) {

@@ -41,7 +41,7 @@ import network.rs485.grow.Coroutines
 import logisticspipes.LogisticsPipes
 import logisticspipes.modules.LogisticsModule
 import net.minecraft.client.Minecraft
-import net.minecraft.tileentity.TileEntity
+import net.minecraft.world.level.block.entity.BlockEntity
 import java.time.Duration
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,11 +58,11 @@ abstract class AsyncModule<S, C> : LogisticsModule() {
     open val everyNthTick: Int = 20
 
     /**
-     * A debug helper for adding the connected [TileEntity] to error
+     * A debug helper for adding the connected [BlockEntity] to error
      * information. May return null, if the information is not
      * available.
      */
-    private val connectedEntity: TileEntity?
+    private val connectedEntity: BlockEntity?
         get() = _service?.availableAdjacent?.inventories()?.firstOrNull()?.tileEntity
 
     @ExperimentalCoroutinesApi
@@ -88,9 +88,9 @@ abstract class AsyncModule<S, C> : LogisticsModule() {
                             tickAsync(setup)
                         }
                     } catch (e: RuntimeException) {
-                        val isGamePaused = world?.isRemote == false && Minecraft.getMinecraft().isGamePaused
+                        val isGamePaused = world?.isClientSide == false && Minecraft.getInstance().isPaused
                         if (e !is TimeoutCancellationException && !isGamePaused) {
-                            val connected = connectedEntity?.let { " connected to $it at ${it.pos}" } ?: ""
+                            val connected = connectedEntity?.let { " connected to $it at ${it.blockPos}" } ?: ""
                             LogisticsPipes.log.error("Error in ticking async module $module$connected", e)
                         }
                     }

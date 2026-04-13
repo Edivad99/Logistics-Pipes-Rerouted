@@ -13,8 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ILPPositionProvider;
@@ -71,7 +71,7 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 		}
 	}
 
-	public LinkedList<ItemIdentifierStack> getContentList(World world) {
+	public LinkedList<ItemIdentifierStack> getContentList(Level world) {
 		if (MainProxy.isClient(world) || _orders.size() == 0) {
 			return new LinkedList<>();
 		}
@@ -178,12 +178,12 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 		return _orders.getFirst().isWatched();
 	}
 
-	public void startWatching(EntityPlayer player) {
+	public void startWatching(Player player) {
 		watchingPlayers.add(player);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeManagerContentPacket.class).setManager(this).setLPPos(pos.getLPPosition()), player);
 	}
 
-	public void stopWatching(EntityPlayer player) {
+	public void stopWatching(Player player) {
 		watchingPlayers.remove(player);
 	}
 

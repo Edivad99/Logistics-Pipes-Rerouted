@@ -3,7 +3,7 @@ package logisticspipes.utils.transactor;
 import java.util.Iterator;
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import net.minecraftforge.items.IItemHandler;
 
@@ -45,7 +45,7 @@ class InventoryIteratorSimple implements Iterable<IInvSlot> {
 
 		@Nonnull
 		@Override
-		public ItemStack getStackInSlot() {
+		public ItemStack getItem() {
 			return inv.getStackInSlot(slot);
 		}
 

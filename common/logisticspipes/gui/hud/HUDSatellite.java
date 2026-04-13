@@ -4,10 +4,10 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
 
-import org.lwjgl.opengl.GL11;
+
 
 import logisticspipes.interfaces.IHUDConfig;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
@@ -21,7 +21,7 @@ public class HUDSatellite extends BasicHUDGui {
 
 	public HUDSatellite(@Nonnull SatellitePipe pipe) {
 		this.pipe = pipe;
-		addButton(new BasicHUDButton("<", -2, -40, 8, 8) {
+		addRenderableWidget(new BasicHUDButton("<", -2, -40, 8, 8) {
 
 			@Override
 			public void clicked() {
@@ -40,7 +40,7 @@ public class HUDSatellite extends BasicHUDGui {
 				return page > 0;
 			}
 		});
-		addButton(new BasicHUDButton(">", 37, -40, 8, 8) {
+		addRenderableWidget(new BasicHUDButton(">", 37, -40, 8, 8) {
 
 			@Override
 			public void clicked() {
@@ -62,59 +62,35 @@ public class HUDSatellite extends BasicHUDGui {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft mc, IHUDConfig config) {
+	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
+		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		int textColor = day ? 0xff404040 : 0xff7f7f7f;
 		if (pipe.getItemList().size() > 0) {
-			if (day) {
-				GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 64);
-			} else {
-				GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 64);
-			}
-			GuiGraphics.drawGuiBackGround(mc, -50, -50, 50, 50, 0, false);
-			if (day) {
-				GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 127);
-			} else {
-				GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 127);
-			}
+			LPGuiGraphics.drawGuiBackGround(minecraft, -50, -50, 50, 50, 0, false);
+			super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 
-			GL11.glTranslatef(0.0F, 0.0F, -0.01F);
-			super.renderHeadUpDisplay(distance, day, shifted, mc, config);
-
-			String message;
-			message = pipe.getSatellitePipeName();
-			if (mc.fontRenderer.getStringWidth(message) > 40) {
-				GL11.glScalef(0.45F, 0.45F, 0.0001F);
-				mc.fontRenderer.drawString(message, -100, -85, 0);
-				GL11.glScalef(1 / 0.45F, 1 / 0.45F, 1);
-			} else {
-				GL11.glScalef(1.0F, 1.0F, 0.0001F);
-				mc.fontRenderer.drawString(message, -42, -40, 0);
+			String message = pipe.getSatellitePipeName();
+			if (gg != null) {
+				if (minecraft.font.width(message) > 40) {
+					gg.pose().pushPose();
+					gg.pose().scale(0.45F, 0.45F, 1F);
+					gg.drawString(minecraft.font, message, -100, -85, textColor, false);
+					gg.pose().popPose();
+				} else {
+					gg.drawString(minecraft.font, message, -42, -40, textColor, false);
+				}
 			}
-			GL11.glScalef(1.5F, 1.5F, 1);
-			GL11.glScalef(0.8F, 0.8F, -1F);
 			ItemStackRenderer.renderItemIdentifierStackListIntoGui(pipe.getItemList(), null, page, -35, -20, 4, 12, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
-			GL11.glScalef(0.8F, 0.8F, -1F);
-			message = String.format("(%d/%d)", page + 1, getMaxPage());
-			mc.fontRenderer.drawString(message, 9, -41, 0);
+			if (gg != null) {
+				gg.drawString(minecraft.font, String.format("(%d/%d)", page + 1, getMaxPage()), 9, -41, textColor, false);
+			}
 		} else {
-			if (day) {
-				GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 64);
-			} else {
-				GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 64);
+			LPGuiGraphics.drawGuiBackGround(minecraft, -50, -15, 50, 20, 0, false);
+			super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
+			String message = pipe.getSatellitePipeName();
+			if (gg != null) {
+				gg.drawString(minecraft.font, message, -(minecraft.font.width(message) / 2), -2, textColor, false);
 			}
-			GuiGraphics.drawGuiBackGround(mc, -50, -15, 50, 20, 0, false);
-			if (day) {
-				GL11.glColor4b((byte) 64, (byte) 64, (byte) 64, (byte) 127);
-			} else {
-				GL11.glColor4b((byte) 127, (byte) 127, (byte) 127, (byte) 127);
-			}
-
-			GL11.glTranslatef(0.0F, 0.0F, -0.01F);
-			super.renderHeadUpDisplay(distance, day, shifted, mc, config);
-
-			GL11.glScalef(1F, 1F, 0.0001F);
-			String message;
-			message = pipe.getSatellitePipeName();
-			mc.fontRenderer.drawString(message, -(mc.fontRenderer.getStringWidth(message) / 2), -2, 0);
 		}
 	}
 

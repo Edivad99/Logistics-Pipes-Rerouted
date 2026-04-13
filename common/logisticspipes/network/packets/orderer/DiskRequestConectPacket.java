@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.orderer;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.LPItems;
 import logisticspipes.network.PacketHandler;
@@ -26,30 +26,30 @@ public class DiskRequestConectPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		final LogisticsTileGenericPipe pipe = this.getPipe(player.world);
+	public void processPacket(Player player) {
+		final LogisticsTileGenericPipe pipe = this.getPipe(player.level());
 		if (pipe == null) {
 			return;
 		}
 		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2) {
 			if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk() != null) {
-				if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().getItem().equals(LPItems.disk)) {
-					if (!((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().hasTagCompound()) {
-						((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().setTagCompound(new NBTTagCompound());
+				if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().getItem().equals(LPItems.disk.get())) {
+					if (!((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().hasTag()) {
+						((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().setTag(new CompoundTag());
 					}
 				}
 			}
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk()).setBlockPos(pipe.getPos()), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk()).setBlockPos(pipe.getBlockPos()), player);
 		}
 		if (pipe.pipe instanceof PipeBlockRequestTable) {
-			if (((PipeBlockRequestTable) pipe.pipe).diskInv.getStackInSlot(0) != null) {
-				if (((PipeBlockRequestTable) pipe.pipe).diskInv.getStackInSlot(0).getItem().equals(LPItems.disk)) {
-					if (!((PipeBlockRequestTable) pipe.pipe).diskInv.getStackInSlot(0).hasTagCompound()) {
-						((PipeBlockRequestTable) pipe.pipe).diskInv.getStackInSlot(0).setTagCompound(new NBTTagCompound());
+			if (((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0) != null) {
+				if (((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0).getItem().equals(LPItems.disk.get())) {
+					if (!((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0).hasTag()) {
+						((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0).setTag(new CompoundTag());
 					}
 				}
 			}
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(((PipeBlockRequestTable) pipe.pipe).diskInv.getStackInSlot(0)).setBlockPos(pipe.getPos()), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0)).setBlockPos(pipe.getBlockPos()), player);
 		}
 	}
 }

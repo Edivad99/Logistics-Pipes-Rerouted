@@ -2,8 +2,8 @@ package logisticspipes.api;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * public interface to be implemented by an item which can open the config GUI for a logistics pipe.
@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
  */
 public interface ILPPipeConfigTool {
 
-	boolean canWrench(EntityPlayer player, @Nonnull ItemStack wrench, ILPPipeTile pipe);
+	boolean canWrench(Player player, @Nonnull ItemStack wrench, ILPPipeTile pipe);
 
-	void wrenchUsed(EntityPlayer player, @Nonnull ItemStack wrench, ILPPipeTile pipe);
+	void wrenchUsed(Player player, @Nonnull ItemStack wrench, ILPPipeTile pipe);
 }

@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.pipe;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,10 +27,10 @@ public class PipePositionPacket extends CoordinatesPacket {
 	private float position;
 	@Getter
 	@Setter
-	private EnumFacing input;
+	private Direction input;
 	@Getter
 	@Setter
-	private EnumFacing output;
+	private Direction output;
 	@Getter
 	@Setter
 	private float yaw;
@@ -40,8 +40,8 @@ public class PipePositionPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		LogisticsTileGenericPipe tile = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.TRANSPORT);
+	public void processPacket(Player player) {
+		LogisticsTileGenericPipe tile = this.getPipe(player.level(), LTGPCompletionCheck.TRANSPORT);
 		if (tile == null || tile.pipe == null || tile.pipe.transport == null) {
 			return;
 		}

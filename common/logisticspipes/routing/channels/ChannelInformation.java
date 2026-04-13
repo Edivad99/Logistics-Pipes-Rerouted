@@ -2,7 +2,7 @@ package logisticspipes.routing.channels;
 
 import java.util.UUID;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,25 +29,25 @@ public class ChannelInformation {
 	private AccessRights rights;
 	private UUID responsibleSecurityID;
 
-	public ChannelInformation(NBTTagCompound nbt) {
+	public ChannelInformation(CompoundTag nbt) {
 		name = nbt.getString("name");
 		channelIdentifier = UUID.fromString(nbt.getString("channelIdentifier"));
 		owner = PlayerIdentifier.readFromNBT(nbt, "owner");
-		rights = AccessRights.values()[nbt.getInteger("rights")];
-		if (nbt.hasKey("responsibleSecurityID")) {
+		rights = AccessRights.values()[nbt.getInt("rights")];
+		if (nbt.contains("responsibleSecurityID")) {
 			responsibleSecurityID = UUID.fromString(nbt.getString("responsibleSecurityID"));
 		} else {
 			responsibleSecurityID = null;
 		}
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setString("name", name);
-		compound.setString("channelIdentifier", channelIdentifier.toString());
+	public CompoundTag writeToNBT(CompoundTag compound) {
+		compound.putString("name", name);
+		compound.putString("channelIdentifier", channelIdentifier.toString());
 		owner.writeToNBT(compound, "owner");
-		compound.setInteger("rights", rights.ordinal());
+		compound.putInt("rights", rights.ordinal());
 		if (responsibleSecurityID != null) {
-			compound.setString("responsibleSecurityID", responsibleSecurityID.toString());
+			compound.putString("responsibleSecurityID", responsibleSecurityID.toString());
 		}
 
 		return compound;

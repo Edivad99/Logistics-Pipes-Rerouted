@@ -44,15 +44,19 @@ import network.rs485.logisticspipes.util.FuzzyFlag
 import logisticspipes.LogisticsPipes
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.ModuleSlot
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.*
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
 import java.util.*
 import kotlin.math.min
 
-abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Container() {
+abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : AbstractContainerMenu(null, 0) {
 
     val slotSize = 18
 
@@ -69,7 +73,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
      * @return the list of added lots.
      */
     abstract fun addDummySlotsToContainer(
-        overlayInventory: IInventory,
+        overlayInventory: Container,
         baseProperty: InventoryProperty<*>? = null,
         startX: Int,
         startY: Int
@@ -81,7 +85,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
      * @param slotId id to be given to the slot
      */
     fun addGhostItemSlotToContainer(
-        dummyInventoryIn: IInventory,
+        dummyInventoryIn: Container,
         baseProperty: InventoryProperty<*>?,
         slotId: Int,
         posX: Int,
@@ -93,14 +97,14 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
             xPosition = posX,
             yPosition = posY,
         )
-        addSlotToContainer(slot)
+        addSlot(slot)
         baseProperty?.let { directSlotPropertyMap[slot] = it }
         return slot
     }
 
 
     fun addFuzzyItemSlotToContainer(
-        dummyInventoryIn: IInventory,
+        dummyInventoryIn: Container,
         baseProperty: InventoryProperty<*>?,
         slotId: Int,
         posX: Int,
@@ -116,32 +120,33 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
             usedFlags = usedFlags,
             flagGetter = flagGetter,
         )
-        addSlotToContainer(slot)
+        addSlot(slot)
         baseProperty?.let { directSlotPropertyMap[slot] = it }
         return slot
     }
 
 
-    override fun slotClick(slotId: Int, dragType: Int, clickTypeIn: ClickType, player: EntityPlayer): ItemStack {
+    override fun clicked(slotId: Int, dragType: Int, clickTypeIn: ClickType, player: Player) {
 
         // slotId -999 is a special case for when the ItemStack is being drag-split between slots.
         if (slotId < 0) {
-            return super.slotClick(slotId, dragType, clickTypeIn, player)
+            super.clicked(slotId, dragType, clickTypeIn, player)
+            return
         }
 
-        val slot = inventorySlots[slotId] ?: return ItemStack.EMPTY
+        val slot = slots.getOrNull(slotId) ?: return
 
-        if (slot is LockedSlot) return ItemStack.EMPTY
+        if (slot is LockedSlot) return
 
         if (slot !is GhostSlot) {
             // In case slot is not a subtype of GhostSlot vanilla behaviour will be applied.
-            return super.slotClick(slotId, dragType, clickTypeIn, player)
+            super.clicked(slotId, dragType, clickTypeIn, player)
+            return
         }
 
         // The slot will always be a subtype of GhostSlot from this point onwards.
-        val grabbedItemStack = player.inventory.itemStack
+        val grabbedItemStack = getCarried()
         handleGhostSlotClick(slot, grabbedItemStack, dragType, clickTypeIn, player)
-        return ItemStack.EMPTY
 
     }
 
@@ -152,9 +157,9 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
      * @param index of the slot in the inventorySlots list.
      * @return empty ItemStack to stop the weird loop that vanilla runs using this.
      */
-    override fun transferStackInSlot(player: EntityPlayer, index: Int): ItemStack {
-        val slot = inventorySlots[index] ?: return ItemStack.EMPTY
-        if (!slot.hasStack || slot is GhostSlot || slot is ModuleSlot) return ItemStack.EMPTY
+    override fun quickMoveStack(player: Player, index: Int): ItemStack {
+        val slot = slots.getOrNull(index) ?: return ItemStack.EMPTY
+        if (!slot.hasItem() || slot is GhostSlot || slot is ModuleSlot) return ItemStack.EMPTY
         when {
             playerHotbarSlots.contains(slot) -> handleShiftClickFromSlotToList(slot, playerBackpackSlots, player)
             playerBackpackSlots.contains(slot) -> handleShiftClickFromSlotToList(slot, playerHotbarSlots, player)
@@ -177,9 +182,9 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
      * @param player player interacting with the container
      * @return true when the shifted stack was fully utilized, false otherwise
      */
-    open fun handleShiftClickFromSlotToList(from: Slot, toList: List<Slot>, player: EntityPlayer): Boolean {
-        if (!from.hasStack) return true
-        val slots = toList.partition { it.hasStack }
+    open fun handleShiftClickFromSlotToList(from: Slot, toList: List<Slot>, player: Player): Boolean {
+        if (!from.hasItem()) return true
+        val slots = toList.partition { it.hasItem() }
         // Iterate through all non-empty slots and then through all empty slots until the initial slot is depleted or it fails.
         slots.first.takeIf { it.isNotEmpty() }
             ?.forEach { to -> if (handleShiftClickFromSlotToSlot(from, to, player)) return true }
@@ -195,32 +200,32 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
      * @param player player interacting with the container
      * @return true when from is empty false when no action taken
      */
-    open fun handleShiftClickFromSlotToSlot(from: Slot, to: Slot, player: EntityPlayer): Boolean {
-        if (!from.hasStack) return true
+    open fun handleShiftClickFromSlotToSlot(from: Slot, to: Slot, player: Player): Boolean {
+        if (!from.hasItem()) return true
         if (to is GhostSlot || to is ModuleSlot) return false
-        if (to.hasStack && from.stack.isItemEqual(to.stack)) {
+        if (to.hasItem() && ItemStack.isSameItem(from.item, to.item)) {
             // Calculate how many items can be added to stack until it is full, can be limited by the ItemStack(Item) or the Slot.
-            val freeAmount = min(to.slotStackLimit, to.stack.maxStackSize) - to.stack.count
+            val freeAmount = min(to.maxStackSize, to.item.maxStackSize) - to.item.count
             if (freeAmount > 0) {
                 // Reduce original from stack and do the same on the slot to sync.
-                var shiftedStack = from.decrStackSize(freeAmount)
-                shiftedStack = from.onTake(player, shiftedStack)
-                if (!shiftedStack.isEmpty && !to.stack.isEmpty) {
+                var shiftedStack = from.remove(freeAmount)
+                from.onTake(player, shiftedStack)
+                if (!shiftedStack.isEmpty && !to.item.isEmpty) {
                     // Increase count on the receiving stack and also slot to sync.
-                    to.stack.grow(shiftedStack.count)
-                    to.putStack(to.stack)
-                    return !from.hasStack
+                    to.item.grow(shiftedStack.count)
+                    to.set(to.item)
+                    return !from.hasItem()
                 }
             }
-        } else if (!to.hasStack) {
+        } else if (!to.hasItem()) {
             // Calculate how much can be added to empty slot
-            val maxAmount = min(from.stack.count, to.slotStackLimit)
+            val maxAmount = min(from.item.count, to.maxStackSize)
             if (maxAmount > 0) {
-                val shiftedStack = from.decrStackSize(maxAmount)
-                to.putStack(shiftedStack)
-                if (from.stack.isEmpty) from.putStack(ItemStack.EMPTY)
+                val shiftedStack = from.remove(maxAmount)
+                to.set(shiftedStack)
+                if (from.item.isEmpty) from.set(ItemStack.EMPTY)
             }
-            return !from.hasStack
+            return !from.hasItem()
         }
         return false
     }
@@ -234,7 +239,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
      * @return  return all the slots in the player's inventory.
      */
     open fun addPlayerSlotsToContainer(
-        playerInventoryIn: IInventory,
+        playerInventoryIn: Container,
         startX: Int,
         startY: Int,
         lockedStack: ItemStack,
@@ -247,7 +252,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
         for (row in 0..2) {
             for (column in 0..8) {
                 playerBackpackSlots.add(
-                    addSlotToContainer(
+                    addSlot(
                         Slot(
                             playerInventoryIn,
                             column + row * 9 + 9,
@@ -261,9 +266,9 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
 
         // Add the hotbar inventory slots
         for (index in 0..8) {
-            if (!lockedStack.isEmpty && playerInventoryIn.getStackInSlot(index) == lockedStack) {
+            if (!lockedStack.isEmpty && playerInventoryIn.getItem(index) == lockedStack) {
                 playerHotbarSlots.add(
-                    addSlotToContainer(
+                    addSlot(
                         LockedSlot(
                             playerInventoryIn,
                             index,
@@ -274,7 +279,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
                 )
             } else {
                 playerHotbarSlots.add(
-                    addSlotToContainer(
+                    addSlot(
                         Slot(
                             playerInventoryIn,
                             index,
@@ -295,12 +300,10 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
         grabbedItemStack: ItemStack,
         dragType: Int,
         clickTypeIn: ClickType,
-        player: EntityPlayer,
+        player: Player,
     ) = when (slot) {
         is Item -> handleGhostItemSlotClick(slot, grabbedItemStack, dragType, clickTypeIn, player)
-        else -> {
-            TODO("When did I add fluid slots?")
-        }
+        else -> Unit // fluid ghost slots not supported; ignore click
     }
 
     /**
@@ -316,7 +319,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
         grabbedItemStack: ItemStack,
         dragType: Int,
         clickTypeIn: ClickType,
-        player: EntityPlayer,
+        player: Player,
     ) {
         LogisticsPipes.log.info("DragType $dragType, ClickType: $clickTypeIn")
         // Copy the grabbedStack and insert it into the GhostItemSlot
@@ -332,19 +335,19 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Contain
      */
     open fun applyItemStackToGhostItemSlot(itemStack: ItemStack, slot: GhostSlot) {
         val copiedItemStack = itemStack.copy()
-        slot.putStack(copiedItemStack)
+        slot.set(copiedItemStack)
     }
 
-    override fun putStackInSlot(slotID: Int, stack: ItemStack) {
+    fun putStackInSlot(slotID: Int, stack: ItemStack) {
         // external change, access underlying property directly
-        val slot = inventorySlots.getOrNull(slotID)
+        val slot = slots.getOrNull(slotID)
         slot?.let { directSlotPropertyMap[slot] }?.also { property ->
-            property.setInventorySlotContents(slot.slotIndex, stack)
-        } ?: super.putStackInSlot(slotID, stack)
+            property.setItem(slot.slotIndex, stack)
+        } ?: slot?.set(stack)
     }
 
-    @SideOnly(Side.CLIENT)
-    override fun setAll(slotStacks: MutableList<ItemStack>) {
+    @OnlyIn(Dist.CLIENT)
+    fun setAll(slotStacks: MutableList<ItemStack>) {
         for (slotIdx in slotStacks.indices) {
             putStackInSlot(slotIdx, slotStacks[slotIdx])
         }

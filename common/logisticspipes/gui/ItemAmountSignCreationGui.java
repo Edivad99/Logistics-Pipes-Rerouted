@@ -1,29 +1,36 @@
+
 package logisticspipes.gui;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.ItemAmountPipeSign;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import javax.annotation.Nonnull;
 
 public class ItemAmountSignCreationGui extends LogisticsBaseGuiScreen {
 
-	public ItemAmountSignCreationGui(EntityPlayer player, CoreRoutedPipe pipe, EnumFacing dir) {
-		super(180, 125, 0, 0);
+	public ItemAmountSignCreationGui(Player player, CoreRoutedPipe pipe, Direction dir) {
+		super(buildDummy(player, pipe, dir), 180, 125, 0, 0);
+	}
+	private static DummyContainer buildDummy(Player player, CoreRoutedPipe pipe, Direction dir) {
 		ItemAmountPipeSign sign = ((ItemAmountPipeSign) pipe.getPipeSign(dir));
-		DummyContainer dummy = new DummyContainer(player.inventory, sign.itemTypeInv);
+		DummyContainer dummy = new DummyContainer(player.getInventory(), sign.itemTypeInv);
 		dummy.addDummySlot(0, 10, 13);
 		dummy.addNormalSlotsForPlayerInventory(10, 40);
-		inventorySlots = dummy;
+		return dummy;
 	}
 
+
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 10, guiTop + 40);
-		GuiGraphics.drawSlotBackground(mc, guiLeft + 9, guiTop + 12);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 40);
+		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 9, topPos + 12);
 	}
 }

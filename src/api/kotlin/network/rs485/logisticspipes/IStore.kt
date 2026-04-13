@@ -37,9 +37,9 @@
 
 package network.rs485.logisticspipes
 
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundTag
 
 interface IStore {
-    fun readFromNBT(tag: NBTTagCompound)
-    fun writeToNBT(tag: NBTTagCompound)
+    fun readFromNBT(tag: CompoundTag)
+    fun writeToNBT(tag: CompoundTag)
 }

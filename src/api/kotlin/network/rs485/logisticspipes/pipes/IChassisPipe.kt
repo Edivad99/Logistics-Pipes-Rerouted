@@ -37,13 +37,13 @@
 
 package network.rs485.logisticspipes.pipes
 
-import net.minecraft.inventory.IInventory
-import net.minecraft.util.EnumFacing
+import net.minecraft.world.Container
+import net.minecraft.core.Direction
 
 interface IChassisPipe {
     fun nextOrientation()
-    fun setPointedOrientation(dir: EnumFacing?)
-    fun getPointedOrientation(): EnumFacing?
-    fun getModuleInventory(): IInventory
+    fun setPointedOrientation(dir: Direction?)
+    fun getPointedOrientation(): Direction?
+    fun getModuleInventory(): Container
     fun getChassisSize(): Int
 }

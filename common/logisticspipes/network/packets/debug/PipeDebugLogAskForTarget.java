@@ -1,11 +1,10 @@
 package logisticspipes.network.packets.debug;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.RayTraceResult;
-
-import net.minecraftforge.fml.client.FMLClientHandler;
-
-import static net.minecraft.util.math.RayTraceResult.Type.BLOCK;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.BlockHitResult;
+import static net.minecraft.world.phys.HitResult.Type.BLOCK;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -25,10 +24,10 @@ public class PipeDebugLogAskForTarget extends ModernPacket {
 	public void readData(LPDataInput input) {}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		RayTraceResult box = FMLClientHandler.instance().getClient().objectMouseOver;
-		if (box != null && box.typeOfHit == BLOCK) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeDebugLogResponse.class).setBlockPos(box.getBlockPos()));
+	public void processPacket(Player player) {
+		HitResult box = Minecraft.getInstance().hitResult;
+		if (box != null && box.getType() == BLOCK) {
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeDebugLogResponse.class).setBlockPos(((BlockHitResult) box).getBlockPos()));
 		}
 	}
 

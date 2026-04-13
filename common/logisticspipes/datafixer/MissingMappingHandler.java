@@ -4,13 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceLocation;
 
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.MissingMappingsEvent;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -133,35 +134,62 @@ public class MissingMappingHandler {
 			.put("tile.logisticsblockgenericpipe", "pipe")
 			.build();
 
+	// Block entity type renames: 1.12.2 Forge class-path IDs (stored as "minecraft:<classname>")
+	// → current 1.20.1 registry names. getMappings uses namespace "minecraft" because old Forge
+	// stored BE type ids under that namespace when the mod didn't supply an explicit modid prefix.
+	private static final Map<String, String> BE_TYPE_ID_MAP = ImmutableMap.<String, String>builder()
+			.put("minecraft:logisticspipes.blocks.logisticssolderingtileentity",                  "logisticspipes:soldering_station")
+			.put("minecraft:logisticspipes.blocks.powertile.logisticspowerjuntiontileentity",     "logisticspipes:power_junction")
+			.put("minecraft:logisticspipes.blocks.powertile.logisticsrfpowerprovidertileentity",  "logisticspipes:power_provider_rf")
+			.put("minecraft:logisticspipes.blocks.powertile.logisticsic2powerprovidertileentity", "logisticspipes:power_provider_ic2")
+			.put("minecraft:logisticspipes.blocks.logisticssecuritytileentity",                   "logisticspipes:security_station")
+			.put("minecraft:logisticspipes.blocks.crafting.logisticscraftingtabletileentity",     "logisticspipes:logistics_crafting_table")
+			.put("minecraft:logisticspipes.pipes.basic.logisticstilegenericpipe",                 "logisticspipes:pipe")
+			.put("minecraft:logisticspipes.blocks.stats.logisticsstatisticstileentity",           "logisticspipes:statistics_table")
+			.put("minecraft:logisticspipes.blocks.logisticsprogramcompilertileentity",            "logisticspipes:program_compiler")
+			.put("minecraft:logisticspipes.pipes.basic.logisticstilegenericsubmultiblock",        "logisticspipes:submultiblock")
+			.build();
+
 	// handled by data fixer
 	private List<String> ignoreItems = Arrays.asList(
 			"solid_block", "tile.logisticssolidblock"
 	);
 
 	@SubscribeEvent
-	public void onMissingBlocks(RegistryEvent.MissingMappings<Block> e) {
-		for (RegistryEvent.MissingMappings.Mapping<Block> m : e.getMappings()) {
-			String entry = blockIDMap.get(m.key.getPath());
-			if (entry == null) continue;
-			Block value = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(LPConstants.LP_MOD_ID, entry));
-			if (value == null) continue;
-			m.remap(value);
-		}
-	}
-
-	@SubscribeEvent
-	public void onMissingItems(RegistryEvent.MissingMappings<Item> e) {
-		for (RegistryEvent.MissingMappings.Mapping<Item> m : e.getMappings()) {
-			String old = m.key.getPath();
-			if (ignoreItems.contains(old)) {
-				m.ignore();
+	public void onMissingMappings(MissingMappingsEvent event) {
+		for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(ForgeRegistries.Keys.ITEMS, LPConstants.LP_MOD_ID)) {
+			String oldKey = mapping.getKey().getPath();
+			if (ignoreItems.contains(oldKey)) {
+				mapping.ignore();
 				continue;
 			}
-			String entry = itemIDMap.get(old);
-			if (entry == null) continue;
-			Item value = ForgeRegistries.ITEMS.getValue(new ResourceLocation(LPConstants.LP_MOD_ID, entry));
-			if (value == null) continue;
-			m.remap(value);
+			String newKey = itemIDMap.get(oldKey);
+			if (newKey != null) {
+				Item newItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(LPConstants.LP_MOD_ID, newKey));
+				if (newItem != null) {
+					mapping.remap(newItem);
+				}
+			}
+		}
+		for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(ForgeRegistries.Keys.BLOCKS, LPConstants.LP_MOD_ID)) {
+			String oldKey = mapping.getKey().getPath();
+			String newKey = blockIDMap.get(oldKey);
+			if (newKey != null) {
+				Block newBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(LPConstants.LP_MOD_ID, newKey));
+				if (newBlock != null) {
+					mapping.remap(newBlock);
+				}
+			}
+		}
+		// Block entity types: old 1.12.2 Forge entries were stored as "minecraft:<classname>".
+		// We only remap keys that are in our map so other mods' "minecraft:"-namespaced BEs are untouched.
+		for (MissingMappingsEvent.Mapping<BlockEntityType<?>> mapping : event.getMappings(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES, "minecraft")) {
+			String newRl = BE_TYPE_ID_MAP.get(mapping.getKey().toString());
+			if (newRl == null) continue;
+			BlockEntityType<?> newType = ForgeRegistries.BLOCK_ENTITY_TYPES.getValue(new ResourceLocation(newRl));
+			if (newType != null) {
+				mapping.remap(newType);
+			}
 		}
 	}
 

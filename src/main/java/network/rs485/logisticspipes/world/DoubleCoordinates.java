@@ -39,13 +39,13 @@ package network.rs485.logisticspipes.world;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 import lombok.Data;
 
@@ -84,8 +84,8 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 		this(coords.getXDouble(), coords.getYDouble(), coords.getZDouble());
 	}
 
-	public DoubleCoordinates(TileEntity tile) {
-		this(tile.getPos());
+	public DoubleCoordinates(BlockEntity tile) {
+		this(tile.getBlockPos());
 	}
 
 	public DoubleCoordinates(CoreUnroutedPipe pipe) {
@@ -101,15 +101,15 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 	}
 
 	public DoubleCoordinates(Entity entity) {
-		this(entity.posX, entity.posY, entity.posZ);
+		this(entity.getX(), entity.getY(), entity.getZ());
 	}
 
 	public DoubleCoordinates(BlockPos pos) {
 		this(pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public static DoubleCoordinates readFromNBT(String prefix, NBTTagCompound nbt) {
-		if (nbt.hasKey(prefix + "xPos") && nbt.hasKey(prefix + "yPos") && nbt.hasKey(prefix + "zPos")) {
+	public static DoubleCoordinates readFromNBT(String prefix, CompoundTag nbt) {
+		if (nbt.contains(prefix + "xPos") && nbt.contains(prefix + "yPos") && nbt.contains(prefix + "zPos")) {
 			return new DoubleCoordinates(nbt.getDouble(prefix + "xPos"), nbt.getDouble(prefix + "yPos"), nbt.getDouble(prefix + "zPos"));
 		}
 		return null;
@@ -146,11 +146,11 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 	}
 
 	public BlockPos getBlockPos() {
-		return new BlockPos(getXCoord(), getYCoord(), getZCoord());
+		return new BlockPos((int) getXCoord(), (int) getYCoord(), (int) getZCoord());
 	}
 
-	public TileEntity getTileEntity(IBlockAccess world) {
-		return world.getTileEntity(getBlockPos());
+	public BlockEntity getTileEntity(BlockGetter world) {
+		return world.getBlockEntity(getBlockPos());
 	}
 
 	@Override
@@ -163,12 +163,12 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 	}
 
 	@Nonnull
-	public IBlockState getBlockState(IBlockAccess world) {
+	public BlockState getBlockState(BlockGetter world) {
 		return world.getBlockState(getBlockPos());
 	}
 
-	public boolean blockExists(World world) {
-		return !world.isAirBlock(getBlockPos());
+	public boolean blockExists(Level world) {
+		return !world.isEmptyBlock(getBlockPos());
 	}
 
 	public double distanceTo(DoubleCoordinates targetPos) {
@@ -184,10 +184,10 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 		return this;
 	}
 
-	public void writeToNBT(String prefix, NBTTagCompound nbt) {
-		nbt.setDouble(prefix + "xPos", xCoord);
-		nbt.setDouble(prefix + "yPos", yCoord);
-		nbt.setDouble(prefix + "zPos", zCoord);
+	public void writeToNBT(String prefix, CompoundTag nbt) {
+		nbt.putDouble(prefix + "xPos", xCoord);
+		nbt.putDouble(prefix + "yPos", yCoord);
+		nbt.putDouble(prefix + "zPos", zCoord);
 	}
 
 	public DoubleCoordinates add(DoubleCoordinates toAdd) {
@@ -197,8 +197,8 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 		return this;
 	}
 
-	public void setBlockToAir(World world) {
-		world.setBlockToAir(getBlockPos());
+	public void setBlockToAir(Level world) {
+		world.removeBlock(getBlockPos(), false);
 	}
 
 	@Override

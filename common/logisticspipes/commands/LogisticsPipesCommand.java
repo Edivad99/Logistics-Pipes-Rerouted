@@ -2,15 +2,14 @@ package logisticspipes.commands;
 
 import java.util.Arrays;
 import java.util.Locale;
-import javax.annotation.Nonnull;
 
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.WrongUsageException;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.player.Player;
 
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.abstracts.ICommandHandler;
@@ -19,7 +18,11 @@ import logisticspipes.commands.exception.LPCommandException;
 import logisticspipes.commands.exception.PermissionDeniedException;
 import logisticspipes.proxy.MainProxy;
 
-public class LogisticsPipesCommand extends CommandBase {
+// Registered via RegisterCommandsEvent in LogisticsPipes.registerCommands().
+// Subcommands are parsed from a greedy-string argument and dispatched through the
+// legacy ICommandHandler chain — a future cleanup could promote each subcommand to
+// its own Brigadier node for richer tab completion, but behaviour is feature-complete.
+public class LogisticsPipesCommand {
 
 	private final ICommandHandler mainCommand;
 
@@ -27,50 +30,56 @@ public class LogisticsPipesCommand extends CommandBase {
 		mainCommand = new MainCommandHandler();
 	}
 
-	@Nonnull
-	@Override
-	public String getName() {
-		return "logisticspipes";
+	public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+		dispatcher.register(
+			Commands.literal("logisticspipes")
+				.requires(src -> src.hasPermission(0))
+				.then(Commands.literal("help")
+					.executes(ctx -> {
+						executeForSource(ctx.getSource(), new String[]{"help"});
+						return 1;
+					}))
+				.then(Commands.argument("args", StringArgumentType.greedyString())
+					.executes(ctx -> {
+						String raw = StringArgumentType.getString(ctx, "args");
+						executeForSource(ctx.getSource(), raw.isEmpty() ? new String[]{} : raw.split("\\s+"));
+						return 1;
+					}))
+				.executes(ctx -> {
+					executeForSource(ctx.getSource(), new String[]{});
+					return 1;
+				})
+		);
+		// Short alias: /lp ... → /logisticspipes ...
+		dispatcher.register(
+			Commands.literal("lp")
+				.requires(src -> src.hasPermission(0))
+				.redirect(dispatcher.getRoot().getChild("logisticspipes"))
+		);
 	}
 
-	@Nonnull
-	@Override
-	public String getUsage(@Nonnull ICommandSender var1) {
-		return "/" + getName() + " help";
-	}
-
-	/*
-		@Override
-		public List<String> getCommandAliases() {
-			return Arrays.asList(new String[] { "lp", "logipipes" });
-		}
-	*/
-	@Override
-	public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, String[] arguments) throws CommandException {
+	private void executeForSource(CommandSourceStack source, String[] arguments) {
+		Player sender = source.getPlayer();
+		if (sender == null) return;
 		if (arguments.length <= 0) {
-			throw new WrongUsageException("Type '/logisticspipes help' for help.");
+			sender.sendSystemMessage(net.minecraft.network.chat.Component.literal("Type '/logisticspipes help' for help."));
+			return;
 		}
 		try {
-			boolean managed = false;
-			if (LogisticsPipes.isDEBUG()) {
-				//Check for unlisted Debug commands
-			}
-			if (!managed) {
-				mainCommand.executeCommand(sender, arguments);
-			}
+			mainCommand.executeCommand(sender, arguments);
 		} catch (LPCommandException e) {
 			if (e instanceof PermissionDeniedException) {
-				throw new CommandException("You are not allowed to execute that command now.");
+				sender.sendSystemMessage(net.minecraft.network.chat.Component.literal("You are not allowed to execute that command now."));
 			} else if (e instanceof CommandNotFoundException) {
-				throw new CommandException("The command was not found");
+				sender.sendSystemMessage(net.minecraft.network.chat.Component.literal("The command was not found"));
 			} else {
-				throw new WrongUsageException("/logisticspipes help");
+				sender.sendSystemMessage(net.minecraft.network.chat.Component.literal("Usage: /logisticspipes help"));
 			}
 		}
 	}
 
-	public static boolean isOP(ICommandSender sender) {
-		return Arrays.asList(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getOppedPlayers().getKeys())
-				.contains(sender.getName().toLowerCase(Locale.US)) || (MainProxy.proxy.checkSinglePlayerOwner(sender.getName()));
+	public static boolean isOP(Player sender) {
+		return Arrays.asList(ServerLifecycleHooks.getCurrentServer().getPlayerList().getOps().getUserList())
+				.contains(sender.getName().getString().toLowerCase(Locale.US)) || (MainProxy.proxy.checkSinglePlayerOwner(sender.getName().getString()));
 	}
 }

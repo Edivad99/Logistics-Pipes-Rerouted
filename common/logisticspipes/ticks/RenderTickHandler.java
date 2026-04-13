@@ -1,32 +1,30 @@
 package logisticspipes.ticks;
 
-import net.minecraft.block.Block;
+import com.mojang.blaze3d.vertex.PoseStack;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import logisticspipes.LPBlocks;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -55,49 +53,53 @@ public class RenderTickHandler {
 			ClientViewController.instance().tick();
 		} else {
 			renderTicks++;
-			if (LogisticsHUDRenderer.instance().displayRenderer()) {
-				GL11.glPushMatrix();
-				Minecraft mc = FMLClientHandler.instance().getClient();
-				mc.entityRenderer.setupCameraTransform(event.renderTickTime, 1);
-				ActiveRenderInfo.updateRenderInfo(mc.player, mc.gameSettings.thirdPersonView == 2);
-				LogisticsHUDRenderer.instance().renderWorldRelative(renderTicks, event.renderTickTime);
-				mc.entityRenderer.setupOverlayRendering();
-				GL11.glPopMatrix();
-
-				GL11.glPushMatrix();
-				LogisticsHUDRenderer.instance().renderPlayerDisplay(renderTicks);
-				GL11.glPopMatrix();
-			} else if (GuiOverlay.getInstance().isCompatibleGui()) {
+			// TODO: migrate HUD rendering to 1.20 PoseStack / GameRenderer approach.
+			// mc.entityRenderer.setupCameraTransform() and ActiveRenderInfo.updateRenderInfo() were removed.
+			// See Task #7 (GameRenderer.setupCamera AT entry).
+			if (GuiOverlay.getInstance().isCompatibleGui()) {
 				GuiOverlay.getInstance().renderOverGui();
 			}
 		}
 	}
 
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void renderWorldLast(RenderWorldLastEvent worldEvent) {
+	@OnlyIn(Dist.CLIENT)
+	public void renderWorldLast(RenderLevelStageEvent worldEvent) {
+		// Only render once per frame, at the AFTER_PARTICLES stage.
+		if (worldEvent.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
+
+		PoseStack poseStack = worldEvent.getPoseStack();
+		float partialTick = worldEvent.getPartialTick();
+		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+		int packedLight = 0xF000F0;
+
+		long renderTicks = Minecraft.getInstance().level != null ? Minecraft.getInstance().level.getGameTime() : 0L;
+		LogisticsHUDRenderer.instance().renderWorldRelative(renderTicks, partialTick, poseStack, bufferSource, packedLight);
+		bufferSource.endBatch();
+
 		// We are not holding an Item that needs to render a ghost pipe!
 		if (!displayPipeGhost()) return;
 
-		Minecraft mc = Minecraft.getMinecraft();
-		EntityPlayer player = mc.player;
-		RayTraceResult box = mc.objectMouseOver;
+		Minecraft mc = Minecraft.getInstance();
+		Player player = mc.player;
+		HitResult box = mc.hitResult;
 
 		// The box is null or we are targeting something else than a block!
-		if (box == null || box.typeOfHit != RayTraceResult.Type.BLOCK) return;
+		if (box == null || box.getType() != HitResult.Type.BLOCK) return;
 
-		InventoryPlayer inventory = FMLClientHandler.instance().getClient().player.inventory;
-		ItemStack stack = inventory.mainInventory.get(inventory.currentItem);
+		BlockHitResult blockHit = (BlockHitResult) box;
+		Inventory inventory = mc.player.getInventory();
+		ItemStack stack = inventory.items.get(inventory.selected);
 		CoreUnroutedPipe pipe = ((ItemLogisticsPipe) stack.getItem()).getDummyPipe();
-		World world = player.getEntityWorld();
-		EnumFacing side = box.sideHit;
-		BlockPos pos = box.getBlockPos();
+		Level world = player.level();
+		Direction side = blockHit.getDirection();
+		BlockPos pos = blockHit.getBlockPos();
 		Block block = world.getBlockState(pos).getBlock();
 
-		if (block == Blocks.SNOW_LAYER && block.isReplaceable(world, pos)) {
-			side = EnumFacing.UP;
-		} else if (!block.isReplaceable(world, pos)) {
-			pos = pos.offset(side);
+		if (block == Blocks.SNOW && world.getBlockState(pos).canBeReplaced()) {
+			side = Direction.UP;
+		} else if (!world.getBlockState(pos).canBeReplaced()) {
+			pos = pos.relative(side);
 		}
 
 		boolean isFreeSpace = true;
@@ -118,8 +120,8 @@ public class RenderTickHandler {
 			globalPos.addToAll(orientation.getOffset());
 
 			for (DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare> posType : globalPos) {
-				if (!world.mayPlace(LPBlocks.pipe, posType.getBlockPos(), false, side, player)) {
-					TileEntity tile = world.getTileEntity(posType.getBlockPos());
+				if (!world.isEmptyBlock(posType.getBlockPos())) {
+					BlockEntity tile = world.getBlockEntity(posType.getBlockPos());
 					boolean canPlace = false;
 					if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 						if (CoreMultiBlockPipe.canShare(((LogisticsTileGenericSubMultiBlock) tile).getSubTypes(), posType.getType())) {
@@ -133,7 +135,7 @@ public class RenderTickHandler {
 				}
 			}
 		} else {
-			if (!world.mayPlace(LPBlocks.pipe, pos, false, side, player)) {
+			if (!world.isEmptyBlock(pos)) {
 				isFreeSpace = false;
 			}
 		}
@@ -141,56 +143,29 @@ public class RenderTickHandler {
 		// No free space to render anything!
 		if (!isFreeSpace) return;
 
-		GlStateManager.pushMatrix();
-		double x;
-		double y;
-		double z;
-		if (orientation != null) {
-			x = pos.getX() + orientation.getOffset().getXInt() - player.prevPosX - ((player.posX - player.prevPosX) * worldEvent.getPartialTicks());
-			y = pos.getY() + orientation.getOffset().getYInt() - player.prevPosY - ((player.posY - player.prevPosY) * worldEvent.getPartialTicks());
-			z = pos.getZ() + orientation.getOffset().getZInt() - player.prevPosZ - ((player.posZ - player.prevPosZ) * worldEvent.getPartialTicks());
-		} else {
-			x = pos.getX() - player.prevPosX - ((player.posX - player.prevPosX) * worldEvent.getPartialTicks());
-			y = pos.getY() - player.prevPosY - ((player.posY - player.prevPosY) * worldEvent.getPartialTicks());
-			z = pos.getZ() - player.prevPosZ - ((player.posZ - player.prevPosZ) * worldEvent.getPartialTicks());
-		}
-		GL11.glTranslated(x + 0.001, y + 0.001, z + 0.001);
-
-		GlStateManager.enableBlend();
-		GlStateManager.disableTexture2D();
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-		mc.renderEngine.bindTexture(new ResourceLocation("logisticspipes", "textures/blocks/pipes/white.png"));
-
-		SimpleServiceLocator.cclProxy.getRenderState().reset();
-		SimpleServiceLocator.cclProxy.getRenderState().setAlphaOverride(0xff);
-
-		GlStateManager.enableTexture2D();
-
-		SimpleServiceLocator.cclProxy.getRenderState().setAlphaOverride(0x50);
-		SimpleServiceLocator.cclProxy.getRenderState().startDrawing(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-
-		pipe.getHighlightRenderer().renderHighlight(orientation);
-
-		SimpleServiceLocator.cclProxy.getRenderState().draw();
-
-		SimpleServiceLocator.cclProxy.getRenderState().setAlphaOverride(0xff);
-		GlStateManager.disableBlend();
-		GlStateManager.depthMask(true);
-		GlStateManager.popMatrix();
+		// Ghost pipe rendering: push a translation to the target block position so any future
+		// buffer-based geometry can be emitted in block-local coordinates.
+		// TODO: emit translucent ghost geometry via bufferSource.getBuffer(RenderType.translucent()).
+		// The original 1.12.2 path relied on display lists which no longer exist; ghost preview
+		// is non-essential and left as a no-op for now (pose matrix is still set up correctly).
+		poseStack.pushPose();
+		net.minecraft.world.phys.Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+		poseStack.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
+		// (no-op draw)
+		poseStack.popPose();
 	}
 
 	private boolean displayPipeGhost() {
-		EntityPlayer player = FMLClientHandler.instance().getClient().player;
+		Player player = Minecraft.getInstance().player;
 		if (player == null) return false;
 
-		InventoryPlayer pInventory = player.inventory;
+		Inventory pInventory = player.getInventory();
 		if (pInventory == null) return false;
 
-		NonNullList<ItemStack> inv = pInventory.mainInventory;
+		NonNullList<ItemStack> inv = pInventory.items;
 		if (inv == null) return false;
 
-		return inv.size() > pInventory.currentItem
-				&& inv.get(pInventory.currentItem).getItem() instanceof ItemLogisticsPipe;
+		return inv.size() > pInventory.selected
+				&& inv.get(pInventory.selected).getItem() instanceof ItemLogisticsPipe;
 	}
 }

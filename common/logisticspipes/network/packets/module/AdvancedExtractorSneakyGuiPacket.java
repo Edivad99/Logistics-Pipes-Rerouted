@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.module;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
@@ -27,19 +27,19 @@ public class AdvancedExtractorSneakyGuiPacket extends ModuleCoordinatesPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		if (getType() == ModulePositionType.IN_HAND) {
-			if (player.openContainer instanceof DummyModuleContainer) {
-				DummyModuleContainer dummy = (DummyModuleContainer) player.openContainer;
+			if (player.containerMenu instanceof DummyModuleContainer) {
+				DummyModuleContainer dummy = (DummyModuleContainer) player.containerMenu;
 				if (dummy.getModule() instanceof AsyncAdvancedExtractor) {
-					player.closeScreen();
+					player.closeContainer(); // closeScreen() removed in 1.20.1
 					NewGuiHandler.getGui(SneakyModuleInHandGuiProvider.class).setInvSlot(getPositionInt()).open(player);
 				}
 			}
 			return;
 		}
 
-		PipeLogisticsChassis pipe = getTileOrPipe(player.world, PipeLogisticsChassis.class);
+		PipeLogisticsChassis pipe = getTileOrPipe(player.level(), PipeLogisticsChassis.class);
 		LogisticsModule subModule = pipe.getSubModule(getPositionInt());
 		if (subModule instanceof AsyncAdvancedExtractor) {
 			NewGuiHandler.getGui(SneakyModuleInSlotGuiProvider.class)

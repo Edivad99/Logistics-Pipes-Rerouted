@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.util
 
-import net.minecraft.util.text.TextFormatting
+import net.minecraft.ChatFormatting
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -76,6 +76,6 @@ class TestUtil {
 
     @Test
     fun `test transform with starting formatting`() {
-        assertEquals("§7§oThis is a semi §c§oformatted§r§7§o string.", TextUtil.transform(text = "This is a semi \$REDformatted\$RESET string.", baseFormatting = EnumSet.of(TextFormatting.GRAY, TextFormatting.ITALIC)))
+        assertEquals("§7§oThis is a semi §c§oformatted§r§7§o string.", TextUtil.transform(text = "This is a semi \$REDformatted\$RESET string.", baseFormatting = EnumSet.of(ChatFormatting.GRAY, ChatFormatting.ITALIC)))
     }
 }

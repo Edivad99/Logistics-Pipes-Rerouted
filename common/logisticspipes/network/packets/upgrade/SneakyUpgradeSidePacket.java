@@ -2,10 +2,10 @@ package logisticspipes.network.packets.upgrade;
 
 import java.util.Objects;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,23 +23,23 @@ public class SneakyUpgradeSidePacket extends SlotPacket {
 
 	@Setter
 	@Getter
-	private EnumFacing side;
+	private Direction side;
 
 	public SneakyUpgradeSidePacket(int id) {
 		super(id);
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		UpgradeSlot slot = getSlot(player, UpgradeSlot.class);
-		ItemStack stack = slot.getStack();
+		ItemStack stack = slot.getItem();
 		if (stack.isEmpty()) return;
-		if (!stack.hasTagCompound()) {
-			stack.setTagCompound(new NBTTagCompound());
+		if (!stack.hasTag()) {
+			stack.setTag(new CompoundTag());
 		}
-		final NBTTagCompound tag = Objects.requireNonNull(stack.getTagCompound());
-		tag.setString(SneakyUpgradeConfig.SIDE_KEY, SneakyUpgradeConfig.Sides.getNameForDirection(side));
-		slot.putStack(stack);
+		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
+		tag.putString(SneakyUpgradeConfig.SIDE_KEY, SneakyUpgradeConfig.Sides.getNameForDirection(side));
+		slot.set(stack);
 	}
 
 	@Override

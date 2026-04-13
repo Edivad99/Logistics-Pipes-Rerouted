@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.launchwrapper.Launch;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 import lombok.AllArgsConstructor;
 
@@ -26,12 +26,6 @@ import network.rs485.debug.api.IDebugGuiEntry;
 import network.rs485.debug.api.IObjectIdentification;
 
 public class DebugGuiController {
-
-	static {
-		Launch.classLoader.addTransformerExclusion("com.trolltech.qt.");
-		Launch.classLoader.addTransformerExclusion("network.rs485.debuggui.");
-		Launch.classLoader.addTransformerExclusion("network.rs485.debug.");
-	}
 
 	transient private static DebugGuiController instance;
 
@@ -54,13 +48,13 @@ public class DebugGuiController {
 		serverDebugger.values().forEach(IDebugGuiEntry::exec);
 	}
 
-	private final HashMap<EntityPlayer, IDebugGuiEntry> serverDebugger = new HashMap<>();
+	private final HashMap<Player, IDebugGuiEntry> serverDebugger = new HashMap<>();
 	private final List<IDataConnection> serverList = new LinkedList<>();
 
 	private IDebugGuiEntry clientController = null;
 	private final List<Future<IDataConnection>> clientList = new LinkedList<>();
 
-	public void startWatchingOf(Object object, EntityPlayer player) {
+	public void startWatchingOf(Object object, Player player) {
 		if (object == null) {
 			return;
 		}
@@ -101,8 +95,8 @@ public class DebugGuiController {
 		}
 	}
 
-	public void handleDataPacket(byte[] payload, int identifier, EntityPlayer player) {
-		if (MainProxy.isServer(player.getEntityWorld())) {
+	public void handleDataPacket(byte[] payload, int identifier, Player player) {
+		if (MainProxy.isServer(player.level())) {
 			synchronized (serverList) {
 				IDataConnection connection = serverList.get(identifier);
 				if (connection != null) {
@@ -140,7 +134,7 @@ public class DebugGuiController {
 	private class DataConnectionServer implements IDataConnection {
 
 		private int identification;
-		private EntityPlayer player;
+		private Player player;
 
 		@Override
 		public void passData(byte[] packet) {
@@ -173,13 +167,13 @@ public class DebugGuiController {
 
 		@Override
 		public boolean toStringObject(Object o) {
-			return o.getClass() == EnumFacing.class || o.getClass() == ItemIdentifier.class || o.getClass() == ItemIdentifierStack.class;
+			return o.getClass() == Direction.class || o.getClass() == ItemIdentifier.class || o.getClass() == ItemIdentifierStack.class;
 		}
 
 		@Override
 		public String handleObject(Object o) {
-			if (o instanceof World) {
-				return ((World) o).getWorldInfo().getWorldName();
+			if (o instanceof Level) {
+				return ((Level) o).dimension().location().getPath(); // was: getWorldName
 			}
 			if (o != null && o.getClass().isArray() && Array.getLength(o) > 100) {
 				return "(Too big)";

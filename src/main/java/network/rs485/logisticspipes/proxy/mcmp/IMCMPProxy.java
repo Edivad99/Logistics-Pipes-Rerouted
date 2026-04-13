@@ -23,13 +23,13 @@ package network.rs485.logisticspipes.proxy.mcmp;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import network.rs485.logisticspipes.proxy.mcmp.subproxy.IMCMPBlockAccess;
@@ -41,15 +41,15 @@ public interface IMCMPProxy {
 
 	IMCMPBlockAccess createMCMPBlockAccess();
 
-	@SideOnly(Side.CLIENT)
-	void addQuads(@Nonnull List<BakedQuad> list, IBlockState state, EnumFacing side, long rand);
+	@OnlyIn(Dist.CLIENT)
+	void addQuads(@Nonnull List<BakedQuad> list, BlockState state, Direction side, long rand);
 
 	void registerTileEntities();
 
-	boolean checkIntersectionWith(LogisticsTileGenericPipe logisticsTileGenericPipe, AxisAlignedBB aabb);
+	boolean checkIntersectionWith(LogisticsTileGenericPipe logisticsTileGenericPipe, AABB aabb);
 
 	boolean hasParts(LogisticsTileGenericPipe pipeTile);
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	void renderTileEntitySpecialRenderer(LogisticsTileGenericPipe tileentity, double x, double y, double z, float partialTicks, int destroyStage, float alpha);
 }

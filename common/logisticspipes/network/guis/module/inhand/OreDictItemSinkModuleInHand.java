@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.modules.GuiOreDictItemSink;
 import logisticspipes.items.ItemModule;
@@ -21,16 +21,16 @@ public class OreDictItemSinkModuleInHand extends ModuleInHandGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
+	public Object getClientGui(Player player) {
 		LogisticsModule module = ItemModule.getLogisticsModule(player, getInvSlot());
 		if (!(module instanceof ModuleOreDictItemSink)) {
 			return null;
 		}
-		return new GuiOreDictItemSink(player.inventory, (ModuleOreDictItemSink) module);
+		return new GuiOreDictItemSink(player.getInventory(), (ModuleOreDictItemSink) module);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
+	public DummyContainer getContainer(Player player) {
 		DummyModuleContainer dummy = new DummyModuleContainer(player, getInvSlot());
 		if (!(dummy.getModule() instanceof ModuleOreDictItemSink)) {
 			return null;

@@ -1,18 +1,25 @@
 package logisticspipes.pipefxhandlers;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import java.util.Random;
 
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.Mth;
 
-import org.lwjgl.opengl.GL11;
+
 
 public class EntitySparkleFX extends Particle {
 
@@ -21,93 +28,113 @@ public class EntitySparkleFX extends Particle {
 	public int particle;
 	public int blendmode;
 
-	public EntitySparkleFX(World world, double x, double y, double z, float scalemult, float red, float green, float blue, int var12) {
+	public EntitySparkleFX(ClientLevel world, double x, double y, double z, float scalemult, float red, float green, float blue, int var12) {
 		super(world, x, y, z, 0.0D, 0.0D, 0.0D);
 		shrink = false;
 		particle = 0;
 		blendmode = 1;
 
-		particleRed = red;
-		particleGreen = green;
-		particleBlue = blue;
-		particleGravity = 0.07F;
-		motionX = motionY = motionZ = 0.0D;
-		particleScale *= scalemult;
-		particleMaxAge = 3 * var12 - 1;
+		rCol = red;
+		gCol = green;
+		bCol = blue;
+		gravity = 0.07F;
+		xd = 0.0D;
+		yd = 0.0D;
+		zd = 0.0D;
+		this.scale(scalemult);
+		lifetime = 3 * var12 - 1;
 		multiplier = var12;
-		canCollide = false;
+		hasPhysics = false;
 	}
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/particles/particles.png");
-	private static final ResourceLocation field_110737_b = new ResourceLocation("textures/particle/particles.png");
+	@Override
+	public ParticleRenderType getRenderType() {
+		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+	}
 
 	@Override
-	public void renderParticle(BufferBuilder worldRendererIn, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-		Tessellator.getInstance().draw();
-		GL11.glPushMatrix();
-		GL11.glDepthMask(false);
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, blendmode);
-		Minecraft.getMinecraft().renderEngine.bindTexture(EntitySparkleFX.TEXTURE);
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.75F);
-		int var8 = particle + particleAge / multiplier;
-		float var9 = var8 % 8 / 8.0F;
-		float var10 = var9 + 0.124875F;
-		float var11 = var8 / 8 / 8.0F;
-		float var12 = var11 + 0.124875F;
-		float var13 = 0.1F * particleScale * ((float) (particleMaxAge - particleAge + 1) / (float) particleMaxAge);
-		float var14 = (float) (prevPosX + (posX - prevPosX) * partialTicks - Particle.interpPosX);
-		float var15 = (float) (prevPosY + (posY - prevPosY) * partialTicks - Particle.interpPosY);
-		float var16 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - Particle.interpPosZ);
-		float var17 = 1.0F;
-		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-		//tesselator.setBrightness(240);
-		buffer.pos(var14 - rotationX * var13 - rotationXY * var13, var15 - rotationZ * var13, var16 - rotationYZ * var13 - rotationXZ * var13).tex(var10, var12).color(particleRed * var17, particleGreen * var17, particleBlue * var17, 1.0F).endVertex();
-		buffer.pos(var14 - rotationX * var13 + rotationXY * var13, var15 + rotationZ * var13, var16 - rotationYZ * var13 + rotationXZ * var13).tex(var10, var11).color(particleRed * var17, particleGreen * var17, particleBlue * var17, 1.0F).endVertex();
-		buffer.pos(var14 + rotationX * var13 + rotationXY * var13, var15 + rotationZ * var13, var16 + rotationYZ * var13 + rotationXZ * var13).tex(var9, var11).color(particleRed * var17, particleGreen * var17, particleBlue * var17, 1.0F).endVertex();
-		buffer.pos(var14 + rotationX * var13 - rotationXY * var13, var15 - rotationZ * var13, var16 + rotationYZ * var13 - rotationXZ * var13).tex(var9, var12).color(particleRed * var17, particleGreen * var17, particleBlue * var17, 1.0F).endVertex();
-		Tessellator.getInstance().draw();
-		GL11.glDisable(GL11.GL_BLEND);
-		GL11.glDepthMask(true);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glPopMatrix();
-		Minecraft.getMinecraft().renderEngine.bindTexture(EntitySparkleFX.field_110737_b);
-		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
+	public void render(VertexConsumer ignored, Camera camera, float partialTicks) {
+		double px = Mth.lerp(partialTicks, xo, x) - camera.getPosition().x;
+		double py = Mth.lerp(partialTicks, yo, y) - camera.getPosition().y;
+		double pz = Mth.lerp(partialTicks, zo, z) - camera.getPosition().z;
+
+		float ageRatio = lifetime > 0 ? (float) age / lifetime : 1.0f;
+		float alpha = 0.75f * (1.0f - ageRatio);
+		if (alpha <= 0.01f) return;
+
+		// Build a camera-facing (billboard) quad
+		org.joml.Quaternionf rot = camera.rotation();
+		org.joml.Vector3f right = new org.joml.Vector3f(1, 0, 0);
+		org.joml.Vector3f up = new org.joml.Vector3f(0, 1, 0);
+		rot.transform(right);
+		rot.transform(up);
+
+		float s = this.bbWidth * 0.5f;
+
+		int r = (int) (rCol * 255);
+		int g = (int) (gCol * 255);
+		int b = (int) (bCol * 255);
+		int a = (int) (alpha * 255);
+
+		Tesselator tes = Tesselator.getInstance();
+		BufferBuilder bb = tes.getBuilder();
+		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.depthMask(false);
+
+		bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		billboardVertex(bb, px, py, pz, right, up, s, s, r, g, b, a);
+		billboardVertex(bb, px, py, pz, right, up, -s, s, r, g, b, a);
+		billboardVertex(bb, px, py, pz, right, up, -s, -s, r, g, b, a);
+		billboardVertex(bb, px, py, pz, right, up, s, -s, r, g, b, a);
+		BufferUploader.drawWithShader(bb.end());
+
+		RenderSystem.depthMask(true);
+		RenderSystem.disableBlend();
+	}
+
+	private static void billboardVertex(BufferBuilder bb, double cx, double cy, double cz,
+			org.joml.Vector3f right, org.joml.Vector3f up, float rs, float us,
+			int r, int g, int b, int a) {
+		bb.vertex((float) (cx + right.x * rs + up.x * us),
+				  (float) (cy + right.y * rs + up.y * us),
+				  (float) (cz + right.z * rs + up.z * us))
+		  .color(r, g, b, a).endVertex();
 	}
 
 	/**
 	 * Called to update the entity's position/logic.
 	 */
 	@Override
-	public void onUpdate() {
+	public void tick() {
 		try {
-			EntityPlayerSP var1 = Minecraft.getMinecraft().player;
+			LocalPlayer var1 = Minecraft.getInstance().player;
 
-			if (var1.getDistance(posX, posY, posZ) > 50) {
-				setExpired();
+			if (var1.distanceToSqr(x, y, z) > 2500) {
+				remove();
 			}
 
-			prevPosX = posX;
-			prevPosY = posY;
-			prevPosZ = posZ;
+			xo = x;
+			yo = y;
+			zo = z;
 
-			if (particleAge++ >= particleMaxAge) {
-				setExpired();
+			if (age++ >= lifetime) {
+				remove();
 			}
 
-			motionX -= 0.05D * particleGravity - 0.1D * particleGravity * new Random().nextDouble();
-			motionY -= 0.05D * particleGravity - 0.1D * particleGravity * new Random().nextDouble();
-			motionZ -= 0.05D * particleGravity - 0.1D * particleGravity * new Random().nextDouble();
+			xd -= 0.05D * gravity - 0.1D * gravity * new Random().nextDouble();
+			yd -= 0.05D * gravity - 0.1D * gravity * new Random().nextDouble();
+			zd -= 0.05D * gravity - 0.1D * gravity * new Random().nextDouble();
 
-			move(motionX, motionY, motionZ);
-			motionX *= 0.9800000190734863D;
-			motionY *= 0.9800000190734863D;
-			motionZ *= 0.9800000190734863D;
+			move(xd, yd, zd);
+			xd *= 0.9800000190734863D;
+			yd *= 0.9800000190734863D;
+			zd *= 0.9800000190734863D;
 
 			if (onGround) {
-				motionX *= 0.699999988079071D;
-				motionZ *= 0.699999988079071D;
+				xd *= 0.699999988079071D;
+				zd *= 0.699999988079071D;
 			}
 		} catch (Exception ignored) {
 		}

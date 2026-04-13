@@ -1,10 +1,10 @@
 package logisticspipes.interfaces;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public interface IBlockWatchingHandler {
 
-	void playerStartWatching(EntityPlayer player);
+	void playerStartWatching(Player player);
 
-	void playerStopWatching(EntityPlayer player);
+	void playerStopWatching(Player player);
 }

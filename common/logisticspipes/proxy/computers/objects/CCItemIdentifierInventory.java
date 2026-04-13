@@ -16,15 +16,15 @@ public class CCItemIdentifierInventory {
 	}
 
 	@CCCommand(description = "Returns the size of this FilterInventory")
-	public int getSizeInventory() {
-		return inv.getSizeInventory();
+	public int getContainerSize() {
+		return inv.getContainerSize();
 	}
 
 	@CCCommand(description = "Returns the ItemIdentifierStack in the given slot")
 	@CCQueued
 	public ItemIdentifierStack getItemIdentifierStack(Double slot) {
 		int s = slot.intValue();
-		if (s <= 0 || s > getSizeInventory()) {
+		if (s <= 0 || s > getContainerSize()) {
 			throw new UnsupportedOperationException("Slot out of Inventory");
 		}
 		if (s != slot) {
@@ -38,27 +38,27 @@ public class CCItemIdentifierInventory {
 	@CCQueued
 	public void setItemIdentifierStack(Double slot, ItemIdentifierStack stack) {
 		int s = slot.intValue();
-		if (s <= 0 || s > getSizeInventory()) {
+		if (s <= 0 || s > getContainerSize()) {
 			throw new UnsupportedOperationException("Slot out of Inventory");
 		}
 		if (s != slot) {
 			throw new UnsupportedOperationException("Slot not an Integer");
 		}
 		s--;
-		inv.setInventorySlotContents(s, stack);
+		inv.setItem(s, stack);
 	}
 
 	@CCCommand(description = "Sets the ItemIdentifierStack at the given slot")
 	@CCQueued
 	public void clearSlot(Double slot) {
 		int s = slot.intValue();
-		if (s <= 0 || s > getSizeInventory()) {
+		if (s <= 0 || s > getContainerSize()) {
 			throw new UnsupportedOperationException("Slot out of Inventory");
 		}
 		if (s != slot) {
 			throw new UnsupportedOperationException("Slot not an Integer");
 		}
 		s--;
-		inv.setInventorySlotContents(s, (ItemIdentifierStack) null);
+		inv.setItem(s, (ItemIdentifierStack) null);
 	}
 }

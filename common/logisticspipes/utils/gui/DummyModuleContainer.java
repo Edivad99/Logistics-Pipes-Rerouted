@@ -3,28 +3,28 @@ package logisticspipes.utils.gui;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.utils.DummyWorldProvider;
+import logisticspipes.utils.DummyLevelProvider;
 
 public class DummyModuleContainer extends DummyContainer {
 
 	private final LogisticsModule module;
 	private final int slot;
 
-	public DummyModuleContainer(EntityPlayer player, int slot) {
-		super(player.inventory, null);
+	public DummyModuleContainer(Player player, int slot) {
+		super(player.getInventory(), null);
 		this.slot = slot;
-		ItemStack moduleStack = player.inventory.mainInventory.get(slot);
+		ItemStack moduleStack = player.getInventory().items.get(slot);
 		if (moduleStack.isEmpty()) throw new IllegalStateException("Module stack is empty");
-		module = ((ItemModule) moduleStack.getItem()).getModuleForItem(moduleStack, null, new DummyWorldProvider(player.world), null);
+		module = ((ItemModule) moduleStack.getItem()).getModuleForItem(moduleStack, null, new DummyLevelProvider(player.level()), null);
 		Objects.requireNonNull(module, "module was null for item " + moduleStack.toString());
 		module.registerPosition(ModulePositionType.IN_HAND, slot);
 		ItemModuleInformationManager.readInformation(moduleStack, module);
@@ -34,23 +34,23 @@ public class DummyModuleContainer extends DummyContainer {
 		return module;
 	}
 
-	public void setInventory(IInventory inv) {
+	public void setInventory(Container inv) {
 		_dummyInventory = inv;
 	}
 
 	@Override
 	@Nonnull
-	protected Slot addSlotToContainer(@Nonnull Slot slotIn) {
-		if (slotIn.getSlotIndex() == slot && slotIn.inventory == _playerInventory) {
-			return super.addSlotToContainer(new UnmodifiableSlot(slotIn));
+	protected Slot addSlot(@Nonnull Slot slotIn) {
+		if (slotIn.getSlotIndex() == slot && slotIn.container == _playerInventory) {
+			return super.addSlot(new UnmodifiableSlot(slotIn));
 		}
-		return super.addSlotToContainer(slotIn);
+		return super.addSlot(slotIn);
 	}
 
 	@Override
-	public void onContainerClosed(@Nonnull EntityPlayer player) {
-		super.onContainerClosed(player);
-		ItemModuleInformationManager.saveInformation(player.inventory.mainInventory.get(slot), module);
-		player.inventory.markDirty();
+	public void removed(@Nonnull Player player) {
+		super.removed(player);
+		ItemModuleInformationManager.saveInformation(player.getInventory().items.get(slot), module);
+		player.getInventory().setChanged();
 	}
 }

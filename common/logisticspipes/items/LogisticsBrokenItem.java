@@ -2,7 +2,7 @@ package logisticspipes.items;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.interfaces.IItemAdvancedExistance;
 
@@ -21,10 +21,10 @@ public class LogisticsBrokenItem extends LogisticsItem implements IItemAdvancedE
 	}
 
 //	@Override
-//	@SideOnly(Side.CLIENT)
-//	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-//		tooltip.add(" - " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "1"));
-//		tooltip.add(" - " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "2"));
-//		tooltip.add("    " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "3"));
+//	@OnlyIn(Dist.CLIENT)
+//	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
+//		tooltip.add(net.minecraft.network.chat.Component.literal(" - " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "1")));
+//		tooltip.add(net.minecraft.network.chat.Component.literal(" - " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "2")));
+//		tooltip.add(net.minecraft.network.chat.Component.literal("    " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "3")));
 //	}
 }

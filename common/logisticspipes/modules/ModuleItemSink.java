@@ -9,10 +9,10 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
@@ -65,11 +65,11 @@ public class ModuleItemSink extends LogisticsModule
 	ISimpleInventoryEventHandler, IModuleInventoryReceive, Gui {
 
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-		new ItemIdentifierInventory(9, "Requested items", 1), "");
+		new ItemIdentifierInventory(9, "Requested items", 1), "filterInv");
 	public final BooleanProperty defaultRoute = new BooleanProperty(false, "defaultdestination");
 
 	public final BitSetProperty fuzzyFlags = new BitSetProperty(
-		new BitSet(filterInventory.getSizeInventory() * 4), "fuzzyFlags");
+		new BitSet(filterInventory.getContainerSize() * 4), "fuzzyFlags");
 
 	private final List<Property<?>> properties = ImmutableList.<Property<?>>builder()
 		.add(filterInventory)
@@ -229,7 +229,7 @@ public class ModuleItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void startWatching(EntityPlayer player) {
+	public void startWatching(Player player) {
 		localModeWatchers.add(player);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
 			.setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory)).setModulePos(this), player);
@@ -238,12 +238,12 @@ public class ModuleItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void stopWatching(EntityPlayer player) {
+	public void stopWatching(Player player) {
 		localModeWatchers.remove(player);
 	}
 
 	@Override
-	public void InventoryChanged(IInventory inventory) {
+	public void InventoryChanged(Container inventory) {
 		MainProxy.runOnServer(getWorld(), () -> () ->
 			MainProxy.sendToPlayerList(
 				PacketHandler.getPacket(ModuleInventory.class)
@@ -335,22 +335,5 @@ public class ModuleItemSink extends LogisticsModule
 		return fuzzyFlags.get(startBit, startBit + 3);
 	}
 
-	@Override
-	public void readFromNBT(@NotNull NBTTagCompound tag) {
-		super.readFromNBT(tag);
-
-		// FIXME: remove after 1.12
-		if (!tag.hasKey("fuzzyFlags") && tag.hasKey("ignoreData") && tag.hasKey("ignoreNBT")) {
-			BitSet ignoreData = BitSet.valueOf(tag.getByteArray("ignoreData"));
-			BitSet ignoreNBT = BitSet.valueOf(tag.getByteArray("ignoreNBT"));
-			for (int i = 0; i < filterInventory.getSizeInventory(); i++) {
-				if (i < ignoreData.size()) {
-					fuzzyFlags.set(i * 4 + FuzzyFlag.IGNORE_DAMAGE.getBit(), ignoreData.get(i));
-				}
-				if (i < ignoreNBT.size()) {
-					fuzzyFlags.set(i * 4 + FuzzyFlag.IGNORE_NBT.getBit(), ignoreNBT.get(i));
-				}
-			}
-		}
-	}
 }
+

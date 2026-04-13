@@ -2,7 +2,7 @@ package logisticspipes.network.packets;
 
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -52,8 +52,8 @@ public class AddNewChannelPacket extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
-		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(player.getEntityWorld());
+	public void processPacket(Player player) {
+		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(player.level());
 		manager.createNewChannel(name, PlayerIdentifier.get(player), rights, securityStationID);
 	}
 

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.proxy.object3d.interfaces.I3DOperation;

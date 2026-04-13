@@ -3,8 +3,8 @@ package logisticspipes.network.guis.pipe;
 import java.util.Objects;
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 
 import logisticspipes.LPItems;
 import logisticspipes.gui.GuiPipeController;
@@ -29,8 +29,8 @@ public class PipeController extends CoordinatesGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
-		LogisticsTileGenericPipe pipe = getTileAs(player.world, LogisticsTileGenericPipe.class);
+	public Object getClientGui(Player player) {
+		LogisticsTileGenericPipe pipe = getTileAs(player.level(), LogisticsTileGenericPipe.class);
 		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
 			return null;
 		}
@@ -38,8 +38,8 @@ public class PipeController extends CoordinatesGuiProvider {
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
-		LogisticsTileGenericPipe tile = getTileAs(player.world, LogisticsTileGenericPipe.class);
+	public DummyContainer getContainer(Player player) {
+		LogisticsTileGenericPipe tile = getTileAs(player.level(), LogisticsTileGenericPipe.class);
 		if (!(tile.pipe instanceof CoreRoutedPipe)) {
 			return null;
 		}
@@ -48,12 +48,12 @@ public class PipeController extends CoordinatesGuiProvider {
 
 			//Network Statistics
 			@Override
-			public void guiOpenedByPlayer(EntityPlayer player) {
+			public void guiOpenedByPlayer(Player player) {
 				pipe.playerStartWatching(player, 0);
 			}
 
 			@Override
-			public void guiClosedByPlayer(EntityPlayer player) {
+			public void guiClosedByPlayer(Player player) {
 				pipe.playerStopWatching(player, 0);
 			}
 		});
@@ -81,16 +81,16 @@ public class PipeController extends CoordinatesGuiProvider {
 			if (itemStack.isEmpty()) {
 				return false;
 			}
-			if (itemStack.getItem() != LPItems.itemCard) {
+			if (itemStack.getItem() != LPItems.itemCard.get()) {
 				return false;
 			}
-			if (itemStack.getItemDamage() != LogisticsItemCard.SEC_CARD) {
+			if (itemStack.getDamageValue() != LogisticsItemCard.SEC_CARD) {
 				return false;
 			}
-			final NBTTagCompound tag = Objects.requireNonNull(itemStack.getTagCompound());
+			final CompoundTag tag = Objects.requireNonNull(itemStack.getTag());
 			return SimpleServiceLocator.securityStationManager.isAuthorized(UUID.fromString(tag.getString("UUID")));
 		}, 1);
-		dummy.addRestrictedSlot(0, tile.logicController.diskInv, 14, 36, LPItems.disk);
+		dummy.addRestrictedSlot(0, tile.logicController.diskInv, 14, 36, LPItems.disk.get());
 		return dummy;
 	}
 

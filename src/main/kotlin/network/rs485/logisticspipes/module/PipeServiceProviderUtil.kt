@@ -41,15 +41,15 @@ import logisticspipes.interfaces.IInventoryUtil
 import logisticspipes.interfaces.IPipeServiceProvider
 import logisticspipes.interfaces.ISlotUpgradeManager
 import logisticspipes.pipes.PipeLogisticsChassis
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumFacing
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
 import network.rs485.logisticspipes.connection.LPNeighborTileEntity
 import network.rs485.logisticspipes.connection.NeighborTileEntity
 import network.rs485.logisticspipes.connection.getInventoryUtil
 import network.rs485.logisticspipes.connection.sneakyInsertion
 import java.util.*
 
-fun IPipeServiceProvider.availableSneakyInventories(sneakyDirection: EnumFacing?): List<IInventoryUtil?> = sneakyDirection?.let {
+fun IPipeServiceProvider.availableSneakyInventories(sneakyDirection: Direction?): List<IInventoryUtil?> = sneakyDirection?.let {
     availableAdjacent.inventories().map { adjacent -> adjacent.sneakyInsertion().from(sneakyDirection).getInventoryUtil() }
 } ?: availableInventories()
 
@@ -57,4 +57,4 @@ fun IPipeServiceProvider.availableSneakyInventories(upgradeManager: ISlotUpgrade
     availableAdjacent.inventories().map { adjacent -> adjacent.sneakyInsertion().from(upgradeManager).getInventoryUtil() }
 
 fun IPipeServiceProvider.availableInventories(): List<IInventoryUtil?> =
-    availableAdjacent.inventories().map(NeighborTileEntity<TileEntity>::getInventoryUtil)
+    availableAdjacent.inventories().map(NeighborTileEntity<BlockEntity>::getInventoryUtil)

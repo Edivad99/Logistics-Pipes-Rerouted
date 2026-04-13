@@ -1,41 +1,21 @@
 package logisticspipes.pipes.basic.ltgpmodcompat;
 
-import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
-import net.minecraft.util.math.BlockPos;
-
-import cofh.thermaldynamics.duct.tiles.DuctToken;
-import cofh.thermaldynamics.duct.tiles.DuctUnit;
-import cofh.thermaldynamics.duct.tiles.IDuctHolder;
-import cofh.thermaldynamics.multiblock.MultiBlockGrid;
-
-import logisticspipes.LPConstants;
-import logisticspipes.asm.ModDependentInterface;
-import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.proxy.td.subproxies.ITDPart;
 
-@ModDependentInterface(modId = { LPConstants.thermalDynamicsModID }, interfacePath = { "cofh.thermaldynamics.duct.tiles.IDuctHolder" })
-public abstract class LPDuctHolderTileEntity extends LPMicroblockTileEntity implements IDuctHolder {
+/**
+ * Intermediate BlockEntity base for LP pipe tile entities.
+ * ThermalDynamics integration (IDuctHolder) was removed for 1.20.1 — no 1.20.1 port exists.
+ * Previously implemented cofh.thermaldynamics.duct.tiles.IDuctHolder.
+ */
+public abstract class LPDuctHolderTileEntity extends LPMicroblockTileEntity {
 
 	public ITDPart tdPart;
 
-	@Nullable
-	@Override
-	@ModDependentMethod(modId = LPConstants.thermalDynamicsModID)
-	public <T extends DuctUnit<T, G, C>, G extends MultiBlockGrid<T>, C> T getDuct(DuctToken<T, G, C> ductToken) {
-		return ((IDuctHolder) tdPart.getInternalDuct()).getDuct(ductToken);
-	}
-
-	@Override
-	@ModDependentMethod(modId = LPConstants.thermalDynamicsModID)
-	public boolean isSideBlocked(int i) {
-		return tdPart.isLPSideBlocked(i);
-	}
-
-	@Override
-	@ModDependentMethod(modId = LPConstants.thermalDynamicsModID)
-	public void setPos(BlockPos pos) {
-		super.setPos(pos);
-		tdPart.setPos(pos);
+	public LPDuctHolderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 }

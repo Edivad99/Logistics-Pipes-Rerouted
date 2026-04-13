@@ -1,67 +1,62 @@
 package logisticspipes.utils.gui.sideconfig;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
+
 import java.awt.Rectangle;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.client.model.data.ModelData;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL14;
+
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+
+
+
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.utils.LPPositionSet;
 import logisticspipes.utils.math.BoundingBox;
 import logisticspipes.utils.math.Camera;
 import logisticspipes.utils.math.Matrix4d;
-import logisticspipes.utils.math.VecmathUtil;
-import logisticspipes.utils.math.Vector2d;
 import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.math.Vertex;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 //Based on: https://github.com/SleepyTrousers/EnderIO/blob/master/src/main/java/crazypants/enderio/machine/gui/GuiOverlayIoConfig.java
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public abstract class SideConfigDisplay {
 
 	private boolean draggingRotate = false;
@@ -71,8 +66,8 @@ public abstract class SideConfigDisplay {
 	private double distance;
 	private long initTime;
 
-	private Minecraft mc = Minecraft.getMinecraft();
-	private World world;
+	private Minecraft mc = Minecraft.getInstance();
+	private Level world;
 
 	private final Vector3d origin = new Vector3d();
 	private final Vector3d eye = new Vector3d();
@@ -127,13 +122,13 @@ public abstract class SideConfigDisplay {
 		pitchRot.setIdentity();
 		yawRot.setIdentity();
 
-		pitch = -mc.player.rotationPitch;
-		yaw = 180 - mc.player.rotationYaw;
+		pitch = -mc.player.getXRot();
+		yaw = 180 - mc.player.getYRot();
 
 		distance = Math.max(Math.max(size.x, size.y), size.z) + 4;
 
 		for (DoubleCoordinates bc : configurables) {
-			for (EnumFacing dir : EnumFacing.VALUES) {
+			for (Direction dir : Direction.values()) {
 				DoubleCoordinates loc = CoordinateUtils.add(new DoubleCoordinates(bc), dir);
 				if (!configurables.contains(loc)) {
 					neighbours.add(loc);
@@ -141,7 +136,7 @@ public abstract class SideConfigDisplay {
 			}
 		}
 
-		world = mc.player.world;
+		world = mc.player.level();
 	}
 
 	public abstract void handleSelection(SelectedFace selection);
@@ -154,95 +149,59 @@ public abstract class SideConfigDisplay {
 		return selection;
 	}
 
-	public void handleMouseInput() {
-
-		if (Mouse.getEventButton() == 0) {
-			draggingRotate = Mouse.getEventButtonState();
+	/** Called by the parent Screen's mouseDragged; rotates the camera. */
+	public void onMouseDragged(double dx, double dy, int button) {
+		if (button == 0) {
+			yaw += (float) dx;
+			pitch += (float) dy;
+			pitch = Math.max(-90, Math.min(90, pitch));
 		}
-		if (Mouse.getEventButton() == 2) {
-			draggingMove = Mouse.getEventButtonState();
-		}
+	}
 
-		if (draggingRotate) {
-			double dx = (Mouse.getEventDX() / (double) mc.displayWidth);
-			double dy = (Mouse.getEventDY() / (double) mc.displayHeight);
-			if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-				distance -= dy * 15;
-			} else {
-				yaw -= 4 * dx * 180;
-				pitch += 2 * dy * 180;
-				pitch = (float) VecmathUtil.clamp(pitch, -80, 80);
-			}
-		}
-
-		if (draggingMove) {
-			double dx = Mouse.getEventDX();
-			double dy = -Mouse.getEventDY();
-			Vector3d orivec = camera.getWorldPoint(new Vector2d(0, 0));
-			Vector3d newvec = camera.getWorldPoint(new Vector2d(dx * distance, dy * distance)).negate();
-			origin.add(orivec).add(newvec);
-		}
-
-		distance -= Mouse.getEventDWheel() * 0.01;
-		distance = VecmathUtil.clamp(distance, 0.01, 200);
-
-		long elapsed = System.currentTimeMillis() - initTime;
-
-		int x = Mouse.getEventX();
-		int y = Mouse.getEventY();
-		Vector3d start = new Vector3d();
-		Vector3d end = new Vector3d();
-		if (camera.getRayForPixel(x, y, start, end)) {
-			end.multiply(distance * 2);
-			end.add(start);
-			updateSelection(start, end);
-		}
-
-		if (!Mouse.getEventButtonState() && camera.isValid() && elapsed > 500) {
-			boolean inNeigButBounds = false;
-			if (Mouse.getEventButton() == 1) {
-				if (selection != null) {
-					handleSelection(selection);
-				}
-			} else if (Mouse.getEventButton() == 0 && inNeigButBounds) {
-				renderNeighbours = !renderNeighbours;
-			}
-		}
+	/** Called by the parent Screen's mouseScrolled; zooms in/out. */
+	public void onMouseScrolled(double delta) {
+		distance = Math.max(1.5, Math.min(20.0, distance - delta));
 	}
 
 	private void updateSelection(Vector3d start, Vector3d end) {
-		start.add(origin);
-		end.add(origin);
-		List<RayTraceResult> hits = new ArrayList<>();
+		// Convert camera-relative ray to world coordinates
+		Vec3 worldStart = new Vec3(origin.x + start.x, origin.y + start.y, origin.z + start.z);
+		Vec3 worldEnd   = new Vec3(origin.x + end.x,   origin.y + end.y,   origin.z + end.z);
 
-		LogisticsBlockGenericPipe.ignoreSideRayTrace = true;
-		for (DoubleCoordinates bc : configurables) {
-			IBlockState blockState = bc.getBlockState(world);
-			if (!blockState.getBlock().isAir(blockState, world, bc.getBlockPos())) {
-				RayTraceResult hit = blockState.collisionRayTrace(world, bc.getBlockPos(), start.toVec3d(), end.toVec3d());
-				if (hit != null && hit.typeOfHit != RayTraceResult.Type.MISS) {
-					hits.add(hit);
-				}
-			}
-		}
-		LogisticsBlockGenericPipe.ignoreSideRayTrace = false;
 		selection = null;
-		RayTraceResult hit = getClosestHit(start.toVec3d(), hits);
-		if (hit != null) {
-			TileEntity te = world.getTileEntity(hit.getBlockPos());
-			if (te != null) {
-				selection = new SelectedFace(te, hit.sideHit, hit);
-			}
+		double minDist = Double.POSITIVE_INFINITY;
+
+		for (DoubleCoordinates coord : configurables) {
+			BlockPos pos = new BlockPos(coord.getXInt(), coord.getYInt(), coord.getZInt());
+			BlockState state = world.getBlockState(pos);
+			net.minecraft.world.phys.shapes.VoxelShape shape = state.getShape(world, pos);
+			if (shape.isEmpty()) continue;
+			net.minecraft.world.phys.AABB box = shape.bounds().move(pos);
+			box.clip(worldStart, worldEnd).ifPresent(pt -> {
+				Direction face = Direction.getNearest(
+					(float)(pt.x - (pos.getX() + 0.5)),
+					(float)(pt.y - (pos.getY() + 0.5)),
+					(float)(pt.z - (pos.getZ() + 0.5)));
+				double d = pt.distanceToSqr(worldStart);
+				if (d < minDist) {
+					BlockEntity be = world.getBlockEntity(pos);
+					if (be != null) {
+						selection = new SelectedFace(be, face,
+							new net.minecraft.world.phys.BlockHitResult(pt, face, pos, false));
+					}
+				}
+			});
 		}
 	}
 
-	public static RayTraceResult getClosestHit(Vec3d origin, Collection<RayTraceResult> candidates) {
-		double minLengthSquared = Double.POSITIVE_INFINITY;
-		RayTraceResult closest = null;
 
-		for (RayTraceResult hit : candidates) {
+	public static HitResult getClosestHit(Vec3 origin, Collection<HitResult> candidates) {
+		double minLengthSquared = Double.POSITIVE_INFINITY;
+		HitResult closest = null;
+
+		for (HitResult hit : candidates) {
 			if (hit != null) {
-				double lengthSquared = hit.hitVec.squareDistanceTo(origin);
+				double lengthSquared = hit.getLocation().distanceToSqr(origin);
 				if (lengthSquared < minLengthSquared) {
 					minLengthSquared = lengthSquared;
 					closest = hit;
@@ -252,15 +211,32 @@ public abstract class SideConfigDisplay {
 		return closest;
 	}
 
-	public void drawScreen(int par1, int par2, float partialTick, Rectangle vp, Rectangle parentBounds) {
+	/** Called by the parent Screen on left-click; performs a ray cast and fires handleSelection if a face is hit. */
+	public void onMouseClicked(int screenMouseX, int screenMouseY, Rectangle vp) {
+		if (!camera.isValid()) return;
+		// Convert screen pixel to ray in camera space, then fire updateSelection
+		int relX = screenMouseX - vp.x / (int) mc.getWindow().getGuiScale();
+		int relY = screenMouseY - vp.y / (int) mc.getWindow().getGuiScale();
+		Vector3d rayEye = new Vector3d();
+		Vector3d rayDir = new Vector3d();
+		if (camera.getRayForPixel(relX, relY, rayEye, rayDir)) {
+			Vector3d end = new Vector3d(rayDir);
+			end.multiply(100);
+			end.add(rayEye);
+			updateSelection(rayEye, end);
+			if (selection != null) {
+				handleSelection(selection);
+			}
+		}
+	}
 
+	public void drawScreen(int par1, int par2, float partialTick, Rectangle vp, Rectangle parentBounds) {
 		if (!updateCamera(partialTick, vp.x, vp.y, vp.width, vp.height)) {
 			return;
 		}
 		applyCamera(partialTick);
 		renderScene();
 		renderSelection();
-
 		renderOverlay(par1, par2);
 	}
 
@@ -269,191 +245,83 @@ public abstract class SideConfigDisplay {
 			return;
 		}
 		BoundingBox bb = new BoundingBox(new DoubleCoordinates(selection.config));
-
 		TextureAtlasSprite icon = (TextureAtlasSprite) Textures.LOGISTICS_SIDE_SELECTION;
-		List<Vertex> corners = bb.getCornersWithUvForFace(selection.face, icon.getMinU(), icon.getMaxU(), icon.getMinV(), icon.getMaxV());
+		List<Vertex> corners = bb.getCornersWithUvForFace(selection.face, icon.getU0(), icon.getU1(), icon.getV0(), icon.getV1());
 
-		GlStateManager.disableDepth();
-		GlStateManager.disableLighting();
-
+		RenderSystem.disableDepthTest();
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
 		RenderUtil.bindBlockTexture();
-		BufferBuilder tes = Tessellator.getInstance().getBuffer();
-		GlStateManager.color(1, 1, 1);
-		Vector3d trans = new Vector3d((-origin.x) + eye.x, (-origin.y) + eye.y, (-origin.z) + eye.z);
-		tes.setTranslation(trans.x, trans.y, trans.z);
-		RenderUtil.addVerticesToTessellator(corners, DefaultVertexFormats.POSITION_TEX, true);
-		Tessellator.getInstance().draw();
-		tes.setTranslation(0, 0, 0);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+
+		Tesselator tes = Tesselator.getInstance();
+		BufferBuilder buf = tes.getBuilder();
+		buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		for (Vertex v : corners) {
+			buf.vertex((float) (v.x() - origin.x), (float) (v.y() - origin.y), (float) (v.z() - origin.z))
+				.uv(v.u(), v.v()).endVertex();
+		}
+		BufferUploader.drawWithShader(buf.end());
+
+		RenderSystem.disableBlend();
+		RenderSystem.enableDepthTest();
 	}
 
 	private void renderOverlay(int mx, int my) {
-		Rectangle vp = camera.getViewport();
-		ScaledResolution scaledresolution = new ScaledResolution(mc);
-
-		int vpx = vp.x / scaledresolution.getScaleFactor();
-		int vph = vp.height / scaledresolution.getScaleFactor();
-		int vpw = vp.width / scaledresolution.getScaleFactor();
-		int vpy = (int) ((float) (vp.y + vp.height - 4) / (float) scaledresolution.getScaleFactor());
-
-		GL11.glViewport(0, 0, mc.displayWidth, mc.displayHeight);
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		GL11.glLoadIdentity();
-		GL11.glOrtho(0.0D, scaledresolution.getScaledWidth_double(), scaledresolution
-				.getScaledHeight_double(), 0.0D, 1000.0D, 3000.0D);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-		GL11.glLoadIdentity();
-		GL11.glTranslatef(vpx, vpy, -2000.0F);
-
-		GlStateManager.disableLighting();
+		// Restore modelview stack pushed in applyCamera
+		PoseStack modelViewStack = RenderSystem.getModelViewStack();
+		modelViewStack.popPose();
+		RenderSystem.applyModelViewMatrix();
+		// Restore projection matrix backed up in applyCamera
+		RenderSystem.restoreProjectionMatrix();
+		// Restore full-screen viewport
+		com.mojang.blaze3d.platform.Window win = Minecraft.getInstance().getWindow();
+		RenderSystem.viewport(0, 0, win.getWidth(), win.getHeight());
 	}
 
 	private void renderScene() {
-		GlStateManager.enableCull();
-		GlStateManager.enableRescaleNormal();
+		RenderSystem.enableCull();
+		RenderSystem.enableDepthTest();
 
-		RenderHelper.disableStandardItemLighting();
-		mc.entityRenderer.disableLightmap();
-		RenderUtil.bindBlockTexture();
+		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+		PoseStack poseStack = new PoseStack();
 
-		GlStateManager.disableLighting();
-		GlStateManager.enableTexture2D();
-		GlStateManager.enableAlpha();
+		for (DoubleCoordinates coord : configurables) {
+			renderBlockAt(coord, blockRenderer, bufferSource, poseStack, false);
+		}
+		if (renderNeighbours) {
+			for (DoubleCoordinates coord : neighbours) {
+				renderBlockAt(coord, blockRenderer, bufferSource, poseStack, true);
+			}
+		}
+		bufferSource.endBatch();
+	}
 
-		Vector3d trans = new Vector3d((-origin.x) + eye.x, (-origin.y) + eye.y, (-origin.z) + eye.z);
-
-		BlockRenderLayer renderLayer = MinecraftForgeClient.getRenderLayer();
+	private void renderBlockAt(DoubleCoordinates coord, BlockRenderDispatcher blockRenderer,
+			MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, boolean transparent) {
+		BlockPos pos = new BlockPos(coord.getXInt(), coord.getYInt(), coord.getZInt());
+		BlockState state = world.getBlockState(pos);
+		if (state.isAir()) return;
+		poseStack.pushPose();
+		poseStack.translate(pos.getX() - origin.x, pos.getY() - origin.y, pos.getZ() - origin.z);
+		RenderType renderType = transparent ? RenderType.translucent() : RenderType.solid();
+		if (transparent) {
+			RenderSystem.enableBlend();
+			RenderSystem.defaultBlendFunc();
+		}
 		try {
-			for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-				ForgeHooksClient.setRenderLayer(layer);
-				setGlStateForPass(layer, false);
-				doWorldRenderPass(trans, configurables, layer);
-			}
-
-			if (renderNeighbours) {
-				for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-					ForgeHooksClient.setRenderLayer(layer);
-					setGlStateForPass(layer, true);
-					doWorldRenderPass(trans, neighbours, layer);
-				}
-			}
-		} finally {
-			ForgeHooksClient.setRenderLayer(renderLayer);
-		}
-
-		RenderHelper.enableStandardItemLighting();
-		GlStateManager.enableLighting();
-		TileEntityRendererDispatcher.instance.entityX = origin.x - eye.x;
-		TileEntityRendererDispatcher.instance.entityY = origin.y - eye.y;
-		TileEntityRendererDispatcher.instance.entityZ = origin.z - eye.z;
-		TileEntityRendererDispatcher.staticPlayerX = origin.x - eye.x;
-		TileEntityRendererDispatcher.staticPlayerY = origin.y - eye.y;
-		TileEntityRendererDispatcher.staticPlayerZ = origin.z - eye.z;
-
-		for (int pass = 0; pass < 2; pass++) {
-			ForgeHooksClient.setRenderPass(pass);
-			setGlStateForPass(pass, false);
-			doTileEntityRenderPass(configurables, pass);
-			if (renderNeighbours) {
-				setGlStateForPass(pass, true);
-				doTileEntityRenderPass(neighbours, pass);
-			}
-		}
-		ForgeHooksClient.setRenderPass(-1);
-		setGlStateForPass(0, false);
-	}
-
-	private void doTileEntityRenderPass(List<DoubleCoordinates> blocks, int pass) {
-		for (DoubleCoordinates bc : blocks) {
-			TileEntity tile = world.getTileEntity(bc.getBlockPos());
-			if (tile != null) {
-				if (tile.shouldRenderInPass(pass)) {
-					Vector3d at = new Vector3d(eye.x, eye.y, eye.z);
-					at.x += bc.getXCoord() - origin.x;
-					at.y += bc.getYCoord() - origin.y;
-					at.z += bc.getZCoord() - origin.z;
-					if (tile.getClass() == TileEntityChest.class) {
-						TileEntityChest chest = (TileEntityChest) tile;
-						if (chest.adjacentChestXNeg != null) {
-							tile = chest.adjacentChestXNeg;
-							at.x--;
-						} else if (chest.adjacentChestZNeg != null) {
-							tile = chest.adjacentChestZNeg;
-							at.z--;
-						}
-					}
-					TileEntityRendererDispatcher.instance.render(tile, at.x, at.y, at.z, 0, -1, 0);
-				}
-			}
+			blockRenderer.renderBatched(state, pos, world, poseStack,
+				bufferSource.getBuffer(renderType), false, world.getRandom(), ModelData.EMPTY, null);
+		} catch (Exception ignored) {}
+		poseStack.popPose();
+		if (transparent) {
+			RenderSystem.disableBlend();
 		}
 	}
 
-	private void doWorldRenderPass(Vector3d trans, List<DoubleCoordinates> blocks, BlockRenderLayer layer) {
-
-		BufferBuilder wr = Tessellator.getInstance().getBuffer();
-		wr.begin(7, DefaultVertexFormats.BLOCK);
-
-		Tessellator.getInstance().getBuffer().setTranslation(trans.x, trans.y, trans.z);
-
-		for (DoubleCoordinates bc : blocks) {
-			IBlockState blockState = world.getBlockState(bc.getBlockPos()).getActualState(world, bc.getBlockPos());
-			if (blockState.getBlock().canRenderInLayer(blockState, layer)) {
-				renderBlock(blockState, bc.getBlockPos(), world, Tessellator.getInstance().getBuffer());
-			}
-		}
-
-		Tessellator.getInstance().draw();
-		Tessellator.getInstance().getBuffer().setTranslation(0, 0, 0);
-	}
-
-	public void renderBlock(IBlockState state, BlockPos pos, IBlockAccess blockAccess, BufferBuilder worldRendererIn) {
-
-		try {
-			BlockRendererDispatcher blockrendererdispatcher = mc.getBlockRendererDispatcher();
-			EnumBlockRenderType type = state.getRenderType();
-			if (type != EnumBlockRenderType.MODEL) {
-				blockrendererdispatcher.renderBlock(state, pos, blockAccess, worldRendererIn);
-				return;
-			}
-
-			IBakedModel ibakedmodel = blockrendererdispatcher.getModelForState(state);
-			state = state.getBlock().getExtendedState(state, world, pos);
-			blockrendererdispatcher.getBlockModelRenderer().renderModel(blockAccess, ibakedmodel, state, pos, worldRendererIn, false);
-
-		} catch (Throwable ignored) {
-		}
-	}
-
-	private void setGlStateForPass(BlockRenderLayer layer, boolean isNeighbour) {
-		int pass = layer == BlockRenderLayer.TRANSLUCENT ? 1 : 0;
-		setGlStateForPass(pass, isNeighbour);
-	}
-
-	private void setGlStateForPass(int layer, boolean isNeighbour) {
-
-		GlStateManager.color(1, 1, 1);
-		if (isNeighbour) {
-
-			GlStateManager.enableDepth();
-			GlStateManager.enableBlend();
-			float alpha = 1f;
-			float col = 1f;
-
-			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_CONSTANT_COLOR);
-			GL14.glBlendColor(col, col, col, alpha);
-			return;
-		}
-
-		if (layer == 0) {
-			GlStateManager.enableDepth();
-			GlStateManager.disableBlend();
-			GlStateManager.depthMask(true);
-		} else {
-			GlStateManager.enableBlend();
-			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			GlStateManager.depthMask(false);
-
-		}
-
+	public void renderBlock(BlockState state, BlockPos pos, BlockGetter blockAccess, BufferBuilder worldRendererIn) {
+		// no-op: block rendering now handled via renderBlockAt / BlockRenderDispatcher
 	}
 
 	private boolean updateCamera(float partialTick, int vpx, int vpy, int vpw, int vph) {
@@ -473,23 +341,40 @@ public abstract class SideConfigDisplay {
 
 	private void applyCamera(float partialTick) {
 		Rectangle vp = camera.getViewport();
-		GL11.glViewport(vp.x, vp.y, vp.width, vp.height);
-		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		RenderUtil.loadMatrix(camera.getTransposeProjectionMatrix());
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-		RenderUtil.loadMatrix(camera.getTransposeViewMatrix());
-		GL11.glTranslatef(-(float) eye.x, -(float) eye.y, -(float) eye.z);
+		// Set sub-viewport for the 3D scene rectangle
+		RenderSystem.viewport(vp.x, vp.y, vp.width, vp.height);
+		// Clear the depth buffer so blocks render over the GUI background
+		com.mojang.blaze3d.platform.GlStateManager._clearDepth(1.0);
+		com.mojang.blaze3d.platform.GlStateManager._clear(0x00000100 /* GL_DEPTH_BUFFER_BIT */, Minecraft.ON_OSX);
+		// Swap in custom perspective projection matrix
+		RenderSystem.backupProjectionMatrix();
+		RenderSystem.setProjectionMatrix(toJoml(camera.getProjectionMatrix()), VertexSorting.DISTANCE_TO_ORIGIN);
+		// Load view matrix into the modelview stack
+		PoseStack modelViewStack = RenderSystem.getModelViewStack();
+		modelViewStack.pushPose();
+		modelViewStack.last().pose().set(toJoml(camera.getViewMatrix()));
+		RenderSystem.applyModelViewMatrix();
+	}
 
+	/** Convert our row-major Matrix4d to a JOML column-major Matrix4f for RenderSystem. */
+	private static org.joml.Matrix4f toJoml(Matrix4d m) {
+		// JOML Matrix4f(m00,m01,...) fills column 0 rows 0-3, then column 1, etc.
+		// Our Matrix4d.mRC is row R, col C; swap to get column-major layout.
+		return new org.joml.Matrix4f(
+			(float) m.m00, (float) m.m10, (float) m.m20, (float) m.m30,
+			(float) m.m01, (float) m.m11, (float) m.m21, (float) m.m31,
+			(float) m.m02, (float) m.m12, (float) m.m22, (float) m.m32,
+			(float) m.m03, (float) m.m13, (float) m.m23, (float) m.m33
+		);
 	}
 
 	public static class SelectedFace {
 
-		public TileEntity config;
-		public EnumFacing face;
-		public RayTraceResult hit;
+		public BlockEntity config;
+		public Direction face;
+		public HitResult hit;
 
-		public SelectedFace(TileEntity config, EnumFacing face, RayTraceResult hit) {
+		public SelectedFace(BlockEntity config, Direction face, HitResult hit) {
 			super();
 			this.config = config;
 			this.face = face;
@@ -550,76 +435,10 @@ public abstract class SideConfigDisplay {
 
 		public static final Vector3d UP_V = new Vector3d(0, 1, 0);
 		public static final Vector3d ZERO_V = new Vector3d(0, 0, 0);
-		private static final FloatBuffer MATRIX_BUFFER = GLAllocation.createDirectFloatBuffer(16);
-		public static final ResourceLocation BLOCK_TEX = TextureMap.LOCATION_BLOCKS_TEXTURE;
-
-		public static void loadMatrix(Matrix4d mat) {
-			MATRIX_BUFFER.rewind();
-			MATRIX_BUFFER.put((float) mat.m00);
-			MATRIX_BUFFER.put((float) mat.m01);
-			MATRIX_BUFFER.put((float) mat.m02);
-			MATRIX_BUFFER.put((float) mat.m03);
-			MATRIX_BUFFER.put((float) mat.m10);
-			MATRIX_BUFFER.put((float) mat.m11);
-			MATRIX_BUFFER.put((float) mat.m12);
-			MATRIX_BUFFER.put((float) mat.m13);
-			MATRIX_BUFFER.put((float) mat.m20);
-			MATRIX_BUFFER.put((float) mat.m21);
-			MATRIX_BUFFER.put((float) mat.m22);
-			MATRIX_BUFFER.put((float) mat.m23);
-			MATRIX_BUFFER.put((float) mat.m30);
-			MATRIX_BUFFER.put((float) mat.m31);
-			MATRIX_BUFFER.put((float) mat.m32);
-			MATRIX_BUFFER.put((float) mat.m33);
-			MATRIX_BUFFER.rewind();
-			GL11.glLoadMatrix(MATRIX_BUFFER);
-		}
+		public static final ResourceLocation BLOCK_TEX = TextureAtlas.LOCATION_BLOCKS;
 
 		public static void bindBlockTexture() {
-			Minecraft.getMinecraft().renderEngine.bindTexture(BLOCK_TEX);
-		}
-
-		public static void addVerticesToTessellator(List<Vertex> vertices, VertexFormat format, boolean doBegin) {
-			if (vertices == null || vertices.isEmpty()) {
-				return;
-			}
-
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder tes = tessellator.getBuffer();
-			if (doBegin) {
-				tes.begin(GL11.GL_QUADS, format);
-			}
-
-			for (Vertex v : vertices) {
-				for (VertexFormatElement el : format.getElements()) {
-					switch (el.getUsage()) {
-						case COLOR:
-							if (el.getType() == VertexFormatElement.EnumType.FLOAT) {
-								tes.color(v.r(), v.g(), v.b(), v.a());
-							}
-							break;
-						case NORMAL:
-							tes.normal(v.nx(), v.ny(), v.nz());
-							break;
-						case POSITION:
-							tes.pos(v.x(), v.y(), v.z());
-							break;
-						case UV:
-							if (el.getType() == VertexFormatElement.EnumType.FLOAT && v.uv != null) {
-								tes.tex(v.u(), v.v());
-							}
-							break;
-						case GENERIC:
-							break;
-						case PADDING:
-							break;
-						default:
-							break;
-
-					}
-				}
-				tes.endVertex();
-			}
+			RenderSystem.setShaderTexture(0, BLOCK_TEX);
 		}
 	}
 }

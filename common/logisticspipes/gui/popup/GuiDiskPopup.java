@@ -1,14 +1,10 @@
 package logisticspipes.gui.popup;
 
-import java.io.IOException;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 
-import org.lwjgl.input.Keyboard;
 
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
@@ -17,7 +13,7 @@ import logisticspipes.network.packets.orderer.DiskMacroRequestPacket;
 import logisticspipes.network.packets.orderer.DiskSetNamePacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
@@ -38,8 +34,8 @@ public class GuiDiskPopup extends SubGuiScreen {
 		super(150, 200, 0, 0);
 		this.diskProvider = diskProvider;
 		name2 = "";
-		if (diskProvider.getDisk().hasTagCompound()) {
-			name1 = diskProvider.getDisk().getTagCompound().getString("name");
+		if (diskProvider.getDisk().hasTag()) {
+			name1 = diskProvider.getDisk().getTag().getString("name");
 		} else {
 			name1 = "Disk";
 		}
@@ -47,34 +43,34 @@ public class GuiDiskPopup extends SubGuiScreen {
 
 			@Override
 			public int getSize() {
-				NBTTagCompound nbt = diskProvider.getDisk().getTagCompound();
+				CompoundTag nbt = diskProvider.getDisk().getTag();
 				if (nbt == null) {
-					diskProvider.getDisk().setTagCompound(new NBTTagCompound());
-					nbt = diskProvider.getDisk().getTagCompound();
+					diskProvider.getDisk().setTag(new CompoundTag());
+					nbt = diskProvider.getDisk().getTag();
 				}
 
-				if (!nbt.hasKey("macroList")) {
-					NBTTagList list = new NBTTagList();
-					nbt.setTag("macroList", list);
+				if (!nbt.contains("macroList")) {
+					ListTag list = new ListTag();
+					nbt.put("macroList", list);
 				}
-				NBTTagList list = nbt.getTagList("macroList", 10);
-				return list.tagCount();
+				ListTag list = nbt.getList("macroList", 10);
+				return list.size();
 			}
 
 			@Override
 			public String getTextAt(int index) {
-				NBTTagCompound nbt = diskProvider.getDisk().getTagCompound();
+				CompoundTag nbt = diskProvider.getDisk().getTag();
 				if (nbt == null) {
-					diskProvider.getDisk().setTagCompound(new NBTTagCompound());
-					nbt = diskProvider.getDisk().getTagCompound();
+					diskProvider.getDisk().setTag(new CompoundTag());
+					nbt = diskProvider.getDisk().getTag();
 				}
 
-				if (!nbt.hasKey("macroList")) {
-					NBTTagList list = new NBTTagList();
-					nbt.setTag("macroList", list);
+				if (!nbt.contains("macroList")) {
+					ListTag list = new ListTag();
+					nbt.put("macroList", list);
 				}
-				NBTTagList list = nbt.getTagList("macroList", 10);
-				return list.getCompoundTagAt(index).getString("name");
+				ListTag list = nbt.getList("macroList", 10);
+				return list.getCompound(index).getString("name");
 			}
 
 			@Override
@@ -85,9 +81,9 @@ public class GuiDiskPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void mouseClicked(int i, int j, int k) throws IOException {
-		int x = i - guiLeft;
-		int y = j - guiTop;
+	public boolean mouseClicked(double i, double j, int k) {
+		int x = (int) i - guiLeft;
+		int y = (int) j - guiTop;
 		textList.mouseClicked(i, j, k);
 		if (k == 0) {
 			if (10 < x && x < 138 && 29 < y && y < 44) {
@@ -95,119 +91,120 @@ public class GuiDiskPopup extends SubGuiScreen {
 			} else if (editName) {
 				writeDiskName();
 			} else {
-				super.mouseClicked(i, j, k);
+				return super.mouseClicked(i, j, k);
 			}
 		} else {
-			super.mouseClicked(i, j, k);
+			return super.mouseClicked(i, j, k);
 		}
+		return true;
 	}
 
 	private void writeDiskName() {
 		editName = false;
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskSetNamePacket.class).setString(name1 + name2).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
-		NBTTagCompound nbt = new NBTTagCompound();
-		if (diskProvider.getDisk().hasTagCompound()) {
-			nbt = diskProvider.getDisk().getTagCompound();
+		CompoundTag nbt = new CompoundTag();
+		if (diskProvider.getDisk().hasTag()) {
+			nbt = diskProvider.getDisk().getTag();
 		}
-		nbt.setString("name", name1 + name2);
-		diskProvider.getDisk().setTagCompound(nbt);
+		nbt.putString("name", name1 + name2);
+		diskProvider.getDisk().setTag(nbt);
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiscContent.class).setStack(diskProvider.getDisk()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		buttonList.clear();
-		buttonList.add(new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, "Request"));
-		buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, "Exit"));
-		buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, "Add/Edit"));
-		buttonList.add(new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10, "Delete"));
-		buttonList.add(new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\"));
-		buttonList.add(new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/"));
+	public void init() {
+		super.init();
+		SmallGuiButton req = new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, "Request");
+		req.setPressListener(b -> handleRequest());
+		addRenderableWidget(req);
+		SmallGuiButton exit = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, "Exit");
+		exit.setPressListener(b -> exitGui());
+		addRenderableWidget(exit);
+		SmallGuiButton addEdit = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, "Add/Edit");
+		addEdit.setPressListener(b -> handleAddEdit());
+		addRenderableWidget(addEdit);
+		SmallGuiButton del = new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10, "Delete");
+		del.setPressListener(b -> handleDelete());
+		addRenderableWidget(del);
+		SmallGuiButton up = new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\");
+		up.setPressListener(b -> textList.scrollDown());
+		addRenderableWidget(up);
+		SmallGuiButton dn = new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/");
+		dn.setPressListener(b -> textList.scrollUp());
+		addRenderableWidget(dn);
 	}
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		mc.fontRenderer.drawStringWithShadow("Disk", xCenter - (mc.fontRenderer.getStringWidth("Disk") / 2), guiTop + 10, 0xFFFFFF);
+		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		getGuiGraphics().drawString(minecraft.font, "Disk", xCenter - (minecraft.font.width("Disk") / 2), guiTop + 10, 0xFFFFFF, true);
 
 		//NameInput
 		if (editName) {
-			Gui.drawRect(guiLeft + 10, guiTop + 28, right - 10, guiTop + 45, Color.getValue(Color.BLACK));
-			Gui.drawRect(guiLeft + 11, guiTop + 29, right - 11, guiTop + 44, Color.getValue(Color.WHITE));
+			getGuiGraphics().fill(guiLeft + 10, guiTop + 28, right - 10, guiTop + 45, Color.getValue(Color.BLACK));
+			getGuiGraphics().fill(guiLeft + 11, guiTop + 29, right - 11, guiTop + 44, Color.getValue(Color.WHITE));
 		} else {
-			Gui.drawRect(guiLeft + 11, guiTop + 29, right - 11, guiTop + 44, Color.getValue(Color.BLACK));
+			getGuiGraphics().fill(guiLeft + 11, guiTop + 29, right - 11, guiTop + 44, Color.getValue(Color.BLACK));
 		}
-		Gui.drawRect(guiLeft + 12, guiTop + 30, right - 12, guiTop + 43, Color.getValue(Color.DARKER_GREY));
+		getGuiGraphics().fill(guiLeft + 12, guiTop + 30, right - 12, guiTop + 43, Color.getValue(Color.DARKER_GREY));
 
-		mc.fontRenderer.drawString(name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFF);
+		getGuiGraphics().drawString(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFF);
 
-		//Gui.drawRect(guiLeft + 6, guiTop + 46, right - 6, bottom - 30, Color.getValue(Color.GREY));
+		//getGuiGraphics().fill(guiLeft + 6, guiTop + 46, right - 6, bottom - 30, Color.getValue(Color.GREY));
 
 		textList.renderGuiBackground(mouseX, mouseY);
 
 		if (editName) {
-			int lineX = guiLeft + 15 + mc.fontRenderer.getStringWidth(name1);
+			int lineX = guiLeft + 15 + minecraft.font.width(name1);
 			if (System.currentTimeMillis() - oldSystemTime > 500) {
 				displayCursor = !displayCursor;
 				oldSystemTime = System.currentTimeMillis();
 			}
 			if (displayCursor) {
-				Gui.drawRect(lineX, guiTop + 31, lineX + 1, guiTop + 42, Color.getValue(Color.WHITE));
+				getGuiGraphics().fill(lineX, guiTop + 31, lineX + 1, guiTop + 42, Color.getValue(Color.WHITE));
 			}
 		}
 	}
 
-	@Override
-	public void handleMouseInputSub() throws IOException {
-		int wheel = org.lwjgl.input.Mouse.getDWheel() / 120;
-		if (wheel == 0) {
-			super.handleMouseInputSub();
-		}
-		if (wheel < 0) {
-			textList.scrollUp();
-		} else if (wheel > 0) {
-			textList.scrollDown();
-		}
-	}
+	// Deferred: scroll wheel handling not wired
 
 	private void handleRequest() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskMacroRequestPacket.class).setInteger(textList.getSelected()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskMacroRequestPacket.class).putInt(textList.getSelected()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
 	}
 
 	private void handleDelete() {
-		NBTTagCompound nbt = diskProvider.getDisk().getTagCompound();
+		CompoundTag nbt = diskProvider.getDisk().getTag();
 		if (nbt == null) {
-			diskProvider.getDisk().setTagCompound(new NBTTagCompound());
-			nbt = diskProvider.getDisk().getTagCompound();
+			diskProvider.getDisk().setTag(new CompoundTag());
+			nbt = diskProvider.getDisk().getTag();
 		}
 
-		if (!nbt.hasKey("macroList")) {
-			NBTTagList list = new NBTTagList();
-			nbt.setTag("macroList", list);
+		if (!nbt.contains("macroList")) {
+			ListTag list = new ListTag();
+			nbt.put("macroList", list);
 		}
 
-		NBTTagList list = nbt.getTagList("macroList", 10);
-		NBTTagList newList = new NBTTagList();
+		ListTag list = nbt.getList("macroList", 10);
+		ListTag newList = new ListTag();
 
-		for (int i = 0; i < list.tagCount(); i++) {
+		for (int i = 0; i < list.size(); i++) {
 			if (i != textList.getSelected()) {
-				newList.appendTag(list.getCompoundTagAt(i));
+				newList.add(list.getCompound(i));
 			}
 		}
 		textList.setSelected(-1);
-		nbt.setTag("macroList", newList);
+		nbt.put("macroList", newList);
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiscContent.class).setStack(diskProvider.getDisk()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
 	}
 
 	private void handleAddEdit() {
 		String macroName = "";
-		NBTTagCompound nbt = diskProvider.getDisk().getTagCompound();
+		CompoundTag nbt = diskProvider.getDisk().getTag();
 		if (nbt != null) {
-			if (nbt.hasKey("macroList")) {
-				NBTTagList list = nbt.getTagList("macroList", 10);
-				if (textList.getSelected() != -1 && textList.getSelected() < list.tagCount()) {
-					NBTTagCompound entry = list.getCompoundTagAt(textList.getSelected());
+			if (nbt.contains("macroList")) {
+				ListTag list = nbt.getList("macroList", 10);
+				if (textList.getSelected() != -1 && textList.getSelected() < list.size()) {
+					CompoundTag entry = list.getCompound(textList.getSelected());
 					macroName = entry.getString("name");
 				}
 			}
@@ -216,42 +213,23 @@ public class GuiDiskPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) throws IOException {
-		if (guibutton.id == 0) {
-			handleRequest();
-		} else if (guibutton.id == 1) {
-			exitGui();
-		} else if (guibutton.id == 2) {
-			handleAddEdit();
-		} else if (guibutton.id == 3) {
-			handleDelete();
-		} else if (guibutton.id == 4) {
-			textList.scrollDown();
-		} else if (guibutton.id == 5) {
-			textList.scrollUp();
-		} else {
-			super.actionPerformed(guibutton);
-		}
-	}
-
-	@Override
-	protected void keyTyped(char c, int i) {
+	public boolean charTyped(char c, int i) {
 		if (editName) {
 			if (c == 13) {
 				writeDiskName();
-				return;
-			} else if (i == 47 && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-				name1 = name1 + GuiScreen.getClipboardString();
+				return true;
+			} else if (i == 47 && Screen.hasControlDown()) {
+				name1 = name1 + net.minecraft.client.Minecraft.getInstance().keyboardHandler.getClipboard();
 			} else if (c == 8) {
 				if (name1.length() > 0) {
 					name1 = name1.substring(0, name1.length() - 1);
 				}
-				return;
+				return true;
 			} else if (Character.isLetterOrDigit(c) || c == ' ') {
-				if (mc.fontRenderer.getStringWidth(name1 + c + name2) <= SEARCH_WIDTH) {
+				if (minecraft.font.width(name1 + c + name2) <= SEARCH_WIDTH) {
 					name1 += c;
 				}
-				return;
+				return true;
 			} else if (i == 203) { //Left
 				if (name1.length() > 0) {
 					name2 = name1.substring(name1.length() - 1) + name2;
@@ -277,12 +255,13 @@ public class GuiDiskPopup extends SubGuiScreen {
 					name2 = name2.substring(1);
 				}
 			}
-			//		} else if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)){
-			//			super.keyTyped(c, i);
-			//		} else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)){
-			//			super.keyTyped(c, i);
+			//		} else if (Screen.hasShiftDown()){
+			//			return super.charTyped(c, i);
+			//		} else if (Screen.hasControlDown()){
+			//			return super.charTyped(c, i);
 		} else {
-			super.keyTyped(c, i);
+			return super.charTyped(c, i);
 		}
+		return false;
 	}
 }

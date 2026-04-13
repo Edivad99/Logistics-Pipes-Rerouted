@@ -2,7 +2,7 @@ package logisticspipes.utils;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.routing.ItemRoutingInformation;

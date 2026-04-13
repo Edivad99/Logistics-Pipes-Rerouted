@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -56,7 +56,7 @@ public class RoutingUpdateDebugFilters extends ModernPacket {
 	}
 
 	@Override
-	public void processPacket(EntityPlayer player) {
+	public void processPacket(Player player) {
 		ClientViewController.instance().handlePacket(this);
 	}
 

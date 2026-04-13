@@ -40,15 +40,15 @@ package network.rs485.logisticspipes.property
 import network.rs485.logisticspipes.inventory.container.LPBaseContainer
 import logisticspipes.proxy.MainProxy
 import net.minecraftforge.event.entity.player.PlayerContainerEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 
 object PropertyUpdaterEventListener {
     private val propertyUpdaters: ArrayList<PropertyUpdater> = ArrayList()
 
     @SubscribeEvent
     fun openContainer(event: PlayerContainerEvent.Open) {
-        val player = event.entityPlayer ?: return
-        MainProxy.runOnServer(player.world) {
+        val player = event.entity
+        MainProxy.runOnServer(player.level()) {
             Runnable {
                 val guiContainer = event.container
                 if (guiContainer is LPBaseContainer<*>) {
@@ -63,11 +63,11 @@ object PropertyUpdaterEventListener {
 
     @SubscribeEvent
     fun closeContainer(event: PlayerContainerEvent.Close) {
-        val player = event.entityPlayer ?: return
-        MainProxy.runOnServer(player.world) {
+        val player = event.entity
+        MainProxy.runOnServer(player.level()) {
             Runnable {
                 propertyUpdaters.removeIf { propertyUpdater: PropertyUpdater ->
-                    propertyUpdater.removeForPlayer(event.entityPlayer)
+                    propertyUpdater.removeForPlayer(event.entity)
                 }
             }
         }

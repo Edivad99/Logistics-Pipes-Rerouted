@@ -4,15 +4,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.resources.ResourceLocation;
 
 import logisticspipes.LPItems;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
@@ -49,12 +48,13 @@ public class UpgradeChippedCraftingRecipes extends CraftingPartRecipes {
 
 	private void registerUpgradeRecipe(CraftingParts parts, RecipeType type, ResourceLocation recipeCategory, String upgradeName, int amount) {
 		ResourceLocation upgradeResource = LPItems.upgrades.get(upgradeName);
-		Item upgrade = Item.REGISTRY.getObject(upgradeResource);
+		if (upgradeResource == null) return;
+		Item upgrade = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(upgradeResource);
 		if (upgrade == null) return;
 
 		Ingredient programmer = programmerIngredient(upgradeResource.toString());
-		final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerTileEntity.programByCategory.putIfAbsent(recipeCategory, new HashSet<>());
-		Objects.requireNonNull(compilerPrograms).add(upgradeResource);
+		final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerTileEntity.programByCategory.computeIfAbsent(recipeCategory, k -> new HashSet<>());
+		compilerPrograms.add(upgradeResource);
 
 		RecipeManager.RecipeLayout layout = null;
 		switch (type) {

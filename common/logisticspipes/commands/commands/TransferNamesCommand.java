@@ -1,8 +1,8 @@
 package logisticspipes.commands.commands;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.text.TextComponentString;
+// Player removed — use net.minecraft.commands.CommandSourceStack
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.abstracts.ICommandHandler;
@@ -18,8 +18,8 @@ public class TransferNamesCommand implements ICommandHandler {
 	}
 
 	@Override
-	public boolean isCommandUsableBy(ICommandSender sender) {
-		return sender instanceof EntityPlayer && LogisticsPipesCommand.isOP(sender);
+	public boolean isCommandUsableBy(Player sender) {
+		return sender instanceof Player && LogisticsPipesCommand.isOP(sender);
 	}
 
 	@Override
@@ -28,9 +28,9 @@ public class TransferNamesCommand implements ICommandHandler {
 	}
 
 	@Override
-	public void executeCommand(ICommandSender sender, String[] args) {
-		sender.sendMessage(new TextComponentString("Requesting Transfer"));
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RequestUpdateNamesPacket.class), (EntityPlayer) sender);
-		MainProxy.proxy.sendNameUpdateRequest((EntityPlayer) sender);
+	public void executeCommand(Player sender, String[] args) {
+		sender.sendSystemMessage(Component.literal("Requesting Transfer"));
+		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RequestUpdateNamesPacket.class), (Player) sender);
+		MainProxy.proxy.sendNameUpdateRequest((Player) sender);
 	}
 }

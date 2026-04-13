@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 
 	@Getter
 	private CurveSOrientation orientation;
-	private List<AxisAlignedBB> boxes = null;
+	private List<AABB> boxes = null;
 
 	public HSTubeSCurve(Item item) {
 		super(new PipeMultiBlockTransportLogistics(), item);
@@ -61,14 +61,12 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public int getIconIndex(EnumFacing direction) {
-		// TODO Auto-generated method stub
+	public int getIconIndex(Direction direction) {
 		return 0;
 	}
 
 	@Override
 	public int getTextureIndex() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -91,7 +89,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public void addCollisionBoxesToList(List<AxisAlignedBB> arraylist, AxisAlignedBB axisalignedbb) {
+	public void addCollisionBoxesToList(List<AABB> arraylist, AABB axisalignedbb) {
 		if (boxes == null || boxes.isEmpty()) {
 			boxes = new ArrayList<>();
 			double x = getX();
@@ -119,22 +117,22 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 					zOne -= 1;
 					zTwo += 2;
 				}
-				AxisAlignedBB box = SCurveTubeRenderer.getObjectBoundsAt(new AxisAlignedBB(Math.min(xOne, xTwo), Math.min(yOne, yTwo), Math.min(zOne, zTwo), Math.max(xOne, xTwo), Math.max(yOne, yTwo),
-						Math.max(zOne, zTwo)).offset(-x, -y, -z), orientation);
+				AABB box = SCurveTubeRenderer.getObjectBoundsAt(new AABB(Math.min(xOne, xTwo), Math.min(yOne, yTwo), Math.min(zOne, zTwo), Math.max(xOne, xTwo), Math.max(yOne, yTwo),
+						Math.max(zOne, zTwo)).move(-x, -y, -z), orientation);
 				if (box != null) {
 					LPPositionSet<DoubleCoordinates> lpBox = new LPPositionSet<>(DoubleCoordinates.class);
 					lpBox.addFrom(box);
 					DoubleCoordinates center = lpBox.getCenter();
-					box = new AxisAlignedBB(center.getXCoord() - 0.3D, center.getYCoord() - 0.3D, center.getZCoord() - 0.3D, center.getXCoord() + 0.3D,
+					box = new AABB(center.getXCoord() - 0.3D, center.getYCoord() - 0.3D, center.getZCoord() - 0.3D, center.getXCoord() + 0.3D,
 							center.getYCoord() + 0.3D, center.getZCoord() + 0.3D);
-					AxisAlignedBB cBox = getCompleteBox();
+					AABB cBox = getCompleteBox();
 					double minX = Math.max(box.minX, cBox.minX);
 					double minY = Math.max(box.minY, cBox.minY);
 					double minZ = Math.max(box.minZ, cBox.minZ);
 					double maxX = Math.min(box.maxX, cBox.maxX);
 					double maxY = Math.min(box.maxY, cBox.maxY);
 					double maxZ = Math.min(box.maxZ, cBox.maxZ);
-					boxes.add(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ).offset(x, y, z));
+					boxes.add(new AABB(minX, minY, minZ, maxX, maxY, maxZ).move(x, y, z));
 				}
 			}
 		}
@@ -144,14 +142,14 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public AxisAlignedBB getCompleteBox() {
+	public AABB getCompleteBox() {
 		return SCurveTubeRenderer.tubeSCurve.get(orientation.getRenderOrientation()).bounds().toAABB();
 	}
 
 	@Override
-	public ITubeOrientation getTubeOrientation(EntityPlayer player, int xPos, int zPos) {
-		double x = xPos + 0.5 - player.posX;
-		double z = zPos + 0.5 - player.posZ;
+	public ITubeOrientation getTubeOrientation(Player player, int xPos, int zPos) {
+		double x = xPos + 0.5 - player.getX();
+		double z = zPos + 0.5 - player.getZ();
 		double w = Math.atan2(x, z);
 		double halfPI = Math.PI / 2;
 		double halfhalfPI = halfPI / 2;
@@ -159,35 +157,35 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 		if (w < 0) {
 			w += 2 * Math.PI;
 		}
-		EnumFacing dir = null;
-		EnumFacing dir1 = null;
-		EnumFacing dir2 = null;
+		Direction dir = null;
+		Direction dir1 = null;
+		Direction dir2 = null;
 		double addition = 0;
 		if (0 < w && w <= halfPI) {
-			dir = EnumFacing.EAST;
-			dir1 = EnumFacing.NORTH;
-			dir2 = EnumFacing.SOUTH;
+			dir = Direction.EAST;
+			dir1 = Direction.NORTH;
+			dir2 = Direction.SOUTH;
 			addition = halfPI;
 		} else if (halfPI < w && w <= 2 * halfPI) {
-			dir = EnumFacing.NORTH;
-			dir1 = EnumFacing.EAST;
-			dir2 = EnumFacing.WEST;
+			dir = Direction.NORTH;
+			dir1 = Direction.EAST;
+			dir2 = Direction.WEST;
 		} else if (2 * halfPI < w && w <= 3 * halfPI) {
-			dir = EnumFacing.WEST;
-			dir1 = EnumFacing.NORTH;
-			dir2 = EnumFacing.SOUTH;
+			dir = Direction.WEST;
+			dir1 = Direction.NORTH;
+			dir2 = Direction.SOUTH;
 			addition = halfPI;
 		} else if (3 * halfPI < w && w <= 4 * halfPI) {
-			dir = EnumFacing.SOUTH;
-			dir1 = EnumFacing.EAST;
-			dir2 = EnumFacing.WEST;
+			dir = Direction.SOUTH;
+			dir1 = Direction.EAST;
+			dir2 = Direction.WEST;
 		}
-		w = Math.atan2(player.getLookVec().x, player.getLookVec().z);
+		w = Math.atan2(player.getLookAngle().x, player.getLookAngle().z);
 		w -= addition;
 		if (w < 0) {
 			w += 2 * Math.PI;
 		}
-		EnumFacing dir3 = null;
+		Direction dir3 = null;
 		if (0 < w && w <= 2 * halfPI) {
 			dir3 = dir1;
 		} else if (2 * halfPI < w && w <= 4 * halfPI) {
@@ -204,13 +202,13 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound data) {
+	public void writeToNBT(CompoundTag data) {
 		super.writeToNBT(data);
-		data.setString("orientation", orientation.name());
+		data.putString("orientation", orientation.name());
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound data) {
+	public void readFromNBT(CompoundTag data) {
 		super.readFromNBT(data);
 		orientation = CurveSOrientation.valueOf(data.getString("orientation"));
 	}
@@ -221,7 +219,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public EnumFacing getExitForInput(EnumFacing commingFrom) {
+	public Direction getExitForInput(Direction commingFrom) {
 		if (orientation.dir.getOpposite() == commingFrom) {
 			return orientation.dir;
 		}
@@ -232,7 +230,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public TileEntity getConnectedEndTile(EnumFacing output) {
+	public BlockEntity getConnectedEndTile(Direction output) {
 		boolean useOwn;
 		if (orientation.getOffset().getLength() != 0) {
 			if (orientation.dir.getOpposite() == output) {
@@ -258,7 +256,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 			LPPositionSet<DoubleCoordinates> set = new LPPositionSet<>(DoubleCoordinates.class);
 			set.add(pos);
 			orientation.rotatePositions(set);
-			TileEntity subTile = pos.add(getLPPosition()).getTileEntity(getWorld());
+			BlockEntity subTile = pos.add(getLPPosition()).getTileEntity(getWorld());
 			if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
 				return ((LogisticsTileGenericSubMultiBlock) subTile).getTile(output);
 			}
@@ -272,7 +270,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public ISpecialPipeRenderer getSpecialRenderer() {
 		return SCurveTubeRenderer.instance;
 	}
@@ -382,14 +380,14 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	public enum CurveSOrientation implements ITubeOrientation {
 		//@formatter:off
 		// Name: Placement from  _ TurnDirection
-		NORTH_EAST(TurnSDirection.NORTH_INV, new DoubleCoordinates(0, 0, 0), EnumFacing.NORTH, EnumFacing.EAST),
-		NORTH_WEST(TurnSDirection.NORTH, new DoubleCoordinates(0, 0, 0), EnumFacing.NORTH, EnumFacing.WEST),
-		EAST_SOUTH(TurnSDirection.EAST_INV, new DoubleCoordinates(0, 0, 0), EnumFacing.EAST, EnumFacing.SOUTH),
-		EAST_NORTH(TurnSDirection.EAST, new DoubleCoordinates(0, 0, 0), EnumFacing.EAST, EnumFacing.NORTH),
-		SOUTH_WEST(TurnSDirection.NORTH_INV, new DoubleCoordinates(-1, 0, 3), EnumFacing.SOUTH, EnumFacing.WEST),
-		SOUTH_EAST(TurnSDirection.NORTH, new DoubleCoordinates(1, 0, 3), EnumFacing.SOUTH, EnumFacing.EAST),
-		WEST_NORTH(TurnSDirection.EAST_INV, new DoubleCoordinates(-3, 0, -1), EnumFacing.WEST, EnumFacing.NORTH),
-		WEST_SOUTH(TurnSDirection.EAST, new DoubleCoordinates(-3, 0, 1), EnumFacing.WEST, EnumFacing.SOUTH);
+		NORTH_EAST(TurnSDirection.NORTH_INV, new DoubleCoordinates(0, 0, 0), Direction.NORTH, Direction.EAST),
+		NORTH_WEST(TurnSDirection.NORTH, new DoubleCoordinates(0, 0, 0), Direction.NORTH, Direction.WEST),
+		EAST_SOUTH(TurnSDirection.EAST_INV, new DoubleCoordinates(0, 0, 0), Direction.EAST, Direction.SOUTH),
+		EAST_NORTH(TurnSDirection.EAST, new DoubleCoordinates(0, 0, 0), Direction.EAST, Direction.NORTH),
+		SOUTH_WEST(TurnSDirection.NORTH_INV, new DoubleCoordinates(-1, 0, 3), Direction.SOUTH, Direction.WEST),
+		SOUTH_EAST(TurnSDirection.NORTH, new DoubleCoordinates(1, 0, 3), Direction.SOUTH, Direction.EAST),
+		WEST_NORTH(TurnSDirection.EAST_INV, new DoubleCoordinates(-3, 0, -1), Direction.WEST, Direction.NORTH),
+		WEST_SOUTH(TurnSDirection.EAST, new DoubleCoordinates(-3, 0, 1), Direction.WEST, Direction.SOUTH);
 		//@formatter:on
 
 		@Getter
@@ -397,9 +395,9 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 		@Getter
 		DoubleCoordinates offset;
 		@Getter
-		EnumFacing dir;
+		Direction dir;
 		@Getter
-		EnumFacing looking;
+		Direction looking;
 
 		@Override
 		public void rotatePositions(IPositionRotateble set) {
@@ -415,14 +413,14 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	@AllArgsConstructor
 	public enum TurnSDirection implements ITubeRenderOrientation {
 		//@formatter:off
-		NORTH(EnumFacing.NORTH),
-		EAST(EnumFacing.EAST),
-		NORTH_INV(EnumFacing.SOUTH),
-		EAST_INV(EnumFacing.WEST);
+		NORTH(Direction.NORTH),
+		EAST(Direction.EAST),
+		NORTH_INV(Direction.SOUTH),
+		EAST_INV(Direction.WEST);
 		//@formatter:on
 
 		@Getter
-		private EnumFacing dir1;
+		private Direction dir1;
 
 		public void rotatePositions(IPositionRotateble set) {
 			if (this == NORTH) {

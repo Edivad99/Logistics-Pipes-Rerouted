@@ -2,9 +2,9 @@ package logisticspipes.network.abstractguis;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -48,15 +48,15 @@ public abstract class CoordinatesGuiProvider extends GuiProvider {
 
 	}
 
-	public CoordinatesGuiProvider setTilePos(TileEntity tile) {
-		setPosX(tile.getPos().getX());
-		setPosY(tile.getPos().getY());
-		setPosZ(tile.getPos().getZ());
+	public CoordinatesGuiProvider setTilePos(BlockEntity tile) {
+		setPosX(tile.getBlockPos().getX());
+		setPosY(tile.getBlockPos().getY());
+		setPosZ(tile.getBlockPos().getZ());
 		return this;
 	}
 
 	@Nonnull
-	public <T> T getTileAs(World world, Class<T> clazz) {
+	public <T> T getTileAs(Level world, Class<T> clazz) {
 		return CoordinatesPacket.getTileAs(this, world, new BlockPos(getPosX(), getPosY(), getPosZ()), clazz);
 	}
 

@@ -1,5 +1,7 @@
 package logisticspipes.request;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -7,8 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.Item;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IProvide;
@@ -147,7 +149,7 @@ public class RequestTree extends RequestTreeNode {
 
 	public static boolean request(List<ItemIdentifierStack> items, IRequestItems requester, RequestLog log, EnumSet<ActiveRequestType> requestFlags, IAdditionalTargetInformation info) {
 		Map<IResource, Integer> messages = new HashMap<>();
-		RequestTree tree = new RequestTree(new ItemResource(new ItemIdentifierStack(ItemIdentifier.get(Item.getItemFromBlock(Blocks.STONE), 0, null), 0), requester), null, requestFlags, info);
+		RequestTree tree = new RequestTree(new ItemResource(new ItemIdentifierStack(ItemIdentifier.get(Item.BY_BLOCK.get(Blocks.STONE), 0, null), 0), requester), null, requestFlags, info);
 		boolean isDone = true;
 		for (ItemIdentifierStack stack : items) {
 			ItemResource req = new ItemResource(stack, requester);

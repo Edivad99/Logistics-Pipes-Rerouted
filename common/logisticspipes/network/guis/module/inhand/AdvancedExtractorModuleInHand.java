@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.modules.GuiAdvancedExtractor;
 import logisticspipes.items.ItemModule;
@@ -20,16 +20,16 @@ public class AdvancedExtractorModuleInHand extends ModuleInHandGuiProvider {
 	}
 
 	@Override
-	public Object getClientGui(EntityPlayer player) {
+	public Object getClientGui(Player player) {
 		LogisticsModule module = ItemModule.getLogisticsModule(player, getInvSlot());
 		if (!(module instanceof AsyncAdvancedExtractor)) {
 			return null;
 		}
-		return new GuiAdvancedExtractor(player.inventory, (AsyncAdvancedExtractor) module);
+		return new GuiAdvancedExtractor(player.getInventory(), (AsyncAdvancedExtractor) module);
 	}
 
 	@Override
-	public DummyContainer getContainer(EntityPlayer player) {
+	public DummyContainer getContainer(Player player) {
 		DummyModuleContainer dummy = new DummyModuleContainer(player, getInvSlot());
 		if (!(dummy.getModule() instanceof AsyncAdvancedExtractor)) {
 			return null;

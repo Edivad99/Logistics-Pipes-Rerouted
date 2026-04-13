@@ -1,5 +1,6 @@
 package logisticspipes.network;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -8,15 +9,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -35,6 +36,24 @@ public class NewGuiHandler {
 	public static Map<Class<? extends GuiProvider>, GuiProvider> guimap;
 
 	private NewGuiHandler() { }
+
+	private static final Field CONTAINER_ID_FIELD;
+	static {
+		Field f;
+		try {
+			f = AbstractContainerMenu.class.getDeclaredField("containerId");
+			f.setAccessible(true);
+		} catch (NoSuchFieldException e) {
+			// Try SRG name fallback
+			try {
+				f = AbstractContainerMenu.class.getDeclaredField("f_38840_");
+				f.setAccessible(true);
+			} catch (NoSuchFieldException e2) {
+				throw new RuntimeException("Cannot find AbstractContainerMenu.containerId field", e2);
+			}
+		}
+		CONTAINER_ID_FIELD = f;
+	}
 
 	@SuppressWarnings("unchecked") // Suppressed because this cast should never fail.
 	public static <T extends GuiProvider> T getGui(Class<T> clazz) {
@@ -72,12 +91,18 @@ public class NewGuiHandler {
 		}
 	}
 
-	public static void openGui(GuiProvider guiProvider, EntityPlayer oPlayer) {
-		if (!(oPlayer instanceof EntityPlayerMP)) {
+	public static void openGui(GuiProvider guiProvider, Player oPlayer) {
+		if (!(oPlayer instanceof ServerPlayer)) {
 			throw new UnsupportedOperationException("Gui can only be opened on the server side");
 		}
-		EntityPlayerMP player = (EntityPlayerMP) oPlayer;
-		Container container = guiProvider.getContainer(player);
+		ServerPlayer player = (ServerPlayer) oPlayer;
+		AbstractContainerMenu container;
+		try {
+			container = guiProvider.getContainer(player);
+		} catch (Throwable t) {
+			logisticspipes.LogisticsPipes.log.error("getContainer threw for provider {}", guiProvider.getClass().getSimpleName(), t);
+			return;
+		}
 		if (container == null) {
 			if (guiProvider instanceof PopupGuiProvider) {
 				OpenGUIPacket packet = PacketHandler.getPacket(OpenGUIPacket.class);
@@ -88,31 +113,40 @@ public class NewGuiHandler {
 			}
 			return;
 		}
-		player.getNextWindowId();
-		player.closeContainer();
-		int windowId = player.currentWindowId;
+		// NOTE: We cannot use NetworkHooks.openScreen here because LP containers
+		// are not registered as MenuType<>s — NetworkHooks calls menu.getType() and
+		// would NPE when serializing PlayMessages.OpenContainer. Instead, manually
+		// perform the server-side container registration that NetworkHooks would do,
+		// and rely on LP's existing OpenGUIPacket to construct the screen client-side.
+		player.doCloseContainer();
+		player.nextContainerCounter();
+		int windowId = player.containerCounter;
+		try {
+			CONTAINER_ID_FIELD.setInt(container, windowId);
+		} catch (IllegalAccessException ex) {
+			throw new RuntimeException("Failed to set LP container windowId", ex);
+		}
+		player.containerMenu = container;
+		player.initMenu(player.containerMenu);
+		net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+				new net.minecraftforge.event.entity.player.PlayerContainerEvent.Open(player, player.containerMenu));
 
 		OpenGUIPacket packet = PacketHandler.getPacket(OpenGUIPacket.class);
 		packet.setGuiID(guiProvider.getId());
 		packet.setWindowID(windowId);
 		packet.setGuiData(LPDataIOWrapper.collectData(guiProvider::writeData));
 		MainProxy.sendPacketToPlayer(packet, player);
-
-		player.openContainer = container;
-		player.openContainer.windowId = windowId;
-		player.openContainer.addListener(player);
-		net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.player.PlayerContainerEvent.Open(player, player.openContainer));
 	}
 
-	@SideOnly(Side.CLIENT)
-	public static void openGui(OpenGUIPacket packet, EntityPlayer player) {
+	@OnlyIn(Dist.CLIENT)
+	public static void openGui(OpenGUIPacket packet, Player player) {
 		int guiID = packet.getGuiID();
 		GuiProvider provider = NewGuiHandler.guilist.get(guiID).template();
 		LPDataIOWrapper.provideData(packet.getGuiData(), provider::readData);
 
 		if (provider instanceof PopupGuiProvider && packet.getWindowID() == -2) {
-			if (FMLClientHandler.instance().getClient().currentScreen instanceof LogisticsBaseGuiScreen) {
-				LogisticsBaseGuiScreen baseGUI = (LogisticsBaseGuiScreen) FMLClientHandler.instance().getClient().currentScreen;
+			if (Minecraft.getInstance().screen instanceof LogisticsBaseGuiScreen) {
+				LogisticsBaseGuiScreen baseGUI = (LogisticsBaseGuiScreen) Minecraft.getInstance().screen;
 				SubGuiScreen newSub;
 				try {
 					newSub = (SubGuiScreen) provider.getClientGui(player);
@@ -136,18 +170,26 @@ public class NewGuiHandler {
 				}
 			}
 		} else {
-			GuiContainer screen;
+			AbstractContainerScreen screen;
 			try {
-				screen = (GuiContainer) provider.getClientGui(player);
+				screen = (AbstractContainerScreen) provider.getClientGui(player);
 			} catch (TargetNotFoundException e) {
 				throw e;
 			} catch (Exception e) {
-				LogisticsPipes.log.error(packet.getClass().getName());
-				LogisticsPipes.log.error(packet.toString());
-				throw new RuntimeException(e);
+				LogisticsPipes.log.error("getClientGui failed for provider {}", provider.getClass().getName(), e);
+				return;
 			}
-			screen.inventorySlots.windowId = packet.getWindowID();
-			FMLCommonHandler.instance().showGuiScreen(screen);
+			// Mirror the server-side windowId onto the client-side menu so vanilla
+			// slot-sync packets (ClientboundContainerSetContent etc.) reach this menu.
+			if (screen != null && screen.getMenu() != null) {
+				try {
+					CONTAINER_ID_FIELD.setInt(screen.getMenu(), packet.getWindowID());
+				} catch (ReflectiveOperationException ex) {
+					LogisticsPipes.log.error("Failed to set client menu containerId", ex);
+				}
+				player.containerMenu = screen.getMenu();
+			}
+			Minecraft.getInstance().setScreen(screen);
 		}
 	}
 }

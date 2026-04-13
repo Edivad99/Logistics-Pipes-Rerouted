@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 
 import logisticspipes.gui.hud.HUDCrafting;
 import logisticspipes.interfaces.IChangeListener;
@@ -157,17 +157,22 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 	}
 
 	@Override
+	public net.minecraft.world.level.Level getLevelForHUD() {
+		return getWorld();
+	}
+
+	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
 	}
 
 	@Override
-	public void playerStartWatching(EntityPlayer player, int mode) {
+	public void playerStartWatching(Player player, int mode) {
 		if (mode == 1) {
 			localModeWatchers.add(player);
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(oldList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
@@ -178,7 +183,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 	}
 
 	@Override
-	public void playerStopWatching(EntityPlayer player, int mode) {
+	public void playerStopWatching(Player player, int mode) {
 		super.playerStopWatching(player, mode);
 		localModeWatchers.remove(player);
 		craftingModule.stopWatching(player);
@@ -242,7 +247,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 		craftingModule.itemLost(item, info);
 	}
 
-	public IInventory getDummyInventory() {
+	public Container getDummyInventory() {
 		return craftingModule.dummyInventory;
 	}
 

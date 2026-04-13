@@ -1,7 +1,7 @@
 package logisticspipes.proxy.recipeproviders;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.proxy.interfaces.IFuzzyRecipeProvider;
@@ -14,12 +14,12 @@ import network.rs485.logisticspipes.property.BitSetProperty;
 public class LogisticsCraftingTable implements IFuzzyRecipeProvider {
 
 	@Override
-	public boolean canOpenGui(TileEntity tile) {
+	public boolean canOpenGui(BlockEntity tile) {
 		return (tile instanceof LogisticsCraftingTableTileEntity);
 	}
 
 	@Override
-	public boolean importRecipe(TileEntity tile, IItemIdentifierInventory inventory) {
+	public boolean importRecipe(BlockEntity tile, IItemIdentifierInventory inventory) {
 		if (!(tile instanceof LogisticsCraftingTableTileEntity)) {
 			return false;
 		}
@@ -31,19 +31,19 @@ public class LogisticsCraftingTable implements IFuzzyRecipeProvider {
 			return false;
 		}
 
-		inventory.setInventorySlotContents(9, result);
+		inventory.setItem(9, result);
 
 		// Import
-		for (int i = 0; i < bench.matrix.getSizeInventory(); i++) {
-			if (i >= inventory.getSizeInventory() - 2) {
+		for (int i = 0; i < bench.matrix.getContainerSize(); i++) {
+			if (i >= inventory.getContainerSize() - 2) {
 				break;
 			}
-			ItemStack stackInSlot = bench.matrix.getStackInSlot(i);
+			ItemStack stackInSlot = bench.matrix.getItem(i);
 			if (!stackInSlot.isEmpty() && stackInSlot.getCount() > 1) {
 				stackInSlot = stackInSlot.copy();
 				stackInSlot.setCount(1);
 			}
-			inventory.setInventorySlotContents(i, stackInSlot);
+			inventory.setItem(i, stackInSlot);
 		}
 
 		if (!bench.isFuzzy()) {
@@ -54,7 +54,7 @@ public class LogisticsCraftingTable implements IFuzzyRecipeProvider {
 	}
 
 	@Override
-	public void importFuzzyFlags(TileEntity tile, SlotAccess slotAccess, BitSetProperty fuzzyFlags) {
+	public void importFuzzyFlags(BlockEntity tile, SlotAccess slotAccess, BitSetProperty fuzzyFlags) {
 		if (!(tile instanceof LogisticsCraftingTableTileEntity)) {
 			return;
 		}

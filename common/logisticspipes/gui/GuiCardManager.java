@@ -1,6 +1,7 @@
 package logisticspipes.gui;
+import net.minecraft.client.gui.GuiGraphics;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.LPItems;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -8,28 +9,32 @@ import logisticspipes.items.ItemModule;
 import logisticspipes.utils.CardManagementInventory;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import javax.annotation.Nonnull;
 
 public class GuiCardManager extends LogisticsBaseGuiScreen {
 
-	public GuiCardManager(EntityPlayer player) {
-		super(180, 180, 0, 0);
+	public GuiCardManager(Player player) {
+		super(buildDummy(player), 180, 180, 0, 0);
+	}
+
+	private static DummyContainer buildDummy(Player player) {
 		final CardManagementInventory Cinv = new CardManagementInventory();
 		DummyContainer dummy = new DummyContainer(player, Cinv, new IGuiOpenControler() {
 
 			@Override
-			public void guiOpenedByPlayer(EntityPlayer player) {}
+			public void guiOpenedByPlayer(Player player) {}
 
 			@Override
-			public void guiClosedByPlayer(EntityPlayer player) {
-				Cinv.close(player, (int) player.posX, (int) player.posY, (int) player.posZ);
+			public void guiClosedByPlayer(Player player) {
+				Cinv.close(player, (int) player.getX(), (int) player.getY(), (int) player.getZ());
 			}
 		});
 		dummy.addRestrictedSlot(0, Cinv, 21, 21, ItemModule.class);
 		dummy.addRestrictedSlot(1, Cinv, 61, 21, ItemModule.class);
 		dummy.addRestrictedSlot(2, Cinv, 41, 58, itemStack -> false);
-		dummy.addRestrictedSlot(3, Cinv, 121, 39, LPItems.itemCard);
+		dummy.addRestrictedSlot(3, Cinv, 121, 39, LPItems.itemCard.get());
 		for (int i = 4; i < 7; i++) {
 			dummy.addColorSlot(i, Cinv, 101, 21 + (i - 4) * 18);
 		}
@@ -37,24 +42,24 @@ public class GuiCardManager extends LogisticsBaseGuiScreen {
 			dummy.addColorSlot(i, Cinv, 141, 21 + (i - 7) * 18);
 		}
 		dummy.addNormalSlotsForPlayerInventory(10, 95);
-		inventorySlots = dummy;
+		return dummy;
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int j, int k) {
-		GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-		GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 10, bottom - 85);
-		GuiGraphics.drawSlotBackground(mc, guiLeft + 20, guiTop + 20);
-		GuiGraphics.drawSlotBackground(mc, guiLeft + 60, guiTop + 20);
-		GuiGraphics.drawSlotBackground(mc, guiLeft + 40, guiTop + 57);
-		GuiGraphics.drawSlotBackground(mc, guiLeft + 120, guiTop + 38);
-		drawRect(guiLeft + 38, guiTop + 27, guiLeft + 60, guiTop + 31, Color.DARKER_GREY);
-		drawRect(guiLeft + 47, guiTop + 31, guiLeft + 51, guiTop + 57, Color.DARKER_GREY);
+	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int j, int k) {
+		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, bottom - 85);
+		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 20, topPos + 20);
+		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 60, topPos + 20);
+		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 40, topPos + 57);
+		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 120, topPos + 38);
+		guiGraphics.fill(leftPos + 38, topPos + 27, leftPos + 60, topPos + 31, Color.getValue(Color.DARKER_GREY));
+		guiGraphics.fill(leftPos + 47, topPos + 31, leftPos + 51, topPos + 57, Color.getValue(Color.DARKER_GREY));
 		for (int i = 0; i < 3; i++) {
-			GuiGraphics.drawSlotBackground(mc, guiLeft + 100, guiTop + 20 + i * 18);
+			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 100, topPos + 20 + i * 18);
 		}
 		for (int i = 0; i < 3; i++) {
-			GuiGraphics.drawSlotBackground(mc, guiLeft + 140, guiTop + 20 + i * 18);
+			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 140, topPos + 20 + i * 18);
 		}
 	}
 }

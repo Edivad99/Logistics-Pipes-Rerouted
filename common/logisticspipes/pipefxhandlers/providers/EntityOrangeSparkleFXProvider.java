@@ -1,6 +1,6 @@
 package logisticspipes.pipefxhandlers.providers;
 
-import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 
 import logisticspipes.pipefxhandlers.GenericSparkleFactory;
@@ -13,7 +13,7 @@ public class EntityOrangeSparkleFXProvider implements ParticleProvider {
 	float blue = 0.19F;
 
 	@Override
-	public Particle createGenericParticle(WorldClient world, double x, double y, double z, int amount) {
+	public Particle createGenericParticle(ClientLevel world, double x, double y, double z, int amount) {
 
 		return GenericSparkleFactory.getSparkleInstance(world, x, y, z, red, green, blue, amount);
 
