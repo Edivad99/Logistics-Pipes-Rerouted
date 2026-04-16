@@ -295,7 +295,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
 	public void doRenderItem(@Nonnull ItemStack itemstack, Level world, double x, double y, double z, float light, float renderScale, double boxScale, double yaw, double pitch, double yawForPitch, float partialTickTime,
 			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		LogisticsRenderPipe.boxRenderer.doRenderItem(itemstack, light, x, y, z, boxScale, yaw, pitch, yawForPitch, poseStack);
+		LogisticsRenderPipe.boxRenderer.doRenderItem(itemstack, light, x, y, z, boxScale, yaw, pitch, yawForPitch, poseStack, bufferSource, packedLight, packedOverlay);
 
 		poseStack.pushPose();
 		poseStack.translate(x, y, z);

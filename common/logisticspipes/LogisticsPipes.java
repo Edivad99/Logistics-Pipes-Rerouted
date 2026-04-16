@@ -204,7 +204,10 @@ public class LogisticsPipes {
 	//CHECKSTYLE:ON
 
 	public static final String UNKNOWN = "unknown";
-	private static boolean DEBUG = true;
+	// Dev-only: gates the + power-cheat button, the starter-pack bypass, security-station
+	// override, etc. Flipped off automatically in a shipped jar so players can't free-cheat
+	// infinite RF from the power junction.
+	private static final boolean DEBUG = !net.minecraftforge.fml.loading.FMLEnvironment.production;
 	private Consumer<ServerStartedEvent> minecraftTestStartMethod = null;
 
 	public static boolean isDEBUG() {

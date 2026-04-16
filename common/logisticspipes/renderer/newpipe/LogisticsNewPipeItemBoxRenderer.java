@@ -2,11 +2,14 @@ package logisticspipes.renderer.newpipe;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 
@@ -30,7 +33,7 @@ public class LogisticsNewPipeItemBoxRenderer {
 	private static final Map<FluidIdentifier, int[]> renderLists = new HashMap<>();
 
 	@OnlyIn(Dist.CLIENT)
-	public void doRenderItem(@Nonnull ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack) {
+	public void doRenderItem(@Nonnull ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 		if (LogisticsNewRenderPipe.innerTransportBox == null) return;
 		poseStack.pushPose();
 
@@ -46,13 +49,16 @@ public class LogisticsNewPipeItemBoxRenderer {
 		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
 		poseStack.translate(-0.5, -0.5, -0.5);
 
-		// Rebind the render state pose to the current PoseStack top so the transport
-		// box geometry below lands at the transformed position.
+		// Re-bind a fresh buffer on the RenderState. Any earlier MultiBufferSource.getBuffer()
+		// call (e.g. from LogisticsRenderPipe.render for the main pipe geometry) may have been
+		// drained when a different RenderType was requested further down the render path, so
+		// the cached rs.buffer reference would point at an un-started BufferBuilder. Fetching
+		// it again here returns a valid VertexConsumer for the current RenderType batch.
 		if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
 			logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
 				(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
-			rs.pose = poseStack.last().pose();
-			rs.normal = poseStack.last().normal();
+			VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
+			rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
 		}
 		SimpleServiceLocator.cclProxy.getRenderState().reset();
 		LogisticsNewRenderPipe.innerTransportBox.render(LogisticsNewRenderPipe.innerBoxTexture);
