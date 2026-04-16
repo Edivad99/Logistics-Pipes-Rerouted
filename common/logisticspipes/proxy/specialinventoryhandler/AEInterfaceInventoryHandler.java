@@ -1,5 +1,5 @@
 package logisticspipes.proxy.specialinventoryhandler;
-// TODO: Applied Energistics 2 API not ported — stub
+// NOTE: Applied Energistics 2 API not ported — stub
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

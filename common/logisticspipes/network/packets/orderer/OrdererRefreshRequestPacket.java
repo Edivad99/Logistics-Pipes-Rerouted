@@ -24,8 +24,7 @@ public class OrdererRefreshRequestPacket extends IntegerCoordinatesPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		int dimension = (getInteger() - (getInteger() % 10)) / 10;
-		final LogisticsTileGenericPipe pipe = MainProxy.proxy.getPipeInDimensionAt(dimension, getPosX(), getPosY(), getPosZ(), player);
+		final LogisticsTileGenericPipe pipe = MainProxy.proxy.getPipeInDimensionAt(getDimension(), getPosX(), getPosY(), getPosZ(), player);
 		if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe)) {
 			return;
 		}

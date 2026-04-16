@@ -41,6 +41,7 @@ import network.rs485.grow.Coroutines
 import network.rs485.markdown.*
 import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
+import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.resources.ResourceLocation
 import java.io.IOException
@@ -51,7 +52,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-// TODO: Rendering deferred — GL11/GlStateManager/Tessellator drawing methods stubbed for 1.20.1 migration.
+// Drawing falls back to vanilla `Font` via `GuiGraphics.drawString` — BDF glyph metrics still used
+// for width/height measurements so guidebook layout stays self-consistent. A full BDF→atlas rewrite
+// with Blaze3D buffers is deferred; the fallback keeps the guidebook legible in the meantime.
 
 class LPFontRenderer(private val fontName: String) {
     companion object Factory {
@@ -101,21 +104,55 @@ class LPFontRenderer(private val fontName: String) {
     fun width(text: String): Int = getStringWidth(text)
 
     /**
-     * Draws the given string — stubbed until rendering is migrated to 1.20.1 GuiGraphics/PoseStack.
+     * Draws the given string via vanilla `Font` (fallback until the BDF atlas pipeline is reimplemented).
+     * Width returned is BDF-derived so callers measuring our layout stay consistent.
      */
     fun drawString(string: String, x: Float, y: Float, color: Int, format: Set<TextFormat>, scale: Float): Int {
-        // TODO: deferred — migrate to GuiGraphics drawString
-        return 0
+        val gg = SimpleGraphics.guiGraphics ?: return getStringWidth(string, format, scale)
+        val font = Minecraft.getInstance().font
+        val formatted = applyFormatCodes(string, format)
+        val shadow = format.shadow()
+        if (scale == 1f) {
+            gg.drawString(font, formatted, x.toInt(), y.toInt(), color, shadow)
+        } else {
+            val pose = gg.pose()
+            pose.pushPose()
+            pose.translate(x, y, 0f)
+            pose.scale(scale, scale, 1f)
+            gg.drawString(font, formatted, 0, 0, color, shadow)
+            pose.popPose()
+        }
+        return getStringWidth(string, format, scale)
     }
 
     fun drawSpace(x: Float, y: Float, width: Int, color: Int, italic: Boolean, underline: Boolean, strikethrough: Boolean, shadow: Boolean, scale: Float): Int {
-        // TODO: deferred
+        if (!underline && !strikethrough) return width
+        val gg = SimpleGraphics.guiGraphics ?: return width
+        val h = (wrapperPlain.fontHeight * scale).toInt()
+        if (underline) {
+            gg.fill(x.toInt(), (y + h - 1).toInt(), (x + width).toInt(), (y + h).toInt(), color)
+        }
+        if (strikethrough) {
+            gg.fill(x.toInt(), (y + h / 2).toInt(), (x + width).toInt(), (y + h / 2 + 1).toInt(), color)
+        }
         return width
     }
 
     fun drawCenteredString(string: String, x: Float, y: Float, color: Int, tags: Set<TextFormat>, scale: Float): Int {
-        // TODO: deferred
-        return 0
+        val width = getStringWidth(string, tags, scale)
+        return drawString(string, x - width / 2f, y, color, tags, scale)
+    }
+
+    private fun applyFormatCodes(text: String, format: Set<TextFormat>): String {
+        if (format.isEmpty()) return text
+        val sb = StringBuilder()
+        if (format.italic()) sb.append('\u00a7').append('o')
+        if (format.bold()) sb.append('\u00a7').append('l')
+        if (format.underline()) sb.append('\u00a7').append('n')
+        if (format.strikethrough()) sb.append('\u00a7').append('m')
+        if (sb.isEmpty()) return text
+        sb.append(text)
+        return sb.toString()
     }
 
     fun getFontHeight(scale: Float = 1f): Int = (wrapperPlain.fontHeight * scale).toInt()

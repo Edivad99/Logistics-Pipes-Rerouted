@@ -14,7 +14,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
@@ -74,10 +73,6 @@ public final class LPGuiGraphics {
 			SimpleGraphics.guiGraphics.fill(x + 2, y + 15, x + 2 + j1, y + 16, l);
 			RenderSystem.enableDepthTest();
 		}
-	}
-
-	public static void displayItemToolTip(Object[] tooltip, Gui gui, float pzLevel, int guiLeft, int guiTop) {
-		// TODO: displayItemToolTip not implemented in 1.20.1
 	}
 
 	@SuppressWarnings("unchecked")
@@ -166,7 +161,7 @@ public final class LPGuiGraphics {
 				line = "\u00a77" + line;
 			}
 
-			SimpleGraphics.guiGraphics.drawString(Minecraft.getInstance().font, line, x, y, 0xFFFFFF | -16777216);
+			SimpleGraphics.guiGraphics.drawString(Minecraft.getInstance().font, line, x, y, 0xFFFFFF | -16777216, false);
 
 			if (i == 0) {
 				y += 2;
@@ -184,32 +179,40 @@ public final class LPGuiGraphics {
 		//Player "backpack"
 		for (int row = 0; row < 3; row++) {
 			for (int column = 0; column < 9; column++) {
-				LPGuiGraphics.drawSlotBackground(mc, xOffset + column * 18 - 1, yOffset + row * 18 - 1);
+				LPGuiGraphics.drawSlotBackground(mc, xOffset + column * 18, yOffset + row * 18);
 			}
 		}
 		//Player "hotbar"
 		for (int i1 = 0; i1 < 9; i1++) {
-			LPGuiGraphics.drawSlotBackground(mc, xOffset + i1 * 18 - 1, yOffset + 58 - 1);
+			LPGuiGraphics.drawSlotBackground(mc, xOffset + i1 * 18, yOffset + 58);
 		}
 	}
 
 	public static void drawPlayerHotbarBackground(Minecraft mc, int xOffset, int yOffset) {
 		//Player "hotbar"
 		for (int i1 = 0; i1 < 9; i1++) {
-			LPGuiGraphics.drawSlotBackground(mc, xOffset + i1 * 18 - 1, yOffset - 1);
+			LPGuiGraphics.drawSlotBackground(mc, xOffset + i1 * 18, yOffset);
 		}
 	}
 
 	public static void drawPlayerArmorBackground(Minecraft mc, int xOffset, int yOffset) {
 		//Player "armor"
 		for (int i1 = 0; i1 < 4; i1++) {
-			LPGuiGraphics.drawSlotBackground(mc, xOffset - 1, yOffset - 1 - i1 * 18);
+			LPGuiGraphics.drawSlotBackground(mc, xOffset, yOffset - i1 * 18);
 		}
 	}
 
 	private static void doDrawSlotBackground(Minecraft mc, int x, int y, ResourceLocation slotDiskTexture) {
 		LPGuiGraphics.zLevel = 0;
-		SimpleGraphics.guiGraphics.blit(slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
+		gg.blit(slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
+		// 1-pixel darker inset border so the slot visually separates from the panel on light backgrounds.
+		final int borderColor = 0x80373737;
+		gg.fill(x,      y,      x + 18, y + 1,  borderColor);
+		gg.fill(x,      y + 17, x + 18, y + 18, borderColor);
+		gg.fill(x,      y,      x + 1,  y + 18, borderColor);
+		gg.fill(x + 17, y,      x + 18, y + 18, borderColor);
 	}
 
 	public static void drawSlotDiskBackground(Minecraft mc, int x, int y) {
@@ -277,7 +280,41 @@ public final class LPGuiGraphics {
 		if (resetColor) {
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		}
-		// 9-patch: guibackground.png is 45x45 with 15px corner sections
-		SimpleGraphics.guiGraphics.blitNineSliced(LPGuiGraphics.BACKGROUND_TEXTURE, guiLeft, guiTop, right - guiLeft, bottom - guiTop, 15, 45, 45, 0, 0);
+		net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
+		if (gg == null) return;
+		final int panelW = right - guiLeft;
+		final int panelH = bottom - guiTop;
+		if (panelW <= 0 || panelH <= 0) return;
+
+		// 9-slice the 45×45 background texture (15px borders).
+		// blit(rl, x, y, u, v, w, h, texW, texH) — no stretching, src == dst size
+		// blitRepeating(rl, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, texW, texH) — tiles
+		final int BORDER = 15;
+		final int TEX = 45;
+		final int innerX = guiLeft + BORDER;
+		final int innerY = guiTop  + BORDER;
+		final int innerW = right  - BORDER - innerX;  // right-15 - (guiLeft+15)
+		final int innerH = bottom - BORDER - innerY;  // bottom-15 - (guiTop+15)
+
+		// Corners
+		if (displayTop  && displayLeft)  gg.blit(BACKGROUND_TEXTURE, guiLeft,       guiTop,        0.0f,        0.0f,        BORDER, BORDER, TEX, TEX);
+		if (displayTop  && displayRight) gg.blit(BACKGROUND_TEXTURE, right - BORDER, guiTop,       30.0f,        0.0f,        BORDER, BORDER, TEX, TEX);
+		if (displayBottom && displayLeft)  gg.blit(BACKGROUND_TEXTURE, guiLeft,       bottom-BORDER, 0.0f,       30.0f,        BORDER, BORDER, TEX, TEX);
+		if (displayBottom && displayRight) gg.blit(BACKGROUND_TEXTURE, right - BORDER, bottom-BORDER,30.0f,      30.0f,        BORDER, BORDER, TEX, TEX);
+
+		// Edges (tiled)
+		if (innerW > 0) {
+			if (displayTop)    gg.blitRepeating(BACKGROUND_TEXTURE, innerX, guiTop,        innerW, BORDER, BORDER, 0,      BORDER, BORDER, TEX, TEX);
+			if (displayBottom) gg.blitRepeating(BACKGROUND_TEXTURE, innerX, bottom-BORDER, innerW, BORDER, BORDER, 30,     BORDER, BORDER, TEX, TEX);
+		}
+		if (innerH > 0) {
+			if (displayLeft)   gg.blitRepeating(BACKGROUND_TEXTURE, guiLeft,        innerY, BORDER, innerH, 0,  BORDER, BORDER, BORDER, TEX, TEX);
+			if (displayRight)  gg.blitRepeating(BACKGROUND_TEXTURE, right - BORDER, innerY, BORDER, innerH, 30, BORDER, BORDER, BORDER, TEX, TEX);
+		}
+
+		// Center (always drawn)
+		if (innerW > 0 && innerH > 0) {
+			gg.blitRepeating(BACKGROUND_TEXTURE, innerX, innerY, innerW, innerH, BORDER, BORDER, BORDER, BORDER, TEX, TEX);
+		}
 	}
 }

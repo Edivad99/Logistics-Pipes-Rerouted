@@ -83,10 +83,10 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		public void renderForegroundContent() {
 			renderDistance.drawTextBox();
 			contentRenderDistance.drawTextBox();
-			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0x404040);
-			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0x404040);
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 70, 0x404040);
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 100, 0x404040);
+			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0x404040, false);
+			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0x404040, false);
+			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 70, 0x404040, false);
+			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 100, 0x404040, false);
 		}
 
 		@Override

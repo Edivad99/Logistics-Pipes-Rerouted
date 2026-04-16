@@ -42,7 +42,13 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
 		super.renderLabels(guiGraphics, par1, par2);
-
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerJunction.PREFIX + "LogisticsPowerJunction"), 30, 8, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerJunction.PREFIX + "StoredEnergy") + ":", 40, 23, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.formatNumberWithCommas(junction.getPowerLevel()) + " LP", 40, 33, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "/ " + TextUtil.formatNumberWithCommas(LogisticsPowerJunctionTileEntity.MAX_STORAGE) + " LP", 40, 43, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "1 MJ = 5 LP", 30, 58, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "1 EU = 2 LP", 100, 58, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "10 RF = 5 LP", 24, 68, 0x404040, false);
 	}
 
 	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/power_junction.png");
@@ -50,19 +56,12 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		// texture: GuiPowerJunction.TEXTURE
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(GuiPowerJunction.TEXTURE, j, k, 0, 0, imageWidth, imageHeight);
+		guiGraphics.blit(GuiPowerJunction.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 		int level = 100 - junction.getChargeState();
-		guiGraphics.blit(GuiPowerJunction.TEXTURE, j + 10, k + 11 + (level * 59 / 100), 176, level * 59 / 100, 5, 59 - (level * 59 / 100));
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerJunction.PREFIX + "LogisticsPowerJunction"), leftPos + 30, topPos + 8, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerJunction.PREFIX + "StoredEnergy") + ":", leftPos + 40, topPos + 23, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.formatNumberWithCommas(junction.getPowerLevel()) + " LP", leftPos + 40, topPos + 33, 0x404040);
-		guiGraphics.drawString(minecraft.font, "/ " + TextUtil.formatNumberWithCommas(LogisticsPowerJunctionTileEntity.MAX_STORAGE) + " LP", leftPos + 40, topPos + 43, 0x404040);
-		guiGraphics.drawString(minecraft.font, "1 MJ = 5 LP", leftPos + 30, topPos + 58, 0x404040);
-		guiGraphics.drawString(minecraft.font, "1 EU = 2 LP", leftPos + 100, topPos + 58, 0x404040);
-		guiGraphics.drawString(minecraft.font, "10 RF = 5 LP", leftPos + 24, topPos + 68, 0x404040);
+		int levelPixels = level * 59 / 100;
+		guiGraphics.blit(GuiPowerJunction.TEXTURE, j + 10, k + 11 + levelPixels, 176.0f, levelPixels, 5, 59 - levelPixels, 256, 256);
 	}
 
 	@Override

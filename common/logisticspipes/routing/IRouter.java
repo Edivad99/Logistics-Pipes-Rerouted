@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
@@ -29,7 +30,6 @@ public interface IRouter extends LPFinalSerializable {
 
 	void update(boolean doFullRefresh, CoreRoutedPipe pipe);
 
-	// TODO: Check if all usages (non-texture related) are OK.
 	boolean isRoutedExit(Direction connection);
 
 	boolean isSubPoweredExit(Direction connection);
@@ -48,9 +48,9 @@ public interface IRouter extends LPFinalSerializable {
 
 	CoreRoutedPipe getCachedPipe();
 
-	boolean isInDim(int dimension);
+	boolean isInDim(ResourceLocation dimension);
 
-	boolean isAt(int dimension, int xCoord, int yCoord, int zCoord);
+	boolean isAt(ResourceLocation dimension, int xCoord, int yCoord, int zCoord);
 
 	UUID getId();
 

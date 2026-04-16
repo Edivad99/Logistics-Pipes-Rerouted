@@ -187,10 +187,10 @@ public final class SimpleGraphics {
 
 		// make color gray-ish and draw shadow
 		int grayColor = (color & 16579836) >> 2 | color & -16777216;
-		endX = guiGraphics.drawString(font, s, x + 1, y + 1, grayColor);
+		endX = guiGraphics.drawString(font, s, x + 1, y + 1, grayColor, false);
 
 		// move to foreground and draw actual string
-		endX = Math.max(endX, guiGraphics.drawString(font, s, x, y, color));
+		endX = Math.max(endX, guiGraphics.drawString(font, s, x, y, color, false));
 
 		return endX;
 	}

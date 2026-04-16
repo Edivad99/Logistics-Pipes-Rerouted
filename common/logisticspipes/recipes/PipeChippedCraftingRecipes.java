@@ -207,41 +207,11 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 				new RecipeManager.RecipeIndex('i', "ingotIron")
 		);
 
-		registerPipeRecipeCategory(LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.pipeFluidBasic.get());
-		RecipeManager.craftingManager.addRecipe(new ItemStack(LPItems.pipeFluidBasic.get()),
-				new RecipeManager.RecipeLayout(
-						" p ",
-						"bsb",
-						"gwg"
-				),
-				new RecipeManager.RecipeIndex('b', parts.getChipBasic()),
-				new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(LPItems.pipeFluidBasic.get())),
-				new RecipeManager.RecipeIndex('s', LPItems.pipeBasic.get()),
-				new RecipeManager.RecipeIndex('w', Items.BUCKET),
-				new RecipeManager.RecipeIndex('g', "ingotGold")
-		);
-
-		registerPipeRecipeCategory(LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.pipeFluidTerminus.get());
-		RecipeManager.craftingManager.addRecipe(new ItemStack(LPItems.pipeFluidTerminus.get()),
-				new RecipeManager.RecipeLayout(
-						" p ",
-						"wsv",
-						"gbg"
-				),
-				new RecipeManager.RecipeIndex('b', parts.getChipBasic()),
-				new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(LPItems.pipeFluidTerminus.get())),
-				new RecipeManager.RecipeIndex('s', LPItems.pipeFluidBasic.get()),
-				new RecipeManager.RecipeIndex('w', "dyeBlack"),
-				new RecipeManager.RecipeIndex('v', "dyePurple"),
-				new RecipeManager.RecipeIndex('g', "ingotIron")
-		);
-
-		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.pipeFluidRequest.get(), LPItems.pipeFluidBasic.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.pipeFluidProvider.get(), LPItems.pipeFluidBasic.get());
+		// PipeFluidBasic and PipeFluidTerminus were removed in the 1.20.1 migration.
+		// Their LPItems fields are null; skip any recipe that references them.
+		// Upgrade recipes that previously used pipeFluidBasic as a base are dropped
+		// until a replacement base fluid pipe is decided.
 		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.pipeFluidSupplierMk2.get(), LPItems.pipeFluidSupplier.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.pipeFluidSatellite.get(), LPItems.pipeFluidBasic.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.pipeFluidInsertion.get(), LPItems.pipeFluidBasic.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.pipeFluidExtractor.get(), LPItems.pipeFluidBasic.get());
 
 	}
 

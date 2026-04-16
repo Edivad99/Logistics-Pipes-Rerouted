@@ -3,6 +3,7 @@ package logisticspipes.network.abstractpackets;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -34,7 +35,7 @@ public abstract class ModernPacket {
 	@Setter
 	private int debugId = 0;
 	@Getter
-	private int dimension = 0; // If the dimension is not set the packet will be handled in the main overworld
+	private ResourceLocation dimension = new ResourceLocation("minecraft", "overworld");
 
 	public List<IPacketContent<?>> content = Collections.emptyList();
 
@@ -42,25 +43,26 @@ public abstract class ModernPacket {
 		this.id = id;
 	}
 
-	public ModernPacket setDimension(int dimension) {
+	public ModernPacket setDimension(ResourceLocation dimension) {
 		this.dimension = dimension;
 		return this;
 	}
 
 	public ModernPacket setDimension(Level world) {
-		this.dimension = world.dimension().location().hashCode();
+		this.dimension = world.dimension().location();
 		return this;
 	}
 
 	public void readData(LPDataInput input) {
-		dimension = input.readInt();
+		ResourceLocation rl = input.readResourceLocation();
+		dimension = rl != null ? rl : new ResourceLocation("minecraft", "overworld");
 		content.forEach(it -> it.readData(input));
 	}
 
 	public abstract void processPacket(Player player);
 
 	public void writeData(LPDataOutput output) {
-		output.writeInt(dimension);
+		output.writeResourceLocation(dimension);
 		content.forEach(it -> it.writeData(output));
 	}
 

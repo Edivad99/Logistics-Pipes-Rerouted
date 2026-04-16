@@ -126,7 +126,36 @@ public class GuiRecipeImport extends SubGuiScreen {
 
 	@Override
 	protected void renderToolTips(int mouseX, int mouseY, float par3) {
-		// item rendering deferred; no tooltip to render
+		GuiGraphics gg = getGuiGraphics();
+		if (gg == null) return;
+		// Grid items (3×3)
+		for (int i = 0; i < 9; i++) {
+			Candidates c = grid[i];
+			if (c == null || c.order == null || c.order.isEmpty()) continue;
+			int gx = i % 3;
+			int gy = i / 3;
+			int sx = guiLeft + 44 + gx * 18;
+			int sy = guiTop + 19 + gy * 18;
+			if (mouseX >= sx && mouseX < sx + 16 && mouseY >= sy && mouseY < sy + 16) {
+				ItemStack stack = c.order.get(c.pos % c.order.size()).makeNormalStack();
+				gg.renderTooltip(font, stack, mouseX, mouseY);
+				return;
+			}
+		}
+		// Candidate selections
+		int x = 0, y = 0;
+		for (Candidates candidate : list) {
+			int sx = guiLeft + 20 + x * 40;
+			int sy = guiTop + 90 + y * 40;
+			if (candidate.order != null && !candidate.order.isEmpty()
+					&& mouseX >= sx && mouseX < sx + 16 && mouseY >= sy && mouseY < sy + 16) {
+				ItemStack stack = candidate.order.get(candidate.pos % candidate.order.size()).makeNormalStack();
+				gg.renderTooltip(font, stack, mouseX, mouseY);
+				return;
+			}
+			x++;
+			if (x > 2) { x = 0; y++; }
+		}
 	}
 
 	@Override

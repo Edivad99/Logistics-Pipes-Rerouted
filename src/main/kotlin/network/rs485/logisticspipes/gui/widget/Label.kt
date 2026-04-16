@@ -37,8 +37,7 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-// TODO: Rendering deferred — Label migrated to 1.20.1 stub.
-
+import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
@@ -61,7 +60,14 @@ open class Label(fullText: String, internal val x: Int, internal val y: Int, int
     }
 
     open fun draw(mouseX: Int, mouseY: Int) {
-        // TODO: deferred rendering — GlStateManager removed; migrate to GuiGraphics
+        val gg = SimpleGraphics.guiGraphics ?: return
+        hovered = hovered(mouseX, mouseY)
+        val rect = if (hovered) fullRect else trimmedRect
+        val text = if (hovered) fullText else trimmedText
+        if (backgroundColor != 0) {
+            gg.fill(rect.roundedLeft - 1, rect.roundedTop - 1, rect.roundedRight + 1, rect.roundedBottom + 1, backgroundColor)
+        }
+        gg.drawString(fontRenderer, text, rect.roundedLeft, rect.roundedTop, textColor, false)
     }
 
     open fun setText(newFullText: String) {

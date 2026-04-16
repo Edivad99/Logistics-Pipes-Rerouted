@@ -1,7 +1,5 @@
 package logisticspipes.utils.gui;
 
-import javax.annotation.Nonnull;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -53,15 +51,6 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 		yCenter = (bottom + guiTop) / 2;
 	}
 
-	@Override
-	protected <T extends net.minecraft.client.gui.components.events.GuiEventListener & net.minecraft.client.gui.components.Renderable & net.minecraft.client.gui.narration.NarratableEntry> T addRenderableWidget(@Nonnull T button) {
-		if (button instanceof SmallGuiButton) {
-			((SmallGuiButton) button).setPressListener(this::actionPerformed);
-		}
-		return super.addRenderableWidget(button);
-	}
-
-	protected void actionPerformed(net.minecraft.client.gui.components.AbstractButton button) {}
 
 	public void register(ISubGuiControler gui) {
 		controler = gui;
@@ -82,6 +71,11 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	@Override
 	public net.minecraft.client.gui.GuiGraphics getGuiGraphics() {
 		return storedGuiGraphics;
+	}
+
+	@Override
+	public void renderBackground(net.minecraft.client.gui.GuiGraphics guiGraphics) {
+		// Background is drawn by renderGuiBackground() — suppress Screen's renderMenuBackground overlay
 	}
 
 	@Override
@@ -108,11 +102,6 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
 
 	protected abstract void renderGuiBackground(int mouseX, int mouseY);
-
-	// TODO: handleMouseInput/handleKeyboardInput removed in 1.20.1 — mouse/keyboard handling via individual event methods
-	// public final void handleMouseInput() { ... }
-	// public void handleMouseInputSub() { ... }
-	// public final void handleKeyboardInput() { ... }
 
 	@Override
 	public void resize(Minecraft mc, int width, int height) {
@@ -142,8 +131,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 		if (subGui == null) {
 			subGui = gui;
 			subGui.register(this);
-			subGui.resize(minecraft, width, height);
-			subGui.init();
+			subGui.init(minecraft, width, height);
 		}
 	}
 

@@ -206,7 +206,7 @@ public class ItemDisplay {
 			up = false;
 		}
 		name += !up ? " /\\" : " \\/";
-		screen.guiGraphics.drawString(font, name, x - font.width(name) / 2, y, 0x404040);
+		screen.guiGraphics.drawString(font, name, x - font.width(name) / 2, y, 0x404040, false);
 	}
 
 	public void renderPageNumber(int x, int y) {
@@ -218,7 +218,7 @@ public class ItemDisplay {
 			page = maxPage;
 		}
 		String pageString = "Page " + (page + 1) + " / " + (maxPage + 1);
-		screen.guiGraphics.drawString(font, pageString, x - font.width(pageString) / 2, y, 0x404040);
+		screen.guiGraphics.drawString(font, pageString, x - font.width(pageString) / 2, y, 0x404040, false);
 	}
 
 	private int getSearchedItemNumber() {
@@ -234,8 +234,8 @@ public class ItemDisplay {
 	public void renderAmount(int stackAmount) {
 		int requestCount = requestCountBar.getInt();
 		String StackrequestCount = "" + (requestCount / stackAmount) + "+" + (requestCount % stackAmount);
-		//screen.guiGraphics.drawString(font, requestCount + "", x - font.width(requestCount + "") / 2, y, 0x404040);
-		screen.guiGraphics.drawString(font, StackrequestCount + "", this.amountPosLeft - font.width(StackrequestCount + "") / 2, this.amountPosTop + 11, 0x404040);
+		//screen.guiGraphics.drawString(font, requestCount + "", x - font.width(requestCount + "") / 2, y, 0x404040, false);
+		screen.guiGraphics.drawString(font, StackrequestCount + "", this.amountPosLeft - font.width(StackrequestCount + "") / 2, this.amountPosTop + 11, 0x404040, false);
 
 		requestCountBar.drawTextBox();
 	}

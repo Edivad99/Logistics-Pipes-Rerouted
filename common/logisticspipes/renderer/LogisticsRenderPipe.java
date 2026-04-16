@@ -72,25 +72,22 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 			drawPlaceholderCube(tileentity, poseStack, bufferSource, packedLight, packedOverlay);
 		}
 
-		// Everything below drives the legacy CCL-based path. Gate until CCLProxy is activated.
-		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
-
-		// Bind the current MultiBufferSource buffer + lighting into the render state so that
-		// any IModel3D.render(ops...) calls made downstream emit vertices into the correct
-		// RenderType batch. The solid RenderType covers opaque pipe geometry; translucent
-		// fluid/overlay passes will bind their own buffer when those paths are migrated.
-		if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
-			logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
-				(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
-			com.mojang.blaze3d.vertex.VertexConsumer buffer =
-				bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.cutoutMipped());
-			rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
+		// Bind CCL render state buffers only when the CCL-based pipe geometry path is active.
+		if (SimpleServiceLocator.cclProxy.isActivated()) {
+			if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
+				logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
+					(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
+				com.mojang.blaze3d.vertex.VertexConsumer buffer =
+					bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.cutoutMipped());
+				rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
+			}
 		}
 
+		// renderInternal handles pipe signs, traveling item boxes, and pipe sign rendering.
+		// The CCL-gated sub-paths inside it are individually guarded; call it unconditionally
+		// so that item-in-transit rendering (renderSolids) is not blocked by CCL being off.
 		poseStack.pushPose();
 		try {
-			// Historic renderInternal() was called with absolute world x/y/z; the new BER
-			// pipeline provides a PoseStack pre-translated to the block origin, so pass (0,0,0).
 			renderInternal(tileentity, 0, 0, 0, partialTicks, -1, 1.0f, poseStack, bufferSource, packedLight, packedOverlay);
 		} finally {
 			poseStack.popPose();
@@ -157,7 +154,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
 	private void renderInternal(@Nullable LogisticsTileGenericPipe tileentity, double x, double y, double z, float partialTicks, int destroyStage, float alpha,
 			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		boolean inHand = (tileentity == null || (x == 0 && y == 0 && z == 0));
+		// In 1.20.1 the BER PoseStack is pre-translated, so we always pass (0,0,0).
+		// Use tileentity==null as the sole in-hand signal instead.
+		boolean inHand = (tileentity == null);
 		if (!inHand && tileentity.pipe == null) {
 			return;
 		}
@@ -189,17 +188,10 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 				LogisticsRenderPipe.secondRenderer.renderTileEntityAt(tileentity, x, y, z, partialTicks, distance);
 			}
 
-			if (!inHand && !tileentity.isOpaque() && SimpleServiceLocator.cclProxy.isActivated()) {
-				if (tileentity.pipe.transport instanceof PipeFluidTransportLogistics) {
-					//renderFluids(pipe.pipe, x, y, z);
-				}
+			if (!inHand && !tileentity.isOpaque()) {
+				// renderSolids uses only Blaze3D / PoseStack — no CCL dependency.
 				if (tileentity.pipe.transport != null) {
-					try {
-						renderSolids(tileentity.pipe, x, y, z, partialTicks, poseStack, bufferSource, packedLight, packedOverlay);
-					} catch (Throwable t) {
-						// Item-in-transit rendering depends on ItemStackRenderer which still has TODOs;
-						// swallow failures so a broken item render doesn't hide the whole pipe.
-					}
+					renderSolids(tileentity.pipe, x, y, z, partialTicks, poseStack, bufferSource, packedLight, packedOverlay);
 				}
 			}
 		} finally {
@@ -314,9 +306,10 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(yawForPitch)));
 		poseStack.mulPose(new org.joml.Quaternionf().rotationX((float) Math.toRadians(pitch)));
 		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
-		poseStack.translate(0.0F, -0.35F, 0.0F);
+		// In 1.12.2 the -0.35 offset compensated for EntityItem's foot-to-center gap; in 1.20.1
+		// ir.renderStatic(GROUND) has no such offset, so we leave the item centred in the pipe.
 		itemRenderer.setItemstack(itemstack).setWorld(world).setPartialTickTime(partialTickTime);
-		itemRenderer.renderInWorld();
+		itemRenderer.renderInWorld(poseStack, bufferSource, packedLight, packedOverlay);
 		poseStack.popPose();
 	}
 

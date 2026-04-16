@@ -66,13 +66,18 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 			minecraft.player.closeContainer();
 		}
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
-		guiGraphics.drawString(minecraft.font, "HUD Chassis Pipe", leftPos + 50, topPos + 13, 0x4c4c4c);
-		guiGraphics.drawString(minecraft.font, "HUD Crafting Pipe", leftPos + 50, topPos + 33, 0x4c4c4c);
-		guiGraphics.drawString(minecraft.font, "HUD InvSysCon Pipe", leftPos + 50, topPos + 53, 0x4c4c4c);
-		guiGraphics.drawString(minecraft.font, "HUD Power Junction", leftPos + 50, topPos + 73, 0x4c4c4c);
-		guiGraphics.drawString(minecraft.font, "HUD Provider Pipe", leftPos + 50, topPos + 93, 0x4c4c4c);
-		guiGraphics.drawString(minecraft.font, "HUD Satellite Pipe", leftPos + 50, topPos + 113, 0x4c4c4c);
 		LPGuiGraphics.drawPlayerHotbarBackground(minecraft, leftPos + 10, topPos + 134);
 		LPGuiGraphics.drawPlayerArmorBackground(minecraft, leftPos + 10, topPos + 65);
+	}
+
+	@Override
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		guiGraphics.drawString(minecraft.font, "HUD Chassis Pipe", 50, 13, 0x4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Crafting Pipe", 50, 33, 0x4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD InvSysCon Pipe", 50, 53, 0x4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Power Junction", 50, 73, 0x4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Provider Pipe", 50, 93, 0x4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Satellite Pipe", 50, 113, 0x4c4c4c, false);
 	}
 }

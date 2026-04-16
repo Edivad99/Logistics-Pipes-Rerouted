@@ -117,7 +117,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	int ticksUntillNextInventoryCheck = 0;
 	private EnumSet<Direction> _routedExits = EnumSet.noneOf(Direction.class);
 	private EnumMap<Direction, Integer> _subPowerExits = new EnumMap<>(Direction.class);
-	private final int _dimension;
+	private final net.minecraft.resources.ResourceLocation _dimension;
 	private WeakReference<CoreRoutedPipe> _myPipeCache = null;
 	private final LinkedList<Pair<Integer, IRouterQueuedTask>> queue = new LinkedList<>();
 	int connectionNeedsChecking = 0;
@@ -149,7 +149,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	private Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
 	private Set<LPTileEntityObject> oldTouchedPipes = new HashSet<>();
 
-	public ServerRouter(UUID globalID, int dimension, int xCoord, int yCoord, int zCoord) {
+	public ServerRouter(UUID globalID, net.minecraft.resources.ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
 		if (globalID != null) {
 			id = globalID;
 		} else {
@@ -274,13 +274,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	@Override
-	public boolean isInDim(int dimension) {
-		return _dimension == dimension;
+	public boolean isInDim(net.minecraft.resources.ResourceLocation dimension) {
+		return _dimension.equals(dimension);
 	}
 
 	@Override
-	public boolean isAt(int dimension, int xCoord, int yCoord, int zCoord) {
-		return _dimension == dimension && _xCoord == xCoord && _yCoord == yCoord && _zCoord == zCoord;
+	public boolean isAt(net.minecraft.resources.ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+		return _dimension.equals(dimension) && _xCoord == xCoord && _yCoord == yCoord && _zCoord == zCoord;
 	}
 
 	@Override
@@ -294,16 +294,11 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		if (crp != null) {
 			return crp;
 		}
-		// Dimension encoded as dim.location().hashCode() (see ModernPacket/RouterManager).
 		Level world = null;
 		var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
 		if (server != null) {
-			for (net.minecraft.server.level.ServerLevel lvl : server.getAllLevels()) {
-				if (lvl.dimension().location().hashCode() == _dimension) {
-					world = lvl;
-					break;
-				}
-			}
+			world = server.getLevel(net.minecraft.resources.ResourceKey.create(
+					net.minecraft.core.registries.Registries.DIMENSION, _dimension));
 		}
 		if (world == null) {
 			return null;

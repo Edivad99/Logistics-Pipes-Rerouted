@@ -143,7 +143,11 @@ public class TextureMatrix {
 				dirty = true;
 			}
 		}
-		textureIndex = input.readInt();
+		int newTextureIndex = input.readInt();
+		if (newTextureIndex != textureIndex) {
+			textureIndex = newTextureIndex;
+			dirty = true;
+		}
 		isRouted = input.readBoolean();
 		isRoutedInDir = input.readBooleanArray();
 		isSubPowerInDir = input.readBooleanArray();

@@ -237,7 +237,7 @@ public class LogisticsPipes {
 		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
 			modEventBus.register(logisticspipes.textures.TextureRegistrar.class);
 		}
-		LPDataFixer.INSTANCE.init(modEventBus);
+		LPDataFixer.INSTANCE.init();
 		// Networking is registered during preInit via PacketHandler.registerMessages().
 		// Items/blocks/BEs/creative-tabs are registered via DeferredRegister in LPRegistries.
 
@@ -362,6 +362,7 @@ public class LogisticsPipes {
 			if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT) {
 				RenderTickHandler sub = new RenderTickHandler();
 				MinecraftForge.EVENT_BUS.register(sub);
+				MinecraftForge.EVENT_BUS.register(network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor.INSTANCE);
 				SimpleServiceLocator.setClientPacketBufferHandlerThread(new ClientPacketBufferHandlerThread());
 				LPFontRenderer.Factory.asyncPreload();
 			}
@@ -372,7 +373,7 @@ public class LogisticsPipes {
 			new RoutingTableUpdateThread(i);
 		}
 
-		// LPDataFixer.INSTANCE.init() moved to constructor — MissingMappingsEvent now fires on mod event bus
+
 
 		// load all the models so they don't get loaded and crash on concurrent class loading.
 		// Each loader is wrapped in its own try/catch so a failure in one OBJ file / group
@@ -475,6 +476,7 @@ public class LogisticsPipes {
 		event.registerBlockEntityRenderer(LPRegistries.BE_CRAFTING_TABLE.get(),    logisticspipes.renderer.LogisticsSolidBlockRenderer::new);
 		event.registerBlockEntityRenderer(LPRegistries.BE_STATISTICS_TABLE.get(),  logisticspipes.renderer.LogisticsSolidBlockRenderer::new);
 		event.registerBlockEntityRenderer(LPRegistries.BE_PROGRAM_COMPILER.get(),  logisticspipes.renderer.LogisticsSolidBlockRenderer::new);
+		event.registerBlockEntityRenderer(LPRegistries.BE_FRAME.get(),             logisticspipes.renderer.LogisticsSolidBlockRenderer::new);
 	}
 
 	private static void safeLoadModels(String name, Runnable loader) {

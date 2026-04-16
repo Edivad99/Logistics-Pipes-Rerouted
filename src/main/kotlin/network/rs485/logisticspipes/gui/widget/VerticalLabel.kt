@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-// TODO: Rendering deferred — VerticalLabel migrated to 1.20.1 stub.
-
+import com.mojang.math.Axis
+import logisticspipes.utils.gui.SimpleGraphics
 import network.rs485.logisticspipes.util.TextUtil
 
 class VerticalLabel(fullText: String, x: Int, y: Int, maxLength: Int, textColor: Int, backgroundColor: Int) : Label(fullText, x, y, maxLength, textColor, backgroundColor) {
@@ -46,7 +46,19 @@ class VerticalLabel(fullText: String, x: Int, y: Int, maxLength: Int, textColor:
     override val overflows: Boolean get() = fullRect.height > maxLength
 
     override fun draw(mouseX: Int, mouseY: Int) {
-        // TODO: deferred rendering — GlStateManager.rotate removed; migrate to GuiGraphics/PoseStack
+        val gg = SimpleGraphics.guiGraphics ?: return
+        hovered = hovered(mouseX, mouseY)
+        val rect = if (hovered) fullRect else trimmedRect
+        val text = if (hovered) fullText else trimmedText
+        val pose = gg.pose()
+        pose.pushPose()
+        pose.translate(rect.x0, rect.y0 + rect.height, 0f)
+        pose.mulPose(Axis.ZP.rotationDegrees(-90f))
+        if (backgroundColor != 0) {
+            gg.fill(-1, -1, fontRenderer.width(text) + 1, fontRenderer.lineHeight + 1, backgroundColor)
+        }
+        gg.drawString(fontRenderer, text, 0, 0, textColor, false)
+        pose.popPose()
     }
 
     override fun setText(newFullText: String) {

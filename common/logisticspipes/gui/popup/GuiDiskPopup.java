@@ -148,7 +148,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 		}
 		getGuiGraphics().fill(guiLeft + 12, guiTop + 30, right - 12, guiTop + 43, Color.getValue(Color.DARKER_GREY));
 
-		getGuiGraphics().drawString(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFF);
+		getGuiGraphics().drawString(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFF, false);
 
 		//getGuiGraphics().fill(guiLeft + 6, guiTop + 46, right - 6, bottom - 30, Color.getValue(Color.GREY));
 

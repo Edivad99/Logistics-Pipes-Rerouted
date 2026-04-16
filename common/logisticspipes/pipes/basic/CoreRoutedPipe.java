@@ -12,7 +12,10 @@ import java.util.concurrent.PriorityBlockingQueue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.world.entity.player.Player;
@@ -268,7 +271,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			CoreRoutedPipe pipe = r.getCachedPipe();
 			if (pipe != null) {
 				pipe.notifyOfSend(routedItem.getInfo());
-			} // else TODO: handle sending items to known chunk-unloaded destination?
+			}
+			// If the destination pipe's chunk is currently unloaded, getCachedPipe() returns null.
+			// That's fine: the item still travels through the loaded portion of the network, and
+			// when it arrives at the destination pipe's BlockEntity (which reloads with its chunk)
+			// normal delivery takes over. We just skip the in-transit bookkeeping for that pipe —
+			// the send queue's timeout (see _inTransitToMe prune in updateEntity) catches any
+			// permanently-orphaned items.
 		} // should not be able to send to a non-existing router
 		// router.startTrackingRoutedItem((RoutedEntityItem) routedItem.getTravelingItem());
 		spawnParticle(Particles.OrangeParticle, 2);
@@ -302,10 +311,26 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	 * @return boolean indicating if other and this are attached to the same inventory.
 	 */
 	public boolean isOnSameContainer(CoreRoutedPipe other) {
-		// FIXME: Same BlockEntity? Same Inventory view?
-		return adjacent.connectedPos().keySet().stream().anyMatch(
-			other.adjacent.connectedPos().keySet()::contains
-		);
+		Set<BlockPos> myPositions = adjacent.connectedPos().keySet();
+		Set<BlockPos> otherPositions = other.adjacent.connectedPos().keySet();
+
+		// Direct overlap: both pipes adjacent to the same block
+		if (myPositions.stream().anyMatch(otherPositions::contains)) {
+			return true;
+		}
+
+		// Double-chest: one pipe is adjacent to the left half, the other to the right half.
+		// ChestBlock.getConnectedDirection() points from one half to the partner half.
+		net.minecraft.world.level.Level world = getWorld();
+		if (world == null) return false;
+		for (BlockPos pos : myPositions) {
+			BlockState state = world.getBlockState(pos);
+			if (!(state.getBlock() instanceof ChestBlock)) continue;
+			if (state.getValue(ChestBlock.TYPE) == ChestType.SINGLE) continue;
+			BlockPos partner = pos.relative(ChestBlock.getConnectedDirection(state));
+			if (otherPositions.contains(partner)) return true;
+		}
+		return false;
 	}
 
 	/***
@@ -803,9 +828,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Nonnull
 	public IRouter getRouter() {
 		if (stillNeedReplace) {
-			LogisticsPipes.log.warn("Pipe not ready at ({}, {}, {}, '{}')", this.getX(), this.getY(), this.getZ(),
-					getWorld() != null ? getWorld().dimension().location().toString() : "unknown",
-					new Throwable("stack trace"));
+			LogisticsPipes.log.debug("Pipe not ready at ({}, {}, {}, '{}')", this.getX(), this.getY(), this.getZ(),
+					getWorld() != null ? getWorld().dimension().location().toString() : "unknown");
 		}
 		if (router == null) {
 			synchronized (routerIdLock) {
@@ -881,7 +905,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				if (settings == null || settings.openRequest) {
 					logisticspipes.network.guis.pipe.NormalOrdererGui gui = logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
 					gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-					gui.setDim(entityplayer.level().dimension().location().hashCode());
+					gui.setDim(entityplayer.level().dimension().location());
 					gui.open(entityplayer);
 				} else {
 					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));

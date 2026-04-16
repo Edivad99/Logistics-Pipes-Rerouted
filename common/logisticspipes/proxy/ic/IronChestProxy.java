@@ -1,5 +1,5 @@
 package logisticspipes.proxy.ic;
-// TODO: IronChest not ported to 1.20.1 — stub
+// NOTE: IronChest not ported to 1.20.1 — stub
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;

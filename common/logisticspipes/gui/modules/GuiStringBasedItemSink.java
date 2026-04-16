@@ -1,5 +1,6 @@
 package logisticspipes.gui.modules;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +36,10 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 	private int mouseY = 0;
 	private SmallGuiButton addButton;
 	private SmallGuiButton removeButton;
+
+	// Buffered text labels populated in renderBg, drawn in renderLabels
+	private final List<String> labelTexts = new ArrayList<>();
+	private final List<int[]> labelPositions = new ArrayList<>(); // {x, y, color}
 
 	public GuiStringBasedItemSink(Container playerInventory, LogisticsModule module) {
 		super(buildDummy(playerInventory, module), module);
@@ -96,11 +101,16 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 7, topPos + 126);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 6, topPos + 7);
 		SimpleGraphics.drawRectNoBlend(leftPos + 26, topPos + 5, leftPos + 169, topPos + 17, Color.DARK_GREY, 0.0);
+
+		labelTexts.clear();
+		labelPositions.clear();
+
 		stringListOverlay.read(strings -> {
 			final ItemIdentifierStack analyseStack = tmpInv.getIDStackInSlot(0);
 			if (analyseStack != null) {
 				name = "";
-				guiGraphics.drawString(minecraft.font, stringBasedModule.getStringForItem(analyseStack.getItem()), leftPos + 28, topPos + 7, 0x404040);
+				labelTexts.add(stringBasedModule.getStringForItem(analyseStack.getItem()));
+				labelPositions.add(new int[]{28, 7, 0x404040});
 				if (strings.contains(stringBasedModule.getStringForItem(analyseStack.getItem()))) {
 					addButton.active = false;
 					removeButton.active = true;
@@ -116,7 +126,8 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 				removeButton.active = false;
 			} else {
 				if (strings.contains(name)) {
-					guiGraphics.drawString(minecraft.font, name, leftPos + 28, topPos + 7, 0x404040);
+					labelTexts.add(name);
+					labelPositions.add(new int[]{28, 7, 0x404040});
 					addButton.active = false;
 					removeButton.active = true;
 				} else {
@@ -126,14 +137,14 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 				}
 			}
 			guiGraphics.fill(leftPos + 5, topPos + 30, leftPos + 169, topPos + 122, Color.DARK_GREY.getValue());
+			int pointerX = var2 - leftPos;
+			int pointerY = var3 - topPos;
 			for (int i = 0; i < strings.size() && i < 9; i++) {
-				int pointerX = var2 - leftPos;
-				int pointerY = var3 - topPos;
 				if (6 <= pointerX && pointerX < 168 && 31 + (10 * i) <= pointerY && pointerY < 31 + (10 * (i + 1))) {
-					guiGraphics.fill(leftPos + 6, topPos + 31 + (10 * i), leftPos + 168, topPos + 31 + (10 * (i + 1)),
-							Color.LIGHT_GREY.getValue());
+					guiGraphics.fill(leftPos + 6, topPos + 31 + (10 * i), leftPos + 168, topPos + 31 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
 				}
-				guiGraphics.drawString(minecraft.font, strings.get(i), leftPos + 7, topPos + 32 + (10 * i), 0x404040);
+				labelTexts.add(strings.get(i));
+				labelPositions.add(new int[]{7, 32 + (10 * i), 0x404040});
 				if (6 <= mouseX && mouseX < 168 && 31 + (10 * i) <= mouseY && mouseY < 31 + (10 * (i + 1))) {
 					name = strings.get(i);
 					mouseX = 0;
@@ -143,5 +154,14 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 			}
 			return null;
 		});
+	}
+
+	@Override
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		for (int i = 0; i < labelTexts.size(); i++) {
+			int[] pos = labelPositions.get(i);
+			guiGraphics.drawString(minecraft.font, labelTexts.get(i), pos[0], pos[1], pos[2], false);
+		}
 	}
 }

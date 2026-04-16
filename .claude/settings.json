@@ -12,7 +12,10 @@
       "Bash(javap -classpath \"C:/Users/VoiceLessQ/.gradle/caches/modules-2/files-2.1/mezz.jei/jei-1.20.1-common-api/15.20.0.129/4009a25b3b74c0dadee64231b3902f675637d2b5/jei-1.20.1-common-api-15.20.0.129.jar\" mezz.jei.api.gui.handlers.IGuiContainerHandler)",
       "Bash(javap -classpath \"C:/Users/VoiceLessQ/.gradle/caches/modules-2/files-2.1/mezz.jei/jei-1.20.1-common-api/15.20.0.129/4009a25b3b74c0dadee64231b3902f675637d2b5/jei-1.20.1-common-api-15.20.0.129.jar\" mezz.jei.api.recipe.RecipeIngredientRole)",
       "Bash(javap -classpath \"C:/Users/VoiceLessQ/.gradle/caches/modules-2/files-2.1/mezz.jei/jei-1.20.1-common-api/15.20.0.129/4009a25b3b74c0dadee64231b3902f675637d2b5/jei-1.20.1-common-api-15.20.0.129.jar\" mezz.jei.api.recipe.transfer.IRecipeTransferHandler)",
-      "Bash(javap -classpath \"C:/Users/VoiceLessQ/.gradle/caches/modules-2/files-2.1/mezz.jei/jei-1.20.1-common-api/15.20.0.129/4009a25b3b74c0dadee64231b3902f675637d2b5/jei-1.20.1-common-api-15.20.0.129.jar\" \"mezz.jei.api.registration.IGuiHandlerRegistration\")"
+      "Bash(javap -classpath \"C:/Users/VoiceLessQ/.gradle/caches/modules-2/files-2.1/mezz.jei/jei-1.20.1-common-api/15.20.0.129/4009a25b3b74c0dadee64231b3902f675637d2b5/jei-1.20.1-common-api-15.20.0.129.jar\" \"mezz.jei.api.registration.IGuiHandlerRegistration\")",
+      "Bash(tee \"C:/temp/final_output.json\")",
+      "Bash(./gradlew compileJava --rerun-tasks)",
+      "Bash(grep -v \"rendering deferred\\\\|deferred rendering\\\\|deferred.*render\\\\|render.*deferred\\\\|GL11\\\\|glEnd\\\\|glNew\\\\|glCall\\\\|glBlend\\\\|glPush\\\\|glPop\\\\|glGet\\\\|Tessellator\\\\|IUnlisted\\\\|TextureAtlas\\\\|IExtended\\\\|ICustomModel\\\\|BufferBuilder\\\\|RenderSystem\\\\|PoseStack\\\\|GuiGraphics\\\\|drawImage\\\\|drawScreen\\\\|Font\\\\\\\\.draw\\\\|SoundManager\\\\|sound\\\\|fluid select\\\\|guide book\\\\|translucent\\\\|BakedModel\\\\|LogisticsNew.*Model\\\\|FluidContainer.*Renderer\")"
     ]
   }
 }

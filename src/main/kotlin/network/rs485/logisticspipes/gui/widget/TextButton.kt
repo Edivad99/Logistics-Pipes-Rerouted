@@ -37,9 +37,8 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-// TODO: Rendering deferred — TextButton migrated to 1.20.1 stub (GlStateManager removed).
-
 import logisticspipes.utils.Color
+import logisticspipes.utils.gui.SimpleGraphics
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.Margin
 import network.rs485.logisticspipes.gui.Size
@@ -96,7 +95,13 @@ open class TextButton(
 
     override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         super.draw(mouseX, mouseY, delta, visibleArea)
-        // TODO: deferred rendering — GlStateManager.enableBlend/blendFunc/drawCenteredString removed; migrate to GuiGraphics
+        val gg = SimpleGraphics.guiGraphics ?: return
+        if (!visible) return
+        val color = if (enabled) Color.WHITE.value else 0xFFA0A0A0.toInt()
+        val textWidth = helper.mcFontRenderer.width(trimmedText)
+        val cx = absoluteBody.roundedLeft + absoluteBody.roundedWidth / 2 - textWidth / 2
+        val cy = absoluteBody.roundedTop + yOffset
+        gg.drawString(helper.mcFontRenderer, trimmedText, cx, cy, color, true)
     }
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int): Boolean = if (enabled) {

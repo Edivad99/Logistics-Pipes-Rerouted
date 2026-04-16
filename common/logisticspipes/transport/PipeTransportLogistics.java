@@ -101,7 +101,7 @@ public class PipeTransportLogistics {
 			chunk = getWorld().getChunkAt(container.getBlockPos());
 			ItemBufferSyncPacket packet = PacketHandler.getPacket(ItemBufferSyncPacket.class);
 			packet.setTilePos(container);
-			_itemBuffer.setPacketType(packet, getWorld().dimension().hashCode(), container.getX(), container.getZ());
+			_itemBuffer.setPacketType(packet, getWorld().dimension().location().hashCode(), container.getX(), container.getZ());
 		}
 	}
 
@@ -716,7 +716,7 @@ public class PipeTransportLogistics {
 	}
 
 	private void sendItemPacket(LPTravelingItemServer item) {
-		if (MainProxy.isAnyoneWatching(container.getBlockPos(), getWorld().dimension().hashCode())) {
+		if (MainProxy.isAnyoneWatching(container.getBlockPos(), getWorld().dimension().location().hashCode())) {
 			if (!LPTravelingItem.clientSideKnownIDs.get(item.getId())) {
 				MainProxy.sendPacketToAllWatchingChunk(container, (PacketHandler.getPacket(PipeContentPacket.class).setItem(item.getItemIdentifierStack()).setTravelId(item.getId())));
 				LPTravelingItem.clientSideKnownIDs.set(item.getId());
@@ -736,15 +736,33 @@ public class PipeTransportLogistics {
 			item = new LPTravelingItemClient(travelId, position, input, output, yaw);
 			item.setSpeed(speed);
 			LPTravelingItem.clientList.put(travelId, new WeakReference<>(item));
+			// Prevent double-move only for newly created items (they haven't been ticked yet).
+			item.lastTicked = MainProxy.getGlobalTick();
 		} else {
-			if (item.getContainer() instanceof LogisticsTileGenericPipe) {
-				((LogisticsTileGenericPipe) item.getContainer()).pipe.transport.items.scheduleRemoval(item);
-				((LogisticsTileGenericPipe) item.getContainer()).pipe.transport.items.removeScheduledItems();
+			if (item.getContainer() instanceof LogisticsTileGenericPipe oldPipe) {
+				oldPipe.pipe.transport.items.scheduleRemoval(item);
+				oldPipe.pipe.transport.items.removeScheduledItems();
+				// Compute a continuous position rather than snapping to the server's stale value.
+				// In 1.20.1 the integrated server runs on a separate thread, so packets arrive
+				// ~1 tick late.  Hard-snapping causes a backward jump + 1-tick pause at every
+				// pipe boundary.
+				float adjustedPosition;
+				if (!oldPipe.getBlockPos().equals(container.getBlockPos())) {
+					// Item is crossing into this pipe on the client side.
+					// Derive position from old-pipe offset for visual continuity.
+					adjustedPosition = Math.max(0.0F, item.getPosition() - oldPipe.pipe.transport.getPipeLength());
+				} else {
+					// Already in the correct pipe — never go backward.
+					adjustedPosition = Math.max(position, item.getPosition());
+				}
+				item.updateInformation(input, output, speed, adjustedPosition, yaw);
+			} else {
+				item.updateInformation(input, output, speed, position, yaw);
 			}
-			item.updateInformation(input, output, speed, position, yaw);
+			// Do NOT set lastTicked for existing mid-flight items.
+			// Setting it causes a 1-tick advancement pause at every pipe boundary,
+			// which is the root cause of the visible hiccup.
 		}
-		//update lastTicked so we don't double-move items
-		item.lastTicked = MainProxy.getGlobalTick();
 		if (items.get(travelId) == null) {
 			items.add(item);
 		}

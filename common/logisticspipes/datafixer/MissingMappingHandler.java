@@ -4,11 +4,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 
+import net.minecraftforge.event.level.ChunkDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.MissingMappingsEvent;
@@ -190,6 +194,30 @@ public class MissingMappingHandler {
 			if (newType != null) {
 				mapping.remap(newType);
 			}
+		}
+	}
+
+	// Solid block items in 1.12.2 used a single registry key ("logisticspipes:solid_block") with
+	// a Damage metadata value to distinguish variants. In 1.20.1 each variant is its own item.
+	// MissingMappingsEvent cannot do per-meta remapping, so we fix the raw chunk NBT here before
+	// MC deserializes it — at which point the correct per-variant item IDs are already in place.
+	private static final DataFixerSolidBlockItems SOLID_BLOCK_FIXER = new DataFixerSolidBlockItems();
+
+	@SubscribeEvent
+	public void onChunkLoad(ChunkDataEvent.Load event) {
+		CompoundTag data = event.getData();
+		if (!data.contains("block_entities", Tag.TAG_LIST)) return;
+		ListTag blockEntities = data.getList("block_entities", Tag.TAG_COMPOUND);
+		for (int i = 0; i < blockEntities.size(); i++) {
+			fixItemsInCompound(blockEntities.getCompound(i));
+		}
+	}
+
+	private static void fixItemsInCompound(CompoundTag tag) {
+		if (!tag.contains("Items", Tag.TAG_LIST)) return;
+		ListTag items = tag.getList("Items", Tag.TAG_COMPOUND);
+		for (int i = 0; i < items.size(); i++) {
+			SOLID_BLOCK_FIXER.fixTagCompound(items.getCompound(i));
 		}
 	}
 

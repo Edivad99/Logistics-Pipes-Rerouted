@@ -37,14 +37,13 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-// TODO: Rendering deferred — LabelWidget migrated to 1.20.1 stub (GlStateManager removed).
-
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.gui.guidebook.MouseHoverable
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
+import logisticspipes.utils.gui.SimpleGraphics
 
 class LabelWidget(
     parent: Drawable,
@@ -109,7 +108,19 @@ class LabelWidget(
     }
 
     override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        // TODO: deferred rendering — GlStateManager removed; migrate to GuiGraphics
+        val gg = SimpleGraphics.guiGraphics ?: return
+        if (backgroundColor != 0) {
+            gg.fill(absoluteBody.roundedLeft, absoluteBody.roundedTop, absoluteBody.roundedRight, absoluteBody.roundedBottom, backgroundColor)
+        }
+        val drawText = if (extendable) text else trimmedText
+        val textWidth = GuiDrawer.mcFontRenderer.width(drawText)
+        val textY = absoluteBody.roundedTop + (absoluteBody.roundedHeight - GuiDrawer.mcFontRenderer.lineHeight) / 2
+        val textX = when (textAlignment) {
+            HorizontalAlignment.LEFT -> absoluteBody.roundedLeft + 2
+            HorizontalAlignment.CENTER -> absoluteBody.roundedLeft + (absoluteBody.roundedWidth - textWidth) / 2
+            HorizontalAlignment.RIGHT -> absoluteBody.roundedRight - textWidth - 2
+        }
+        gg.drawString(GuiDrawer.mcFontRenderer, drawText, textX, textY, textColor, false)
     }
 
     private fun trimText(text: String): String {

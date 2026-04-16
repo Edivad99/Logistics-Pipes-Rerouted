@@ -84,7 +84,7 @@ public class GuiOverlay {
 			int guiLeft = gui.getGuiLeft();
 
 			int x = oldX * gui.width / client.getWindow().getScreenWidth();
-			int y = gui.height - oldY * gui.height / client.getWindow().getScreenHeight() - 1;
+			int y = oldY * gui.height / client.getWindow().getScreenHeight();
 
 			for (Slot slot : gui.getMenu().slots) {
 				if (isMouseOverSlot(gui, slot, x, y)) {

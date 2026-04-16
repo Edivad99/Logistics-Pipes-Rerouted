@@ -248,7 +248,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int topSide = ((height - ySize) / 2);
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0, 0, xSize, ySize);
+		getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 
 		guiTop *= 1 / zoom.zoom;
 		guiLeft *= 1 / zoom.zoom;
@@ -276,10 +276,10 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 		String s = Integer.toString(orderId);
 		if (!list.isEmpty()) {
-			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0, 202, 26, 26);
+			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0.0f, 202.0f, 26, 26, 256, 256);
 			getGuiGraphics().drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 210, 16777215, true);
 		} else {
-			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0, 202, 26, 26);
+			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0.0f, 202.0f, 26, 26, 256, 256);
 			getGuiGraphics().drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 16777215, true);
 		}
 		renderLinkedOrderListItems(list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180, par1, par2);
@@ -293,7 +293,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		topSide *= zoom.zoom;
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0, 0, xSize, ySize);
+		getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 	}
 
 	private void renderLinkedOrderListItems(LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
@@ -308,7 +308,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			}
 			// GL_LIGHTING removed — use shaders
 			RenderSystem.setShaderTexture(0, RequestMonitorPopup.achievementTextures);
-			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0, 202, 26, 26);
+			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			renderItemAt(aList.getAsDisplayItem(), startLeft, yPos);
 			if (aList.isInProgress() && aList.getMachineProgress() != 0) {

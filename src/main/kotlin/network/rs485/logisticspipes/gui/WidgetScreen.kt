@@ -65,28 +65,25 @@ abstract class WidgetScreen : Drawable {
             it.parent = parent
         }
 
-        // Set position back to 0 before placing children to respect minecraft's gui translation.
-        widgetContainer.relativeBody.resetPos()
+        // Reset this WidgetScreen to (0, 0). Slots baked by SlotGroup.setPos must end up in
+        // coordinates LOCAL to the final centered panel — AbstractContainerScreen renders at
+        // (leftPos + slot.x, topPos + slot.y) and our leftPos/topPos = the centered panel's
+        // top-left. Doing this reset every call also makes init idempotent across resizes.
+        relativeBody.resetPos()
 
-        // Initialize every widget and place it relative to its parent.
+        // First size the container so we know its dimensions, then position it at the
+        // widgetContainer margin offset BEFORE placeChildren. That way the children's
+        // absoluteBody (and any Slot.x/y baked via SlotGroup.setPos) naturally includes the
+        // margin offset and matches where the panel background will be drawn.
         widgetContainer.apply {
             initWidget()
+            relativeBody
+                .setSize(minWidth, minHeight)
+                .setPos(margin.left, margin.top)
             placeChildren()
         }
 
-        // Set size of the main container to the minimum necessary size to fit all children.
-        widgetContainer.relativeBody.setSize(
-            widgetContainer.minWidth,
-            widgetContainer.minHeight,
-        ).translate(
-            widgetContainer.margin.left,
-            widgetContainer.margin.top,
-        )
-
-        // initialize our relativeBody
-        relativeBody.resetPos()
-        // Set the root body of the gui based on the size of the first container
-        // and taking into account it's margin.
+        // Size this WidgetScreen to wrap the widgetContainer + margin.
         relativeBody.setSizeFromRectangle(
             widgetContainer.relativeBody.copy().grow(
                 widgetContainer.margin.horizontal,
@@ -94,7 +91,8 @@ abstract class WidgetScreen : Drawable {
             ),
         )
 
-        // Center gui with possible offsets
+        // Center WidgetScreen on the screen. Done AFTER placeChildren so slot coords stay
+        // local to the panel — the screen's leftPos/topPos supplies the final offset at render.
         relativeBody.setPos(
             newX = (Screen.xCenter - relativeBody.width / 2) + xOffset,
             newY = (Screen.yCenter - relativeBody.height / 2) + yOffset,

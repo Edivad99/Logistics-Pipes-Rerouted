@@ -165,47 +165,57 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 175);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 81, topPos + 140);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityStation"), leftPos + 105, topPos + 10, 0x404040);
-		guiGraphics.drawString(minecraft.font, _tile.getSecId() == null ? "null" : _tile.getSecId().toString(), leftPos + 32, topPos + 25, 0x404040);
-		if (SimpleServiceLocator.ccProxy.isCC() || LogisticsPipes.isDEBUG()) {
-			guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStation.PREFIX + "allowCCAccess") + ":", leftPos + 10, topPos + 46, 0x404040);
-			guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStation.PREFIX + "excludeIDs") + ":", leftPos + 10, topPos + 61, 0x404040);
-		}
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStation.PREFIX + "pipeRemove") + ":", leftPos + 10, topPos + 78, 0x404040);
-		//guiGraphics.drawString(minecraft.font, "---------------------------------------------", leftPos + 5, topPos + 90, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStation.PREFIX + "Player") + ":", leftPos + 180, topPos + 127, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityCards") + ":", leftPos + 10, topPos + 127, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStation.PREFIX + "Inventory") + ":", leftPos + 10, topPos + 163, 0x404040);
 
 		addition = (minecraft.font.width(searchBar.getText()) - 82);
-
-		if (addition < 0) {
-			addition = 0;
-		}
+		if (addition < 0) addition = 0;
 
 		searchBar.drawTextBox();
 
+		// Click detection for player list (drawing happens in renderLabels)
 		int pos = bottom - 95;
 		for (String player : players) {
 			if (player.contains(searchBar.getText())) {
-				guiGraphics.drawString(minecraft.font, player, leftPos + 180, pos, 0x404040);
 				pos += 11;
 			}
-			//Check mouse click
 			if (leftPos + 180 < lastClickedX && lastClickedX < leftPos + 280 && pos - 11 < lastClickedY && lastClickedY < pos) {
 				lastClickedX = -10000000;
 				lastClickedY = -10000000;
 				searchBar.setText(player);
 			}
-			if (pos > bottom - 12) {
-				guiGraphics.drawString(minecraft.font, "...", leftPos + 180, pos - 5, 0x404040);
-				break;
-			}
+			if (pos > bottom - 12) break;
 		}
+
 		if (authorized) {
 			guiGraphics.fill(leftPos + 127, topPos + 101, leftPos + 147, topPos + 108, Color.getValue(Color.GREEN));
 		} else {
 			guiGraphics.fill(leftPos + 153, topPos + 101, leftPos + 173, topPos + 108, Color.getValue(Color.RED));
+		}
+	}
+
+	@Override
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityStation"), 105, 10, 0x404040, false);
+		guiGraphics.drawString(font, _tile.getSecId() == null ? "null" : _tile.getSecId().toString(), 32, 25, 0x404040, false);
+		if (SimpleServiceLocator.ccProxy.isCC() || LogisticsPipes.isDEBUG()) {
+			guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "allowCCAccess") + ":", 10, 46, 0x404040, false);
+			guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "excludeIDs") + ":", 10, 61, 0x404040, false);
+		}
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "pipeRemove") + ":", 10, 78, 0x404040, false);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Player") + ":", 180, 127, 0x404040, false);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityCards") + ":", 10, 127, 0x404040, false);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Inventory") + ":", 10, 163, 0x404040, false);
+
+		int pos = bottom - topPos - 95;
+		for (String player : players) {
+			if (player.contains(searchBar.getText())) {
+				guiGraphics.drawString(font, player, 180, pos, 0x404040, false);
+				pos += 11;
+			}
+			if (pos > bottom - topPos - 12) {
+				guiGraphics.drawString(font, "...", 180, pos - 5, 0x404040, false);
+				break;
+			}
 		}
 	}
 

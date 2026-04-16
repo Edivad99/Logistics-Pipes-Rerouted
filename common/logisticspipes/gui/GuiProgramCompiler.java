@@ -111,7 +111,7 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 
 				Item selItem = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(sel);
 				if (selItem != null) {
-					return TextUtil.translate(selItem.getDescriptionId() + ".name");
+					return TextUtil.translate(selItem.getDescriptionId());
 				}
 				return "UNDEFINED";
 			}
@@ -210,25 +210,9 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 		LPGuiGraphics.drawSlotProgrammerBackground(minecraft, leftPos + 153, topPos + 9);
 
 		if (compiler.getCurrentTask() != null) {
-			guiGraphics.drawString(font, TextUtil.translate("gui.compiler.processing"), leftPos + 10, topPos + 39, 0x000000);
-			String name;
-			Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(compiler.getCurrentTask());
-			if (item != null) {
-				name = item.getDescriptionId() + ".name";
-			} else {
-				name = "gui.compiler." + compiler.getCurrentTask().toString().replace(':', '.');
-			}
-			String text = TextUtil.getTrimmedString(TextUtil.translate(name),
-					160, font, "...");
-			guiGraphics.drawString(font, text, leftPos + 10, topPos + 70, 0x000000);
 			guiGraphics.fill(leftPos + 9, topPos + 50, leftPos + 171, topPos + 66, Color.getValue(Color.BLACK));
 			guiGraphics.fill(leftPos + 10, topPos + 51, leftPos + 170, topPos + 65, 0xFFFFFFFF);
 			guiGraphics.fill(leftPos + 11, topPos + 52, leftPos + 11 + (int) (158 * compiler.getTaskProgress()), topPos + 64, Color.getValue(Color.GREEN));
-
-			if (!compiler.isWasAbleToConsumePower()) {
-				guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.1"), leftPos + 68, topPos + 10, 0x000000);
-				guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.2"), leftPos + 35, topPos + 20, 0x000000);
-			}
 
 			catUp.visible = false;
 			catDn.visible = false;
@@ -283,9 +267,9 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 		return StreamSupport.stream(list.spliterator(), false).flatMap(
 				nbtBase -> LogisticsProgramCompilerTileEntity.programByCategory.get(new ResourceLocation(((StringTag) nbtBase).getAsString()))
 						.stream())
-				.filter(it -> TextUtil.translate(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(it).getDescriptionId() + ".name").toLowerCase().contains(search.getText().toLowerCase()))
-				.sorted(Comparator.comparing(o -> getSortingClass(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue((ResourceLocation) o)))
-						.thenComparing(o -> TextUtil.translate(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue((ResourceLocation) o).getDescriptionId() + ".name").toLowerCase())
+				.filter(it -> TextUtil.translate(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(it).getDescriptionId()).toLowerCase().contains(search.getText().toLowerCase()))
+				.sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(o)))
+						.<String>thenComparing(o -> TextUtil.translate(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(o).getDescriptionId()).toLowerCase())
 				)
 				.collect(Collectors.toList());
 	}
@@ -332,7 +316,22 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
 		super.renderLabels(guiGraphics, par1, par2);
-		if (compiler.getCurrentTask() == null) {
+		if (compiler.getCurrentTask() != null) {
+			guiGraphics.drawString(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0x000000, false);
+			Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(compiler.getCurrentTask());
+			String name;
+			if (item != null) {
+				name = item.getDescriptionId();
+			} else {
+				name = "gui.compiler." + compiler.getCurrentTask().toString().replace(':', '.');
+			}
+			String text = TextUtil.getTrimmedString(TextUtil.translate(name), 160, font, "...");
+			guiGraphics.drawString(font, text, 10, 70, 0x000000, false);
+			if (!compiler.isWasAbleToConsumePower()) {
+				guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.1"), 68, 10, 0x000000, false);
+				guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.2"), 35, 20, 0x000000, false);
+			}
+		} else {
 			if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {
 				programListLarge.renderGuiForeground();
 			} else {

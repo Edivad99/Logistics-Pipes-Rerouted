@@ -112,13 +112,13 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 		} else {
 			name = TextUtil.translate(GuiSupplierPipe.PREFIX + "TargetInv");
 		}
-		guiGraphics.drawString(minecraft.font, name, imageWidth / 2 - minecraft.font.width(name) / 2, 6, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "Inventory"), 18, imageHeight - 102, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "RequestMode"), imageWidth - 140, imageHeight - 112, 0x404040);
+		guiGraphics.drawString(minecraft.font, name, imageWidth / 2 - minecraft.font.width(name) / 2, 6, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "Inventory"), 18, imageHeight - 102, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "RequestMode"), imageWidth - 140, imageHeight - 112, 0x404040, false);
 		if (hasPatternUpgrade) {
 			slotAssignmentPatternOverlay.read((slotAssignments) -> {
 				for (int i = 0; i < slotAssignments.size(); i++) {
-					guiGraphics.drawString(minecraft.font, Integer.toString(slotAssignments.get(i)), 22 + i * 18, 55, 0x404040);
+					guiGraphics.drawString(minecraft.font, Integer.toString(slotAssignments.get(i)), 22 + i * 18, 55, 0x404040, false);
 				}
 				return null;
 			});
@@ -132,7 +132,7 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 			// texture: GuiSupplierPipe.TEXTURE
 			int j = leftPos;
 			int k = topPos;
-			guiGraphics.blit(GuiSupplierPipe.TEXTURE, j, k, 0, 0, imageWidth, imageHeight);
+			guiGraphics.blit(GuiSupplierPipe.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 		} else {
 			LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 			for (int i = 0; i < 9; i++) {

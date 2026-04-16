@@ -201,6 +201,11 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		private final List<net.minecraft.client.gui.components.AbstractButton> BUTTONS = new ArrayList<>();
 
+		// Buffered text labels populated in draw(), drawn in drawForegroundLayer()
+		private String taskNameLabel = null;
+		private final List<String> graphTexts = new ArrayList<>();
+		private final List<int[]> graphTextPos = new ArrayList<>();
+
 		@Override
 		public void init() {
 			SmallGuiButton b0 = new SmallGuiButton(0, leftPos + 10, topPos + 70, 20, 20, "<");
@@ -237,6 +242,9 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		@Override
 		public void draw(int mouseX, int mouseY) {
+			taskNameLabel = null;
+			graphTexts.clear();
+			graphTextPos.clear();
 			itemDisplay.renderItemArea(0.0f);
 			itemDisplay.renderPageNumber(right - 40, topPos + 28);
 			if (itemDisplay.getSelectedItem() != null) {
@@ -245,7 +253,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 				if (task != null) {
 					LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 10, topPos + 99);
 					guiGraphics.renderItem(task.item.unsafeMakeNormalStack(1), leftPos + 12, topPos + 101);
-					guiGraphics.drawString(minecraft.font, StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, font), leftPos + 32, topPos + 104, Color.getValue(Color.DARKER_GREY), false);
+					taskNameLabel = StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, font);
 
 					int xOrigo = xCenter - 72;
 					int yOrigo = yCenter + 90;
@@ -300,7 +308,8 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 								String s = formatTime(data.length - i - 1);
 								int w = minecraft.font.width(s);
 								drawLine(xOrigo + (int) x, yOrigo - 1, xOrigo + (int) x, yOrigo + 4, Color.DARKER_GREY);
-								guiGraphics.drawString(minecraft.font, s, xOrigo + (int) x - w / 2f, yOrigo + 6, Color.DARKER_GREY.getValue(), false);
+								graphTexts.add(s);
+							graphTextPos.add(new int[]{(int)(xOrigo - leftPos + (int) x - w / 2f), yOrigo - topPos + 6, Color.DARKER_GREY.getValue()});
 							}
 						}
 
@@ -315,7 +324,8 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 								labeledYPixels.add(yPixel);
 								String label = Long.toString(data[i]);
 								int lw = minecraft.font.width(label);
-								guiGraphics.drawString(minecraft.font, label, xOrigo - 5 - lw, yOrigo - yPixel - 4, Color.DARKER_GREY.getValue(), false);
+								graphTexts.add(label);
+							graphTextPos.add(new int[]{xOrigo - leftPos - 5 - lw, yOrigo - topPos - yPixel - 4, Color.DARKER_GREY.getValue()});
 							}
 						}
 
@@ -345,6 +355,13 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 		@Override
 		public void drawForegroundLayer(int mouseX, int mouseY) {
 			guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "amount"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
+			if (taskNameLabel != null) {
+				guiGraphics.drawString(minecraft.font, taskNameLabel, 32, 104, Color.getValue(Color.DARKER_GREY), false);
+			}
+			for (int i = 0; i < graphTexts.size(); i++) {
+				int[] pos = graphTextPos.get(i);
+				guiGraphics.drawString(minecraft.font, graphTexts.get(i), pos[0], pos[1], pos[2], false);
+			}
 		}
 
 		@Override

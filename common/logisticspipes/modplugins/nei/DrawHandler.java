@@ -1,4 +1,4 @@
 package logisticspipes.modplugins.nei;
 
-// TODO: DrawHandler — NEI not ported to 1.20.1
+// NOTE: DrawHandler — NEI not ported to 1.20.1
 public class DrawHandler {}

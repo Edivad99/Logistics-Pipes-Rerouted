@@ -177,8 +177,7 @@ public class LogisticsEventListener {
 	public void WorldUnload(LevelEvent.Unload event) {
 		if (MainProxy.isServer(event.getLevel())) {
 			if (event.getLevel() instanceof Level level) {
-				// Matches RouterManager.getOrCreateRouter encoding (deterministic int dim id).
-				SimpleServiceLocator.routerManager.dimensionUnloaded(level.dimension().location().hashCode());
+				SimpleServiceLocator.routerManager.dimensionUnloaded(level.dimension().location());
 			}
 		}
 	}

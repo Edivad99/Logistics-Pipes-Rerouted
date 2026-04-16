@@ -1,5 +1,5 @@
 package logisticspipes.proxy.cofh;
-// TODO: CoFH API not ported to 1.20.1 — stub
+// NOTE: CoFH API not ported to 1.20.1 — stub
 import javax.annotation.Nonnull;
 import net.minecraft.world.item.ItemStack;
 import logisticspipes.api.ILPPipeConfigTool;

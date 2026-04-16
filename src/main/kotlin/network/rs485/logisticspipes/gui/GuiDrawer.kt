@@ -52,16 +52,19 @@ import network.rs485.markdown.defaultDrawableState
 import logisticspipes.LPConstants
 import logisticspipes.utils.Color
 import logisticspipes.utils.MinecraftColor
+import logisticspipes.utils.gui.LPGuiGraphics
+import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.world.Container
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
+import net.minecraft.network.chat.Component
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.Slot
 import net.minecraft.resources.ResourceLocation
 import java.lang.Float.min
 
-// TODO: Rendering deferred — GL11/GlStateManager/Tessellator/BufferBuilder rendering methods are stubbed.
-// All public method signatures are preserved so callers compile.
+// Rendering ported to 1.20.1 GuiGraphics via SimpleGraphics.guiGraphics (set by BaseGuiContainer.render()).
+// BDF custom-font paths remain deferred — those live on LPFontRenderer.
 
 /**
  * Drawing methods to help with GUIs (rendering implementation deferred for 1.20.1).
@@ -86,16 +89,31 @@ object GuiDrawer {
     }
 
     fun drawGuiContainerBackground(guiArea: IRectangle, topLeft: Pair<Int, Int>, container: AbstractContainerMenu) {
-        // TODO: deferred — migrate to GuiGraphics/PoseStack
+        drawGuiBackground(guiArea)
+        if (SimpleGraphics.guiGraphics == null) return
+        val mc = Minecraft.getInstance()
+        val (ox, oy) = topLeft
+        for (slot in container.slots) {
+            if (slot is Slot) {
+                LPGuiGraphics.drawSlotBackground(mc, ox + slot.x - 1, oy + slot.y - 1)
+            }
+        }
     }
 
     fun drawGuiBackground(guiArea: IRectangle) {
-        // TODO: deferred
+        if (SimpleGraphics.guiGraphics == null) return
+        val left = guiArea.roundedLeft
+        val top = guiArea.roundedTop
+        val right = guiArea.roundedRight
+        val bottom = guiArea.roundedBottom
+        LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, top, right, bottom, 0f, true)
     }
 
     fun drawGuiTexturedRect(rect: IRectangle, text: IRectangle, blend: Boolean, color: Int) {
-        // TODO: deferred
+        // TODO: texture-atlas sprite blit — no widget GUI calls this yet; port alongside guide book work.
     }
+
+    private val VANILLA_WIDGETS = ResourceLocation("textures/gui/widgets.png")
 
     fun drawBorderedTile(
         rect: IRectangle,
@@ -104,11 +122,24 @@ object GuiDrawer {
         light: Boolean,
         thickerBottomBorder: Boolean,
     ) {
-        // TODO: deferred
+        val gg = SimpleGraphics.guiGraphics ?: return
+        val textureY = 46 + when {
+            !enabled -> 0
+            hovered -> 2
+            else -> 1
+        } * 20
+        gg.blitNineSliced(
+            VANILLA_WIDGETS,
+            rect.roundedLeft,
+            rect.roundedTop,
+            rect.roundedWidth,
+            rect.roundedHeight,
+            20, 4, 200, 20, 0, textureY,
+        )
     }
 
     fun drawGuideBookFrame(rect: IRectangle, slider: IRectangle) {
-        // TODO: deferred
+        // TODO: guide book frame — deferred with guide book rendering port.
     }
 
     fun drawTextTooltip(
@@ -119,43 +150,95 @@ object GuiDrawer {
         horizontalAlign: HorizontalAlignment,
         verticalAlign: VerticalAlignment,
     ) {
-        // TODO: deferred
+        if (text.isEmpty()) return
+        val gg = SimpleGraphics.guiGraphics ?: return
+        val components = text.map { Component.literal(it) }
+        gg.renderComponentTooltip(mcFontRenderer, components, x, y)
     }
 
     fun drawGuideBookBackground(rect: IRectangle) {
-        // TODO: deferred
+        // TODO: guide book background — deferred with guide book rendering port.
     }
 
     fun drawSliderButton(body: IRectangle, texture: IRectangle) {
-        // TODO: deferred
+        // TODO: guide book slider — deferred with guide book rendering port.
     }
 
     fun drawCenteredString(text: String, x: Int, y: Int, color: Int, shadow: Boolean) {
-        // TODO: deferred
+        val gg = SimpleGraphics.guiGraphics ?: return
+        val textWidth = mcFontRenderer.width(text)
+        gg.drawString(mcFontRenderer, text, x - textWidth / 2, y, color, shadow)
     }
 
     fun drawInteractionIndicator(mouseX: Float, mouseY: Float) {
-        // TODO: deferred
+        // TODO: guide book hover indicator — deferred.
     }
 
     fun drawRect(area: IRectangle, color: Int) {
-        // TODO: deferred
+        val gg = SimpleGraphics.guiGraphics ?: return
+        gg.fill(area.roundedLeft, area.roundedTop, area.roundedRight, area.roundedBottom, color)
     }
 
     fun drawHorizontalGradientRect(area: IRectangle, colorLeft: Int, colorRight: Int) {
-        // TODO: deferred
+        val gg = SimpleGraphics.guiGraphics ?: return
+        // GuiGraphics.fillGradient is vertical-only; approximate horizontal via per-column fills.
+        val left = area.roundedLeft
+        val right = area.roundedRight
+        val top = area.roundedTop
+        val bottom = area.roundedBottom
+        val span = (right - left).coerceAtLeast(1)
+        val al = (colorLeft ushr 24) and 0xFF
+        val rl = (colorLeft ushr 16) and 0xFF
+        val gl = (colorLeft ushr 8) and 0xFF
+        val bl = colorLeft and 0xFF
+        val ar = (colorRight ushr 24) and 0xFF
+        val rr = (colorRight ushr 16) and 0xFF
+        val gr = (colorRight ushr 8) and 0xFF
+        val br = colorRight and 0xFF
+        for (i in 0 until span) {
+            val t = i.toFloat() / span.toFloat()
+            val a = (al + (ar - al) * t).toInt() and 0xFF
+            val r = (rl + (rr - rl) * t).toInt() and 0xFF
+            val g = (gl + (gr - gl) * t).toInt() and 0xFF
+            val b = (bl + (br - bl) * t).toInt() and 0xFF
+            val c = (a shl 24) or (r shl 16) or (g shl 8) or b
+            gg.fill(left + i, top, left + i + 1, bottom, c)
+        }
     }
 
     fun drawVerticalGradientRect(area: IRectangle, colorTop: Int, colorBottom: Int) {
-        // TODO: deferred
+        val gg = SimpleGraphics.guiGraphics ?: return
+        gg.fillGradient(area.roundedLeft, area.roundedTop, area.roundedRight, area.roundedBottom, colorTop, colorBottom)
     }
 
     fun drawLine(start: Pair<Float, Float>, finish: Pair<Float, Float>, color: Int, thickness: Float) {
-        // TODO: deferred
+        val gg = SimpleGraphics.guiGraphics ?: return
+        val (x1, y1) = start
+        val (x2, y2) = finish
+        val t = thickness.coerceAtLeast(1f).toInt()
+        if (y1 == y2) {
+            val xMin = min(x1, x2).toInt()
+            val xMax = kotlin.math.max(x1, x2).toInt()
+            gg.fill(xMin, y1.toInt(), xMax, y1.toInt() + t, color)
+        } else if (x1 == x2) {
+            val yMin = min(y1, y2).toInt()
+            val yMax = kotlin.math.max(y1, y2).toInt()
+            gg.fill(x1.toInt(), yMin, x1.toInt() + t, yMax, color)
+        } else {
+            // diagonal not supported in widget paths — use axis-aligned only.
+        }
     }
 
     fun drawOutlineRect(rect: IRectangle, color: Int) {
-        // TODO: deferred
+        val gg = SimpleGraphics.guiGraphics ?: return
+        val left = rect.roundedLeft
+        val top = rect.roundedTop
+        val right = rect.roundedRight
+        val bottom = rect.roundedBottom
+        gg.fill(left, top, right, top + 1, color)
+        gg.fill(left, bottom - 1, right, bottom, color)
+        gg.fill(left, top, left + 1, bottom, color)
+        gg.fill(right - 1, top, right, bottom, color)
     }
 }
 

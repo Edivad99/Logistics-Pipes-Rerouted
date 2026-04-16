@@ -16,6 +16,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import net.minecraftforge.eventbus.api.IEventBus;
 
+import logisticspipes.blocks.LogisticsFrameTileEntity;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.LogisticsSolidBlock;
@@ -208,6 +209,44 @@ public final class LPRegistries {
 	public static final RegistryObject<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_MJ = ITEMS.register("power_provider_mj", () -> new LogisticsSolidBlockItem(LPBlocks.powerProviderMJ.get()));
 	public static final RegistryObject<LogisticsSolidBlockItem> ITEM_PROGRAM_COMPILER  = ITEMS.register("program_compiler",  () -> new LogisticsSolidBlockItem(LPBlocks.programCompiler.get()));
 
+	// Items — item pipes (declared before modules/upgrades to avoid circular static-init:
+	// registerModule/registerUpgrade call LPItems.modules/upgrades.put() which triggers LPItems
+	// class loading; LPItems copies these RegistryObject refs at init time, so they must be
+	// set in LPRegistries before the first registerModule/registerUpgrade call executes.)
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_BASIC              = LogisticsBlockGenericPipe.registerPipe(ITEMS, "basic",                   PipeItemsBasicLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_REQUEST            = LogisticsBlockGenericPipe.registerPipe(ITEMS, "request",                 PipeItemsRequestLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_REQUEST_MK2        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "request_mk2",             PipeItemsRequestLogisticsMk2::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_PROVIDER           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "provider",                PipeItemsProviderLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_CRAFTING           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "crafting",                PipeItemsCraftingLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_SATELLITE          = LogisticsBlockGenericPipe.registerPipe(ITEMS, "satellite",               PipeItemsSatelliteLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_SUPPLIER           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "supplier",                PipeItemsSupplierLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK1        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk1",             PipeLogisticsChassisMk1::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK2        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk2",             PipeLogisticsChassisMk2::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK3        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk3",             PipeLogisticsChassisMk3::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK4        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk4",             PipeLogisticsChassisMk4::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK5        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk5",             PipeLogisticsChassisMk5::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_REMOTE_ORDERER     = LogisticsBlockGenericPipe.registerPipe(ITEMS, "remote_orderer",          PipeItemsRemoteOrdererLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_INV_SYS_CONNECTOR  = LogisticsBlockGenericPipe.registerPipe(ITEMS, "inventory_system_connector", PipeItemsInvSysConnector::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_SYSTEM_ENTRANCE    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "system_entrance",         PipeItemsSystemEntranceLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_SYSTEM_DESTINATION = LogisticsBlockGenericPipe.registerPipe(ITEMS, "system_destination",      PipeItemsSystemDestinationLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_FIREWALL           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "firewall",                PipeItemsFirewall::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_REQUEST_TABLE      = LogisticsBlockGenericPipe.registerPipe(ITEMS, "request_table",           PipeBlockRequestTable::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_UNROUTED           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "transport_basic",         PipeItemsBasicTransport::new);
+	// Fluid pipes
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_SUPPLIER     = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_supplier",          PipeItemsFluidSupplier::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_INSERTION    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_insertion",         PipeFluidInsertion::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_PROVIDER     = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_provider",          PipeFluidProvider::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_REQUEST      = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_request",           PipeFluidRequestLogistics::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_EXTRACTOR    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_extractor",         PipeFluidExtractor::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_SATELLITE    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_satellite",         PipeFluidSatellite::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_SUPPLIER_MK2 = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_supplier_mk2",      PipeFluidSupplierMk2::new);
+	// High-speed tubes
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_CURVE   = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_curve",   HSTubeCurve::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_SPEEDUP = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_speedup", HSTubeSpeedup::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_S_CURVE = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_s_curve", HSTubeSCurve::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_LINE    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_line",    HSTubeLine::new);
+	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_GAIN    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_gain",    HSTubeGain::new);
+
 	// ── Modules ───────────────────────────────────────────────────────────────
 
 	public static final RegistryObject<ItemModule> MODULE_ITEM_SINK           = registerModule(ModuleItemSink.getName(),                ModuleItemSink::new);
@@ -266,45 +305,6 @@ public final class LPRegistries {
 		return ITEMS.register(regName, () -> ItemUpgrade.of(ctor));
 	}
 
-	// Items — item pipes
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_BASIC              = LogisticsBlockGenericPipe.registerPipe(ITEMS, "basic",                   PipeItemsBasicLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_REQUEST            = LogisticsBlockGenericPipe.registerPipe(ITEMS, "request",                 PipeItemsRequestLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_REQUEST_MK2        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "request_mk2",             PipeItemsRequestLogisticsMk2::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_PROVIDER           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "provider",                PipeItemsProviderLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_CRAFTING           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "crafting",                PipeItemsCraftingLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_SATELLITE          = LogisticsBlockGenericPipe.registerPipe(ITEMS, "satellite",               PipeItemsSatelliteLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_SUPPLIER           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "supplier",                PipeItemsSupplierLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK1        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk1",             PipeLogisticsChassisMk1::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK2        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk2",             PipeLogisticsChassisMk2::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK3        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk3",             PipeLogisticsChassisMk3::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK4        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk4",             PipeLogisticsChassisMk4::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_CHASSIS_MK5        = LogisticsBlockGenericPipe.registerPipe(ITEMS, "chassis_mk5",             PipeLogisticsChassisMk5::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_REMOTE_ORDERER     = LogisticsBlockGenericPipe.registerPipe(ITEMS, "remote_orderer",          PipeItemsRemoteOrdererLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_INV_SYS_CONNECTOR  = LogisticsBlockGenericPipe.registerPipe(ITEMS, "inventory_system_connector", PipeItemsInvSysConnector::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_SYSTEM_ENTRANCE    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "system_entrance",         PipeItemsSystemEntranceLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_SYSTEM_DESTINATION = LogisticsBlockGenericPipe.registerPipe(ITEMS, "system_destination",      PipeItemsSystemDestinationLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_FIREWALL           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "firewall",                PipeItemsFirewall::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_REQUEST_TABLE      = LogisticsBlockGenericPipe.registerPipe(ITEMS, "request_table",           PipeBlockRequestTable::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_UNROUTED           = LogisticsBlockGenericPipe.registerPipe(ITEMS, "transport_basic",         PipeItemsBasicTransport::new);
-
-	// Items — fluid pipes
-	// NOTE: PipeFluidBasic was removed; LPItems.pipeFluidBasic is intentionally unregistered.
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_SUPPLIER     = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_supplier",          PipeItemsFluidSupplier::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_INSERTION    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_insertion",         PipeFluidInsertion::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_PROVIDER     = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_provider",          PipeFluidProvider::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_REQUEST      = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_request",           PipeFluidRequestLogistics::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_EXTRACTOR    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_extractor",         PipeFluidExtractor::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_SATELLITE    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_satellite",         PipeFluidSatellite::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_FLUID_SUPPLIER_MK2 = LogisticsBlockGenericPipe.registerPipe(ITEMS, "fluid_supplier_mk2",      PipeFluidSupplierMk2::new);
-	// NOTE: PipeFluidTerminus was removed; LPItems.pipeFluidTerminus is intentionally unregistered.
-
-	// Items — high-speed tubes (no LPItems aliases needed)
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_CURVE   = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_curve",   HSTubeCurve::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_SPEEDUP = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_speedup", HSTubeSpeedup::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_S_CURVE = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_s_curve", HSTubeSCurve::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_LINE    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_line",    HSTubeLine::new);
-	public static final RegistryObject<ItemLogisticsPipe> PIPE_HS_GAIN    = LogisticsBlockGenericPipe.registerPipe(ITEMS, "hs_gain",    HSTubeGain::new);
-
 	// ── Block Entities ────────────────────────────────────────────────────────
 	// NOTE: BlockEntity constructors must be migrated to (BlockPos, BlockState) before
 	// these suppliers will compile. Stubs use placeholder suppliers for now.
@@ -327,6 +327,8 @@ public final class LPRegistries {
 			() -> BlockEntityType.Builder.of(LogisticsStatisticsTileEntity::new,       LPBlocks.statisticsTable.get()).build(null));
 	public static final RegistryObject<BlockEntityType<LogisticsProgramCompilerTileEntity>>   BE_PROGRAM_COMPILER  = BLOCK_ENTITIES.register("program_compiler",
 			() -> BlockEntityType.Builder.of(LogisticsProgramCompilerTileEntity::new,  LPBlocks.programCompiler.get()).build(null));
+	public static final RegistryObject<BlockEntityType<LogisticsFrameTileEntity>>             BE_FRAME             = BLOCK_ENTITIES.register("frame",
+			() -> BlockEntityType.Builder.of(LogisticsFrameTileEntity::new,            LPBlocks.frame.get()).build(null));
 
 	/** Call this from the mod constructor to register all deferred registers with the mod event bus. */
 	public static void register(IEventBus modEventBus) {

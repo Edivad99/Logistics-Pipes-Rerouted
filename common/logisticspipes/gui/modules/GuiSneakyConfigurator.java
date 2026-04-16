@@ -82,7 +82,7 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 
 		super.renderLabels(guiGraphics, par1, par2);
 
-		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0x404040);
+		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0x404040, false);
 	}
 
 	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/sneaky.png");
@@ -94,7 +94,7 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 		int j = leftPos;
 		int k = topPos;
 		//guiGraphics.fill(width/2 - imageWidth / 2, height / 2 - imageHeight /2, width/2 + imageWidth / 2, height / 2 + imageHeight /2, 0xFF404040);
-		guiGraphics.blit(GuiSneakyConfigurator.TEXTURE, j, k, 0, 0, imageWidth, imageHeight);
+		guiGraphics.blit(GuiSneakyConfigurator.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 
 	private String getButtonOrientationString(Direction orientation) {

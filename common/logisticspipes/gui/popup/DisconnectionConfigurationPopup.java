@@ -66,7 +66,7 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
 		int w = bounds.width * (int) Minecraft.getInstance().getWindow().getGuiScale();
 		int h = (bounds.height - 1) * (int) Minecraft.getInstance().getWindow().getGuiScale();
 
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "disconnectTitle"), guiLeft + 8, guiTop + 8, logisticspipes.utils.Color.getValue(logisticspipes.utils.Color.DARKER_GREY));
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "disconnectTitle"), guiLeft + 8, guiTop + 8, logisticspipes.utils.Color.getValue(logisticspipes.utils.Color.DARKER_GREY), false);
 
 		configDisplay.drawScreen(mouseX, mouseY, 0.0f, new Rectangle(vpx, vpy, w, h), bounds);
 	}

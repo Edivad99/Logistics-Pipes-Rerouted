@@ -47,6 +47,7 @@ import net.minecraft.world.Container
 interface IItemIdentifierInventory : Container, ILPCCTypeHolder, IClientInformationProvider {
     val itemsAndCount: Map<ItemIdentifier, Int>
     val slotAccess: SlotAccess
+    fun getName(): String
     fun getIDStackInSlot(i: Int): ItemIdentifierStack?
     fun setItem(i: Int, itemstack: ItemIdentifierStack?)
     fun containsItem(item: ItemIdentifier?): Boolean

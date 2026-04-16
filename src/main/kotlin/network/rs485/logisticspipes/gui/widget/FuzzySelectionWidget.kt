@@ -47,6 +47,7 @@ import network.rs485.logisticspipes.util.FuzzyUtil
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import logisticspipes.utils.Color
+import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import java.util.*
 
@@ -102,6 +103,7 @@ class FuzzySelectionWidget(
             ) {
                 currentSlot?.let { slot ->
                     GuiDrawer.drawGuiBackground(relativeBody)
+                    val gg = SimpleGraphics.guiGraphics
                     var yOffset = border
                     val flags = slot.flagGetter.invoke()
                     slot.usedFlags.forEach { flag: FuzzyFlag ->
@@ -110,7 +112,17 @@ class FuzzySelectionWidget(
                         } else {
                             Color.TEXT_DARK.value
                         }
-                        // TODO: deferred rendering — drawString removed from Font in 1.20.1; migrate to GuiGraphics.drawString
+                        if (gg != null) {
+                            val label = TextUtil.translate("$flagPrefix${flag.name.lowercase()}")
+                            gg.drawString(
+                                GuiDrawer.mcFontRenderer,
+                                label,
+                                relativeBody.roundedLeft + border,
+                                relativeBody.roundedTop + yOffset,
+                                color,
+                                false,
+                            )
+                        }
                         yOffset += 10
                     }
                 }

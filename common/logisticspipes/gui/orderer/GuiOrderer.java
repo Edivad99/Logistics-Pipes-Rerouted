@@ -8,6 +8,7 @@
 package logisticspipes.gui.orderer;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 
 import net.minecraft.SharedConstants;
 import java.util.Collection;
@@ -61,12 +62,12 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	public final int xCoord;
 	public final int yCoord;
 	public final int zCoord;
-	public int dimension;
+	public ResourceLocation dimension;
 
-	public static int dimensioncache;
+	public static ResourceLocation dimensioncache;
 	public static long cachetime;
 
-	public GuiOrderer(int x, int y, int z, int dim, Player entityPlayer) {
+	public GuiOrderer(int x, int y, int z, ResourceLocation dim, Player entityPlayer) {
 		super(buildDummy(entityPlayer), 220, 240, 0, 0);
 		xCoord = x;
 		yCoord = y;
@@ -74,7 +75,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
 			dimension = dim;
 		} else {
-			dimension = GuiOrderer.dimensioncache;
+			dimension = GuiOrderer.dimensioncache != null ? GuiOrderer.dimensioncache : dim;
 		}
 		_entityPlayer = entityPlayer;
 	}
@@ -131,14 +132,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	public void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 
-		guiGraphics.drawString(minecraft.font, _title, leftPos + minecraft.font.width(_title) / 2, topPos + 6, 0x404040);
 		itemDisplay.renderPageNumber(right - 47, topPos + 6);
-
-		if (popupCheck != null && popupCheck.getState()) {
-			guiGraphics.drawString(minecraft.font, "Popup", leftPos + 25, bottom - 56, 0x404040);
-		} else {
-			guiGraphics.drawString(minecraft.font, "Popup", leftPos + 25, bottom - 56, Color.getValue(Color.GREY));
-		}
 
 		itemDisplay.renderAmount(getStackAmount());
 		//SearchInput
@@ -150,6 +144,13 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 
 	@Override
 	public void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		guiGraphics.drawString(minecraft.font, _title, minecraft.font.width(_title) / 2, 6, 0x404040, false);
+		if (popupCheck != null && popupCheck.getState()) {
+			guiGraphics.drawString(minecraft.font, "Popup", 25, bottom - topPos - 56, 0x404040, false);
+		} else {
+			guiGraphics.drawString(minecraft.font, "Popup", 25, bottom - topPos - 56, Color.getValue(Color.GREY), false);
+		}
 		if (super.hasSubGui()) {
 			return;
 		}

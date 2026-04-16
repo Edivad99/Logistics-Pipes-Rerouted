@@ -44,9 +44,6 @@ import net.minecraft.world.level.block.entity.BlockEntity
 abstract class NeighborTileEntity<T : BlockEntity>(val tileEntity: T, val direction: Direction) {
     open fun getOurDirection(): Direction = direction.opposite
 
-    // TODO: hasCapability(Capability<C>) removed — Capability<T> API gone in NeoForge 1.20.1.
-    // Use BlockCapability static query: Capabilities.X.BLOCK.getCapability(level, pos, state, be, dir) != null
-
     abstract fun isLogisticsPipe(): Boolean
 
     abstract fun canHandleItems(): Boolean

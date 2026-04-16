@@ -127,15 +127,24 @@ public class NewGuiHandler {
 			throw new RuntimeException("Failed to set LP container windowId", ex);
 		}
 		player.containerMenu = container;
-		player.initMenu(player.containerMenu);
 		net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
 				new net.minecraftforge.event.entity.player.PlayerContainerEvent.Open(player, player.containerMenu));
 
+		// Send OpenGUIPacket BEFORE initMenu so the client's containerMenu is
+		// established before the slot-sync packets (ClientboundContainerSetContent)
+		// arrive.  If initMenu fires first, slot packets reach the client while the
+		// old menu is still active, the window-ID check fails, and the contents are
+		// silently dropped — causing an empty-looking GUI on first open.
 		OpenGUIPacket packet = PacketHandler.getPacket(OpenGUIPacket.class);
 		packet.setGuiID(guiProvider.getId());
 		packet.setWindowID(windowId);
 		packet.setGuiData(LPDataIOWrapper.collectData(guiProvider::writeData));
 		MainProxy.sendPacketToPlayer(packet, player);
+
+		// initMenu registers the slot listener and sends the current slot contents.
+		// Sending it AFTER the OpenGUIPacket means the slot-sync arrives on the
+		// client after the GUI has set player.containerMenu — so the ID check passes.
+		player.initMenu(player.containerMenu);
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -188,6 +197,10 @@ public class NewGuiHandler {
 					LogisticsPipes.log.error("Failed to set client menu containerId", ex);
 				}
 				player.containerMenu = screen.getMenu();
+			}
+			if (screen == null) {
+				LogisticsPipes.log.warn("getClientGui returned null for provider {} (guiID={}) — closing current screen instead of opening a GUI",
+						provider.getClass().getName(), guiID);
 			}
 			Minecraft.getInstance().setScreen(screen);
 		}

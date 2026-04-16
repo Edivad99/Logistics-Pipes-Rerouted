@@ -13,31 +13,10 @@ public class CraftingRecipes implements IRecipeProvider {
 
 	@Override
 	public void loadRecipes() {
-		// @formatter:off
-		String[] dyes = {
-			"dyeBlack",
-			"dyeRed",
-			"dyeGreen",
-			"dyeBrown",
-			"dyeBlue",
-			"dyePurple",
-			"dyeCyan",
-			"dyeLightGray",
-			"dyeGray",
-			"dyePink",
-			"dyeLime",
-			"dyeYellow",
-			"dyeLightBlue",
-			"dyeMagenta",
-			"dyeOrange",
-			"dyeWhite"
-		};
-		// @formatter:on
-
-		registerResetRecipe(dyes);
+		registerResetRecipes();
 	}
 
-	private void registerResetRecipe(String[] dyes) {
+	private void registerResetRecipes() {
 		for (ResourceLocation moduleResource : LPItems.modules.values()) {
 			final Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(moduleResource);
 			if (item instanceof ItemModule) {
@@ -51,11 +30,11 @@ public class CraftingRecipes implements IRecipeProvider {
 			}
 		}
 
-		for (int i = 1; i < 17; i++) {
-			// new ItemStack(item, count, damage) removed in 1.20.1 — addOrdererRecipe TODO: migrate damage to NBT or separate items
-			// RecipeManager.craftingManager.addOrdererRecipe(new ItemStack(LPItems.remoteOrderer.get(), 1, i), dyes[i - 1], new ItemStack(LPItems.remoteOrderer.get(), 1, -1));
-			RecipeManager.craftingManager.addShapelessResetRecipe(LPItems.remoteOrderer.get(), i);
-		}
+		// The 1.12.2 remote orderer used damage values 1..16 for 16 dye-coloured variants, plus
+		// matching dye recipes. Damage-as-variant was removed in 1.20.1: items are identified by
+		// id alone. Until/unless the coloured orderer is reintroduced as NBT-tagged state or as
+		// 16 separate items, there is only one canonical remote orderer — and a single reset
+		// recipe is enough.
 		RecipeManager.craftingManager.addShapelessResetRecipe(LPItems.remoteOrderer.get(), 0);
 	}
 }

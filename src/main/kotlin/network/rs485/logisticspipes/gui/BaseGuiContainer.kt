@@ -48,7 +48,10 @@ import network.rs485.logisticspipes.inventory.container.LPBaseContainer
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.DummySlot
+import logisticspipes.utils.gui.LPGuiGraphics
+import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.ClickType
@@ -76,26 +79,68 @@ abstract class BaseGuiContainer(
 
     override fun init() {
         super.init()
+        // WidgetScreen resets its origin to (0, 0) before placeChildren, so SlotGroup.setPos
+        // bakes LOCAL panel-relative coords into Slot.x/y — exactly what AbstractContainerScreen
+        // expects at render time (it translates the pose by leftPos/topPos before renderSlot).
+        // We just copy the centered rect into leftPos/topPos/imageWidth/imageHeight.
         widgetScreen.initGuiWidget(this@BaseGuiContainer, width, height)
+        val rect = widgetScreen.relativeBody
+        imageWidth = rect.width.toInt()
+        imageHeight = rect.height.toInt()
+        leftPos = rect.x0.toInt()
+        topPos = rect.y0.toInt()
     }
 
-    open fun drawBackgroundLayer(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        // TODO: deferred rendering — migrate to PoseStack-based rendering
-    }
+    open fun drawBackgroundLayer(mouseX: Int, mouseY: Int, partialTicks: Float) {}
 
     open fun drawFocalgroundLayer(mouseX: Float, mouseY: Float, partialTicks: Float) {}
 
-    open fun drawForegroundLayer(mouseX: Float, mouseY: Float, partialTicks: Float) {
-        // TODO: deferred rendering
+    open fun drawForegroundLayer(mouseX: Float, mouseY: Float, partialTicks: Float) {}
+
+    private var lastPartialTick: Float = 0f
+
+    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        SimpleGraphics.guiGraphics = guiGraphics
+        lastPartialTick = partialTick
+        renderBackground(guiGraphics)
+        super.render(guiGraphics, mouseX, mouseY, partialTick)
+    }
+
+    override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
+        // super.renderLabels draws the menu title + inventory label at local (0,0); we skip those
+        // for widget GUIs — widget layout handles its own labels.
+        // Pose is translated by (leftPos, topPos); counter-translate so widget absolute coords work.
+        val pose = guiGraphics.pose()
+        pose.pushPose()
+        pose.translate(-leftPos.toFloat(), -topPos.toFloat(), 0f)
+        val rect = widgetScreen.relativeBody
+        drawBackgroundLayer(mouseX, mouseY, lastPartialTick)
+        widgetScreen.widgetContainer.draw(mouseX.toFloat(), mouseY.toFloat(), lastPartialTick, rect)
+        drawForegroundLayer(mouseX.toFloat(), mouseY.toFloat(), lastPartialTick)
+        pose.popPose()
+    }
+
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        val hovered = widgetScreen.widgetContainer.getHovered(mouseX.toFloat(), mouseY.toFloat())
+        if (hovered is MouseInteractable) {
+            if (hovered.mouseClicked(mouseX.toFloat(), mouseY.toFloat(), button)) return true
+        }
+        return super.mouseClicked(mouseX, mouseY, button)
     }
 
     override fun renderBg(
-        guiGraphics: net.minecraft.client.gui.GuiGraphics,
+        guiGraphics: GuiGraphics,
         partialTick: Float,
         mouseX: Int,
         mouseY: Int,
     ) {
-        // TODO: deferred rendering
+        SimpleGraphics.guiGraphics = guiGraphics
+        val rect = widgetScreen.relativeBody
+        val left = rect.x0.toInt()
+        val top = rect.y0.toInt()
+        val right = left + rect.width.toInt()
+        val bottom = top + rect.height.toInt()
+        LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, top, right, bottom, 0f, true)
     }
 
     fun List<Drawable>.draw(mouseX: Float, mouseY: Float, partialTicks: Float, visibleArea: IRectangle) =

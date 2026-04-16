@@ -62,7 +62,7 @@ class ItemSinkWidgetScreen(private val guiReference: AtomicReference<ItemSinkGui
         val gui = guiReference.get() ?: return@widgetContainer
         margin = Margin.DEFAULT
         staticLabel {
-            text = (gui.itemSinkModule.filterInventory as logisticspipes.utils.item.ItemIdentifierInventory).getName()
+            text = gui.itemSinkModule.filterInventory.getName()
             textAlignment = HorizontalAlignment.CENTER
             textColor = Color.TEXT_DARK.value
         }

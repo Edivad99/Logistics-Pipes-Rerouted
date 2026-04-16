@@ -72,7 +72,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	public final Player _entityPlayer;
 	protected final String _title = "Request items";
 	public ItemDisplay itemDisplay;
-	public int dimension;
+	public net.minecraft.resources.ResourceLocation dimension;
 	protected DisplayOptions displayOptions = DisplayOptions.Both;
 	private SmallGuiButton macroButton;
 	private InputBar search;
@@ -92,7 +92,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		_table = table;
 		_entityPlayer = entityPlayer;
 		if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
-			dimension = _table.getWorld().dimension().location().hashCode();
+			dimension = _table.getWorld().dimension().location();
 		} else {
 			dimension = GuiOrderer.dimensioncache;
 		}
@@ -205,14 +205,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		guiGraphics.fill(leftPos + 164, topPos + 25, leftPos + 180, topPos + 41, Color.getValue(Color.DARKER_GREY));
 
 		if (showRequest) {
-			guiGraphics.drawString(minecraft.font, _title, leftPos + 180 + minecraft.font.width(_title) / 2, topPos + 6, 0x404040);
 			itemDisplay.renderPageNumber(right - 47, topPos + 6);
-
-			if (popupCheck != null && popupCheck.getState()) {
-				guiGraphics.drawString(minecraft.font, "Popup", leftPos + 225, bottom - 56, 0x404040);
-			} else {
-				guiGraphics.drawString(minecraft.font, "Popup", leftPos + 225, bottom - 56, Color.getValue(Color.GREY));
-			}
 
 			itemDisplay.renderAmount(getStackAmount());
 			//SearchInput
@@ -232,7 +225,6 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + (x * 18) + 19, topPos + (y * 18) + 14);
 			}
 		}
-		guiGraphics.drawString(minecraft.font, "Sort:", leftPos + 136, topPos + 55, 0xffffff);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 100, topPos + 32);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 163, topPos + 50);
 		guiGraphics.fill(leftPos + 75, topPos + 38, leftPos + 95, topPos + 43, Color.getValue(Color.DARKER_GREY));
@@ -400,8 +392,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			default:
 				integer = 3;
 		}
-		integer += (dimension * 10);
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setTilePos(_table.container));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setTilePos(_table.container).setDimension(dimension));
 	}
 
 	private SmallGuiButton wire(SmallGuiButton btn, int id) {
@@ -542,7 +533,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 	@Override
 	public void specialItemRendering(ItemIdentifier item, int x, int y) {
-		//TODO Render Thaumcraft aspects
+		// Thaumcraft aspect rendering — blocked: Thaumcraft not ported to 1.20.1.
 	}
 
 	@Override
@@ -552,6 +543,15 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			return;
 		}
 		macroButton.active = !_table.diskInv.getItem(0).isEmpty() && _table.diskInv.getItem(0).getItem().equals(LPItems.disk.get());
+		guiGraphics.drawString(minecraft.font, "Sort:", 136, 55, 0xffffff, false);
+		if (showRequest) {
+			guiGraphics.drawString(minecraft.font, _title, 180 + minecraft.font.width(_title) / 2, 6, 0x404040, false);
+			if (popupCheck != null && popupCheck.getState()) {
+				guiGraphics.drawString(minecraft.font, "Popup", 225, bottom - topPos - 56, 0x404040, false);
+			} else {
+				guiGraphics.drawString(minecraft.font, "Popup", 225, bottom - topPos - 56, Color.getValue(Color.GREY), false);
+			}
+		}
 	}
 
 	@Override

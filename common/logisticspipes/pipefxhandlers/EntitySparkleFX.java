@@ -16,6 +16,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
 
@@ -47,13 +48,39 @@ public class EntitySparkleFX extends Particle {
 		hasPhysics = false;
 	}
 
+	// Custom render type: plain colour quads, no texture atlas needed.
+	// Owns the buffer lifecycle (begin/end) so that render() can safely write
+	// into the VertexConsumer it receives without touching the Tessellator itself.
+	private static final ParticleRenderType SPARKLE_RENDER_TYPE = new ParticleRenderType() {
+		@Override
+		public void begin(BufferBuilder bb, TextureManager textureManager) {
+			RenderSystem.enableBlend();
+			RenderSystem.defaultBlendFunc();
+			RenderSystem.depthMask(false);
+			RenderSystem.setShader(GameRenderer::getPositionColorShader);
+			bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		}
+
+		@Override
+		public void end(Tesselator tesselator) {
+			BufferUploader.drawWithShader(tesselator.getBuilder().end());
+			RenderSystem.depthMask(true);
+			RenderSystem.disableBlend();
+		}
+
+		@Override
+		public String toString() {
+			return "LOGISTICS_SPARKLE";
+		}
+	};
+
 	@Override
 	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+		return SPARKLE_RENDER_TYPE;
 	}
 
 	@Override
-	public void render(VertexConsumer ignored, Camera camera, float partialTicks) {
+	public void render(VertexConsumer buffer, Camera camera, float partialTicks) {
 		double px = Mth.lerp(partialTicks, xo, x) - camera.getPosition().x;
 		double py = Mth.lerp(partialTicks, yo, y) - camera.getPosition().y;
 		double pz = Mth.lerp(partialTicks, zo, z) - camera.getPosition().z;
@@ -62,45 +89,31 @@ public class EntitySparkleFX extends Particle {
 		float alpha = 0.75f * (1.0f - ageRatio);
 		if (alpha <= 0.01f) return;
 
-		// Build a camera-facing (billboard) quad
 		org.joml.Quaternionf rot = camera.rotation();
 		org.joml.Vector3f right = new org.joml.Vector3f(1, 0, 0);
-		org.joml.Vector3f up = new org.joml.Vector3f(0, 1, 0);
+		org.joml.Vector3f up    = new org.joml.Vector3f(0, 1, 0);
 		rot.transform(right);
 		rot.transform(up);
 
 		float s = this.bbWidth * 0.5f;
-
 		int r = (int) (rCol * 255);
 		int g = (int) (gCol * 255);
 		int b = (int) (bCol * 255);
 		int a = (int) (alpha * 255);
 
-		Tesselator tes = Tesselator.getInstance();
-		BufferBuilder bb = tes.getBuilder();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
-		RenderSystem.depthMask(false);
-
-		bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		billboardVertex(bb, px, py, pz, right, up, s, s, r, g, b, a);
-		billboardVertex(bb, px, py, pz, right, up, -s, s, r, g, b, a);
-		billboardVertex(bb, px, py, pz, right, up, -s, -s, r, g, b, a);
-		billboardVertex(bb, px, py, pz, right, up, s, -s, r, g, b, a);
-		BufferUploader.drawWithShader(bb.end());
-
-		RenderSystem.depthMask(true);
-		RenderSystem.disableBlend();
+		billboardVertex(buffer, px, py, pz, right, up,  s,  s, r, g, b, a);
+		billboardVertex(buffer, px, py, pz, right, up, -s,  s, r, g, b, a);
+		billboardVertex(buffer, px, py, pz, right, up, -s, -s, r, g, b, a);
+		billboardVertex(buffer, px, py, pz, right, up,  s, -s, r, g, b, a);
 	}
 
-	private static void billboardVertex(BufferBuilder bb, double cx, double cy, double cz,
+	private static void billboardVertex(VertexConsumer buf, double cx, double cy, double cz,
 			org.joml.Vector3f right, org.joml.Vector3f up, float rs, float us,
 			int r, int g, int b, int a) {
-		bb.vertex((float) (cx + right.x * rs + up.x * us),
-				  (float) (cy + right.y * rs + up.y * us),
-				  (float) (cz + right.z * rs + up.z * us))
-		  .color(r, g, b, a).endVertex();
+		buf.vertex((float) (cx + right.x * rs + up.x * us),
+		           (float) (cy + right.y * rs + up.y * us),
+		           (float) (cz + right.z * rs + up.z * us))
+		   .color(r, g, b, a).endVertex();
 	}
 
 	/**

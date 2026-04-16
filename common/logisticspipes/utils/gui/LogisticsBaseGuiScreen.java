@@ -139,8 +139,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		if (subGui == null) {
 			subGui = gui;
 			subGui.register(this);
-			subGui.resize(minecraft, width, height);
-			subGui.init();
+			subGui.init(minecraft, width, height);
 		}
 	}
 
@@ -278,13 +277,13 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 					LPGuiGraphics.drawGuiBackGround(minecraft, posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
 					final String PREFIX = "gui.crafting.";
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
-							(useOreDict ? 0xFF4040 : 0x404040));
+							(useOreDict ? 0xFF4040 : 0x404040), false);
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "IgnDamage"), posX + 5, posY + 15,
-							(ignoreDamage ? 0x40FF40 : 0x404040));
+							(ignoreDamage ? 0x40FF40 : 0x404040), false);
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "IgnNBT"), posX + 5, posY + 25,
-							(ignoreNBT ? 0x4040FF : 0x404040));
+							(ignoreNBT ? 0x4040FF : 0x404040), false);
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
-							(useOreCategory ? 0x7F7F40 : 0x404040));
+							(useOreCategory ? 0x7F7F40 : 0x404040), false);
 					com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
 				});
 			}
@@ -321,21 +320,9 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 
 	@Nonnull
 	public <T extends net.minecraft.client.gui.components.AbstractWidget> T addRenderableWidget(@Nonnull T button) {
-		if (button instanceof SmallGuiButton) {
-			((SmallGuiButton) button).setPressListener(this::actionPerformed);
-		} else if (button instanceof GuiCheckBox) {
-			((GuiCheckBox) button).setPressListener(b -> actionPerformed(b));
-		}
 		buttonList.add(button);
 		return super.addRenderableWidget(button);
 	}
-
-	protected void actionPerformed(net.minecraft.client.gui.components.AbstractButton button) {}
-
-	// handleMouseInput removed in 1.20.1 — use mouseScrolled override instead
-	// handleMouseInputSub removed — mouse scroll handling deferred
-
-	// handleKeyboardInput removed in 1.20.1 — use keyPressed override instead
 
 	public void addRenderSlot(IRenderSlot slot) {
 		slots.add(slot);
@@ -574,7 +561,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 
 	public void drawCenteredString(String text, int x, int y, int color) {
 		int actualX = x - minecraft.font.width(text) / 2;
-		guiGraphics.drawString(minecraft.font, text, actualX, y, color);
+		guiGraphics.drawString(minecraft.font, text, actualX, y, color, false);
 	}
 
 }

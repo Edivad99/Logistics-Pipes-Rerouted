@@ -52,17 +52,22 @@ public class GuiFirewall extends LogisticsBaseGuiScreen {
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 33, topPos + 175);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Firewall"), leftPos + 45, topPos + 8, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filter") + ":", leftPos + 14, topPos + 28, 0x404040);
 		for (int x = 0; x < 6; x++) {
 			for (int y = 0; y < 6; y++) {
 				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + x * 18 + 16, topPos + y * 18 + 40);
 			}
 		}
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filtereditemsare") + ":", leftPos + 125, topPos + 8, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Providing") + ":", leftPos + 144, topPos + 41, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Crafting") + ":", leftPos + 146, topPos + 74, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Sorting") + ":", leftPos + 150, topPos + 107, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Powerflow") + ":", leftPos + 142, topPos + 141, 0x404040);
+	}
+
+	@Override
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Firewall"), 45, 8, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filter") + ":", 14, 28, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filtereditemsare") + ":", 125, 8, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Providing") + ":", 144, 41, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Crafting") + ":", 146, 74, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Sorting") + ":", 150, 107, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Powerflow") + ":", 142, 141, 0x404040, false);
 	}
 }

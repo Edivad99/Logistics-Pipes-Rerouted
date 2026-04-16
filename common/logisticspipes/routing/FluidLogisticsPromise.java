@@ -52,8 +52,8 @@ public class FluidLogisticsPromise implements IPromise {
 
 	@Override
 	public IExtraPromise split(int more) {
-		// TODO Add When Fluid crafing is supported
-		throw new UnsupportedOperationException("Fluid Promises can't be split");
+		amount -= more;
+		return new FluidLogisticsExtraPromise(liquid, more, sender, false);
 	}
 
 	@Override

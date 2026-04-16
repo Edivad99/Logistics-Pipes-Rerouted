@@ -37,9 +37,12 @@
 
 package network.rs485.logisticspipes.gui.widget
 
+import logisticspipes.utils.gui.LPGuiGraphics
+import net.minecraft.client.Minecraft
 import net.minecraft.world.inventory.Slot
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
+import network.rs485.logisticspipes.util.IRectangle
 
 /** Slot.x and Slot.y are public final in 1.20.1; use reflection to reposition at runtime. */
 private fun Slot.setXY(newX: Int, newY: Int) {
@@ -95,5 +98,22 @@ class PlayerInventorySlotGroup(
             index++
         }
         return width to height
+    }
+
+    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        super.draw(mouseX, mouseY, delta, visibleArea)
+        val mc = Minecraft.getInstance()
+        val startX = absoluteBody.roundedX
+        val startY = absoluteBody.roundedY
+        // 3 × 9 backpack
+        for (row in 0 until 3) {
+            for (column in 0 until 9) {
+                LPGuiGraphics.drawSlotBackground(mc, startX + column * 18, startY + row * 18)
+            }
+        }
+        // Hotbar (4px gap)
+        for (column in 0 until 9) {
+            LPGuiGraphics.drawSlotBackground(mc, startX + column * 18, startY + 3 * 18 + 4)
+        }
     }
 }

@@ -55,9 +55,9 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "TargetInv"), imageWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "TargetInv")) / 2, 6, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Inventory"), 18, imageHeight - 102, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Partialrequests") + ":", imageWidth - 140, imageHeight - 112, 0x404040);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "TargetInv"), imageWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "TargetInv")) / 2, 6, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Inventory"), 18, imageHeight - 102, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Partialrequests") + ":", imageWidth - 140, imageHeight - 112, 0x404040, false);
 	}
 
 	protected static final ResourceLocation SUPPLIER = new ResourceLocation("logisticspipes", "textures/gui/supplier.png");
@@ -68,7 +68,7 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 		// texture: GuiFluidSupplierPipe.SUPPLIER
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(GuiFluidSupplierPipe.SUPPLIER, j, k, 0, 0, imageWidth, imageHeight);
+		guiGraphics.blit(GuiFluidSupplierPipe.SUPPLIER, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 
 	@Override

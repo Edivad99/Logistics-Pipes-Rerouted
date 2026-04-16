@@ -21,7 +21,7 @@ public class NormalGuiOrderer extends GuiOrderer {
 
 	protected DisplayOptions displayOptions = DisplayOptions.Both;
 
-	public NormalGuiOrderer(int x, int y, int z, int dim, Player entityPlayer) {
+	public NormalGuiOrderer(int x, int y, int z, net.minecraft.resources.ResourceLocation dim, Player entityPlayer) {
 		super(x, y, z, dim, entityPlayer);
 		refreshItems();
 	}
@@ -72,8 +72,7 @@ public class NormalGuiOrderer extends GuiOrderer {
 			default:
 				integer = 3;
 		}
-		integer += (dimension * 10);
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
 	}
 
 	@Override

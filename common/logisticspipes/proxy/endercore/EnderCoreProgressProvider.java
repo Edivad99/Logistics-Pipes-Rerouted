@@ -1,5 +1,5 @@
 package logisticspipes.proxy.endercore;
-// TODO: EnderCore not ported to 1.20.1 — stub
+// NOTE: EnderCore not ported to 1.20.1 — stub
 import net.minecraft.world.level.block.entity.BlockEntity;
 import logisticspipes.proxy.interfaces.IGenericProgressProvider;
 public class EnderCoreProgressProvider implements IGenericProgressProvider {

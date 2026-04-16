@@ -42,6 +42,10 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	private SmallGuiButton scrollUpButton;
 	private SmallGuiButton scrollDownButton;
 
+	// Buffered text labels populated in renderBg, drawn in renderLabels
+	private final List<String> labelTexts = new ArrayList<>();
+	private final List<int[]> labelPositions = new ArrayList<>(); // {x, y, color}
+
 	public GuiOreDictItemSink(Container playerInventory, ModuleOreDictItemSink oreDictModule) {
 		super(buildDummy(playerInventory, oreDictModule), oreDictModule);
 
@@ -111,14 +115,13 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 			tmpInv.clearInventorySlotContents(0);
 		}
 
-		if (currentOffset > unsunkNames.size() - 2) {
-			currentOffset = unsunkNames.size() - 2;
-		}
-		if (currentOffset < 0) {
-			currentOffset = 0;
-		}
+		if (currentOffset > unsunkNames.size() - 2) currentOffset = unsunkNames.size() - 2;
+		if (currentOffset < 0) currentOffset = 0;
 
-		//draw unsunk list and highlight bar, handle clicks
+		labelTexts.clear();
+		labelPositions.clear();
+
+		// Unsunk list: highlight bar + click handling; text buffered for renderLabels
 		guiGraphics.fill(leftPos + 26, topPos + 5, leftPos + 159, topPos + 27, Color.DARK_GREY.getValue());
 		final ArrayList<String> oresToAdd = oreListOverlay.read(oreList -> {
 			ArrayList<String> oresToAddInner = new ArrayList<>();
@@ -126,15 +129,14 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 				if (27 <= pointerX && pointerX < 158 && 6 + (10 * i) <= pointerY && pointerY < 6 + (10 * (i + 1))) {
 					guiGraphics.fill(leftPos + 27, topPos + 6 + (10 * i), leftPos + 158, topPos + 6 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
 				}
-				guiGraphics.drawString(minecraft.font, unsunkNames.get(currentOffset + i), leftPos + 28, topPos + 7 + (10 * i), 0x404040);
+				labelTexts.add(unsunkNames.get(currentOffset + i));
+				labelPositions.add(new int[]{28, 7 + (10 * i), 0x404040});
 				if (27 <= mouseX && mouseX < 158 && 6 + (10 * i) <= mouseY && mouseY < 6 + (10 * (i + 1))) {
 					mouseX = 0;
 					mouseY = 0;
 					if (oreList.size() < 9) {
 						String oreName = unsunkNames.get(currentOffset + i);
-						if (!oreList.contains(oreName)) {
-							oresToAddInner.add(oreName);
-						}
+						if (!oreList.contains(oreName)) oresToAddInner.add(oreName);
 						unsunkNames.remove(oreName);
 					}
 				}
@@ -144,15 +146,13 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 		if (!oresToAdd.isEmpty()) {
 			oreListOverlay.write(oreList -> {
 				for (String oreName : oresToAdd) {
-					if (!oreList.contains(oreName)) {
-						oreList.add(oreName);
-					}
+					if (!oreList.contains(oreName)) oreList.add(oreName);
 				}
 				return Unit.INSTANCE;
 			});
 		}
 
-		//draw main list and highlight bar, handle clicks
+		// Main ore list: highlight bar + click handling; text buffered for renderLabels
 		guiGraphics.fill(leftPos + 5, topPos + 30, leftPos + 169, topPos + 122, Color.DARK_GREY.getValue());
 		final ArrayList<String> oresToRemove = oreListOverlay.read(oreList -> {
 			ArrayList<String> oresToRemoveInner = new ArrayList<>();
@@ -160,27 +160,32 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 				if (6 <= pointerX && pointerX < 168 && 31 + (10 * i) <= pointerY && pointerY < 31 + (10 * (i + 1))) {
 					guiGraphics.fill(leftPos + 6, topPos + 31 + (10 * i), leftPos + 168, topPos + 31 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
 				}
-				guiGraphics.drawString(minecraft.font, oreList.get(i), leftPos + 7, topPos + 32 + (10 * i), 0x404040);
+				labelTexts.add(oreList.get(i));
+				labelPositions.add(new int[]{7, 32 + (10 * i), 0x404040});
 				if (6 <= mouseX && mouseX < 168 && 31 + (10 * i) <= mouseY && mouseY < 31 + (10 * (i + 1))) {
 					mouseX = 0;
 					mouseY = 0;
 					String oreName = oreList.get(i);
-					if (!unsunkNames.contains(oreName)) {
-						unsunkNames.add(oreName);
-					}
+					if (!unsunkNames.contains(oreName)) unsunkNames.add(oreName);
 					oresToRemoveInner.add(oreName);
 				}
 			}
 			return oresToRemoveInner;
 		});
-
 		if (!oresToRemove.isEmpty()) {
 			oreListOverlay.write(oreList -> {
-				for (String oreName : oresToRemove) {
-					oreList.remove(oreName);
-				}
+				for (String oreName : oresToRemove) oreList.remove(oreName);
 				return Unit.INSTANCE;
 			});
+		}
+	}
+
+	@Override
+	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		for (int i = 0; i < labelTexts.size(); i++) {
+			int[] pos = labelPositions.get(i);
+			guiGraphics.drawString(minecraft.font, labelTexts.get(i), pos[0], pos[1], pos[2], false);
 		}
 	}
 

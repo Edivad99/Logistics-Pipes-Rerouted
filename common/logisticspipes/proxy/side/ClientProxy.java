@@ -3,6 +3,7 @@ package logisticspipes.proxy.side;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -96,12 +97,10 @@ public class ClientProxy implements IProxy {
 	public void sendNameUpdateRequest(Player player) {}
 
 	@Override
-	public LogisticsTileGenericPipe getPipeInDimensionAt(int dimension, int x, int y, int z, Player player) {
-		// Dimension encoded as dim.location().hashCode(). On client, only the current level is
-		// accessible, so verify the hash matches before returning the pipe.
+	public LogisticsTileGenericPipe getPipeInDimensionAt(ResourceLocation dimension, int x, int y, int z, Player player) {
 		Level level = Minecraft.getInstance().level;
 		if (level == null) return null;
-		if (level.dimension().location().hashCode() != dimension) return null;
+		if (!level.dimension().location().equals(dimension)) return null;
 		return getPipe(level, x, y, z);
 	}
 
@@ -140,11 +139,6 @@ public class ClientProxy implements IProxy {
 	public void tickClient() {
 		MainProxy.addTick();
 		SimpleServiceLocator.renderListHandler.tick();
-	}
-
-	@Override
-	public void getPlayerFromNetHandler(Object handler) {
-		// TODO: Connection/ServerGamePacketListenerImpl — deferred to network rewrite
 	}
 
 	@Override

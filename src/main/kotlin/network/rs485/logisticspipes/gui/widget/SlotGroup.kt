@@ -37,9 +37,12 @@
 
 package network.rs485.logisticspipes.gui.widget
 
+import logisticspipes.utils.gui.LPGuiGraphics
+import net.minecraft.client.Minecraft
 import net.minecraft.world.inventory.Slot
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
+import network.rs485.logisticspipes.util.IRectangle
 
 /** Slot.x and Slot.y are public final in 1.20.1; use reflection to reposition at runtime. */
 private fun Slot.setXY(newX: Int, newY: Int) {
@@ -84,9 +87,21 @@ class SlotGroup(
         val slotSize = 18
         for (row in 0 until rows) {
             for (column in 0 until columns) {
-                slots[column + row * rows].setXY(startX + column * slotSize, startY + row * slotSize)
+                slots[column + row * columns].setXY(startX + column * slotSize, startY + row * slotSize)
             }
         }
         return width to height
+    }
+
+    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        super.draw(mouseX, mouseY, delta, visibleArea)
+        val mc = Minecraft.getInstance()
+        val startX = absoluteBody.roundedX
+        val startY = absoluteBody.roundedY
+        for (row in 0 until rows) {
+            for (column in 0 until columns) {
+                LPGuiGraphics.drawSlotBackground(mc, startX + column * 18, startY + row * 18)
+            }
+        }
     }
 }

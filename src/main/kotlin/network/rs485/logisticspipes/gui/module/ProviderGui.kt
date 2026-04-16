@@ -59,7 +59,7 @@ class ProviderWidgetScreen(private val guiReference: AtomicReference<ProviderGui
         val gui = guiReference.get() ?: return@widgetContainer
         margin = Margin.DEFAULT
         staticLabel {
-            text = (gui.providerModule.filterInventory as logisticspipes.utils.item.ItemIdentifierInventory).getName()
+            text = gui.providerModule.filterInventory.getName()
             textAlignment = HorizontalAlignment.CENTER
             textColor = Color.TEXT_DARK.value
             extendable = true

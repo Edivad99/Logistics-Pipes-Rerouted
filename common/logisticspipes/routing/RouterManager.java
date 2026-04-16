@@ -18,6 +18,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
+
+import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -75,8 +77,9 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 	}
 
 	public void removeRouter(int id) {
-		// MainProxy.isClient() checks Thread.currentThread() — fast, no world needed
-		if (!MainProxy.isClient()) {
+		// MainProxy.isClient() checks Thread.currentThread() — fast, no world needed.
+		// During world unload the list may already have been cleared; tolerate out-of-range ids.
+		if (!MainProxy.isClient() && id >= 0 && id < _routersServer.size()) {
 			_routersServer.set(id, null);
 		}
 	}
@@ -88,11 +91,7 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		if (id > 0) {
 			getRouter(id);
 		}
-		// IRouter / ServerRouter / ClientRouter and the ModernPacket wire format all
-		// carry the dimension as an int. ResourceLocation.hashCode() is deterministic
-		// (identical on client and server for the same dimension id) and collision-free
-		// in practice for realistic dimension counts, so it is used as the mapping.
-		int dimId = world.dimension().location().hashCode();
+		ResourceLocation dimId = world.dimension().location();
 		if (MainProxy.isClient(world)) {
 			synchronized (_routersClient) {
 				for (IRouter r2 : _routersClient) {
@@ -246,7 +245,7 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		deauthorizeUUID(tile.getSecId());
 	}
 
-	public void dimensionUnloaded(int dim) {
+	public void dimensionUnloaded(ResourceLocation dim) {
 		synchronized (_routersServer) {
 			_routersServer.stream().filter(r -> r != null && r.isInDim(dim)).forEach(r -> {
 				r.clearPipeCache();

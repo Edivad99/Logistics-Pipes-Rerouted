@@ -42,8 +42,8 @@ public class GuiFluidSupplier extends ModuleBaseGui {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) _liquidSupplier.getFilterInventory()).getName(), 8, 6, 0x404040);
-		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040);
+		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) _liquidSupplier.getFilterInventory()).getName(), 8, 6, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040, false);
 	}
 
 	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/itemsink.png");
@@ -54,6 +54,6 @@ public class GuiFluidSupplier extends ModuleBaseGui {
 		// texture: GuiFluidSupplier.TEXTURE
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(GuiFluidSupplier.TEXTURE, j, k, 0, 0, imageWidth, imageHeight);
+		guiGraphics.blit(GuiFluidSupplier.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 }

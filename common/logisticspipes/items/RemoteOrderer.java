@@ -69,11 +69,11 @@ public class RemoteOrderer extends LogisticsItem {
 				energyUse += Math.sqrt(Math.pow(pipe.getX() - player.getX(), 2) + Math.pow(pipe.getY() - player.getY(), 2) + Math.pow(pipe.getZ() - player.getZ(), 2));
 				if (pipe.useEnergy(energyUse)) {
 					logisticspipes.network.packets.pipe.RequestPipeDimension dimPkt = PacketHandler.getPacket(logisticspipes.network.packets.pipe.RequestPipeDimension.class);
-					dimPkt.setInteger(pipe.getWorld().dimension().location().hashCode());
+					dimPkt.setDimension(pipe.getWorld());
 					MainProxy.sendPacketToPlayer(dimPkt, player);
 					logisticspipes.network.guis.pipe.NormalOrdererGui gui = logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
 					gui.setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ());
-					gui.setDim(pipe.getWorld().dimension().location().hashCode());
+					gui.setDim(pipe.getWorld().dimension().location());
 					gui.open(player);
 				}
 			}

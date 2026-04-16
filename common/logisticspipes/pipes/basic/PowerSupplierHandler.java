@@ -47,9 +47,9 @@ public class PowerSupplierHandler {
 			internalBufferRF = nbttagcompound.getDouble("bufferRF");
 		}
 		if (nbttagcompound.get("bufferEU") instanceof FloatTag) { // support for old float
-			internalBufferRF = nbttagcompound.getFloat("bufferEU");
+			internalBufferIC2 = nbttagcompound.getFloat("bufferEU");
 		} else {
-			internalBufferRF = nbttagcompound.getDouble("bufferEU");
+			internalBufferIC2 = nbttagcompound.getDouble("bufferEU");
 		}
 	}
 
@@ -57,10 +57,9 @@ public class PowerSupplierHandler {
 		if (SimpleServiceLocator.powerProxy.isAvailable() && pipe.getUpgradeManager().hasRFPowerSupplierUpgrade()) {
 			if (requestRFPower()) return;
 		}
-		// TODO(1.20.1): IC2 not ported — IC2 power path disabled
-		// if (SimpleServiceLocator.IC2Proxy.hasIC2() && pipe.getUpgradeManager().getIC2PowerLevel() > 0) {
-		// 	requestICPower();
-		// }
+		if (SimpleServiceLocator.IC2Proxy.hasIC2() && pipe.getUpgradeManager().getIC2PowerLevel() > 0) {
+			requestICPower();
+		}
 	}
 
 	private void requestICPower() {
@@ -74,7 +73,7 @@ public class PowerSupplierHandler {
 		for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
 			if (SimpleServiceLocator.IC2Proxy.isEnergySink(adjacent.getTileEntity())) {
 				if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
-					if (SimpleServiceLocator.IC2Proxy.acceptsEnergyFrom(adjacent.getTileEntity(), pipe.container, adjacent.getOurDirection())) { // TODO pipe.container must be IEnergySource
+					if (SimpleServiceLocator.IC2Proxy.acceptsEnergyFrom(adjacent.getTileEntity(), pipe.container, adjacent.getOurDirection())) {
 						globalNeed += need[i] = SimpleServiceLocator.IC2Proxy.demandedEnergyUnits(adjacent.getTileEntity());
 					}
 				}
@@ -87,7 +86,7 @@ public class PowerSupplierHandler {
 			i = 0;
 			for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
 				if (SimpleServiceLocator.IC2Proxy.isEnergySink(adjacent.getTileEntity()) && pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())
-						&& SimpleServiceLocator.IC2Proxy.acceptsEnergyFrom(adjacent.getTileEntity(), pipe.container, adjacent.getOurDirection())) { // TODO pipe.container must be IEnergySource
+						&& SimpleServiceLocator.IC2Proxy.acceptsEnergyFrom(adjacent.getTileEntity(), pipe.container, adjacent.getOurDirection())) {
 					if (internalBufferIC2 + 1 < need[i] * fullfillable) {
 						return;
 					}

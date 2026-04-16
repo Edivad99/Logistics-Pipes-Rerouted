@@ -35,6 +35,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import logisticspipes.interfaces.ITickable;
 
 
 import net.minecraft.core.Direction;
@@ -160,6 +163,20 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	@Override
 	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
 		return new LogisticsTileGenericPipe(pos, state);
+	}
+
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+			@Nonnull net.minecraft.world.level.Level level,
+			@Nonnull BlockState state,
+			@Nonnull BlockEntityType<T> type) {
+		// Without a ticker registered on the owning block, BlockEntity.tick equivalents
+		// (here: LogisticsTileGenericPipe.update via ITickable) are never called and the
+		// entire mod — routing graph updates, module logic, item transport — sits idle.
+		return (lvl, pos, st, be) -> {
+			if (be instanceof ITickable tickable) tickable.update();
+		};
 	}
 
 	@Override
@@ -575,9 +592,48 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 				.orElse(null);
 	}
 
-	// doRayTraceMultiblock — rayTrace(pos, start, end, AABB) removed in 1.20.1; VoxelShape clip not yet implemented
-	private InternalRayTraceResult doRayTraceMultiblock(LogisticsTileGenericPipe tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 direction) {
-		return null; // stub — full VoxelShape-based implementation needed
+	/**
+	 * Ray-trace against a multi-block pipe's central bounding box plus the bounding box of each
+	 * sub-block position (translated from the main tile's position). Uses {@link Shapes#create}
+	 * and {@link net.minecraft.world.phys.shapes.VoxelShape#clip} since the 1.12
+	 * {@code AABB.calculateIntercept} API is gone.
+	 */
+	private InternalRayTraceResult doRayTraceMultiblock(LogisticsTileGenericPipe tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 end) {
+		ArrayList<Hit> list = new ArrayList<>();
+		// Centre block — always test so the player can click the main pipe body itself.
+		BlockPos mainPos = tileG.getBlockPos();
+		AABB centerBox = PIPE_CENTER_BB.move(mainPos.getX(), mainPos.getY(), mainPos.getZ());
+		net.minecraft.world.phys.BlockHitResult centerHit =
+				net.minecraft.world.phys.shapes.Shapes.create(centerBox).clip(start, end, mainPos);
+		if (centerHit != null) {
+			list.add(new Hit(centerHit, centerBox, null, Part.PIPE));
+		}
+
+		// Each sub-block occupies an offset position relative to the main pipe.
+		// The multi-block sub-blocks use default full-cube shapes, so a unit AABB at the offset
+		// position approximates clickable bounds well enough for selection.
+		final LPPositionSet<? extends DoubleCoordinates> subBlocks = pipe.getSubBlocks();
+		if (subBlocks != null) {
+			for (DoubleCoordinates sub : subBlocks) {
+				BlockPos subPos = new BlockPos(
+						mainPos.getX() + sub.getXInt(),
+						mainPos.getY() + sub.getYInt(),
+						mainPos.getZ() + sub.getZInt()
+				);
+				AABB bb = new AABB(subPos);
+				net.minecraft.world.phys.BlockHitResult subHit =
+						net.minecraft.world.phys.shapes.Shapes.create(bb).clip(start, end, subPos);
+				if (subHit != null) {
+					list.add(new Hit(subHit, bb.move(-mainPos.getX(), -mainPos.getY(), -mainPos.getZ()), null, Part.PIPE));
+				}
+			}
+		}
+
+		return list.stream()
+				.filter(r -> r.rayTraceResult != null)
+				.min(Comparator.comparing(r -> r.rayTraceResult.getLocation().distanceToSqr(start)))
+				.map(r -> new InternalRayTraceResult(r.part, r.rayTraceResult, r.box, r.side))
+				.orElse(null);
 	}
 
 	private AABB getPipeBoundingBox(@Nullable Direction side) {

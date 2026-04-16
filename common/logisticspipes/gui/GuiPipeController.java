@@ -229,46 +229,46 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		@Override
 		public void renderForegroundContent() {
 			String pipeName = ItemIdentifier.get(pipe.item, 0, null).getFriendlyName();
-			guiGraphics.drawString(font, pipeName, (170 - font.width(pipeName)) / 2, 28, 0x83601c);
+			guiGraphics.drawString(font, pipeName, (170 - font.width(pipeName)) / 2, 28, 0x83601c, false);
 
 			int sessionXCenter = 85;
 			int lifetimeXCenter = 140;
 			String s;
 
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Session"), sessionXCenter - font
-					.width(TextUtil.translate(PREFIX + "Session")) / 2, 40, 0x303030);
+					.width(TextUtil.translate(PREFIX + "Session")) / 2, 40, 0x303030, false);
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Lifetime"), lifetimeXCenter - font
-					.width(TextUtil.translate(PREFIX + "Lifetime")) / 2, 40, 0x303030);
+					.width(TextUtil.translate(PREFIX + "Lifetime")) / 2, 40, 0x303030, false);
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Sent") + ":", 55 - font
-					.width(TextUtil.translate(PREFIX + "Sent") + ":"), 55, 0x303030);
+					.width(TextUtil.translate(PREFIX + "Sent") + ":"), 55, 0x303030, false);
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Recieved") + ":", 55 - font
-					.width(TextUtil.translate(PREFIX + "Recieved") + ":"), 70, 0x303030);
+					.width(TextUtil.translate(PREFIX + "Recieved") + ":"), 70, 0x303030, false);
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Relayed") + ":", 55 - font
-					.width(TextUtil.translate(PREFIX + "Relayed") + ":"), 85, 0x303030);
+					.width(TextUtil.translate(PREFIX + "Relayed") + ":"), 85, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_sent);
-			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 55, 0x303030);
+			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 55, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_recieved);
-			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 70, 0x303030);
+			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 70, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_relayed);
-			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 85, 0x303030);
+			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 85, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_sent);
-			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 55, 0x303030);
+			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 55, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_recieved);
-			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 70, 0x303030);
+			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 70, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_relayed);
-			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 85, 0x303030);
+			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 85, 0x303030, false);
 
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "RoutingTableSize") + ":", 110 - font
-					.width(TextUtil.translate(PREFIX + "RoutingTableSize") + ":"), 110, 0x303030);
+					.width(TextUtil.translate(PREFIX + "RoutingTableSize") + ":"), 110, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.server_routing_table_size);
-			guiGraphics.drawString(font, s, 130 - font.width(s) / 2, 110, 0x303030);
+			guiGraphics.drawString(font, s, 130 - font.width(s) / 2, 110, 0x303030, false);
 		}
 	}
 
@@ -384,16 +384,16 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 				String s;
 				if (target != null) {
 					s = target.getFriendlyName();
-					guiGraphics.drawString(font, s, 35, stringPos, 0x303030);
+					guiGraphics.drawString(font, s, 35, stringPos, 0x303030, false);
 				}
 				s = Integer.toString(i + 1);
 				stringPos += 6;
-				guiGraphics.drawString(font, s, 3, stringPos, 0x303030);
+				guiGraphics.drawString(font, s, 3, stringPos, 0x303030, false);
 				stringPos += 4;
 				DoubleCoordinates pos = order.getTargetPosition();
 				if (pos != null) {
 					s = pos.toIntBasedString();
-					guiGraphics.drawString(font, s, 40, stringPos, 0x303030);
+					guiGraphics.drawString(font, s, 40, stringPos, 0x303030, false);
 				}
 				stringPos += 10;
 			}

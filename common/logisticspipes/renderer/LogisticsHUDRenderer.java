@@ -186,7 +186,7 @@ public class LogisticsHUDRenderer {
 			int width = mc.getWindow().getGuiScaledWidth();
 			int height = mc.getWindow().getGuiScaledHeight();
 			if (mc.gui != null && guiGraphics != null) {
-				guiGraphics.blit(TEXTURE, width / 2 - 7, height / 2 - 7, 0, 0, 16, 16);
+				guiGraphics.blit(TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f, 16, 16, 256, 256);
 			}
 		}
 	}

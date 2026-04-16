@@ -91,8 +91,6 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		super.init();
 	}
 
-	protected void actionPerformed(net.minecraft.client.gui.components.AbstractButton button) {}
-
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -139,7 +137,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		int topSide = ((height - imageHeight) / 2);
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0, 0, 256, 202);
+		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
 
 		topPos = (int) (topPos * 1 / zoom.zoom);
 		leftPos = (int) (leftPos * 1 / zoom.zoom);
@@ -160,7 +158,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		topSide *= zoom.zoom;
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0, 0, 256, 202);
+		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
 	}
 
 	private void renderLinkedOrderListItems(LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
@@ -175,7 +173,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 			}
 			// GL_LIGHTING removed — use shaders
 			RenderSystem.setShaderTexture(0, LogicLayoutGui.achievementTextures);
-			guiGraphics.blit(LogicLayoutGui.achievementTextures, startLeft - 5, yPos - 5, 0, 202, 26, 26);
+			guiGraphics.blit(LogicLayoutGui.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			//renderItemAt(aList.getAsDisplayItem(), startLeft, yPos);
 			if (aList.isInProgress() && aList.getMachineProgress() != 0) {

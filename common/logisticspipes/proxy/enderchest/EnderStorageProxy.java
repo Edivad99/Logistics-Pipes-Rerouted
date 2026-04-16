@@ -1,5 +1,5 @@
 package logisticspipes.proxy.enderchest;
-// TODO: EnderStorage not ported to 1.20.1 — stub
+// NOTE: EnderStorage not ported to 1.20.1 — stub
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;

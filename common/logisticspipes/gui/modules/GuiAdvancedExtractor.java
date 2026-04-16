@@ -81,8 +81,8 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) _advancedExtractor.getFilterInventory()).getName(), 8, 6, 0x404040);
-		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040);
+		guiGraphics.drawString(minecraft.font, _advancedExtractor.getFilterInventory().getName(), 8, 6, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040, false);
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 		// texture: LogisticsBaseGuiScreen.ITEMSINK
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(LogisticsBaseGuiScreen.ITEMSINK, j, k, 0, 0, imageWidth, imageHeight);
+		guiGraphics.blit(LogisticsBaseGuiScreen.ITEMSINK, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 
 }

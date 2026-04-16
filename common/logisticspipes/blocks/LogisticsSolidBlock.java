@@ -68,7 +68,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 
 		LOGISTICS_PROGRAM_COMPILER(14, LogisticsProgramCompilerTileEntity::new),
 
-		LOGISTICS_BLOCK_FRAME(15);
+		LOGISTICS_BLOCK_FRAME(15, LogisticsFrameTileEntity::new);
 
 		/** Numeric meta id kept for {@link logisticspipes.datafixer.DataFixerSolidBlockItems} legacy save migration. */
 		@Getter
@@ -106,7 +106,10 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 	}
 
 	public LogisticsSolidBlock(Type type) {
-		super(BlockBehaviour.Properties.of().strength(6.0F).requiresCorrectToolForDrops());
+		// noOcclusion() is required so the BER receives a non-zero packedLight value.
+		// Without it Minecraft treats the block as fully opaque, stores sky-light = 0
+		// at its own position, and the BER renders pitch-black regardless of ambient light.
+		super(BlockBehaviour.Properties.of().strength(6.0F).requiresCorrectToolForDrops().noOcclusion());
 		this.type = type;
 	}
 

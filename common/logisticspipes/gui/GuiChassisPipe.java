@@ -149,7 +149,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 			}
 		}
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++)
-			guiGraphics.drawString(minecraft.font, getModuleName(i), 40, 14 + 20 * i, 0x404040);
+			guiGraphics.drawString(minecraft.font, getModuleName(i), 40, 14 + 20 * i, 0x404040, false);
 	}
 
 	private String getModuleName(int slot) {

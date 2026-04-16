@@ -91,11 +91,11 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 	protected void renderGuiBackground(int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
 		drawTitle(getGuiGraphics());
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "name"), guiLeft + 10, guiTop + 20, 0x404040);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "access") + ":", guiLeft + 10, guiTop + 55, 0x404040);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "public"), guiLeft + 10, guiTop + 70, 0x404040);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "security"), guiLeft + 10, guiTop + 85, responsibleSecurityID != null ? 0x404040 : 0x808080);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "private"), guiLeft + 10, guiTop + 100, 0x404040);
+		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "name"), guiLeft + 10, guiTop + 20, 0x404040, false);
+		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "access") + ":", guiLeft + 10, guiTop + 55, 0x404040, false);
+		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "public"), guiLeft + 10, guiTop + 70, 0x404040, false);
+		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "security"), guiLeft + 10, guiTop + 85, responsibleSecurityID != null ? 0x404040 : 0x808080, false);
+		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "private"), guiLeft + 10, guiTop + 100, 0x404040, false);
 	}
 
 	protected void drawTitle(GuiGraphics guiGraphics) {

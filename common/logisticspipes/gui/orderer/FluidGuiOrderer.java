@@ -13,7 +13,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 public class FluidGuiOrderer extends GuiOrderer {
 
 	public FluidGuiOrderer(PipeFluidRequestLogistics pipe, Player entityPlayer) {
-		super(pipe.getX(), pipe.getY(), pipe.getZ(), pipe.getWorld().dimension().location().hashCode(), entityPlayer);
+		super(pipe.getX(), pipe.getY(), pipe.getZ(), pipe.getWorld().dimension().location(), entityPlayer);
 		_title = "Request Fluid";
 		refreshItems();
 	}
@@ -46,7 +46,7 @@ public class FluidGuiOrderer extends GuiOrderer {
 
 	@Override
 	public void refreshItems() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestFluidOrdererRefreshPacket.class).putInt(dimension).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestFluidOrdererRefreshPacket.class).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
 	}
 
 	@Override

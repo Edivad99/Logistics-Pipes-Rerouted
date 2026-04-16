@@ -38,15 +38,20 @@ public class GuiPowerProvider extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		// texture: GuiPowerProvider.TEXTURE
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(GuiPowerProvider.TEXTURE, j, k, 0, 0, imageWidth, imageHeight);
+		guiGraphics.blit(GuiPowerProvider.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 		int level = 100 - junction.getChargeState();
-		guiGraphics.blit(GuiPowerProvider.TEXTURE, j + 10, k + 11 + (level * 59 / 100), 176, level * 59 / 100, 5, 59 - (level * 59 / 100));
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerProvider.PREFIX + "Logistics" + junction.getBrand() + "PowerProvider"), leftPos + 25, topPos + 8, 0x404040);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerProvider.PREFIX + "StoredEnergy") + ":", leftPos + 40, topPos + 25, 0x404040);
-		guiGraphics.drawString(minecraft.font, StringUtils.getStringWithSpacesFromInteger(junction.getDisplayPowerLevel()) + " " + junction.getBrand(), leftPos + 40, topPos + 35, 0x404040);
-		guiGraphics.drawString(minecraft.font, "/ " + StringUtils.getStringWithSpacesFromInteger(junction.getMaxStorage()) + " " + junction.getBrand(), leftPos + 40, topPos + 45, 0x404040);
+		int levelPixels = level * 59 / 100;
+		guiGraphics.blit(GuiPowerProvider.TEXTURE, j + 10, k + 11 + levelPixels, 176.0f, levelPixels, 5, 59 - levelPixels, 256, 256);
+	}
+
+	@Override
+	protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int par1, int par2) {
+		super.renderLabels(guiGraphics, par1, par2);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerProvider.PREFIX + "Logistics" + junction.getBrand() + "PowerProvider"), 25, 8, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerProvider.PREFIX + "StoredEnergy") + ":", 40, 25, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, StringUtils.getStringWithSpacesFromInteger(junction.getDisplayPowerLevel()) + " " + junction.getBrand(), 40, 35, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "/ " + StringUtils.getStringWithSpacesFromInteger(junction.getMaxStorage()) + " " + junction.getBrand(), 40, 45, 0x404040, false);
 	}
 }

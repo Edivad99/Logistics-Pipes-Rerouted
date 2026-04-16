@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.compat
 
-// TODO: The One Probe integration — stubbed until a 1.20.1-compatible TOP API is added to the classpath.
+// NOTE: The One Probe integration — stubbed until a 1.20.1-compatible TOP API is added to the classpath.
 // Original code depended on mcjty.theoneprobe.api.* which is not available.
 
 object TheOneProbeIntegration

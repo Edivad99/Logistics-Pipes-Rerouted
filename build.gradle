@@ -151,8 +151,11 @@ dependencies {
     gameRuntime 'org.snakeyaml:snakeyaml-engine:2.3'
 
     // JEI — Just Enough Items (1.20.1 Forge)
+    // runtimeOnly excluded: jei-1.20.1-forge-15.20.0.129 calls I18n.m_118938_ which is absent in
+    // NeoForge 47.1.88 — crashes the entire mod loading phase. Compile-only keeps LP's JEI plugin
+    // compilable; swap back to runtimeOnly once a compatible JEI build is available.
     compileOnly "mezz.jei:jei-1.20.1-forge-api:15.20.0.129"
-    runtimeOnly "mezz.jei:jei-1.20.1-forge:15.20.0.129"
+    //runtimeOnly "mezz.jei:jei-1.20.1-forge:15.20.0.129"
 
     // Optional integrations (not yet ported to 1.20.1)
     // compileOnly "mcjty.theoneprobe:theoneprobe:..."

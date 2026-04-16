@@ -32,13 +32,10 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 	@Override
 	public void update() {
 		super.update();
-		// TODO(1.20.1): IC2 not ported — energy net registration disabled
-		// if (!init) {
-		// 	if (!addedToEnergyNet) {
-		// 		SimpleServiceLocator.IC2Proxy.registerToEneryNet(this);
-		// 		addedToEnergyNet = true;
-		// 	}
-		// }
+		if (!init && !addedToEnergyNet) {
+			SimpleServiceLocator.IC2Proxy.registerToEneryNet(this);
+			addedToEnergyNet = true;
+		}
 	}
 
 	@Override
@@ -47,11 +44,10 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 		if (MainProxy.isClient(getWorld())) {
 			LogisticsHUDRenderer.instance().remove(this);
 		}
-		// TODO(1.20.1): IC2 not ported — energy net unregistration disabled
-		// if (addedToEnergyNet) {
-		// 	SimpleServiceLocator.IC2Proxy.unregisterToEneryNet(this);
-		// 	addedToEnergyNet = false;
-		// }
+		if (addedToEnergyNet) {
+			SimpleServiceLocator.IC2Proxy.unregisterToEneryNet(this);
+			addedToEnergyNet = false;
+		}
 	}
 
 	@Override

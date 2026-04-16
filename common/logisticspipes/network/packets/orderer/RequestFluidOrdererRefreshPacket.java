@@ -2,7 +2,7 @@ package logisticspipes.network.packets.orderer;
 
 import net.minecraft.world.entity.player.Player;
 
-import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
+import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -11,7 +11,7 @@ import logisticspipes.request.RequestHandler;
 import logisticspipes.utils.StaticResolve;
 
 @StaticResolve
-public class RequestFluidOrdererRefreshPacket extends IntegerCoordinatesPacket {
+public class RequestFluidOrdererRefreshPacket extends CoordinatesPacket {
 
 	public RequestFluidOrdererRefreshPacket(int id) {
 		super(id);
@@ -24,8 +24,7 @@ public class RequestFluidOrdererRefreshPacket extends IntegerCoordinatesPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		int dimension = getInteger();
-		final LogisticsTileGenericPipe pipe = MainProxy.proxy.getPipeInDimensionAt(dimension, getPosX(), getPosY(), getPosZ(), player);
+		final LogisticsTileGenericPipe pipe = MainProxy.proxy.getPipeInDimensionAt(getDimension(), getPosX(), getPosY(), getPosZ(), player);
 		if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe)) {
 			return;
 		}
