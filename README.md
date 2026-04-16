@@ -4,6 +4,8 @@ A revival of [Logistics Pipes](https://github.com/RS485/LogisticsPipes), ported 
 
 See the original [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/logistics-pipes) for background on what the mod has been since its 1.4.x days.
 
+> **Beta / work in progress.** Expect bugs, crashes, missing polish, and the occasional broken feature. Back up your worlds before testing, and please open an issue if something goes wrong — noisy reports are more useful than silent frustration.
+
 ## What is Logistic Pipes
 
 A logistics mod that lets you build pipe networks capable of requesting items on demand, automatically sorting inventory, and triggering crafting chains. Pipes connect to any inventory and route items intelligently based on your configured rules — no constant item flow, no lost items, just point-to-point delivery driven by what you ask for.
