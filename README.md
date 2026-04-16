@@ -1,32 +1,39 @@
-# LogisticsPipes
+# Logistic Pipes 2
 
-[![Jenkins](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fci.rs485.network%2Fview%2Fall%2Fjob%2FLogisticsPipes-0.10-mc112)](https://ci.rs485.network/)
-![Lines of Code](https://tokei.rs/b1/github/RS485/LogisticsPipes?category=code)
+A revival of [Logistics Pipes](https://github.com/RS485/LogisticsPipes), ported from Forge 1.12.2 to **NeoForge 1.20.1** — bringing the classic request-based item routing, automated crafting, and modular chassis pipes back to modern Minecraft.
 
-Logistics Pipes is an extensive overhaul of the Buildcraft pipe system. It allows for better distribution of items via pipes, more organised stockkeeping and easier automated crafting.
+## Status
 
-Go to the [CurseForge Page](https://www.curseforge.com/minecraft/mc-mods/logistics-pipes) for more information and recent downloads.
-We advise anyone who is not a developer to go there.
+Work in progress. The migration is an ongoing port of the original 1.12.2 codebase to the modern toolchain. Gameplay is functional; some subsystems (rendering polish, third-party mod integrations, legacy data fixers) are still being finished.
 
-You are free to use this mod in your modpack without asking or noticing us.
+## Versions
 
-If you want to understand the sheer amount of changes we have made to the source, you can use [Gource](http://gource.io/)
+- Minecraft **1.20.1**
+- NeoForge **47.1.88**
+- Java **17** (provisioned automatically via Gradle toolchains)
+- Kotlin **1.7.10**
 
-Credits for the code goes to all [contributors](https://github.com/RS485/LogisticsPipes/contributors).
-Credits for the idea and basic code goes to Krapht.
+## Building
 
-## Translate
+```bash
+./gradlew build         # full build; output in build/libs/
+./gradlew runClient     # launch a dev client
+./gradlew runServer     # launch a dev server
+./gradlew check         # unit tests
+```
 
-See [this repo](https://github.com/RS485/LogisticsPipes-Language) for translations.
+Requires `git-lfs` for a small number of LFS-tracked JARs. If you cloned without it:
 
-## Builds
+```bash
+git lfs install && git lfs fetch && git lfs checkout
+```
 
-See our [Jenkins](https://ci.rs485.network/).
+## Credits
 
-Our jar certificate fingerprint is `e0c86912b2f7cc0cc646ad57799574aea43dbd45`.
+- **Krapht** — original concept and early codebase
+- **[RS485 and LogisticsPipes contributors](https://github.com/RS485/LogisticsPipes/contributors)** — the 1.12.2 codebase this project is built on
+- This fork focuses exclusively on the NeoForge 1.20.1 port
 
-Our GPG key id is `C4E5 0DBF CE49 AC33 E052  B591 2669 A04F D19F 2F7A` and we sign our jars with the subkey `386B 2790 B001 3BF8 1ED2  2D81 0119 F8E9 56C4 E048`.
+## License
 
-## Contact
-
-Get in touch with us on [Matrix](https://matrix.to/#/#lp:rs485.network) or the [RS485 Discord](https://discord.gg/6vPP3A8)
+See [LICENSE.md](LICENSE.md).
