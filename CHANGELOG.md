@@ -37,6 +37,6 @@ classic Logistics Pipes. Distributed under the MMPL-1.0.1.
 - **RS485 and the LogisticsPipes contributors** — the 1.12.2 codebase this
   port is built on; see
   [upstream contributors](https://github.com/RS485/LogisticsPipes/contributors)
-- **VoiceLessQ** — NeoForge 1.20.1 migration and ongoing maintenance
+- **NoZeroG** — NeoForge 1.20.1 migration and ongoing maintenance
 
 [0.0.1]: https://github.com/VoiceLessQ/Logistic-Pipes-2/releases/tag/v0.0.1

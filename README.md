@@ -59,7 +59,7 @@ Issues and PRs welcome. Skim [MIGRATION.md](MIGRATION.md) and the open issues fo
 
 - **Krapht** — original concept and early codebase
 - **[RS485 and LogisticsPipes contributors](https://github.com/RS485/LogisticsPipes/contributors)** — the 1.12.2 codebase this project is built on
-- This fork focuses exclusively on the NeoForge 1.20.1 port
+- **NoZeroG** — NeoForge 1.20.1 port and ongoing maintenance
 
 ## Changelog
 

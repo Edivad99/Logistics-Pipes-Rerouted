@@ -12,9 +12,9 @@ license     = "MMPL-1.0.1"
         brought back to modern Minecraft.
 
         Originally by Krapht; 1.12.2 codebase by the RS485 LP team. This port is
-        maintained by VoiceLessQ and distributed under the MMPL-1.0.1.
+        maintained by NoZeroG and distributed under the MMPL-1.0.1.
     '''
-    authors     = "VoiceLessQ (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
+    authors     = "NoZeroG (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
     displayURL       = "https://github.com/VoiceLessQ/Logistic-Pipes-2"
     issueTrackerURL  = "https://github.com/VoiceLessQ/Logistic-Pipes-2/issues"
 
