@@ -61,6 +61,10 @@ Issues and PRs welcome. Skim [MIGRATION.md](MIGRATION.md) and the open issues fo
 - **[RS485 and LogisticsPipes contributors](https://github.com/RS485/LogisticsPipes/contributors)** — the 1.12.2 codebase this project is built on
 - This fork focuses exclusively on the NeoForge 1.20.1 port
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
-See [LICENSE.md](LICENSE.md).
+Distributed under the Minecraft Mod Public License 1.0.1 — see [LICENSE.md](LICENSE.md).

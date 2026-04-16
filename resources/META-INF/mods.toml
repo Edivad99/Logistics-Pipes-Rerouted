@@ -1,18 +1,22 @@
 modLoader   = "kotlinforforge"
 loaderVersion = "[4,)"
-license     = "MMPL"
+license     = "MMPL-1.0.1"
 
 [[mods]]
     modId       = "logisticspipes"
     version     = "${version}"
-    displayName = "Logistics Pipes"
+    displayName = "Logistic Pipes 2"
     description = '''
-        Logistics Pipes is an extensive overhaul of the Buildcraft pipe system.
-        It allows for better distribution of items via pipes, more organised
-        stockkeeping and easier automated crafting.
+        Logistic Pipes 2 is a NeoForge 1.20.1 revival of the classic Logistics Pipes:
+        request-based item routing, automated crafting, and modular chassis pipes,
+        brought back to modern Minecraft.
+
+        Originally by Krapht; 1.12.2 codebase by the RS485 LP team. This port is
+        maintained by VoiceLessQ and distributed under the MMPL-1.0.1.
     '''
-    authors     = "RS485, LP Team"
-    displayURL  = "https://github.com/RS485/LogisticsPipes"
+    authors     = "VoiceLessQ (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
+    displayURL       = "https://github.com/VoiceLessQ/Logistic-Pipes-2"
+    issueTrackerURL  = "https://github.com/VoiceLessQ/Logistic-Pipes-2/issues"
 
 [[dependencies.logisticspipes]]
     modId        = "forge"
