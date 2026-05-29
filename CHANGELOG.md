@@ -7,6 +7,21 @@ follows [Semantic Versioning](https://semver.org/) where practical.
 ## [Unreleased]
 
 ### Fixed
+- **0.0.1 crashed on load on every production NeoForge/Forge 1.20.1 install**
+  (`NoSuchFieldError: BLOCK_ENTITY_TYPE` at `LPRegistries.<clinit>`, issue #1).
+  NeoGradle 7 does not reobfuscate for 1.20.1, so the published jar shipped
+  Mojmap names while the production runtime uses SRG. The build now
+  reobfuscates Mojmap → SRG with TinyRemapper; AutoRenamingTool was unusable
+  here because it propagated MC method renames (e.g. `Container.isEmpty →
+  m_7983_`) into `java.util.Deque`, crashing the mod a second way.
+- **Mod would not load on a dedicated server** once past that crash —
+  client-only classes leaked onto the common load path. Gated the render
+  proxy (`CCLProxy` / `LPRenderStateImpl`), the client tick/chat/login event
+  handlers, and render-model preloading behind `Dist.CLIENT`, and moved two
+  GUI packets' client bodies into `@OnlyIn(Dist.CLIENT)` helpers. Packet IDs
+  are now index-based so a packet skipped on one side can no longer desync the
+  protocol. A dedicated server now reaches *Done* with zero LogisticsPipes
+  errors.
 - **Branch HEAD compiles again.** Commit `7e2591c38` ("gate DEBUG on
   production env") made `LogisticsPipes.DEBUG` `final` + initialiser-
   gated on `!FMLEnvironment.production`, but left the older manifest-

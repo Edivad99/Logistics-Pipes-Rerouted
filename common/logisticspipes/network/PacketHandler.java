@@ -104,7 +104,7 @@ public class PacketHandler {
     public static void initialize() {
         Set<Class<? extends ModernPacket>> classes = StaticResolverUtil.findClassesByType(ModernPacket.class);
         loadPackets(classes);
-        if (PacketHandler.packetlist.isEmpty()) {
+        if (PacketHandler.packetmap.isEmpty()) {
             throw new RuntimeException("Cannot load Packet Classes");
         }
     }
@@ -114,18 +114,21 @@ public class PacketHandler {
                 .sorted(Comparator.comparing(Class::getCanonicalName))
                 .collect(Collectors.toList());
 
-        PacketHandler.packetlist = new ArrayList<>(classes.size());
+        // Packet IDs are the index in the sorted class list, so they are IDENTICAL on the client
+        // and the dedicated server even if a packet fails to construct on one side (e.g. a class
+        // the RuntimeDistCleaner refuses to link). A success-counter would shift every later ID
+        // and desync the protocol. Failed slots stay null; the dispatch path guards against that.
+        PacketHandler.packetlist = new ArrayList<>(java.util.Collections.nCopies(classes.size(), (ModernPacket) null));
         PacketHandler.packetmap = new HashMap<>(classes.size());
 
-        int currentId = 0;
-        for (Class<? extends ModernPacket> cls : classes) {
+        for (int id = 0; id < classes.size(); id++) {
+            Class<? extends ModernPacket> cls = classes.get(id);
             try {
-                final ModernPacket instance = cls.getConstructor(int.class).newInstance(currentId);
-                PacketHandler.packetlist.add(instance);
+                final ModernPacket instance = cls.getConstructor(int.class).newInstance(id);
+                PacketHandler.packetlist.set(id, instance);
                 PacketHandler.packetmap.put(cls, instance);
-                currentId++;
-            } catch (Throwable ignoredButPrinted) {
-                ignoredButPrinted.printStackTrace();
+            } catch (Throwable t) {
+                LogisticsPipes.log.error("Failed to load packet (id " + id + ") " + cls.getName(), t);
             }
         }
     }
@@ -159,7 +162,7 @@ public class PacketHandler {
         if (data.length > 0) {
             LPDataIOWrapper.provideData(data, dataInput -> {
                 final int packetID = dataInput.readShort();
-                final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
+                final ModernPacket packet = PacketHandler.templateForId(packetID);
                 packet.setDebugId(dataInput.readInt());
                 packet.readData(dataInput);
                 SimpleServiceLocator.clientBufferHandler.queuePacket(packet, MainProxy.proxy.getClientPlayer());
@@ -200,13 +203,26 @@ public class PacketHandler {
         CHANNEL.send(PacketDistributor.ALL.noArg(), buildPayload(msg));
     }
 
+    /** Resolves a fresh packet template for a received id, guarding the null gaps that
+     *  {@link #loadPackets} leaves for packets unavailable on this side. A non-null result is
+     *  expected in normal play (IDs are index-based and symmetric); a gap means a client/server
+     *  packet-table mismatch. */
+    private static ModernPacket templateForId(int packetID) {
+        ModernPacket tmpl = (packetID >= 0 && packetID < packetlist.size()) ? packetlist.get(packetID) : null;
+        if (tmpl == null) {
+            throw new IllegalStateException("Received LP packet id " + packetID
+                    + " not registered on this side (client/server packet-table mismatch)");
+        }
+        return tmpl.template();
+    }
+
     // ── Dispatch ──────────────────────────────────────────────────────────────
 
     /** Decodes and dispatches a raw LP packet from a FriendlyByteBuf. */
     public static void onPacketData(@Nonnull final FriendlyByteBuf data, @Nonnull final Player player) {
         LPDataIOWrapper.provideData(data, input -> {
             final int packetID = input.readShort();
-            final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
+            final ModernPacket packet = PacketHandler.templateForId(packetID);
             packet.setDebugId(input.readInt());
             packet.readData(input);
             onPacketData(packet, player);

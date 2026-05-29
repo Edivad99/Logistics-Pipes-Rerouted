@@ -39,6 +39,16 @@ public class MostLikelyRecipeComponentsResponse extends ModernPacket {
 	@Override
 	@ClientSideOnlyMethodContent
 	public void processPacket(Player player) {
+		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+			handleClient();
+		}
+	}
+
+	// See OpenChatGui: the client refs (Screen/Minecraft/LP GUI screens) live in this @OnlyIn
+	// helper so they are stripped before verification on the dedicated server, letting the packet
+	// class link and be sent server-side. processPacket stays free of client classes.
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	private void handleClient() {
 		Screen firstGui = Minecraft.getInstance().screen;
 		LogisticsBaseGuiScreen gui;
 		if (firstGui instanceof GuiLogisticsCraftingTable) {

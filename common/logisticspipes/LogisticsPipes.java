@@ -234,10 +234,13 @@ public class LogisticsPipes {
 		modEventBus.addListener(this::preInit);
 		modEventBus.addListener(this::commonSetup);
 		modEventBus.addListener(this::postInit);
-		modEventBus.addListener(this::clientSetup);
-		modEventBus.addListener(this::registerRenderers);
 		modEventBus.addListener(this::onAddPackFinders);
+		// `clientSetup` and `registerRenderers` are @OnlyIn(Dist.CLIENT); on a dedicated
+		// server FML's runtime-dist-cleaner strips them, and the `this::method` reference
+		// here would NoSuchMethodError before the constructor finishes.
 		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+			modEventBus.addListener(this::clientSetup);
+			modEventBus.addListener(this::registerRenderers);
 			modEventBus.register(logisticspipes.textures.TextureRegistrar.class);
 		}
 		LPDataFixer.INSTANCE.init();
@@ -372,6 +375,20 @@ public class LogisticsPipes {
 				MinecraftForge.EVENT_BUS.register(network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor.INSTANCE);
 				SimpleServiceLocator.setClientPacketBufferHandlerThread(new ClientPacketBufferHandlerThread());
 				LPFontRenderer.Factory.asyncPreload();
+
+				// Preload all render models so they don't get loaded (and crash) on concurrent
+				// render-thread class loading. Each loader is wrapped in its own try/catch so a
+				// failure in one OBJ file / group lookup doesn't halt init. These reference
+				// client-only renderer classes, so they MUST stay inside this Dist.CLIENT guard —
+				// the method-reference bootstraps below would otherwise link client classes on a
+				// dedicated server.
+				safeLoadModels("LogisticsNewRenderPipe",       LogisticsNewRenderPipe::loadModels);
+				safeLoadModels("LogisticsNewSolidBlockWorldRenderer", LogisticsNewSolidBlockWorldRenderer::loadModels);
+				safeLoadModels("CurveTubeRenderer",            CurveTubeRenderer::loadModels);
+				safeLoadModels("GainTubeRenderer",             GainTubeRenderer::loadModels);
+				safeLoadModels("LineTubeRenderer",             LineTubeRenderer::loadModels);
+				safeLoadModels("SpeedupTubeRenderer",          SpeedupTubeRenderer::loadModels);
+				safeLoadModels("SCurveTubeRenderer",           SCurveTubeRenderer::loadModels);
 			}
 		});
 
@@ -379,20 +396,6 @@ public class LogisticsPipes {
 		for (int i = 0; i < Configs.MULTI_THREAD_NUMBER; i++) {
 			new RoutingTableUpdateThread(i);
 		}
-
-
-
-		// load all the models so they don't get loaded and crash on concurrent class loading.
-		// Each loader is wrapped in its own try/catch so a failure in one OBJ file / group
-		// lookup doesn't halt mod initialization — the CCL-replacement pipeline is still
-		// being verified against the historical OBJ group-name conventions (Task #14).
-		safeLoadModels("LogisticsNewRenderPipe",       LogisticsNewRenderPipe::loadModels);
-		safeLoadModels("LogisticsNewSolidBlockWorldRenderer", LogisticsNewSolidBlockWorldRenderer::loadModels);
-		safeLoadModels("CurveTubeRenderer",            CurveTubeRenderer::loadModels);
-		safeLoadModels("GainTubeRenderer",             GainTubeRenderer::loadModels);
-		safeLoadModels("LineTubeRenderer",             LineTubeRenderer::loadModels);
-		safeLoadModels("SpeedupTubeRenderer",          SpeedupTubeRenderer::loadModels);
-		safeLoadModels("SCurveTubeRenderer",           SCurveTubeRenderer::loadModels);
 
 		if (isTesting()) {
 			final Class<?> testClass;

@@ -30,6 +30,7 @@ public class LPTickHandler {
 	public static int adjChecksDone = 0;
 
 	@SubscribeEvent
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
 	public void clientTick(ClientTickEvent event) {
 		if (event.phase == Phase.END) {
 			FluidIdentifier.initFromForge(true);

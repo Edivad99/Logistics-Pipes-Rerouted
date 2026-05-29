@@ -280,6 +280,7 @@ public class LogisticsEventListener {
 	}
 
 	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
 	public void clientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
 		SimpleServiceLocator.clientBufferHandler.clear();
 

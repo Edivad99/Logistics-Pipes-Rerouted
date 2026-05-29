@@ -73,6 +73,7 @@ public class LPChatListener {
 	}
 
 	@SubscribeEvent
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
 	public void clientChat(ClientChatReceivedEvent event) {
 		Component message = event.getMessage();
 		if (message != null) {

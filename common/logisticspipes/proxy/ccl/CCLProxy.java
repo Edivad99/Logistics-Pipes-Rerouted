@@ -44,7 +44,11 @@ import logisticspipes.proxy.object3d.operation.LPScale;
  */
 public class CCLProxy implements ICCLProxy {
 
-	private static final LPRenderStateImpl RENDER_STATE = new LPRenderStateImpl();
+	// Lazily created: LPRenderStateImpl references the client-only OverlayTexture, so eager
+	// (static) init crashes a dedicated server when ProxyManager.load() does `new CCLProxy()`.
+	// getRenderState() is only ever called from client renderers/FX, so first-touch init keeps
+	// the single-shared-instance semantics while never loading client classes on the server.
+	private static LPRenderStateImpl RENDER_STATE;
 
 	@Override
 	public TextureTransformation createIconTransformer(TextureAtlasSprite sprite) {
@@ -53,7 +57,12 @@ public class CCLProxy implements ICCLProxy {
 
 	@Override
 	public IRenderState getRenderState() {
-		return RENDER_STATE;
+		LPRenderStateImpl rs = RENDER_STATE;
+		if (rs == null) {
+			rs = new LPRenderStateImpl();
+			RENDER_STATE = rs;
+		}
+		return rs;
 	}
 
 	@Override
