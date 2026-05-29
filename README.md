@@ -14,7 +14,9 @@ A logistics mod that lets you build pipe networks capable of requesting items on
 
 ## Status
 
-Work in progress. The migration is an ongoing port of the original 1.12.2 codebase to the modern toolchain. Core gameplay (placing pipes, routing, requesting, chassis modules, crafting) is functional. Polish and third-party integrations are the main outstanding work. See [MIGRATION.md](MIGRATION.md) for a detailed checkpoint.
+Work in progress, but **feature-complete vs LP 1.12.2 upstream**. The migration ported the full 1014-file LP1 `dev` source to NeoForge 1.20.1; only 18 1.12.2-only legacy files (ASM coremods, OreDict recipe conditions, old `IGuiHandler` API, naming-collision utility classes) are intentionally not ported — each of those is either superseded by a modern equivalent (Mixins instead of coremod ASM, Tags instead of OreDict) or removed because the integrated mod doesn't exist on 1.20.1.
+
+Core gameplay (placing pipes, routing, requesting, chassis modules, crafting) is fully functional. Polish and third-party integrations are the main outstanding work. See [MIGRATION.md](MIGRATION.md) for a detailed checkpoint and [CHANGELOG.md](CHANGELOG.md) for recent changes.
 
 ## Known Limitations
 

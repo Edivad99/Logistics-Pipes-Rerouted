@@ -4,6 +4,29 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 follows [Semantic Versioning](https://semver.org/) where practical.
 
+## [Unreleased]
+
+### Fixed
+- **Branch HEAD compiles again.** Commit `7e2591c38` ("gate DEBUG on
+  production env") made `LogisticsPipes.DEBUG` `final` + initialiser-
+  gated on `!FMLEnvironment.production`, but left the older manifest-
+  based `LogisticsPipes.DEBUG = false;` assignment in place — final-
+  reassignment compile error. Removed the dead line; the field-
+  initialiser already handles the production check. (`ce8371362`)
+
+### Status
+- **Feature parity with LP 1.12.2 (upstream `dev`):** essentially
+  complete. Only 18 Java files from LP1 `dev` are intentionally not
+  ported — all 1.12.2-only legacy: ASM coremod transformers
+  (`asm/*` — superseded by Mixins on 1.20.1+), MCMP / Thermal
+  Dynamics integration (those mods don't exist on 1.20.1), old
+  `IGuiHandler` API (`network/GuiHandler.java`), OreDictionary recipe
+  conditions (replaced by Tags), and 1.12.2 API-name utilities
+  (`EnumFacingUtil`, `FinalNBTTagCompound`, etc.).
+- **Build verified:** `./gradlew runClient` boots cleanly, mod
+  identifies as `"Logistic Pipes 2 1.0.0 (logisticspipes)"`, all 121
+  pipe textures register, integrated server tick fires.
+
 ## [0.0.1] - 2026-04-16
 
 First public beta of Logistic Pipes 2 — a NeoForge 1.20.1 revival of the
