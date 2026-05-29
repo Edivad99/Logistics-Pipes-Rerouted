@@ -5,9 +5,11 @@ A high-level checkpoint of where the Forge 1.12.2 → NeoForge 1.20.1 port stand
 ## Working
 
 - **Compile & tests** — full project compiles on NeoForge 1.20.1; unit tests pass.
-- **Runtime** — pipes place, persist across save/load, and render; GUIs open; dev client and dev server both launch and are playable.
+- **Runtime** — pipes place, persist across save/load, and render; GUIs open; dev client/server **and a production dedicated server** all launch (the production server reaches *Done* with zero LogisticsPipes errors).
+- **Production packaging (reobf)** — NeoGradle 7 does **not** reobfuscate for 1.20.1, so the shipped jar must be remapped Mojmap → SRG or it crashes in production (`NoSuchFieldError`, was issue #1). `build.gradle` does this with **TinyRemapper** (not AutoRenamingTool, which leaks MC renames into JDK collections). The no-classifier `logisticspipes-*.jar` in `build/libs` is the production artifact.
+- **Dist-safety** — client-only code (renderers, render proxy, GUI/screen packets, client event handlers) is gated behind `Dist.CLIENT`/`@OnlyIn` so the common code path links on a dedicated server.
 - **Registration** — blocks, items, block entities, menus, recipe types, entities all on `DeferredRegister`.
-- **Networking** — packets wired via `SimpleChannel` and a unified `LPPacketPayload`; packet auto-discovery uses `ModFileScanData`.
+- **Networking** — packets wired via `SimpleChannel` and a unified `LPPacketPayload`; packet auto-discovery uses `ModFileScanData`; packet IDs are index-based so the client and server tables stay in sync even when a packet is dist-stripped.
 - **Capabilities** — `RegisterCapabilitiesEvent` wired for the main block entities.
 - **Routing & logistics** — `ServerRouter` / `ClientRouter`, pathfinding, promises, crafting orderer, chassis modules, request pipes.
 - **Ore dictionary → Tags** — all tag lookups ported.
@@ -31,6 +33,8 @@ A high-level checkpoint of where the Forge 1.12.2 → NeoForge 1.20.1 port stand
 ## Contributing
 
 - Check open issues before starting — some areas are actively being worked on.
-- Gradle toolchains provision JDK 17 automatically, so you don't need to set `JAVA_HOME`.
-- `./gradlew build` should succeed out of the box after `git lfs fetch`.
+- Run Gradle on **JDK 21** (point `JAVA_HOME` at a JDK 21). A newer system default such as JDK 25 breaks the Kotlin compile daemon; the compile/bytecode target itself stays Java 17 via the toolchain.
+- Build (the reobf step runs automatically inside `assemble`/`build`):
+  `JAVA_HOME=<jdk-21> ./gradlew build -Dorg.gradle.java.home=<jdk-21> -Pkotlin.compiler.execution.strategy=in-process --no-daemon`.
+  Add `-x test -x sign -x ktlint` for faster iteration. The production jar is `build/libs/logisticspipes-<ver>.jar` (no classifier).
 - For rendering-related work, compare against the original 1.12.2 `dev` branch of upstream [RS485/LogisticsPipes](https://github.com/RS485/LogisticsPipes) as the visual reference.
