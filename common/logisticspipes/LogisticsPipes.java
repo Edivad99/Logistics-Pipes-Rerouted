@@ -255,7 +255,11 @@ public class LogisticsPipes {
 				final Manifest manifest = new Manifest(resources.nextElement().openStream());
 				foundLp = "LogisticsPipes".equals(manifest.getMainAttributes().getValue("Specification-Title"));
 				if (foundLp) {
-					LogisticsPipes.DEBUG = false;
+					// DEBUG was made final + gated on !FMLEnvironment.production in
+					// commit 7e2591c38 ("gate DEBUG on production env"); the manifest-
+					// based override is no longer needed and would now be a final-
+					// reassignment compile error. Production/dev split is handled by
+					// the field initialiser at line 213.
 					LogisticsPipes.VERSION = manifest.getMainAttributes().getValue("Implementation-Version");
 					LogisticsPipes.VENDOR = manifest.getMainAttributes().getValue("Implementation-Vendor");
 					LogisticsPipes.TARGET = manifest.getMainAttributes().getValue("Implementation-Target");
