@@ -32,14 +32,14 @@ I hope you got a good overview on how to start with this brand-new LP version. W
 
 ---
 
-[Bug Reports](https://github.com/RS485/LogisticsPipes/issues)
+[Bug Reports](https://github.com/VoiceLessQ/Logistic-Pipes-2/issues)
 
 ---
 
-[Official Builds](https://ci.rs485.network)
+[Official Builds](https://github.com/VoiceLessQ/Logistic-Pipes-2/releases)
 
 ---
 
-[Help us improve this book](https://github.com/RS485/LogisticsPipes/wiki/How-does-the-guide-book-work-and-how-to-create-content)
+[Help us improve this book](https://github.com/VoiceLessQ/Logistic-Pipes-2)
 
 ---
