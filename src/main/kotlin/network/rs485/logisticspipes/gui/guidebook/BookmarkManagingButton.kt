@@ -42,12 +42,13 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.gui.GuiGraphics
+import network.rs485.logisticspipes.gui.HorizontalAlignment
+import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.TextUtil
 import java.util.*
-
-// TODO: Rendering deferred — BookmarkManagingButton migrated to 1.20.1 stub.
 
 val additionTexture = Rectangle(192, 0, 16, 16)
 val subtractionTexture = additionTexture.translated(additionTexture.width, 0.0f)
@@ -66,10 +67,31 @@ class BookmarkManagingButton(
     var onClickActionStated: (ButtonState) -> Boolean = onClickAction
 
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        // TODO: deferred rendering
+        if (!visible) return
+        val hovered = isHovered(mouseX, mouseY)
+        val yOffset = getButtonHoverState(hovered) * additionTexture.roundedHeight
+        val baseTexture = if (buttonState == ButtonState.ADD) additionTexture else subtractionTexture
+        GuideBookGraphics.blitAtlas(
+            guiGraphics,
+            body,
+            baseTexture.translated(0, yOffset),
+            MinecraftColor.WHITE.colorCode,
+            blend = true,
+        )
+        if (hovered) {
+            drawTooltip(
+                x = body.roundedLeft + body.roundedHeight / 2,
+                y = body.roundedTop - 6,
+                horizontalAlign = HorizontalAlignment.CENTER,
+                verticalAlign = VerticalAlignment.BOTTOM,
+            )
+        }
     }
 
     override fun setX(newX: Int) {
+        // Keep the vanilla widget position in sync with the body so the click hit-area
+        // (AbstractWidget.clicked / focus handling) matches what is rendered.
+        super.setX(newX)
         body.setPos(newX.toFloat(), body.y0)
     }
 
@@ -83,7 +105,7 @@ class BookmarkManagingButton(
         ButtonState.DISABLED -> ""
     }
 
-    fun getButtonHoverState(mouseOver: Boolean): Int = if (buttonState == ButtonState.DISABLED) 2 else if (isHovered) 1 else 0
+    fun getButtonHoverState(mouseOver: Boolean): Int = if (buttonState == ButtonState.DISABLED) 2 else if (mouseOver) 1 else 0
 
     override fun click(mouseButton: Int) = onClickActionStated(buttonState)
 

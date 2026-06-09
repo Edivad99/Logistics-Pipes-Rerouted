@@ -1,5 +1,8 @@
 package logisticspipes.proxy.side;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -11,14 +14,21 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import logisticspipes.gui.popup.SelectItemOutOfList;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
+import logisticspipes.network.PacketHandler;
+import logisticspipes.network.packets.gui.DummyContainerSlotClick;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.IProxy;
+import logisticspipes.utils.FluidIdentifier;
+import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.utils.item.ItemIdentifierStack;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientProxy implements IProxy {
@@ -161,8 +171,34 @@ public class ClientProxy implements IProxy {
 	}
 
 	@Override
-	public void openFluidSelectGui(int slotId) {
-		// TODO: fluid select GUI migration deferred to GUI system migration
+	public void openFluidSelectGui(final int slotId) {
+		if (Minecraft.getInstance().screen instanceof LogisticsBaseGuiScreen) {
+			final List<ItemIdentifierStack> list = new ArrayList<>();
+			for (FluidIdentifier fluid : FluidIdentifier.all()) {
+				if (fluid == null) {
+					continue;
+				}
+				list.add(fluid.getItemIdentifier().makeStack(1));
+			}
+			SelectItemOutOfList subGui = new SelectItemOutOfList(list, slot -> {
+				if (slot == -1) {
+					return;
+				}
+				MainProxy.sendPacketToServer(PacketHandler.getPacket(DummyContainerSlotClick.class).setSlotId(slotId).setStack(list.get(slot).makeNormalStack()).setButton(0));
+			});
+			LogisticsBaseGuiScreen gui = (LogisticsBaseGuiScreen) Minecraft.getInstance().screen;
+			if (!gui.hasSubGui()) {
+				gui.setSubGui(subGui);
+			} else {
+				SubGuiScreen nextGui = gui.getSubGui();
+				while (nextGui.hasSubGui()) {
+					nextGui = nextGui.getSubGui();
+				}
+				nextGui.setSubGui(subGui);
+			}
+		} else {
+			throw new UnsupportedOperationException(String.valueOf(Minecraft.getInstance().screen));
+		}
 	}
 
 	@Override

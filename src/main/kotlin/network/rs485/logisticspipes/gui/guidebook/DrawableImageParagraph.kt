@@ -37,13 +37,13 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-// TODO: Rendering deferred — DrawableImageParagraph migrated to 1.20.1 stub (Tessellator/GlStateManager removed).
-
+import com.mojang.blaze3d.systems.RenderSystem
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.MinecraftColor
+import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.resources.ResourceLocation
 import java.io.IOException
@@ -94,8 +94,8 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
     override var relativeBody: MutableRectangle = MutableRectangle()
     override var parent: Drawable? = null
 
-    // In 1.20.1 there is no PngSizeInfo; we detect image availability via resource presence.
-    // Width/height are stored separately after a successful read.
+    // 1.20.1 has no PngSizeInfo; read the PNG IHDR header directly from the resource stream to get
+    // the intrinsic dimensions (used both for layout sizing and as the blit source size).
     private var imageWidth: Int = 0
     private var imageHeight: Int = 0
     val broken: Boolean
@@ -105,8 +105,14 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
         try {
             val resource = Minecraft.getInstance().resourceManager.getResource(imageResource)
             if (resource.isPresent) {
-                // TODO: read actual PNG dimensions; for now treat as available with 0x0 placeholder
-                success = true
+                resource.get().open().use { stream ->
+                    val (w, h) = readPngSize(stream.readNBytes(24))
+                    if (w > 0 && h > 0) {
+                        imageWidth = w
+                        imageHeight = h
+                        success = true
+                    }
+                }
             }
         } catch (e: IOException) {
             LogisticsPipes.log.error("File not found: ${imageResource.path}")
@@ -114,9 +120,46 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
         broken = !success
     }
 
+    /**
+     * Reads width/height from a PNG IHDR chunk (big-endian 32-bit ints at byte offsets 16 and 20).
+     * Returns 0 to 0 if the header does not look like a PNG.
+     */
+    private fun readPngSize(header: ByteArray): Pair<Int, Int> {
+        if (header.size < 24) return 0 to 0
+        // PNG signature: 89 50 4E 47 0D 0A 1A 0A
+        if (header[1].toInt() != 'P'.code || header[2].toInt() != 'N'.code || header[3].toInt() != 'G'.code) return 0 to 0
+        fun int32(offset: Int): Int =
+            (header[offset].toInt() and 0xFF shl 24) or
+                (header[offset + 1].toInt() and 0xFF shl 16) or
+                (header[offset + 2].toInt() and 0xFF shl 8) or
+                (header[offset + 3].toInt() and 0xFF)
+        return int32(16) to int32(20)
+    }
+
     override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (!broken) {
-            // TODO: deferred rendering — drawImage using GuiGraphics blit
+            val guiGraphics = SimpleGraphics.guiGraphics ?: return
+            // Clip to the visible page area so partially-scrolled images do not draw over the frame.
+            guiGraphics.enableScissor(
+                visibleArea.roundedLeft,
+                visibleArea.roundedTop,
+                visibleArea.roundedRight,
+                visibleArea.roundedBottom,
+            )
+            RenderSystem.enableBlend()
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+            guiGraphics.blit(
+                imageResource,
+                absoluteBody.roundedLeft,
+                absoluteBody.roundedTop,
+                absoluteBody.roundedWidth,
+                absoluteBody.roundedHeight,
+                0.0f, 0.0f,
+                imageWidth, imageHeight,
+                imageWidth, imageHeight,
+            )
+            RenderSystem.disableBlend()
+            guiGraphics.disableScissor()
         } else {
             GuiDrawer.drawOutlineRect(absoluteBody, MinecraftColor.WHITE.colorCode)
         }

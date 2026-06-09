@@ -48,6 +48,16 @@ public class MissingItems extends ModernPacket {
 	@Override
 	@ClientSideOnlyMethodContent
 	public void processPacket(Player player) {
+		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+			handleClient(player);
+		}
+	}
+
+	// See OpenChatGui: the client refs (Minecraft/LP GUI screens) live in this @OnlyIn helper so they
+	// are stripped before verification on the dedicated server, letting the packet class link and be
+	// sent server-side. processPacket stays free of client classes.
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	private void handleClient(Player player) {
 		if (Configs.DISPLAY_POPUP && Minecraft.getInstance().screen instanceof GuiOrderer) {
 			((GuiOrderer) Minecraft.getInstance().screen)
 					.handleRequestAnswer(getItems(), isFlag(), (GuiOrderer) Minecraft.getInstance().screen, player);

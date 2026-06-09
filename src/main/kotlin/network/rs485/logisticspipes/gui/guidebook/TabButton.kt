@@ -37,12 +37,11 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
-
-// TODO: Rendering deferred — TabButton migrated to 1.20.1 stub.
 
 interface TabButtonReturn {
     fun onLeftClick(): Boolean
@@ -72,8 +71,38 @@ class TabButton(
 
     fun onRightClick(shiftClick: Boolean, ctrlClick: Boolean) = whisky.onRightClick(shiftClick, ctrlClick)
 
+    // Body pass, drawn UNDER the frame: only inactive tabs (LP1's drawButton). The active tab's
+    // body is drawn over the frame in renderForeground so it "opens into" the page.
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        // TODO: deferred rendering
+        if (!visible || !isInactive) return
+        // Inactive tabs sit slightly lower (shifted down by 3px) and are tinted with their color.
+        val tabColor: Int = (MinecraftColor.values()[whisky.getColor()].colorCode and 0x00FFFFFF) or 0xFF000000.toInt()
+        val yOffset = if (whisky.isPageActive()) 0 else 3
+        GuideBookGraphics.blitAtlas(
+            guiGraphics,
+            body.translated(0, yOffset),
+            buttonTextureArea,
+            color = if (whisky.isPageActive()) 0xFFFFFFFF.toInt() else tabColor,
+            blend = true,
+        )
+    }
+
+    // Foreground pass, drawn OVER the frame (LP1's drawButtonForegroundLayer): the active tab's
+    // white body plus colored circle marker, and the hover tooltip.
+    fun renderForeground(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
+        if (!isInactive) {
+            val tabColor: Int = (MinecraftColor.values()[whisky.getColor()].colorCode and 0x00FFFFFF) or 0xFF000000.toInt()
+            GuideBookGraphics.blitAtlas(guiGraphics, body, buttonTextureArea, color = -1, blend = true)
+            GuideBookGraphics.blitAtlas(guiGraphics, circleArea.translated(body), circleAreaTexture, color = tabColor, blend = true)
+        }
+        if (visible && isHovered(mouseX, mouseY)) {
+            drawTooltip(
+                x = body.roundedRight,
+                y = body.roundedTop,
+                horizontalAlign = HorizontalAlignment.RIGHT,
+                verticalAlign = VerticalAlignment.BOTTOM,
+            )
+        }
     }
 
     override fun getTooltipText(): String {
@@ -82,14 +111,29 @@ class TabButton(
 
     override fun setPos(newX: Int, newY: Int) {
         body.setPos(newX, newY - 24)
+        this.x = newX
+        this.y = newY - 24
     }
 
+    // LP1 dispatched via GuiGuideBook.mouseClicked -> mousePressed -> actionPerformed/rightClick:
+    // left-click on an INACTIVE tab switches to its page, right-click on the active tab cycles
+    // its color (shift inverts, ctrl+shift removes the bookmark).
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        val mouseXi = mouseX.toInt(); val mouseYi = mouseY.toInt()
-        if (!visible || !isPageActive) return false
-        return bodyTrigger
+        if (!visible || !active) return false
+        val hit = bodyTrigger
             .translated(body)
             .translated(0, if (whisky.isPageActive()) -3 else 0)
-            .contains(mouseXi, mouseYi)
+            .contains(mouseX.toInt(), mouseY.toInt())
+        if (!hit) return false
+        val handled = when (button) {
+            0 -> onLeftClick()
+            1 -> onRightClick(
+                shiftClick = net.minecraft.client.gui.screens.Screen.hasShiftDown(),
+                ctrlClick = net.minecraft.client.gui.screens.Screen.hasControlDown(),
+            )
+            else -> false
+        }
+        if (handled) playDownSound(net.minecraft.client.Minecraft.getInstance().soundManager)
+        return handled
     }
 }

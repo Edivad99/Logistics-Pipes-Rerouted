@@ -41,6 +41,7 @@ import logisticspipes.LPItems
 import logisticspipes.LogisticsPipes
 import logisticspipes.modplugins.jei.JEIPluginLoader
 import logisticspipes.utils.MinecraftColor
+import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
@@ -49,6 +50,7 @@ import net.minecraft.world.item.ItemStack
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
+import network.rs485.logisticspipes.gui.widget.Tooltipped
 import network.rs485.logisticspipes.guidebook.BookContents
 import network.rs485.logisticspipes.guidebook.BookContents.MAIN_MENU_FILE
 import network.rs485.logisticspipes.guidebook.DebugPage
@@ -63,8 +65,6 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-
-// TODO: Rendering deferred — full 1.20.1 Screen/GuiGraphics migration pending.
 
 object GuideBookConstants {
     const val Z_TOOLTIP = 500.0f
@@ -214,7 +214,10 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
                 }
             )
         )
-        tabButtons.forEach { addRenderableWidget(it) }
+        // Tab buttons receive click/scroll events but are drawn manually in render() so they sit
+        // UNDER the frame (matching LP1's draw order); hence addWidget (events-only) not
+        // addRenderableWidget.
+        tabButtons.forEach { addWidget(it) }
         updateButtonVisibility()
     }
 
@@ -224,18 +227,111 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
         super.onClose()
     }
 
+    override fun resize(minecraft: Minecraft, width: Int, height: Int) {
+        state.currentPage.progress = 0.0f
+        super.resize(minecraft, width, height)
+    }
+
+    // Animates the visible scroll position toward the page's target progress; port of LP1's
+    // updateScreen. Without this, slider/mouse-wheel changes update page.progress but the
+    // rendered content (which scrolls by currentProgress) never moves.
+    override fun tick() {
+        super.tick()
+        if (currentProgress == state.currentPage.progress) return
+        val progressDiff = currentProgress - state.currentPage.progress
+        val speedModifier = 0.5f
+        currentProgress = when {
+            progressDiff < 0.0025f && progressDiff > -0.0025f -> state.currentPage.progress
+            progressDiff < 0.0025f -> min(currentProgress - (progressDiff * speedModifier), state.currentPage.progress)
+            progressDiff > -0.0025f -> max(currentProgress - (progressDiff * speedModifier), state.currentPage.progress)
+            else -> currentProgress
+        }
+    }
+
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        // TODO: deferred — migrate drawScreen body to GuiGraphics
-        super.render(guiGraphics, mouseX, mouseY, partialTick)
+        // Publish the current GuiGraphics so the guide book drawables (DrawablePage/DrawableWord/
+        // LPFontRenderer) and GuiDrawer helpers can draw against it; mirrors how BaseGuiContainer
+        // exposes it for the rest of LP2's GUI code.
+        val previousGraphics = SimpleGraphics.guiGraphics
+        SimpleGraphics.guiGraphics = guiGraphics
+        try {
+            // Darken the world behind the book (equivalent of LP1's drawDefaultBackground).
+            renderBackground(guiGraphics)
+
+            // Background panel (equivalent of LP1's GuiDrawer.drawGuideBookBackground): a tiled dark
+            // pattern inset 16px from the outer rectangle, so it sits behind the 24px frame border.
+            GuideBookGraphics.blitDarkPatternTiled(
+                guiGraphics,
+                MutableRectangle.fromRectangle(outerGui).translate(16, 16).grow(-32, -32),
+            )
+
+            // Page contents, scrolled to the current progress.
+            state.currentPage.run {
+                updateScrollPosition(visibleArea, currentProgress)
+                draw(visibleArea, mouseX.toFloat(), mouseY.toFloat(), partialTick)
+            }
+
+            // Inactive bookmark tab bodies render under the frame (LP1 drew them before the frame).
+            tabButtons.forEach { it.render(guiGraphics, mouseX, mouseY, partialTick) }
+
+            // Frame and slider rail.
+            GuideBookGraphics.blitGuideBookFrame(guiGraphics, outerGui, sliderSeparator)
+
+            // Remaining registered widgets (slider, home, add/remove bookmark) render over the frame.
+            renderables.forEach { it.render(guiGraphics, mouseX, mouseY, partialTick) }
+
+            // Foreground pass over the frame (LP1's drawButtonForegroundLayer, in reversed order):
+            // the active tab's body + colored circle and the tab tooltips, which must not be
+            // overdrawn by the opaque frame border.
+            tabButtons.reversed().forEach { it.renderForeground(guiGraphics, mouseX, mouseY) }
+
+            // Hovered tooltip for the page content.
+            if (visibleArea.contains(mouseX, mouseY)) {
+                val hovered = state.currentPage.getHovered(mouseX.toFloat(), mouseY.toFloat())
+                if (hovered is Tooltipped) {
+                    GuiDrawer.drawTextTooltip(
+                        text = hovered.getTooltipText(),
+                        x = mouseX,
+                        y = min(mouseY - 5f, visibleArea.bottom).roundToInt(),
+                        z = GuideBookConstants.Z_TOOLTIP,
+                        horizontalAlign = HorizontalAlignment.CENTER,
+                        verticalAlign = VerticalAlignment.BOTTOM,
+                    )
+                }
+            }
+
+            drawTitle()
+        } finally {
+            SimpleGraphics.guiGraphics = previousGraphics
+        }
+    }
+
+    private fun drawTitle() {
+        GuiDrawer.lpFontRenderer.drawCenteredString(
+            state.currentPage.title,
+            floor(width / 2.0f),
+            outerGui.y0 + (innerGui.y0 - outerGui.y0 - GuiDrawer.lpFontRenderer.getFontHeight()) / 2.0f,
+            MinecraftColor.WHITE.colorCode,
+            EnumSet.of(TextFormat.Shadow),
+            1.0f,
+        )
     }
 
     override fun isPauseScreen(): Boolean = false
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        // LP1 dispatched button clicks first (mousePressed -> actionPerformed/rightClick) and only
+        // then forwarded the click to the page content. The widgets (slider, home, bookmark
+        // manager, tabs) handle their own actions in their mouseClicked overrides.
+        if (super.mouseClicked(mouseX, mouseY, button)) {
+            updateButtonVisibility()
+            return true
+        }
         if (visibleArea.contains(mouseX.toInt(), mouseY.toInt())) {
             state.currentPage.mouseClicked(mouseX.toFloat(), mouseY.toFloat(), button, visibleArea, actionListener)
+            return true
         }
-        return super.mouseClicked(mouseX, mouseY, button)
+        return false
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, delta: Double): Boolean {
@@ -246,7 +342,11 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
     }
 
     private fun addBookmark() = state.currentPage.takeIf { isTabAbsent(it) && tabButtons.size < maxTabs }
-        ?.also { state.bookmarks.add(it); tabButtons.add(createGuiTabButton(it)) }
+        ?.also {
+            state.bookmarks.add(it)
+            // Register as events-only widget (rendered manually in render()), matching init().
+            tabButtons.add(addWidget(createGuiTabButton(it)))
+        }
 
     private fun createGuiTabButton(tabPage: Page): TabButton =
         TabButton(tabPage, outerGui.roundedRight - 2 - 2 * guiTabWidth, outerGui.roundedTop, object : TabButtonReturn {
@@ -266,6 +366,8 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
 
     private fun removeBookmark(page: Page): Boolean {
         val removedFromState = state.bookmarks.removeIf { it.pageEquals(page) }
+        // De-register the matching tab widgets from event dispatch before dropping them from the list.
+        tabButtons.filter { it.tabPage.pageEquals(page) }.forEach(::removeWidget)
         val removedFromButtons = tabButtons.removeIf { it.tabPage.pageEquals(page) }
         return removedFromState || removedFromButtons
     }

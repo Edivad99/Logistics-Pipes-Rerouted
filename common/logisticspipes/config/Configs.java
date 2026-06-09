@@ -19,6 +19,7 @@ public class Configs {
 	static final ForgeConfigSpec.IntValue     DETECTION_FREQUENCY_V;
 	static final ForgeConfigSpec.BooleanValue ORDERER_COUNT_INVERT_V;
 	static final ForgeConfigSpec.BooleanValue ORDERER_PAGE_INVERT_V;
+	static final ForgeConfigSpec.BooleanValue DISPLAY_POPUP_V;
 	static final ForgeConfigSpec.IntValue     MAX_UNROUTED_CONNECTIONS_V;
 	static final ForgeConfigSpec.IntValue     HUD_RENDER_DISTANCE_V;
 	static final ForgeConfigSpec.DoubleValue  PIPE_DURABILITY_V;
@@ -54,6 +55,7 @@ public class Configs {
 		b.comment("Orderer GUI settings").push("orderer");
 		ORDERER_COUNT_INVERT_V = b.comment("Invert mouse wheel for item count in orderer").define("invertCountWheel", false);
 		ORDERER_PAGE_INVERT_V  = b.comment("Invert mouse wheel for page navigation in orderer").define("invertPageWheel", false);
+		DISPLAY_POPUP_V        = b.comment("Set the default configuration for the popup of the Orderer Gui. Should it be used?").define("displayPopup", true);
 		b.pop();
 
 		b.comment("HUD settings").push("hud");
@@ -121,7 +123,7 @@ public class Configs {
 
 	public static int[] CHASSIS_SLOTS_ARRAY = {1, 2, 3, 4, 8};
 
-	// GuiOrderer Popup setting — runtime-only, not persisted to config file
+	// GuiOrderer Popup setting — persisted to config file (see savePopupState())
 	public static boolean DISPLAY_POPUP = true;
 
 	// MultiThread
@@ -154,6 +156,7 @@ public class Configs {
 		LOGISTICS_DETECTION_FREQUENCY          = DETECTION_FREQUENCY_V.get();
 		LOGISTICS_ORDERER_COUNT_INVERTWHEEL    = ORDERER_COUNT_INVERT_V.get();
 		LOGISTICS_ORDERER_PAGE_INVERTWHEEL     = ORDERER_PAGE_INVERT_V.get();
+		DISPLAY_POPUP                          = DISPLAY_POPUP_V.get();
 		MAX_UNROUTED_CONNECTIONS               = MAX_UNROUTED_CONNECTIONS_V.get();
 		LOGISTICS_HUD_RENDER_DISTANCE          = HUD_RENDER_DISTANCE_V.get();
 		pipeDurability                         = PIPE_DURABILITY_V.get().floatValue();
@@ -178,7 +181,10 @@ public class Configs {
 	}
 
 	public static void savePopupState() {
-		// DISPLAY_POPUP is a runtime-only value, not backed by config file.
+		// Mirror LP1: write the current popup preference back to the config file and persist it
+		// immediately so the toggle survives a restart.
+		DISPLAY_POPUP_V.set(DISPLAY_POPUP);
+		DISPLAY_POPUP_V.save();
 	}
 
 	/** Always reads live from the spec so config file edits take effect on reload. */

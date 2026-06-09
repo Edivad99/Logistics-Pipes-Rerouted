@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.network.chat.Component
@@ -45,8 +46,6 @@ import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
-
-// TODO: Rendering deferred — LPGuiButton migrated to 1.20.1 Button API stub.
 
 open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) :
     Button(Button.builder(Component.empty()) { }.pos(x, y).size(width, height)) {
@@ -63,6 +62,14 @@ open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) :
         body.setPos(newX, newY)
         this.x = newX
         this.y = newY
+    }
+
+    // LP1 routed clicks through GuiScreen.mouseClicked -> mousePressed -> actionPerformed ->
+    // click(0). In the 1.20.1 Screen model each widget receives mouseClicked itself; hit-test
+    // against the body rectangle (not the vanilla widget x/y) like LP1's mousePressed did.
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (button != 0 || !isHovered(mouseX.toInt(), mouseY.toInt())) return false
+        return click(0).also { if (it) playDownSound(Minecraft.getInstance().soundManager) }
     }
 
     open fun setOnClickAction(newOnClickAction: (Int) -> Boolean): LPGuiButton {

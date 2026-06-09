@@ -22,14 +22,14 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.gui.GuiGraphics
+import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
-
-// TODO: Rendering deferred — HomeButton migrated to 1.20.1 stub.
 
 private val homeButtonTexture = Rectangle(16, 64, 24, 32)
 private val homeIconTexture = Rectangle(128, 0, 16, 16)
@@ -37,19 +37,44 @@ private val homeIconTexture = Rectangle(128, 0, 16, 16)
 class HomeButton(x: Int, y: Int, onClickAction: (Int) -> Boolean) :
     LPGuiButton(1, x - 24, y - 24, homeButtonTexture.roundedWidth, homeButtonTexture.roundedHeight) {
 
+    private val homeIconBody: MutableRectangle
     override val bodyTrigger = Rectangle(1, 1, 22, 22)
 
     init {
         this.setOnClickAction(onClickAction)
+        val offset = (body.roundedWidth - homeIconTexture.roundedWidth) / 2
+        homeIconBody = MutableRectangle(offset, offset, homeIconTexture.roundedWidth, homeIconTexture.roundedHeight)
     }
 
     override fun setPos(newX: Int, newY: Int) {
         body.setPos(newX - 24, newY + 8)
+        this.x = newX - 24
+        this.y = newY + 8
     }
 
     override fun getTooltipText(): String = TextUtil.translate("misc.guide_book.home_button")
 
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        // TODO: deferred rendering
+        if (!visible) return
+        val hovered = isHovered(mouseX, mouseY)
+        // Button background.
+        GuideBookGraphics.blitAtlas(guiGraphics, body, homeButtonTexture, MinecraftColor.WHITE.colorCode, blend = true)
+        // Home icon, shifted down the atlas by the hover state (normal/hovered/disabled).
+        val hoverStateOffset = getHoverState(hovered) * homeIconTexture.roundedHeight
+        GuideBookGraphics.blitAtlas(
+            guiGraphics,
+            homeIconBody.translated(body),
+            homeIconTexture.translated(0, hoverStateOffset),
+            MinecraftColor.WHITE.colorCode,
+            blend = true,
+        )
+        if (hovered) {
+            drawTooltip(
+                x = body.roundedRight,
+                y = body.roundedTop,
+                horizontalAlign = HorizontalAlignment.RIGHT,
+                verticalAlign = VerticalAlignment.BOTTOM,
+            )
+        }
     }
 }

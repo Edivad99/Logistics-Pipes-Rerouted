@@ -37,15 +37,33 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-// TODO: Rendering deferred — DrawableMenuParagraph item rendering migrated to 1.20.1 stub (Item.REGISTRY removed).
-
+import logisticspipes.LPItems
 import logisticspipes.utils.MinecraftColor
+import logisticspipes.utils.gui.SimpleGraphics
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.widget.Tooltipped
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import network.rs485.markdown.TextFormat
 import java.util.*
+
+/**
+ * Resolves an icon identifier (e.g. "minecraft:stone") to an [ItemStack], falling back to LP's broken
+ * item when the identifier is unknown. Mirrors LP1's `Item.REGISTRY.getObject(...) ?: LPItems.brokenItem`
+ * using the 1.20.1 [BuiltInRegistries.ITEM] registry.
+ */
+private fun iconStack(icon: String): ItemStack {
+    // BuiltInRegistries.ITEM is a defaulted registry — unknown keys resolve to AIR rather than null,
+    // so treat AIR as "not found" and fall back to LP's broken item (matching LP1's broken-icon look).
+    // tryParse instead of the constructor: book pages are data-driven and a malformed identifier
+    // (e.g. uppercase) must degrade to the broken item, not throw (1.12's constructor never threw).
+    val item = ResourceLocation.tryParse(icon)?.let { BuiltInRegistries.ITEM.get(it) }
+    return if (item == null || item === Items.AIR) ItemStack(LPItems.getBrokenItem()) else ItemStack(item)
+}
 
 private const val listEntryHeight = 24
 private const val tileSize = 40
@@ -162,7 +180,17 @@ class DrawableMenuTile(private val linkedPage: String, private val pageName: Str
         if (hovered) {
             GuiDrawer.drawInteractionIndicator(mouseX, mouseY)
         }
-        // TODO: deferred item rendering — Item.REGISTRY removed; use BuiltInRegistries.ITEM or ForgeRegistries.ITEMS
+        val itemRect = iconBody.translated(absoluteBody)
+        if (visibleArea.intersects(itemRect)) {
+            val guiGraphics = SimpleGraphics.guiGraphics ?: return
+            // renderItem draws at native 16x16; scale the pose by iconScale around the icon origin.
+            val pose = guiGraphics.pose()
+            pose.pushPose()
+            pose.translate(itemRect.left, itemRect.top, 0.0f)
+            pose.scale(iconScale, iconScale, 1.0f)
+            guiGraphics.renderItem(iconStack(icon), 0, 0)
+            pose.popPose()
+        }
     }
 
     override fun setPos(x: Int, y: Int): Pair<Int, Int> {
@@ -211,7 +239,7 @@ class DrawableMenuListEntry(private val linkedPage: String, private val pageName
                 format = EnumSet.of(TextFormat.Shadow),
                 scale = 1.0f
             )
-            // TODO: deferred item rendering — Item.REGISTRY removed; use BuiltInRegistries.ITEM or ForgeRegistries.ITEMS
+            SimpleGraphics.guiGraphics?.renderItem(iconStack(icon), itemRect.roundedLeft, itemRect.roundedTop)
         }
         if (hovered) {
             GuiDrawer.drawInteractionIndicator(mouseX, mouseY)

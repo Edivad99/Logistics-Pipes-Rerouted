@@ -465,10 +465,66 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return modName;
 	}
 
+	// Item -> registry-key path of the FIRST CATEGORY tab containing it, built once on demand.
+	// Vanilla only builds tab contents from the client creative-inventory screen, so on a
+	// dedicated server (and on survival clients) getDisplayItems() stays empty forever; we
+	// build the contents ourselves instead of depending on that screen having been opened.
+	private static volatile Map<Item, String> creativeTabNameByItem = null;
+
+	private static Map<Item, String> getCreativeTabNameMap() {
+		Map<Item, String> map = ItemIdentifier.creativeTabNameByItem;
+		if (map != null) {
+			return map;
+		}
+		synchronized (ItemIdentifier.class) {
+			if (ItemIdentifier.creativeTabNameByItem != null) {
+				return ItemIdentifier.creativeTabNameByItem;
+			}
+			map = new HashMap<>();
+			net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters params =
+					new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
+							net.minecraft.world.flag.FeatureFlags.REGISTRY.allFlags(), false,
+							net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+			for (net.minecraft.world.item.CreativeModeTab tab : BuiltInRegistries.CREATIVE_MODE_TAB) {
+				// SEARCH aggregates every other tab's items and HOTBAR/INVENTORY are synthetic;
+				// only CATEGORY tabs correspond to LP1's per-item CreativeTabs#tabLabel.
+				if (tab == null || tab.getType() != net.minecraft.world.item.CreativeModeTab.Type.CATEGORY) {
+					continue;
+				}
+				ResourceLocation key = BuiltInRegistries.CREATIVE_MODE_TAB.getKey(tab);
+				String tabName = key != null ? key.getPath() : tab.getDisplayName().getString();
+				// The client's creative screen may rebuild tab contents concurrently (integrated
+				// server thread vs render thread), so guard the whole per-tab read.
+				try {
+					java.util.Collection<ItemStack> displayItems = tab.getDisplayItems();
+					if (displayItems.isEmpty()) {
+						tab.buildContents(params);
+						displayItems = tab.getDisplayItems();
+					}
+					for (ItemStack stack : displayItems) {
+						if (stack != null && !stack.isEmpty()) {
+							map.putIfAbsent(stack.getItem(), tabName);
+						}
+					}
+				} catch (Exception e) {
+					LogisticsPipes.log.warn("Failed to read creative tab contents for {}", tabName, e);
+				}
+			}
+			ItemIdentifier.creativeTabNameByItem = map;
+			return map;
+		}
+	}
+
 	public String getCreativeTabName() {
-		// TODO: In 1.20.1 items are not bound to a single creative tab.
-		// Iterate net.minecraft.world.item.CreativeModeTabs or the registry to find
-		// which tab(s) contain this item, then return tab.getDisplayName().getString().
+		// In 1.20.1 items are no longer bound to a single creative tab (Item#getCreativeTab
+		// was removed). We resolve the FIRST CATEGORY tab containing this item, mirroring
+		// LP1's CreativeTabs#tabLabel behaviour. The same string is both stored (via the GUI's
+		// getStringForItem -> getCreativeTabName) and compared (ModuleCreativeTabBasedItemSink
+		// #sinksItem -> tabList.contains(getCreativeTabName())), so any stable form keeps them
+		// matched. We use the tab's registry key path which is stable across sessions.
+		if (creativeTabName == null) {
+			creativeTabName = ItemIdentifier.getCreativeTabNameMap().get(item);
+		}
 		return creativeTabName;
 	}
 

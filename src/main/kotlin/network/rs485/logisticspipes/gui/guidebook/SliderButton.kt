@@ -22,12 +22,11 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import kotlin.math.roundToInt
-
-// TODO: Rendering deferred — SliderButton migrated to 1.20.1 stub.
 
 private const val minimumHeight = 16
 private val texture = Rectangle(96, 0, 12, 16)
@@ -48,7 +47,26 @@ class SliderButton(
     private var hoveredBar: Boolean = false
 
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        // TODO: deferred rendering
+        if (!visible) return
+        val grip = sliderButton.translated(body)
+        hoveredBar = grip.contains(mouseX, mouseY)
+        // Atlas grip is 12px wide at x=96 with four 16px-tall hover states stacked vertically.
+        val hoverState = if (dragging) 3 else if (!active) 2 else if (hoveredBar) 1 else 0
+        val src = texture.translated(0, hoverState * texture.roundedHeight)
+        RenderSystem.enableBlend()
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+        // Vertical nine-slice: 2px top/bottom caps from the 12x16 grip region, stretched to grip height.
+        guiGraphics.blitNineSliced(
+            GuideBookGraphics.GUI_ATLAS,
+            grip.roundedLeft,
+            grip.roundedTop,
+            grip.roundedWidth,
+            grip.roundedHeight,
+            0, 2,
+            texture.roundedWidth, texture.roundedHeight,
+            src.roundedLeft, src.roundedTop,
+        )
+        RenderSystem.disableBlend()
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
