@@ -5,7 +5,6 @@ import net.minecraft.world.entity.player.Player;
 import lombok.Getter;
 import lombok.Setter;
 
-import logisticspipes.asm.ClientSideOnlyMethodContent;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
@@ -48,8 +47,16 @@ public class OpenGUIPacket extends ModernPacket {
 	}
 
 	@Override
-	@ClientSideOnlyMethodContent
 	public void processPacket(Player player) {
+		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+			handleClient(player);
+		}
+	}
+
+	// See OpenChatGui: NewGuiHandler.openGui(OpenGUIPacket, ...) walks the client's open screens,
+	// so the call lives in this @OnlyIn helper, stripped before verification on the dedicated server.
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	private void handleClient(Player player) {
 		NewGuiHandler.openGui(this, player);
 	}
 

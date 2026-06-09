@@ -5,7 +5,6 @@ import net.minecraft.world.entity.player.Player;
 
 
 
-import logisticspipes.asm.ClientSideOnlyMethodContent;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -22,7 +21,6 @@ public class OpenChatGui extends ModernPacket {
 	public void readData(LPDataInput input) {}
 
 	@Override
-	@ClientSideOnlyMethodContent
 	public void processPacket(Player player) {
 		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
 			openChatScreen();

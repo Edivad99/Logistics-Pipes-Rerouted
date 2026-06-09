@@ -18,7 +18,6 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.asm.ClientSideOnlyMethodContent;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.OpenChatGui;
 import logisticspipes.proxy.MainProxy;
@@ -110,17 +109,17 @@ public class LPChatListener {
 		}
 	}
 
-	@ClientSideOnlyMethodContent
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
 	private void clearChat() {
 		net.minecraft.client.Minecraft.getInstance().gui.getChat().clearMessages(true);
 	}
 
-	@ClientSideOnlyMethodContent
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
 	private void storeSendMessages() {
 		sendChatMessages = new ArrayList<>(net.minecraft.client.Minecraft.getInstance().gui.getChat().getRecentChat());
 	}
 
-	@ClientSideOnlyMethodContent
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
 	private void restoreSendMessages() {
 		if (sendChatMessages != null) {
 			net.minecraft.client.gui.components.ChatComponent chat = net.minecraft.client.Minecraft.getInstance().gui.getChat();
@@ -131,7 +130,7 @@ public class LPChatListener {
 		sendChatMessages = null;
 	}
 
-	@ClientSideOnlyMethodContent
+	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
 	private void addSendMessages(String substring) {
 		net.minecraft.client.Minecraft.getInstance().gui.getChat().addRecentChat(substring);
 	}

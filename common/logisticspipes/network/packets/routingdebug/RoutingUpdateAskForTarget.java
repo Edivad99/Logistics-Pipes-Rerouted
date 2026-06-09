@@ -8,7 +8,6 @@ import net.minecraft.world.phys.HitResult;
 
 
 
-import logisticspipes.asm.ClientSideOnlyMethodContent;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateTargetResponse.TargetMode;
@@ -28,7 +27,6 @@ public class RoutingUpdateAskForTarget extends ModernPacket {
 	public void readData(LPDataInput input) {}
 
 	@Override
-	@ClientSideOnlyMethodContent
 	public void processPacket(Player player) {
 		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
 			handleClient();

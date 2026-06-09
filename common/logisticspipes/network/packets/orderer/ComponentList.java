@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import lombok.Getter;
 import lombok.Setter;
 
-import logisticspipes.asm.ClientSideOnlyMethodContent;
 import logisticspipes.config.Configs;
 import logisticspipes.gui.orderer.GuiOrderer;
 import logisticspipes.gui.orderer.GuiRequestTable;
@@ -45,7 +44,6 @@ public class ComponentList extends ModernPacket {
 	}
 
 	@Override
-	@ClientSideOnlyMethodContent
 	public void processPacket(Player player) {
 		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
 			handleClient(player);

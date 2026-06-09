@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import lombok.Getter;
 import lombok.Setter;
 
-import logisticspipes.asm.ClientSideOnlyMethodContent;
 import logisticspipes.gui.GuiLogisticsCraftingTable;
 import logisticspipes.gui.orderer.GuiRequestTable;
 import logisticspipes.gui.popup.GuiRecipeImport;
@@ -37,7 +36,6 @@ public class MostLikelyRecipeComponentsResponse extends ModernPacket {
 	}
 
 	@Override
-	@ClientSideOnlyMethodContent
 	public void processPacket(Player player) {
 		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
 			handleClient();
