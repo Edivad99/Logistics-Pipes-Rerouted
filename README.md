@@ -6,6 +6,17 @@ See the original [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/
 
 > **Beta / work in progress.** Expect bugs, crashes, missing polish, and the occasional broken feature. Back up your worlds before testing, and please open an issue if something goes wrong — noisy reports are more useful than silent frustration.
 
+## Forge or NeoForge?
+
+**Both — on this Minecraft version they are the same platform.** NeoForge's 1.20.1 release was its first after forking from Forge and is fully Forge-compatible (it even ships under the `forge` id). The released jar runs unchanged on:
+
+- **Forge 1.20.1** — 47.2.x / 47.3.x from [files.minecraftforge.net](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
+- **NeoForge 1.20.1** — 47.1.x, e.g. the [1.20.1-47.1.106 installer](https://maven.neoforged.net/#/releases/net/neoforged/forge/1.20.1-47.1.106)
+
+The split only matters from Minecraft **1.20.2 onward**, where NeoForge changed its internals — this jar will not run there (you get a clean "requires Minecraft 1.20.1" screen instead). The planned 1.21.x version of this mod targets NeoForge proper.
+
+**Required dependency:** [Kotlin for Forge](https://www.curseforge.com/minecraft/mc-mods/kotlin-for-forge) **4.x** (the 1.20.1 file) — the mod will not load without it.
+
 ## What is Logistic Pipes
 
 A logistics mod that lets you build pipe networks capable of requesting items on demand, automatically sorting inventory, and triggering crafting chains. Pipes connect to any inventory and route items intelligently based on your configured rules — no constant item flow, no lost items, just point-to-point delivery driven by what you ask for.
@@ -33,10 +44,11 @@ Core gameplay (placing pipes, routing, requesting, chassis modules, crafting) is
 
 ## Versions
 
-- Minecraft **1.20.1**
-- NeoForge **47.1.88**
+- Minecraft **1.20.1** (only — see "Forge or NeoForge?" above)
+- Forge **47.2+** / NeoForge **47.1.x** (built against 47.1.88)
+- Kotlin for Forge **4.x** (runtime dependency for players)
 - Java **17** (provisioned automatically via Gradle toolchains)
-- Kotlin **1.7.10**
+- Kotlin **1.9.10**
 
 ## Building
 
