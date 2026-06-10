@@ -12,6 +12,16 @@ of dead 1.12-era compatibility code. Please report issues at the project
 issue tracker — this is a testing release.
 
 ### Fixed
+- **Request Table rendered completely invisible.** Its block body was drawn
+  by a 1.12 renderer that was never ported, and the modern pipe renderer
+  skipped block-shaped pipes entirely. The table now renders with its proper
+  texture, honors its placed rotation, and visually merges with connected
+  pipes. Its sprite is also registered in the real blocks-atlas config
+  (`assets/minecraft/atlases/blocks.json`) — the mod-namespaced duplicate of
+  that file was silently ignored by the game and has been removed.
+- **Middle-click pick-block on pipes returned nothing** (and logged
+  `Picking on: logisticspipes:pipe gave null item`); pipes now hand back
+  their actual pipe item via the Forge `getCloneItemStack` hook.
 - **Client crashed rendering pipes when rejoining a world that already
   contained them** (`NullPointerException: Cannot read field "isClientSide"`
   in the block-entity renderer). The client tile entity can run `load()` more
