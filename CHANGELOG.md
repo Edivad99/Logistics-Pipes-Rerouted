@@ -4,7 +4,12 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 follows [Semantic Versioning](https://semver.org/) where practical.
 
-## [Unreleased]
+## [0.0.2] - 2026-06-10
+
+Second public beta. Fixes the 0.0.1 production crash, restores the guide
+book and several inert features to working order, and removes ~1,900 lines
+of dead 1.12-era compatibility code. Please report issues at the project
+issue tracker — this is a testing release.
 
 ### Fixed
 - **Client crashed rendering pipes when rejoining a world that already
