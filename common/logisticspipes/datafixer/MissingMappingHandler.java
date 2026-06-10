@@ -14,7 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import net.minecraftforge.event.level.ChunkDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraftforge.registries.MissingMappingsEvent;
 
 import com.google.common.collect.ImmutableMap;
@@ -161,7 +162,7 @@ public class MissingMappingHandler {
 
 	@SubscribeEvent
 	public void onMissingMappings(MissingMappingsEvent event) {
-		for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(ForgeRegistries.Keys.ITEMS, LPConstants.LP_MOD_ID)) {
+		for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(Registries.ITEM, LPConstants.LP_MOD_ID)) {
 			String oldKey = mapping.getKey().getPath();
 			if (ignoreItems.contains(oldKey)) {
 				mapping.ignore();
@@ -169,17 +170,17 @@ public class MissingMappingHandler {
 			}
 			String newKey = itemIDMap.get(oldKey);
 			if (newKey != null) {
-				Item newItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(LPConstants.LP_MOD_ID, newKey));
+				Item newItem = BuiltInRegistries.ITEM.get(new ResourceLocation(LPConstants.LP_MOD_ID, newKey));
 				if (newItem != null) {
 					mapping.remap(newItem);
 				}
 			}
 		}
-		for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(ForgeRegistries.Keys.BLOCKS, LPConstants.LP_MOD_ID)) {
+		for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(Registries.BLOCK, LPConstants.LP_MOD_ID)) {
 			String oldKey = mapping.getKey().getPath();
 			String newKey = blockIDMap.get(oldKey);
 			if (newKey != null) {
-				Block newBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(LPConstants.LP_MOD_ID, newKey));
+				Block newBlock = BuiltInRegistries.BLOCK.get(new ResourceLocation(LPConstants.LP_MOD_ID, newKey));
 				if (newBlock != null) {
 					mapping.remap(newBlock);
 				}
@@ -187,10 +188,10 @@ public class MissingMappingHandler {
 		}
 		// Block entity types: old 1.12.2 Forge entries were stored as "minecraft:<classname>".
 		// We only remap keys that are in our map so other mods' "minecraft:"-namespaced BEs are untouched.
-		for (MissingMappingsEvent.Mapping<BlockEntityType<?>> mapping : event.getMappings(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES, "minecraft")) {
+		for (MissingMappingsEvent.Mapping<BlockEntityType<?>> mapping : event.getMappings(Registries.BLOCK_ENTITY_TYPE, "minecraft")) {
 			String newRl = BE_TYPE_ID_MAP.get(mapping.getKey().toString());
 			if (newRl == null) continue;
-			BlockEntityType<?> newType = ForgeRegistries.BLOCK_ENTITY_TYPES.getValue(new ResourceLocation(newRl));
+			BlockEntityType<?> newType = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(new ResourceLocation(newRl));
 			if (newType != null) {
 				mapping.remap(newType);
 			}

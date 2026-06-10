@@ -24,11 +24,23 @@ A high-level checkpoint of where the Forge 1.12.2 → NeoForge 1.20.1 port stand
 
 ## Deferred
 
-- **Third-party mod integrations** — BuildCraft, IndustrialCraft 2, Thermal Dynamics, NEI/JEI (partial), EnderStorage, IronChest, OpenComputers, The One Probe. Most are blocked on upstream 1.20.1 ports; stubs exist so the rest of the mod loads without them.
+- **Third-party mod integrations** — BuildCraft, IndustrialCraft 2, ComputerCraft, Thermal (Dynamics/Expansion), NEI, EnderStorage, IronChest, OpenComputers, MCMultiPart. The 1.12-era stub layer was **removed** (their dummy behavior is constant-folded at the former call sites); re-adding any of these on a modern MC means a fresh integration against that mod's current API, not reviving the stubs. JEI is live.
 - **Legacy data fixers** — no upgrade path from 1.12.2 worlds; start a fresh 1.20.1 save.
 - **SideConfigDisplay** — not yet ported.
 - **HUD power level readout** — UI polish pending.
 - **Fabric loader support** — planned after the NeoForge port reaches feature parity (via Architectury).
+
+## Forward-port surface (1.21+)
+
+What actually has to change when this branch moves past 1.20.1, measured on the current tree:
+
+- **`net.minecraftforge` → `net.neoforged` namespace rename** — the bulk is ~138 `@OnlyIn`/`Dist` annotation imports (purely mechanical find/replace; a facade can't absorb annotations, so don't bother building one).
+- **Capabilities (~20 usages)** — NeoForge 1.20.5+ removed `LazyOptional` and reworked `ForgeCapabilities`/`Capability` into typed block/item/entity capabilities. This is the largest *semantic* change: `PowerProxy` (Forge Energy), the item/fluid handler lookups, and `RegisterCapabilitiesEvent` wiring all need rewriting.
+- **Networking** — the custom `SimpleChannel` + `LPPacketPayload` bridge must move to `CustomPacketPayload`/`StreamCodec` (vanilla 1.20.5+ model). The 174 `ModernPacket` classes themselves are loader-agnostic; only the bridge layer changes.
+- **Events (~25 usages)** — bus split (`NeoForge.EVENT_BUS`), `TickEvent` shape change, and `MissingMappingsEvent` has no NeoForge equivalent (replace `MissingMappingHandler` with DataFixers or drop).
+- **Fluids (~25 usages)** — `FluidStack`/`IFluidHandler`/`FluidTank` map 1:1 to the `net.neoforged.neoforge.fluids` equivalents; mechanical.
+- **Registries** — already on vanilla `BuiltInRegistries`/`Registries` keys throughout (`DeferredRegister.create(Registries.X, ...)` included); no Forge registry API left on read paths.
+- **Toolchain** — Kotlin 1.9.10 must move to 2.x (the 1.9 compiler cannot even run on JDK 25), and NeoGradle to the current ModDevGradle.
 
 ## Contributing
 

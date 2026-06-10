@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.Minecraft;
 
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import lombok.Getter;
 
@@ -227,7 +227,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				moduleStack = idStack.getItem().makeNormalStack(1);
 			} else {
 				ResourceLocation resourceLocation = LPItems.modules.get(module.getLPName());
-				Item item = ForgeRegistries.ITEMS.getValue(resourceLocation);
+				Item item = BuiltInRegistries.ITEM.get(resourceLocation);
 				if (item == null) return;
 				moduleStack = new ItemStack(item);
 			}

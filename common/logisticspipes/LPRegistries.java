@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -124,10 +123,10 @@ public final class LPRegistries {
 	private LPRegistries() {}
 
 	public static final DeferredRegister<Block> BLOCKS =
-			DeferredRegister.create(ForgeRegistries.BLOCKS, LPConstants.LP_MOD_ID);
+			DeferredRegister.create(Registries.BLOCK, LPConstants.LP_MOD_ID);
 
 	public static final DeferredRegister<Item> ITEMS =
-			DeferredRegister.create(ForgeRegistries.ITEMS, LPConstants.LP_MOD_ID);
+			DeferredRegister.create(Registries.ITEM, LPConstants.LP_MOD_ID);
 
 	public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
 			DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, LPConstants.LP_MOD_ID);
@@ -136,7 +135,7 @@ public final class LPRegistries {
 			DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LPConstants.LP_MOD_ID);
 
 	public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
-			DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, LPConstants.LP_MOD_ID);
+			DeferredRegister.create(Registries.RECIPE_SERIALIZER, LPConstants.LP_MOD_ID);
 
 	public static final RegistryObject<RecipeSerializer<logisticspipes.recipes.ShapelessResetRecipe>> RESET_RECIPE_SERIALIZER =
 			RECIPE_SERIALIZERS.register("reset", () -> logisticspipes.recipes.ShapelessResetRecipe.SERIALIZER);

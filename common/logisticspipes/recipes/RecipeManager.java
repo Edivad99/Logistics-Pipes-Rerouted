@@ -205,7 +205,7 @@ public class RecipeManager {
 
 		public void addShapelessResetRecipe(Item item, int meta) {
 			// meta was a 1.12.2 damage value — ignored in 1.20.1 (no damage-based variants)
-			ResourceLocation itemKey = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(item);
+			ResourceLocation itemKey = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
 			if (itemKey == null) return;
 			ResourceLocation loc = getFreeRecipeResourceLocation(item);
 			JsonObject json = new JsonObject();

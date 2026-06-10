@@ -36,7 +36,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.ChunkWatchEvent;
 import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -360,7 +360,7 @@ public class LogisticsEventListener {
 	@SubscribeEvent
 	public void onItemCrafting(PlayerEvent.ItemCraftedEvent event) {
 		if (!event.getEntity().level().isClientSide && !event.getCrafting().isEmpty()) {
-			if (ForgeRegistries.ITEMS.getKey(event.getCrafting().getItem()).getNamespace().equals(LPConstants.LP_MOD_ID)) {
+			if (BuiltInRegistries.ITEM.getKey(event.getCrafting().getItem()).getNamespace().equals(LPConstants.LP_MOD_ID)) {
 				PlayerIdentifier identifier = PlayerIdentifier.get(event.getEntity());
 				PlayerConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(identifier);
 				if (!config.getHasCraftedLPItem() && !LogisticsPipes.isDEBUG()) {

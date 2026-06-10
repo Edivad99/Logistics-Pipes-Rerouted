@@ -50,8 +50,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
 
 import lombok.AllArgsConstructor;
 
@@ -453,7 +451,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
 	public String getModName() {
 		if (modName == null) {
-			ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
+			ResourceLocation rl = BuiltInRegistries.ITEM.getKey(item);
 			if (rl != null) {
 				modName = ModList.get().getModContainerById(rl.getNamespace())
 						.map(mc -> mc.getModInfo().getDisplayName())

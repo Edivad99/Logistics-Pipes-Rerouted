@@ -109,7 +109,7 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 				ListTag list = compiler.getListTagForKey("compilerCategories");
 				ResourceLocation sel = getProgramListForSelectionIndex(list).get(index);
 
-				Item selItem = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(sel);
+				Item selItem = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(sel);
 				if (selItem != null) {
 					return TextUtil.translate(selItem.getDescriptionId());
 				}
@@ -267,9 +267,9 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 		return StreamSupport.stream(list.spliterator(), false).flatMap(
 				nbtBase -> LogisticsProgramCompilerTileEntity.programByCategory.get(new ResourceLocation(((StringTag) nbtBase).getAsString()))
 						.stream())
-				.filter(it -> TextUtil.translate(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(it).getDescriptionId()).toLowerCase().contains(search.getText().toLowerCase()))
-				.sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(o)))
-						.<String>thenComparing(o -> TextUtil.translate(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(o).getDescriptionId()).toLowerCase())
+				.filter(it -> TextUtil.translate(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(it).getDescriptionId()).toLowerCase().contains(search.getText().toLowerCase()))
+				.sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(o)))
+						.<String>thenComparing(o -> TextUtil.translate(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(o).getDescriptionId()).toLowerCase())
 				)
 				.collect(Collectors.toList());
 	}
@@ -318,7 +318,7 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 		super.renderLabels(guiGraphics, par1, par2);
 		if (compiler.getCurrentTask() != null) {
 			guiGraphics.drawString(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0x000000, false);
-			Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(compiler.getCurrentTask());
+			Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(compiler.getCurrentTask());
 			String name;
 			if (item != null) {
 				name = item.getDescriptionId();

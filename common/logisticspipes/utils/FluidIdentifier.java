@@ -24,7 +24,6 @@ import net.minecraftforge.fluids.FluidUtil;
 
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import lombok.AllArgsConstructor;
 
@@ -290,7 +289,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		if (FluidIdentifier.init) {
 			return;
 		}
-		ForgeRegistries.FLUIDS.getValues().forEach(FluidIdentifier::get);
+		net.minecraft.core.registries.BuiltInRegistries.FLUID.forEach(FluidIdentifier::get);
 		if (flag) {
 			FluidIdentifier.init = true;
 		}

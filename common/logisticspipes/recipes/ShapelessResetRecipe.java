@@ -28,19 +28,19 @@ public class ShapelessResetRecipe extends CustomRecipe {
 
 		@Override
 		public ShapelessResetRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-			Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.get("item").getAsString()));
+			Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(new ResourceLocation(json.get("item").getAsString()));
 			return new ShapelessResetRecipe(recipeId, CraftingBookCategory.MISC, item);
 		}
 
 		@Override
 		public ShapelessResetRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buf) {
-			Item item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(buf.readResourceLocation());
+			Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(buf.readResourceLocation());
 			return new ShapelessResetRecipe(recipeId, CraftingBookCategory.MISC, item);
 		}
 
 		@Override
 		public void toNetwork(FriendlyByteBuf buf, ShapelessResetRecipe recipe) {
-			buf.writeResourceLocation(net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(recipe.targetItem));
+			buf.writeResourceLocation(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(recipe.targetItem));
 		}
 	};
 
