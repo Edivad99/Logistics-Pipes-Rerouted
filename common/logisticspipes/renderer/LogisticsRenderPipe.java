@@ -29,7 +29,9 @@ import net.minecraft.world.level.Level;
 
 
 
+import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -152,6 +154,68 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		vc.vertex(m, x4, y4, z4).color(r, g, b, 255).uv(0, 1).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
 	}
 
+	private static logisticspipes.proxy.object3d.interfaces.TextureTransformation requestTableIcon = null;
+
+	/**
+	 * Draws the Request Table's full block body. Port of the dead 1.12
+	 * LogisticsNewPipeWorldRenderer request-table branch onto the
+	 * {@link LogisticsSolidBlockRenderer#renderSolid} draw path: the shared solid-block OBJ
+	 * body plus cover plates, with plates omitted on connected sides and the body rotated
+	 * to the table's facing. Texture is LP1's {@code blocks/requesttable/requesttexture}
+	 * (stitched into the block atlas by the {@code blocks/} directory source).
+	 */
+	private void renderRequestTableBlock(PipeBlockRequestTable table, LogisticsTileGenericPipe pipeTile,
+			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		if (!(SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl)) return;
+		if (logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.block == null
+				|| logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.block.isEmpty()) return;
+
+		logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
+				(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
+		com.mojang.blaze3d.vertex.VertexConsumer buffer =
+				bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.cutoutMipped());
+		rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
+		rs.reset();
+
+		if (requestTableIcon == null) {
+			net.minecraft.client.renderer.texture.TextureAtlasSprite sprite = Minecraft.getInstance()
+					.getTextureAtlas(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)
+					.apply(new ResourceLocation(LPConstants.LP_MOD_ID, "blocks/requesttable/requesttexture"));
+			requestTableIcon = SimpleServiceLocator.cclProxy.createIconTransformer(sprite);
+		}
+		if (requestTableIcon == null) return;
+
+		logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation rotation =
+				logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation.getRotation(table.getRotation());
+		if (rotation == null) rotation = logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation.ZERO;
+
+		logisticspipes.proxy.object3d.interfaces.IModel3D body =
+				logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.block.get(rotation);
+		if (body != null) {
+			body.render(requestTableIcon);
+		}
+
+		for (logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.CoverSides side :
+				logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.CoverSides.values()) {
+			// LP1 skipped the plates on sides with pipe connections so adjacent pipes visually
+			// enter the table.
+			if (pipeTile.renderState != null && pipeTile.renderState.pipeConnectionMatrix.isConnected(side.getDir(rotation))) {
+				continue;
+			}
+			java.util.Map<logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation, logisticspipes.proxy.object3d.interfaces.IModel3D> outer =
+					logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.texturePlate_Outer.get(side);
+			java.util.Map<logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation, logisticspipes.proxy.object3d.interfaces.IModel3D> inner =
+					logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.texturePlate_Inner.get(side);
+			if (outer != null && outer.get(rotation) != null) {
+				outer.get(rotation).render(requestTableIcon);
+			}
+			if (inner != null && inner.get(rotation) != null) {
+				inner.get(rotation).render(requestTableIcon);
+			}
+		}
+		rs.draw();
+	}
+
 	private void renderInternal(@Nullable LogisticsTileGenericPipe tileentity, double x, double y, double z, float partialTicks, int destroyStage, float alpha,
 			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 		// In 1.20.1 the BER PoseStack is pre-translated, so we always pass (0,0,0).
@@ -184,6 +248,12 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 						(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
 					rs.pose = poseStack.last().pose();
 					rs.normal = poseStack.last().normal();
+				}
+				// The Request Table is an isPipeBlock() pipe: LogisticsNewRenderPipe skips it and
+				// the 1.12 ISimpleBlockRenderingHandler that drew its block body was never ported,
+				// so without this branch the table is invisible.
+				if (!inHand && tileentity.pipe instanceof PipeBlockRequestTable) {
+					renderRequestTableBlock((PipeBlockRequestTable) tileentity.pipe, tileentity, poseStack, bufferSource, packedLight, packedOverlay);
 				}
 				LogisticsRenderPipe.secondRenderer.renderTileEntityAt(tileentity, x, y, z, partialTicks, distance);
 			}

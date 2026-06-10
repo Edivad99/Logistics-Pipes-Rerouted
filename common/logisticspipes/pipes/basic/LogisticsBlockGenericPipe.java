@@ -758,6 +758,20 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return ItemStack.EMPTY;
 	}
 
+	// Forge's pick-block hook (middle click). Without this the block falls back to its own
+	// (nonexistent) item and the client logs "Picking on: [BLOCK] logisticspipes:pipe gave
+	// null item"; the pipe's actual item lives on the pipe object, not the block.
+	@Override
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, net.minecraft.world.level.BlockGetter level, BlockPos pos, Player player) {
+		BlockEntity tile = level.getBlockEntity(pos);
+		if (tile instanceof LogisticsTileGenericPipe
+				&& LogisticsBlockGenericPipe.isValid(((LogisticsTileGenericPipe) tile).pipe)
+				&& ((LogisticsTileGenericPipe) tile).pipe.item != null) {
+			return new ItemStack(((LogisticsTileGenericPipe) tile).pipe.item);
+		}
+		return super.getCloneItemStack(state, target, level, pos, player);
+	}
+
 	/* Wrappers ************************************************************ */
 	@Override
 	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean movedByPiston) {

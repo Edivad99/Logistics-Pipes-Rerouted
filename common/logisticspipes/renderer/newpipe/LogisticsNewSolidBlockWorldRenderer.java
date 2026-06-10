@@ -65,7 +65,7 @@ public class LogisticsNewSolidBlockWorldRenderer {
 			integer = rot;
 		}
 
-		static BlockRotation getRotation(int from) {
+		public static BlockRotation getRotation(int from) {
 			for (BlockRotation rot : BlockRotation.values()) {
 				if (rot.getInteger() == from) {
 					return rot;

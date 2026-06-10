@@ -11,6 +11,11 @@
       "prefix": "blocks/pipes/status_overlay/"
     },
     {
+      "type": "directory",
+      "source": "blocks/requesttable",
+      "prefix": "blocks/requesttable/"
+    },
+    {
       "type": "single",
       "resource": "logisticspipes:blocks/pipes/liquid_connector"
     },
