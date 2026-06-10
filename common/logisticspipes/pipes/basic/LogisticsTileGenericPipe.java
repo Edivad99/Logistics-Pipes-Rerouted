@@ -385,6 +385,10 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			pipeItem = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(new net.minecraft.resources.ResourceLocation(coreState.pipeIdName));
 		}
 		pipe = LogisticsBlockGenericPipe.createPipe(pipeItem);
+		// load() can run more than once on the client (initial chunk tag + later data packets).
+		// Each run replaces the pipe object, so the bind must be redone or the fresh pipe keeps a
+		// null container and the renderer NPEs in CoreRoutedPipe.isOpaque on a cold world load.
+		pipeBound = false;
 		bindPipe();
 
 		if (pipe != null) {
