@@ -15,7 +15,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.cofh.subproxies.ICoFHEnergyStorage;
+import logisticspipes.proxy.interfaces.ICoFHEnergyStorage;
 
 public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTileEntity {
 

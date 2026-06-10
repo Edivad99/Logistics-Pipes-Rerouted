@@ -9,9 +9,6 @@ import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.api.ILPPipeConfigTool;
 import logisticspipes.api.ILPPipeTile;
-import logisticspipes.asm.wrapper.LogisticsWrapperHandler;
-import logisticspipes.proxy.buildcraft.BuildCraftToolWrench;
-import logisticspipes.proxy.cofh.CoFHToolHammer;
 import logisticspipes.proxy.interfaces.ILPPipeConfigToolWrapper;
 
 public class ConfigToolHandler {
@@ -48,7 +45,6 @@ public class ConfigToolHandler {
 	}
 
 	void registerWrapper() {
-		wrappers.add(LogisticsWrapperHandler.getWrappedPipeConfigToolWrapper("buildcraft.api.tools.IToolWrench", "BuildCraft", BuildCraftToolWrench.class));
-		wrappers.add(LogisticsWrapperHandler.getWrappedPipeConfigToolWrapper("cofh.api.item.IToolHammer", "CoFH", CoFHToolHammer.class));
+		// BuildCraft IToolWrench / CoFH IToolHammer wrappers removed — neither mod exists on 1.20.1.
 	}
 }

@@ -11,7 +11,7 @@ import logisticspipes.blocks.powertile.LogisticsPowerProviderTileEntity;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.cofh.subproxies.ICoFHEnergyReceiver;
+import logisticspipes.proxy.interfaces.ICoFHEnergyReceiver;
 import logisticspipes.utils.tuples.Pair;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntity;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
@@ -20,7 +20,6 @@ import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 public class PowerSupplierHandler {
 
 	private static final double INTERNAL_RF_BUFFER_MAX = 10000;
-	private static final double INTERNAL_IC2_BUFFER_MAX = 2048 * 4;
 
 	private final CoreRoutedPipe pipe;
 
@@ -57,97 +56,8 @@ public class PowerSupplierHandler {
 		if (SimpleServiceLocator.powerProxy.isAvailable() && pipe.getUpgradeManager().hasRFPowerSupplierUpgrade()) {
 			if (requestRFPower()) return;
 		}
-		if (SimpleServiceLocator.IC2Proxy.hasIC2() && pipe.getUpgradeManager().getIC2PowerLevel() > 0) {
-			requestICPower();
-		}
-	}
-
-	private void requestICPower() {
-		//Use Buffer
-
-		final List<LPNeighborTileEntity<BlockEntity>> adjacentTileEntities = new WorldCoordinatesWrapper(pipe.container).allNeighborTileEntities();
-
-		double globalNeed = 0;
-		double[] need = new double[adjacentTileEntities.size()];
-		int i = 0;
-		for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
-			if (SimpleServiceLocator.IC2Proxy.isEnergySink(adjacent.getTileEntity())) {
-				if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
-					if (SimpleServiceLocator.IC2Proxy.acceptsEnergyFrom(adjacent.getTileEntity(), pipe.container, adjacent.getOurDirection())) {
-						globalNeed += need[i] = SimpleServiceLocator.IC2Proxy.demandedEnergyUnits(adjacent.getTileEntity());
-					}
-				}
-			}
-			++i;
-		}
-
-		if (globalNeed != 0 && !Double.isNaN(globalNeed)) {
-			double fullfillable = Math.min(1, internalBufferIC2 / globalNeed);
-			i = 0;
-			for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
-				if (SimpleServiceLocator.IC2Proxy.isEnergySink(adjacent.getTileEntity()) && pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())
-						&& SimpleServiceLocator.IC2Proxy.acceptsEnergyFrom(adjacent.getTileEntity(), pipe.container, adjacent.getOurDirection())) {
-					if (internalBufferIC2 + 1 < need[i] * fullfillable) {
-						return;
-					}
-					double toUse = Math.min(pipe.getUpgradeManager().getIC2PowerLevel(), need[i] * fullfillable);
-					double unUsed = SimpleServiceLocator.IC2Proxy.injectEnergyUnits(adjacent.getTileEntity(), adjacent.getOurDirection(), toUse);
-					double used = toUse - unUsed;
-					if (used > 0) {
-						//MainProxy.sendPacketToAllWatchingChunk(this.pipe.getX(), this.pipe.getZ(), MainProxy.getDimensionForWorld(this.pipe.getWorld()), PacketHandler.getPacket(PowerPacketLaser.class).setColor(LogisticsPowerProviderTileEntity.IC2_COLOR).setPos(this.pipe.getLPPosition()).setRenderBall(true).setDir(adTile.orientation).setLength(0.5F));
-						pipe.container.addLaser(adjacent.getDirection(), 0.5F, LogisticsPowerProviderTileEntity.IC2_COLOR, false, true);
-						internalBufferIC2 -= used;
-					}
-					if (internalBufferIC2 < 0) {
-						internalBufferIC2 = 0;
-						return;
-					}
-				}
-				++i;
-			}
-		}
-
-		//Rerequest Buffer
-		List<Pair<ISubSystemPowerProvider, List<IFilter>>> provider = pipe.getRouter().getSubSystemPowerProvider();
-		double available = 0;
-		outer:
-		for (Pair<ISubSystemPowerProvider, List<IFilter>> pair : provider) {
-			for (IFilter filter : pair.getValue2()) {
-				if (filter.blockPower()) {
-					continue outer;
-				}
-			}
-			if (pair.getValue1().usePaused()) {
-				continue;
-			}
-			if (!pair.getValue1().getBrand().equals("EU")) {
-				continue;
-			}
-			available += pair.getValue1().getPowerLevel();
-		}
-		if (available > 0) {
-			double neededPower = PowerSupplierHandler.INTERNAL_IC2_BUFFER_MAX - internalBufferIC2;
-			if (neededPower > 0) {
-				if (pipe.useEnergy((int) (neededPower / 10000), false)) {
-					outer:
-					for (Pair<ISubSystemPowerProvider, List<IFilter>> pair : provider) {
-						for (IFilter filter : pair.getValue2()) {
-							if (filter.blockPower()) {
-								continue outer;
-							}
-						}
-						if (pair.getValue1().usePaused()) {
-							continue;
-						}
-						if (!pair.getValue1().getBrand().equals("EU")) {
-							continue;
-						}
-						double requestamount = neededPower * (pair.getValue1().getPowerLevel() / available);
-						pair.getValue1().requestPower(pipe.getRouterId(), requestamount);
-					}
-				}
-			}
-		}
+		// IC2/EU distribution removed — IC2 has no 1.20.1 port, the former dummy proxy made
+		// this path a no-op (hasIC2() was always false).
 	}
 
 	private boolean requestRFPower() {

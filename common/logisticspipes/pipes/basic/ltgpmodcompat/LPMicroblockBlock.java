@@ -22,9 +22,6 @@ import logisticspipes.interfaces.ITickable;
  */
 public abstract class LPMicroblockBlock extends Block implements EntityBlock {
 
-	// TODO(1.20.1): MCMP not ported to 1.20.1 — field stays null
-	public static network.rs485.logisticspipes.proxy.mcmp.subproxy.IMCMPBlockAccess mcmpBlockAccess = null;
-
 	public LPMicroblockBlock(BlockBehaviour.Properties properties) {
 		super(properties);
 	}

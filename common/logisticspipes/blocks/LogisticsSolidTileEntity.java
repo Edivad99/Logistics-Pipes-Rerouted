@@ -28,21 +28,16 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
-import logisticspipes.proxy.computers.wrapper.CCObjectWrapper;
-import logisticspipes.proxy.opencomputers.IOCTile;
-import logisticspipes.proxy.opencomputers.asm.BaseWrapperClass;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 @ModDependentInterface(modId = { LPConstants.openComputersModID, LPConstants.openComputersModID, LPConstants.openComputersModID }, interfacePath = { "li.cil.oc.api.network.ManagedPeripheral", "li.cil.oc.api.network.Environment", "li.cil.oc.api.network.SidedEnvironment" })
 @CCType(name = "LogisticsSolidBlock")
-public class LogisticsSolidTileEntity extends BlockEntity implements ITickable, ILPCCTypeHolder, IRotationProvider,
+public class LogisticsSolidTileEntity extends BlockEntity implements ITickable, ILPCCTypeHolder, IRotationProvider {
 		// ManagedPeripheral, Environment, SidedEnvironment — added at runtime by @ModDependentInterface ASM when OC is present
-		IOCTile {
 
 	private final Object[] ccTypeHolder = new Object[1];
-	private boolean addedToNetwork = false;
 	private boolean init = false;
 	public int rotation = 0;
 
@@ -51,7 +46,6 @@ public class LogisticsSolidTileEntity extends BlockEntity implements ITickable, 
 
 	public LogisticsSolidTileEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
 		super(type, pos, state);
-		SimpleServiceLocator.openComputersProxy.initLogisticsSolidTileEntity(this);
 	}
 
 	/** Returns the level this block entity is in. Replaces removed getWorld() from 1.12.2. */
@@ -63,24 +57,18 @@ public class LogisticsSolidTileEntity extends BlockEntity implements ITickable, 
 	public void load(CompoundTag nbt) {
 		super.load(nbt);
 		rotation = nbt.getInt("rotation");
-		SimpleServiceLocator.openComputersProxy.handleReadFromNBT(this, nbt);
 	}
 
 	@Override
 	public void saveAdditional(CompoundTag nbt) {
 		super.saveAdditional(nbt);
 		nbt.putInt("rotation", rotation);
-		SimpleServiceLocator.openComputersProxy.handleWriteToNBT(this, nbt);
 	}
 
 	// onChunkUnload() removed in 1.20.1 — handled by level unload events if needed
 
 	@Override
 	public void update() {
-		if (!addedToNetwork) {
-			addedToNetwork = true;
-			SimpleServiceLocator.openComputersProxy.addToNetwork(this);
-		}
 		if (MainProxy.isClient(getWorld())) {
 			if (!init) {
 				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRotationPacket.class).setBlockPos(getBlockPos()));
@@ -95,7 +83,6 @@ public class LogisticsSolidTileEntity extends BlockEntity implements ITickable, 
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		SimpleServiceLocator.openComputersProxy.handleInvalidate(this);
 	}
 
 	public void onBlockBreak() {
@@ -163,11 +150,6 @@ public class LogisticsSolidTileEntity extends BlockEntity implements ITickable, 
 	public boolean canConnect(Direction side) {
 		final NeighborTileEntity<BlockEntity> neighbor = new WorldCoordinatesWrapper(this).getNeighbor(side);
 		return neighbor != null && !neighbor.isLogisticsPipe() && !(neighbor.getTileEntity() instanceof LogisticsSolidTileEntity);
-	}
-
-	@Override
-	public Object getOCNode() {
-		return node();
 	}
 
 	public DoubleCoordinates getLPPosition() {

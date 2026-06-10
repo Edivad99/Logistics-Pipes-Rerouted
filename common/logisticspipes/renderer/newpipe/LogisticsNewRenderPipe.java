@@ -863,8 +863,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				}
 			}
 
-			// TODO(1.20.1): MCMP not ported — hasParts always false, no mounts removed
-			// mountCanidates.removeIf(mount -> SimpleServiceLocator.mcmpProxy.hasParts(pipeTile));
+			// MCMultiPart not available on 1.20.1 — hasParts always false, no mounts removed.
 		} else {
 			mountCanidates.clear();
 		}
@@ -923,8 +922,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				}
 			}
 		}
-		// TODO(1.20.1): Thermal Dynamics not ported — no TD connection rendering
-		// SimpleServiceLocator.thermalDynamicsProxy.renderPipeConnections(pipeTile, objectsToRender);
+		// Thermal Dynamics not available on 1.20.1 — no TD connection rendering.
 	}
 
 	private static void findOponentOnSameSide(List<PipeMount> mountCanidates, Direction dir) {

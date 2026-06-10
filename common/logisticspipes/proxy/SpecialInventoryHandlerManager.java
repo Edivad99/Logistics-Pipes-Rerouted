@@ -15,8 +15,7 @@ public class SpecialInventoryHandlerManager {
 			SimpleServiceLocator.inventoryUtilFactory.registerHandler(new AEInterfaceInventoryHandler());
 		}
 
-		// TODO(1.20.1): BuildCraft not ported — inventory handler registration disabled
-		// SimpleServiceLocator.buildCraftProxy.registerInventoryHandler();
+		// BuildCraft inventory handler removed — no 1.20.1 port exists.
 
 		StorageDrawersProxy.INSTANCE.registerInventoryHandler();
 

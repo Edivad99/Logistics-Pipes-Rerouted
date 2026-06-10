@@ -1,4 +1,4 @@
-package logisticspipes.proxy.cc;
+package logisticspipes.proxy.computers;
 
 public class CCConstants {
 

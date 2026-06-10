@@ -8,8 +8,8 @@ import net.minecraft.core.Direction;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 
-import logisticspipes.proxy.cofh.subproxies.ICoFHEnergyReceiver;
-import logisticspipes.proxy.cofh.subproxies.ICoFHEnergyStorage;
+import logisticspipes.proxy.interfaces.ICoFHEnergyReceiver;
+import logisticspipes.proxy.interfaces.ICoFHEnergyStorage;
 import logisticspipes.proxy.interfaces.IPowerProxy;
 
 public class PowerProxy implements IPowerProxy {

@@ -197,10 +197,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		} finally {
 			poseStack.popPose();
 		}
-
-		if (!inHand) {
-			SimpleServiceLocator.mcmpProxy.renderTileEntitySpecialRenderer(tileentity, x, y, z, partialTicks, destroyStage, alpha);
-		}
+		// MCMP special renderer removed — MCMultiPart has no 1.20.1 port (former dummy was a no-op).
 	}
 
 	private void renderSolids(CoreUnroutedPipe pipe, double x, double y, double z, float partialTickTime,

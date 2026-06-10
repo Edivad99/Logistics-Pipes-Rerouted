@@ -2,9 +2,6 @@ package logisticspipes.network.packets;
 
 import net.minecraft.world.entity.player.Player;
 
-import logisticspipes.LogisticsPipes;
-import logisticspipes.config.Configs;
-import logisticspipes.modplugins.nei.LoadingHelper;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -22,17 +19,8 @@ public class ActivateNBTDebug extends ModernPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		try {
-			Class.forName("codechicken.nei.handler.NEIClientEventHandler");
-			Configs.TOOLTIP_INFO = true;
-			// LoadingHelper.LoadNeiNBTDebugHelper(); // NEI removed in 1.20.1
-		} catch (ClassNotFoundException ignored) {
-
-		} catch (Exception e1) {
-			if (LogisticsPipes.isDEBUG()) {
-				e1.printStackTrace();
-			}
-		}
+		// NEI does not exist on 1.20.1 — the former Class.forName("codechicken.nei...") check
+		// always failed, making this packet a no-op.
 	}
 
 	@Override

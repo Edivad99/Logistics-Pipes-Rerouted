@@ -83,7 +83,6 @@ import logisticspipes.renderer.newpipe.PropertyRenderList;
 import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.utils.LPPositionSet;
 // ClientConfiguration import removed — used only in deferred rendering methods
-import network.rs485.logisticspipes.proxy.mcmp.BlockAccessDelegate;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
@@ -156,7 +155,6 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		builder.add(rotationProperty, modelTypeProperty);
 		connectionPropertys.values().forEach(builder::add);
 		// TODO: propertyRenderList / propertyCache were IExtendedBlockState properties — removed in 1.20.1; rendering rewrite needed
-		if (mcmpBlockAccess != null) mcmpBlockAccess.addBlockState(builder);
 	}
 
 	@Nullable
@@ -399,7 +397,6 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 				}
 			}
 		}
-		mcmpBlockAccess.addDrops(list, world, pos, state, fortune);
 		return list;
 	}
 
@@ -442,7 +439,6 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 					.forEach(bb -> addCollisionBoxToList(pos, entityBox, collidingBoxes, bb));
 		}
 		addCollisionBoxToList(pos, entityBox, collidingBoxes, PIPE_CENTER_BB);
-		mcmpBlockAccess.addCollisionBoxToList(state, world, pos, entityBox, collidingBoxes, entity, isActualState);
 	}
 
 	@Override
@@ -732,22 +728,6 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 				Block.popResource(world, pos, stack);
 			}
 			Block.popResource(world, pos, new ItemStack(pipe.item, 1));
-			final NonNullList<ItemStack> list = NonNullList.create();
-			CoreUnroutedPipe finalPipe = pipe;
-			BlockAccessDelegate worldDelegate = new BlockAccessDelegate(world) {
-
-				@Override
-				public BlockEntity getBlockEntity(BlockPos testPos) {
-					if (pos.equals(testPos)) {
-						return finalPipe.container;
-					}
-					return super.getBlockEntity(testPos);
-				}
-			};
-			mcmpBlockAccess.addDrops(list, worldDelegate, pos, state, fortune);
-			for (ItemStack stack : list) {
-				Block.popResource(world, pos, stack);
-			}
 		} else if (pipe.item != null) {
 			LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
 		}

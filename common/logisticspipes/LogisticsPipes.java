@@ -143,14 +143,11 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.SpecialInventoryHandlerManager;
 import logisticspipes.proxy.SpecialTankHandlerManager;
 import logisticspipes.proxy.computers.objects.LPGlobalCCAccess;
-import logisticspipes.proxy.endercore.EnderCoreProgressProvider;
-import logisticspipes.proxy.ic2.IC2ProgressProvider;
 import logisticspipes.proxy.progressprovider.MachineProgressProvider;
 import logisticspipes.proxy.recipeproviders.LogisticsCraftingTable;
 import logisticspipes.proxy.specialconnection.SpecialPipeConnection;
 import logisticspipes.proxy.specialconnection.SpecialTileConnection;
 import logisticspipes.proxy.specialtankhandler.SpecialTankHandler;
-import logisticspipes.proxy.te.ThermalExpansionProgressProvider;
 import logisticspipes.recipes.CraftingRecipes;
 import logisticspipes.recipes.LPChipRecipes;
 import logisticspipes.recipes.LPRecipePack;
@@ -429,28 +426,12 @@ public class LogisticsPipes {
 		SpecialInventoryHandlerManager.load();
 		SpecialTankHandlerManager.load();
 
-		// TODO(1.20.1): BuildCraft not ported to 1.20.1 — integration disabled
-		// SimpleServiceLocator.buildCraftProxy.registerPipeInformationProvider();
-		// SimpleServiceLocator.buildCraftProxy.initProxy();
-
-		// TODO(1.20.1): Thermal Dynamics not ported to 1.20.1 — integration disabled
-		// SimpleServiceLocator.thermalDynamicsProxy.registerPipeInformationProvider();
-
-		// TODO(1.20.1): BuildCraft AssemblyTable recipe provider disabled (BC not ported)
-		// if (SimpleServiceLocator.buildCraftProxy.getAssemblyTableProviderClass() != null) {
-		// 	SimpleServiceLocator.addCraftingRecipeProvider(LogisticsWrapperHandler.getWrappedRecipeProvider(LPConstants.bcSiliconModID, "AssemblyTable", SimpleServiceLocator.buildCraftProxy.getAssemblyTableProviderClass()));
-		// }
+		// Dead-mod integrations removed (BuildCraft, Thermal Dynamics/Expansion, IC2, EnderCore,
+		// MCMultiPart) — none of these mods exist on 1.20.1.
 		SimpleServiceLocator.addCraftingRecipeProvider(new LogisticsCraftingTable());
-
-		// TODO(1.20.1): Thermal Expansion / IC2 progress providers disabled (neither ported to 1.20.1)
-		// SimpleServiceLocator.machineProgressProvider.registerProgressProvider(LogisticsWrapperHandler.getWrappedProgressProvider(LPConstants.thermalExpansionModID, "Generic", ThermalExpansionProgressProvider.class));
-		// SimpleServiceLocator.machineProgressProvider.registerProgressProvider(LogisticsWrapperHandler.getWrappedProgressProvider(LPConstants.ic2ModID, "Generic", IC2ProgressProvider.class));
-		SimpleServiceLocator.machineProgressProvider.registerProgressProvider(LogisticsWrapperHandler.getWrappedProgressProvider(LPConstants.enderCoreModID, "Generic", EnderCoreProgressProvider.class));
 
 		// BlockEntityTypes are registered via DeferredRegister in LPRegistries.
 		MainProxy.proxy.registerTileEntities();
-		// TODO(1.20.1): MCMultiPart not ported to 1.20.1 — integration disabled
-		// SimpleServiceLocator.mcmpProxy.registerTileEntities();
 		MainProxy.proxy.registerParticles();
 
 		FluidIdentifier.initFromForge(false);

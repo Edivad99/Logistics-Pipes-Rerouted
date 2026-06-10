@@ -62,13 +62,9 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.block.PipeSolidSideCheck;
 import logisticspipes.network.packets.pipe.PipeTileStatePacket;
 import logisticspipes.pipes.PipeItemsFirewall;
-import logisticspipes.pipes.basic.ltgpmodcompat.LPDuctHolderTileEntity;
+import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockTileEntity;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.buildcraft.subproxies.IBCPipeCapabilityProvider;
-import logisticspipes.proxy.computers.wrapper.CCObjectWrapper;
-import logisticspipes.proxy.opencomputers.IOCTile;
-import logisticspipes.proxy.opencomputers.asm.BaseWrapperClass;
 import logisticspipes.renderer.IIconProvider;
 import logisticspipes.renderer.LogisticsTileRenderController;
 import logisticspipes.renderer.state.PipeRenderState;
@@ -94,8 +90,8 @@ import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 @ModDependentInterface(modId = { LPConstants.cofhCoreModID, LPConstants.openComputersModID, LPConstants.openComputersModID, LPConstants.openComputersModID },
 		interfacePath = { "cofh.api.transport.IItemDuct", "li.cil.oc.api.network.ManagedPeripheral",
 				"li.cil.oc.api.network.Environment", "li.cil.oc.api.network.SidedEnvironment", })
-public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
-		implements IOCTile, ILPPipeTile, IPipeInformationProvider, /*IItemDuct,*/
+public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
+		implements ILPPipeTile, IPipeInformationProvider, /*IItemDuct,*/
 		// ManagedPeripheral, Environment, SidedEnvironment — added at runtime by @ModDependentInterface ASM when OC is present
 		ILogicControllerTile, logisticspipes.asm.te.ILPTEInformation, logisticspipes.interfaces.ITickable {
 
@@ -119,7 +115,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 	public int statePacketId = 0;
 	public final PipeRenderState renderState;
 	public final CoreState coreState = new CoreState();
-	public final IBCPipeCapabilityProvider bcCapProvider;
 	public Object OPENPERIPHERAL_IGNORE; //Tell OpenPeripheral to ignore this class
 	public Set<DoubleCoordinates> subMultiBlock = new HashSet<>();
 	public boolean[] turtleConnect = new boolean[7];
@@ -135,7 +130,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 	public boolean[] pipeTDConnectionsBuffer = new boolean[6];
 	public CoreUnroutedPipe pipe;
 	private LogisticsTileRenderController renderController;
-	private boolean addedToNetwork = false;
 	private boolean sendInitPacket = true;
 	@Getter
 	private boolean initialized = false;
@@ -151,17 +145,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 
 	public LogisticsTileGenericPipe(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
 		super(logisticspipes.LPRegistries.BE_PIPE.get(), pos, state);
-		if (SimpleServiceLocator.ccProxy.isCC()) {
-			connections = new HashMap<>();
-		}
-		SimpleServiceLocator.openComputersProxy.initLogisticsTileGenericPipe(this);
-		// TODO(1.20.1): Thermal Dynamics / BuildCraft / MCMP not ported to 1.20.1 — integration disabled
-		// tdPart = SimpleServiceLocator.thermalDynamicsProxy.getTDPart(this);
-		// bcCapProvider = SimpleServiceLocator.buildCraftProxy.getIBCPipeCapabilityProvider(this);
-		// imcmpltgpCompanion = SimpleServiceLocator.mcmpProxy.createMCMPCompanionFor(this);
-		tdPart = null;
-		bcCapProvider = null;
-		imcmpltgpCompanion = null;
 		itemInsertionHandlers = new EnumMap<>(Direction.class);
 		Arrays.stream(Direction.values()).forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));
 		ItemInsertionHandler itemInsertionHandlerNull = new ItemInsertionHandler(this, null);
@@ -180,9 +163,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 			pipe.invalidate();
 			super.setRemoved();
 			TEControl.invalidate(this);
-			SimpleServiceLocator.openComputersProxy.handleInvalidate(this);
-			// TODO(1.20.1): Thermal Dynamics not ported — tdPart is null
-			// tdPart.invalidate();
 		}
 	}
 
@@ -203,15 +183,10 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 		if (pipe != null) {
 			pipe.onChunkUnload();
 		}
-		SimpleServiceLocator.openComputersProxy.handleChunkUnload(this);
-		// TODO(1.20.1): Thermal Dynamics not ported — tdPart is null
-		// tdPart.onChunkUnload();
 	}
 
 	// Ticked via BlockEntityTicker in LogisticsBlockGenericPipe (ITickable.update)
 	public void update() {
-		// TODO(1.20.1): MCMP not ported — imcmpltgpCompanion is null
-		// imcmpltgpCompanion.update();
 		final Info superDebug = StackTraceUtil.addSuperTraceInformation(() -> "Time: " + getLevel().getGameTime());
 		final Info debug = StackTraceUtil.addTraceInformation(() -> "(" + getX() + ", " + getY() + ", " + getZ() + ")", superDebug);
 		if (sendInitPacket && MainProxy.isServer(getLevel())) {
@@ -276,10 +251,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 		}
 
 		getRenderController().onUpdate();
-		if (!addedToNetwork) {
-			addedToNetwork = true;
-			SimpleServiceLocator.openComputersProxy.addToNetwork(this);
-		}
 		debug.end();
 	}
 
@@ -359,20 +330,13 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 	}
 
 	public void scheduleNeighborChange() {
-		// TODO(1.20.1): Thermal Dynamics not ported — tdPart is null
-		// tdPart.scheduleNeighborChange();
 		if (MainProxy.isServer(level)) {
 			pipe.triggerConnectionCheck();
 		}
 		blockNeighborChange = true;
-		boolean[] connected = new boolean[6];
-		new WorldCoordinatesWrapper(this).allNeighborTileEntities().stream()
-				.filter(adjacent -> SimpleServiceLocator.ccProxy.isTurtle(adjacent.getTileEntity()))
-				.forEach(adjacent -> connected[adjacent.getDirection().ordinal()] = true);
+		// ComputerCraft turtles cannot exist on 1.20.1 — no neighbor is ever a turtle.
 		for (int i = 0; i < 6; i++) {
-			if (!connected[i]) {
-				turtleConnect[i] = false;
-			}
+			turtleConnect[i] = false;
 		}
 	}
 
@@ -395,7 +359,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 		for (int i = 0; i < turtleConnect.length; i++) {
 			nbt.putBoolean("turtleConnect_" + i, turtleConnect[i]);
 		}
-		SimpleServiceLocator.openComputersProxy.handleWriteToNBT(this, nbt);
 
 		CompoundTag logicNBT = new CompoundTag();
 		logicController.writeToNBT(logicNBT);
@@ -435,7 +398,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 		for (int i = 0; i < turtleConnect.length; i++) {
 			turtleConnect[i] = nbt.getBoolean("turtleConnect_" + i);
 		}
-		SimpleServiceLocator.openComputersProxy.handleReadFromNBT(this, nbt);
 
 		logicController.readFromNBT(nbt.getCompound("logicController"));
 	}
@@ -453,22 +415,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 			return false;
 		}
 
-		final Direction neighborOrientation = OrientationsUtil.getOrientationOfTilewithTile(this, with);
-		if (SimpleServiceLocator.ccProxy.isTurtle(with) && (neighborOrientation == null || !turtleConnect[neighborOrientation.ordinal()])) {
-			return false;
-		}
-
-		AABB aabb = PIPE_CONN_BB.get(side.ordinal());
-		// TODO(1.20.1): MCMP not ported — intersection check skipped
-		// if (SimpleServiceLocator.mcmpProxy.checkIntersectionWith(this, aabb)) {
-		// 	return false;
-		// }
-
-		// TODO(1.20.1): Thermal Dynamics not ported — blocked-side check skipped
-		// if (SimpleServiceLocator.thermalDynamicsProxy.isBlockedSide(with, side.getOpposite())) {
-		// 	return false;
-		// }
-
 		if (with instanceof LogisticsTileGenericPipe) {
 			CoreUnroutedPipe otherPipe = ((LogisticsTileGenericPipe) with).pipe;
 
@@ -480,34 +426,23 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 				return false;
 			}
 
-			// TODO(1.20.1): MCMP not ported — intersection check skipped
-			// AABB aabbB = PIPE_CONN_BB.get(side.getOpposite().ordinal());
-			// if (SimpleServiceLocator.mcmpProxy.checkIntersectionWith((LogisticsTileGenericPipe) with, aabbB)) {
-			// 	return false;
-			// }
-
 		}
 		return pipe.canPipeConnect(with, side);
 	}
 
-	public void queueEvent(String event, Object[] arguments) {
-		SimpleServiceLocator.ccProxy.queueEvent(event, arguments, this);
-	}
+	// ComputerCraft is not available on 1.20.1 — these retain the former dummy-proxy semantics.
+	public void queueEvent(String event, Object[] arguments) {}
 
-	public void handleMesssage(int computerId, Object message, int sourceId) {
-		SimpleServiceLocator.ccProxy.handleMesssage(computerId, message, this, sourceId);
-	}
+	public void handleMesssage(int computerId, Object message, int sourceId) {}
 
 	public boolean getTurtleConnect() {
-		return SimpleServiceLocator.ccProxy.getTurtleConnect(this);
+		return false;
 	}
 
-	public void setTurtleConnect(boolean flag) {
-		SimpleServiceLocator.ccProxy.setTurtleConnect(flag, this);
-	}
+	public void setTurtleConnect(boolean flag) {}
 
 	public int getLastCCID() {
-		return SimpleServiceLocator.ccProxy.getLastCCID(this);
+		return 0;
 	}
 
 	@Nonnull
@@ -632,13 +567,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 		if (pipe == null) {
 			return false;
 		}
-		if (direction != null) {
-			AABB aabb = PIPE_CONN_BB.get(direction.ordinal());
-			// TODO(1.20.1): MCMP not ported — intersection check skipped
-			// if (SimpleServiceLocator.mcmpProxy.checkIntersectionWith(this, aabb)) {
-			// 	return false;
-			// }
-		}
 		return pipe.canPipeConnect(to, direction, flag);
 	}
 
@@ -727,11 +655,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 	@ModDependentMethod(modId = LPConstants.openComputersModID)
 	public boolean canConnect(Direction side) {
 		return !(this.getTile(side) instanceof LogisticsTileGenericPipe) && !(this.getTile(side) instanceof LogisticsSolidTileEntity);
-	}
-
-	@Override
-	public Object getOCNode() {
-		return node;
 	}
 
 	public void initialize(CoreUnroutedPipe pipe) {
@@ -878,26 +801,15 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 			return;
 		}
 
-		boolean[] pipeTDConnectionsBufferOld = pipeTDConnectionsBuffer.clone();
-
 		for (Direction side : Direction.values()) {
 			TileBuffer t = cache[side.ordinal()];
 			t.refresh();
 
 			pipeConnectionsBuffer[side.ordinal()] = canPipeConnect(t.getTile(), side);
-			// TODO(1.20.1): BuildCraft / Thermal Dynamics not ported — BC/TD pipe detection disabled
-			// if (pipeConnectionsBuffer[side.ordinal()]) {
-			// 	pipeBCConnectionsBuffer[side.ordinal()] = SimpleServiceLocator.buildCraftProxy.isBuildCraftPipe(t.getTile());
-			// 	pipeTDConnectionsBuffer[side.ordinal()] = SimpleServiceLocator.thermalDynamicsProxy.isItemDuct(t.getTile());
-			// } else {
+			// BuildCraft / Thermal Dynamics do not exist on 1.20.1 — never a BC pipe or TD duct.
 			pipeBCConnectionsBuffer[side.ordinal()] = false;
 			pipeTDConnectionsBuffer[side.ordinal()] = false;
-			// }
 		}
-		// TODO(1.20.1): Thermal Dynamics not ported — tdPart is null
-		// if (!Arrays.equals(pipeTDConnectionsBufferOld, pipeTDConnectionsBuffer)) {
-		// 	tdPart.connectionsChanged();
-		// }
 	}
 
 	/** Used by RegisterCapabilitiesEvent wiring in LPRegistries. */
@@ -947,13 +859,6 @@ public class LogisticsTileGenericPipe extends LPDuctHolderTileEntity
 	@Override
 	public ILPPipe getLPPipe() {
 		return pipe;
-	}
-
-	@Override
-	public void setLevel(@Nonnull Level level) {
-		super.setLevel(level);
-		// TODO(1.20.1): Thermal Dynamics not ported — tdPart is null
-		// tdPart.setWorld_LP(level);
 	}
 
 	@Nonnull

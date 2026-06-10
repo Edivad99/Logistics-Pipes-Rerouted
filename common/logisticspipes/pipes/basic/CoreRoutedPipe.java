@@ -65,7 +65,7 @@ import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.cc.CCConstants;
+import logisticspipes.proxy.computers.CCConstants;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCDirectCall;
 import logisticspipes.proxy.computers.interfaces.CCSecurtiyCheck;
@@ -1374,7 +1374,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public void sendMessage(final Double computerId, final Object message) {
 		int sourceId = -1;
 		if (container != null) {
-			sourceId = SimpleServiceLocator.ccProxy.getLastCCID(container);
+			sourceId = container.getLastCCID(); // always 0 — ComputerCraft not available on 1.20.1
 		}
 		final int fSourceId = sourceId;
 		BitSet set = new BitSet(ServerRouter.getBiggestSimpleID());
@@ -1391,7 +1391,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public void sendBroadcast(final String message) {
 		int sourceId = -1;
 		if (container != null) {
-			sourceId = SimpleServiceLocator.ccProxy.getLastCCID(container);
+			sourceId = container.getLastCCID(); // always 0 — ComputerCraft not available on 1.20.1
 		}
 		final int fSourceId = sourceId;
 		BitSet set = new BitSet(ServerRouter.getBiggestSimpleID());

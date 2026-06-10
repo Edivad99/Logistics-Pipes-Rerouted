@@ -40,7 +40,6 @@ import logisticspipes.network.packets.block.PowerJunctionLevel;
 import logisticspipes.network.packets.hud.HUDStartBlockWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopBlockWatchingPacket;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.renderer.LogisticsHUDRenderer;
@@ -125,14 +124,9 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		}
 	};
 
-	private Object mjReceiver;
-
 	public LogisticsPowerJunctionTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
 		super(logisticspipes.LPRegistries.BE_POWER_JUNCTION.get(), pos, state);
 		HUD = new HUDPowerLevel(this);
-		// TODO(1.20.1): BuildCraft MJ API not ported — receiver disabled
-		// mjReceiver = SimpleServiceLocator.buildCraftProxy.createMjReceiver(this);
-		mjReceiver = null;
 	}
 
 	@Override
@@ -222,7 +216,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 				LogisticsHUDRenderer.instance().add(this);
 			}
 			if (!addedToEnergyNet) {
-				SimpleServiceLocator.IC2Proxy.registerToEneryNet(this);
+				// IC2 energy net registration removed — IC2 has no 1.20.1 port (former dummy was a no-op).
 				addedToEnergyNet = true;
 			}
 			init = true;
@@ -236,7 +230,6 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 			LogisticsHUDRenderer.instance().remove(this);
 		}
 		if (addedToEnergyNet) {
-			SimpleServiceLocator.IC2Proxy.unregisterToEneryNet(this);
 			addedToEnergyNet = false;
 		}
 	}

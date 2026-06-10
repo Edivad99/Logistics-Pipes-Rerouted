@@ -89,7 +89,8 @@ public final class LPGuiGraphics {
 
 		List<String> tooltipLines;
 		if (mc.screen instanceof AbstractContainerScreen) {
-			tooltipLines = SimpleServiceLocator.neiProxy.getItemToolTip(stack, mc.player, mc.options.advancedItemTooltips ? net.minecraft.world.item.TooltipFlag.Default.ADVANCED : net.minecraft.world.item.TooltipFlag.Default.NORMAL, (AbstractContainerScreen) mc.screen);
+			// NEI is not available on 1.20.1 — the former dummy proxy always returned an empty mutable list.
+			tooltipLines = new java.util.ArrayList<>();
 		} else {
 			tooltipLines = java.util.Collections.emptyList();
 		}
@@ -104,9 +105,8 @@ public final class LPGuiGraphics {
 
 		int x = (Integer) tooltip[0] - (forceAdd ? 0 : guiLeft) + 12;
 		int y = (Integer) tooltip[1] - (forceAdd ? 0 : guiTop) - 12;
-		if (!SimpleServiceLocator.neiProxy.renderItemToolTip(x, y, tooltipLines, stack.getRarity().color, stack)) {
-			LPGuiGraphics.drawToolTip(x, y, tooltipLines, stack.getRarity().color);
-		}
+		// NEI render hook removed (former dummy always returned false) — always draw our own tooltip.
+		LPGuiGraphics.drawToolTip(x, y, tooltipLines, stack.getRarity().color);
 
 		LPGuiGraphics.zLevel = 0;
 	}

@@ -5,16 +5,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import network.rs485.logisticspipes.proxy.mcmp.subproxy.IMCMPLTGPCompanion;
-
 /**
  * Intermediate BlockEntity base for LP pipe tile entities.
  * MCMultiPart integration (IMultipartContainer) was removed for 1.20.1 — no 1.20.1 port exists.
  * Previously implemented mcmultipart.api.container.IMultipartContainer.
  */
 public abstract class LPMicroblockTileEntity extends BlockEntity {
-
-	public IMCMPLTGPCompanion imcmpltgpCompanion;
 
 	public LPMicroblockTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);

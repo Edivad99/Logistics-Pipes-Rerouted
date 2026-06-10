@@ -10,7 +10,6 @@ import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 
 @ModDependentInterface(modId = { LPConstants.ic2ModID }, interfacePath = { "ic2.api.energy.tile.IEnergySink" })
@@ -33,7 +32,7 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 	public void update() {
 		super.update();
 		if (!init && !addedToEnergyNet) {
-			SimpleServiceLocator.IC2Proxy.registerToEneryNet(this);
+			// IC2 energy net registration removed — IC2 has no 1.20.1 port (former dummy was a no-op).
 			addedToEnergyNet = true;
 		}
 	}
@@ -45,7 +44,6 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 			LogisticsHUDRenderer.instance().remove(this);
 		}
 		if (addedToEnergyNet) {
-			SimpleServiceLocator.IC2Proxy.unregisterToEneryNet(this);
 			addedToEnergyNet = false;
 		}
 	}

@@ -246,8 +246,7 @@ public class LogisticsEventListener {
 			GuiEntry part = LogisticsEventListener.getGuiPos().peek();
 			part.setActive(true);
 		}
-		if (event.getScreen() instanceof AbstractContainerScreen
-				|| (SimpleServiceLocator.ironChestProxy != null && SimpleServiceLocator.ironChestProxy.isChestGui(event.getScreen()))) {
+		if (event.getScreen() instanceof AbstractContainerScreen) {
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(ChestGuiOpened.class));
 		} else {
 			QuickSortChestMarkerStorage.getInstance().disable();
