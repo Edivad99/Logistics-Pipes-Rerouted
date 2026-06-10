@@ -7,6 +7,60 @@ follows [Semantic Versioning](https://semver.org/) where practical.
 ## [Unreleased]
 
 ### Fixed
+- **Client crashed rendering pipes when rejoining a world that already
+  contained them** (`NullPointerException: Cannot read field "isClientSide"`
+  in the block-entity renderer). The client tile entity can run `load()` more
+  than once on a cold world load; each run replaced the pipe object without
+  rebinding it to its container. `load()` now rebinds, and
+  `MainProxy.isClient(Level)` null-guards like its `isServer` twin.
+  Latent since the original port — earlier testing only ever placed pipes
+  live, which initializes through a different path.
+- **Guide Book was non-functional**: page content never scrolled (no `tick()`
+  animation), every button click went to an empty handler (home, add/remove
+  bookmark, tab switching, tab color cycling all dead), the active tab and
+  tab tooltips were drawn under the opaque frame, the bookmark button's
+  hitbox drifted from its rendered position, and the slider rail showed a
+  tiling artifact. All ported faithfully from LP1's `drawScreen`/
+  `updateScreen`/`mousePressed` flow onto the 1.20.1 `GuiGraphics`/widget
+  model.
+- **"Creative Tab Based Item Sink" module sank nothing on dedicated servers**
+  (and showed `null` for survival players): vanilla only builds creative tab
+  contents from the client creative-inventory screen. The item→tab mapping is
+  now built mod-side from CATEGORY tabs only — previously the SEARCH tab
+  (which aggregates every item) swallowed most lookups.
+- **Five fluid pipes were uncraftable** (request, provider, satellite,
+  insertion, extractor): chipped-crafting recipes and the program-compiler
+  FLUID category are reinstated, based off the fluid supplier pipe.
+- **Fluid-type picker GUI never opened** from fluid module slots; rewired to
+  LP1's `SelectItemOutOfList` popup flow.
+- Three packets (`ComponentList`, `MissingItems`,
+  `RoutingUpdateAskForTarget`) referenced client classes unguarded on
+  dedicated servers; orderer popup toggle (`displayPopup`) now persists; a
+  `%d`-on-ResourceLocation crash in `ServerRouter.toString()` debug output.
+
+### Changed
+- **Registry access migrated to vanilla** `BuiltInRegistries`/`Registries`
+  keys throughout (including `DeferredRegister.create`); zero
+  `ForgeRegistries` references remain, shrinking the loader-coupled surface
+  for future version ports.
+- The inert `@ClientSideOnlyMethodContent` annotation (honored only by the
+  deleted 1.12 coremod, i.e. fake protection) is gone; every former use now
+  has a real `FMLEnvironment.dist` guard + `@OnlyIn(Dist.CLIENT)` helper.
+- Guide book main-menu links point at this repository instead of upstream
+  RS485 (bug reports, builds, contribution); original-creator credits remain.
+- `MIGRATION.md` gained a measured "Forward-port surface (1.21+)" section
+  (namespace rename, capabilities rework, `CustomPacketPayload`, events,
+  fluids, toolchain).
+
+### Removed
+- **The entire 1.12-era dead-mod compat layer** (−1,866 lines): BuildCraft,
+  IC2, ComputerCraft, CoFH/Thermal Expansion, Thermal Dynamics, NEI,
+  IronChest, EnderStorage, EnderCore, OpenComputers and MCMultiPart stubs,
+  whose dummy behavior is now constant-folded at the former call sites (no
+  runtime behavior change; also removed two latent NPE paths). `PowerProxy`
+  stays — it is LP's own live Forge Energy implementation.
+
+### Fixed (0.0.1 production)
 - **0.0.1 crashed on load on every production NeoForge/Forge 1.20.1 install**
   (`NoSuchFieldError: BLOCK_ENTITY_TYPE` at `LPRegistries.<clinit>`, issue #1).
   NeoGradle 7 does not reobfuscate for 1.20.1, so the published jar shipped
