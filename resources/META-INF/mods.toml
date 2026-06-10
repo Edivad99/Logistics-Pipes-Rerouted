@@ -21,14 +21,17 @@ license     = "MMPL-1.0.1"
 [[dependencies.logisticspipes]]
     modId        = "forge"
     mandatory    = true
-    versionRange = "[47,)"
+    versionRange = "[47,48)"
     ordering     = "NONE"
     side         = "BOTH"
 
 [[dependencies.logisticspipes]]
     modId        = "minecraft"
     mandatory    = true
-    versionRange = "[1.20.1,1.21)"
+    # 1.20.1 ONLY: NeoForge changed namespace + runtime mappings at 1.20.2,
+    # so claiming a wider range just produces confusing crashes instead of
+    # a clean "wrong version" screen.
+    versionRange = "[1.20.1,1.20.2)"
     ordering     = "NONE"
     side         = "BOTH"
 
