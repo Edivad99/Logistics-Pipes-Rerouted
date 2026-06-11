@@ -4,6 +4,44 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 follows [Semantic Versioning](https://semver.org/) where practical.
 
+## [Unreleased]
+
+Client rendering parity batch — restores the last of the visual features that
+were lost in the 1.12.2 → 1.20.1 port. Partially verified in-game (ghost pipe,
+machine rotation/cover plates); HS-tube re-test and the remaining items are
+pending.
+
+### Fixed
+- **HS tubes rendered with garbled rainbow textures.** The tube models sample
+  their own texture file, but the pipe renderer drew every model against the
+  block texture atlas, smearing unrelated sprites across the tube body. Models
+  that carry a standalone texture now get a matching render buffer.
+- **HS tube segments behaved as full invisible cubes.** Collision, the
+  selection outline, and middle-click pick-block on every block of a multiblock
+  tube now follow the tube's real curved geometry, restoring LP1's physical
+  "feel" (transport itself always worked).
+- **Ghost-pipe placement preview was never drawn.** Holding a pipe item shows
+  the translucent white placement preview at the targeted position again,
+  including rotated previews for multiblock tubes. Also fixes the underlying
+  alpha-override plumbing that the preview (and LP1's render pipeline) relies
+  on — it existed but was silently ignored when emitting geometry.
+- **Machine blocks ignored their placed rotation.** Power Junction, Security
+  Station, Auto/Fuzzy Crafting tables, Statistics Table and Program Compiler
+  now render with the rotation they were placed in, and hide their side cover
+  plates where a pipe connects so the pipe visually enters the machine.
+  Active-state texture switching is wired up for block types that declare one.
+- **HUD targeting crosshair was not drawn.** With HUD glasses on, the
+  crosshair darkens again when the HUD locks onto a target, as in LP1.
+- **Pipe powered/unpowered texture variants all resolved to the base sprite.**
+  LP1's pre-generated overlay composites (powered / unpowered / un-overlayed,
+  including all chassis marks) are stitched into the block atlas and bound to
+  their original icon indices again.
+- **Fluid containers showed no fluid.** The container item traveling through
+  fluid pipes now renders its window tinted with the contained fluid's colour
+  (blue for water, orange for lava, modded fluids via their own tint and still
+  texture). LP1 drew the fluid's animated sprite inside the window; the window
+  shows the fluid's dominant colour instead.
+
 ## [0.0.2] - 2026-06-10
 
 Second public beta. Fixes the 0.0.1 production crash, restores the guide
