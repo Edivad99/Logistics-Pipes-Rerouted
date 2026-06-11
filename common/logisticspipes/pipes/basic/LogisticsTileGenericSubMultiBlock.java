@@ -85,6 +85,25 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 		return Collections.emptyList();
 	}
 
+	/**
+	 * Side-effect-free variant of {@link #getMainPipe()} for shape/pick queries: no caching,
+	 * and never mutates the world (getMainPipe may remove this block when all mains are gone,
+	 * which must not happen mid collision query).
+	 */
+	public List<LogisticsTileGenericPipe> getConnectedMainPipes() {
+		if (getLevel() == null) {
+			return Collections.emptyList();
+		}
+		List<LogisticsTileGenericPipe> result = new ArrayList<>(mainPipePos.size());
+		for (DoubleCoordinates pos : mainPipePos) {
+			BlockEntity tile = pos.getTileEntity(getLevel());
+			if (tile instanceof LogisticsTileGenericPipe) {
+				result.add((LogisticsTileGenericPipe) tile);
+			}
+		}
+		return result;
+	}
+
 	public List<CoreMultiBlockPipe.SubBlockTypeForShare> getSubTypes() {
 		return Collections.unmodifiableList(subTypes);
 	}

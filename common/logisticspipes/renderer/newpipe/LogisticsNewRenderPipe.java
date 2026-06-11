@@ -637,15 +637,32 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		// every RenderEntry directly through the VertexConsumer bound on
 		// LPRenderStateImpl by the outer BlockEntityRenderer.
 		//
-		// All pipe textures live on the block atlas (LOCATION_BLOCKS) and resolve
-		// through the TextureTransformation operation each entry carries, so we
-		// don't need per-texture RenderType selection here — the bound solid
-		// buffer is correct for every entry.
+		// Most pipe textures live on the block atlas (LOCATION_BLOCKS) and resolve
+		// through the TextureTransformation operation each entry carries — those use
+		// the buffer bound by the BER. Special renderers (HS tubes) carry standalone
+		// texture paths with raw 0..1 UVs; those need their own RenderType buffer or
+		// the UVs sample across the whole atlas.
 		IRenderState rs = SimpleServiceLocator.cclProxy.getRenderState();
 		if (rs == null) return;
 		rs.reset();
+		logisticspipes.proxy.object3d.impl.LPRenderStateImpl rsImpl =
+				rs instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl
+						? (logisticspipes.proxy.object3d.impl.LPRenderStateImpl) rs : null;
+		com.mojang.blaze3d.vertex.VertexConsumer atlasBuffer = rsImpl != null ? rsImpl.buffer : null;
 		for (RenderEntry entry : cachedRenderer) {
+			if (rsImpl != null && rsImpl.bufferSource != null && atlasBuffer != null) {
+				ResourceLocation texture = entry.getTexture();
+				if (texture == null || texture.equals(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)) {
+					rsImpl.buffer = atlasBuffer;
+				} else {
+					rsImpl.buffer = rsImpl.bufferSource.getBuffer(
+							net.minecraft.client.renderer.RenderType.entityCutoutNoCull(texture));
+				}
+			}
 			entry.getModel().render(entry.getOperations());
+		}
+		if (rsImpl != null && atlasBuffer != null) {
+			rsImpl.buffer = atlasBuffer;
 		}
 		rs.draw();
 	}

@@ -186,7 +186,10 @@ public class LogisticsHUDRenderer {
 			int width = mc.getWindow().getGuiScaledWidth();
 			int height = mc.getWindow().getGuiScaledHeight();
 			if (mc.gui != null && guiGraphics != null) {
+				// LP1 redrew the vanilla crosshair tinted black to mark a HUD target lock.
+				guiGraphics.setColor(0.0f, 0.0f, 0.0f, 1.0f);
 				guiGraphics.blit(TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f, 16, 16, 256, 256);
+				guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 		}
 	}

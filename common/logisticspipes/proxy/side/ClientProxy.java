@@ -124,13 +124,16 @@ public class ClientProxy implements IProxy {
 
 	@Override
 	public void addLogisticsPipesOverride(Object par1IIconRegister, int index, String override1, String override2, boolean flag) {
-		// Overlay compositing (override2) from 1.12.2 is deferred; record the base sprite only.
 		// override2 == "NewPipeTexture" means this call targets LPnewPipeIconProvider's index
 		// space (newTextureIndex, separate from LPpipeIconProvider's normal index).
+		// flag == false selects the pre-generated base+overlay composite from overlay_gen/
+		// (powered / unpowered / un-overlayed variants), exactly as LP1 did.
 		if ("NewPipeTexture".equals(override2)) {
 			logisticspipes.textures.TextureRegistrar.recordNew(index, override1);
-		} else {
+		} else if (flag) {
 			logisticspipes.textures.TextureRegistrar.record(index, override1);
+		} else {
+			logisticspipes.textures.TextureRegistrar.recordOverlay(index, override1, override2);
 		}
 	}
 

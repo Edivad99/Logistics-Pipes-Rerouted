@@ -1,7 +1,8 @@
 {
 	"parent": "builtin/generated",
 	"textures": {
-		"layer0": "logisticspipes:items/liquids/empty"
+		"layer0": "logisticspipes:items/liquids/empty",
+		"layer1": "logisticspipes:items/liquids/stencil"
 	},
 	"display": {
 		"thirdperson": {
@@ -14,8 +15,5 @@
 			"translation": [0, 4, 2 ],
 			"scale": [1.7, 1.7, 1.7]
 		}
-	},
-	"overrides": [
-		{ "predicate": { "logisticspipes:fluid": 1.0 }, "model": "logisticspipes:item/fluid_container_filled" }
-	]
+	}
 }

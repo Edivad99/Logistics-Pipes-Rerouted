@@ -449,9 +449,11 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		LogisticsTileGenericPipe tile = (LogisticsTileGenericPipe) te;
 		CoreUnroutedPipe pipe = tile.pipe;
 		if (pipe == null || pipe.isPipeBlock()) return Shapes.block();
-		// Multiblock pipes that don't act as normal pipes use a full-block outline for now;
-		// proper per-orientation VoxelShapes require the rendering rewrite.
-		if (pipe.isMultiBlock() && !pipe.actAsNormalPipe()) return Shapes.block();
+		if (pipe.isMultiBlock() && !pipe.actAsNormalPipe()) {
+			// The pipe centre stays included so the main block is always targetable,
+			// matching doRayTraceMultiblock's centre-box test.
+			return Shapes.or(Shapes.create(PIPE_CENTER_BB), getMultiBlockShape((CoreMultiBlockPipe) pipe, pos));
+		}
 		int mask = 0;
 		for (Direction dir : Direction.values()) {
 			if (tile.isPipeConnectedCached(dir)) {
@@ -465,6 +467,22 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	@Nonnull
 	public VoxelShape getCollisionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
 		return getShape(state, world, pos, context);
+	}
+
+	/**
+	 * Block-local VoxelShape of a multiblock tube for one block cell, built from the pipe's
+	 * world-space collision boxes (the same geometry LP1 fed to addCollisionBoxToList).
+	 * Returns {@link Shapes#empty()} when no box touches the cell.
+	 */
+	@Nonnull
+	public static VoxelShape getMultiBlockShape(CoreMultiBlockPipe pipe, @Nonnull BlockPos cell) {
+		List<AABB> boxes = new ArrayList<>();
+		pipe.addCollisionBoxesToList(boxes, new AABB(cell));
+		VoxelShape shape = Shapes.empty();
+		for (AABB box : boxes) {
+			shape = Shapes.or(shape, Shapes.create(box.move(-cell.getX(), -cell.getY(), -cell.getZ())));
+		}
+		return shape;
 	}
 
 	// getSelectedBoundingBox removed in 1.20.1 — replaced by getShape(state, level, pos, context)
@@ -605,23 +623,17 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			list.add(new Hit(centerHit, centerBox, null, Part.PIPE));
 		}
 
-		// Each sub-block occupies an offset position relative to the main pipe.
-		// The multi-block sub-blocks use default full-cube shapes, so a unit AABB at the offset
-		// position approximates clickable bounds well enough for selection.
-		final LPPositionSet<? extends DoubleCoordinates> subBlocks = pipe.getSubBlocks();
-		if (subBlocks != null) {
-			for (DoubleCoordinates sub : subBlocks) {
-				BlockPos subPos = new BlockPos(
-						mainPos.getX() + sub.getXInt(),
-						mainPos.getY() + sub.getYInt(),
-						mainPos.getZ() + sub.getZInt()
-				);
-				AABB bb = new AABB(subPos);
-				net.minecraft.world.phys.BlockHitResult subHit =
-						net.minecraft.world.phys.shapes.Shapes.create(bb).clip(start, end, subPos);
-				if (subHit != null) {
-					list.add(new Hit(subHit, bb.move(-mainPos.getX(), -mainPos.getY(), -mainPos.getZ()), null, Part.PIPE));
-				}
+		// Test the tube's real world-space collision boxes so targeting matches the
+		// visible geometry instead of full cubes at each sub-block position.
+		List<AABB> tubeBoxes = new ArrayList<>();
+		pipe.addCollisionBoxesToList(tubeBoxes, null);
+		for (AABB box : tubeBoxes) {
+			BlockPos cell = BlockPos.containing(box.getCenter());
+			net.minecraft.world.phys.BlockHitResult subHit = net.minecraft.world.phys.shapes.Shapes
+					.create(box.move(-cell.getX(), -cell.getY(), -cell.getZ()))
+					.clip(start, end, cell);
+			if (subHit != null) {
+				list.add(new Hit(subHit, box.move(-mainPos.getX(), -mainPos.getY(), -mainPos.getZ()), null, Part.PIPE));
 			}
 		}
 

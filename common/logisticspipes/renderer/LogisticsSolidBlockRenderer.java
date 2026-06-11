@@ -20,11 +20,15 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSolidBlock;
+import logisticspipes.blocks.LogisticsSolidTileEntity;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
 import logisticspipes.proxy.object3d.interfaces.IModel3D;
 import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
 import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
+import network.rs485.logisticspipes.world.CoordinateUtils;
+import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 /**
  * Shared BlockEntityRenderer for all LP solid blocks. Reuses the OBJ-parsed 3D body
@@ -37,6 +41,8 @@ import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
 public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
 
 	private static final Map<LogisticsSolidBlock.Type, TextureTransformation> SPRITE_CACHE =
+			new EnumMap<>(LogisticsSolidBlock.Type.class);
+	private static final Map<LogisticsSolidBlock.Type, TextureTransformation> SPRITE_CACHE_ACTIVE =
 			new EnumMap<>(LogisticsSolidBlock.Type.class);
 
 	public LogisticsSolidBlockRenderer(BlockEntityRendererProvider.Context context) {}
@@ -58,18 +64,27 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
 	}
 
 	public static TextureTransformation getIcon(LogisticsSolidBlock.Type type) {
-		TextureTransformation cached = SPRITE_CACHE.get(type);
+		return getIcon(type, false);
+	}
+
+	/** LP1: types with an active texture switch to {@code <name>_active} while the tile is active. */
+	public static TextureTransformation getIcon(LogisticsSolidBlock.Type type, boolean active) {
+		boolean useActive = active && type.isHasActiveTexture();
+		Map<LogisticsSolidBlock.Type, TextureTransformation> cache = useActive ? SPRITE_CACHE_ACTIVE : SPRITE_CACHE;
+		TextureTransformation cached = cache.get(type);
 		if (cached != null) return cached;
+		String name = textureNameFor(type) + (useActive ? "_active" : "");
 		TextureAtlasSprite sprite = Minecraft.getInstance()
 				.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-				.apply(new ResourceLocation(LPConstants.LP_MOD_ID, "solid_block/" + textureNameFor(type)));
+				.apply(new ResourceLocation(LPConstants.LP_MOD_ID, "solid_block/" + name));
 		TextureTransformation tx = SimpleServiceLocator.cclProxy.createIconTransformer(sprite);
-		SPRITE_CACHE.put(type, tx);
+		cache.put(type, tx);
 		return tx;
 	}
 
 	public static void clearCache() {
 		SPRITE_CACHE.clear();
+		SPRITE_CACHE_ACTIVE.clear();
 	}
 
 	@Override
@@ -77,7 +92,64 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
 			@Nonnull MultiBufferSource buffers, int light, int overlay) {
 		Block block = be.getBlockState().getBlock();
 		if (!(block instanceof LogisticsSolidBlock)) return;
-		renderSolid(((LogisticsSolidBlock) block).getType(), pose, buffers, light, overlay);
+		LogisticsSolidBlock.Type type = ((LogisticsSolidBlock) block).getType();
+		if (!(be instanceof LogisticsSolidTileEntity) || be.getLevel() == null) {
+			renderSolid(type, pose, buffers, light, overlay);
+			return;
+		}
+		LogisticsSolidTileEntity tile = (LogisticsSolidTileEntity) be;
+
+		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
+		if (!(SimpleServiceLocator.cclProxy.getRenderState() instanceof LPRenderStateImpl)) return;
+		if (LogisticsNewSolidBlockWorldRenderer.block == null
+				|| LogisticsNewSolidBlockWorldRenderer.block.isEmpty()) return;
+
+		LPRenderStateImpl rs = (LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
+		VertexConsumer buffer = buffers.getBuffer(RenderType.cutoutMipped());
+		rs.bind(buffer, pose.last().pose(), pose.last().normal(), light, overlay);
+		rs.reset();
+
+		TextureTransformation icon = getIcon(type, tile.isActive());
+		if (icon == null) return;
+
+		LogisticsNewSolidBlockWorldRenderer.BlockRotation rotation =
+				LogisticsNewSolidBlockWorldRenderer.BlockRotation.getRotation(tile.getRotation());
+		if (rotation == null) rotation = LogisticsNewSolidBlockWorldRenderer.BlockRotation.ZERO;
+
+		IModel3D body = LogisticsNewSolidBlockWorldRenderer.block.get(rotation);
+		if (body != null) {
+			body.render(icon);
+		}
+
+		// LP1 hid the cover plates on sides where an adjacent LP pipe connects into this
+		// block, so the pipe visually enters the machine.
+		DoubleCoordinates pos = new DoubleCoordinates(tile);
+		for (LogisticsNewSolidBlockWorldRenderer.CoverSides side :
+				LogisticsNewSolidBlockWorldRenderer.CoverSides.values()) {
+			boolean renderPlate = true;
+			DoubleCoordinates newPos = CoordinateUtils.sum(pos, side.getDir(rotation));
+			BlockEntity sideTile = newPos.getTileEntity(tile.getLevel());
+			if (sideTile instanceof LogisticsTileGenericPipe) {
+				LogisticsTileGenericPipe tilePipe = (LogisticsTileGenericPipe) sideTile;
+				if (tilePipe.renderState != null
+						&& tilePipe.renderState.pipeConnectionMatrix.isConnected(side.getDir(rotation).getOpposite())) {
+					renderPlate = false;
+				}
+			}
+			if (renderPlate) {
+				Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, IModel3D> outer =
+						LogisticsNewSolidBlockWorldRenderer.texturePlate_Outer.get(side);
+				Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, IModel3D> inner =
+						LogisticsNewSolidBlockWorldRenderer.texturePlate_Inner.get(side);
+				if (outer != null && outer.get(rotation) != null) {
+					outer.get(rotation).render(icon);
+				}
+				if (inner != null && inner.get(rotation) != null) {
+					inner.get(rotation).render(icon);
+				}
+			}
+		}
+		rs.draw();
 	}
 
 	/** Shared draw path used by both the in-world BER and the item BEWLR. */

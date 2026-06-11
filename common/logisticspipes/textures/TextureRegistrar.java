@@ -17,8 +17,9 @@ import logisticspipes.LPConstants;
 /**
  * Collects (index, fileName) pairs registered via {@link Textures#registerBlockIcons(Object)}
  * and binds real {@link TextureAtlasSprite}s into the LP icon providers during the block
- * atlas stitch events. Overlay compositing (powered / unpowered overlays) from 1.12.2 is
- * deferred — for now each entry resolves to its base sprite.
+ * atlas stitch events. Powered / unpowered / un-overlayed variants resolve to LP1's
+ * pre-generated composites under {@code blocks/pipes/overlay_gen/} (stitched via the
+ * atlas config in {@code assets/minecraft/atlases/blocks.json}).
  */
 @Mod.EventBusSubscriber(modid = LPConstants.LP_MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class TextureRegistrar {
@@ -39,6 +40,18 @@ public class TextureRegistrar {
 		String path = resolvePath(fileName);
 		if (path == null) return;
 		NEW_ENTRIES.add(new Entry(index, new ResourceLocation(LPConstants.LP_MOD_ID, path)));
+	}
+
+	/**
+	 * Base+overlay composite, pre-generated on disk under overlay_gen/ (LP1 layout):
+	 * e.g. ("pipes/basic", "pipes/status_overlay/powered-pipe")
+	 * → blocks/pipes/overlay_gen/basic/powered-pipe.
+	 */
+	public static void recordOverlay(int index, String fileName, String overlayName) {
+		if (fileName == null || fileName.isEmpty() || overlayName == null || overlayName.isEmpty()) return;
+		String path = "blocks/" + fileName.replace("pipes/", "pipes/overlay_gen/")
+				+ "/" + overlayName.replace("pipes/status_overlay/", "");
+		ENTRIES.add(new Entry(index, new ResourceLocation(LPConstants.LP_MOD_ID, path)));
 	}
 
 	// Maps the legacy Textures.java fileName (e.g. "pipes/basic") to the actual

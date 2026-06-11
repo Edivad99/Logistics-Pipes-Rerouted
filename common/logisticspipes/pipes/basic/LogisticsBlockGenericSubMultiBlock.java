@@ -12,8 +12,14 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -34,6 +40,51 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	public net.minecraft.world.level.block.RenderShape getRenderShape(@Nonnull BlockState state) {
 		// Sub-multiblocks are invisible helpers; main pipe BER renders the visible geometry.
 		return net.minecraft.world.level.block.RenderShape.INVISIBLE;
+	}
+
+	/** Fallback so the helper block stays targetable when no main pipe geometry is found. */
+	private static final VoxelShape FALLBACK_SHAPE = Shapes.box(0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+
+	@Override
+	@Nonnull
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+		BlockEntity tile = world.getBlockEntity(pos);
+		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
+			VoxelShape shape = Shapes.empty();
+			for (LogisticsTileGenericPipe mainPipe : ((LogisticsTileGenericSubMultiBlock) tile).getConnectedMainPipes()) {
+				if (mainPipe.isMultiBlock() && mainPipe.pipe instanceof CoreMultiBlockPipe) {
+					shape = Shapes.or(shape, LogisticsBlockGenericPipe.getMultiBlockShape((CoreMultiBlockPipe) mainPipe.pipe, pos));
+				}
+			}
+			if (!shape.isEmpty()) {
+				return shape;
+			}
+		}
+		return FALLBACK_SHAPE;
+	}
+
+	@Override
+	@Nonnull
+	public VoxelShape getCollisionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+		return getShape(state, world, pos, context);
+	}
+
+	@Override
+	@Nonnull
+	public ItemStack getCloneItemStack(@Nonnull BlockState state, HitResult target, @Nonnull BlockGetter level, @Nonnull BlockPos pos, Player player) {
+		BlockEntity tile = level.getBlockEntity(pos);
+		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
+			for (LogisticsTileGenericPipe mainPipe : ((LogisticsTileGenericSubMultiBlock) tile).getConnectedMainPipes()) {
+				if (mainPipe.isMultiBlock()) {
+					BlockState mainState = level.getBlockState(mainPipe.getBlockPos());
+					ItemStack pick = LPBlocks.pipe.get().getCloneItemStack(mainState, target, level, mainPipe.getBlockPos(), player);
+					if (!pick.isEmpty()) {
+						return pick;
+					}
+				}
+			}
+		}
+		return super.getCloneItemStack(state, target, level, pos, player);
 	}
 
 	@Nullable

@@ -12,6 +12,11 @@
     },
     {
       "type": "directory",
+      "source": "blocks/pipes/overlay_gen",
+      "prefix": "blocks/pipes/overlay_gen/"
+    },
+    {
+      "type": "directory",
       "source": "blocks/requesttable",
       "prefix": "blocks/requesttable/"
     },

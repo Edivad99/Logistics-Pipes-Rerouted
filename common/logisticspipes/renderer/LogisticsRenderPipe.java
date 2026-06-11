@@ -82,6 +82,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 				com.mojang.blaze3d.vertex.VertexConsumer buffer =
 					bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.cutoutMipped());
 				rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
+				rs.bufferSource = bufferSource;
 			}
 		}
 

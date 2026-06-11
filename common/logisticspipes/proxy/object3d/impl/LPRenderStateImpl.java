@@ -28,6 +28,10 @@ public final class LPRenderStateImpl implements IRenderState {
 	/** Current buffer; reset per-frame in {@link #bind}. */
 	public VertexConsumer buffer;
 
+	/** The frame's MultiBufferSource, when the caller has one. Lets render paths that
+	 *  encounter a standalone (non-atlas) texture fetch a matching RenderType buffer. */
+	public net.minecraft.client.renderer.MultiBufferSource bufferSource;
+
 	/** Current PoseStack pose + normal matrices; vertex positions must be multiplied
 	 *  by these in {@link LPModel3DImpl#render} so emitted geometry lands in world space. */
 	public Matrix4f pose;
@@ -96,9 +100,15 @@ public final class LPRenderStateImpl implements IRenderState {
 	}
 
 	public int effectiveColourARGB() {
+		return applyAlphaOverride(colourARGB);
+	}
+
+	/** CCL semantics: {@link #setAlphaOverride} replaces the alpha byte of whatever
+	 *  colour the model renders with, including colours from COLOUR_MULTIPLIER ops. */
+	public int applyAlphaOverride(int colour) {
 		if (alphaOverride >= 0) {
-			return (alphaOverride << 24) | (colourARGB & 0x00ffffff);
+			return (alphaOverride << 24) | (colour & 0x00ffffff);
 		}
-		return colourARGB;
+		return colour;
 	}
 }

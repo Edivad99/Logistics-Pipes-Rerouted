@@ -1,9 +1,12 @@
 package logisticspipes.ticks;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -20,7 +23,9 @@ import net.minecraft.world.phys.HitResult;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -33,6 +38,7 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
 import logisticspipes.renderer.GuiOverlay;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.debug.ClientViewController;
@@ -41,6 +47,8 @@ import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 public class RenderTickHandler {
+
+	private static final ResourceLocation GHOST_PIPE_TEXTURE = new ResourceLocation("logisticspipes", "textures/blocks/pipes/white.png");
 
 	private long renderTicks = 0;
 
@@ -60,6 +68,18 @@ public class RenderTickHandler {
 				GuiOverlay.getInstance().renderOverGui();
 			}
 		}
+	}
+
+	/** LP1 drew the HUD targeting cross right after the vanilla crosshair; the CROSSHAIR
+	 *  overlay Post event only fires when the crosshair actually rendered, matching
+	 *  LP1's {@code GuiIngameForge.renderCrosshairs} check. */
+	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
+	public void renderGuiOverlay(RenderGuiOverlayEvent.Post event) {
+		if (!event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id())) {
+			return;
+		}
+		LogisticsHUDRenderer.instance().renderPlayerDisplay(renderTicks, event.getGuiGraphics());
 	}
 
 	@SubscribeEvent
@@ -143,15 +163,24 @@ public class RenderTickHandler {
 		// No free space to render anything!
 		if (!isFreeSpace) return;
 
-		// Ghost pipe rendering: push a translation to the target block position so any future
-		// buffer-based geometry can be emitted in block-local coordinates.
-		// TODO: emit translucent ghost geometry via bufferSource.getBuffer(RenderType.translucent()).
-		// The original 1.12.2 path relied on display lists which no longer exist; ghost preview
-		// is non-essential and left as a no-op for now (pose matrix is still set up correctly).
+		// Ghost pipe rendering — LP1 drew the pipe highlight model at the target position
+		// with the plain white pipe texture and alpha forced to 0x50.
 		poseStack.pushPose();
 		net.minecraft.world.phys.Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-		poseStack.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
-		// (no-op draw)
+		double gx = pos.getX() + (orientation != null ? orientation.getOffset().getXInt() : 0);
+		double gy = pos.getY() + (orientation != null ? orientation.getOffset().getYInt() : 0);
+		double gz = pos.getZ() + (orientation != null ? orientation.getOffset().getZInt() : 0);
+		poseStack.translate(gx - cam.x + 0.001, gy - cam.y + 0.001, gz - cam.z + 0.001);
+
+		VertexConsumer ghostBuffer = bufferSource.getBuffer(RenderType.entityTranslucentCull(GHOST_PIPE_TEXTURE));
+		LPRenderStateImpl renderState = (LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
+		renderState.reset();
+		renderState.bind(ghostBuffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, OverlayTexture.NO_OVERLAY);
+		renderState.setAlphaOverride(0x50);
+		pipe.getHighlightRenderer().renderHighlight(orientation);
+		bufferSource.endBatch();
+		// Clear the alpha override so the next bound model (pipe BERs share this state) renders opaque.
+		renderState.reset();
 		poseStack.popPose();
 	}
 

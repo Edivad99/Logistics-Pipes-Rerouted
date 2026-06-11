@@ -174,6 +174,7 @@ public final class LPModel3DImpl implements IModel3D {
 			}
 		}
 		if (!uvOps.isEmpty()) uvOp = LPUvOp.list(uvOps.toArray(new LPUvOp[0]));
+		colour = rs.applyAlphaOverride(colour);
 
 		final VertexConsumer buf = rs.buffer;
 		final org.joml.Matrix4f pose = rs.pose;
