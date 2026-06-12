@@ -8,8 +8,7 @@ follows [Semantic Versioning](https://semver.org/) where practical.
 
 Client rendering parity batch — restores the last of the visual features that
 were lost in the 1.12.2 → 1.20.1 port. Verified in-game (ghost pipe, machine
-rotation/cover plates, HS tubes) except the HUD glasses display fix below,
-which still awaits an in-game check.
+rotation/cover plates, HS tubes, HUD glasses panels).
 
 ### Fixed
 - **HUD glasses showed nothing in the world.** The in-world HUD panels
@@ -19,7 +18,19 @@ which still awaits an in-game check.
   pose with player-feet offsets, so panels were positioned relative to a fixed
   view direction instead of their pipes. The panels (and the routing debug
   lasers, which sat one eye-height too high) are now composed onto the level
-  renderer's camera pose with camera-relative offsets.
+  renderer's camera pose with camera-relative offsets. A follow-up pass
+  restored the panel content (item grids, counts, buttons, text), which the
+  GuiGraphics layering conventions placed far behind the panel plane instead
+  of on it. Deliberate deviation from LP1: panels render slightly smaller
+  (scale 0.008 instead of 0.01) and float 0.75 blocks toward the viewer
+  instead of 0.4, so they stay clear of the pipe's own block instead of
+  slicing into it; the cursor targeting math follows the new geometry.
+
+### Known issues
+- **HUD glasses are still rough.** The HUD renderer is a 1:1 port of LP1's
+  pipeline, but even at full parity the in-world displays have visual glitches
+  on 1.20.1 (layering and readability artifacts). Usable, not polished;
+  a dedicated HUD cleanup pass is planned.
 - **Item Sink and Provider module GUIs had their slots in the wrong place in
   release builds (#2).** The widget GUI layout repositions inventory slots
   reflectively, but it only looked up the field names used inside the

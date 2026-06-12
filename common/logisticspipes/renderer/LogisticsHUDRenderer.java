@@ -174,6 +174,10 @@ public class LogisticsHUDRenderer {
 
 	private boolean displayCross = false;
 
+	// LP1 drew panels at scale 0.01 offset 0.4 from the pipe; shrunk and pushed clear of the pipe's block.
+	private static final float PANEL_SCALE = 0.008F;
+	private static final float PANEL_OFFSET = 0.75F;
+
 	//TODO: only load this once, rather than twice
 	private static final ResourceLocation TEXTURE = new ResourceLocation("textures/gui/icons.png");
 
@@ -450,8 +454,11 @@ public class LogisticsHUDRenderer {
 			ggPose.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
 			// y is camera relative and therefore already eye relative; LP1 subtracted the eye height here.
 			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y) + 180)));
-			ggPose.translate(0.0F, 0.0F, -0.4F);
-			ggPose.scale(0.01F, 0.01F, 1F);
+			ggPose.translate(0.0F, 0.0F, -PANEL_OFFSET);
+			// Panel +z points away from the viewer, but GuiGraphics layers content toward +z
+			// (items +150, count labels +200). Negative tiny z flips to GUI convention and
+			// flattens those offsets onto the panel, like LP1's scaleZ = -0.0001 item trick.
+			ggPose.scale(PANEL_SCALE, PANEL_SCALE, -0.0001F);
 			logisticspipes.utils.gui.SimpleGraphics.guiGraphics = gg;
 			try {
 				renderer.getRenderer().renderHeadUpDisplay(Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
@@ -494,7 +501,8 @@ public class LogisticsHUDRenderer {
 		panelView.y = playerPos.y - panelPos.y;
 		panelView.z = playerPos.z - panelPos.z;
 
-		panelPos.add(panelView, 0.44D);
+		// Cursor plane tracks the rendered panel: LP1 used 0.44 for a 0.4 panel offset.
+		panelPos.add(panelView, PANEL_OFFSET + 0.04D);
 
 		double d = panelPos.x * panelView.x + panelPos.y * panelView.y + panelPos.z * panelView.z;
 		double c = panelView.x * playerPos.x + panelView.y * playerPos.y + panelView.z * playerPos.z;
@@ -545,8 +553,9 @@ public class LogisticsHUDRenderer {
 			cursorX = restViewPos.x / panelScalVector2.x;
 		}
 
-		cursorX *= 50 / 0.47D;
-		cursorY *= 50 / 0.47D;
+		// 50 px = panel half-width in blocks (50 * scale), with LP1's 0.94 plane fudge (0.47/0.5).
+		cursorX *= 50 / (47.0D * PANEL_SCALE);
+		cursorY *= 50 / (47.0D * PANEL_SCALE);
 		if (panelView.z < 0) {
 			cursorX *= -1;
 		}
