@@ -12,6 +12,14 @@ machine rotation/cover plates); HS-tube re-test and the remaining items are
 pending.
 
 ### Fixed
+- **Item Sink and Provider module GUIs had their slots in the wrong place in
+  release builds (#2).** The widget GUI layout repositions inventory slots
+  reflectively, but it only looked up the field names used inside the
+  development environment; on the released (reobfuscated) jar the lookup failed
+  silently and every slot stayed at its raw container position, while the slot
+  grid was drawn at the intended layout position — so items, click targets and
+  the visible grid all disagreed. The lookup now falls back to the release
+  field names and logs an error instead of failing silently.
 - **HS tubes rendered with garbled rainbow textures.** The tube models sample
   their own texture file, but the pipe renderer drew every model against the
   block texture atlas, smearing unrelated sprites across the tube body. Models
