@@ -7,11 +7,19 @@ follows [Semantic Versioning](https://semver.org/) where practical.
 ## [Unreleased]
 
 Client rendering parity batch — restores the last of the visual features that
-were lost in the 1.12.2 → 1.20.1 port. Partially verified in-game (ghost pipe,
-machine rotation/cover plates); HS-tube re-test and the remaining items are
-pending.
+were lost in the 1.12.2 → 1.20.1 port. Verified in-game (ghost pipe, machine
+rotation/cover plates, HS tubes) except the HUD glasses display fix below,
+which still awaits an in-game check.
 
 ### Fixed
+- **HUD glasses showed nothing in the world.** The in-world HUD panels
+  (provider, satellite, crafting and chassis displays shown while wearing HUD
+  glasses) were drawn without the camera transform: in 1.12 the GL matrix
+  stack already carried it, but the ported renderer started from an identity
+  pose with player-feet offsets, so panels were positioned relative to a fixed
+  view direction instead of their pipes. The panels (and the routing debug
+  lasers, which sat one eye-height too high) are now composed onto the level
+  renderer's camera pose with camera-relative offsets.
 - **Item Sink and Provider module GUIs had their slots in the wrong place in
   release builds (#2).** The widget GUI layout repositions inventory slots
   reflectively, but it only looked up the field names used inside the

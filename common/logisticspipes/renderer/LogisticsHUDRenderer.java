@@ -339,11 +339,13 @@ public class LogisticsHUDRenderer {
 			RenderSystem.setShader(GameRenderer::getPositionColorShader);
 			Tesselator tes = Tesselator.getInstance();
 			BufferBuilder bb = tes.getBuilder();
+			// The pose origin is the interpolated camera, not the player's feet as in 1.12.
+			net.minecraft.world.phys.Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
 			for (LaserData data : lasers) {
 				poseStack.pushPose();
-				double x = data.getPosX() + 0.5 - player.xo - ((player.getX() - player.xo) * partialTick);
-				double y = data.getPosY() + 0.5 - player.yo - ((player.getY() - player.yo) * partialTick);
-				double z = data.getPosZ() + 0.5 - player.zo - ((player.getZ() - player.zo) * partialTick);
+				double x = data.getPosX() + 0.5 - cam.x;
+				double y = data.getPosY() + 0.5 - cam.y;
+				double z = data.getPosZ() + 0.5 - cam.z;
 				poseStack.translate((float) x, (float) y, (float) z);
 				switch (data.getDir()) {
 					case NORTH: poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians( 90.0F))); break;
@@ -427,10 +429,11 @@ public class LogisticsHUDRenderer {
 
 	private void displayOneView(IHeadUpDisplayRendererProvider renderer, IHUDConfig config, float partialTick, boolean shifted, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		Minecraft mc = Minecraft.getInstance();
-		Player player = mc.player;
-		double x = renderer.getX() + 0.5 - player.xo - ((player.getX() - player.xo) * partialTick);
-		double y = renderer.getY() + 0.5 - player.yo - ((player.getY() - player.yo) * partialTick);
-		double z = renderer.getZ() + 0.5 - player.zo - ((player.getZ() - player.zo) * partialTick);
+		// The level-stage pose origin is the interpolated camera, not the player's feet as in 1.12.
+		net.minecraft.world.phys.Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+		double x = renderer.getX() + 0.5 - cam.x;
+		double y = renderer.getY() + 0.5 - cam.y;
+		double z = renderer.getZ() + 0.5 - cam.z;
 		// HUD sub-renderers draw into a GuiGraphics stashed on SimpleGraphics so their existing
 		// guiGraphics.drawString/fill/renderItem calls work without a signature change.
 		// The public 2-arg GuiGraphics ctor creates its own internal PoseStack, so we apply the
@@ -440,10 +443,13 @@ public class LogisticsHUDRenderer {
 			net.minecraft.client.gui.GuiGraphics gg = new net.minecraft.client.gui.GuiGraphics(mc, bs);
 			com.mojang.blaze3d.vertex.PoseStack ggPose = gg.pose();
 			ggPose.pushPose();
+			// Compose the camera orientation from the level renderer; gg.pose() starts at identity.
+			ggPose.mulPoseMatrix(poseStack.last().pose());
 			ggPose.translate((float) x, (float) y, (float) z);
 			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
 			ggPose.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
-			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y - player.getEyeHeight()) + 180)));
+			// y is camera relative and therefore already eye relative; LP1 subtracted the eye height here.
+			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y) + 180)));
 			ggPose.translate(0.0F, 0.0F, -0.4F);
 			ggPose.scale(0.01F, 0.01F, 1F);
 			logisticspipes.utils.gui.SimpleGraphics.guiGraphics = gg;
