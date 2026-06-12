@@ -37,61 +37,41 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import logisticspipes.utils.gui.LPGuiGraphics
-import net.minecraft.client.Minecraft
+import logisticspipes.LogisticsPipes
 import net.minecraft.world.inventory.Slot
-import network.rs485.logisticspipes.gui.*
-import network.rs485.logisticspipes.gui.guidebook.Drawable
-import network.rs485.logisticspipes.util.IRectangle
+import java.lang.reflect.Field
 
-class SlotGroup(
-    parent: Drawable,
-    xPosition: HorizontalAlignment,
-    yPosition: VerticalAlignment,
-    margin: Margin,
-    val slots: List<Slot>,
-    val columns: Int,
-    val rows: Int
-) : LPGuiWidget(
-    parent = parent,
-    xPosition = xPosition,
-    yPosition = yPosition,
-    xSize = Size.FIXED,
-    ySize = Size.FIXED,
-    margin = margin,
-) {
-    override val minWidth: Int = columns * 18
-    override val minHeight: Int = rows * 18
-    override val maxWidth: Int = minWidth
-    override val maxHeight: Int = minHeight
+/**
+ * Slot.x and Slot.y are public final in 1.20.1, so widget layout repositions them
+ * reflectively. The field NAME differs per environment: Mojmap ("x"/"y") in dev,
+ * SRG ("f_40220_"/"f_40221_") in the reobfuscated production jar — try both, like
+ * NewGuiHandler does for AbstractContainerMenu.containerId. A silent single-name
+ * lookup here was GitHub issue #2: slots stayed at their container-constructor
+ * positions in production while the widget grid drew at the layout positions.
+ */
+private val slotXField: Field? = findSlotField("x", "f_40220_")
+private val slotYField: Field? = findSlotField("y", "f_40221_")
 
-    override fun initWidget() {
-        assert(slots.size == columns * rows)
-        setSize(minWidth, minHeight)
-    }
-
-    override fun setPos(x: Int, y: Int): Pair<Int, Int> {
-        super.setPos(x, y)
-        val startX = absoluteBody.roundedX + 1
-        val startY = absoluteBody.roundedY + 1
-        val slotSize = 18
-        for (row in 0 until rows) {
-            for (column in 0 until columns) {
-                slots[column + row * columns].setXY(startX + column * slotSize, startY + row * slotSize)
-            }
+private fun findSlotField(mojmapName: String, srgName: String): Field? {
+    val cls = Slot::class.java
+    val field = try {
+        cls.getDeclaredField(mojmapName)
+    } catch (e: NoSuchFieldException) {
+        try {
+            cls.getDeclaredField(srgName)
+        } catch (e2: NoSuchFieldException) {
+            LogisticsPipes.log.error("Could not resolve Slot.{} / {} — GUI slots will be misaligned", mojmapName, srgName)
+            null
         }
-        return width to height
     }
+    return field?.also { it.isAccessible = true }
+}
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        super.draw(mouseX, mouseY, delta, visibleArea)
-        val mc = Minecraft.getInstance()
-        val startX = absoluteBody.roundedX
-        val startY = absoluteBody.roundedY
-        for (row in 0 until rows) {
-            for (column in 0 until columns) {
-                LPGuiGraphics.drawSlotBackground(mc, startX + column * 18, startY + row * 18)
-            }
-        }
+internal fun Slot.setXY(newX: Int, newY: Int) {
+    try {
+        slotXField?.setInt(this, newX)
+        slotYField?.setInt(this, newY)
+    } catch (e: Exception) {
+        LogisticsPipes.log.error("Failed to reposition GUI slot", e)
     }
 }

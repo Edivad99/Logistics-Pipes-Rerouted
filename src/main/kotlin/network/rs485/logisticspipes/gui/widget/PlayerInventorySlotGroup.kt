@@ -44,16 +44,6 @@ import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.util.IRectangle
 
-/** Slot.x and Slot.y are public final in 1.20.1; use reflection to reposition at runtime. */
-private fun Slot.setXY(newX: Int, newY: Int) {
-    try {
-        val xf = net.minecraft.world.inventory.Slot::class.java.getDeclaredField("x").also { it.isAccessible = true }
-        val yf = net.minecraft.world.inventory.Slot::class.java.getDeclaredField("y").also { it.isAccessible = true }
-        xf.setInt(this, newX)
-        yf.setInt(this, newY)
-    } catch (_: Exception) {}
-}
-
 class PlayerInventorySlotGroup(
     parent: Drawable,
     xPosition: HorizontalAlignment,
