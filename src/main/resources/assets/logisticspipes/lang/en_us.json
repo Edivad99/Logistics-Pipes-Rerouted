@@ -1,0 +1,13 @@
+{
+  "itemGroup.logisticspipes": "Example Mod Tab",
+  "block.logisticspipes.example_block": "Example Block",
+  "item.logisticspipes.example_item": "Example Item",
+
+  "logisticspipes.configuration.title": "LogisticsPipes Configs",
+  "logisticspipes.configuration.section.logisticspipes.common.toml": "LogisticsPipes Configs",
+  "logisticspipes.configuration.section.logisticspipes.common.toml.title": "LogisticsPipes Configs",
+  "logisticspipes.configuration.items": "Item List",
+  "logisticspipes.configuration.logDirtBlock": "Log Dirt Block",
+  "logisticspipes.configuration.magicNumberIntroduction": "Magic Number Text",
+  "logisticspipes.configuration.magicNumber": "Magic Number"
+}
