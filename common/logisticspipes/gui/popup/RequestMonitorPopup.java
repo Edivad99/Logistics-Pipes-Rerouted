@@ -1,16 +1,13 @@
 package logisticspipes.gui.popup;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.imageio.ImageIO;
 
 import net.minecraft.world.level.block.Block;
 
@@ -125,17 +122,6 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		return super.mouseDragged(mx, my, button, dx, dy);
 	}
 
-	private static void mirror(int[] par0ArrayOfInteger, int width, int height) {
-		int[] aInt1 = new int[width];
-		int k = height / 2;
-
-		for (int l = 0; l < k; ++l) {
-			System.arraycopy(par0ArrayOfInteger, l * width, aInt1, 0, width);
-			System.arraycopy(par0ArrayOfInteger, (height - 1 - l) * width, par0ArrayOfInteger, l * width, width);
-			System.arraycopy(aInt1, 0, par0ArrayOfInteger, (height - 1 - l) * width, width);
-		}
-	}
-
 	@Override
 	public void init() {
 		super.init();
@@ -212,31 +198,102 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	private void saveTreeToImage() {
-		// Screenshot export relies on glReadPixels + direct framebuffer scanning which is
-		// no longer available in 1.20.1. Feature disabled; use F2 screenshots instead.
-		if (minecraft != null && minecraft.player != null) {
-			minecraft.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-					"Tree screenshot export is disabled on 1.20.1 — use F2 instead."));
+		// Renders the whole request tree into an offscreen framebuffer and saves it as a PNG,
+		// replacing LP1's glReadPixels tile-stitching which is gone in 1.20.1.
+		if (!_table.watchedRequests.containsKey(orderId)) {
+			return;
+		}
+		LinkedLogisticsOrderList list = _table.watchedRequests.get(orderId).getValue2();
+		int imgWidth = Math.max(256, list.getTreeRootSize() * 40 + 160);
+		int imgHeight = Math.max(256, treeDepth(list) * 48 + 140);
+		int anchorX = imgWidth / 2 - 8;
+		int anchorY = 60;
+
+		int oldGuiLeft = guiLeft, oldGuiTop = guiTop, oldXSize = xSize, oldYSize = ySize;
+		GuiGraphics oldStored = getGuiGraphics();
+		com.mojang.blaze3d.pipeline.TextureTarget target = new com.mojang.blaze3d.pipeline.TextureTarget(imgWidth, imgHeight, true, Minecraft.ON_OSX);
+		com.mojang.blaze3d.vertex.PoseStack modelView = RenderSystem.getModelViewStack();
+		try {
+			target.setClearColor(0.15F, 0.15F, 0.15F, 1.0F);
+			target.clear(Minecraft.ON_OSX);
+			target.bindWrite(true);
+			RenderSystem.setProjectionMatrix(new org.joml.Matrix4f().setOrtho(0.0F, imgWidth, imgHeight, 0.0F, 1000.0F, 21000.0F),
+					com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z);
+			modelView.pushPose();
+			modelView.setIdentity();
+			modelView.translate(0.0D, 0.0D, -11000.0D);
+			RenderSystem.applyModelViewMatrix();
+
+			GuiGraphics gg = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
+			storedGuiGraphics = gg;
+			SimpleGraphics.guiGraphics = gg;
+			// Widen the clip rect so renderItemAt draws the full tree instead of the popup viewport
+			guiLeft = -1;
+			guiTop = -1;
+			xSize = imgWidth + 17;
+			ySize = imgHeight + 17;
+
+			RenderSystem.disableBlend();
+			if (!list.isEmpty()) {
+				SimpleGraphics.drawVerticalLine(anchorX + 8, anchorY - 17, anchorY, Color.GREEN, 1);
+			}
+			renderLinkedOrderListLines(list, anchorX, anchorY);
+			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
+			String s = Integer.toString(orderId);
+			int badgeY = list.isEmpty() ? anchorY + 18 : anchorY - 40;
+			gg.blit(RequestMonitorPopup.achievementTextures, anchorX - 5, badgeY, 0.0f, 202.0f, 26, 26, 256, 256);
+			gg.drawString(minecraft.font, s, anchorX + 9 - minecraft.font.width(s) / 2, badgeY + 10, 16777215, true);
+			renderLinkedOrderListItems(list, anchorX, anchorY, Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.enableBlend();
+			gg.flush();
+
+			com.mojang.blaze3d.platform.NativeImage image = net.minecraft.client.Screenshot.takeScreenshot(target);
+			saveImage(image);
+		} catch (Exception e) {
+			LogisticsPipes.log.error("Failed to render tree view PNG", e);
+		} finally {
+			guiLeft = oldGuiLeft;
+			guiTop = oldGuiTop;
+			xSize = oldXSize;
+			ySize = oldYSize;
+			storedGuiGraphics = oldStored;
+			SimpleGraphics.guiGraphics = oldStored;
+			modelView.popPose();
+			RenderSystem.applyModelViewMatrix();
+			target.destroyBuffers();
+			Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
 		}
 	}
 
-	private void saveImage(BufferedImage bufferedimage) {
+	private int treeDepth(LinkedLogisticsOrderList list) {
+		int depth = 1;
+		for (LinkedLogisticsOrderList sub : list.getSubOrders()) {
+			depth = Math.max(depth, 1 + treeDepth(sub));
+		}
+		return depth;
+	}
+
+	private void saveImage(com.mojang.blaze3d.platform.NativeImage image) {
 		File screenShotsFolder = new File(Minecraft.getInstance().gameDirectory, "screenshots");
+		screenShotsFolder.mkdirs();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
 		String s = dateFormat.format(new Date());
 		int i = 1;
-		while (true) {
-			File candidate = new File(screenShotsFolder, s + (i == 1 ? "" : "_" + i) + ".png");
-			if (!candidate.exists()) {
-				try {
-					ImageIO.write(bufferedimage, "png", candidate);
+		try {
+			while (true) {
+				File candidate = new File(screenShotsFolder, s + "_tree" + (i == 1 ? "" : "_" + i) + ".png");
+				if (!candidate.exists()) {
+					image.writeToFile(candidate);
 					Minecraft.getInstance().player.sendSystemMessage(net.minecraft.network.chat.Component.literal("Saved tree view as " + candidate.getName()));
-				} catch (IOException e) {
-					LogisticsPipes.log.error("Failed to save tree view PNG", e);
+					return;
 				}
-				return;
+				++i;
 			}
-			++i;
+		} catch (IOException e) {
+			LogisticsPipes.log.error("Failed to save tree view PNG", e);
+		} finally {
+			image.close();
 		}
 	}
 

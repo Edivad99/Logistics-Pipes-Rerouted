@@ -25,6 +25,23 @@ rotation/cover plates, HS tubes, HUD glasses panels).
   (scale 0.008 instead of 0.01) and float 0.75 blocks toward the viewer
   instead of 0.4, so they stay clear of the pipe's own block instead of
   slicing into it; the cursor targeting math follows the new geometry.
+- **Popups did not receive mouse or keyboard input.** Sub-GUI popups (request
+  monitor, item search, disk popup) are modal in LP1, but the ported base
+  screen kept routing clicks, scroll, drag, key and char events to the parent
+  container's slots and buttons instead of the open popup. The base screen and
+  `SubGuiScreen` now forward every input event to the innermost open sub-GUI,
+  and ESC closes only that popup instead of the whole GUI.
+- **Request monitor "Save as Image" was disabled.** LP1 exported the request
+  tree by scanning the framebuffer with glReadPixels, which is gone in 1.20.1,
+  so the feature had been stubbed to a "use F2 instead" message. It now renders
+  the full tree into an offscreen framebuffer and writes a PNG to `screenshots/`
+  (named `*_tree.png`).
+- **Check boxes toggled twice per click.** `GuiCheckBox.onPress` flipped the
+  state and then handed off to a press listener that flipped it again, so every
+  click was a no-op. State is now owned by the listener only.
+- **Mod version check compared versions as strings.** `ModStatusHelper` used a
+  lexicographic string compare that mis-ordered versions like 1.10 vs 1.9; it
+  now uses a numeric-aware maven `DefaultArtifactVersion` compare.
 
 ### Known issues
 - **HUD glasses are still rough.** The HUD renderer is a 1:1 port of LP1's

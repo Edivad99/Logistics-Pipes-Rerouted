@@ -28,7 +28,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	protected int yCenterOffset;
 	protected ISubGuiControler controler;
 	private SubGuiScreen subGui;
-	private net.minecraft.client.gui.GuiGraphics storedGuiGraphics;
+	protected net.minecraft.client.gui.GuiGraphics storedGuiGraphics;
 
 	public SubGuiScreen(int xSize, int ySize, int xOffset, int yOffset) {
 		super(net.minecraft.network.chat.Component.empty());
@@ -62,10 +62,58 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 
 	@Override
 	public boolean charTyped(char par1, int par2) {
+		if (subGui != null) {
+			return subGui.charTyped(par1, par2);
+		}
+		// Legacy 1.12 keyTyped port: keyCode 1 was ESC; kept for callers passing it through
 		if (par2 == 1) {
 			exitGui();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (subGui != null) {
+			return subGui.keyPressed(keyCode, scanCode, modifiers);
+		}
+		if (keyCode == 256) { // GLFW_KEY_ESCAPE: close only this popup, not the whole GUI
+			exitGui();
+			return true;
+		}
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (subGui != null) {
+			return subGui.mouseClicked(mouseX, mouseY, button);
+		}
+		return super.mouseClicked(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		if (subGui != null) {
+			return subGui.mouseReleased(mouseX, mouseY, button);
+		}
+		return super.mouseReleased(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		if (subGui != null) {
+			return subGui.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+		}
+		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		if (subGui != null) {
+			return subGui.mouseScrolled(mouseX, mouseY, delta);
+		}
+		return super.mouseScrolled(mouseX, mouseY, delta);
 	}
 
 	@Override

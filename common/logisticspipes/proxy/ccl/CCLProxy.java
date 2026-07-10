@@ -37,10 +37,9 @@ import logisticspipes.proxy.object3d.operation.LPScale;
  * now served by a minimal internal mesh/transform pipeline that emits quads
  * directly through a {@code VertexConsumer}.</p>
  *
- * <p>{@link #isActivated()} currently returns {@code false} so the large
- * {@code LogisticsNewRenderPipe.loadModels()} path stays off until group-name
- * matching has been verified against the parser output. Flipping the switch is
- * a follow-up — the infrastructure below is ready.</p>
+ * <p>{@link #isActivated()} returns {@code true}: the native pipeline is live
+ * and {@code LogisticsNewRenderPipe.loadModels()} runs at mod init (wrapped in
+ * {@code LogisticsPipes.safeLoadModels}).</p>
  */
 public class CCLProxy implements ICCLProxy {
 
