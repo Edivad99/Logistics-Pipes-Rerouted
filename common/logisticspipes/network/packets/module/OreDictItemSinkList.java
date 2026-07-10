@@ -1,12 +1,11 @@
 package logisticspipes.network.packets.module;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.NBTModuleCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class OreDictItemSinkList extends NBTModuleCoordinatesPacket {

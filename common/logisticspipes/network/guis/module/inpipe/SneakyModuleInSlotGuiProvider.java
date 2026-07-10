@@ -1,14 +1,13 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.Direction;
-
 import logisticspipes.gui.modules.GuiSneakyConfigurator;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.SneakyDirection;
 import network.rs485.logisticspipes.util.LPDataInput;

@@ -1,14 +1,11 @@
 package logisticspipes.routing.channels;
 
 import java.util.UUID;
-
-import net.minecraft.nbt.CompoundTag;
-
+import logisticspipes.utils.PlayerIdentifier;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
-
-import logisticspipes.utils.PlayerIdentifier;
+import net.minecraft.nbt.CompoundTag;
 
 @Data
 @AllArgsConstructor

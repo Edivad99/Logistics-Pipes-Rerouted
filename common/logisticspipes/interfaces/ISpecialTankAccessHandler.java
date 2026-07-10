@@ -1,12 +1,9 @@
 package logisticspipes.interfaces;
 
 import java.util.Map;
-
-import net.minecraft.world.level.block.entity.BlockEntity;
-
-import net.minecraftforge.fluids.FluidStack;
-
 import logisticspipes.utils.FluidIdentifier;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public interface ISpecialTankAccessHandler extends ISpecialTankHandler {
 

@@ -1,9 +1,8 @@
 package logisticspipes.blocks;
 
+import logisticspipes.LPRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-
-import logisticspipes.LPRegistries;
 
 /**
  * Minimal BlockEntity for the Logistics Block Frame.

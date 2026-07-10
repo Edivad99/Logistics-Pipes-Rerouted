@@ -1,7 +1,6 @@
 package logisticspipes.utils.gui;
 
 import net.minecraft.SharedConstants;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 
 import net.minecraft.client.gui.components.EditBox;

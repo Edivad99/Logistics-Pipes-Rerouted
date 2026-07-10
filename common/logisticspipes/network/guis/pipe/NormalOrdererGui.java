@@ -1,21 +1,19 @@
 package logisticspipes.network.guis.pipe;
 
-import net.minecraft.world.entity.player.Player;
-
-import net.minecraft.resources.ResourceLocation;
-
 import logisticspipes.gui.orderer.NormalGuiOrderer;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class NormalOrdererGui extends CoordinatesGuiProvider {
 
-	private ResourceLocation dim = new ResourceLocation("minecraft", "overworld");
+	private ResourceLocation dim = ResourceLocation.withDefaultNamespace("overworld");
 
 	public NormalOrdererGui(int id) {
 		super(id);

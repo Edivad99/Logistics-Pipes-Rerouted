@@ -10,41 +10,6 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.ChunkWatchEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.config.Configs;
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.network.PacketHandler;
@@ -52,7 +17,6 @@ import logisticspipes.network.packets.PlayerConfigToClientPacket;
 import logisticspipes.network.packets.chassis.ChestGuiClosed;
 import logisticspipes.network.packets.chassis.ChestGuiOpened;
 import logisticspipes.network.packets.gui.GuiReopenPacket;
-import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -66,6 +30,37 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
 import logisticspipes.utils.string.ChatColor;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.ChunkWatchEvent;
+import net.neoforged.neoforge.items.IItemHandler;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.PlayerConfiguration;
 import network.rs485.logisticspipes.module.AsyncQuicksortModule;
@@ -128,7 +123,8 @@ public class LogisticsEventListener {
 		BlockEntity te = world.getBlockEntity(pos);
 		if (te == null) return;
 		// Only act on blocks that expose an item handler (chests, barrels, etc.)
-		if (!te.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER).isPresent()) return;
+		IItemHandler itemHandler = world.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+		if (itemHandler == null) return;
 
 		Player player = event.getEntity();
 		List<WeakReference<AsyncQuicksortModule>> modules = null;
@@ -200,7 +196,7 @@ public class LogisticsEventListener {
 	}
 
 	@SubscribeEvent
-	public void onPlayerLogin(PlayerLoggedInEvent event) {
+	public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
 		if (MainProxy.isServer(event.getEntity().level())) {
 			SimpleServiceLocator.securityStationManager.sendClientAuthorizationList(event.getEntity());
 		}
@@ -211,7 +207,7 @@ public class LogisticsEventListener {
 	}
 
 	@SubscribeEvent
-	public void onPlayerLogout(PlayerLoggedOutEvent event) {
+	public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
 		SimpleServiceLocator.serverBufferHandler.clear(event.getEntity());
 	}
 
@@ -239,7 +235,7 @@ public class LogisticsEventListener {
 	@OnlyIn(Dist.CLIENT)
 	public void onGuiOpen(ScreenEvent.Opening event) {
 		// Guard: no server connection (e.g. main menu) — nothing to notify
-		if (net.minecraft.client.Minecraft.getInstance().getConnection() == null) {
+		if (Minecraft.getInstance().getConnection() == null) {
 			return;
 		}
 		if (!LogisticsEventListener.getGuiPos().isEmpty()) {
@@ -259,7 +255,7 @@ public class LogisticsEventListener {
 	@OnlyIn(Dist.CLIENT)
 	public void onGuiClose(ScreenEvent.Closing event) {
 		// Guard: no server connection (e.g. main menu) — nothing to notify
-		if (net.minecraft.client.Minecraft.getInstance().getConnection() == null) {
+		if (Minecraft.getInstance().getConnection() == null) {
 			return;
 		}
 		if (!LogisticsEventListener.getGuiPos().isEmpty()) {
@@ -283,7 +279,7 @@ public class LogisticsEventListener {
 	public void clientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
 		SimpleServiceLocator.clientBufferHandler.clear();
 
-		if (Configs.CHECK_FOR_UPDATES) {
+		if (Configs.COMMON.CHECK_FOR_UPDATES.getAsBoolean()) {
 			LogisticsPipes.singleThreadExecutor.execute(() -> {
 				// try to get player entity ten times, once a second
 				int times = 0;

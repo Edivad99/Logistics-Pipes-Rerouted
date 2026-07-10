@@ -1,12 +1,11 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.gui.modules.GuiAdvancedExtractor;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;

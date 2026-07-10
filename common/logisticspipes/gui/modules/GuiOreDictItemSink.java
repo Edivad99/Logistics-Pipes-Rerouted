@@ -1,20 +1,9 @@
 package logisticspipes.gui.modules;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.Gui;
-
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-
-
-
 import kotlin.Unit;
-
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
 import logisticspipes.proxy.MainProxy;
@@ -23,6 +12,9 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.property.StringListProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;

@@ -1,16 +1,14 @@
 package logisticspipes.utils;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-
 import logisticspipes.items.ItemModule;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public class CardManagementInventory implements Container {
 

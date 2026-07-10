@@ -1,18 +1,15 @@
 
 package logisticspipes.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
-
-
-import net.minecraft.world.entity.player.Player;
-
+import javax.annotation.Nonnull;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
-import javax.annotation.Nonnull;
 
 public class GuiFirewall extends LogisticsBaseGuiScreen {
 

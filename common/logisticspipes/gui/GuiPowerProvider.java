@@ -1,20 +1,16 @@
 
 package logisticspipes.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
-
+import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
-
-
-
 import logisticspipes.blocks.powertile.LogisticsPowerProviderTileEntity;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.string.StringUtils;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
-import javax.annotation.Nonnull;
 
 public class GuiPowerProvider extends LogisticsBaseGuiScreen {
 
@@ -33,7 +29,7 @@ public class GuiPowerProvider extends LogisticsBaseGuiScreen {
 	}
 
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/power_junction.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/power_junction.png");
 
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {

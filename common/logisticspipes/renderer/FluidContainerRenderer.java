@@ -5,26 +5,21 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
-
 import com.mojang.blaze3d.platform.NativeImage;
-
+import logisticspipes.LPConstants;
+import logisticspipes.LPItems;
+import logisticspipes.utils.FluidIdentifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.common.Mod;
-
-import logisticspipes.LPConstants;
-import logisticspipes.LPItems;
-import logisticspipes.utils.FluidIdentifier;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
  * Fluid window rendering for the logistics fluid container item.
@@ -37,7 +32,6 @@ import logisticspipes.utils.FluidIdentifier;
  * by the fluid's tint colour) reads the same at item scale.</p>
  */
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(modid = LPConstants.LP_MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class FluidContainerRenderer {
 
 	private static final Map<Fluid, Integer> COLOR_CACHE = new HashMap<>();
@@ -46,7 +40,7 @@ public class FluidContainerRenderer {
 	public static void registerItemProperties() {
 		net.minecraft.client.renderer.item.ItemProperties.register(
 				LPItems.fluidContainer.get(),
-				new ResourceLocation(LPConstants.LP_MOD_ID, "fluid"),
+				ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "fluid"),
 				(stack, level, entity, seed) -> FluidIdentifier.get(stack) != null ? 1.0F : 0.0F);
 	}
 
@@ -75,7 +69,7 @@ public class FluidContainerRenderer {
 	}
 
 	private static int averageTextureColor(ResourceLocation spriteName) {
-		ResourceLocation file = new ResourceLocation(spriteName.getNamespace(), "textures/" + spriteName.getPath() + ".png");
+		ResourceLocation file = ResourceLocation.fromNamespaceAndPath(spriteName.getNamespace(), "textures/" + spriteName.getPath() + ".png");
 		Resource resource = Minecraft.getInstance().getResourceManager().getResource(file).orElse(null);
 		if (resource == null) return 0xFFFFFFFF;
 		try (InputStream in = resource.open(); NativeImage image = NativeImage.read(in)) {

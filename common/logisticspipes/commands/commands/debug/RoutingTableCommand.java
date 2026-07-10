@@ -1,13 +1,13 @@
 package logisticspipes.commands.commands.debug;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.chat.Component;
 
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateAskForTarget;
 import logisticspipes.proxy.MainProxy;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 public class RoutingTableCommand implements ICommandHandler {
 

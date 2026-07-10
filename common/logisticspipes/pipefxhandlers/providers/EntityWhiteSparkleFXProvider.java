@@ -1,10 +1,9 @@
 package logisticspipes.pipefxhandlers.providers;
 
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-
 import logisticspipes.pipefxhandlers.GenericSparkleFactory;
 import logisticspipes.pipefxhandlers.ParticleProvider;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.Particle;
 
 public class EntityWhiteSparkleFXProvider implements ParticleProvider {
 

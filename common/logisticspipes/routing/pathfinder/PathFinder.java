@@ -7,8 +7,6 @@
 
 package logisticspipes.routing.pathfinder;
 
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,12 +18,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-
-import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.asm.te.ITileEntityChangeListener;
@@ -45,6 +37,10 @@ import logisticspipes.routing.pathfinder.IRouteProvider.RouteInfo;
 import logisticspipes.utils.OneList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Quartet;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -260,7 +256,12 @@ public class PathFinder {
 				}
 			}
 
-			if (!SimpleServiceLocator.pipeInformationManager.isPipe(tile) && tile.getLevel() != null && tile.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite()).isPresent() && startPipe.isRoutingPipe() && startPipe.getRoutingPipe() instanceof IChannelRoutingConnection && startPipe.canConnect(tile, direction, false)) {
+			if (!SimpleServiceLocator.pipeInformationManager.isPipe(tile) &&
+					tile.getLevel() != null &&
+					tile.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), direction.getOpposite()) != null &&
+					startPipe.isRoutingPipe() &&
+					startPipe.getRoutingPipe() instanceof IChannelRoutingConnection &&
+					startPipe.canConnect(tile, direction, false)) {
 				if (SimpleServiceLocator.connectionManager.hasChannelConnection(startPipe.getRoutingPipe().getRouter())) {
 					List<CoreRoutedPipe> connectedPipes = SimpleServiceLocator.connectionManager.getConnectedPipes(startPipe.getRoutingPipe().getRouter());
 					connections.addAll(connectedPipes.stream().map(pipe -> new Quartet<>((BlockEntity) pipe.container, direction, ((IChannelRoutingConnection) startPipe.getRoutingPipe()).getConnectionResistance(), true)).collect(Collectors.toList()));

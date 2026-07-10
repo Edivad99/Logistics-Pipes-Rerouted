@@ -1,11 +1,10 @@
 package logisticspipes.network.packets.cpipe;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.abstractpackets.InventoryModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class CPipeSatelliteImportBack extends InventoryModuleCoordinatesPacket {

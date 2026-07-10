@@ -1,11 +1,10 @@
 package logisticspipes.utils.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-
-import lombok.Getter;
 
 
 public abstract class SubGuiScreen extends Screen implements ISubGuiControler, IGuiAccess {
@@ -28,7 +27,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	protected int yCenterOffset;
 	protected ISubGuiControler controler;
 	private SubGuiScreen subGui;
-	private net.minecraft.client.gui.GuiGraphics storedGuiGraphics;
+	private GuiGraphics storedGuiGraphics;
 
 	public SubGuiScreen(int xSize, int ySize, int xOffset, int yOffset) {
 		super(net.minecraft.network.chat.Component.empty());
@@ -69,12 +68,12 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	}
 
 	@Override
-	public net.minecraft.client.gui.GuiGraphics getGuiGraphics() {
+	public GuiGraphics getGuiGraphics() {
 		return storedGuiGraphics;
 	}
 
 	@Override
-	public void renderBackground(net.minecraft.client.gui.GuiGraphics guiGraphics) {
+	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		// Background is drawn by renderGuiBackground() — suppress Screen's renderMenuBackground overlay
 	}
 
@@ -90,7 +89,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 		RenderSystem.enableDepthTest();
 		if (subGui != null) {
 			if (!subGui.hasSubGui()) {
-				super.renderBackground(guiGraphics);
+				super.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 			}
 			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
 		}

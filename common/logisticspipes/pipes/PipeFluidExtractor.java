@@ -1,16 +1,15 @@
 package logisticspipes.pipes;
 
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
-
-import net.minecraftforge.fluids.FluidStack;
-
 import logisticspipes.interfaces.ITankUtil;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.FluidIdentifierStack;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class PipeFluidExtractor extends PipeFluidInsertion {
 
@@ -53,8 +52,8 @@ public class PipeFluidExtractor extends PipeFluidInsertion {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound) {
-		super.writeToNBT(nbttagcompound);
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.writeToNBT(nbttagcompound, provider);
 		nbttagcompound.putIntArray("liquidToExtract", liquidToExtract);
 	}
 

@@ -65,19 +65,19 @@ class ItemGuideBook : LogisticsItem() {
         private fun loadDataFromNBT(stack: ItemStack): Pair<PageData, List<PageData>> {
             var currentPage: PageData? = null
             var tabPages: List<PageData>? = null
-            if (stack.hasTag()) {
-                val nbt = stack.tag!!
-                if (nbt.contains("version")) {
-                    when (nbt.getByte("version")) {
-                        1.toByte() -> {
-                            currentPage = PageData(nbt.getCompound("page"))
-                            // type 10 = CompoundTag, see net.minecraft.nbt.Tag
-                            val tagList = nbt.getList("bookmarks", 10)
-                            tabPages = tagList.mapNotNull { tag -> PageData(tag as CompoundTag) }
-                        }
-                    }
-                }
-            }
+//            if (stack.hasTag()) {
+//                val nbt = stack.tag!!
+//                if (nbt.contains("version")) {
+//                    when (nbt.getByte("version")) {
+//                        1.toByte() -> {
+//                            currentPage = PageData(nbt.getCompound("page"))
+//                            // type 10 = CompoundTag, see net.minecraft.nbt.Tag
+//                            val tagList = nbt.getList("bookmarks", 10)
+//                            tabPages = tagList.mapNotNull { tag -> PageData(tag as CompoundTag) }
+//                        }
+//                    }
+//                }
+//            }
             currentPage = currentPage ?: PageData(BookContents.MAIN_MENU_FILE)
             tabPages = tabPages ?: emptyList()
             return currentPage to tabPages
@@ -122,10 +122,10 @@ class ItemGuideBook : LogisticsItem() {
     }
 
     fun saveState(state: GuideBookState) {
-        val stack = Minecraft.getInstance().player!!.getItemBySlot(state.equipmentSlot)
-        val compound = if (stack.hasTag()) stack.tag!! else CompoundTag()
-        // update NBT for the client
-        stack.setTag(updateNBT(compound, state.currentPage, state.bookmarks))
+//        val stack = Minecraft.getInstance().player!!.getItemBySlot(state.equipmentSlot)
+//        val compound = if (stack.hasTag()) stack.tag!! else CompoundTag()
+//        // update NBT for the client
+//        stack.setTag(updateNBT(compound, state.currentPage, state.bookmarks))
 
         // … and for the server
         MainProxy.sendPacketToServer(

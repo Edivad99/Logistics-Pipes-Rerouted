@@ -1,15 +1,11 @@
 package logisticspipes.gui.popup;
 
-import net.minecraft.client.gui.GuiGraphics;
-
 import java.util.List;
 import java.util.function.Consumer;
-
-
-import net.minecraft.core.BlockPos;
-
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.SmallGuiButton;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSelectChannelPopup extends GuiManageChannelPopup {

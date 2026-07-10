@@ -1,7 +1,7 @@
 package logisticspipes.proxy.interfaces;
 
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public interface IPowerProxy {
 

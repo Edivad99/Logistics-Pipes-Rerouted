@@ -1,13 +1,10 @@
 package logisticspipes.utils.gui;
 
 import java.util.Collections;
-
-import net.minecraft.ChatFormatting;
-
+import logisticspipes.utils.Color;
 import lombok.Getter;
 import lombok.Setter;
-
-import logisticspipes.utils.Color;
+import net.minecraft.ChatFormatting;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class TextListDisplay {

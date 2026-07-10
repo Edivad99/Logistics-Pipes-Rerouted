@@ -1,23 +1,21 @@
 package logisticspipes.pipes;
 
 import java.util.UUID;
-
 import javax.annotation.Nullable;
 
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.nbt.CompoundTag;
-
-import logisticspipes.LogisticsPipes;
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.GuiIDs;
 import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.EntrencsTransport;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
 public class PipeItemsSystemEntranceLogistics extends CoreRoutedPipe {
 
@@ -32,14 +30,12 @@ public class PipeItemsSystemEntranceLogistics extends CoreRoutedPipe {
 		if (inv.getItem(0) == null) {
 			return null;
 		}
-		if (!inv.getItem(0).hasTag()) {
+		if (!inv.getItem(0).has(LogisticsPipesDataComponents.UUID)) {
 			return null;
 		}
-		if (!inv.getItem(0).getTag().contains("UUID")) {
-			return null;
-		}
+
 		spawnParticle(Particles.WhiteParticle, 2);
-		return UUID.fromString(inv.getItem(0).getTag().getString("UUID"));
+		return inv.getItem(0).get(LogisticsPipesDataComponents.UUID);
 	}
 
 	@Override
@@ -58,8 +54,8 @@ public class PipeItemsSystemEntranceLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound) {
-		super.writeToNBT(nbttagcompound);
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.writeToNBT(nbttagcompound, provider);
 		inv.writeToNBT(nbttagcompound);
 	}
 

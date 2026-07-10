@@ -52,8 +52,8 @@ public class DictResource implements IResource {
 	@Override
 	public boolean matches(IResource resource, MatchSettings settings) {
 		if (resource instanceof DictResource) {
-			return matches(((DictResource) resource).getItem(), IResource.MatchSettings.NORMAL)
-					&& resource.matches(getItem(), IResource.MatchSettings.NORMAL)
+			return matches(((DictResource) resource).getItem(), MatchSettings.NORMAL)
+					&& resource.matches(getItem(), MatchSettings.NORMAL)
 					&& getBitSet().equals(((DictResource) resource).getBitSet());
 		} else if (resource instanceof ItemResource) {
 			return matches(((ItemResource) resource).getItem(), MatchSettings.NORMAL);

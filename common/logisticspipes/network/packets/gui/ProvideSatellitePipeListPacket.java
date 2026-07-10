@@ -2,19 +2,16 @@ package logisticspipes.network.packets.gui;
 
 import java.util.List;
 import java.util.UUID;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.gui.popup.GuiSelectSatellitePopup;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.tuples.Pair;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

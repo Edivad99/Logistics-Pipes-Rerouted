@@ -1,10 +1,8 @@
 package logisticspipes.gui.popup;
 
-import net.minecraft.client.Minecraft;
-
-
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
+import net.minecraft.client.Minecraft;
 
 public class ActionChoicePopup extends SubGuiScreen {
 

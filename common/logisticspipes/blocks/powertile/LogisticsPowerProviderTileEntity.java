@@ -7,13 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import net.minecraft.CrashReportCategory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.FloatTag;
-import net.minecraft.core.Direction;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSolidTileEntity;
 import logisticspipes.gui.hud.HUDPowerLevel;
@@ -46,6 +39,12 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
@@ -229,22 +228,21 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 	}
 
 	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		if (nbt.get("internalStorage") instanceof FloatTag) { // support for old float
-			internalStorage = nbt.getFloat("internalStorage");
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
+		if (tag.get("internalStorage") instanceof FloatTag) { // support for old float
+			internalStorage = tag.getFloat("internalStorage");
 		} else {
-			internalStorage = nbt.getDouble("internalStorage");
+			internalStorage = tag.getDouble("internalStorage");
 		}
-		maxMode = nbt.getInt("maxMode");
-
+		maxMode = tag.getInt("maxMode");
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
-		nbt.putDouble("internalStorageDouble", internalStorage);
-		nbt.putInt("maxMode", maxMode);
+	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
+		tag.putDouble("internalStorageDouble", internalStorage);
+		tag.putInt("maxMode", maxMode);
 	}
 
 	@Override

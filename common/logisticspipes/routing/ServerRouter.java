@@ -8,8 +8,22 @@
 package logisticspipes.routing;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableSet;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -18,15 +32,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-
 import it.unimi.dsi.fastutil.objects.ObjectSets;
-import lombok.Getter;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.te.ILPTEInformation;
@@ -57,6 +63,12 @@ import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Quartet;
+import lombok.Getter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class ServerRouter implements IRouter, Comparable<ServerRouter> {
@@ -295,7 +307,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			return crp;
 		}
 		Level world = null;
-		var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+		var server = ServerLifecycleHooks.getCurrentServer();
 		if (server != null) {
 			world = server.getLevel(net.minecraft.resources.ResourceKey.create(
 					net.minecraft.core.registries.Registries.DIMENSION, _dimension));
@@ -332,7 +344,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	private void lazyUpdateRoutingTable() {
 		if (_LSAVersion > ServerRouter._lastLSAVersion[simpleID]) {
-			if (Configs.MULTI_THREAD_NUMBER > 0) {
+			if (Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 				RoutingTableUpdateThread.add(new UpdateRouterRunnable(this));
 			} else {
 				CreateRouteTable(_LSAVersion);
@@ -398,7 +410,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		HashMap<CoreRoutedPipe, ExitRoute> adjacent;
 		List<Pair<ILogisticsPowerProvider, List<IFilter>>> power;
 		List<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower;
-		PathFinder finder = new PathFinder(thisPipe.container, Configs.LOGISTICS_DETECTION_COUNT, Configs.LOGISTICS_DETECTION_LENGTH, localChangeListener);
+		PathFinder finder = new PathFinder(thisPipe.container, Configs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), Configs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), localChangeListener);
 		power = finder.powerNodes;
 		subSystemPower = finder.subPowerProvider;
 		adjacent = finder.result;
@@ -411,7 +423,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 		pipeDirections.entrySet().stream()
-				.filter(entry -> entry.getValue().size() > Configs.MAX_UNROUTED_CONNECTIONS)
+				.filter(entry -> entry.getValue().size() > Configs.COMMON.MAX_UNROUTED_CONNECTIONS.getAsInt())
 				.forEach(entry -> entry.getValue().forEach(adjacent::remove));
 
 		listenedPipes.stream().filter(list -> !finder.listenedPipes.contains(list)).forEach(list -> list.remove(localChangeListener));
@@ -604,7 +616,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		if (_subSystemPowerAdjacent != null) {
 			subSystemPower = new ArrayList<>(_subSystemPowerAdjacent);
 		}
-		if (Configs.MULTI_THREAD_NUMBER > 0) {
+		if (Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 			RoutingTableUpdateThread.add(new LSARouterRunnable(neighboursWithMetric, power, subSystemPower));
 		} else {
 			lockAndUpdateLSA(neighboursWithMetric, power, subSystemPower);
@@ -1030,7 +1042,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 			ensureChangeListenerAttachedToPipe(pipe);
 			lazyUpdateRoutingTable();
-		} else if (Configs.MULTI_THREAD_NUMBER > 0) {
+		} else if (Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 			lazyUpdateRoutingTable();
 		}
 	}

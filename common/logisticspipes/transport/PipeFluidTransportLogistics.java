@@ -1,13 +1,5 @@
 package logisticspipes.transport;
 
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.pipe.PipeFluidUpdate;
@@ -16,6 +8,13 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.SafeTimeTracker;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
@@ -64,7 +63,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 	}
 
 	public FluidStack drain(Direction from, FluidStack resource, boolean doDrain) {
-		if (sideTanks[from.ordinal()].getFluid() == null || !(sideTanks[from.ordinal()].getFluid().isFluidEqual(resource))) {
+		if (sideTanks[from.ordinal()].getFluid() == null || !(FluidStack.isSameFluidSameComponents(sideTanks[from.ordinal()].getFluid(), resource))) {
 			return new FluidStack(resource.getFluid(), 0);
 		}
 		return drain(from, resource.getAmount(), doDrain);
@@ -124,7 +123,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 		@Override
 		public FluidStack drain(FluidStack resource, FluidAction action) {
-			if (sideTanks[from.ordinal()].getFluid() == null || !(sideTanks[from.ordinal()].getFluid().isFluidEqual(resource))) {
+			if (sideTanks[from.ordinal()].getFluid() == null || !(FluidStack.isSameFluidSameComponents(sideTanks[from.ordinal()].getFluid(), resource))) {
 				return new FluidStack(resource.getFluid(), 0);
 			}
 			return drain(resource.getAmount(), action);
@@ -132,22 +131,22 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound) {
-		super.readFromNBT(nbttagcompound);
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.readFromNBT(nbttagcompound, provider);
 
 		for (Direction direction : Direction.values()) {
 			if (nbttagcompound.contains("tank[" + direction.ordinal() + "]")) {
-				sideTanks[direction.ordinal()].readFromNBT(nbttagcompound.getCompound("tank[" + direction.ordinal() + "]"));
+				sideTanks[direction.ordinal()].readFromNBT(provider, nbttagcompound.getCompound("tank[" + direction.ordinal() + "]"));
 			}
 		}
 		if (nbttagcompound.contains("tank[middle]")) {
-			internalTank.readFromNBT(nbttagcompound.getCompound("tank[middle]"));
+			internalTank.readFromNBT(provider, nbttagcompound.getCompound("tank[middle]"));
 		}
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound) {
-		super.writeToNBT(nbttagcompound);
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.writeToNBT(nbttagcompound, provider);
 
 		for (Direction direction : Direction.values()) {
 			CompoundTag subTag = new CompoundTag();

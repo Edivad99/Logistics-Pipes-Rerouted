@@ -18,14 +18,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
-
-import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.ISecurityStationManager;
 import logisticspipes.interfaces.routing.IChannelConnectionManager;
@@ -34,6 +28,9 @@ import logisticspipes.network.packets.block.SecurityStationAuthorizedList;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelConnection;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public class RouterManager implements IChannelConnectionManager, ISecurityStationManager {
 
@@ -269,7 +266,7 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 	}
 
 	@Override
-	public boolean isAuthorized(UUID id) {
+	public boolean isAuthorized(@Nullable UUID id) {
 		if (_authorized.isEmpty() || id == null) {
 			return false;
 		}

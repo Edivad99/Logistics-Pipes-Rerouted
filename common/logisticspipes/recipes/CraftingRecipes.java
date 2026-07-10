@@ -1,13 +1,12 @@
 package logisticspipes.recipes;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-
 import logisticspipes.LPItems;
 import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class CraftingRecipes implements IRecipeProvider {
 

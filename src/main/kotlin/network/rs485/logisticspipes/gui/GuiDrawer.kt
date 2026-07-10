@@ -113,7 +113,7 @@ object GuiDrawer {
         // TODO: texture-atlas sprite blit — no widget GUI calls this yet; port alongside guide book work.
     }
 
-    private val VANILLA_WIDGETS = ResourceLocation("textures/gui/widgets.png")
+    private val VANILLA_WIDGETS = ResourceLocation.withDefaultNamespace("textures/gui/widgets.png")
 
     fun drawBorderedTile(
         rect: IRectangle,
@@ -128,14 +128,18 @@ object GuiDrawer {
             hovered -> 2
             else -> 1
         } * 20
-        gg.blitNineSliced(
-            VANILLA_WIDGETS,
-            rect.roundedLeft,
-            rect.roundedTop,
-            rect.roundedWidth,
-            rect.roundedHeight,
-            20, 4, 200, 20, 0, textureY,
-        )
+        //Fixme
+//        val sprite = Minecraft.getInstance()
+//            .guiSprites
+//            .getSprite(VANILLA_WIDGETS)
+//        gg.blitNineSlicedSprite(
+//            VANILLA_WIDGETS,
+//            rect.roundedLeft,
+//            rect.roundedTop,
+//            rect.roundedWidth,
+//            rect.roundedHeight,
+//            20, 4, 200, 20, 0, textureY,
+//        )
     }
 
     fun drawGuideBookFrame(rect: IRectangle, slider: IRectangle) {

@@ -1,13 +1,12 @@
 package logisticspipes.network.guis.block;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.blocks.powertile.LogisticsPowerProviderTileEntity;
 import logisticspipes.gui.GuiPowerProvider;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class PowerProviderGui extends CoordinatesGuiProvider {

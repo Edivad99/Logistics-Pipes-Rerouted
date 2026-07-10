@@ -1,25 +1,22 @@
 package logisticspipes.pipes;
 
-import java.util.Objects;
 import java.util.UUID;
-
 import javax.annotation.Nullable;
 
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-
-import logisticspipes.LogisticsPipes;
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.GuiIDs;
 import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe {
 
@@ -44,20 +41,17 @@ public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe {
 		return null;
 	}
 
-	public Object getTargetUUID() {
+	public UUID getTargetUUID() {
 		final ItemIdentifierStack itemIdent = inv.getIDStackInSlot(0);
 		if (itemIdent == null) {
 			return null;
 		}
 		final ItemStack stack = itemIdent.makeNormalStack();
-		if (!stack.hasTag()) {
-			return null;
-		}
-		if (!Objects.requireNonNull(stack.getTag()).contains("UUID")) {
+		if (!stack.has(LogisticsPipesDataComponents.UUID)) {
 			return null;
 		}
 		spawnParticle(Particles.WhiteParticle, 2);
-		return UUID.fromString(stack.getTag().getString("UUID"));
+		return stack.get(LogisticsPipesDataComponents.UUID);
 	}
 
 	@Override
@@ -66,8 +60,8 @@ public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound) {
-		super.writeToNBT(nbttagcompound);
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.writeToNBT(nbttagcompound, provider);
 		inv.writeToNBT(nbttagcompound);
 	}
 

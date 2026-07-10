@@ -2,9 +2,14 @@ package logisticspipes.pipefxhandlers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
+import logisticspipes.proxy.object3d.interfaces.I3DOperation;
+import logisticspipes.proxy.object3d.interfaces.IModel3D;
+import logisticspipes.proxy.object3d.interfaces.IRenderState;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,14 +17,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
-
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
-import logisticspipes.proxy.object3d.interfaces.I3DOperation;
-import logisticspipes.proxy.object3d.interfaces.IModel3D;
-import logisticspipes.proxy.object3d.interfaces.IRenderState;
 
 public class EntityModelFX extends Particle {
 

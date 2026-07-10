@@ -3,13 +3,10 @@ package logisticspipes.pipes.basic;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.Direction;
-
-import net.minecraftforge.items.IItemHandler;
-
 import logisticspipes.interfaces.ILPItemAcceptor;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
 
 public class ItemInsertionHandler implements IItemHandler {
 

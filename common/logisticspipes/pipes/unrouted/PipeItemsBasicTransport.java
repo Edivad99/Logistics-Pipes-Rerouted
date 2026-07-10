@@ -1,13 +1,12 @@
 package logisticspipes.pipes.unrouted;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.core.Direction;
-
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.renderer.LogisticsRenderPipe;
 import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
 import logisticspipes.textures.Textures;
 import logisticspipes.transport.PipeTransportLogistics;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

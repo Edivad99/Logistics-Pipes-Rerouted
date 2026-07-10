@@ -1,4 +1,4 @@
-/*
+package logisticspipes.renderer;/*
 package logisticspipes.renderer;
 
 import logisticspipes.LPConstants;

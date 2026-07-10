@@ -1,11 +1,6 @@
 package logisticspipes.transport;
 
 import java.util.List;
-
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Explosion;
-
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -13,6 +8,9 @@ import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 
@@ -110,7 +108,7 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 				return;
 			}
 		}
-		Explosion explosion = new Explosion(this.getWorld(), null, this.getPipe().getX(), this.getPipe().getY(), this.getPipe().getZ(), 4.0F, false, net.minecraft.world.level.Explosion.BlockInteraction.DESTROY);
+		Explosion explosion = new Explosion(this.getWorld(), null, this.getPipe().getX(), this.getPipe().getY(), this.getPipe().getZ(), 4.0F, false, Explosion.BlockInteraction.DESTROY);
 		explosion.finalizeExplosion(true);
 	}
 
@@ -129,7 +127,7 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 				return;
 			}
 		}
-		Explosion explosion = new Explosion(this.getWorld(), null, this.getPipe().getX(), this.getPipe().getY(), this.getPipe().getZ(), 4.0F, false, net.minecraft.world.level.Explosion.BlockInteraction.DESTROY);
+		Explosion explosion = new Explosion(this.getWorld(), null, this.getPipe().getX(), this.getPipe().getY(), this.getPipe().getZ(), 4.0F, false, Explosion.BlockInteraction.DESTROY);
 		explosion.finalizeExplosion(true);
 	}
 

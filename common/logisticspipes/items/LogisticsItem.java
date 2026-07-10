@@ -8,35 +8,29 @@
 
 package logisticspipes.items;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
-import net.minecraft.client.gui.screens.Screen;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-
+import logisticspipes.interfaces.ILogisticsItem;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-
-
-import logisticspipes.LogisticsPipes;
-import logisticspipes.interfaces.ILogisticsItem;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class LogisticsItem extends Item implements ILogisticsItem {
 
 	public LogisticsItem() {
-		super(new Item.Properties()); // creative tab registration handled via event in 1.20.1
+		super(new Properties()); // creative tab registration handled via event in 1.20.1
 	}
 
-	protected LogisticsItem(Item.Properties properties) {
+	protected LogisticsItem(Properties properties) {
 		super(properties);
 	}
 
@@ -75,11 +69,10 @@ public class LogisticsItem extends Item implements ILogisticsItem {
 	 * shows full tooltip, without it, you just get the first line.
 	 */
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
-		super.appendHoverText(stack, worldIn, tooltip, flagIn);
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+		super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 		if (addShiftInfo()) {
-			TextUtil.addTooltipInformation(stack, tooltip, Screen.hasShiftDown());
+			TextUtil.addTooltipInformation(stack, tooltipComponents, Screen.hasShiftDown());
 		}
 	}
 

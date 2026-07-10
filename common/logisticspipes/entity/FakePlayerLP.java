@@ -1,17 +1,11 @@
 package logisticspipes.entity;
 
-import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-
-import net.minecraftforge.common.util.FakePlayer;
-
 import com.mojang.authlib.GameProfile;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
 @SuppressWarnings("EntityConstructor")
 public class FakePlayerLP extends FakePlayer {

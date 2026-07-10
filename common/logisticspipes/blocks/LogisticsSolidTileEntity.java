@@ -1,20 +1,5 @@
 package logisticspipes.blocks;
 
-import javax.annotation.Nonnull;
-
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-// OpenComputers imports removed — OC not on classpath for 1.20.1; interfaces added at runtime via @ModDependentInterface ASM
-
 import logisticspipes.LPConstants;
 import logisticspipes.asm.ModDependentField;
 import logisticspipes.asm.ModDependentInterface;
@@ -24,13 +9,23 @@ import logisticspipes.interfaces.ITickable;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.RequestRotationPacket;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
+
+// OpenComputers imports removed — OC not on classpath for 1.20.1; interfaces added at runtime via @ModDependentInterface ASM
 
 @ModDependentInterface(modId = { LPConstants.openComputersModID, LPConstants.openComputersModID, LPConstants.openComputersModID }, interfacePath = { "li.cil.oc.api.network.ManagedPeripheral", "li.cil.oc.api.network.Environment", "li.cil.oc.api.network.SidedEnvironment" })
 @CCType(name = "LogisticsSolidBlock")
@@ -44,7 +39,7 @@ public class LogisticsSolidTileEntity extends BlockEntity implements ITickable, 
 	@ModDependentField(modId = LPConstants.openComputersModID)
 	public Object node; // was: Node (OC removed from classpath)
 
-	public LogisticsSolidTileEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+	public LogisticsSolidTileEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
 
@@ -54,15 +49,15 @@ public class LogisticsSolidTileEntity extends BlockEntity implements ITickable, 
 	}
 
 	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		rotation = nbt.getInt("rotation");
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
+		rotation = tag.getInt("rotation");
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
-		nbt.putInt("rotation", rotation);
+	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
+		tag.putInt("rotation", rotation);
 	}
 
 	// onChunkUnload() removed in 1.20.1 — handled by level unload events if needed

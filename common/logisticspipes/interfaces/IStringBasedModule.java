@@ -1,8 +1,7 @@
 package logisticspipes.interfaces;
 
-import net.minecraft.nbt.CompoundTag;
-
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.nbt.CompoundTag;
 import network.rs485.logisticspipes.property.StringListProperty;
 
 public interface IStringBasedModule {

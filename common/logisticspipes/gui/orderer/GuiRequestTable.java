@@ -1,8 +1,5 @@
 package logisticspipes.gui.orderer;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
-import net.minecraft.SharedConstants;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -14,19 +11,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-
-
-
-
-
 import logisticspipes.LPItems;
 import logisticspipes.config.Configs;
 import logisticspipes.gui.popup.GuiDiskPopup;
@@ -52,11 +36,11 @@ import logisticspipes.utils.ChainAddArrayList;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
-import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ISubGuiControler;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extension.GuiExtension;
@@ -64,6 +48,13 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.SharedConstants;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer, IDiskProvider {
@@ -134,7 +125,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		super.init();
 
 		// super.init() → rebuildWidgets() already cleared prior widgets
-		addRenderableWidget(hideWhileSmall.addChain(wire(new logisticspipes.utils.gui.SmallGuiButton(0, right - 55, bottom - 25, 50, 20, "Request"), 0))); // Request
+		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(0, right - 55, bottom - 25, 50, 20, "Request"), 0))); // Request
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(1, right - 15, topPos + 5, 10, 10, ">"), 1))); // Next page
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(2, right - 90, topPos + 5, 10, 10, "<"), 2))); // Prev page
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(10, right - 148, bottom - 15, 26, 10, "---"), 10))); // -64
@@ -143,7 +134,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(6, right - 86, bottom - 26, 10, 10, "+"), 6))); // +1
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(7, right - 74, bottom - 26, 15, 10, "++"), 7))); // +10
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(11, right - 86, bottom - 15, 26, 10, "+++"), 11))); // +64
-		popupCheck = new GuiCheckBox(8, leftPos + 209, bottom - 60, 14, 14, Configs.DISPLAY_POPUP);
+		popupCheck = new GuiCheckBox(8, leftPos + 209, bottom - 60, 14, 14, Configs.COMMON.DISPLAY_POPUP.getAsBoolean());
 		popupCheck.setPressListener(b -> handleBtn(8, b));
 		addRenderableWidget(hideWhileSmall.addChain(popupCheck)); // Popup
 
@@ -425,7 +416,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			itemDisplay.add(3);
 		} else if (id == 8) {
 			GuiCheckBox button = (GuiCheckBox) guibutton;
-			Configs.DISPLAY_POPUP = button.change();
+			Configs.COMMON.DISPLAY_POPUP.set(button.change());
 			Configs.savePopupState();
 		} else if (id == 13 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
@@ -599,11 +590,11 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (showRequest && itemDisplay != null) {
-			itemDisplay.handleMouse(delta);
+			itemDisplay.handleMouse(scrollY);
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	public void handleRequestAnswer(Collection<IResource> items, boolean error, ISubGuiControler control, Player player) {

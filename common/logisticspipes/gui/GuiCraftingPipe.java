@@ -7,35 +7,24 @@
 
 package logisticspipes.gui;
 
-import java.io.IOException;
 import java.util.List;
-
-import net.minecraft.client.gui.GuiGraphics;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-
+import javax.annotation.Nonnull;
 import kotlin.Unit;
-import lombok.Getter;
-
-
-import logisticspipes.LPItems;
 import logisticspipes.gui.modules.ModuleBaseGui;
 import logisticspipes.gui.popup.GuiSelectSatellitePopup;
-import logisticspipes.items.ItemUpgrade;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.cpipe.CPipeCleanupImport;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
 import logisticspipes.network.packets.pipe.CraftingPipeSetSatellitePacket;
-import logisticspipes.pipes.upgrades.CraftingByproductUpgrade;
-import logisticspipes.pipes.upgrades.CraftingCleanupUpgrade;
-import logisticspipes.pipes.upgrades.FluidCraftingUpgrade;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extension.GuiExtension;
+import lombok.Getter;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.gui.widget.Label;
 import network.rs485.logisticspipes.gui.widget.VerticalLabel;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
@@ -47,7 +36,6 @@ import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
 import network.rs485.logisticspipes.property.layer.ValuePropertyOverlay;
 import network.rs485.logisticspipes.util.TextUtil;
-import javax.annotation.Nonnull;
 
 public class GuiCraftingPipe extends ModuleBaseGui {
 

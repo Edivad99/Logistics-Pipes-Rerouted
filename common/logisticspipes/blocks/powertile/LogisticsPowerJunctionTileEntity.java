@@ -1,23 +1,6 @@
 package logisticspipes.blocks.powertile;
 
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import net.minecraft.CrashReportCategory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-
-
-
-// CapabilityEnergy removed in NeoForge 1.20.1 — use ForgeCapabilities.EnergyStorage.BLOCK
-import net.minecraftforge.energy.IEnergyStorage;
-
-// import buildcraft.api.mj.IMjConnector;
-// import buildcraft.api.mj.IMjReceiver;
-// IC2 imports removed — IC2 has no 1.20.1 port; IEnergySink interface added at runtime via @ModDependentInterface ASM
-
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
@@ -44,6 +27,17 @@ import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.utils.PlayerCollectionList;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+
+// CapabilityEnergy removed in NeoForge 1.20.1 — use ForgeCapabilities.EnergyStorage.BLOCK
+// import buildcraft.api.mj.IMjConnector;
+// import buildcraft.api.mj.IMjReceiver;
+// IC2 imports removed — IC2 has no 1.20.1 port; IEnergySink interface added at runtime via @ModDependentInterface ASM
 
 @ModDependentInterface(modId = { LPConstants.ic2ModID }, interfacePath = { "ic2.api.energy.tile.IEnergySink" })
 @CCType(name = "LogisticsPowerJunction")
@@ -136,7 +130,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		}
 		if (canUseEnergy(amount, null)) {
 			this.setChanged();
-			internalStorage -= (int) ((amount * Configs.POWER_USAGE_MULTIPLIER) + 0.5D);
+			internalStorage -= (int) ((amount * Configs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
 			if (internalStorage < LogisticsPowerJunctionTileEntity.MAX_STORAGE / 2) {
 				needMorePowerTriggerCheck = true;
 			}
@@ -150,7 +144,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		if (providersToIgnore != null && providersToIgnore.contains(this)) {
 			return false;
 		}
-		return internalStorage >= (int) ((amount * Configs.POWER_USAGE_MULTIPLIER) + 0.5D);
+		return internalStorage >= (int) ((amount * Configs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
 	}
 
 	@Override
@@ -188,19 +182,19 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	}
 
 	@Override
-	public void load(CompoundTag par1nbtTagCompound) {
-		super.load(par1nbtTagCompound);
-		internalStorage = par1nbtTagCompound.getInt("powerLevel");
-		if (par1nbtTagCompound.contains("needMorePowerTriggerCheck")) {
-			needMorePowerTriggerCheck = par1nbtTagCompound.getBoolean("needMorePowerTriggerCheck");
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
+		internalStorage = tag.getInt("powerLevel");
+		if (tag.contains("needMorePowerTriggerCheck")) {
+			needMorePowerTriggerCheck = tag.getBoolean("needMorePowerTriggerCheck");
 		}
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag par1nbtTagCompound) {
-		super.saveAdditional(par1nbtTagCompound);
-		par1nbtTagCompound.putInt("powerLevel", internalStorage);
-		par1nbtTagCompound.putBoolean("needMorePowerTriggerCheck", needMorePowerTriggerCheck);
+	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
+		tag.putInt("powerLevel", internalStorage);
+		tag.putBoolean("needMorePowerTriggerCheck", needMorePowerTriggerCheck);
 	}
 
 	@Override
@@ -393,7 +387,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	}
 
 	/** Used by RegisterCapabilitiesEvent wiring in LPRegistries. */
-	public net.minecraftforge.energy.IEnergyStorage getEnergyInterface() {
+	public IEnergyStorage getEnergyInterface() {
 		return energyInterface;
 	}
 

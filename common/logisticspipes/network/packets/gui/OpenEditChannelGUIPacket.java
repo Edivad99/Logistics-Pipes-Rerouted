@@ -2,14 +2,6 @@ package logisticspipes.network.packets.gui;
 
 import java.util.Optional;
 import java.util.UUID;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.network.NewGuiHandler;
@@ -19,6 +11,11 @@ import logisticspipes.network.guis.EditChannelGuiProvider;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.StaticResolve;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

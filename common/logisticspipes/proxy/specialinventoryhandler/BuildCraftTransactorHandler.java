@@ -1,17 +1,15 @@
 package logisticspipes.proxy.specialinventoryhandler;
 // TODO: BuildCraft not ported — stub
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public class BuildCraftTransactorHandler extends SpecialInventoryHandler implements SpecialInventoryHandler.Factory {

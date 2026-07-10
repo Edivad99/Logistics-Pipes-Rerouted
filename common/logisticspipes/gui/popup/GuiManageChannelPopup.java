@@ -1,12 +1,6 @@
 package logisticspipes.gui.popup;
 
-import net.minecraft.client.gui.GuiGraphics;
-
 import java.util.List;
-
-
-import net.minecraft.core.BlockPos;
-
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.DeleteChannelPacket;
@@ -18,6 +12,8 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelInformationReceiver {

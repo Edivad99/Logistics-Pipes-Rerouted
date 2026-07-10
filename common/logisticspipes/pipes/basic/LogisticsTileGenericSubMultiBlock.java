@@ -6,22 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-
-import net.minecraft.core.BlockPos;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import logisticspipes.interfaces.ITickable;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -31,6 +15,19 @@ import logisticspipes.renderer.state.PipeSubRenderState;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.ISubMultiBlockPipeInformationProvider;
 import logisticspipes.utils.TileBuffer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements ISubMultiBlockPipeInformationProvider, ITickable {
@@ -120,17 +117,17 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	}
 
 	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		if (nbt.contains("MainPipePos_xPos")) {
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
+		if (tag.contains("MainPipePos_xPos")) {
 			mainPipePos.clear();
-			DoubleCoordinates pos = DoubleCoordinates.readFromNBT("MainPipePos_", nbt);
+			DoubleCoordinates pos = DoubleCoordinates.readFromNBT("MainPipePos_", tag);
 			if (pos != null) {
 				mainPipePos.add(pos);
 			}
 		}
-		if (nbt.contains("MainPipePosList")) {
-			ListTag list = nbt.getList("MainPipePosList", net.minecraft.nbt.Tag.TAG_COMPOUND);
+		if (tag.contains("MainPipePosList")) {
+			ListTag list = tag.getList("MainPipePosList", net.minecraft.nbt.Tag.TAG_COMPOUND);
 			for (int i = 0; i < list.size(); i++) {
 				DoubleCoordinates pos = DoubleCoordinates.readFromNBT("MainPipePos_", list.getCompound(i));
 				if (pos != null) {
@@ -138,8 +135,8 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 				}
 			}
 		}
-		if (nbt.contains("SubTypeList")) {
-			ListTag list = nbt.getList("SubTypeList", net.minecraft.nbt.Tag.TAG_STRING);
+		if (tag.contains("SubTypeList")) {
+			ListTag list = tag.getList("SubTypeList", net.minecraft.nbt.Tag.TAG_STRING);
 			subTypes.clear();
 			for (int i = 0; i < list.size(); i++) {
 				String name = list.getString(i);
@@ -153,27 +150,26 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
+	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
 		ListTag nbtList = new ListTag();
 		for (DoubleCoordinates pos : mainPipePos) {
 			CompoundTag compound = new CompoundTag();
 			pos.writeToNBT("MainPipePos_", compound);
 			nbtList.add(compound);
 		}
-		nbt.put("MainPipePosList", nbtList);
+		tag.put("MainPipePosList", nbtList);
 		ListTag nbtTypeList = new ListTag();
 		for (CoreMultiBlockPipe.SubBlockTypeForShare type : subTypes) {
 			if (type == null) continue;
 			nbtTypeList.add(StringTag.valueOf(type.name()));
 		}
-		nbt.put("SubTypeList", nbtTypeList);
+		tag.put("SubTypeList", nbtTypeList);
 	}
 
-	@Nonnull
 	@Override
-	public CompoundTag getUpdateTag() {
-		CompoundTag nbt = super.getUpdateTag();
+	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+		CompoundTag nbt = super.getUpdateTag(registries);
 		try {
 			PacketHandler.addPacketToNBT(getLPDescriptionPacket(), nbt);
 		} catch (Exception e) {
@@ -183,10 +179,9 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void handleUpdateTag(@Nonnull CompoundTag tag) {
+	public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
 		PacketHandler.queueAndRemovePacketFromNBT(tag);
-		super.handleUpdateTag(tag);
+		super.handleUpdateTag(tag, lookupProvider);
 	}
 
 	@Override
@@ -195,8 +190,10 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	}
 
 	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-		if (packet.getTag() != null) PacketHandler.queueAndRemovePacketFromNBT(packet.getTag());
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
+		if (pkt.getTag() != null) {
+			PacketHandler.queueAndRemovePacketFromNBT(pkt.getTag());
+		}
 	}
 
 	public ModernPacket getLPDescriptionPacket() {

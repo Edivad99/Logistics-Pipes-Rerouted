@@ -1,13 +1,11 @@
 package logisticspipes.proxy.object3d.interfaces;
 
 import java.util.List;
-
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.world.phys.AABB;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public interface IModel3D {
 

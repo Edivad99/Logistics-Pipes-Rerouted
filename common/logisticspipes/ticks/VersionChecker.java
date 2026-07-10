@@ -9,17 +9,12 @@ import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import net.minecraft.nbt.CompoundTag;
-
-import net.minecraftforge.fml.ModList;
-
-
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import lombok.Data;
-
 import logisticspipes.LogisticsPipes;
+import lombok.Data;
+import net.minecraft.nbt.CompoundTag;
+import net.neoforged.fml.ModList;
 
 public final class VersionChecker implements Callable<VersionChecker.VersionInfo> {
 

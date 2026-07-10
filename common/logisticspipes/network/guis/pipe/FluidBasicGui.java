@@ -1,13 +1,12 @@
 package logisticspipes.network.guis.pipe;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.gui.GuiFluidBasic;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.FluidSinkPipe;
 
 @StaticResolve

@@ -1,9 +1,8 @@
 package logisticspipes.utils.math;
 
-import net.minecraft.world.phys.Vec3;
-
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import net.minecraft.world.phys.Vec3;
 
 @AllArgsConstructor
 @NoArgsConstructor

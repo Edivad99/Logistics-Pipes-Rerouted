@@ -1,9 +1,9 @@
 package logisticspipes.commands.commands;
+
+import logisticspipes.commands.abstracts.ICommandHandler;
 import net.minecraft.world.entity.player.Player;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
-
-import logisticspipes.commands.abstracts.ICommandHandler;
 
 public class DummyCommand implements ICommandHandler {
 

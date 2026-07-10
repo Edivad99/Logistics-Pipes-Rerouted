@@ -9,18 +9,11 @@ package logisticspipes.gui;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-
+import javax.annotation.Nonnull;
 import logisticspipes.config.Configs;
 import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.guis.pipe.ChassisGuiProvider;
 import logisticspipes.network.packets.chassis.ChassisGUI;
 import logisticspipes.network.packets.gui.GuiClosePacket;
@@ -33,8 +26,12 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.string.StringUtils;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.module.Gui;
-import javax.annotation.Nonnull;
 
 public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 

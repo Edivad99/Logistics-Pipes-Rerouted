@@ -40,7 +40,7 @@ package network.rs485.grow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.minecraftforge.server.ServerLifecycleHooks
+import net.neoforged.neoforge.server.ServerLifecycleHooks
 
 object Coroutines {
     val io = Dispatchers.IO
@@ -54,10 +54,12 @@ object Coroutines {
         get() = CoroutineScope(server)
 
     fun scheduleServerTask(inTicks: Int, task: Runnable) {
-        val runTick = ServerLifecycleHooks.getCurrentServer().tickCount + inTicks
+        val serverHooks = ServerLifecycleHooks.getCurrentServer()
+            ?: error("Cannot schedule task: server is not running")
+        val runTick = serverHooks.tickCount + inTicks
 
         fun waitForTick() {
-            if (ServerLifecycleHooks.getCurrentServer().tickCount >= runTick) {
+            if (serverHooks.tickCount >= runTick) {
                 task.run()
             } else {
                 server.scheduleNextTick(::waitForTick)

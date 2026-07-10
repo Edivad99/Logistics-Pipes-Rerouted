@@ -3,10 +3,8 @@ package logisticspipes.interfaces;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.world.item.ItemStack;
 
 public interface IInventoryUtil {
 

@@ -1,16 +1,16 @@
 package logisticspipes.blocks.powertile;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-
-// IC2 imports removed — no 1.20.1 port; IEnergySink added at runtime via @ModDependentInterface
-
 import logisticspipes.LPConstants;
 import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.renderer.LogisticsHUDRenderer;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+
+// IC2 imports removed — no 1.20.1 port; IEnergySink added at runtime via @ModDependentInterface
 
 @ModDependentInterface(modId = { LPConstants.ic2ModID }, interfacePath = { "ic2.api.energy.tile.IEnergySink" })
 public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderTileEntity
@@ -85,13 +85,13 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 	}
 
 	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
+	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
 	}
 
 	@Override

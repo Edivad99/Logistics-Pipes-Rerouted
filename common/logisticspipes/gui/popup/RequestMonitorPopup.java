@@ -1,40 +1,29 @@
 package logisticspipes.gui.popup;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.imageio.ImageIO;
-
-import net.minecraft.world.level.block.Block;
-
+import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LogisticsPipes;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureAtlas; // was TextureAtlas
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.resources.ResourceLocation;
-
-
-
-
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class RequestMonitorPopup extends SubGuiScreen {
@@ -81,7 +70,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 	}
 
-	private static final ResourceLocation achievementTextures = new ResourceLocation("logisticspipes", "textures/gui/gui_border.png");
+	private static final ResourceLocation achievementTextures = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/gui_border.png");
 	private final PipeBlockRequestTable _table;
 	private final int orderId;
 
@@ -105,13 +94,13 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mx, double my, double delta) {
-		if (delta < 0) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (scrollY < 0) {
 			zoom = zoom.next();
-		} else if (delta > 0) {
+		} else if (scrollY > 0) {
 			zoom = zoom.prev();
 		}
-		return super.mouseScrolled(mx, my, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override

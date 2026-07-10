@@ -1,16 +1,14 @@
 package logisticspipes.network.packets.module;
 
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

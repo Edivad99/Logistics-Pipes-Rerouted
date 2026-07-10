@@ -4,20 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
-import net.minecraft.nbt.CompoundTag;
-
-import net.minecraftforge.fluids.capability.templates.FluidTank;
-
-import lombok.Getter;
-
-import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
-import logisticspipes.network.GuiIDs;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.FluidSupplierAmount;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
@@ -30,6 +18,13 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import lombok.Getter;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFluid, IRequireReliableFluidTransport {
 
@@ -217,8 +212,8 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound) {
-		super.writeToNBT(nbttagcompound);
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.writeToNBT(nbttagcompound, provider);
 		dummyInventory.writeToNBT(nbttagcompound, "");
 		nbttagcompound.putBoolean("requestpartials", _requestPartials);
 		nbttagcompound.putInt("amount", amount);

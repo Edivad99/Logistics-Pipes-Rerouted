@@ -4,15 +4,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.proxy.MainProxy;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemModuleInformationManager {
 
@@ -29,8 +27,8 @@ public class ItemModuleInformationManager {
 			ListTag list = new ListTag();
 			String info1 = "Please reopen the window";
 			String info2 = "to see the information.";
-			list.add(net.minecraft.nbt.StringTag.valueOf(info1));
-			list.add(net.minecraft.nbt.StringTag.valueOf(info2));
+			list.add(StringTag.valueOf(info1));
+			list.add(StringTag.valueOf(info2));
 			if (!stack.hasTag()) {
 				stack.setTag(new CompoundTag());
 			}
@@ -49,7 +47,7 @@ public class ItemModuleInformationManager {
 			if (information.size() > 0) {
 				ListTag list = new ListTag();
 				for (String info : information) {
-					list.add(net.minecraft.nbt.StringTag.valueOf(info));
+					list.add(StringTag.valueOf(info));
 				}
 				tag.put("informationList", list);
 			}

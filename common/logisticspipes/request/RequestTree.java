@@ -1,17 +1,11 @@
 package logisticspipes.request;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.item.Item;
-
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.interfaces.routing.IRequestFluid;
@@ -27,6 +21,8 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.IHavePriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Blocks;
 
 public class RequestTree extends RequestTreeNode {
 

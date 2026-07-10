@@ -1,28 +1,26 @@
 package logisticspipes.commands.chathelper;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
-import net.minecraft.server.level.ServerPlayer;
-// Player removed — use net.minecraft.commands.CommandSourceStack
-
-import net.minecraft.network.chat.Component;
-
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.event.ServerChatEvent;
-
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.OpenChatGui;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
+import net.neoforged.neoforge.event.ServerChatEvent;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class LPChatListener {
 
@@ -72,7 +70,7 @@ public class LPChatListener {
 	}
 
 	@SubscribeEvent
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void clientChat(ClientChatReceivedEvent event) {
 		Component message = event.getMessage();
 		if (message != null) {
@@ -109,17 +107,17 @@ public class LPChatListener {
 		}
 	}
 
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private void clearChat() {
 		net.minecraft.client.Minecraft.getInstance().gui.getChat().clearMessages(true);
 	}
 
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private void storeSendMessages() {
 		sendChatMessages = new ArrayList<>(net.minecraft.client.Minecraft.getInstance().gui.getChat().getRecentChat());
 	}
 
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private void restoreSendMessages() {
 		if (sendChatMessages != null) {
 			net.minecraft.client.gui.components.ChatComponent chat = net.minecraft.client.Minecraft.getInstance().gui.getChat();
@@ -130,7 +128,7 @@ public class LPChatListener {
 		sendChatMessages = null;
 	}
 
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private void addSendMessages(String substring) {
 		net.minecraft.client.Minecraft.getInstance().gui.getChat().addRecentChat(substring);
 	}

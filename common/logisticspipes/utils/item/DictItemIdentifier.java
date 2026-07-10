@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
+import logisticspipes.LogisticsPipes;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-
-import logisticspipes.LogisticsPipes;
 
 public class DictItemIdentifier {
 

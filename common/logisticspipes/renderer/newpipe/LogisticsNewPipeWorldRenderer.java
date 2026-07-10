@@ -1,4 +1,4 @@
-/*
+package logisticspipes.renderer.newpipe;/*
 package logisticspipes.renderer.newpipe;
 
 import java.util.Arrays;

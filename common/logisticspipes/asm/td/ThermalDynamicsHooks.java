@@ -1,12 +1,10 @@
 package logisticspipes.asm.td;
 
-import net.minecraft.world.item.ItemStack;
+import logisticspipes.routing.ItemRoutingInformation;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 // import cofh.thermaldynamics.duct.item.TravelingItem;
-
-import logisticspipes.renderer.LogisticsRenderPipe;
-import logisticspipes.routing.ItemRoutingInformation;
 
 public class ThermalDynamicsHooks {
 
@@ -32,13 +30,13 @@ public class ThermalDynamicsHooks {
 
 	public static ItemStack handleItemSendPacket(ItemStack stack, Object /* TravelingItem */ item) {
 		// TODO: ThermalDynamics TravelingItem.stack field access deferred — TD not on classpath for 1.20.1
-		if (((ILPTravelingItemInfo) item).getLPRoutingInfoAddition() != null) {
-			stack = stack.copy();
-			if (!stack.hasTag()) {
-				stack.setTag(new CompoundTag());
-			}
-			stack.getTag().putString("LogsitcsPipes_ITEM_ON_TRANSPORTATION", "YES");
-		}
+//		if (((ILPTravelingItemInfo) item).getLPRoutingInfoAddition() != null) {
+//			stack = stack.copy();
+//			if (!stack.hasTag()) {
+//				stack.setTag(new CompoundTag());
+//			}
+//			stack.getTag().putString("LogsitcsPipes_ITEM_ON_TRANSPORTATION", "YES");
+//		}
 		return stack;
 	}
 }

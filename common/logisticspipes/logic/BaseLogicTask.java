@@ -1,11 +1,9 @@
 package logisticspipes.logic;
 
 import java.util.UUID;
-
+import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-
-import lombok.Getter;
 
 public abstract class BaseLogicTask {
 

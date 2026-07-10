@@ -1,7 +1,5 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.gui.modules.GuiOreDictItemSink;
 import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
@@ -12,6 +10,7 @@ import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.DummyModuleContainer;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class OreDictItemSinkModuleInHand extends ModuleInHandGuiProvider {

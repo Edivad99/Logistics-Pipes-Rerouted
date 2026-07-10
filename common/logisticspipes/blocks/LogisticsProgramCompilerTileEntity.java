@@ -4,18 +4,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-
-import lombok.Getter;
-
 import logisticspipes.config.Configs;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IGuiTileEntity;
@@ -32,6 +20,15 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.SimpleStackInventory;
+import lombok.Getter;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -39,14 +36,14 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 
 	public static class ProgrammCategories {
 
-		public static final ResourceLocation BASIC = new ResourceLocation("logisticspipes", "compilercategory.basic");
-		public static final ResourceLocation TIER_2 = new ResourceLocation("logisticspipes", "compilercategory.tier_2");
-		public static final ResourceLocation FLUID = new ResourceLocation("logisticspipes", "compilercategory.fluid");
-		public static final ResourceLocation TIER_3 = new ResourceLocation("logisticspipes", "compilercategory.tier_3");
-		public static final ResourceLocation CHASSIS = new ResourceLocation("logisticspipes", "compilercategory.chassis");
-		public static final ResourceLocation CHASSIS_2 = new ResourceLocation("logisticspipes", "compilercategory.chassis_2");
-		public static final ResourceLocation CHASSIS_3 = new ResourceLocation("logisticspipes", "compilercategory.chassis_3");
-		public static final ResourceLocation MODDED = new ResourceLocation("logisticspipes", "compilercategory.modded");
+		public static final ResourceLocation BASIC = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.basic");
+		public static final ResourceLocation TIER_2 = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.tier_2");
+		public static final ResourceLocation FLUID = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.fluid");
+		public static final ResourceLocation TIER_3 = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.tier_3");
+		public static final ResourceLocation CHASSIS = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.chassis");
+		public static final ResourceLocation CHASSIS_2 = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.chassis_2");
+		public static final ResourceLocation CHASSIS_3 = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.chassis_3");
+		public static final ResourceLocation MODDED = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.modded");
 
 		static {
 			//Force the order of keys
@@ -148,13 +145,13 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 					if (pipe.useEnergy(10)) {
 						switch (taskType) {
 							case "category":
-								taskProgress += 0.0005 * Configs.COMPILER_SPEED;
+								taskProgress += 0.0005 * Configs.COMMON.COMPILER_SPEED.getAsDouble();
 								break;
 							case "program":
-								taskProgress += 0.0025 * Configs.COMPILER_SPEED;
+								taskProgress += 0.0025 * Configs.COMMON.COMPILER_SPEED.getAsDouble();
 								break;
 							case "flash":
-								taskProgress += 0.01 * Configs.COMPILER_SPEED;
+								taskProgress += 0.01 * Configs.COMMON.COMPILER_SPEED.getAsDouble();
 								break;
 							default:
 								taskProgress = 1;

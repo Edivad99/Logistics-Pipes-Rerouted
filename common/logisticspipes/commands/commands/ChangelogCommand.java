@@ -1,13 +1,13 @@
 package logisticspipes.commands.commands;
-import net.minecraft.world.entity.player.Player;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.commands.chathelper.MorePageDisplay;
 import logisticspipes.ticks.VersionChecker;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class ChangelogCommand implements ICommandHandler {
 

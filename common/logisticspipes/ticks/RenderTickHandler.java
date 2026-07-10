@@ -2,7 +2,17 @@ package logisticspipes.ticks;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
+import logisticspipes.interfaces.ITubeOrientation;
+import logisticspipes.items.ItemLogisticsPipe;
+import logisticspipes.pipes.basic.CoreMultiBlockPipe;
+import logisticspipes.pipes.basic.CoreUnroutedPipe;
+import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
+import logisticspipes.renderer.GuiOverlay;
+import logisticspipes.renderer.LogisticsHUDRenderer;
+import logisticspipes.routing.debug.ClientViewController;
+import logisticspipes.utils.LPPositionSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -20,53 +30,39 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.RenderTickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import logisticspipes.LPBlocks;
-import logisticspipes.interfaces.ITubeOrientation;
-import logisticspipes.items.ItemLogisticsPipe;
-import logisticspipes.pipes.basic.CoreMultiBlockPipe;
-import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
-import logisticspipes.renderer.GuiOverlay;
-import logisticspipes.renderer.LogisticsHUDRenderer;
-import logisticspipes.routing.debug.ClientViewController;
-import logisticspipes.utils.LPPositionSet;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 public class RenderTickHandler {
 
-	private static final ResourceLocation GHOST_PIPE_TEXTURE = new ResourceLocation("logisticspipes", "textures/blocks/pipes/white.png");
+	private static final ResourceLocation GHOST_PIPE_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/blocks/pipes/white.png");
 
 	private long renderTicks = 0;
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void renderTick(RenderTickEvent event) {
-		if (event.phase == Phase.START) {
-			if (GuiOverlay.getInstance().isCompatibleGui()) {
-				GuiOverlay.getInstance().preRender();
-			}
-			ClientViewController.instance().tick();
-		} else {
-			renderTicks++;
-			// TODO: migrate HUD rendering to 1.20 PoseStack / GameRenderer approach.
-			// mc.entityRenderer.setupCameraTransform() and ActiveRenderInfo.updateRenderInfo() were removed.
-			// See Task #7 (GameRenderer.setupCamera AT entry).
-			if (GuiOverlay.getInstance().isCompatibleGui()) {
-				GuiOverlay.getInstance().renderOverGui();
-			}
+	public void renderTick(RenderFrameEvent.Pre event) {
+		if (GuiOverlay.getInstance().isCompatibleGui()) {
+			GuiOverlay.getInstance().preRender();
+		}
+		ClientViewController.instance().tick();
+	}
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void renderTick(RenderFrameEvent.Post event) {
+		renderTicks++;
+		// TODO: migrate HUD rendering to 1.20 PoseStack / GameRenderer approach.
+		// mc.entityRenderer.setupCameraTransform() and ActiveRenderInfo.updateRenderInfo() were removed.
+		// See Task #7 (GameRenderer.setupCamera AT entry).
+		if (GuiOverlay.getInstance().isCompatibleGui()) {
+			GuiOverlay.getInstance().renderOverGui();
 		}
 	}
 
@@ -75,11 +71,15 @@ public class RenderTickHandler {
 	 *  LP1's {@code GuiIngameForge.renderCrosshairs} check. */
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public void renderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-		if (!event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id())) {
+	public void renderGuiLayer(RenderGuiLayerEvent.Post event) {
+		if (!event.getName().equals(VanillaGuiLayers.CROSSHAIR)) {
 			return;
 		}
-		LogisticsHUDRenderer.instance().renderPlayerDisplay(renderTicks, event.getGuiGraphics());
+
+		LogisticsHUDRenderer.instance().renderPlayerDisplay(
+				renderTicks,
+				event.getGuiGraphics()
+		);
 	}
 
 	@SubscribeEvent
@@ -89,7 +89,7 @@ public class RenderTickHandler {
 		if (worldEvent.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
 		PoseStack poseStack = worldEvent.getPoseStack();
-		float partialTick = worldEvent.getPartialTick();
+		float partialTick = worldEvent.getPartialTick().getGameTimeDeltaPartialTick(false);
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 		int packedLight = 0xF000F0;
 

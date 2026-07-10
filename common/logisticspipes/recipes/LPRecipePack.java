@@ -3,19 +3,19 @@ package logisticspipes.recipes;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.Set;
-
 import javax.annotation.Nullable;
-
+import logisticspipes.LPConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.IoSupplier;
-
-import logisticspipes.LPConstants;
 
 /**
  * Virtual data pack that serves programmer-based crafting recipe JSON files.
@@ -50,7 +50,7 @@ public class LPRecipePack implements PackResources {
 		if (recipeName.endsWith(".json")) {
 			recipeName = recipeName.substring(0, recipeName.length() - ".json".length());
 		}
-		ResourceLocation recipeKey = new ResourceLocation(NAMESPACE, recipeName);
+		ResourceLocation recipeKey = ResourceLocation.fromNamespaceAndPath(NAMESPACE, recipeName);
 		String json = RecipeManager.craftingManager.virtualRecipes.get(recipeKey);
 		if (json == null) return null;
 
@@ -66,7 +66,7 @@ public class LPRecipePack implements PackResources {
 
 		for (ResourceLocation key : RecipeManager.craftingManager.virtualRecipes.keySet()) {
 			if (!key.getNamespace().equals(NAMESPACE)) continue;
-			ResourceLocation fileLocation = new ResourceLocation(NAMESPACE, "recipes/" + key.getPath() + ".json");
+			ResourceLocation fileLocation = ResourceLocation.fromNamespaceAndPath(NAMESPACE, "recipes/" + key.getPath() + ".json");
 			IoSupplier<InputStream> supplier = getResource(type, fileLocation);
 			if (supplier != null) {
 				output.accept(fileLocation, supplier);
@@ -91,6 +91,11 @@ public class LPRecipePack implements PackResources {
 					15);
 		}
 		return null;
+	}
+
+	@Override
+	public PackLocationInfo location() {
+		return new PackLocationInfo("logisticspipes:virtual_recipes", Component.literal("LogisticsPipes virtual recipes"), PackSource.BUILT_IN, Optional.empty());
 	}
 
 	@Override

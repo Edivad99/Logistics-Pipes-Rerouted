@@ -1,4 +1,4 @@
-/*
+package logisticspipes.renderer;/*
 package logisticspipes.renderer;
 
 import net.minecraft.world.level.block.Block;

@@ -2,17 +2,14 @@ package logisticspipes.proxy.ccl;
 // TODO: CodeChickenLib not ported to 1.20.1 — stub
 
 import java.util.List;
-
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.world.phys.AABB;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import logisticspipes.proxy.object3d.interfaces.I3DOperation;
 import logisticspipes.proxy.object3d.interfaces.IBounds;
 import logisticspipes.proxy.object3d.interfaces.IModel3D;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class Model3D implements IModel3D {
     @Override public IModel3D backfacedCopy() { return null; }

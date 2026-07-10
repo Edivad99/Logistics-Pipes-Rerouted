@@ -7,15 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
-
+import logisticspipes.utils.item.SimpleStackInventory;
+import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-
-import lombok.Getter;
-
-import logisticspipes.utils.item.SimpleStackInventory;
 
 public class LogicController {
 

@@ -2,9 +2,6 @@ package logisticspipes.blocks.stats;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.nbt.CompoundTag;
-
 import logisticspipes.blocks.LogisticsSolidTileEntity;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.network.NewGuiHandler;
@@ -13,6 +10,8 @@ import logisticspipes.network.guis.block.StatisticsGui;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
@@ -47,26 +46,26 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidTileEntity impl
 	}
 
 	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		int size = nbt.getInt("taskSize");
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
+		int size = tag.getInt("taskSize");
 		for (int i = 0; i < size; i++) {
-			CompoundTag tag = (CompoundTag) nbt.get("Task_" + i);
+			CompoundTag subTag = (CompoundTag) tag.get("Task_" + i);
 			TrackingTask task = new TrackingTask();
-			task.readFromNBT(tag);
+			task.readFromNBT(subTag);
 			tasks.add(task);
 		}
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
-		nbt.putInt("taskSize", tasks.size());
+	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
+		tag.putInt("taskSize", tasks.size());
 		int count = 0;
 		for (TrackingTask task : tasks) {
-			CompoundTag tag = new CompoundTag();
-			task.writeToNBT(tag);
-			nbt.put("Task_" + count, tag);
+			CompoundTag subtag = new CompoundTag();
+			task.writeToNBT(subtag);
+			tag.put("Task_" + count, subtag);
 			count++;
 		}
 	}

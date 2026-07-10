@@ -1,12 +1,13 @@
 package logisticspipes.network.packets.gui;
 
-import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.world.entity.player.Player;
-
-
-
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -22,7 +23,7 @@ public class OpenChatGui extends ModernPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
 			openChatScreen();
 		}
 	}
@@ -30,9 +31,9 @@ public class OpenChatGui extends ModernPacket {
 	// Client body kept out of processPacket's verified bytecode. The dedicated server links this
 	// packet (so it can SEND it) only when no client class appears in a non-@OnlyIn method; the
 	// RuntimeDistCleaner strips this @OnlyIn helper before verification on the server.
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private void openChatScreen() {
-		net.minecraft.client.Minecraft.getInstance().setScreen(new ChatScreen(""));
+		Minecraft.getInstance().setScreen(new ChatScreen(""));
 	}
 
 	@Override

@@ -8,14 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.config.Configs;
 import logisticspipes.network.PacketHandler;
@@ -30,6 +22,11 @@ import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.pathfinder.PathFinder;
 import logisticspipes.utils.StaticResolve;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class RequestRoutingLasersPacket extends CoordinatesPacket {
@@ -121,7 +118,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 			}
 			lasers.add(new LaserData(pipe.getX(), pipe.getY(), pipe.getZ(), dir, connectionType).setStartPipe(firstPipe));
 			firstPipe = false;
-			HashMap<CoreRoutedPipe, ExitRoute> map = PathFinder.paintAndgetConnectedRoutingPipes(pipe, dir, Configs.LOGISTICS_DETECTION_COUNT, Configs.LOGISTICS_DETECTION_LENGTH, (world, laser) -> {
+			HashMap<CoreRoutedPipe, ExitRoute> map = PathFinder.paintAndgetConnectedRoutingPipes(pipe, dir, Configs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), Configs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), (world, laser) -> {
 				if (pipe.getWorld() == world) {
 					lasers.add(laser);
 				}

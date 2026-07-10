@@ -3,11 +3,9 @@ package logisticspipes.proxy.specialconnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import net.minecraft.world.level.block.entity.BlockEntity;
-
 import logisticspipes.interfaces.routing.ISpecialTileConnection;
 import logisticspipes.logisticspipes.IRoutedItem;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class SpecialTileConnection {
 

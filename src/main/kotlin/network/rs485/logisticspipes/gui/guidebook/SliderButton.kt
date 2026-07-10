@@ -23,6 +23,7 @@
 package network.rs485.logisticspipes.gui.guidebook
 
 import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
@@ -56,16 +57,20 @@ class SliderButton(
         RenderSystem.enableBlend()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         // Vertical nine-slice: 2px top/bottom caps from the 12x16 grip region, stretched to grip height.
-        guiGraphics.blitNineSliced(
-            GuideBookGraphics.GUI_ATLAS,
-            grip.roundedLeft,
-            grip.roundedTop,
-            grip.roundedWidth,
-            grip.roundedHeight,
-            0, 2,
-            texture.roundedWidth, texture.roundedHeight,
-            src.roundedLeft, src.roundedTop,
-        )
+        val sprite = Minecraft.getInstance()
+            .guiSprites
+            .getSprite(GuideBookGraphics.GUI_ATLAS)
+        //TODO: Fix me
+//        guiGraphics.blitNineSlicedSprite(
+//            GuideBookGraphics.GUI_ATLAS,
+//            grip.roundedLeft,
+//            grip.roundedTop,
+//            grip.roundedWidth,
+//            grip.roundedHeight,
+//            0, 2,
+//            texture.roundedWidth, texture.roundedHeight,
+//            src.roundedLeft, src.roundedTop,
+//        )
         RenderSystem.disableBlend()
     }
 

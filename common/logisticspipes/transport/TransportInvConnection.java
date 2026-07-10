@@ -1,17 +1,13 @@
 package logisticspipes.transport;
 
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-
 import java.util.Objects;
-
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-
-import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 public class TransportInvConnection extends PipeTransportLogistics {
 
@@ -33,8 +29,14 @@ public class TransportInvConnection extends PipeTransportLogistics {
 		final Direction orientationOfTilewithTile = OrientationsUtil.getOrientationOfTilewithTile(getPipe().container, tile);
 		Objects.requireNonNull(orientationOfTilewithTile, "Could not get direction from pipe and tile entity");
 
-		if (tile.getLevel() != null && tile.getCapability(ForgeCapabilities.ITEM_HANDLER, orientationOfTilewithTile.getOpposite()).isPresent()) {
-			((PipeItemsInvSysConnector) container.pipe).handleItemEnterInv(info, tile);
+		var level = tile.getLevel();
+		if (level != null)
+		{
+			var itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), orientationOfTilewithTile.getOpposite());
+			if (itemHandler != null)
+			{
+				((PipeItemsInvSysConnector) container.pipe).handleItemEnterInv(info, tile);
+			}
 		}
 	}
 }

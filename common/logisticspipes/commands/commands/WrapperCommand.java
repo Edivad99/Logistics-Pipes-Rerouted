@@ -1,12 +1,12 @@
 package logisticspipes.commands.commands;
-import net.minecraft.world.entity.player.Player;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
 
 import logisticspipes.commands.abstracts.SubCommandHandler;
 import logisticspipes.commands.commands.wrapper.EnableCommand;
 import logisticspipes.commands.commands.wrapper.ListCommand;
 import logisticspipes.commands.commands.wrapper.ShowCommand;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class WrapperCommand extends SubCommandHandler {
 

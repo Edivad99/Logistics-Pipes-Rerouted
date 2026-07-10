@@ -9,16 +9,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import net.minecraft.world.entity.player.Player;
-
-import net.minecraftforge.event.TickEvent;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.BufferTransfer;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataIOWrapper;
 
 public class ClientPacketBufferHandlerThread {

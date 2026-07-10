@@ -1,18 +1,18 @@
 package logisticspipes.network.packets.routingdebug;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-
-
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateTargetResponse.TargetMode;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -28,7 +28,7 @@ public class RoutingUpdateAskForTarget extends ModernPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
 			handleClient();
 		}
 	}
@@ -36,7 +36,7 @@ public class RoutingUpdateAskForTarget extends ModernPacket {
 	// See OpenChatGui: the client refs (Minecraft/HitResult/BlockHitResult/EntityHitResult) live in
 	// this @OnlyIn helper so they are stripped before verification on the dedicated server, letting
 	// the packet class link and be sent server-side. processPacket stays free of client classes.
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private void handleClient() {
 		HitResult box = Minecraft.getInstance().hitResult;
 		if (box == null) {

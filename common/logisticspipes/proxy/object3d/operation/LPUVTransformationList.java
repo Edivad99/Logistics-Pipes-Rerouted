@@ -1,6 +1,5 @@
 package logisticspipes.proxy.object3d.operation;
 
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.object3d.interfaces.I3DOperation;
 import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;

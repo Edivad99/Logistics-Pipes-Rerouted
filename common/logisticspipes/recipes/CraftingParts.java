@@ -1,10 +1,8 @@
 package logisticspipes.recipes;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-
 import lombok.Data;
+import net.minecraft.world.item.ItemStack;
 
 @Data
 public class CraftingParts {

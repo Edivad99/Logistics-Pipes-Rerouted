@@ -1,19 +1,9 @@
 package logisticspipes.logic.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.client.gui.GuiGraphics;
-// import net.minecraft.client.gui.Gui; // removed — Gui is HUD class in 1.20.1, not GUI base
-
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
-
-
-
-
+import javax.annotation.Nonnull;
+import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.logic.LogicController;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
@@ -23,7 +13,12 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.string.ChatColor;
-import javax.annotation.Nonnull;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+
+// import net.minecraft.client.gui.Gui; // removed — Gui is HUD class in 1.20.1, not GUI base
 
 public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 
@@ -65,7 +60,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		}
 	}
 
-	private static final ResourceLocation achievementTextures = new ResourceLocation("textures/gui/achievement/achievement_background.png");
+	private static final ResourceLocation achievementTextures = ResourceLocation.withDefaultNamespace("textures/gui/achievement/achievement_background.png");
 
 	private final ItemRenderer renderItem = net.minecraft.client.Minecraft.getInstance().getItemRenderer();
 
@@ -98,13 +93,13 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if (delta < 0) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (scrollY < 0) {
 			zoom = zoom.next();
-		} else if (delta > 0) {
+		} else if (scrollY > 0) {
 			zoom = zoom.prev();
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override

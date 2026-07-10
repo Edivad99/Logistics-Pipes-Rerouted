@@ -56,8 +56,8 @@ import net.minecraft.resources.ResourceLocation
 internal object GuideBookGraphics {
 
     const val ATLAS_SIZE = 256
-    val GUI_ATLAS = ResourceLocation(LPConstants.LP_MOD_ID, "textures/gui/gui.png")
-    val GUI_DARK_PATTERN = ResourceLocation(LPConstants.LP_MOD_ID, "textures/gui/dark.png")
+    val GUI_ATLAS = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "textures/gui/gui.png")
+    val GUI_DARK_PATTERN = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "textures/gui/dark.png")
 
     /**
      * Blits a region of the guide book atlas. The destination rectangle is screen-space; the texture
@@ -101,16 +101,17 @@ internal object GuideBookGraphics {
         RenderSystem.enableBlend()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         // Frame: source region (0,0)-(64,64) with a 24px border on each edge.
-        guiGraphics.blitNineSliced(
-            GUI_ATLAS,
-            frame.roundedLeft,
-            frame.roundedTop,
-            frame.roundedWidth,
-            frame.roundedHeight,
-            24, 24,
-            64, 64,
-            0, 0,
-        )
+        //Fixme
+//        guiGraphics.blitNineSliced(
+//            GUI_ATLAS,
+//            frame.roundedLeft,
+//            frame.roundedTop,
+//            frame.roundedWidth,
+//            frame.roundedHeight,
+//            24, 24,
+//            64, 64,
+//            0, 0,
+//        )
         // Slider rail/separator: source region (96,64)-(112,80) with 1px top/bottom caps and the
         // middle STRETCHED, like LP1's BorderedRectangle(slider, 1, 0, 1, 0). blitNineSliced is
         // wrong here: it TILES the edges/center (blitRepeating), and the 18px-wide destination from

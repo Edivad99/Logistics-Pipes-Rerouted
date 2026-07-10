@@ -1,23 +1,19 @@
 package logisticspipes.pipes;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-
-
 import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.network.GuiIDs;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
@@ -63,8 +59,8 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound) {
-		super.writeToNBT(nbttagcompound);
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.writeToNBT(nbttagcompound, provider);
 		if (!disk.isEmpty()) {
 			CompoundTag itemNBT = new CompoundTag();
 			disk.save(itemNBT);

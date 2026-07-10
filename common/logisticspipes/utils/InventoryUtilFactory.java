@@ -11,15 +11,13 @@ import java.util.ArrayList;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
-
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
@@ -64,7 +62,7 @@ public class InventoryUtilFactory {
 				return util;
 			}
 			// NeoForge 1.20.1 (47.1.x): old Capability<T> API via BlockEntity.getCapability
-			net.minecraftforge.items.IItemHandler handler = tile.getCapability(ForgeCapabilities.ITEM_HANDLER, direction).orElse(null);
+			IItemHandler handler = tile.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), direction);
 			if (handler != null) {
 				return new InventoryUtil(handler, mode);
 			}

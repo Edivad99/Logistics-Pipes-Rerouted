@@ -1,14 +1,11 @@
 package logisticspipes.routing.order;
 
 import java.util.List;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import lombok.Getter;
-
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import lombok.Getter;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -41,7 +38,7 @@ public class ClientSideOrderInfo implements IOrderInfoProvider {
 		routerId = input.readInt();
 		isFinished = input.readBoolean();
 		inProgress = input.readBoolean();
-		type = input.readEnum(IOrderInfoProvider.ResourceType.class);
+		type = input.readEnum(ResourceType.class);
 		progresses = input.readArrayList(LPDataInput::readFloat);
 		machineProgress = input.readByte();
 		if (input.readBoolean()) {

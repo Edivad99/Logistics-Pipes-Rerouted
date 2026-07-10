@@ -1,15 +1,12 @@
 package logisticspipes.gui.hud;
 
-import net.minecraft.client.Minecraft;
-
-
-
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsProviderLogistics;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
+import net.minecraft.client.Minecraft;
 
 public class HUDProvider extends BasicHUDGui {
 

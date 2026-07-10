@@ -2,14 +2,12 @@ package logisticspipes.routing.order;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.item.ItemIdentifier;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 @Accessors(chain = true)

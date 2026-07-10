@@ -1,10 +1,5 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.world.entity.player.Player;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.gui.GuiCraftingPipe;
 import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
@@ -15,6 +10,9 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.DummyModuleContainer;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

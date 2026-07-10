@@ -8,28 +8,19 @@
 
 package logisticspipes.utils.gui;
 
-import net.minecraft.client.gui.screens.Screen;
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import javax.annotation.Nonnull;
-
+import com.mojang.blaze3d.systems.RenderSystem;
+import logisticspipes.utils.Color;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.ChatFormatting;
-
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-
-
-
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.utils.Color;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Utils class for GUI-related drawing methods.
@@ -37,16 +28,16 @@ import logisticspipes.utils.Color;
 @OnlyIn(Dist.CLIENT)
 public final class LPGuiGraphics {
 
-	public static final ResourceLocation WIDGETS_TEXTURE = new ResourceLocation("textures/gui/widgets.png");
-	public static final ResourceLocation SLOT_TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/slot.png");
-	public static final ResourceLocation BIG_SLOT_TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/slot-big.png");
-	public static final ResourceLocation SMALL_SLOT_TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/slot-small.png");
-	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/guibackground.png");
-	public static final ResourceLocation LOCK_ICON = new ResourceLocation("logisticspipes", "textures/gui/lock.png");
-	public static final ResourceLocation LINES_ICON = new ResourceLocation("logisticspipes", "textures/gui/lines.png");
-	public static final ResourceLocation STATS_ICON = new ResourceLocation("logisticspipes", "textures/gui/stats.png");
-	public static final ResourceLocation SLOT_DISK_TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/slot_disk.png");
-	public static final ResourceLocation SLOT_PROGRAMMER_TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/slot_programmer.png");
+	public static final ResourceLocation WIDGETS_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/widgets.png");
+	public static final ResourceLocation SLOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot.png");
+	public static final ResourceLocation BIG_SLOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot-big.png");
+	public static final ResourceLocation SMALL_SLOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot-small.png");
+	public static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/guibackground.png");
+	public static final ResourceLocation LOCK_ICON = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/lock.png");
+	public static final ResourceLocation LINES_ICON = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/lines.png");
+	public static final ResourceLocation STATS_ICON = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/stats.png");
+	public static final ResourceLocation SLOT_DISK_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot_disk.png");
+	public static final ResourceLocation SLOT_PROGRAMMER_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot_programmer.png");
 	public static float zLevel = 0.0F;
 
 	private LPGuiGraphics() {}
@@ -106,7 +97,7 @@ public final class LPGuiGraphics {
 		int x = (Integer) tooltip[0] - (forceAdd ? 0 : guiLeft) + 12;
 		int y = (Integer) tooltip[1] - (forceAdd ? 0 : guiTop) - 12;
 		// NEI render hook removed (former dummy always returned false) — always draw our own tooltip.
-		LPGuiGraphics.drawToolTip(x, y, tooltipLines, stack.getRarity().color);
+		LPGuiGraphics.drawToolTip(x, y, tooltipLines, stack.getRarity().color());
 
 		LPGuiGraphics.zLevel = 0;
 	}

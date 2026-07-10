@@ -1,17 +1,15 @@
 package logisticspipes.items;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.level.Level;
-
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.guis.LogisticsPlayerSettingsGuiProvider;
 import logisticspipes.proxy.MainProxy;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class ItemPipeController extends LogisticsItem {
 

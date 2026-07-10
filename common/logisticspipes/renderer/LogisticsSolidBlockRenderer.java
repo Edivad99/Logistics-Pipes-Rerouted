@@ -3,10 +3,17 @@ package logisticspipes.renderer;
 import java.util.EnumMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
+import logisticspipes.LPConstants;
+import logisticspipes.blocks.LogisticsSolidBlock;
+import logisticspipes.blocks.LogisticsSolidTileEntity;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
+import logisticspipes.proxy.object3d.interfaces.IModel3D;
+import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
+import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -17,16 +24,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-
-import logisticspipes.LPConstants;
-import logisticspipes.blocks.LogisticsSolidBlock;
-import logisticspipes.blocks.LogisticsSolidTileEntity;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
-import logisticspipes.proxy.object3d.interfaces.IModel3D;
-import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
-import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -76,7 +73,7 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
 		String name = textureNameFor(type) + (useActive ? "_active" : "");
 		TextureAtlasSprite sprite = Minecraft.getInstance()
 				.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-				.apply(new ResourceLocation(LPConstants.LP_MOD_ID, "solid_block/" + name));
+				.apply(ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "solid_block/" + name));
 		TextureTransformation tx = SimpleServiceLocator.cclProxy.createIconTransformer(sprite);
 		cache.put(type, tx);
 		return tx;

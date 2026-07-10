@@ -1,18 +1,14 @@
 package logisticspipes.modplugins.jei;
 
-import net.minecraft.resources.ResourceLocation;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
+import logisticspipes.LPConstants;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
-
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
-import logisticspipes.LPConstants;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.gui.BaseGuiContainer;
 
 @JeiPlugin
@@ -20,7 +16,7 @@ import network.rs485.logisticspipes.gui.BaseGuiContainer;
 public class LPJEIPlugin implements IModPlugin {
 
     private static final ResourceLocation PLUGIN_ID =
-            new ResourceLocation(LPConstants.LP_MOD_ID, "jei_plugin");
+            ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "jei_plugin");
 
     @Override
     public ResourceLocation getPluginUid() {

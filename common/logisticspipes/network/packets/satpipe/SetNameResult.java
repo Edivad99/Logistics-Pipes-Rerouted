@@ -1,17 +1,13 @@
 package logisticspipes.network.packets.satpipe;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-
-
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.gui.GuiSatellitePipe;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.utils.StaticResolve;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

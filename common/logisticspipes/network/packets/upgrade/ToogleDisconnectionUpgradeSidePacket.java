@@ -1,20 +1,17 @@
 package logisticspipes.network.packets.upgrade;
 
 import java.util.Objects;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.SlotPacket;
 import logisticspipes.pipes.upgrades.ConnectionUpgradeConfig;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.UpgradeSlot;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

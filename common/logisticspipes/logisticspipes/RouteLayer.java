@@ -7,14 +7,12 @@
 package logisticspipes.logisticspipes;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.core.Direction;
-
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
+import net.minecraft.core.Direction;
 
 /**
  * @author Krapht This class is responsible for resolving where incoming items

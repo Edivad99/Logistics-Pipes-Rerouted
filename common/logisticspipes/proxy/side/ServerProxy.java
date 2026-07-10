@@ -1,5 +1,12 @@
 package logisticspipes.proxy.side;
 
+import logisticspipes.items.ItemLogisticsPipe;
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.pipes.basic.CoreUnroutedPipe;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.proxy.interfaces.IProxy;
+import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -9,17 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-
-import net.minecraftforge.server.ServerLifecycleHooks;
-
-import logisticspipes.LogisticsPipes;
-import logisticspipes.items.ItemLogisticsPipe;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.interfaces.IProxy;
-import logisticspipes.utils.item.ItemIdentifier;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class ServerProxy implements IProxy {
 

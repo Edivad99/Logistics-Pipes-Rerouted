@@ -7,13 +7,8 @@
 
 package logisticspipes.gui.modules;
 
+import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
-
-import net.minecraft.world.Container;
-
-
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.module.AdvancedExtractorSneakyGuiPacket;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
@@ -21,11 +16,12 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.ValuePropertyOverlay;
-import javax.annotation.Nonnull;
 
 public class GuiAdvancedExtractor extends ModuleBaseGui {
 

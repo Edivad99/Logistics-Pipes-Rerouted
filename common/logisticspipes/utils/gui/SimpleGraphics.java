@@ -8,14 +8,10 @@
 
 package logisticspipes.utils.gui;
 
-import net.minecraft.client.gui.Font;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-
-
 import logisticspipes.utils.Color;
+import net.minecraft.client.gui.Font;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Utils class for simple drawing methods.
@@ -29,7 +25,7 @@ public final class SimpleGraphics {
 	private SimpleGraphics() {}
 
 	/**
-	 * Takes colors as enum values from {@link logisticspipes.utils.Color}.
+	 * Takes colors as enum values from {@link Color}.
 	 *
 	 * @see #drawHorizontalLine(int, int, int, int, int)
 	 */
@@ -58,7 +54,7 @@ public final class SimpleGraphics {
 	}
 
 	/**
-	 * Takes colors as enum values from {@link logisticspipes.utils.Color}.
+	 * Takes colors as enum values from {@link Color}.
 	 *
 	 * @see #drawVerticalLine(int, int, int, int, int)
 	 */
@@ -87,7 +83,7 @@ public final class SimpleGraphics {
 	}
 
 	/**
-	 * Takes colors as enum values from {@link logisticspipes.utils.Color}.
+	 * Takes colors as enum values from {@link Color}.
 	 *
 	 * @see #drawRectNoBlend(int, int, int, int, int, double)
 	 */
@@ -126,7 +122,7 @@ public final class SimpleGraphics {
 	}
 
 	/**
-	 * Takes colors as enum values from {@link logisticspipes.utils.Color}.
+	 * Takes colors as enum values from {@link Color}.
 	 *
 	 * @see #drawGradientRect(int, int, int, int, int, int, double)
 	 */
@@ -196,7 +192,7 @@ public final class SimpleGraphics {
 	}
 
 	/**
-	 * Takes colors as enum values from {@link logisticspipes.utils.Color}.
+	 * Takes colors as enum values from {@link Color}.
 	 *
 	 * @see #drawQuad(Object, int, int, int, int, int, double)
 	 */

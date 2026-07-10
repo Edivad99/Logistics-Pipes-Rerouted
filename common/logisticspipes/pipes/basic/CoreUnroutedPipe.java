@@ -3,21 +3,6 @@ package logisticspipes.pipes.basic;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import logisticspipes.api.ILPPipe;
 import logisticspipes.config.Configs;
 import logisticspipes.interfaces.IClientState;
@@ -34,6 +19,19 @@ import logisticspipes.textures.Textures;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -118,12 +116,12 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		transport.updateEntity();
 	}
 
-	public void writeToNBT(CompoundTag data) {
-		transport.writeToNBT(data);
+	public void writeToNBT(CompoundTag data, HolderLookup.Provider provider) {
+		transport.writeToNBT(data, provider);
 	}
 
 	public void readFromNBT(CompoundTag data) {
-		transport.readFromNBT(data);
+		transport.readFromNBT(data, provider);
 	}
 
 	public boolean needsInit() {
@@ -223,7 +221,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	public void addStatusInformation(List<StatusEntry> status) {}
 
 	public boolean isOpaque() {
-		return Configs.OPAQUE;
+		return Configs.COMMON.OPAQUE.getAsBoolean();
 	}
 
 	@Override

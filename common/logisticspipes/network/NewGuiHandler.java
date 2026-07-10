@@ -8,17 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-
-import net.minecraft.world.inventory.AbstractContainerMenu;
-
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.PopupGuiProvider;
@@ -28,6 +17,15 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolverUtil;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import network.rs485.logisticspipes.util.LPDataIOWrapper;
 
 public class NewGuiHandler {
@@ -100,7 +98,7 @@ public class NewGuiHandler {
 		try {
 			container = guiProvider.getContainer(player);
 		} catch (Throwable t) {
-			logisticspipes.LogisticsPipes.log.error("getContainer threw for provider {}", guiProvider.getClass().getSimpleName(), t);
+			LogisticsPipes.log.error("getContainer threw for provider {}", guiProvider.getClass().getSimpleName(), t);
 			return;
 		}
 		if (container == null) {
@@ -127,8 +125,8 @@ public class NewGuiHandler {
 			throw new RuntimeException("Failed to set LP container windowId", ex);
 		}
 		player.containerMenu = container;
-		net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-				new net.minecraftforge.event.entity.player.PlayerContainerEvent.Open(player, player.containerMenu));
+		NeoForge.EVENT_BUS.post(
+				new PlayerContainerEvent.Open(player, player.containerMenu));
 
 		// Send OpenGUIPacket BEFORE initMenu so the client's containerMenu is
 		// established before the slot-sync packets (ClientboundContainerSetContent)

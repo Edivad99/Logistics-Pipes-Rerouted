@@ -2,21 +2,17 @@ package logisticspipes.commands;
 
 import java.util.Arrays;
 import java.util.Locale;
-
-import net.minecraft.world.entity.player.Player;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraftforge.server.ServerLifecycleHooks;
-
-import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.commands.exception.CommandNotFoundException;
 import logisticspipes.commands.exception.LPCommandException;
 import logisticspipes.commands.exception.PermissionDeniedException;
 import logisticspipes.proxy.MainProxy;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 // Registered via RegisterCommandsEvent in LogisticsPipes.registerCommands().
 // Subcommands are parsed from a greedy-string argument and dispatched through the

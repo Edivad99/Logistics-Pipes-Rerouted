@@ -1,10 +1,8 @@
 package logisticspipes.interfaces;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-
 import logisticspipes.utils.gui.ItemDisplay;
+import net.minecraft.world.item.ItemStack;
 
 public interface IDiskProvider {
 

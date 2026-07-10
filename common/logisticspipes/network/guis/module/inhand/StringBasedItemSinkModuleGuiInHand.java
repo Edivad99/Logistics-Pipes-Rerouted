@@ -1,7 +1,5 @@
 package logisticspipes.network.guis.module.inhand;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.gui.modules.GuiStringBasedItemSink;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.items.ItemModule;
@@ -12,6 +10,7 @@ import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.DummyModuleContainer;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class StringBasedItemSinkModuleGuiInHand extends ModuleInHandGuiProvider {

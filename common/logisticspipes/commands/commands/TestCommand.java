@@ -1,17 +1,15 @@
 package logisticspipes.commands.commands;
-import net.minecraft.world.entity.player.Player;
 
 import java.lang.reflect.Method;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component;
-
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import kotlinx.coroutines.Job;
-
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.utils.string.ChatColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class TestCommand implements ICommandHandler {
 

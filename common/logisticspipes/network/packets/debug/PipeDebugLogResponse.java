@@ -1,13 +1,12 @@
 package logisticspipes.network.packets.debug;
 
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.chat.Component;
-
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class PipeDebugLogResponse extends CoordinatesPacket {

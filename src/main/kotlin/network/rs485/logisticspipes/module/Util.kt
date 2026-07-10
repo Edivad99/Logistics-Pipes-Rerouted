@@ -49,10 +49,10 @@ import logisticspipes.config.Configs
 fun determineSlotsPerTick(everyNthTick: Int, inventorySize: Int): Int {
     var slotsPerTick = 0
     if (inventorySize > 0) {
-        slotsPerTick = (inventorySize / everyNthTick).coerceAtLeast(Configs.MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK)
+        slotsPerTick = (inventorySize / everyNthTick).coerceAtLeast(Configs.COMMON.MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt)
     }
-    if (Configs.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK > 0) {
-        slotsPerTick = slotsPerTick.coerceAtMost(Configs.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK)
+    if (Configs.COMMON.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt > 0) {
+        slotsPerTick = slotsPerTick.coerceAtMost(Configs.COMMON.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt)
     }
     return slotsPerTick
 }

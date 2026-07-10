@@ -1,23 +1,12 @@
 
 package logisticspipes.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
-
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.resources.ResourceLocation;
-
-
-
+import javax.annotation.Nonnull;
 import logisticspipes.LPItems;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.items.ItemLogisticsPipe;
@@ -28,13 +17,18 @@ import logisticspipes.network.packets.block.CompilerTriggerTaskPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.InputBar;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.TextListDisplay;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import network.rs485.logisticspipes.util.TextUtil;
-import javax.annotation.Nonnull;
 
 //TODO: Config Option for disabling program compilation
 public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
@@ -125,7 +119,7 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 				ResourceLocation sel = getProgramListForSelectionIndex(list).get(index);
 
 				ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
-				return StreamSupport.stream(listPrograms.spliterator(), false).anyMatch(it -> new ResourceLocation(((StringTag) it).getAsString()).equals(sel))
+				return listPrograms.stream().anyMatch(it -> ResourceLocation.parse(it.getAsString()).equals(sel))
 						? 0xAAFFAA : 0xFFAAAA;
 			}
 		};
@@ -186,8 +180,8 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 				ListTag list = compiler.getListTagForKey("compilerCategories");
 				ResourceLocation sel = getProgramListForSelectionIndex(list).get(selIndex);
 				ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
-				boolean flag = StreamSupport.stream(listPrograms.spliterator(), false)
-						.anyMatch(it -> new ResourceLocation(((StringTag) it).getAsString()).equals(sel));
+				boolean flag = listPrograms.stream()
+						.anyMatch(it ->ResourceLocation.parse(it.getAsString()).equals(sel));
 				MainProxy.sendPacketToServer(PacketHandler.getPacket(CompilerTriggerTaskPacket.class).setCategory(sel).setType(flag ? "flash" : "program").setTilePos(compiler));
 			}
 		});
@@ -252,7 +246,7 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 				ResourceLocation sel = getProgramListForSelectionIndex(list).get(selIndex);
 
 				ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
-				if (StreamSupport.stream(listPrograms.spliterator(), false).anyMatch(it -> new ResourceLocation(((StringTag) it).getAsString()).equals(sel))) {
+				if (listPrograms.stream().anyMatch(it -> ResourceLocation.parse(it.getAsString()).equals(sel))) {
 					programmerButton.setMessage(net.minecraft.network.chat.Component.literal("Flash"));
 					programmerButton.active = !compiler.getInventory().getItem(1).isEmpty();
 				} else {
@@ -264,12 +258,12 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 	}
 
 	private List<ResourceLocation> getProgramListForSelectionIndex(ListTag list) {
-		return StreamSupport.stream(list.spliterator(), false).flatMap(
-				nbtBase -> LogisticsProgramCompilerTileEntity.programByCategory.get(new ResourceLocation(((StringTag) nbtBase).getAsString()))
+		return list.stream().flatMap(
+				nbtBase -> LogisticsProgramCompilerTileEntity.programByCategory.get(ResourceLocation.parse(nbtBase.getAsString()))
 						.stream())
 				.filter(it -> TextUtil.translate(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(it).getDescriptionId()).toLowerCase().contains(search.getText().toLowerCase()))
 				.sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(o)))
-						.<String>thenComparing(o -> TextUtil.translate(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(o).getDescriptionId()).toLowerCase())
+						.thenComparing(o -> TextUtil.translate(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(o).getDescriptionId()).toLowerCase())
 				)
 				.collect(Collectors.toList());
 	}

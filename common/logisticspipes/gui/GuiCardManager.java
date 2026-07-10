@@ -1,8 +1,6 @@
 package logisticspipes.gui;
-import net.minecraft.client.gui.GuiGraphics;
 
-import net.minecraft.world.entity.player.Player;
-
+import javax.annotation.Nonnull;
 import logisticspipes.LPItems;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.items.ItemModule;
@@ -11,7 +9,8 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import javax.annotation.Nonnull;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.player.Player;
 
 public class GuiCardManager extends LogisticsBaseGuiScreen {
 

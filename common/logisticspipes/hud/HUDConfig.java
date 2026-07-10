@@ -1,11 +1,9 @@
 package logisticspipes.hud;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-
 import logisticspipes.interfaces.IHUDConfig;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 public class HUDConfig implements IHUDConfig {
 

@@ -3,25 +3,16 @@ package logisticspipes.proxy.object3d.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.world.phys.AABB;
-
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.object3d.interfaces.I3DOperation;
 import logisticspipes.proxy.object3d.interfaces.IBounds;
 import logisticspipes.proxy.object3d.interfaces.IModel3D;
-import logisticspipes.proxy.object3d.interfaces.ITranslation;
 import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
-import logisticspipes.proxy.object3d.operation.LPColourMultiplier;
-import logisticspipes.proxy.object3d.operation.LPRotation;
-import logisticspipes.proxy.object3d.operation.LPScale;
-import logisticspipes.proxy.object3d.operation.LPTranslation;
-import logisticspipes.proxy.object3d.operation.LPUVScale;
 import logisticspipes.proxy.object3d.operation.LPUVTransformationList;
-import logisticspipes.proxy.object3d.operation.LPUVTranslation;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.world.phys.AABB;
 
 /**
  * NeoForge 1.20.1 native {@link IModel3D} backed by a list of {@link LPQuadData}
@@ -153,9 +144,9 @@ public final class LPModel3DImpl implements IModel3D {
 		for (I3DOperation op : ops) if (op != null) queue.add(op);
 		while (!queue.isEmpty()) {
 			I3DOperation op = queue.poll();
-			if (op instanceof logisticspipes.proxy.object3d.operation.LPUVTransformationList) {
-				logisticspipes.proxy.object3d.operation.LPUVTransformationList list =
-					(logisticspipes.proxy.object3d.operation.LPUVTransformationList) op;
+			if (op instanceof LPUVTransformationList) {
+				LPUVTransformationList list =
+					(LPUVTransformationList) op;
 				for (I3DOperation c : list.getChildren()) if (c != null) queue.add(c);
 				continue;
 			}
@@ -200,8 +191,8 @@ public final class LPModel3DImpl implements IModel3D {
 				float finalU = uv[0];
 				float finalV = uv[1];
 				TextureTransformation innerTex = tex;
-				if (innerTex instanceof logisticspipes.proxy.object3d.operation.LPUVTransformationList) {
-					innerTex = ((logisticspipes.proxy.object3d.operation.LPUVTransformationList) innerTex).getInnerTexture();
+				if (innerTex instanceof LPUVTransformationList) {
+					innerTex = ((LPUVTransformationList) innerTex).getInnerTexture();
 				}
 				if (innerTex instanceof LPTextureTransformationImpl) {
 					LPTextureTransformationImpl ltt = (LPTextureTransformationImpl) innerTex;
@@ -209,21 +200,19 @@ public final class LPModel3DImpl implements IModel3D {
 					finalV = ltt.mapV(uv[1]);
 				}
 				if (pose != null) {
-					buf.vertex(pose, q.x[i], q.y[i], q.z[i])
-						.color(r, g, b, a)
-						.uv(finalU, finalV)
-						.overlayCoords(overlay)
-						.uv2(light)
-						.normal(nrm, q.nx[i], q.ny[i], q.nz[i])
-						.endVertex();
+					buf.addVertex(pose, q.x[i], q.y[i], q.z[i])
+						.setColor(r, g, b, a)
+						.setUv(finalU, finalV)
+						.setOverlay(overlay)
+						.setLight(light)
+						.setNormal(q.nx[i], q.ny[i], q.nz[i]);
 				} else {
-					buf.vertex(q.x[i], q.y[i], q.z[i])
-						.color(r, g, b, a)
-						.uv(finalU, finalV)
-						.overlayCoords(overlay)
-						.uv2(light)
-						.normal(q.nx[i], q.ny[i], q.nz[i])
-						.endVertex();
+					buf.addVertex(q.x[i], q.y[i], q.z[i])
+						.setColor(r, g, b, a)
+						.setUv(finalU, finalV)
+						.setOverlay(overlay)
+						.setLight(light)
+						.setNormal(q.nx[i], q.ny[i], q.nz[i]);
 				}
 			}
 		}

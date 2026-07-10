@@ -1,12 +1,9 @@
 package logisticspipes.datafixer;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
 import javax.annotation.Nonnull;
-
-import net.minecraft.nbt.CompoundTag;
-
 import logisticspipes.items.LogisticsSolidBlockItem;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 
 // DataFixer for solid block item meta→id migration. Not registered via DFU (no 1.12.2→1.20.1 upgrade path).
 public class DataFixerSolidBlockItems {

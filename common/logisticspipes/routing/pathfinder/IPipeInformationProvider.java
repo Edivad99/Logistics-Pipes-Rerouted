@@ -2,15 +2,13 @@ package logisticspipes.routing.pathfinder;
 
 import java.util.List;
 import java.util.stream.Stream;
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.connection.ConnectionType;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 

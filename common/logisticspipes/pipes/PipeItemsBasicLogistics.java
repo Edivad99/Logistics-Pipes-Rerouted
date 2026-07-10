@@ -8,15 +8,9 @@ package logisticspipes.pipes;
 
 import java.util.Collection;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
-import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -25,6 +19,9 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 
@@ -51,7 +48,7 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 		}, item);
 		itemSinkModule = new ModuleItemSink();
 		itemSinkModule.registerHandler(this, this);
-		itemSinkModule.registerPosition(LogisticsModule.ModulePositionType.IN_PIPE, 0);
+		itemSinkModule.registerPosition(ModulePositionType.IN_PIPE, 0);
 	}
 
 	@Override

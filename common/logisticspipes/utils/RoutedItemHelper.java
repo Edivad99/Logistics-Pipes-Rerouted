@@ -1,13 +1,11 @@
 package logisticspipes.utils;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.world.item.ItemStack;
 
 public class RoutedItemHelper {
 

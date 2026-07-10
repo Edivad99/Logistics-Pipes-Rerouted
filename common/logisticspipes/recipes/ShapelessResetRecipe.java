@@ -1,7 +1,7 @@
 package logisticspipes.recipes;
 
 import com.google.gson.JsonObject;
-
+import logisticspipes.LPConstants;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -12,8 +12,6 @@ import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-
-import logisticspipes.LPConstants;
 
 /**
  * A crafting recipe that produces a clean (NBT-stripped) copy of a specific item.

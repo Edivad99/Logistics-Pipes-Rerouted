@@ -7,32 +7,23 @@
 
 package logisticspipes.pipes.basic;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.PriorityBlockingQueue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.ChestBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.ChestType;
-import net.minecraft.client.Minecraft;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-
-
-import net.minecraft.network.chat.Component;
-
 import kotlin.Unit;
-import lombok.Getter;
-
 import logisticspipes.LPConstants;
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
@@ -41,14 +32,30 @@ import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.config.Configs;
-import logisticspipes.interfaces.*;
-import logisticspipes.interfaces.routing.*;
+import logisticspipes.interfaces.IClientState;
+import logisticspipes.interfaces.ILPPositionProvider;
+import logisticspipes.interfaces.IPipeServiceProvider;
+import logisticspipes.interfaces.IPipeUpgradeManager;
+import logisticspipes.interfaces.IQueueCCEvent;
+import logisticspipes.interfaces.ISecurityProvider;
+import logisticspipes.interfaces.ISlotUpgradeManager;
+import logisticspipes.interfaces.ISubSystemPowerProvider;
+import logisticspipes.interfaces.IWatchingHandler;
+import logisticspipes.interfaces.IWorldProvider;
+import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
+import logisticspipes.interfaces.routing.IFilter;
+import logisticspipes.interfaces.routing.IRequestItems;
+import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
+import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.items.ItemPipeSignCreator;
-import logisticspipes.logisticspipes.*;
+import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
+import logisticspipes.logisticspipes.ITrackStatistics;
+import logisticspipes.logisticspipes.PipeTransportLayer;
+import logisticspipes.logisticspipes.RouteLayer;
+import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.network.GuiIDs;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -85,11 +92,33 @@ import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeTransportLogistics;
-import logisticspipes.utils.*;
+import logisticspipes.utils.CacheHolder;
+import logisticspipes.utils.DirectionUtil;
+import logisticspipes.utils.FluidIdentifierStack;
+import logisticspipes.utils.OrientationsUtil;
+import logisticspipes.utils.PlayerCollectionList;
+import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import lombok.Getter;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import network.rs485.logisticspipes.connection.Adjacent;
 import network.rs485.logisticspipes.connection.AdjacentFactory;
 import network.rs485.logisticspipes.connection.NoAdjacent;
@@ -142,7 +171,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	private final PowerSupplierHandler powerHandler = new PowerSupplierHandler(this);
 	@Getter
 	private final List<IOrderInfoProvider> clientSideOrderManager = new ArrayList<>();
-	private int throttleTimeLeft = 20 + new Random().nextInt(Configs.LOGISTICS_DETECTION_FREQUENCY);
+	private int throttleTimeLeft = 20 + new Random().nextInt(Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
 	private final int[] queuedParticles = new int[Particles.values().length];
 	private boolean hasQueuedParticles = false;
 	private boolean isOpaqueClientSide = false;
@@ -194,7 +223,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		CoreRoutedPipe.pipecount++;
 
 		//Roughly spread pipe updates throughout the frequency, no need to maintain balance
-		_delayOffset = CoreRoutedPipe.pipecount % Configs.LOGISTICS_DETECTION_FREQUENCY;
+		_delayOffset = CoreRoutedPipe.pipecount % Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
 	}
 
 	@Override
@@ -397,7 +426,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 		//update router before ticking logic/transport
 		final boolean doFullRefresh =
-				getWorld().getGameTime() % Configs.LOGISTICS_DETECTION_FREQUENCY == _delayOffset
+				getWorld().getGameTime() % Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt() == _delayOffset
 				|| _initialInit || recheckConnections;
 		if (doFullRefresh) {
 			// update adjacent cache first, so interests can be gathered correctly
@@ -598,7 +627,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	public void checkTexturePowered() {
-		if (Configs.LOGISTICS_POWER_USAGE_DISABLED) {
+		if (Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return;
 		}
 		if (!isNthTick(10)) {
@@ -669,7 +698,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public void spawnParticle(Particles particle, int amount) {
-		if (!Configs.ENABLE_PARTICLE_FX) {
+		if (!Configs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
 			return;
 		}
 		queuedParticles[particle.ordinal()] += amount;
@@ -712,8 +741,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag nbttagcompound) {
-		super.writeToNBT(nbttagcompound);
+	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.writeToNBT(nbttagcompound, provider);
 
 		synchronized (routerIdLock) {
 			if (routerId == null || routerId.isEmpty()) {
@@ -903,7 +932,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).getItem() == LPItems.remoteOrderer.get()) {
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openRequest) {
-					logisticspipes.network.guis.pipe.NormalOrdererGui gui = logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
+					logisticspipes.network.guis.pipe.NormalOrdererGui gui = NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
 					gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
 					gui.setDim(entityplayer.level().dimension().location());
 					gui.open(entityplayer);
@@ -1078,7 +1107,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (MainProxy.isClient(getWorld())) {
 			return false;
 		}
-		if (Configs.LOGISTICS_POWER_USAGE_DISABLED) {
+		if (Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return true;
 		}
 		if (amount == 0) {
@@ -1114,7 +1143,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (MainProxy.isClient(getWorld())) {
 			return false;
 		}
-		if (Configs.LOGISTICS_POWER_USAGE_DISABLED) {
+		if (Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return true;
 		}
 		if (amount == 0) {
@@ -1303,7 +1332,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		TextureType texture = getTextureType(connection);
 		if (_textureBufferPowered) {
 			return texture.powered;
-		} else if (Configs.LOGISTICS_POWER_USAGE_DISABLED) {
+		} else if (Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return texture.normal;
 		} else {
 			return texture.unpowered;
@@ -1608,9 +1637,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Override
 	public boolean isOpaque() {
 		if (MainProxy.isClient(getWorld())) {
-			return Configs.OPAQUE || isOpaqueClientSide;
+			return Configs.COMMON.OPAQUE.getAsBoolean() || isOpaqueClientSide;
 		} else {
-			return Configs.OPAQUE || this.getUpgradeManager().isOpaque();
+			return Configs.COMMON.OPAQUE.getAsBoolean() || this.getUpgradeManager().isOpaque();
 		}
 	}
 

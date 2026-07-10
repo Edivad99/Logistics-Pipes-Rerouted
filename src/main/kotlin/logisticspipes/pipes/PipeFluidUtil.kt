@@ -49,7 +49,7 @@ import logisticspipes.utils.item.ItemIdentifierStack
 import logisticspipes.utils.tuples.Pair
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraftforge.common.capabilities.ForgeCapabilities
+import net.neoforged.neoforge.capabilities.Capabilities
 import network.rs485.logisticspipes.connection.getTankUtil
 
 object PipeFluidUtil {
@@ -59,14 +59,17 @@ object PipeFluidUtil {
         if (SimpleServiceLocator.specialTankHandler.hasHandlerFor(tile)) {
             val handler = SimpleServiceLocator.specialTankHandler.getTankHandlerFor(tile)
             if (handler is ISpecialTankAccessHandler && tile != null) {
-                val fluidHandler = tile.getCapability(ForgeCapabilities.FLUID_HANDLER, dirOnEntity).orElse(null)
-                if (fluidHandler != null) {
-                    return SpecialTankUtil(fluidHandler, tile, handler)
+                val level = tile.level
+                if (level != null) {
+                    val fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, tile.blockPos, dirOnEntity)
+                    if (fluidHandler != null) {
+                        return SpecialTankUtil(fluidHandler, tile, handler)
+                    }
                 }
             }
         }
         if (tile != null) {
-            val fluidHandler = tile.getCapability(ForgeCapabilities.FLUID_HANDLER, dirOnEntity).orElse(null)
+            val fluidHandler = tile.level?.getCapability(Capabilities.FluidHandler.BLOCK, tile.blockPos, dirOnEntity)
             if (fluidHandler != null) {
                 return TankUtil(fluidHandler)
             }

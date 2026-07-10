@@ -1,7 +1,7 @@
 package logisticspipes.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-
+import logisticspipes.items.LogisticsSolidBlockItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-
-import logisticspipes.items.LogisticsSolidBlockItem;
 
 /**
  * BEWLR that draws an LP solid block item using the same OBJ geometry as

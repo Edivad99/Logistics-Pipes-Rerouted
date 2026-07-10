@@ -1,12 +1,10 @@
 package logisticspipes.renderer.state;
 
-import net.minecraft.core.Direction;
-
-import lombok.Getter;
-
 import logisticspipes.config.Configs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
+import lombok.Getter;
+import net.minecraft.core.Direction;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -71,10 +69,10 @@ public class TextureMatrix {
 				dirty = true;
 			}
 			hasPowerUpgrade = cPipe.getUpgradeManager().hasRFPowerSupplierUpgrade() || cPipe.getUpgradeManager().getIC2PowerLevel() > 0;
-			if (hasPower != (cPipe._textureBufferPowered || Configs.LOGISTICS_POWER_USAGE_DISABLED)) {
+			if (hasPower != (cPipe._textureBufferPowered || Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean())) {
 				dirty = true;
 			}
-			hasPower = cPipe._textureBufferPowered || Configs.LOGISTICS_POWER_USAGE_DISABLED;
+			hasPower = cPipe._textureBufferPowered || Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean();
 			if (isFluid != cPipe.isFluidPipe()) {
 				dirty = true;
 			}

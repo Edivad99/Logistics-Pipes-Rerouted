@@ -3,13 +3,6 @@ package logisticspipes.pipes;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.Item;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-
-import net.minecraftforge.fluids.FluidStack;
-
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
@@ -21,6 +14,12 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class PipeFluidInsertion extends FluidRoutedPipe {
 
@@ -80,7 +79,7 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 				continue;
 			}
 
-			FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.getValue2().getSinkAmountInt(), net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+			FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.getValue2().getSinkAmountInt(), IFluidHandler.FluidAction.EXECUTE);
 			ItemIdentifierStack liquidContainer = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(FluidIdentifierStack.getFromStack(toSend));
 			IRoutedItem routed = SimpleServiceLocator.routedItemHelper.createNewTravelItem(liquidContainer);
 			routed.setDestination(result.getValue1());
@@ -92,8 +91,8 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag tag) {
-		super.writeToNBT(tag);
+	public void writeToNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+		super.writeToNBT(tag, provider);
 		tag.putIntArray("nextSendMax", nextSendMax);
 		tag.putIntArray("nextSendMin", nextSendMin);
 	}

@@ -5,21 +5,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-
+import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
+import mezz.jei.api.ingredients.ITypedIngredient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
-import mezz.jei.api.ingredients.ITypedIngredient;
-
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.gui.widget.GhostSlot;
 import network.rs485.logisticspipes.gui.widget.Item;
 import network.rs485.logisticspipes.gui.widget.Unmodifiable;
@@ -32,7 +28,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
 
     @Override
     @SuppressWarnings("unchecked")
-    public <I> List<IGhostIngredientHandler.Target<I>> getTargetsTyped(
+    public <I> List<Target<I>> getTargetsTyped(
             @Nonnull AbstractContainerScreen<?> gui,
             @Nonnull ITypedIngredient<I> typedIngredient,
             boolean doStart) {
@@ -42,7 +38,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
             return Collections.emptyList();
         }
 
-        List<IGhostIngredientHandler.Target<ItemStack>> targets = new ArrayList<>();
+        List<Target<ItemStack>> targets = new ArrayList<>();
         AbstractContainerMenu menu = gui.getMenu();
 
         for (Slot slot : menu.slots) {
@@ -51,7 +47,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
             if (!(slot instanceof Item)) continue;
 
             final Slot ghostSlot = slot;
-            targets.add(new IGhostIngredientHandler.Target<ItemStack>() {
+            targets.add(new Target<ItemStack>() {
                 @Override
                 public Rect2i getArea() {
                     return new Rect2i(
@@ -83,7 +79,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
             });
         }
 
-        return (List<IGhostIngredientHandler.Target<I>>) (List<?>) targets;
+        return (List<Target<I>>) (List<?>) targets;
     }
 
     @Override

@@ -1,10 +1,7 @@
 package logisticspipes.items;
 
-import javax.annotation.Nonnull;
-
 // net.minecraft.world.item.CreativeModeTab removed — use CreativeModeTab
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.NonNullList;
+
 
 public class ItemParts extends LogisticsItem {
 

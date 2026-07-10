@@ -1,29 +1,11 @@
 package logisticspipes.utils.gui;
-import net.minecraft.client.gui.GuiGraphics;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.gui.screens.Screen;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.resources.ResourceLocation;
-
-
-
-import lombok.Getter;
-
-
-
-
 import logisticspipes.config.Configs;
 import logisticspipes.interfaces.ISpecialItemRenderer;
 import logisticspipes.utils.Color;
@@ -32,6 +14,11 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import logisticspipes.utils.tuples.Pair;
+import lombok.Getter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceLocation;
 
 public class ItemDisplay {
 
@@ -44,7 +31,7 @@ public class ItemDisplay {
 		NAME_DOWN,
 	}
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation("textures/gui/icons.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/icons.png");
 	private static final int PANELSIZEX = 20;
 	private static final int PANELSIZEY = 20;
 
@@ -311,23 +298,23 @@ public class ItemDisplay {
 		// Legacy no-arg entry — scroll now routes through mouseScrolled → handleMouse(double delta).
 	}
 
-	public void handleMouse(double delta) {
+	public void handleMouse(double scrollY) {
 		boolean isShift = Screen.hasShiftDown();
 		boolean isControl = Screen.hasControlDown();
-		int wheel = (int)(delta);
+		int wheel = (int)(scrollY);
 		if (wheel == 0) {
 			return;
 		}
 
 		if (isShift && !isControl && isShiftPageChange()) {
 			if (wheel > 0) {
-				if (!Configs.LOGISTICS_ORDERER_PAGE_INVERTWHEEL) {
+				if (!Configs.COMMON.LOGISTICS_ORDERER_PAGE_INVERTWHEEL.getAsBoolean()) {
 					prevPage();
 				} else {
 					nextPage();
 				}
 			} else {
-				if (!Configs.LOGISTICS_ORDERER_PAGE_INVERTWHEEL) {
+				if (!Configs.COMMON.LOGISTICS_ORDERER_PAGE_INVERTWHEEL.getAsBoolean()) {
 					nextPage();
 				} else {
 					prevPage();
@@ -337,7 +324,7 @@ public class ItemDisplay {
 			int requestCount = requestCountBar.getInt();
 			if (isShift && !isControl && !isShiftPageChange()) {
 				if (wheel > 0) {
-					if (!Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL) {
+					if (!Configs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount = Math.max(1, requestCount - (wheel * getAmountChangeMode(4)));
 					} else {
 						if (requestCount == 1) {
@@ -346,7 +333,7 @@ public class ItemDisplay {
 						requestCount += wheel * getAmountChangeMode(4);
 					}
 				} else {
-					if (!Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL) {
+					if (!Configs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						if (requestCount == 1) {
 							requestCount -= 1;
 						}
@@ -357,13 +344,13 @@ public class ItemDisplay {
 				}
 			} else if (!isControl) {
 				if (wheel > 0) {
-					if (!Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL) {
+					if (!Configs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount = Math.max(1, requestCount - (wheel * getAmountChangeMode(1)));
 					} else {
 						requestCount += wheel * getAmountChangeMode(1);
 					}
 				} else {
-					if (!Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL) {
+					if (!Configs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount += -(wheel * getAmountChangeMode(1));
 					} else {
 						requestCount = Math.max(1, requestCount + wheel * getAmountChangeMode(1));
@@ -371,7 +358,7 @@ public class ItemDisplay {
 				}
 			} else if (isControl && !isShift) {
 				if (wheel > 0) {
-					if (!Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL) {
+					if (!Configs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount = Math.max(1, requestCount - wheel * getAmountChangeMode(2));
 					} else {
 						if (requestCount == 1) {
@@ -380,7 +367,7 @@ public class ItemDisplay {
 						requestCount += wheel * getAmountChangeMode(2);
 					}
 				} else {
-					if (!Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL) {
+					if (!Configs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						if (requestCount == 1) {
 							requestCount -= 1;
 						}
@@ -391,7 +378,7 @@ public class ItemDisplay {
 				}
 			} else if (isControl && isShift) {
 				if (wheel > 0) {
-					if (!Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL) {
+					if (!Configs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount = Math.max(1, requestCount - wheel * getAmountChangeMode(3));
 					} else {
 						if (requestCount == 1) {
@@ -400,7 +387,7 @@ public class ItemDisplay {
 						requestCount += wheel * getAmountChangeMode(3);
 					}
 				} else {
-					if (!Configs.LOGISTICS_ORDERER_COUNT_INVERTWHEEL) {
+					if (!Configs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						if (requestCount == 1) {
 							requestCount -= 1;
 						}

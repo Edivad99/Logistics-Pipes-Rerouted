@@ -1,11 +1,10 @@
 package logisticspipes.routing;
 
-import lombok.Getter;
-
 import logisticspipes.interfaces.routing.IProvideFluids;
 import logisticspipes.request.IExtraPromise;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.utils.FluidIdentifier;
+import lombok.Getter;
 
 public class FluidLogisticsExtraPromise extends FluidLogisticsPromise implements IExtraPromise {
 

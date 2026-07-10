@@ -1,23 +1,17 @@
 package logisticspipes.gui.popup;
 
-import net.minecraft.client.gui.GuiGraphics;
-
 import java.util.UUID;
-
-import net.minecraft.client.Minecraft;
-
-
-
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.AddNewChannelPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.GuiCheckBox;
-import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.InputBar;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiAddChannelPopup extends SubGuiScreen {

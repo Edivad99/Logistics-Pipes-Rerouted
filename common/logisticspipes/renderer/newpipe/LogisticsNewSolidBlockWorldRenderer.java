@@ -1,14 +1,8 @@
 package logisticspipes.renderer.newpipe;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import net.minecraft.core.Direction;
-
-import lombok.Getter;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.object3d.interfaces.IModel3D;
@@ -16,6 +10,8 @@ import logisticspipes.proxy.object3d.operation.LPRotation;
 import logisticspipes.proxy.object3d.operation.LPScale;
 import logisticspipes.proxy.object3d.operation.LPTranslation;
 import logisticspipes.proxy.object3d.operation.LPUVScale;
+import lombok.Getter;
+import net.minecraft.core.Direction;
 
 public class LogisticsNewSolidBlockWorldRenderer {
 

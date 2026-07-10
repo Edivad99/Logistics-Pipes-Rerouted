@@ -2,11 +2,8 @@ package logisticspipes.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
-
-import net.minecraft.world.phys.AABB;
-
 import lombok.SneakyThrows;
-
+import net.minecraft.world.phys.AABB;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LPPositionSet<T extends DoubleCoordinates> extends HashSet<T> implements IPositionRotateble {

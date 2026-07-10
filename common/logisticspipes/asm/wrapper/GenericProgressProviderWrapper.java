@@ -1,8 +1,7 @@
 package logisticspipes.asm.wrapper;
 
-import net.minecraft.world.level.block.entity.BlockEntity;
-
 import logisticspipes.proxy.interfaces.IGenericProgressProvider;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class GenericProgressProviderWrapper extends AbstractWrapper implements IGenericProgressProvider {
 

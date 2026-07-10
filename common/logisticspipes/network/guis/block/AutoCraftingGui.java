@@ -1,9 +1,6 @@
 package logisticspipes.network.guis.block;
 
 import java.util.BitSet;
-
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.gui.GuiLogisticsCraftingTable;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
@@ -11,6 +8,7 @@ import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

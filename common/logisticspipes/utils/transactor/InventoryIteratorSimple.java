@@ -4,8 +4,8 @@ import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
 
-import net.minecraftforge.items.IItemHandler;
 
 class InventoryIteratorSimple implements Iterable<IInvSlot> {
 

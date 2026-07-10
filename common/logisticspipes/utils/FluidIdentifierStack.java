@@ -1,8 +1,7 @@
 package logisticspipes.utils;
 
-import net.minecraftforge.fluids.FluidStack;
-
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidIdentifierStack implements Comparable<FluidIdentifierStack> {
 

@@ -1,12 +1,6 @@
 package logisticspipes.gui.popup;
-import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.Collections;
-
-import net.minecraft.client.gui.screens.Screen;
-
-
-
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.SecurityAddCCIdPacket;
@@ -16,6 +10,8 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiEditCCAccessTable extends SubGuiScreen {
@@ -278,7 +274,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 	}
 
 	public void fillColor(int x1, int y1, int x2, int y2, Color color) {
-		net.minecraft.client.gui.GuiGraphics gg = getGuiGraphics();
+		GuiGraphics gg = getGuiGraphics();
 		if (gg != null) gg.fill(x1, y1, x2, y2, Color.getValue(color));
 	}
 }

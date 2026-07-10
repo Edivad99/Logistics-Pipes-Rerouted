@@ -1,13 +1,7 @@
 package logisticspipes.gui.popup;
 
-import net.minecraft.client.gui.GuiGraphics;
-
 import java.awt.Rectangle;
 import java.util.List;
-
-import net.minecraft.client.Minecraft;
-
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.upgrade.SneakyUpgradeSidePacket;
 import logisticspipes.proxy.MainProxy;
@@ -16,6 +10,8 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.sideconfig.SideConfigDisplay;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -81,7 +77,7 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
 			int vpy = (bounds.y + 10) * (int) Minecraft.getInstance().getWindow().getGuiScale();
 			int w = bounds.width * (int) Minecraft.getInstance().getWindow().getGuiScale();
 			int h = (bounds.height - 1) * (int) Minecraft.getInstance().getWindow().getGuiScale();
-			configDisplay.onMouseClicked((int) mouseX, (int) mouseY, new java.awt.Rectangle(vpx, vpy, w, h));
+			configDisplay.onMouseClicked((int) mouseX, (int) mouseY, new Rectangle(vpx, vpy, w, h));
 			return true;
 		}
 		return super.mouseClicked(mouseX, mouseY, button);
@@ -97,12 +93,12 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
-			configDisplay.onMouseScrolled(delta);
+			configDisplay.onMouseScrolled(scrollY);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override

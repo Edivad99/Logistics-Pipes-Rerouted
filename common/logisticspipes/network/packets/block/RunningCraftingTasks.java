@@ -1,17 +1,14 @@
 package logisticspipes.network.packets.block;
 
 import java.util.List;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.gui.GuiStatistics;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

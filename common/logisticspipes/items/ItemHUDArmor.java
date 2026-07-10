@@ -1,24 +1,22 @@
 package logisticspipes.items;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.world.level.Level;
-
 import logisticspipes.api.IHUDArmor;
 import logisticspipes.interfaces.ILogisticsItem;
 import logisticspipes.proxy.MainProxy;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class ItemHUDArmor extends ArmorItem implements IHUDArmor, ILogisticsItem {
 
 	public ItemHUDArmor() {
-		super(net.minecraft.world.item.ArmorMaterials.LEATHER, ArmorItem.Type.HELMET, new Properties());
+		super(net.minecraft.world.item.ArmorMaterials.LEATHER, Type.HELMET, new Properties());
 	}
 
 	@Nonnull

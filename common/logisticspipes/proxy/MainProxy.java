@@ -6,7 +6,19 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
+import com.google.common.collect.Maps;
+import logisticspipes.LPItems;
+import logisticspipes.LogisticsPipes;
+import logisticspipes.entity.FakePlayerLP;
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.network.PacketHandler;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.proxy.interfaces.IProxy;
+import logisticspipes.routing.debug.RoutingTableDebugUpdateThread;
+import logisticspipes.routing.pathfinder.IPipeInformationProvider;
+import logisticspipes.ticks.RoutingTableUpdateThread;
+import logisticspipes.utils.PlayerCollectionList;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -18,27 +30,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
-
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.level.LevelEvent;
-
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.server.ServerLifecycleHooks;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import com.google.common.collect.Maps;
-import lombok.Getter;
-
-import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.entity.FakePlayerLP;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.proxy.interfaces.IProxy;
-import logisticspipes.routing.debug.RoutingTableDebugUpdateThread;
-import logisticspipes.routing.pathfinder.IPipeInformationProvider;
-import logisticspipes.ticks.RoutingTableUpdateThread;
-import logisticspipes.utils.PlayerCollectionList;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class MainProxy {
 
@@ -49,7 +47,7 @@ public class MainProxy {
 	 * Replaces 1.12.2 {@code @SidedProxy} annotation.
 	 */
 	// NeoForge 1.20.1: DistExecutor removed — use FMLEnvironment.dist check
-	public static IProxy proxy = net.minecraftforge.fml.loading.FMLEnvironment.dist.isClient()
+	public static IProxy proxy = FMLEnvironment.dist.isClient()
 			? new logisticspipes.proxy.side.ClientProxy()
 			: new logisticspipes.proxy.side.ServerProxy();
 
@@ -184,12 +182,14 @@ public class MainProxy {
 
 	public static void sendPacketToAllWatchingChunk(BlockEntity tile, ModernPacket packet) {
 		if (tile == null) return;
-		net.minecraft.world.level.Level lvl = tile.getLevel();
-		if (lvl instanceof net.minecraft.server.level.ServerLevel sl) {
-			net.minecraft.world.level.chunk.LevelChunk chunk = sl.getChunkAt(tile.getBlockPos());
-			logisticspipes.network.PacketHandler.CHANNEL.send(
-				net.minecraftforge.network.PacketDistributor.TRACKING_CHUNK.with(() -> chunk),
-				logisticspipes.network.PacketHandler.buildPayloadPublic(packet));
+		Level lvl = tile.getLevel();
+		if (lvl instanceof ServerLevel serverLevel) {
+			var chunk = serverLevel.getChunkAt(tile.getBlockPos());
+			PacketDistributor.sendToPlayersTrackingChunk(
+					serverLevel,
+					chunk.getPos(),
+					PacketHandler.buildPayloadPublic(packet)
+			);
 			return;
 		}
 		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(tile.getBlockPos());

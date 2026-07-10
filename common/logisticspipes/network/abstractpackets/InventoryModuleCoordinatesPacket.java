@@ -2,12 +2,10 @@ package logisticspipes.network.abstractpackets;
 
 import java.util.List;
 import java.util.Set;
-
+import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.NonNullList;
-
-import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

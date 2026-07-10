@@ -1,4 +1,4 @@
-/*
+package logisticspipes.renderer;/*
 package logisticspipes.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;

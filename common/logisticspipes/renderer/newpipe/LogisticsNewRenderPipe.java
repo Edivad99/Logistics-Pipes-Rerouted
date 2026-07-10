@@ -1,38 +1,16 @@
 package logisticspipes.renderer.newpipe;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.level.Level;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import com.google.common.collect.Lists;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-
+import com.mojang.blaze3d.vertex.VertexFormat;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -57,6 +35,19 @@ import logisticspipes.proxy.object3d.operation.LPUVTranslation;
 import logisticspipes.renderer.state.PipeRenderState;
 import logisticspipes.textures.Textures;
 import logisticspipes.utils.tuples.Quartet;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -598,7 +589,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			renderList(x, y, z, renderState.renderLists, renderState.cachedRenderer, recalculateList);
 			if (recalculateList) {
 				net.minecraft.core.BlockPos bpos = pipeTile.getBlockPos();
-				net.minecraft.client.Minecraft.getInstance().levelRenderer.setBlocksDirty(
+				Minecraft.getInstance().levelRenderer.setBlocksDirty(
 						bpos.getX(), bpos.getY(), bpos.getZ(),
 						bpos.getX(), bpos.getY(), bpos.getZ());
 			}
@@ -652,7 +643,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		for (RenderEntry entry : cachedRenderer) {
 			if (rsImpl != null && rsImpl.bufferSource != null && atlasBuffer != null) {
 				ResourceLocation texture = entry.getTexture();
-				if (texture == null || texture.equals(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)) {
+				if (texture == null || texture.equals(TextureAtlas.LOCATION_BLOCKS)) {
 					rsImpl.buffer = atlasBuffer;
 				} else {
 					rsImpl.buffer = rsImpl.bufferSource.getBuffer(
@@ -1140,7 +1131,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 			if (texture == null) {
 				throw new NullPointerException();
 			}
-			if (texture.equals(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)) {
+			if (texture.equals(TextureAtlas.LOCATION_BLOCKS)) {
 				quads.addAll(model.getModel().renderToQuads(format, model.getOperations()));
 			}
 		}

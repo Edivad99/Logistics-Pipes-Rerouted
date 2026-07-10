@@ -1,16 +1,13 @@
 package logisticspipes.network.guis;
 
 import java.util.UUID;
-
-import net.minecraft.world.entity.player.Player;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.gui.popup.GuiAddChannelPopup;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.PopupGuiProvider;
 import logisticspipes.utils.StaticResolve;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

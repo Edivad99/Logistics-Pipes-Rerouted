@@ -8,10 +8,10 @@
 package network.rs485.logisticspipes.gui
 
 import net.minecraft.client.Minecraft
-import net.minecraftforge.client.event.RenderGuiOverlayEvent
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay
-import net.minecraftforge.eventbus.api.EventPriority
-import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.neoforged.bus.api.EventPriority
+import net.neoforged.bus.api.SubscribeEvent
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers
 
 /**
  * When a widget-based LP GUI (any subclass of [BaseGuiContainer]) is the active screen,
@@ -26,21 +26,23 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 object WidgetScreenHudSuppressor {
 
     private val SUPPRESSED = setOf(
-        VanillaGuiOverlay.HOTBAR.id(),
-        VanillaGuiOverlay.CROSSHAIR.id(),
-        VanillaGuiOverlay.PLAYER_HEALTH.id(),
-        VanillaGuiOverlay.FOOD_LEVEL.id(),
-        VanillaGuiOverlay.ARMOR_LEVEL.id(),
-        VanillaGuiOverlay.EXPERIENCE_BAR.id(),
-        VanillaGuiOverlay.AIR_LEVEL.id(),
-        VanillaGuiOverlay.MOUNT_HEALTH.id(),
-        VanillaGuiOverlay.JUMP_BAR.id(),
-        VanillaGuiOverlay.CHAT_PANEL.id(),
+        VanillaGuiLayers.HOTBAR.toString(),
+        VanillaGuiLayers.CROSSHAIR.toString(),
+        VanillaGuiLayers.PLAYER_HEALTH.toString(),
+        VanillaGuiLayers.FOOD_LEVEL.toString(),
+        VanillaGuiLayers.ARMOR_LEVEL.toString(),
+        VanillaGuiLayers.EXPERIENCE_BAR.toString(),
+        VanillaGuiLayers.AIR_LEVEL.toString(),
+        VanillaGuiLayers.VEHICLE_HEALTH.toString(),
+        VanillaGuiLayers.JUMP_METER.toString(),
+        VanillaGuiLayers.CHAT.toString(),
     )
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onRenderOverlay(event: RenderGuiOverlayEvent.Pre) {
+    fun onRenderOverlay(event: RenderGuiLayerEvent.Pre) {
         if (Minecraft.getInstance().screen !is BaseGuiContainer) return
-        if (event.overlay.id() in SUPPRESSED) event.isCanceled = true
+        if (event.layer.toString() in SUPPRESSED) {
+            event.isCanceled = true
+        }
     }
 }

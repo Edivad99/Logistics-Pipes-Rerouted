@@ -1,17 +1,8 @@
 
 package logisticspipes.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
-
+import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
-import java.io.IOException;
-
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
-
-
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
 import logisticspipes.network.PacketHandler;
@@ -19,8 +10,10 @@ import logisticspipes.network.packets.block.PowerJunctionCheatPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
-import javax.annotation.Nonnull;
 
 public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 
@@ -51,7 +44,7 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 		guiGraphics.drawString(minecraft.font, "10 RF = 5 LP", 24, 68, 0x404040, false);
 	}
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/power_junction.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/power_junction.png");
 
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {

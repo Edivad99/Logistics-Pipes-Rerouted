@@ -2,10 +2,8 @@ package logisticspipes.datafixer;
 
 import java.util.Map;
 import javax.annotation.Nonnull;
-
-import net.minecraft.nbt.CompoundTag;
-
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.nbt.CompoundTag;
 
 // DataFixer for block entity ID renames. Not registered via DFU (no 1.12.2→1.20.1 upgrade path).
 public class DataFixerTE {

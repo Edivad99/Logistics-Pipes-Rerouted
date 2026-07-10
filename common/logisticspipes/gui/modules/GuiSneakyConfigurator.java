@@ -7,25 +7,19 @@
 
 package logisticspipes.gui.modules;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
-import java.io.IOException;
 import java.util.Locale;
-
-
-import net.minecraft.world.Container;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-
-
-
+import javax.annotation.Nonnull;
+import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.SneakyDirection;
-import javax.annotation.Nonnull;
 
 public class GuiSneakyConfigurator extends ModuleBaseGui {
 
@@ -85,7 +79,7 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0x404040, false);
 	}
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/gui/sneaky.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/sneaky.png");
 
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {

@@ -1,13 +1,10 @@
 package logisticspipes.network.abstractguis;
 
+import logisticspipes.network.NewGuiHandler;
+import lombok.Getter;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-
-import net.minecraftforge.common.util.FakePlayer;
-
-import lombok.Getter;
-
-import logisticspipes.network.NewGuiHandler;
+import net.neoforged.neoforge.common.util.FakePlayer;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

@@ -1,7 +1,5 @@
 package logisticspipes.network.guis.pipe;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.gui.orderer.GuiRequestTable;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -9,6 +7,7 @@ import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class RequestTableGui extends CoordinatesGuiProvider {

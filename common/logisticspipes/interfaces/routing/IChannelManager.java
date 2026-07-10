@@ -2,11 +2,9 @@ package logisticspipes.interfaces.routing;
 
 import java.util.List;
 import java.util.UUID;
-
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.PlayerIdentifier;
+import net.minecraft.world.entity.player.Player;
 
 public interface IChannelManager {
 

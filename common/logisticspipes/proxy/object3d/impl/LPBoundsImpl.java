@@ -1,9 +1,8 @@
 package logisticspipes.proxy.object3d.impl;
 
-import net.minecraft.world.phys.AABB;
-
 import logisticspipes.proxy.object3d.interfaces.IBounds;
 import logisticspipes.proxy.object3d.interfaces.IVec3;
+import net.minecraft.world.phys.AABB;
 
 /**
  * NeoForge 1.20.1 native replacement for CCL's Cuboid6 bounds.

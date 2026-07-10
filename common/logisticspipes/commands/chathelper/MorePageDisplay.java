@@ -2,15 +2,14 @@ package logisticspipes.commands.chathelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.chat.Component;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.OpenChatGui;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.string.ChatColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class MorePageDisplay {
 

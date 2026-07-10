@@ -7,9 +7,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-
 import logisticspipes.proxy.interfaces.ICCLProxy;
 import logisticspipes.proxy.object3d.impl.LPBoundsImpl;
 import logisticspipes.proxy.object3d.impl.LPModel3DImpl;
@@ -27,6 +24,7 @@ import logisticspipes.proxy.object3d.interfaces.ITranslation;
 import logisticspipes.proxy.object3d.interfaces.IVec3;
 import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
 import logisticspipes.proxy.object3d.operation.LPScale;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 /**
  * NeoForge 1.20.1 native replacement for the old CodeChickenLib-backed proxy.

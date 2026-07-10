@@ -1,11 +1,10 @@
 package logisticspipes.network.packets.hud;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.interfaces.IBlockWatchingHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class HUDStartBlockWatchingPacket extends CoordinatesPacket {

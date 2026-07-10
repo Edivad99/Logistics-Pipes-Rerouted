@@ -1,7 +1,12 @@
 package logisticspipes.renderer;
-import net.minecraft.client.gui.GuiGraphics;
 
-import net.minecraft.client.gui.screens.Screen;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
+import javax.annotation.Nonnull;
+import org.joml.Quaternionf;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -9,30 +14,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import org.joml.Quaternionf;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-import javax.annotation.Nonnull;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.HitResult;
-
-
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-
-
-
 import logisticspipes.api.IHUDArmor;
 import logisticspipes.config.Configs;
 import logisticspipes.hud.HUDConfig;
@@ -45,11 +26,19 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
-import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.item.ItemStackRenderer;
-import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.HitResult;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class LogisticsHUDRenderer {
 
@@ -111,7 +100,7 @@ public class LogisticsHUDRenderer {
 			}
 			if (pipe.getWorld() == Minecraft.getInstance().level) {
 				double dis = Math.hypot(pipe.getX() - x + 0.5, Math.hypot(pipe.getY() - y + 0.5, pipe.getZ() - z + 0.5));
-				if (dis < Configs.LOGISTICS_HUD_RENDER_DISTANCE && dis > 0.75) {
+				if (dis < Configs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75) {
 					newList.add(new Pair<>(dis, (IHeadUpDisplayRendererProvider) pipe));
 					if (!list.contains(pipe)) {
 						((IHeadUpDisplayRendererProvider) pipe).startWatching();
@@ -124,7 +113,7 @@ public class LogisticsHUDRenderer {
 		providers.stream().filter(provider -> provider.getLevelForHUD() == Minecraft.getInstance().level)
 				.forEach(provider -> {
 					double dis = Math.hypot(provider.getX() - x + 0.5, Math.hypot(provider.getY() - y + 0.5, provider.getZ() - z + 0.5));
-					if (dis < Configs.LOGISTICS_HUD_RENDER_DISTANCE && dis > 0.75 && !provider.isHUDInvalid() && provider.isHUDExistent()) {
+					if (dis < Configs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75 && !provider.isHUDInvalid() && provider.isHUDExistent()) {
 						newList.add(new Pair<>(dis, provider));
 						if (!list.contains(provider)) {
 							provider.startWatching();
@@ -179,7 +168,7 @@ public class LogisticsHUDRenderer {
 	private static final float PANEL_OFFSET = 0.75F;
 
 	//TODO: only load this once, rather than twice
-	private static final ResourceLocation TEXTURE = new ResourceLocation("textures/gui/icons.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/icons.png");
 
 	public void renderPlayerDisplay(long renderTicks, GuiGraphics guiGraphics) {
 		if (!displayRenderer()) {
@@ -342,7 +331,6 @@ public class LogisticsHUDRenderer {
 		if (!lasers.isEmpty()) {
 			RenderSystem.setShader(GameRenderer::getPositionColorShader);
 			Tesselator tes = Tesselator.getInstance();
-			BufferBuilder bb = tes.getBuilder();
 			// The pose origin is the interpolated camera, not the player's feet as in 1.12.
 			net.minecraft.world.phys.Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
 			for (LaserData data : lasers) {
@@ -362,48 +350,52 @@ public class LogisticsHUDRenderer {
 				poseStack.scale(0.01F, 0.01F, 0.01F);
 				org.joml.Matrix4f mat = poseStack.last().pose();
 
-				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+				BufferBuilder bb = tes.begin(
+						VertexFormat.Mode.QUADS,
+						DefaultVertexFormat.POSITION_COLOR
+				);
+
 				for (float i = 0; i < 6 * data.getLength(); i += 1.0f) {
 					int[] c = getLaserColor(i, data.getConnectionType());
 					float shift = 100f * i / 6f;
 					float s = (data.isStartPipe() && i == 0) ? -6.0f : 0.0f;
 					// Top
-					bb.vertex(mat, 19.7f+shift, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,  3.0f+shift+s, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,  3.0f+shift+s, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat, 19.7f+shift, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.addVertex(mat, 19.7f+shift, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,  3.0f+shift+s, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,  3.0f+shift+s, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat, 19.7f+shift, 3, 3).setColor(c[0],c[1],c[2],c[3]);
 					// Bottom
-					bb.vertex(mat, 19.7f+shift,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,  3.0f+shift+s,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,  3.0f+shift+s,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat, 19.7f+shift,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.addVertex(mat, 19.7f+shift,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,  3.0f+shift+s,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,  3.0f+shift+s,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat, 19.7f+shift,-3,-3).setColor(c[0],c[1],c[2],c[3]);
 					// +Z side
-					bb.vertex(mat, 19.7f+shift, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,  3.0f+shift+s, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,  3.0f+shift+s,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat, 19.7f+shift,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.addVertex(mat, 19.7f+shift, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,  3.0f+shift+s, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,  3.0f+shift+s,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat, 19.7f+shift,-3, 3).setColor(c[0],c[1],c[2],c[3]);
 					// -Z side
-					bb.vertex(mat, 19.7f+shift,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,  3.0f+shift+s,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,  3.0f+shift+s, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat, 19.7f+shift, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.addVertex(mat, 19.7f+shift,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,  3.0f+shift+s,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,  3.0f+shift+s, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat, 19.7f+shift, 3,-3).setColor(c[0],c[1],c[2],c[3]);
 				}
 				if (data.isStartPipe()) {
 					int[] c = getLaserColor(0, data.getConnectionType());
-					bb.vertex(mat,-3, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,-3, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,-3,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,-3,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.addVertex(mat,-3, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,-3, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,-3,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,-3,-3, 3).setColor(c[0],c[1],c[2],c[3]);
 				}
 				if (data.isFinalPipe()) {
 					int[] c = getLaserColor(6 * (float) data.getLength() - 1, data.getConnectionType());
 					float ex = 100.0f * data.getLength() + 3f;
-					bb.vertex(mat,ex, 3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,ex, 3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,ex,-3, 3).color(c[0],c[1],c[2],c[3]).endVertex();
-					bb.vertex(mat,ex,-3,-3).color(c[0],c[1],c[2],c[3]).endVertex();
+					bb.addVertex(mat,ex, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,ex, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,ex,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+					bb.addVertex(mat,ex,-3,-3).setColor(c[0],c[1],c[2],c[3]);
 				}
-				BufferUploader.drawWithShader(bb.end());
+				BufferUploader.drawWithShader(bb.buildOrThrow());
 				poseStack.popPose();
 			}
 		}
@@ -442,13 +434,13 @@ public class LogisticsHUDRenderer {
 		// guiGraphics.drawString/fill/renderItem calls work without a signature change.
 		// The public 2-arg GuiGraphics ctor creates its own internal PoseStack, so we apply the
 		// HUD billboard transforms to gg.pose() rather than the external poseStack.
-		net.minecraft.client.gui.GuiGraphics previous = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
-		if (bufferSource instanceof net.minecraft.client.renderer.MultiBufferSource.BufferSource bs) {
-			net.minecraft.client.gui.GuiGraphics gg = new net.minecraft.client.gui.GuiGraphics(mc, bs);
-			com.mojang.blaze3d.vertex.PoseStack ggPose = gg.pose();
+		GuiGraphics previous = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		if (bufferSource instanceof MultiBufferSource.BufferSource bs) {
+			GuiGraphics gg = new GuiGraphics(mc, bs);
+			PoseStack ggPose = gg.pose();
 			ggPose.pushPose();
 			// Compose the camera orientation from the level renderer; gg.pose() starts at identity.
-			ggPose.mulPoseMatrix(poseStack.last().pose());
+			ggPose.mulPose(poseStack.last().pose());
 			ggPose.translate((float) x, (float) y, (float) z);
 			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
 			ggPose.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));

@@ -3,11 +3,9 @@ package logisticspipes.utils.transactor;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
-
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
 
 public class TransactorSimple extends Transactor {
 
@@ -85,6 +83,6 @@ public class TransactorSimple extends Transactor {
 		if (!ItemStack.isSameItem(stack1, stack2)) {
 			return false;
 		}
-		return ItemStack.isSameItemSameTags(stack1, stack2);
+		return ItemStack.isSameItemSameComponents(stack1, stack2);
 	}
 }

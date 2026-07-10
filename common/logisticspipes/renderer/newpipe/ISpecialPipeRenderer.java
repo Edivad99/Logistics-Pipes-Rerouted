@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.resources.ResourceLocation;
-
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.proxy.object3d.interfaces.I3DOperation;
 import logisticspipes.proxy.object3d.interfaces.IModel3D;
 import logisticspipes.proxy.object3d.operation.LPUVTransformationList;
 import logisticspipes.proxy.object3d.operation.LPUVTranslation;
+import net.minecraft.resources.ResourceLocation;
 
 public interface ISpecialPipeRenderer {
 

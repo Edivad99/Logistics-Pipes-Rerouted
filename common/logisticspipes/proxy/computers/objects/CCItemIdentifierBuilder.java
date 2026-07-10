@@ -1,16 +1,13 @@
 package logisticspipes.proxy.computers.objects;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
 import java.util.List;
-
-import net.minecraft.world.item.Item;
-import net.minecraft.resources.ResourceLocation;
-
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 
 @CCType(name = "ItemIdentifierBuilder")
 public class CCItemIdentifierBuilder implements ILPCCTypeHolder {
@@ -54,7 +51,7 @@ public class CCItemIdentifierBuilder implements ILPCCTypeHolder {
 	public ItemIdentifier build() {
 		Item item;
 		if (itemIDName != null) {
-			item = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(new ResourceLocation(itemIDName));
+			item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemIDName));
 		} else {
 			item = BuiltInRegistries.ITEM.byId(itemID);
 		}

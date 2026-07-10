@@ -1,18 +1,7 @@
 package logisticspipes.pipes.basic.fluid;
 
 import java.util.List;
-
 import javax.annotation.Nullable;
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntity;
-
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITankUtil;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
@@ -37,6 +26,14 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 
@@ -104,7 +101,8 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		}
 		boolean fluidTile = false;
 		if (tile != null && tile.getLevel() != null) {
-			IFluidHandler fluidHandler = tile.getCapability(ForgeCapabilities.FLUID_HANDLER, dir).orElse(null);
+			Level level = tile.getLevel();
+			IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, tile.getBlockPos(), dir);
 			if (fluidHandler != null) {
 				fluidTile = true;
 			}

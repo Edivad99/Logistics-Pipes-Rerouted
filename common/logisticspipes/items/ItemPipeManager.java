@@ -1,7 +1,8 @@
 package logisticspipes.items;
 
 import javax.annotation.Nonnull;
-
+import logisticspipes.api.ILPPipeConfigTool;
+import logisticspipes.api.ILPPipeTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
@@ -12,9 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-
-import logisticspipes.api.ILPPipeConfigTool;
-import logisticspipes.api.ILPPipeTile;
 
 public class ItemPipeManager extends LogisticsItem implements ILPPipeConfigTool {
 

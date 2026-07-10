@@ -1,17 +1,15 @@
 
 package logisticspipes.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.Direction;
-
+import javax.annotation.Nonnull;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.ItemAmountPipeSign;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import javax.annotation.Nonnull;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
 
 public class ItemAmountSignCreationGui extends LogisticsBaseGuiScreen {
 

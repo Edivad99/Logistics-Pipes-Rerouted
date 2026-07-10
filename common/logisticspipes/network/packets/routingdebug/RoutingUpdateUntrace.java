@@ -1,11 +1,10 @@
 package logisticspipes.network.packets.routingdebug;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.network.abstractpackets.IntegerPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.routing.debug.DebugController;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class RoutingUpdateUntrace extends IntegerPacket {

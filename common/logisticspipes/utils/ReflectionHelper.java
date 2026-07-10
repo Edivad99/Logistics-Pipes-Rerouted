@@ -6,11 +6,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import lombok.SneakyThrows;
-
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import lombok.SneakyThrows;
 
 public class ReflectionHelper {
 

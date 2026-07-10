@@ -3,14 +3,11 @@ package logisticspipes.ticks;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
-
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.ServerTickEvent;
-
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.utils.tuples.Pair;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 public class QueuedTasks {
 
@@ -31,10 +28,7 @@ public class QueuedTasks {
 
 	@SuppressWarnings({ "rawtypes" })
 	@SubscribeEvent
-	public void tickEnd(ServerTickEvent event) {
-		if (event.phase != Phase.END) {
-			return;
-		}
+	public void tickEnd(ServerTickEvent.Post event) {
 		Callable call;
 		while (!QueuedTasks.queue.isEmpty()) {
 			synchronized (QueuedTasks.queue) {

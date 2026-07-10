@@ -2,15 +2,12 @@ package logisticspipes.network.abstractpackets;
 
 import java.util.Collections;
 import java.util.List;
-
+import logisticspipes.network.packetcontent.IPacketContent;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-
-import lombok.Getter;
-import lombok.Setter;
-
-import logisticspipes.network.packetcontent.IPacketContent;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -35,7 +32,7 @@ public abstract class ModernPacket {
 	@Setter
 	private int debugId = 0;
 	@Getter
-	private ResourceLocation dimension = new ResourceLocation("minecraft", "overworld");
+	private ResourceLocation dimension = ResourceLocation.withDefaultNamespace("overworld");
 
 	public List<IPacketContent<?>> content = Collections.emptyList();
 
@@ -55,7 +52,7 @@ public abstract class ModernPacket {
 
 	public void readData(LPDataInput input) {
 		ResourceLocation rl = input.readResourceLocation();
-		dimension = rl != null ? rl : new ResourceLocation("minecraft", "overworld");
+		dimension = rl != null ? rl : ResourceLocation.withDefaultNamespace("overworld");
 		content.forEach(it -> it.readData(input));
 	}
 

@@ -1,18 +1,13 @@
 
 package logisticspipes.utils.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-
-import net.minecraft.world.inventory.Slot;
 import javax.annotation.Nonnull;
-
-
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.inventory.Slot;
 
 
 public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {

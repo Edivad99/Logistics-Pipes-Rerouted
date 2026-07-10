@@ -1,13 +1,12 @@
 package logisticspipes.network.abstractguis;
 
-import net.minecraft.world.level.Level;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import net.minecraft.world.level.Level;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

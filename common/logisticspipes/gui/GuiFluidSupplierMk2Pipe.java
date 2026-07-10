@@ -6,12 +6,7 @@
 
 package logisticspipes.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import java.io.IOException;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.Container;
-
+import javax.annotation.Nonnull;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.FluidSupplierAmount;
 import logisticspipes.network.packets.pipe.FluidSupplierMinMode;
@@ -23,8 +18,9 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.Container;
 import network.rs485.logisticspipes.util.TextUtil;
-import javax.annotation.Nonnull;
 
 public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 

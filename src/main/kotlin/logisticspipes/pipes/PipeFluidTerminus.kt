@@ -43,6 +43,8 @@ import logisticspipes.network.packets.pipe.PipePropertiesUpdate
 import logisticspipes.proxy.MainProxy
 import logisticspipes.textures.Textures
 import logisticspipes.utils.FluidSinkReply.FixedFluidPriority
+import net.minecraft.core.HolderLookup
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import network.rs485.logisticspipes.FluidSinkPipe
@@ -58,4 +60,11 @@ class PipeFluidTerminus(item: Item) : FluidSinkPipe(item, "Fluids to terminate",
         NewGuiHandler.openGui(NewGuiHandler.getGui(FluidTerminusGui::class.java).setPosX(x).setPosY(y).setPosZ(z), entityplayer)
     }
 
+    override fun writeToNBT(nbttagcompound: CompoundTag, provider: HolderLookup.Provider?) {
+        super.writeToNBT(nbttagcompound, provider)
+    }
+
+    override fun writeToNBT(tag: CompoundTag) {
+        TODO("Not yet implemented")
+    }
 }

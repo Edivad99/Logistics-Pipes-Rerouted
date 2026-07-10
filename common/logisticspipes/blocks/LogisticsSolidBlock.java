@@ -3,36 +3,9 @@ package logisticspipes.blocks;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.properties.Property;
-
-import lombok.Getter;
-
-import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.blocks.powertile.LogisticsIC2PowerProviderTileEntity;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
@@ -41,8 +14,26 @@ import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
+import lombok.Getter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class LogisticsSolidBlock extends Block implements EntityBlock {
 
@@ -109,7 +100,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 		// noOcclusion() is required so the BER receives a non-zero packedLight value.
 		// Without it Minecraft treats the block as fully opaque, stores sky-light = 0
 		// at its own position, and the BER renders pitch-black regardless of ambient light.
-		super(BlockBehaviour.Properties.of().strength(6.0F).requiresCorrectToolForDrops().noOcclusion());
+		super(Properties.of().strength(6.0F).requiresCorrectToolForDrops().noOcclusion());
 		this.type = type;
 	}
 
@@ -123,15 +114,15 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 	}
 
 	@Override
-	public InteractionResult use(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull Player playerIn, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
-		if (!playerIn.isCrouching()) {
-			BlockEntity tile = worldIn.getBlockEntity(pos);
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+		if (!player.isCrouching()) {
+			BlockEntity tile = level.getBlockEntity(pos);
 			if (tile instanceof IGuiTileEntity) {
-				if (MainProxy.isServer(playerIn.level())) {
+				if (MainProxy.isServer(player.level())) {
 					logisticspipes.network.abstractguis.CoordinatesGuiProvider gp = ((IGuiTileEntity) tile).getGuiProvider();
-					gp.setTilePos(tile).open(playerIn);
+					gp.setTilePos(tile).open(player);
 				}
-				return InteractionResult.sidedSuccess(worldIn.isClientSide);
+				return InteractionResult.sidedSuccess(level.isClientSide);
 			}
 		}
 		return InteractionResult.PASS;

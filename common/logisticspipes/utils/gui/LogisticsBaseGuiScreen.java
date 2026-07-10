@@ -9,33 +9,14 @@ package logisticspipes.utils.gui;
 
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.ChatFormatting;
-
-// NEI imports removed — NEI has no 1.20.1 port; interface added at runtime via @ModDependentInterface ASM
-import lombok.Getter;
-
-
-
 import logisticspipes.LPConstants;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.interfaces.IChainAddList;
@@ -48,17 +29,29 @@ import logisticspipes.utils.ChainAddArrayList;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.extension.GuiExtensionController;
 import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
+import lombok.Getter;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyFlag;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 import network.rs485.logisticspipes.util.TextUtil;
+
+// NEI imports removed — NEI has no 1.20.1 port; interface added at runtime via @ModDependentInterface ASM
 
 @ModDependentInterface(modId = { LPConstants.neiModID }, interfacePath = { "codechicken.nei.api.INEIGuiHandler" })
 public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen implements ISubGuiControler,
 		// INEIGuiHandler — added at runtime by @ModDependentInterface ASM when NEI is present
 		IGuiAccess {
 
-	protected static final ResourceLocation ITEMSINK = new ResourceLocation("logisticspipes", "textures/gui/itemsink.png");
+	protected static final ResourceLocation ITEMSINK = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/itemsink.png");
 
 	@Getter
 	protected int right;
@@ -75,7 +68,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	protected GuiExtensionController extensionControllerRight = new GuiExtensionController(GuiSide.RIGHT);
 	private net.minecraft.client.gui.components.AbstractWidget selectedButton;
 	/** Compatibility bridge: mirrors widgets added via addRenderableWidget so old buttonList.get(i) still works. */
-	protected java.util.List<net.minecraft.client.gui.components.AbstractWidget> buttonList = new java.util.ArrayList<>();
+	protected List<net.minecraft.client.gui.components.AbstractWidget> buttonList = new ArrayList<>();
 
 	private int currentDrawScreenMouseX;
 	private int currentDrawScreenMouseY;
@@ -95,13 +88,13 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	public LogisticsBaseGuiScreen(AbstractContainerMenu container) {
-		super(container, net.minecraft.client.Minecraft.getInstance().player.getInventory(), net.minecraft.network.chat.Component.empty());
+		super(container, Minecraft.getInstance().player.getInventory(), net.minecraft.network.chat.Component.empty());
 		xCenterOffset = 0;
 		yCenterOffset = 0;
 	}
 
 	public LogisticsBaseGuiScreen(AbstractContainerMenu container, int imageWidth, int imageHeight, int xCenterOffset, int yCenterOffset) {
-		super(container, net.minecraft.client.Minecraft.getInstance().player.getInventory(), net.minecraft.network.chat.Component.empty());
+		super(container, Minecraft.getInstance().player.getInventory(), net.minecraft.network.chat.Component.empty());
 		this.imageWidth = imageWidth;
 		this.imageHeight = imageHeight;
 		this.xCenterOffset = xCenterOffset;
@@ -157,9 +150,9 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics guiGraphics) {
+	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		if (subGui == null) {
-			super.renderBackground(guiGraphics);
+			super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		}
 	}
 
@@ -174,11 +167,11 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 			// In 1.20.1, Mouse hack removed — subGui renders directly
 			super.render(guiGraphics, 0, 0, partialTicks);
 			if (!subGui.hasSubGui()) {
-				super.renderBackground(guiGraphics);
+				super.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 			}
 			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
 		} else {
-			renderBackground(guiGraphics);
+			renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 			super.render(guiGraphics, mouseX, mouseY, partialTicks);
 			for (IRenderSlot slot : slots) {
 				int localMouseX = mouseX - leftPos;
@@ -484,7 +477,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	@Override
-	public net.minecraft.client.gui.GuiGraphics getGuiGraphics() {
+	public GuiGraphics getGuiGraphics() {
 		return guiGraphics;
 	}
 

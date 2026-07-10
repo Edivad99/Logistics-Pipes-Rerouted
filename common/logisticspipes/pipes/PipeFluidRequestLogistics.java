@@ -1,18 +1,15 @@
 package logisticspipes.pipes;
 
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.network.chat.Component;
-
-import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.routing.IRequestFluid;
-import logisticspipes.network.GuiIDs;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.FluidIdentifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
 public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IRequestFluid {
 

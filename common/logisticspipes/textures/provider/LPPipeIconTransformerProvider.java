@@ -1,16 +1,12 @@
 package logisticspipes.textures.provider;
 
 import java.util.ArrayList;
-
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 public class LPPipeIconTransformerProvider {
 

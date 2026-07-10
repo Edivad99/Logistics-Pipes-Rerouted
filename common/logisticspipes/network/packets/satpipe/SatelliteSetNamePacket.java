@@ -1,7 +1,5 @@
 package logisticspipes.network.packets.satpipe;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
@@ -9,6 +7,7 @@ import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.SatellitePipe;
 
 @StaticResolve

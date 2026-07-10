@@ -2,17 +2,14 @@ package logisticspipes.network.abstractpackets;
 
 import java.util.function.Function;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-
+import logisticspipes.network.exception.TargetNotFoundException;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import logisticspipes.network.exception.TargetNotFoundException;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;

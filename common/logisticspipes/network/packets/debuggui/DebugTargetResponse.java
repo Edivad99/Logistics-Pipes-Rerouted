@@ -1,15 +1,5 @@
 package logisticspipes.network.packets.debuggui;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.commands.chathelper.LPChatListener;
 import logisticspipes.commands.commands.debug.DebugGuiController;
 import logisticspipes.network.PacketHandler;
@@ -18,6 +8,14 @@ import logisticspipes.network.packets.gui.OpenChatGui;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.string.ChatColor;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

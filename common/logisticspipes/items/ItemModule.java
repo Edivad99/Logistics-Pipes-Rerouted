@@ -4,25 +4,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.network.chat.Component;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IWorldProvider;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
@@ -35,6 +16,22 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.DummyLevelProvider;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -184,9 +181,7 @@ public class ItemModule extends LogisticsItem {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<Component> tooltip,
-			TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 		if (stack.hasTag()) {
 			CompoundTag nbt = stack.getTag();
 			assert nbt != null;
@@ -214,26 +209,26 @@ public class ItemModule extends LogisticsItem {
 									ItemIdentifierStack identStack = inv.getIDStackInSlot(pos);
 									if (identStack != null) {
 										if (identStack.getStackSize() > 1) {
-											tooltip.add(Component.literal("  " + identStack.getStackSize() + "x " + identStack.getFriendlyName()));
+											tooltipComponents.add(Component.literal("  " + identStack.getStackSize() + "x " + identStack.getFriendlyName()));
 										} else {
-											tooltip.add(Component.literal("  " + identStack.getFriendlyName()));
+											tooltipComponents.add(Component.literal("  " + identStack.getFriendlyName()));
 										}
 									}
 								}
 							}
 							i++;
 						} else {
-							tooltip.add(Component.literal(data));
+							tooltipComponents.add(Component.literal(data));
 						}
 					}
 				} else {
-					TextUtil.addTooltipInformation(stack, tooltip, false);
+					TextUtil.addTooltipInformation(stack, tooltipComponents, false);
 				}
 			} else {
-				TextUtil.addTooltipInformation(stack, tooltip, Screen.hasShiftDown());
+				TextUtil.addTooltipInformation(stack, tooltipComponents, Screen.hasShiftDown());
 			}
 		} else {
-			TextUtil.addTooltipInformation(stack, tooltip, Screen.hasShiftDown());
+			TextUtil.addTooltipInformation(stack, tooltipComponents, Screen.hasShiftDown());
 		}
 	}
 }

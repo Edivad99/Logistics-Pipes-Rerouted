@@ -1,11 +1,11 @@
 package logisticspipes.commands.commands;
-import net.minecraft.world.entity.player.Player;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component;
 
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.ticks.RoutingTableUpdateThread;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class RoutingThreadCommand implements ICommandHandler {
 

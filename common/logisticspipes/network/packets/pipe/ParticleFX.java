@@ -2,20 +2,17 @@ package logisticspipes.network.packets.pipe;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-
 import logisticspipes.interfaces.ISpawnParticles.ParticleCount;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipefxhandlers.PipeFXRenderHandler;
 import logisticspipes.utils.StaticResolve;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -60,7 +57,7 @@ public class ParticleFX extends CoordinatesPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		if (net.minecraft.client.Minecraft.getInstance().options.graphicsMode().get().getId() < 1) { // isFancyGraphicsEnabled removed — check graphicsMode >= 1 (Fancy)
+		if (Minecraft.getInstance().options.graphicsMode().get().getId() < 1) { // isFancyGraphicsEnabled removed — check graphicsMode >= 1 (Fancy)
 			return;
 		}
 		for (ParticleCount pc : particles) {

@@ -1,18 +1,17 @@
 package logisticspipes.commands.commands.wrapper;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component;
-
 import logisticspipes.asm.wrapper.AbstractWrapper;
 import logisticspipes.asm.wrapper.LogisticsWrapperHandler;
 import logisticspipes.asm.wrapper.WrapperState;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.abstracts.ICommandHandler;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class ShowCommand implements ICommandHandler {
 

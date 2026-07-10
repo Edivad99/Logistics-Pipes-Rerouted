@@ -13,7 +13,7 @@ public class RoutingTableUpdateThread extends Thread {
 	public RoutingTableUpdateThread(int i) {
 		super("LogisticsPipes RoutingTableUpdateThread #" + i);
 		setDaemon(true);
-		setPriority(Configs.MULTI_THREAD_PRIORITY);
+		setPriority(Configs.COMMON.MULTI_THREAD_PRIORITY.getAsInt());
 		start();
 	}
 

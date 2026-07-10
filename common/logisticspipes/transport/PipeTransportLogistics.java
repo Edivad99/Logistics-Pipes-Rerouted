@@ -15,21 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nonnull;
-
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.level.chunk.LevelChunk;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
@@ -69,6 +54,19 @@ import logisticspipes.utils.SyncList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -361,7 +359,7 @@ public class PipeTransportLogistics {
 		return new RoutingResult(value, true);
 	}
 
-	public void readFromNBT(CompoundTag nbt) {
+	public void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider) {
 
 		ListTag nbttaglist = nbt.getList("travelingEntities", Tag.TAG_COMPOUND);
 
@@ -392,7 +390,7 @@ public class PipeTransportLogistics {
 
 	}
 
-	public void writeToNBT(CompoundTag nbt) {
+	public void writeToNBT(CompoundTag nbt, HolderLookup.Provider provider) {
 
 		{
 			ListTag nbttaglist = new ListTag();

@@ -108,7 +108,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
         if (!stalled && slot == stallSlot) stalled = true
         if (stack.isEmpty) return null
         serverRouter.updateServerRouterLsa()
-        if (!Configs.DISABLE_ASYNC_WORK && serverRouter.needsRoutingTableUpdate()) {
+        if (!Configs.COMMON.DISABLE_ASYNC_WORK.asBoolean && serverRouter.needsRoutingTableUpdate()) {
             // go async
             return slot to stack
         }

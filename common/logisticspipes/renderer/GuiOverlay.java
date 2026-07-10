@@ -1,24 +1,16 @@
 package logisticspipes.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.Slot;
-
-
-
-import lombok.Getter;
-import lombok.Setter;
-
-
-
-import logisticspipes.LogisticsPipes;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.SlotFinderNumberPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.SimpleGraphics;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.Slot;
 
 public class GuiOverlay {
 

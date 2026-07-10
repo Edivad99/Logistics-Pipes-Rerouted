@@ -3,15 +3,12 @@ package logisticspipes.proxy.specialconnection;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-
-import net.minecraft.core.Direction;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import logisticspipes.interfaces.routing.ISpecialPipedConnection;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import net.minecraft.core.Direction;
 
 public class SpecialPipeConnection {
 

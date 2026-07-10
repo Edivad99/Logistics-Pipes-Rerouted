@@ -6,14 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import net.minecraft.world.entity.player.Player;
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-
-import lombok.AllArgsConstructor;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.packets.debuggui.DebugDataPacket;
@@ -21,6 +13,10 @@ import logisticspipes.network.packets.debuggui.DebugPanelOpen;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import lombok.AllArgsConstructor;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import network.rs485.debug.api.IDataConnection;
 import network.rs485.debug.api.IDebugGuiEntry;
 import network.rs485.debug.api.IObjectIdentification;

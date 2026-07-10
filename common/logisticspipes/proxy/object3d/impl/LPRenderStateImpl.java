@@ -1,13 +1,12 @@
 package logisticspipes.proxy.object3d.impl;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import logisticspipes.proxy.object3d.interfaces.IRenderState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 
 /**
  * NeoForge 1.20.1 replacement for CCL's {@code CCRenderState}.

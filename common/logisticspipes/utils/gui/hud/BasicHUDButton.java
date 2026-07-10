@@ -6,7 +6,6 @@ package logisticspipes.utils.gui.hud;
 
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SimpleGraphics;
 
 public abstract class BasicHUDButton implements IHUDButton {

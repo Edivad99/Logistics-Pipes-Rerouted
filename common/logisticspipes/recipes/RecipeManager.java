@@ -1,27 +1,23 @@
 package logisticspipes.recipes;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import logisticspipes.LPConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import logisticspipes.LPConstants;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
 public class RecipeManager {
 
@@ -205,7 +201,7 @@ public class RecipeManager {
 
 		public void addShapelessResetRecipe(Item item, int meta) {
 			// meta was a 1.12.2 damage value — ignored in 1.20.1 (no damage-based variants)
-			ResourceLocation itemKey = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
+			ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(item);
 			if (itemKey == null) return;
 			ResourceLocation loc = getFreeRecipeResourceLocation(item);
 			JsonObject json = new JsonObject();
@@ -220,12 +216,12 @@ public class RecipeManager {
 	}
 
 	private static ResourceLocation getFreeRecipeResourceLocation(Item item) {
-		ResourceLocation baseLoc = new ResourceLocation(LPConstants.LP_MOD_ID, BuiltInRegistries.ITEM.getKey(item).getPath());
+		ResourceLocation baseLoc = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, BuiltInRegistries.ITEM.getKey(item).getPath());
 		ResourceLocation recipeLoc = baseLoc;
 		int index = 0;
 		while (craftingManager.virtualRecipes.containsKey(recipeLoc)) {
 			index++;
-			recipeLoc = new ResourceLocation(LPConstants.LP_MOD_ID, BuiltInRegistries.ITEM.getKey(item).getPath() + "_" + index);
+			recipeLoc = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, BuiltInRegistries.ITEM.getKey(item).getPath() + "_" + index);
 		}
 		return recipeLoc;
 	}

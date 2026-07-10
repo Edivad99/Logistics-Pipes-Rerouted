@@ -1,7 +1,5 @@
 package logisticspipes.network.guis.pipe;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.gui.popup.GuiSelectChannelPopup;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -11,6 +9,7 @@ import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class InvSysConSelectChannelPopupGUIProvider extends ChannelInformationListCoordinatesPopupGuiProvider {

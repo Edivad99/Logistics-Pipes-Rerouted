@@ -1,11 +1,9 @@
 package logisticspipes.interfaces;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.Direction;
-
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 
 public interface ILPItemAcceptor {
 

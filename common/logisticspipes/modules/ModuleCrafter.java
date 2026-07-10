@@ -11,25 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.DelayQueue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.client.player.LocalPlayer; // was LocalPlayer
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
-
-
-
 import com.google.common.collect.ImmutableList;
-import lombok.Getter;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -104,6 +86,18 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import lombok.Getter;
+import net.minecraft.client.player.LocalPlayer; // was LocalPlayer
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import network.rs485.logisticspipes.connection.AdjacentUtilKt;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
@@ -119,7 +113,6 @@ import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.UUIDListProperty;
 import network.rs485.logisticspipes.property.UUIDProperty;
 import network.rs485.logisticspipes.property.UUIDPropertyKt;
-import network.rs485.logisticspipes.util.FuzzyUtil;
 
 public class ModuleCrafter extends LogisticsModule
 		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IGuiOpenControler, Gui {
@@ -820,7 +813,7 @@ public class ModuleCrafter extends LogisticsModule
 						.use(blockState, worldProvider.getWorld(), pos, player, InteractionHand.MAIN_HAND,
 								new net.minecraft.world.phys.BlockHitResult(
 										net.minecraft.world.phys.Vec3.atCenterOf(pos),
-										net.minecraft.core.Direction.UP, pos, false))
+										Direction.UP, pos, false))
 						!= net.minecraft.world.InteractionResult.PASS;
 			} else {
 				return false;
@@ -1128,7 +1121,7 @@ public class ModuleCrafter extends LogisticsModule
 				if (!ItemStack.isSameItem(retStack, stack)) {
 					break;
 				}
-				if (!ItemStack.isSameItemSameTags(retStack, stack)) {
+				if (!ItemStack.isSameItemSameComponents(retStack, stack)) {
 					break;
 				}
 			}

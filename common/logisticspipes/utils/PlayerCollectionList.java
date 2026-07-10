@@ -3,9 +3,8 @@ package logisticspipes.utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 
 public class PlayerCollectionList {
@@ -23,8 +22,8 @@ public class PlayerCollectionList {
 				remove = true;
 			} else if (playerReference.get().isDeadOrDying()) {
 				remove = true;
-			} else if (playerReference.get() instanceof ServerPlayer) {
-				if (!((ServerPlayer) playerReference.get()).connection.connection.isConnected()) {
+			} else if (playerReference.get() instanceof ServerPlayer serverPlayer) {
+				if (!serverPlayer.connection.getConnection().isConnected()) {
 					remove = true;
 				}
 			}

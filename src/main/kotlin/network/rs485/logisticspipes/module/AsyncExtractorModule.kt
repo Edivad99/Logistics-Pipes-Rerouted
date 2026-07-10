@@ -126,7 +126,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
     }
 
     suspend fun runAsyncWork() {
-        if (!Configs.DISABLE_ASYNC_WORK) {
+        if (!Configs.COMMON.DISABLE_ASYNC_WORK.asBoolean) {
             updateRoutingTableMsgChannel.consumeAsFlow().collect {
                 module.serverRouter?.also { serverRouter ->
                     AsyncRouting.updateRoutingTable(serverRouter)
@@ -222,7 +222,7 @@ class AsyncExtractorModule(
             NewGuiHandler.getGui(SneakyModuleInHandGuiProvider::class.java)
 
     override val everyNthTick: Int
-        get() = (80 / upgradeManager.let { 2.0.pow(it.actionSpeedUpgrade) }).toInt() + Configs.MINIMUM_JOB_TICK_LENGTH
+        get() = (80 / upgradeManager.let { 2.0.pow(it.actionSpeedUpgrade) }).toInt() + Configs.COMMON.MINIMUM_JOB_TICK_LENGTH.asInt
 
     val stacksToExtract: Int
         get() = 1 + upgradeManager.itemStackExtractionUpgrade

@@ -2,11 +2,8 @@ package logisticspipes.network.guis.pipe;
 
 import java.util.Objects;
 import java.util.UUID;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-
 import logisticspipes.LPItems;
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.gui.GuiPipeController;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.items.ItemUpgrade;
@@ -20,6 +17,8 @@ import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class PipeController extends CoordinatesGuiProvider {
@@ -87,8 +86,8 @@ public class PipeController extends CoordinatesGuiProvider {
 			if (itemStack.getDamageValue() != LogisticsItemCard.SEC_CARD) {
 				return false;
 			}
-			final CompoundTag tag = Objects.requireNonNull(itemStack.getTag());
-			return SimpleServiceLocator.securityStationManager.isAuthorized(UUID.fromString(tag.getString("UUID")));
+			final UUID uuid = Objects.requireNonNull(itemStack.get(LogisticsPipesDataComponents.UUID));
+			return SimpleServiceLocator.securityStationManager.isAuthorized(uuid);
 		}, 1);
 		dummy.addRestrictedSlot(0, tile.logicController.diskInv, 14, 36, LPItems.disk.get());
 		return dummy;

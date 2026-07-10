@@ -5,14 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.minecraft.client.Minecraft;
-
-import net.minecraft.world.inventory.Slot;
-
-import lombok.Setter;
-
 import logisticspipes.utils.gui.LPGuiGraphics;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.inventory.Slot;
 
 public class GuiExtensionController {
 

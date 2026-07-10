@@ -3,11 +3,9 @@ package logisticspipes.utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-
 import lombok.experimental.Accessors;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 
 @Accessors(chain = true)
 public class PlayerIdentifier {

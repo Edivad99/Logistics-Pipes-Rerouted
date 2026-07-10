@@ -1,18 +1,15 @@
 package logisticspipes.network.packets.pipe;
 
 import javax.annotation.Nullable;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.Direction;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class ChassisOrientationPacket extends CoordinatesPacket {

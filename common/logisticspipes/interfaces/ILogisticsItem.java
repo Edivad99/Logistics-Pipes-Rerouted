@@ -1,10 +1,8 @@
 package logisticspipes.interfaces;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
-import net.minecraft.world.item.Item;
-
 import org.apache.commons.lang3.NotImplementedException;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
 
 public interface ILogisticsItem {
 

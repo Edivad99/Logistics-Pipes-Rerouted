@@ -2,12 +2,9 @@ package logisticspipes.interfaces;
 
 import java.util.List;
 import java.util.UUID;
-
 import javax.annotation.Nullable;
-
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
+import net.minecraft.world.entity.player.Player;
 
 public interface ISecurityStationManager {
 

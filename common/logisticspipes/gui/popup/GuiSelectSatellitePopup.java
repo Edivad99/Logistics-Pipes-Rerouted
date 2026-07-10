@@ -1,15 +1,9 @@
 package logisticspipes.gui.popup;
 
-import net.minecraft.client.gui.GuiGraphics;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
-
-
-import net.minecraft.core.BlockPos;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.RequestSatellitePipeListPacket;
 import logisticspipes.proxy.MainProxy;
@@ -18,6 +12,8 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSelectSatellitePopup extends SubGuiScreen {

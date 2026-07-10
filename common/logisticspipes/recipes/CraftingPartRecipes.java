@@ -3,13 +3,11 @@ package logisticspipes.recipes;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundTag;
-
 import logisticspipes.LPItems;
 import logisticspipes.items.ItemLogisticsProgrammer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 public abstract class CraftingPartRecipes implements IRecipeProvider {
 

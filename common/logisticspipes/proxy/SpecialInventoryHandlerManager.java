@@ -1,10 +1,9 @@
 package logisticspipes.proxy;
 
-import net.minecraftforge.fml.ModList;
-
 import static logisticspipes.LPConstants.appliedenergisticsModID;
 
 import logisticspipes.proxy.specialinventoryhandler.AEInterfaceInventoryHandler;
+import net.neoforged.fml.ModList;
 import network.rs485.logisticspipes.proxy.StorageDrawersProxy;
 
 public class SpecialInventoryHandlerManager {

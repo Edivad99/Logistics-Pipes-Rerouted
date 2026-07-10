@@ -6,16 +6,14 @@
  */
 
 package logisticspipes.utils.gui;
-import net.minecraft.client.gui.GuiGraphics;
 
 import javax.annotation.Nonnull;
-
+import logisticspipes.utils.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.network.chat.Component;
-
-import logisticspipes.utils.Color;
 
 public class SmallGuiButton extends AbstractButton {
 

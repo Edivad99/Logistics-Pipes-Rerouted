@@ -2,9 +2,6 @@ package logisticspipes.network.guis.upgrade;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.gui.popup.SneakyConfigurationPopup;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
@@ -13,6 +10,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.UpgradeSlot;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 

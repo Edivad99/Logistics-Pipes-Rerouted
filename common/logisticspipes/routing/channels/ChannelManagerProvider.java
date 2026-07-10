@@ -1,17 +1,13 @@
 package logisticspipes.routing.channels;
 
 import java.lang.ref.WeakReference;
-
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.level.Level;
-
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
 import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.interfaces.routing.IChannelManagerProvider;
+import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 public class ChannelManagerProvider implements IChannelManagerProvider {
 
@@ -19,7 +15,7 @@ public class ChannelManagerProvider implements IChannelManagerProvider {
 	private ChannelManager channelManager = null;
 
 	public ChannelManagerProvider() {
-		MinecraftForge.EVENT_BUS.register(this);
+		NeoForge.EVENT_BUS.register(this);
 	}
 
 	@Override

@@ -1,8 +1,8 @@
 package logisticspipes.utils.transactor;
 
 import net.minecraft.core.Direction;
+import net.neoforged.neoforge.items.IItemHandler;
 
-import net.minecraftforge.items.IItemHandler;
 
 public final class InventoryIterator {
 

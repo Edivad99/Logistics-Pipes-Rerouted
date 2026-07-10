@@ -9,19 +9,16 @@ package logisticspipes.gui;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.InputBar;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.TextUtil;
 

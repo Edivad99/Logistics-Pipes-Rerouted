@@ -6,23 +6,18 @@
 
 package logisticspipes.gui;
 
+import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
-import java.io.IOException;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.Container;
-import net.minecraft.resources.ResourceLocation;
-
-
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.FluidSupplierMode;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
 import network.rs485.logisticspipes.util.TextUtil;
-import javax.annotation.Nonnull;
 
 public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 
@@ -60,7 +55,7 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Partialrequests") + ":", imageWidth - 140, imageHeight - 112, 0x404040, false);
 	}
 
-	protected static final ResourceLocation SUPPLIER = new ResourceLocation("logisticspipes", "textures/gui/supplier.png");
+	protected static final ResourceLocation SUPPLIER = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/supplier.png");
 
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {

@@ -5,26 +5,24 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
+import logisticspipes.LPBlocks;
+import logisticspipes.interfaces.ITickable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-
-import logisticspipes.LPBlocks;
-import logisticspipes.interfaces.ITickable;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityBlock {
@@ -32,7 +30,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	public static boolean redirectedToMainPipe = false;
 
 	public LogisticsBlockGenericSubMultiBlock() {
-		super(BlockBehaviour.Properties.of().strength(1.5F).noOcclusion());
+		super(Properties.of().strength(1.5F).noOcclusion());
 	}
 
 	@Override
@@ -70,8 +68,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	}
 
 	@Override
-	@Nonnull
-	public ItemStack getCloneItemStack(@Nonnull BlockState state, HitResult target, @Nonnull BlockGetter level, @Nonnull BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
 		BlockEntity tile = level.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 			for (LogisticsTileGenericPipe mainPipe : ((LogisticsTileGenericSubMultiBlock) tile).getConnectedMainPipes()) {
@@ -106,7 +103,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 
 	@Override
 	@Nonnull
-	public java.util.List<ItemStack> getDrops(@Nonnull net.minecraft.world.level.block.state.BlockState state, @Nonnull net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+	public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull net.minecraft.world.level.storage.loot.LootParams.Builder params) {
 		// Sub-blocks drop nothing; the main pipe block entity handles drops.
 		return Collections.emptyList();
 	}

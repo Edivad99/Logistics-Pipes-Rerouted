@@ -1,15 +1,13 @@
 package logisticspipes.commands.commands;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.entity.player.Player;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
-import net.minecraft.world.item.Item;
-import net.minecraft.network.chat.Component;
-
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.commands.exception.MissingArgumentException;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class NameLookupCommand implements ICommandHandler {
 

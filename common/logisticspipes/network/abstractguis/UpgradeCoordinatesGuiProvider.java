@@ -1,14 +1,12 @@
 package logisticspipes.network.abstractguis;
 
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-
+import logisticspipes.network.exception.TargetNotFoundException;
+import logisticspipes.utils.gui.DummyContainer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-
-import logisticspipes.network.exception.TargetNotFoundException;
-import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

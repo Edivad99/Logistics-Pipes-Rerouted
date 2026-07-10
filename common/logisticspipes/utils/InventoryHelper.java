@@ -1,15 +1,12 @@
 package logisticspipes.utils;
 
 import javax.annotation.Nullable;
-
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.transactor.ITransactor;
 import logisticspipes.utils.transactor.TransactorSimple;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public class InventoryHelper {
@@ -22,8 +19,9 @@ public class InventoryHelper {
 				return t;
 			}
 			// NeoForge 1.20.1: BlockCapability queried via static method
-			if (tile.getLevel() != null) {
-				var handler = tile.getCapability(ForgeCapabilities.ITEM_HANDLER, dir).orElse(null);
+			var level = tile.getLevel();
+			if (level != null) {
+				var handler = level.getCapability(Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), dir);
 				if (handler != null) {
 					return new TransactorSimple(handler);
 				}

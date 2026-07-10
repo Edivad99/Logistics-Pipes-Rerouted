@@ -47,6 +47,10 @@ fun Collection<Property<*>>.addObserver(callback: ObserverCallback<*>) =
 fun Collection<Property<*>>.removeObserver(callback: ObserverCallback<*>) =
     forEach { prop -> prop.propertyObservers.remove(callback) }
 
-fun Collection<Property<*>>.readFromNBT(tag: CompoundTag) = forEach { prop -> prop.readFromNBT(tag) }
+fun Collection<Property<*>>.readFromNBT(tag: CompoundTag) = forEach { prop -> prop.readFromNBT(
+    tag
+) }
 
-fun Collection<Property<*>>.writeToNBT(tag: CompoundTag) = forEach { prop -> prop.writeToNBT(tag) }
+fun Collection<Property<*>>.writeToNBT(tag: CompoundTag) = forEach { prop -> prop.writeToNBT(
+    tag
+) }

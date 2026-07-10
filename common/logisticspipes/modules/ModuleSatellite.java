@@ -4,15 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-
 import org.jetbrains.annotations.NotNull;
-
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.property.Property;
 

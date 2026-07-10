@@ -1,22 +1,20 @@
 package logisticspipes.network.packets.pipe;
 
 import java.util.BitSet;
-
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-
-import net.minecraftforge.fluids.FluidStack;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.StaticResolve;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.fluids.FluidStack;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -38,7 +36,7 @@ public class PipeFluidUpdate extends CoordinatesPacket {
 		bits = input.readBitSet();
 		for (int i = 0; i < renderCache.length; i++) {
 			if (bits.get(i)) {
-				net.minecraft.world.level.material.Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(input.readUTF()));
+				Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(input.readUTF()));
 				renderCache[i] = new FluidStack(fluid, input.readInt(), input.readCompoundTag());
 			}
 		}

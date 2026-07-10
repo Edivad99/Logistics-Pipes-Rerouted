@@ -1,17 +1,15 @@
 
 package logisticspipes.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.Container;
-
+import javax.annotation.Nonnull;
 import logisticspipes.LPItems;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import javax.annotation.Nonnull;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 
 public class GuiFreqCardContent extends LogisticsBaseGuiScreen {
 

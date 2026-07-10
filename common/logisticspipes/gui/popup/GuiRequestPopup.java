@@ -3,16 +3,13 @@ package logisticspipes.gui.popup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.chat.Component;
-
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.IResource.ColorCode;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiRequestPopup extends SubGuiScreen {

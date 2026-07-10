@@ -4,27 +4,26 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.network.chat.Component;
-
-import net.minecraftforge.server.ServerLifecycleHooks;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.RequestPipeDimension;
 import logisticspipes.pipes.PipeItemsRemoteOrdererLogistics;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class RemoteOrderer extends LogisticsItem {
 
@@ -44,11 +43,10 @@ public class RemoteOrderer extends LogisticsItem {
 	}
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<Component> tooltip, TooltipFlag flagIn) {
-		super.appendHoverText(stack, worldIn, tooltip, flagIn);
-
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+		super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 		if (stack.hasTag() && Objects.requireNonNull(stack.getTag()).contains("connectedPipe-x")) {
-			tooltip.add(Component.literal("\u00a77Has Remote Pipe"));
+			tooltipComponents.add(Component.literal("\u00a77Has Remote Pipe"));
 		}
 	}
 
@@ -68,7 +66,7 @@ public class RemoteOrderer extends LogisticsItem {
 				}
 				energyUse += Math.sqrt(Math.pow(pipe.getX() - player.getX(), 2) + Math.pow(pipe.getY() - player.getY(), 2) + Math.pow(pipe.getZ() - player.getZ(), 2));
 				if (pipe.useEnergy(energyUse)) {
-					logisticspipes.network.packets.pipe.RequestPipeDimension dimPkt = PacketHandler.getPacket(logisticspipes.network.packets.pipe.RequestPipeDimension.class);
+					RequestPipeDimension dimPkt = PacketHandler.getPacket(RequestPipeDimension.class);
 					dimPkt.setDimension(pipe.getWorld());
 					MainProxy.sendPacketToPlayer(dimPkt, player);
 					logisticspipes.network.guis.pipe.NormalOrdererGui gui = logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
@@ -111,8 +109,8 @@ public class RemoteOrderer extends LogisticsItem {
 		Level world = null;
 		if (tag.contains("connectedPipe-world-dim-key")) {
 			try {
-				net.minecraft.resources.ResourceLocation rl = new net.minecraft.resources.ResourceLocation(tag.getString("connectedPipe-world-dim-key"));
-				net.minecraft.resources.ResourceKey<Level> key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, rl);
+				ResourceLocation rl = ResourceLocation.parse(tag.getString("connectedPipe-world-dim-key"));
+				ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, rl);
 				world = server.getLevel(key);
 			} catch (Exception ignored) {}
 		}

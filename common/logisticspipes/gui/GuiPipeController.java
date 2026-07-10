@@ -5,17 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-
-
-
-
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.network.PacketHandler;
@@ -30,14 +22,17 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.ItemDisplay;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.TextUtil;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -187,7 +182,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 							return false;
 						}
 						return SimpleServiceLocator.securityStationManager
-								.isAuthorized(UUID.fromString(itemStack.getTag().getString("UUID")));
+								.isAuthorized(itemStack.get(LogisticsPipesDataComponents.UUID));
 					}, 1));
 		}
 
@@ -206,7 +201,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "security"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 			ItemStack itemStack = pipe.getOriginalUpgradeManager().secInv.getItem(0);
 			if (!itemStack.isEmpty()) {
-				UUID id = UUID.fromString(itemStack.getTag().getString("UUID"));
+				UUID id = itemStack.get(LogisticsPipesDataComponents.UUID);
 				guiGraphics.drawString(font, "Id: ", 10, 68, Color.getValue(Color.DARKER_GREY), false);
 				guiGraphics.drawString(font, ChatColor.BLUE.toString() + id.toString(), 10, 80, Color.getValue(Color.DARKER_GREY), false);
 				guiGraphics.drawString(font, "Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? ChatColor.GREEN + "Authorized" : ChatColor.RED + "Unauthorized"), 10, 94, Color.getValue(Color.DARKER_GREY), false);
@@ -278,7 +273,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 		@Override
 		public void initTab() {
-			editButton = addRenderableWidget(new logisticspipes.utils.gui.SmallGuiButton(0, leftPos + 10, topPos + 70, 160, 20, "Edit Logic Controller"));
+			editButton = addRenderableWidget(new SmallGuiButton(0, leftPos + 10, topPos + 70, 160, 20, "Edit Logic Controller"));
 		}
 
 		@Override

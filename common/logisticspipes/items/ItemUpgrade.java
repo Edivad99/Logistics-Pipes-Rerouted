@@ -1,6 +1,5 @@
 package logisticspipes.items;
 
-import net.minecraft.client.gui.screens.Screen;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -8,16 +7,16 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
+import logisticspipes.pipes.upgrades.IPipeUpgrade;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import logisticspipes.pipes.upgrades.IPipeUpgrade;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemUpgrade extends LogisticsItem {
@@ -98,9 +97,8 @@ public class ItemUpgrade extends LogisticsItem {
 	public static String SHIFT_INFO_PREFIX = "item.upgrade.info.";
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
-		super.appendHoverText(stack, worldIn, tooltip, flagIn);
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+		super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 		IPipeUpgrade upgrade = getUpgradeForItem(stack, null);
 		if (upgrade == null) {
 			return;
@@ -116,19 +114,19 @@ public class ItemUpgrade extends LogisticsItem {
 				//and {0} modules
 				String base1 = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "both1");
 				String base2 = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "both2");
-				tooltip.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base1, join(pipe))));
-				tooltip.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base2, join(module))));
+				tooltipComponents.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base1, join(pipe))));
+				tooltipComponents.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base2, join(module))));
 			} else if (!pipe.isEmpty()) {
 				//Can be applied to {0} pipes
 				String base = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "pipe");
-				tooltip.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base, join(pipe))));
+				tooltipComponents.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base, join(pipe))));
 			} else {
 				//Can be applied to {0} modules
 				String base = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "module");
-				tooltip.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base, join(module))));
+				tooltipComponents.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base, join(module))));
 			}
 		} else {
-			TextUtil.addTooltipInformation(stack, tooltip, false);
+			TextUtil.addTooltipInformation(stack, tooltipComponents, false);
 		}
 	}
 

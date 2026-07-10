@@ -1,5 +1,11 @@
 package logisticspipes.utils.gui.sideconfig;
 
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -8,14 +14,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
-
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.textures.Textures;
+import logisticspipes.utils.LPPositionSet;
+import logisticspipes.utils.math.BoundingBox;
+import logisticspipes.utils.math.Camera;
+import logisticspipes.utils.math.Matrix4d;
+import logisticspipes.utils.math.Vector3d;
+import logisticspipes.utils.math.Vertex;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -32,26 +38,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-
-import net.minecraftforge.client.model.data.ModelData;
-
-
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-
-
-
-
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.textures.Textures;
-import logisticspipes.utils.LPPositionSet;
-import logisticspipes.utils.math.BoundingBox;
-import logisticspipes.utils.math.Camera;
-import logisticspipes.utils.math.Matrix4d;
-import logisticspipes.utils.math.Vector3d;
-import logisticspipes.utils.math.Vertex;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -154,13 +143,13 @@ public abstract class SideConfigDisplay {
 		if (button == 0) {
 			yaw += (float) dx;
 			pitch += (float) dy;
-			pitch = Math.max(-90, Math.min(90, pitch));
+			pitch = Math.clamp(pitch, -90, 90);
 		}
 	}
 
 	/** Called by the parent Screen's mouseScrolled; zooms in/out. */
-	public void onMouseScrolled(double delta) {
-		distance = Math.max(1.5, Math.min(20.0, distance - delta));
+	public void onMouseScrolled(double scrollY) {
+		distance = Math.clamp(distance - scrollY, 1.5, 20.0);
 	}
 
 	private void updateSelection(Vector3d start, Vector3d end) {

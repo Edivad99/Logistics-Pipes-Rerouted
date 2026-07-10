@@ -2,16 +2,6 @@ package logisticspipes.network.packets.orderer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.chat.Component;
-
-
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.config.Configs;
 import logisticspipes.gui.orderer.GuiOrderer;
 import logisticspipes.gui.orderer.GuiRequestTable;
@@ -20,6 +10,14 @@ import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.IResource.ColorCode;
 import logisticspipes.request.resources.ResourceNetwork;
 import logisticspipes.utils.StaticResolve;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -45,7 +43,7 @@ public class ComponentList extends ModernPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
 			handleClient(player);
 		}
 	}
@@ -53,12 +51,12 @@ public class ComponentList extends ModernPacket {
 	// See OpenChatGui: the client refs (Minecraft/LP GUI screens) live in this @OnlyIn helper so they
 	// are stripped before verification on the dedicated server, letting the packet class link and be
 	// sent server-side. processPacket stays free of client classes.
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private void handleClient(Player player) {
-		if (Configs.DISPLAY_POPUP && Minecraft.getInstance().screen instanceof GuiOrderer) {
+		if (Configs.COMMON.DISPLAY_POPUP.getAsBoolean() && Minecraft.getInstance().screen instanceof GuiOrderer) {
 			((GuiOrderer) Minecraft.getInstance().screen)
 					.handleSimulateAnswer(used, missing, (GuiOrderer) Minecraft.getInstance().screen, player);
-		} else if (Configs.DISPLAY_POPUP && Minecraft.getInstance().screen instanceof GuiRequestTable) {
+		} else if (Configs.COMMON.DISPLAY_POPUP.getAsBoolean() && Minecraft.getInstance().screen instanceof GuiRequestTable) {
 			((GuiRequestTable) Minecraft.getInstance().screen)
 					.handleSimulateAnswer(used, missing, (GuiRequestTable) Minecraft.getInstance().screen, player);
 		} else {

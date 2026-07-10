@@ -1,7 +1,4 @@
 package logisticspipes.commands;
-import net.minecraft.world.entity.player.Player;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.abstracts.SubCommandHandler;
@@ -18,6 +15,9 @@ import logisticspipes.commands.commands.TestCommand;
 import logisticspipes.commands.commands.TransferNamesCommand;
 import logisticspipes.commands.commands.VersionCommand;
 import logisticspipes.commands.commands.WrapperCommand;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class MainCommandHandler extends SubCommandHandler {
 

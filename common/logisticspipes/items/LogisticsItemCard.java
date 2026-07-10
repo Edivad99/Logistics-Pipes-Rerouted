@@ -1,24 +1,22 @@
 package logisticspipes.items;
 
-import net.minecraft.client.gui.screens.Screen;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-
-
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.proxy.SimpleServiceLocator;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExistance {
@@ -31,27 +29,24 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
-		super.appendHoverText(stack, worldIn, tooltip, flagIn);
-		if (!stack.hasTag()) {
-			tooltip.add(net.minecraft.network.chat.Component.literal(TextUtil.translate("tooltip.logisticsItemCard")));
-		} else {
-			final CompoundTag tag = Objects.requireNonNull(stack.getTag());
-			if (tag.contains("UUID")) {
-				if (stack.getDamageValue() == LogisticsItemCard.FREQ_CARD) {
-					tooltip.add(net.minecraft.network.chat.Component.literal("Freq. Card"));
-				} else if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
-					tooltip.add(net.minecraft.network.chat.Component.literal("Sec. Card"));
-				}
-				if (Screen.hasShiftDown()) {
-					tooltip.add(net.minecraft.network.chat.Component.literal("Id: " + tag.getString("UUID")));
-					if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
-						UUID id = UUID.fromString(tag.getString("UUID"));
-						tooltip.add(net.minecraft.network.chat.Component.literal("Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? "Authorized" : "Unauthorized")));
-					}
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+		super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+		if (stack.has(LogisticsPipesDataComponents.UUID)) {
+			UUID uuid = Objects.requireNonNull(stack.get(LogisticsPipesDataComponents.UUID));
+			if (stack.getDamageValue() == LogisticsItemCard.FREQ_CARD) {
+				tooltipComponents.add(Component.literal("Freq. Card"));
+			} else if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
+				tooltipComponents.add(Component.literal("Sec. Card"));
+			}
+			if (Screen.hasShiftDown()) {
+				tooltipComponents.add(Component.literal("Id: " + uuid));
+				if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
+					tooltipComponents.add(Component.literal("Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(uuid) ? "Authorized" : "Unauthorized")));
 				}
 			}
+		}
+		else {
+			tooltipComponents.add(Component.literal(TextUtil.translate("tooltip.logisticsItemCard")));
 		}
 	}
 

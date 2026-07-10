@@ -1,11 +1,10 @@
 package logisticspipes.network.packets.block;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class SecurityStationOpenPlayerRequest extends StringCoordinatesPacket {

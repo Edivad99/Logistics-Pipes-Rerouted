@@ -1,34 +1,11 @@
 package logisticspipes.blocks.crafting;
 
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.ResultContainer;
-import net.minecraft.world.inventory.ResultSlot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-
-
-
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.items.wrapper.InvWrapper;
-
 import logisticspipes.LPBlocks;
 import logisticspipes.api.IRoutedPowerProvider;
 import logisticspipes.blocks.LogisticsSolidTileEntity;
@@ -49,6 +26,23 @@ import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ResultContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyUtil;
@@ -64,7 +58,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 	public ItemIdentifier targetType = null;
 
 	private ResultContainer vanillaResult = new ResultContainer();
-	private Recipe cache;
+	private RecipeHolder<CraftingRecipe> cache;
 	private ServerPlayer fake;
 	private PlayerIdentifier placedBy = null;
 
@@ -85,10 +79,12 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 		for (int i = 0; i < 9; i++) {
 			craftInv.setItem(i, matrix.getItem(i));
 		}
-		List<Recipe> list = new ArrayList<>();
-		for (Recipe r : CraftingUtil.getRecipeList()) {
-			if (r.matches(craftInv, getWorld())) {
-				list.add(r);
+		List<RecipeHolder<CraftingRecipe>> list = new ArrayList<>();
+		for (RecipeHolder<CraftingRecipe> holder : CraftingUtil.getRecipeList()) {
+			Recipe<?> recipe = holder.value();
+
+			if (recipe.matches(craftInv, getWorld())) {
+				list.add(holder);
 			}
 		}
 		if (list.size() == 1) {
@@ -97,12 +93,12 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 			targetType = null;
 		} else if (list.size() > 1) {
 			if (targetType != null) {
-				for (Recipe recipe : list) {
+				for (RecipeHolder<CraftingRecipe> recipe : list) {
 					craftInv = new AutoCraftingInventory(placedBy);
 					for (int i = 0; i < 9; i++) {
 						craftInv.setItem(i, matrix.getItem(i));
 					}
-					ItemStack result = recipe.assemble(craftInv, getWorld().registryAccess());
+					ItemStack result = recipe.value().assemble(craftInv, getWorld().registryAccess());
 					if (!result.isEmpty() && targetType.equals(ItemIdentifier.get(result))) {
 						resultInv.setItem(0, result);
 						cache = recipe;
@@ -111,8 +107,8 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 				}
 			}
 			if (cache == null) {
-				for (Recipe r : list) {
-					ItemStack result = r.assemble(craftInv, getWorld().registryAccess());
+				for (RecipeHolder<CraftingRecipe> r : list) {
+					ItemStack result = r.value().assemble(craftInv, getWorld().registryAccess());
 					if (!result.isEmpty()) {
 						cache = r;
 						resultInv.setItem(0, result);
@@ -296,7 +292,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 				return ItemStack.EMPTY;
 			}
 		}
-		if (!power.useEnergy(Configs.LOGISTICS_CRAFTING_TABLE_POWER_USAGE)) {
+		if (!power.useEnergy(Configs.COMMON.LOGISTICS_CRAFTING_TABLE_POWER_USAGE.getAsInt())) {
 			return ItemStack.EMPTY;
 		}
 		crafter = new AutoCraftingInventory(placedBy);
@@ -357,44 +353,44 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 	}
 
 	@Override
-	public void load(CompoundTag par1nbtTagCompound) {
-		super.load(par1nbtTagCompound);
-		inv.readFromNBT(par1nbtTagCompound, "inv");
-		matrix.readFromNBT(par1nbtTagCompound, "matrix");
-		if (par1nbtTagCompound.contains("placedBy")) {
-			String name = par1nbtTagCompound.getString("placedBy");
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
+		inv.readFromNBT(tag, "inv");
+		matrix.readFromNBT(tag, "matrix");
+		if (tag.contains("placedBy")) {
+			String name = tag.getString("placedBy");
 			placedBy = PlayerIdentifier.convertFromUsername(name);
 		} else {
-			placedBy = PlayerIdentifier.readFromNBT(par1nbtTagCompound, "placedBy");
+			placedBy = PlayerIdentifier.readFromNBT(tag, "placedBy");
 		}
-		fuzzyFlags.readFromNBT(par1nbtTagCompound);
-		if (par1nbtTagCompound.contains("targetType")) {
+		fuzzyFlags.readFromNBT(tag);
+		if (tag.contains("targetType")) {
 			targetType = ItemIdentifier
-					.get(ItemStackLoader.loadAndFixItemStackFromNBT(par1nbtTagCompound.getCompound("targetType")));
+					.get(ItemStackLoader.loadAndFixItemStackFromNBT(tag.getCompound("targetType")));
 		}
 		cacheRecipe();
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag par1nbtTagCompound) {
-		super.saveAdditional(par1nbtTagCompound);
-		inv.writeToNBT(par1nbtTagCompound, "inv");
-		matrix.writeToNBT(par1nbtTagCompound, "matrix");
+	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
+		inv.writeToNBT(tag, "inv");
+		matrix.writeToNBT(tag, "matrix");
 		if (placedBy != null) {
-			placedBy.writeToNBT(par1nbtTagCompound, "placedBy");
+			placedBy.writeToNBT(tag, "placedBy");
 		}
-		fuzzyFlags.writeToNBT(par1nbtTagCompound);
+		fuzzyFlags.writeToNBT(tag);
 		if (targetType != null) {
 			CompoundTag type = new CompoundTag();
-			targetType.makeNormalStack(1).save(type);
-			par1nbtTagCompound.put("targetType", type);
+			targetType.makeNormalStack(1).save(registries, type);
+			tag.put("targetType", type);
 		} else {
-			par1nbtTagCompound.remove("targetType");
+			tag.remove("targetType");
 		}
 	}
 
 	/** Used by RegisterCapabilitiesEvent wiring in LPRegistries. */
-	public net.minecraftforge.items.IItemHandler getInvWrapper() {
+	public IItemHandler getInvWrapper() {
 		return invWrapper;
 	}
 

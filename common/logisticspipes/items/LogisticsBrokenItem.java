@@ -1,10 +1,8 @@
 package logisticspipes.items;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-
 import logisticspipes.interfaces.IItemAdvancedExistance;
+import net.minecraft.world.item.ItemStack;
 
 public class LogisticsBrokenItem extends LogisticsItem implements IItemAdvancedExistance {
 

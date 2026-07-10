@@ -9,15 +9,13 @@ package logisticspipes.logisticspipes;
 
 import java.util.List;
 import java.util.UUID;
-
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.order.IDistanceTracker;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * This interface describes the actions that must be available on an item that

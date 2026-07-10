@@ -1,9 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
 import java.lang.ref.WeakReference;
-
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.IntegerPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -11,6 +8,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class PipeContentRequest extends IntegerPacket {

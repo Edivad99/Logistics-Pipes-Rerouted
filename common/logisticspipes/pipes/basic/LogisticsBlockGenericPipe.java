@@ -1,5 +1,8 @@
 package logisticspipes.pipes.basic;
 
+import static logisticspipes.LPConstants.PIPE_MAX_POS;
+import static logisticspipes.LPConstants.PIPE_MIN_POS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -13,78 +16,63 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.util.StringRepresentable;
-
-// BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.client.Minecraft;
-// Particle/ParticleEngine/TextureAtlasSprite imports removed — rendering deferred (see addHitEffects/addDestroyEffects TODOs)
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import logisticspipes.interfaces.ITickable;
-
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.phys.BlockHitResult;
-
-
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
-
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
-
-import static logisticspipes.LPConstants.PIPE_MAX_POS;
-import static logisticspipes.LPConstants.PIPE_MIN_POS;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import logisticspipes.LPBlocks;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.config.Configs;
 import logisticspipes.interfaces.IRotationProvider;
+import logisticspipes.interfaces.ITickable;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.items.ItemLogisticsPipe;
-import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockBlock;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.renderer.newpipe.PropertyCache;
 import logisticspipes.renderer.newpipe.PropertyRenderList;
 import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.utils.LPPositionSet;
-// ClientConfiguration import removed — used only in deferred rendering methods
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
+
+// BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
+// Particle/ParticleEngine/TextureAtlasSprite imports removed — rendering deferred (see addHitEffects/addDestroyEffects TODOs)
+// ClientConfiguration import removed — used only in deferred rendering methods
 
 public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
@@ -144,7 +132,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	public LogisticsBlockGenericPipe() {
-		super(BlockBehaviour.Properties.of().strength(1.5F).noOcclusion());
+		super(Properties.of().strength(1.5F).noOcclusion());
 		registerDefaultState(this.stateDefinition.any()
 				.setValue(rotationProperty, 0)
 				.setValue(modelTypeProperty, PipeRenderModel.NONE));
@@ -166,7 +154,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-			@Nonnull net.minecraft.world.level.Level level,
+			@Nonnull Level level,
 			@Nonnull BlockState state,
 			@Nonnull BlockEntityType<T> type) {
 		// Without a ticker registered on the owning block, BlockEntity.tick equivalents
@@ -244,8 +232,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	 * is intentionally deferred — those methods belong to the 1.12.2 rendering system
 	 * and will be addressed when ItemLogisticsPipe is migrated to 1.20.1.</p>
 	 */
-	public static RegistryObject<ItemLogisticsPipe> registerPipe(
-			DeferredRegister<Item> registry,
+	public static DeferredItem<ItemLogisticsPipe> registerPipe(
+			DeferredRegister.Items registry,
 			String name,
 			Function<Item, ? extends CoreUnroutedPipe> constructor) {
 		return registry.register("pipe_" + name, () -> {
@@ -577,7 +565,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 				if (side != null && ignoreSideRayTrace) continue;
 				AABB bb = getPipeBoundingBox(side);
 				// rayTrace(pos, start, end, AABB) removed in 1.20.1 — use VoxelShape.clip
-				list.add(new Hit(net.minecraft.world.phys.shapes.Shapes.create(bb).clip(start, end, tileG.getBlockPos()), bb, side, Part.PIPE));
+				list.add(new Hit(Shapes.create(bb).clip(start, end, tileG.getBlockPos()), bb, side, Part.PIPE));
 			}
 		}
 
@@ -609,7 +597,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	/**
 	 * Ray-trace against a multi-block pipe's central bounding box plus the bounding box of each
 	 * sub-block position (translated from the main tile's position). Uses {@link Shapes#create}
-	 * and {@link net.minecraft.world.phys.shapes.VoxelShape#clip} since the 1.12
+	 * and {@link VoxelShape#clip} since the 1.12
 	 * {@code AABB.calculateIntercept} API is gone.
 	 */
 	private InternalRayTraceResult doRayTraceMultiblock(LogisticsTileGenericPipe tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 end) {
@@ -617,8 +605,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		// Centre block — always test so the player can click the main pipe body itself.
 		BlockPos mainPos = tileG.getBlockPos();
 		AABB centerBox = PIPE_CENTER_BB.move(mainPos.getX(), mainPos.getY(), mainPos.getZ());
-		net.minecraft.world.phys.BlockHitResult centerHit =
-				net.minecraft.world.phys.shapes.Shapes.create(centerBox).clip(start, end, mainPos);
+		BlockHitResult centerHit =
+				Shapes.create(centerBox).clip(start, end, mainPos);
 		if (centerHit != null) {
 			list.add(new Hit(centerHit, centerBox, null, Part.PIPE));
 		}
@@ -629,7 +617,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		pipe.addCollisionBoxesToList(tubeBoxes, null);
 		for (AABB box : tubeBoxes) {
 			BlockPos cell = BlockPos.containing(box.getCenter());
-			net.minecraft.world.phys.BlockHitResult subHit = net.minecraft.world.phys.shapes.Shapes
+			BlockHitResult subHit = Shapes
 					.create(box.move(-cell.getX(), -cell.getY(), -cell.getZ()))
 					.clip(start, end, cell);
 			if (subHit != null) {
@@ -774,7 +762,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	// (nonexistent) item and the client logs "Picking on: [BLOCK] logisticspipes:pipe gave
 	// null item"; the pipe's actual item lives on the pipe object, not the block.
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, net.minecraft.world.level.BlockGetter level, BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
 		BlockEntity tile = level.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericPipe
 				&& LogisticsBlockGenericPipe.isValid(((LogisticsTileGenericPipe) tile).pipe)
@@ -811,13 +799,13 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	public InteractionResult use(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hitResult) {
-		InteractionResult superResult = super.use(state, world, pos, player, hand, hitResult);
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+		InteractionResult superResult = super.useWithoutItem(state, level, pos, player, hitResult);
 		if (superResult != InteractionResult.PASS) return superResult;
 
 		ItemStack heldItem = player.getInventory().items.get(player.getInventory().selected);
 
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
+		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
 
 		if (LogisticsBlockGenericPipe.isValid(pipe)) {
 

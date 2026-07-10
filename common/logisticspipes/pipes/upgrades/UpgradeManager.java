@@ -3,16 +3,8 @@ package logisticspipes.pipes.upgrades;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.UUID;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-
 import logisticspipes.LPItems;
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -28,6 +20,16 @@ import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.SimpleStackInventory;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.util.DataComponentUtil;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgradeManager, IPipeUpgradeManager {
@@ -251,13 +253,12 @@ public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgrad
 		if (stack.getItem() != LPItems.itemCard.get() || stack.getDamageValue() != LogisticsItemCard.SEC_CARD) {
 			return;
 		}
-		if (!stack.hasTag()) {
+
+		if (!stack.has(LogisticsPipesDataComponents.UUID)) {
 			return;
 		}
-		if (!stack.getTag().contains("UUID")) {
-			return;
-		}
-		uuid = UUID.fromString(stack.getTag().getString("UUID"));
+
+		uuid = Objects.requireNonNull(stack.get(LogisticsPipesDataComponents.UUID));
 		uuidS = uuid.toString();
 	}
 
@@ -384,9 +385,7 @@ public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgrad
 
 	public void insetSecurityID(UUID id) {
 		ItemStack stack = new ItemStack(LPItems.itemCard.get(), 1);
-		stack.setTag(new CompoundTag());
-		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
-		tag.putString("UUID", id.toString());
+		stack.set(LogisticsPipesDataComponents.UUID, id);
 		secInv.setItem(0, stack);
 		InventoryChanged(secInv);
 	}

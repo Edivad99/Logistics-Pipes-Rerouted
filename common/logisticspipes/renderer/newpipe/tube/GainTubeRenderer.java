@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.AABB;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
@@ -27,6 +23,8 @@ import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
 import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
 
 public class GainTubeRenderer implements ISpecialPipeRenderer, IHighlightPlacementRenderer {
 
@@ -48,7 +46,7 @@ public class GainTubeRenderer implements ISpecialPipeRenderer, IHighlightPlaceme
 	//Tube global Access
 	public static Map<TubeGainRenderOrientation, IModel3D> tubeGain = new HashMap<>();
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation("logisticspipes", "textures/blocks/pipes/hs-tube.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/blocks/pipes/hs-tube.png");
 
 	public static void loadModels() {
 		try {

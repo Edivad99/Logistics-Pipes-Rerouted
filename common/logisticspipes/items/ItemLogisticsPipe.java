@@ -8,30 +8,7 @@
 package logisticspipes.items;
 
 import java.util.function.Consumer;
-
 import javax.annotation.Nonnull;
-
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import lombok.Getter;
-// import org.apache.logging.log4j.Level; // conflicts with net.minecraft.world.level.Level — use fully qualified
-
 import logisticspipes.LPBlocks;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -41,8 +18,28 @@ import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.renderer.IIconProvider;
 import logisticspipes.utils.LPPositionSet;
+import lombok.Getter;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
+
+// import org.apache.logging.log4j.Level; // conflicts with net.minecraft.world.level.Level — use fully qualified
 
 /**
  * A logistics pipe Item
@@ -204,15 +201,15 @@ public class ItemLogisticsPipe extends LogisticsItem {
 	}
 
 	@Override
-	public void initializeClient(Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
 		consumer.accept(ClientExtensionsHolder.EXTENSIONS);
 	}
 
 	/** Holds client-only references; loaded lazily so dedicated servers never touch
 	 *  client-only classes like BlockEntityWithoutLevelRenderer. */
 	private static final class ClientExtensionsHolder {
-		static final net.minecraftforge.client.extensions.common.IClientItemExtensions EXTENSIONS =
-			new net.minecraftforge.client.extensions.common.IClientItemExtensions() {
+		static final IClientItemExtensions EXTENSIONS =
+			new IClientItemExtensions() {
 				@Override
 				public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
 					return logisticspipes.renderer.LogisticsPipeItemRenderer.instance();

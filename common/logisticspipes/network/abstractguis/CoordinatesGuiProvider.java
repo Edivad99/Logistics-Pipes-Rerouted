@@ -1,16 +1,13 @@
 package logisticspipes.network.abstractguis;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-
+import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

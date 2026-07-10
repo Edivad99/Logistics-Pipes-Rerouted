@@ -44,10 +44,13 @@ import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import kotlin.math.min
 
 
+//fun ItemIdentifier.equalsWithNBT(stack: ItemStack): Boolean = this.item == stack.item &&
+//        this.itemDamage == stack.damageValue &&
+//        ((this.tag == null && stack.tag == null) ||
+//                (this.tag != null && stack.tag != null && this.tag == stack.tag))
+//Fixme
 fun ItemIdentifier.equalsWithNBT(stack: ItemStack): Boolean = this.item == stack.item &&
-        this.itemDamage == stack.damageValue &&
-        ((this.tag == null && stack.tag == null) ||
-                (this.tag != null && stack.tag != null && this.tag == stack.tag))
+        this.itemDamage == stack.damageValue
 
 fun IItemIdentifierInventory.matchingSequence(stack: ItemStack) =
     (0 until containerSize).asSequence().map { getIDStackInSlot(it) }

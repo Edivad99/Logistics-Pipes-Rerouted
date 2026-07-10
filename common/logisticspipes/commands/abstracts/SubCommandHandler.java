@@ -1,18 +1,17 @@
 package logisticspipes.commands.abstracts;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
-
 import logisticspipes.commands.chathelper.MorePageDisplay;
 import logisticspipes.commands.exception.CommandNotFoundException;
 import logisticspipes.commands.exception.DuplicatedCommandException;
 import logisticspipes.commands.exception.MissingArgumentException;
 import logisticspipes.commands.exception.PermissionDeniedException;
 import logisticspipes.utils.string.ChatColor;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public abstract class SubCommandHandler implements ICommandHandler {
 

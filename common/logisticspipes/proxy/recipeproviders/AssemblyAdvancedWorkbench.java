@@ -1,4 +1,4 @@
-/*
+package logisticspipes.proxy.recipeproviders;/*
 package logisticspipes.proxy.recipeproviders;
 
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;

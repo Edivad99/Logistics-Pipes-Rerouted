@@ -1,12 +1,12 @@
 package logisticspipes.commands.commands;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.chat.Component;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.abstracts.ICommandHandler;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 public class BypassCommand implements ICommandHandler {
 

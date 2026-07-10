@@ -3,11 +3,7 @@ package logisticspipes.gui.modules;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import net.minecraft.client.gui.GuiGraphics;
-
-import net.minecraft.world.Container;
-
+import javax.annotation.Nonnull;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
@@ -19,10 +15,11 @@ import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.Container;
 import network.rs485.logisticspipes.property.StringListProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
-import javax.annotation.Nonnull;
 
 public class GuiStringBasedItemSink extends ModuleBaseGui {
 

@@ -11,23 +11,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerListener;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -44,8 +27,19 @@ import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.MinecraftColor;
-import logisticspipes.utils.ReflectionHelper;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.property.IBitSet;
 
 public class DummyContainer extends AbstractContainerMenu {
@@ -253,7 +247,7 @@ public class DummyContainer extends AbstractContainerMenu {
 			return false;
 		}
 		from.onTake(player, out);
-		if (to.hasItem() && ItemStack.isSameItem(to.getItem(), out) && ItemStack.isSameItemSameTags(to.getItem(), from.getItem())) {
+		if (to.hasItem() && ItemStack.isSameItem(to.getItem(), out) && ItemStack.isSameItemSameComponents(to.getItem(), from.getItem())) {
 			int free = Math.min(to.getMaxStackSize(), to.getItem().getMaxStackSize()) - to.getItem().getCount();
 			if (free > 0) {
 				ItemStack toInsert = from.remove(free);

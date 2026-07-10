@@ -1,6 +1,7 @@
 package logisticspipes.utils;
 
-import net.minecraftforge.fml.ModList;
+
+import net.neoforged.fml.ModList;
 
 public class ModStatusHelper {
 

@@ -1,17 +1,6 @@
 package logisticspipes.network.packets.gui;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.ColorSlot;
@@ -19,6 +8,13 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.DummySlot;
 import logisticspipes.utils.gui.FluidSlot;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

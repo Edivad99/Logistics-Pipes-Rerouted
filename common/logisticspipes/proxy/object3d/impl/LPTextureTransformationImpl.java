@@ -1,8 +1,7 @@
 package logisticspipes.proxy.object3d.impl;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-
 import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 /**
  * Maps per-quad UVs in [0, 1] onto a texture atlas sprite's sub-rectangle.

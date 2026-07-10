@@ -1,13 +1,14 @@
 package logisticspipes.network.packets.gui;
 
-import net.minecraft.world.entity.player.Player;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -48,14 +49,14 @@ public class OpenGUIPacket extends ModernPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
 			handleClient(player);
 		}
 	}
 
 	// See OpenChatGui: NewGuiHandler.openGui(OpenGUIPacket, ...) walks the client's open screens,
 	// so the call lives in this @OnlyIn helper, stripped before verification on the dedicated server.
-	@net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private void handleClient(Player player) {
 		NewGuiHandler.openGui(this, player);
 	}

@@ -7,35 +7,38 @@
 
 package logisticspipes.pipes;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
-import net.minecraft.client.Minecraft;
-
-import net.minecraft.core.registries.BuiltInRegistries;
-
-import lombok.Getter;
-
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.config.Configs;
 import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.gui.hud.HudChassisPipe;
-import logisticspipes.interfaces.*;
-import logisticspipes.interfaces.routing.*;
+import logisticspipes.interfaces.IBufferItems;
+import logisticspipes.interfaces.IHeadUpDisplayRenderer;
+import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
+import logisticspipes.interfaces.IInventoryUtil;
+import logisticspipes.interfaces.ILegacyActiveModule;
+import logisticspipes.interfaces.ISendQueueContentRecieiver;
+import logisticspipes.interfaces.ISendRoutedItem;
+import logisticspipes.interfaces.ISlotUpgradeManager;
+import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
+import logisticspipes.interfaces.routing.ICraftItems;
+import logisticspipes.interfaces.routing.IFilter;
+import logisticspipes.interfaces.routing.IProvideItems;
+import logisticspipes.interfaces.routing.IRequestItems;
+import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ChassisTransportLayer;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
@@ -71,13 +74,26 @@ import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.ticks.HudUpdateTick;
-import logisticspipes.utils.DirectionUtil;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import lombok.Getter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.connection.*;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.pipes.IChassisPipe;
@@ -291,8 +307,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag tag) {
-		super.writeToNBT(tag);
+	public void writeToNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+		super.writeToNBT(tag, provider);
 		updateModuleInventory();
 		_moduleInventory.writeToNBT(tag, "chassi");
 	}
@@ -588,7 +604,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	@Override
 	public int sendQueueChanged(boolean force) {
 		if (MainProxy.isServer(getWorld())) {
-			if (Configs.MULTI_THREAD_NUMBER > 0 && !force) {
+			if (Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0 && !force) {
 				HudUpdateTick.add(getRouter());
 			} else {
 				if (localModeWatchers.size() > 0) {

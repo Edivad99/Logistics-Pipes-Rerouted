@@ -9,33 +9,20 @@
 package logisticspipes.utils.item;
 
 import java.util.List;
-import java.util.Objects;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.IronBarsBlock;
+import logisticspipes.utils.gui.IItemSearch;
+import logisticspipes.utils.gui.SimpleGraphics;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import lombok.Data;
-import lombok.experimental.Accessors;
-
-import logisticspipes.LPItems;
-import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.IItemSearch;
-import logisticspipes.utils.gui.SimpleGraphics;
-import network.rs485.logisticspipes.util.TextUtil;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @Data
 @Accessors(chain = true)
@@ -131,7 +118,7 @@ public class ItemStackRenderer {
 	}
 
 	public void renderInGui() {
-		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
 		if (gg == null) return;
 
 		ItemStack stack = itemstack;
@@ -172,7 +159,7 @@ public class ItemStackRenderer {
 	}
 
 	public void renderItemInGui(float x, float y, Item item, float zLevel, float scale) {
-		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
 		if (gg == null || item == null) return;
 		ItemStack stack = new ItemStack(item);
 		if (stack.isEmpty()) return;

@@ -7,33 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.ResultContainer;
-import net.minecraft.world.inventory.ResultSlot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-
-
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
 import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.crafting.AutoCraftingInventory;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;
-import logisticspipes.network.GuiIDs;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.CraftingSetType;
 import logisticspipes.network.packets.block.RequestRotationPacket;
@@ -47,8 +27,6 @@ import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.security.SecuritySettings;
-import net.minecraft.network.chat.Component;
-
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.CraftingUtil;
@@ -59,6 +37,21 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ResultContainer;
+import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements ISimpleInventoryEventHandler, IRequestWatcher, IGuiOpenControler, IRotationProvider {
 
@@ -274,8 +267,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		for (int i = 0; i < 9; i++) {
 			craftInv.setItem(i, matrix.getItem(i));
 		}
-		List<Recipe> list = new ArrayList<>();
-		for (Recipe r : CraftingUtil.getRecipeList()) {
+		List<Recipe<?>> list = new ArrayList<>();
+		for (Recipe<?> r : CraftingUtil.getRecipeList()) {
 			if (r.matches(craftInv, getWorld())) {
 				list.add(r);
 			}
@@ -323,16 +316,16 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		for (int i = 0; i < 9; i++) {
 			craftInv.setItem(i, matrix.getItem(i));
 		}
-		List<Recipe> list = new ArrayList<>();
-		for (Recipe r : CraftingUtil.getRecipeList()) {
+		List<Recipe<?>> list = new ArrayList<>();
+		for (Recipe<?> r : CraftingUtil.getRecipeList()) {
 			if (r.matches(craftInv, getWorld())) {
 				list.add(r);
 			}
 		}
 		if (list.size() > 1) {
 			boolean found = false;
-			Recipe prev = null;
-			for (Recipe recipe : list) {
+			Recipe<?> prev = null;
+			for (Recipe<?> recipe : list) {
 				if (found) {
 					cache = recipe;
 					break;
@@ -521,8 +514,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag par1nbtTagCompound) {
-		super.writeToNBT(par1nbtTagCompound);
+	public void writeToNBT(CompoundTag par1nbtTagCompound, HolderLookup.Provider provider) {
+		super.writeToNBT(par1nbtTagCompound, provider);
 		inv.writeToNBT(par1nbtTagCompound, "inv");
 		matrix.writeToNBT(par1nbtTagCompound, "matrix");
 		toSortInv.writeToNBT(par1nbtTagCompound, "toSortInv");

@@ -12,14 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
-
-import net.minecraftforge.items.IItemHandler;
-
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {

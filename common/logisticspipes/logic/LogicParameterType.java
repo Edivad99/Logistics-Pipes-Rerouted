@@ -1,8 +1,7 @@
 package logisticspipes.logic;
 
-import net.minecraft.core.Direction;
-
 import lombok.Getter;
+import net.minecraft.core.Direction;
 
 public enum LogicParameterType {
 	Number(long.class),

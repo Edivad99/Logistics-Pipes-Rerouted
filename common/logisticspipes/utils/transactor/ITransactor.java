@@ -1,9 +1,8 @@
 package logisticspipes.utils.transactor;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 
 public interface ITransactor {
 

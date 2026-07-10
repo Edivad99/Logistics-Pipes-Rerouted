@@ -492,7 +492,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Override
 	public ResourceLocation readResourceLocation() {
 		if (readBoolean()) {
-			return new ResourceLocation(Objects.requireNonNull(readUTF()));
+			return ResourceLocation.parse(Objects.requireNonNull(readUTF()));
 		}
 		return null;
 	}

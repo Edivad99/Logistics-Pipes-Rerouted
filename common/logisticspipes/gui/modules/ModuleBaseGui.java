@@ -1,15 +1,13 @@
 package logisticspipes.gui.modules;
 
-import net.minecraft.world.inventory.AbstractContainerMenu;
-
-import lombok.Getter;
-
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.GuiOpenChassis;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import lombok.Getter;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public abstract class ModuleBaseGui extends LogisticsBaseGuiScreen {
 

@@ -1,34 +1,28 @@
 package logisticspipes.gui.popup;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-
-
-
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.orderer.DiscContent;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.IItemSearch;
+import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.item.ItemStack;
 
 public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
@@ -184,7 +178,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	@Override
 	protected void renderToolTips(int mouseX, int mouseY, float par3) {
 		if (tooltip != null && tooltip.length >= 3) {
-			getGuiGraphics().renderTooltip(minecraft.font, (net.minecraft.world.item.ItemStack) tooltip[2], (int) tooltip[0], (int) tooltip[1]);
+			getGuiGraphics().renderTooltip(minecraft.font, (ItemStack) tooltip[2], (int) tooltip[0], (int) tooltip[1]);
 		}
 	}
 
@@ -562,12 +556,12 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if (delta > 0) {
-			wheelUp = (int) Math.max(1, delta);
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (scrollY > 0) {
+			wheelUp = (int) Math.max(1, scrollY);
 			wheelDown = 0;
-		} else if (delta < 0) {
-			wheelDown = (int) Math.max(1, -delta);
+		} else if (scrollY < 0) {
+			wheelDown = (int) Math.max(1, -scrollY);
 			wheelUp = 0;
 		}
 		return true;

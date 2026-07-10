@@ -1,12 +1,6 @@
 package logisticspipes.gui;
 
 
-import net.minecraft.world.entity.player.Player;
-
-
-
-
-import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.PlayerConfigToServerPacket;
@@ -15,6 +9,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.util.TextUtil;
 

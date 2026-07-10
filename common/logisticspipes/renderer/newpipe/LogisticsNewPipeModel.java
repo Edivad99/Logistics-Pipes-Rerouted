@@ -6,24 +6,19 @@ package logisticspipes.renderer.newpipe;
 //          IExtendedBlockState, BlockRenderLayer, MinecraftForgeClient, PerspectiveMapWrapper
 
 import java.util.Map;
-
+import com.google.common.collect.Maps;
+import logisticspipes.pipes.basic.CoreUnroutedPipe;
+import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import com.google.common.collect.Maps;
-
-import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LogisticsNewPipeModel {
 
-	private static final ResourceLocation BASE_TEXTURE = new ResourceLocation("logisticspipes", "blocks/blank_pipe");
+	private static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "blocks/blank_pipe");
 	public static TextureAtlasSprite BASE_TEXTURE_SPRITE;
 	public static TextureTransformation BASE_TEXTURE_TRANSFORM;
 

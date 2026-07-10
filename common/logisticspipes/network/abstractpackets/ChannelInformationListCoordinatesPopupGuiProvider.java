@@ -2,12 +2,10 @@ package logisticspipes.network.abstractpackets;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.network.abstractguis.CoordinatesPopupGuiProvider;
 import logisticspipes.routing.channels.ChannelInformation;
+import lombok.Getter;
+import lombok.Setter;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

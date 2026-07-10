@@ -1,10 +1,6 @@
 package logisticspipes.commands.commands;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.Arrays;
-
-// Player removed — use net.minecraft.commands.CommandSourceStack
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.abstracts.SubCommandHandler;
 import logisticspipes.commands.commands.debug.HandCommand;
@@ -12,6 +8,9 @@ import logisticspipes.commands.commands.debug.MeCommand;
 import logisticspipes.commands.commands.debug.PipeCommand;
 import logisticspipes.commands.commands.debug.RoutingTableCommand;
 import logisticspipes.commands.commands.debug.TargetCommand;
+import net.minecraft.world.entity.player.Player;
+
+// Player removed — use net.minecraft.commands.CommandSourceStack
 
 public class DebugCommand extends SubCommandHandler {
 

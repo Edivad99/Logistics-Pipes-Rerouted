@@ -1,13 +1,12 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import net.minecraft.world.entity.player.Player;
-
 import logisticspipes.gui.modules.GuiFluidSupplier;
 import logisticspipes.modules.ModuleFluidSupplier;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class FluidSupplierSlot extends ModuleCoordinatesGuiProvider {

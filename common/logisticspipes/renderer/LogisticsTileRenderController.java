@@ -3,19 +3,6 @@ package logisticspipes.renderer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-
 import logisticspipes.config.Configs;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.PowerPacketLaser;
@@ -23,6 +10,15 @@ import logisticspipes.pipefxhandlers.PipeFXLaserPowerBall;
 import logisticspipes.pipefxhandlers.PipeFXLaserPowerBeam;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsTileRenderController {
@@ -191,7 +187,7 @@ public class LogisticsTileRenderController {
 	}
 
 	public void addLaser(Direction dir, float length, int color, boolean reverse, boolean renderBall) {
-		if (!Configs.ENABLE_PARTICLE_FX) {
+		if (!Configs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
 			return;
 		}
 		boolean sendPacket = false;

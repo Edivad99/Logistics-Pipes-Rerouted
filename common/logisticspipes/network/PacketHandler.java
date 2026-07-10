@@ -1,5 +1,7 @@
 package logisticspipes.network;
 
+import static io.netty.buffer.Unpooled.buffer;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -7,34 +9,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
-
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
-
-import java.util.function.Supplier;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import static io.netty.buffer.Unpooled.buffer;
-
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolverUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import network.rs485.logisticspipes.util.LPDataIOWrapper;
 import network.rs485.logisticspipes.util.LPDataInput;
 
@@ -42,41 +36,39 @@ import network.rs485.logisticspipes.util.LPDataInput;
  * Central packet registry and dispatcher for LogisticsPipes.
  *
  * All LP packets share a single {@link LPPacketPayload} channel multiplexed by a short ID.
- * Registration happens in {@link logisticspipes.LogisticsPipes} via {@code RegisterPayloadsEvent}.
+ * Registration happens in {@link LogisticsPipes} via {@code RegisterPayloadsEvent}.
  */
 public class PacketHandler {
 
-    private static final String PROTOCOL_VERSION = "1";
-    public static final ResourceLocation CHANNEL_ID = new ResourceLocation("logisticspipes", "packet");
-    public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
-            .named(CHANNEL_ID)
-            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
-            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
-            .networkProtocolVersion(() -> PROTOCOL_VERSION)
-            .simpleChannel();
-
-    public static void registerMessages() {
-        CHANNEL.messageBuilder(LPPacketPayload.class, 0)
-                .encoder(LPPacketPayload::write)
-                .decoder(LPPacketPayload::decode)
-                .consumerMainThread(PacketHandler::handlePayload)
-                .add();
+    public static void register(IEventBus modEventBus) {
+        modEventBus.addListener(RegisterPayloadHandlersEvent.class, event -> {
+            var registrar = event.registrar("logisticspipes").versioned("1");
+            registrar.playBidirectional(
+                    LPPacketPayload.TYPE,
+                    LPPacketPayload.STREAM_CODEC,
+                    PacketHandler::handlePayload
+            );
+            registerClientToServer(registrar);
+            registerServerToClient(registrar);
+        });
     }
 
-    private static void handlePayload(LPPacketPayload payload, Supplier<NetworkEvent.Context> ctxSup) {
-        NetworkEvent.Context ctx = ctxSup.get();
-        try {
-            Player player = ctx.getSender();
-            if (player == null) {
-                player = MainProxy.proxy.getClientPlayer();
-            }
-            if (player != null) {
+    private static void registerClientToServer(PayloadRegistrar registrar) {
+    }
+
+    private static void registerServerToClient(PayloadRegistrar registrar) {
+    }
+
+    private static void handlePayload(LPPacketPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            try {
+                Player player = context.player();
+
                 onPacketData(payload.getData(), player);
+            } finally {
+                payload.release();
             }
-        } finally {
-            payload.release();
-            ctx.setPacketHandled(true);
-        }
+        });
     }
 
     public static final Map<Integer, StackTraceElement[]> debugMap = new HashMap<>();
@@ -186,7 +178,7 @@ public class PacketHandler {
     /** Sends a packet from the client to the server. Must only be called client-side. */
     @OnlyIn(Dist.CLIENT)
     public static void sendToServer(@Nonnull ModernPacket msg) {
-        CHANNEL.sendToServer(buildPayload(msg));
+        PacketDistributor.sendToServer(buildPayload(msg));
     }
 
     /** Sends a packet from the server to a specific player. Must only be called server-side. */
@@ -195,12 +187,18 @@ public class PacketHandler {
             LogisticsPipes.log.warn("sendToPlayer: player is not a ServerPlayer, skipping");
             return;
         }
-        CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), buildPayload(msg));
+
+        PacketDistributor.sendToPlayer(
+                sp,
+                buildPayload(msg)
+        );
     }
 
     /** Sends a packet to every connected player. Must only be called server-side. */
     public static void sendToAll(@Nonnull ModernPacket msg) {
-        CHANNEL.send(PacketDistributor.ALL.noArg(), buildPayload(msg));
+        PacketDistributor.sendToAllPlayers(
+                buildPayload(msg)
+        );
     }
 
     /** Resolves a fresh packet template for a received id, guarding the null gaps that

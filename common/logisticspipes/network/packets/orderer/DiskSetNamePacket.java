@@ -1,14 +1,13 @@
 package logisticspipes.network.packets.orderer;
 
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-
 import logisticspipes.LPItems;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class DiskSetNamePacket extends StringCoordinatesPacket {

@@ -1,15 +1,10 @@
 package logisticspipes.network.abstractpackets;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-
 import lombok.Getter;
 import lombok.Setter;
-
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

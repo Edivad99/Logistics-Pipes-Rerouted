@@ -1,11 +1,7 @@
 
 package logisticspipes.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.BlockPos;
-
+import javax.annotation.Nonnull;
 import logisticspipes.network.packets.pipe.PipePropertiesUpdate;
 import logisticspipes.pipes.PipeFluidTerminus;
 import logisticspipes.proxy.MainProxy;
@@ -13,11 +9,12 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierInventory;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
-import javax.annotation.Nonnull;
 
 public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 

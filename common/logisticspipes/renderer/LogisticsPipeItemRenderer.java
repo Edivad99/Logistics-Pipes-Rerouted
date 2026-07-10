@@ -2,17 +2,8 @@ package logisticspipes.renderer;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -20,6 +11,12 @@ import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.renderer.newpipe.RenderEntry;
 import logisticspipes.renderer.state.PipeRenderState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * BEWLR that draws a pipe item using the same OBJ geometry pipeline as the in-world

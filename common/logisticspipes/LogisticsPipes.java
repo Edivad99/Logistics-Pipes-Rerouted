@@ -7,136 +7,57 @@
 
 package logisticspipes;
 
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackSource;
-
-import com.mojang.logging.LogUtils;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import org.slf4j.Logger;
-
-import logisticspipes.asm.wrapper.LogisticsWrapperHandler;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
-import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.blocks.LogisticsSolidBlock;
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
-import logisticspipes.blocks.powertile.LogisticsIC2PowerProviderTileEntity;
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
-import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.renderer.FluidContainerRenderer;
+import logisticspipes.textures.TextureRegistrar;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.crafting.CraftingHelper;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import org.slf4j.Logger;
+import com.mojang.logging.LogUtils;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.chathelper.LPChatListener;
 import logisticspipes.config.Configs;
 import logisticspipes.datafixer.LPDataFixer;
-import logisticspipes.items.ItemBlankModule;
-import logisticspipes.items.ItemDisk;
-import logisticspipes.items.ItemHUDArmor;
-import logisticspipes.items.ItemLogisticsChips;
-import logisticspipes.items.ItemLogisticsPipe;
-import logisticspipes.items.ItemLogisticsProgrammer;
-import logisticspipes.items.ItemModule;
-import logisticspipes.items.ItemParts;
-import logisticspipes.items.ItemPipeController;
-import logisticspipes.items.ItemPipeManager;
-import logisticspipes.items.ItemPipeSignCreator;
-import logisticspipes.items.ItemUpgrade;
-import logisticspipes.items.LogisticsBrokenItem;
-import logisticspipes.items.LogisticsFluidContainer;
-import logisticspipes.items.LogisticsItemCard;
-import logisticspipes.items.LogisticsSolidBlockItem;
-import logisticspipes.items.RemoteOrderer;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.pipes.PipeBlockRequestTable;
-import logisticspipes.pipes.PipeFluidBasic;
-import logisticspipes.pipes.PipeFluidExtractor;
-import logisticspipes.pipes.PipeFluidInsertion;
-import logisticspipes.pipes.PipeFluidProvider;
-import logisticspipes.pipes.PipeFluidRequestLogistics;
 import logisticspipes.pipes.PipeFluidSatellite;
-import logisticspipes.pipes.PipeFluidSupplierMk2;
-import logisticspipes.pipes.PipeFluidTerminus;
-import logisticspipes.pipes.PipeItemsBasicLogistics;
-import logisticspipes.pipes.PipeItemsCraftingLogistics;
-import logisticspipes.pipes.PipeItemsFirewall;
-import logisticspipes.pipes.PipeItemsFluidSupplier;
-import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.pipes.PipeItemsProviderLogistics;
-import logisticspipes.pipes.PipeItemsRemoteOrdererLogistics;
-import logisticspipes.pipes.PipeItemsRequestLogistics;
-import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
-import logisticspipes.pipes.PipeItemsSupplierLogistics;
-import logisticspipes.pipes.PipeItemsSystemDestinationLogistics;
-import logisticspipes.pipes.PipeItemsSystemEntranceLogistics;
-import logisticspipes.pipes.PipeLogisticsChassisMk1;
-import logisticspipes.pipes.PipeLogisticsChassisMk2;
-import logisticspipes.pipes.PipeLogisticsChassisMk3;
-import logisticspipes.pipes.PipeLogisticsChassisMk4;
-import logisticspipes.pipes.PipeLogisticsChassisMk5;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
-import logisticspipes.pipes.basic.LogisticsBlockGenericSubMultiBlock;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
-import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
-import logisticspipes.pipes.tubes.HSTubeCurve;
-import logisticspipes.pipes.tubes.HSTubeGain;
-import logisticspipes.pipes.tubes.HSTubeLine;
-import logisticspipes.pipes.tubes.HSTubeSCurve;
-import logisticspipes.pipes.tubes.HSTubeSpeedup;
-import logisticspipes.pipes.unrouted.PipeItemsBasicTransport;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.ProxyManager;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -150,7 +71,6 @@ import logisticspipes.proxy.specialconnection.SpecialTileConnection;
 import logisticspipes.proxy.specialtankhandler.SpecialTankHandler;
 import logisticspipes.recipes.CraftingRecipes;
 import logisticspipes.recipes.LPChipRecipes;
-import logisticspipes.recipes.LPRecipePack;
 import logisticspipes.recipes.ModuleChippedCraftingRecipes;
 import logisticspipes.recipes.NBTIngredient;
 import logisticspipes.recipes.PipeChippedCraftingRecipes;
@@ -181,30 +101,27 @@ import logisticspipes.ticks.VersionChecker;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.InventoryUtilFactory;
 import logisticspipes.utils.RoutedItemHelper;
-import logisticspipes.utils.StaticResolverUtil;
 import logisticspipes.utils.tuples.Pair;
+import lombok.Getter;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.grow.ServerTickDispatcher;
 import network.rs485.logisticspipes.compat.TheOneProbeIntegration;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.ServerConfigurationManager;
 import network.rs485.logisticspipes.gui.font.LPFontRenderer;
-import network.rs485.logisticspipes.guidebook.ItemGuideBook;
 import network.rs485.logisticspipes.property.PropertyUpdaterEventListener;
 import network.rs485.util.SystemUtilKt;
 
-//@formatter:off
-//CHECKSTYLE:OFF
-
 @Mod(LPConstants.LP_MOD_ID)
 public class LogisticsPipes {
-	//@formatter:on
-	//CHECKSTYLE:ON
-
 	public static final String UNKNOWN = "unknown";
 	// Dev-only: gates the + power-cheat button, the starter-pack bypass, security-station
 	// override, etc. Flipped off automatically in a shipped jar so players can't free-cheat
 	// infinite RF from the power junction.
-	private static final boolean DEBUG = !net.minecraftforge.fml.loading.FMLEnvironment.production;
+	private static final boolean DEBUG = !FMLEnvironment.production;
 	private Consumer<ServerStartedEvent> minecraftTestStartMethod = null;
 
 	public static boolean isDEBUG() {
@@ -218,33 +135,38 @@ public class LogisticsPipes {
 	@Getter
 	private static String TARGET = UNKNOWN;
 
-	public LogisticsPipes() {
-		this(thedarkcolour.kotlinforforge.forge.ForgeKt.getMOD_BUS());
-	}
+//	public LogisticsPipes() {
+//		this(thedarkcolour.kotlinforforge.forge.ForgeKt.getMOD_BUS());
+//	}
 
-	public LogisticsPipes(IEventBus modEventBus) {
+	public LogisticsPipes(ModContainer modContainer, Dist dist) {
 		instance = this;
+		var modEventBus = modContainer.getEventBus();
 		loadManifestValues(LogisticsPipes.class.getClassLoader());
-		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Configs.SPEC);
 		LPRegistries.register(modEventBus);
+		Configs.registerConfig(modContainer);
 
 		modEventBus.addListener(this::preInit);
 		modEventBus.addListener(this::commonSetup);
 		modEventBus.addListener(this::postInit);
 		modEventBus.addListener(this::onAddPackFinders);
+		modEventBus.addListener(this::handleRegisterCapabilities);
 		// `clientSetup` and `registerRenderers` are @OnlyIn(Dist.CLIENT); on a dedicated
 		// server FML's runtime-dist-cleaner strips them, and the `this::method` reference
 		// here would NoSuchMethodError before the constructor finishes.
-		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+		if (dist.isClient()) {
 			modEventBus.addListener(this::clientSetup);
 			modEventBus.addListener(this::registerRenderers);
-			modEventBus.register(logisticspipes.textures.TextureRegistrar.class);
+			modEventBus.register(TextureRegistrar.class);
+			modEventBus.register(FluidContainerRenderer.class);
 		}
+		PacketHandler.register(modEventBus);
 		LPDataFixer.INSTANCE.init();
 		// Networking is registered during preInit via PacketHandler.registerMessages().
 		// Items/blocks/BEs/creative-tabs are registered via DeferredRegister in LPRegistries.
 
-		MinecraftForge.EVENT_BUS.register(this);
+		NeoForge.EVENT_BUS.register(this);
+		LogisticsPipesDataComponents.register(modEventBus);
 	}
 
 	private static void loadManifestValues(ClassLoader loader) {
@@ -312,7 +234,6 @@ public class LogisticsPipes {
 
 	private void preInit(FMLCommonSetupEvent event) {
 		PacketHandler.initialize();
-		PacketHandler.registerMessages();
 		NewGuiHandler.initialize();
 
 		log.info("====================================================");
@@ -322,7 +243,6 @@ public class LogisticsPipes {
 		// StaticResolverUtil scans ModFileScanData lazily on first findClassesByType() call.
 
 		ProxyManager.load();
-		Configs.load();
 
 		if (LogisticsPipes.UNKNOWN.equals(LogisticsPipes.VERSION)) {
 			LogisticsPipes.log.warn("Could not determine Logistics Pipes version, we do need that " + JarFile.MANIFEST_NAME + ", don't you know?");
@@ -357,19 +277,19 @@ public class LogisticsPipes {
 		SimpleServiceLocator.setRoutedItemHelper(new RoutedItemHelper());
 		SimpleServiceLocator.setChannelManagerProvider(new ChannelManagerProvider());
 
-		MinecraftForge.EVENT_BUS.register(new LPTickHandler());
-		MinecraftForge.EVENT_BUS.register(new QueuedTasks());
-		MinecraftForge.EVENT_BUS.register(new LogisticsEventListener());
-		MinecraftForge.EVENT_BUS.register(new LPChatListener());
-		MinecraftForge.EVENT_BUS.register(new BlockChangeListener());
-		MinecraftForge.EVENT_BUS.register(PropertyUpdaterEventListener.INSTANCE);
+		NeoForge.EVENT_BUS.register(new LPTickHandler());
+		NeoForge.EVENT_BUS.register(new QueuedTasks());
+		NeoForge.EVENT_BUS.register(new LogisticsEventListener());
+		NeoForge.EVENT_BUS.register(new LPChatListener());
+		NeoForge.EVENT_BUS.register(new BlockChangeListener());
+		NeoForge.EVENT_BUS.register(PropertyUpdaterEventListener.INSTANCE);
 
 		// Client-side setup (runs on client only)
 		event.enqueueWork(() -> {
-			if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT) {
+			if (FMLEnvironment.dist == Dist.CLIENT) {
 				RenderTickHandler sub = new RenderTickHandler();
-				MinecraftForge.EVENT_BUS.register(sub);
-				MinecraftForge.EVENT_BUS.register(network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor.INSTANCE);
+				NeoForge.EVENT_BUS.register(sub);
+				NeoForge.EVENT_BUS.register(network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor.INSTANCE);
 				SimpleServiceLocator.setClientPacketBufferHandlerThread(new ClientPacketBufferHandlerThread());
 				LPFontRenderer.Factory.asyncPreload();
 
@@ -393,7 +313,7 @@ public class LogisticsPipes {
 		});
 
 		SimpleServiceLocator.setServerPacketBufferHandlerThread(new ServerPacketBufferHandlerThread());
-		for (int i = 0; i < Configs.MULTI_THREAD_NUMBER; i++) {
+		for (int i = 0; i < Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt(); i++) {
 			new RoutingTableUpdateThread(i);
 		}
 
@@ -415,11 +335,22 @@ public class LogisticsPipes {
 						throw new RuntimeException("Could not run server started hook in " + minecraftTestInstance, e);
 					}
 				};
-				MinecraftForge.EVENT_BUS.register(minecraftTestInstance);
+				NeoForge.EVENT_BUS.register(minecraftTestInstance);
 			} catch (ReflectiveOperationException e) {
 				throw new RuntimeException("Error accessing minecraft test instance", e);
 			}
 		}
+	}
+
+	private void handleRegisterCapabilities(RegisterCapabilitiesEvent event) {
+		event.registerBlockEntity(Capabilities.ItemHandler.BLOCK,
+				LPRegistries.BE_PIPE.get(), LogisticsTileGenericPipe::getItemCap);
+
+		event.registerBlockEntity(Capabilities.FluidHandler.BLOCK,
+				LPRegistries.BE_PIPE.get(), LogisticsTileGenericPipe::getFluidCap);
+
+		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
+				LPRegistries.BE_POWER_PROVIDER_RF.get(), LogisticsRFPowerProviderTileEntity::getEnergyStorageCap);
 	}
 
 	private void postInit(FMLLoadCompleteEvent event) {
@@ -459,7 +390,7 @@ public class LogisticsPipes {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	private void registerRenderers(net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers event) {
+	private void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
 		LogisticsPipes.log.debug("registerRenderers: BE_PIPE={}", LPRegistries.BE_PIPE.get());
 		event.registerBlockEntityRenderer(LPRegistries.BE_PIPE.get(), logisticspipes.renderer.LogisticsRenderPipe::new);
 		// LP solid blocks: shared BER draws the OBJ body + cover plates with the per-type sprite.
@@ -500,7 +431,7 @@ public class LogisticsPipes {
 		PipeItemsSatelliteLogistics.cleanup();
 		PipeFluidSatellite.cleanup();
 		ServerRouter.cleanup();
-		if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
 			LogisticsHUDRenderer.instance().clear();
 		}
 		ServerTickDispatcher.INSTANCE.cleanup();
@@ -508,8 +439,8 @@ public class LogisticsPipes {
 	}
 
 	@SubscribeEvent
-	public void registerCommands(net.minecraftforge.event.RegisterCommandsEvent event) {
-		new logisticspipes.commands.LogisticsPipesCommand().register(event.getDispatcher());
+	public void registerCommands(RegisterCommandsEvent event) {
+		new LogisticsPipesCommand().register(event.getDispatcher());
 	}
 
 	@SubscribeEvent
@@ -517,7 +448,7 @@ public class LogisticsPipes {
 		if (minecraftTestStartMethod != null) minecraftTestStartMethod.accept(event);
 	}
 
-	// ── Registry ─────────────────────────────────────────────────────────────
+		// ── Registry ─────────────────────────────────────────────────────────────
 	// Items/blocks/BEs are registered via DeferredRegister in LPRegistries.
 	// These setName stubs are retained as no-ops for legacy call sites that still
 	// pass through them; the ResourceLocation is set at DeferredRegister.register time.
@@ -537,24 +468,26 @@ public class LogisticsPipes {
 	// ── Recipes ───────────────────────────────────────────────────────────────
 
 	private void onAddPackFinders(AddPackFindersEvent event) {
-		if (event.getPackType() != PackType.SERVER_DATA) return;
-		event.addRepositorySource(consumer -> {
-			Pack pack = Pack.readMetaAndCreate(
-					"logisticspipes:virtual_recipes",
-					Component.literal("LogisticsPipes virtual recipes"),
-					true,
-					id -> new LPRecipePack(),
-					PackType.SERVER_DATA,
-					Pack.Position.TOP,
-					PackSource.BUILT_IN);
-			if (pack != null) consumer.accept(pack);
-		});
+//		if (event.getPackType() != PackType.SERVER_DATA) return;
+//		event.addRepositorySource(consumer -> {
+//			var test = new LPRecipePack()
+//			Pack pack = Pack.readMetaAndCreate(
+//					"logisticspipes:virtual_recipes",
+//					Component.literal("LogisticsPipes virtual recipes"),
+//					true,
+//					id -> new LPRecipePack(),
+//					PackType.SERVER_DATA,
+//					Pack.Position.TOP,
+//					PackSource.BUILT_IN);
+//			if (pack != null) consumer.accept(pack);
+//		});
 	}
 
 	private void registerRecipes() {
 		// Register the NBT ingredient serializer so programmer-based recipes can be
 		// parsed from JSON (generated by the recipe providers into LPRecipePack).
-		CraftingHelper.register(NBTIngredient.ID, NBTIngredient.SERIALIZER);
+		//TODO fix
+//		CraftingHelper.register(NBTIngredient.ID, NBTIngredient.SERIALIZER);
 
 		RecipeManager.recipeProvider.add(new LPChipRecipes());
 		RecipeManager.recipeProvider.add(new UpgradeChippedCraftingRecipes());

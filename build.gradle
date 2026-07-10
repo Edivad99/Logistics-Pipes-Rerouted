@@ -1,134 +1,156 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import java.util.regex.Matcher
 
 plugins {
-    id 'java-library'
-    id 'idea'
-    id 'eclipse'
-    id 'net.neoforged.moddev' version "$mod_dev_gradle"
-    id 'com.diffplug.spotless' version '8.0.0'
-    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
-    id 'org.jetbrains.kotlin.plugin.lombok' version "$kotlin_version"
+  id 'java-library'
+  id 'idea'
+  id 'eclipse'
+  id 'net.neoforged.moddev' version "$mod_dev_gradle"
+  id 'com.diffplug.spotless' version '8.0.0'
+  id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+  id 'org.jetbrains.kotlin.plugin.lombok' version "$kotlin_version"
 }
 
 tasks.named('wrapper', Wrapper).configure {
-    distributionType = Wrapper.DistributionType.BIN
+  distributionType = Wrapper.DistributionType.BIN
 }
 
 version = "$minecraft_version-$mod_version"
-group = mod_group_id
+group = 'network.rs485'
 base {
-    archivesName = mod_id
+  archivesName = mod_id
 }
 
 java {
   toolchain {
     languageVersion = JavaLanguageVersion.of(21)
     if (System.getProperty('idea.active')) {
-        vendor = JvmVendorSpec.JETBRAINS
+      vendor = JvmVendorSpec.JETBRAINS
     }
   }
 }
 
 tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        languageVersion = "2.0"
-        jvmTarget = JavaVersion.VERSION_21
-        freeCompilerArgs += "-Xjvm-default=all"
-    }
+  compilerOptions {
+    languageVersion.set(
+            KotlinVersion.KOTLIN_2_0
+    )
+    jvmTarget.set(JvmTarget.JVM_21)
+    freeCompilerArgs.add("-Xjvm-default=all")
+  }
 }
 
 sourceSets {
+  api {
+    // API has no resources
+    resources.srcDirs = []
+    compileClasspath += main.compileClasspath
+    runtimeClasspath += main.runtimeClasspath
+    java { srcDirs = ['src/api/java'] }
+  }
   main {
+    compileClasspath += api.output
+    runtimeClasspath += api.output
+    java { srcDirs += 'common' }
     resources {
       srcDir 'src/generated/resources'
+      srcDirs += 'resources'
       exclude '**/*.bbmodel'
       exclude 'src/generated/**/.cache'
+    }
+    test {
+      compileClasspath += api.output
+      runtimeClasspath += api.output
     }
   }
 }
 
 configurations {
-    libraries
-    implementation.extendsFrom libraries
+  libraries
+  implementation.extendsFrom libraries
 }
 
 neoForge {
-    // Specify the version of NeoForge to use.
-    version = project.neo_version
+  // Specify the version of NeoForge to use.
+  version = project.neo_version
 
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
+  parchment {
+    mappingsVersion = project.parchment_mappings_version
+    minecraftVersion = project.parchment_minecraft_version
+  }
+
+  validateAccessTransformers = true
+
+  runs {
+    configureEach {
+      systemProperty 'forge.logging.markers', 'REGISTRIES'
+      logLevel = org.slf4j.event.Level.DEBUG
+
+      systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+
+      if (System.getProperty('idea.active')) {
+        jvmArguments.add("-XX:+AllowEnhancedClassRedefinition")
+      }
     }
 
-    validateAccessTransformers = true
-
-    runs {
-            configureEach {
-                systemProperty 'forge.logging.markers', 'REGISTRIES'
-                logLevel = org.slf4j.event.Level.DEBUG
-
-                systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-
-                if (System.getProperty('idea.active')) {
-                    jvmArguments.add("-XX:+AllowEnhancedClassRedefinition")
-                }
-            }
-
-            client {
-                client()
-                gameDirectory = project.file('runs/client')
-            }
-
-            server {
-                server()
-                gameDirectory = project.file('runs/server')
-                programArgument '--nogui'
-            }
-
-            data {
-                data()
-                gameDirectory = project.file('runs/data')
-                programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-            }
-
-            gameTestServer {
-                type = "gameTestServer"
-                gameDirectory = project.file('runs/gameTestServer')
-            }
+    client {
+      client()
+      gameDirectory = project.file('runs/client')
     }
 
-
-    mods {
-        // define mod <-> source bindings
-        // these are used to tell the game which sources are for which mod
-        // multi mod projects should define one per mod
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
-        }
+    server {
+      server()
+      gameDirectory = project.file('runs/server')
+      programArgument '--nogui'
     }
+
+    data {
+      data()
+      gameDirectory = project.file('runs/data')
+      programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    }
+
+    gameTestServer {
+      type = "gameTestServer"
+      gameDirectory = project.file('runs/gameTestServer')
+    }
+  }
+
+
+  mods {
+    // define mod <-> source bindings
+    // these are used to tell the game which sources are for which mod
+    // multi mod projects should define one per mod
+    "${mod_id}" {
+      sourceSet sourceSets.api
+      sourceSet sourceSets.main
+    }
+  }
 }
 
 repositories {
-      maven {
-        name 'JEI/Patchouli'
-        url 'https://maven.blamejared.com/'
-      }
-      maven {
-        name 'curseforge'
-        url 'https://www.cursemaven.com'
-      }
+  maven {
+    name 'JEI/Patchouli'
+    url 'https://maven.blamejared.com/'
+  }
+  maven {
+    name 'curseforge'
+    url 'https://www.cursemaven.com'
+  }
 }
 
 configurations {
-    runtimeClasspath.extendsFrom localRuntime
+  runtimeClasspath.extendsFrom localRuntime
 }
 
 dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   libraries "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines"
+  libraries "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"
+
   jarJar(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version)
   jarJar(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines)
 
@@ -143,7 +165,7 @@ dependencies {
 }
 
 kotlinLombok {
-    lombokConfigurationFile file("lombok.config")
+  lombokConfigurationFile file("lombok.config")
 }
 
 spotless {
@@ -154,13 +176,7 @@ spotless {
     endWithNewline()
     trimTrailingWhitespace()
     removeUnusedImports()
-    indentWithSpaces(2)
-    custom 'noWildcardImports', { String fileContents ->
-      if (fileContents.contains('*;\n')) {
-        throw new GradleException('No wildcard imports are allowed!')
-      }
-    } as Closure<String>
-    bumpThisNumberIfACustomStepChanges(1)
+    leadingTabsToSpaces(2)
   }
 }
 
@@ -193,49 +209,53 @@ tasks.register('generatePackageInfos', Task) {
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
-    var replaceProperties = [
-            minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
-    ]
-    inputs.properties replaceProperties
-    expand replaceProperties
-    from "src/main/templates"
-    into "build/generated/sources/modMetadata"
+  var replaceProperties = [
+          minecraft_version      : minecraft_version,
+          minecraft_version_range: minecraft_version_range,
+          neo_version            : neo_version,
+          loader_version_range   : loader_version_range,
+          mod_id                 : mod_id,
+          mod_name               : mod_name,
+          mod_license            : mod_license,
+          mod_version            : mod_version,
+  ]
+  inputs.properties replaceProperties
+  expand replaceProperties
+  from "src/main/templates"
+  into "build/generated/sources/modMetadata"
 }
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-    options.compilerArgs.addAll(['-Xmaxerrs', '100000'])
+  options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+  options.compilerArgs.addAll(['-Xmaxerrs', '100000'])
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
 idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
-    }
+  module {
+    downloadSources = true
+    downloadJavadoc = true
+  }
 }
+
+def lastCommit = providers.exec {
+  commandLine 'git', 'rev-parse', 'HEAD'
+}.standardOutput.asText.get().trim()
 
 tasks.named('jar', Jar).configure {
   from(sourceSets.main.output)
   manifest {
     attributes([
-      'Specification-Title'       : project.name,
-      'Specification-Vendor'      : 'Edivad99',
-      'Specification-Version'     : '1',
-      'Implementation-Title'      : project.name,
-      'Implementation-Version'    : project.version,
-      'Implementation-Vendor'     : 'Edivad99',
-      'Implementation-Commit'     : 'git rev-parse HEAD'.execute().text.trim(),
+            'Specification-Title'   : project.name,
+            'Specification-Vendor'  : 'Edivad99',
+            'Specification-Version' : '1',
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': project.version,
+            'Implementation-Vendor' : 'Edivad99',
+            'Implementation-Commit' : lastCommit,
     ])
   }
 }

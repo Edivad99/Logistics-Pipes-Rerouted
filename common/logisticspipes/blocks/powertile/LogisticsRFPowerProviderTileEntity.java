@@ -1,21 +1,19 @@
 package logisticspipes.blocks.powertile;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-
-
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-
+import logisticspipes.config.Configs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICoFHEnergyStorage;
+import lombok.Getter;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTileEntity {
 
@@ -23,7 +21,8 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	public static final int MAX_MAXMODE = 8;
 	public static final int MAX_PROVIDE_PER_TICK = 10000; //TODO
 
-	private IEnergyStorage energyInterface = new IEnergyStorage() {
+	@Getter
+    private IEnergyStorage energyInterface = new IEnergyStorage() {
 
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {
@@ -97,11 +96,10 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	}
 
 	private int pullFromNeighbor(net.minecraft.world.level.Level world, Direction dir, int remaining) {
-		net.minecraft.world.level.block.entity.BlockEntity neighbor = world.getBlockEntity(getBlockPos().relative(dir));
+		BlockEntity neighbor = world.getBlockEntity(getBlockPos().relative(dir));
 		if (neighbor == null) return remaining;
-		LazyOptional<IEnergyStorage> cap = neighbor.getCapability(ForgeCapabilities.ENERGY, dir.getOpposite());
-		if (!cap.isPresent()) return remaining;
-		IEnergyStorage neighborStorage = cap.orElseThrow(IllegalStateException::new);
+		IEnergyStorage neighborStorage = world.getCapability(Capabilities.EnergyStorage.BLOCK, neighbor.getBlockPos(), dir.getOpposite());
+		if (neighborStorage == null) return remaining;
 		if (!neighborStorage.canExtract()) return remaining;
 		int extracted = neighborStorage.extractEnergy(remaining, false);
 		if (extracted > 0) {
@@ -120,7 +118,7 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 		super.update();
 		if (MainProxy.isServer(getWorld())) {
 			if (freeSpace() > 0) {
-				if (logisticspipes.config.Configs.getPowerSourceMode() == logisticspipes.config.Configs.PowerSourceMode.ADJACENT) {
+				if (Configs.COMMON.POWER_SOURCE_MODE.get().equals(Configs.PowerSourceMode.ADJACENT)) {
 					pullFromAdjacentStorage();
 				} else {
 					addStoredRF();
@@ -136,15 +134,15 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	}
 
 	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		storage.readFromNBT(nbt);
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
+		storage.readFromNBT(tag);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
-		storage.writeToNBT(nbt);
+	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
+		storage.writeToNBT(tag);
 	}
 
 	@Override
@@ -167,16 +165,8 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 		return LogisticsPowerProviderTileEntity.RF_COLOR;
 	}
 
-	@Nonnull
-	@Override
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-		if (cap == ForgeCapabilities.ENERGY) {
-			return ForgeCapabilities.ENERGY.orEmpty(cap, LazyOptional.of(() -> energyInterface));
-		}
-		return super.getCapability(cap, side);
-	}
-
-	public IEnergyStorage getEnergyInterface() {
+	@Nullable
+	public IEnergyStorage getEnergyStorageCap(@Nullable Direction side) {
 		return energyInterface;
 	}
 }

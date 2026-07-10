@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 public class ItemDisk extends LogisticsItem {
@@ -18,12 +18,12 @@ public class ItemDisk extends LogisticsItem {
 	}
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 		if (!stack.isEmpty() && stack.hasTag()) {
 			final CompoundTag tag = Objects.requireNonNull(stack.getTag());
 			if (tag.contains("name")) {
 				String name = "\u00a78" + tag.getString("name");
-				tooltip.add(net.minecraft.network.chat.Component.literal(name));
+				tooltipComponents.add(Component.literal(name));
 			}
 		}
 	}

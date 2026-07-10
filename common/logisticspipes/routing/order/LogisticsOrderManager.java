@@ -12,10 +12,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nonnull;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
@@ -25,6 +21,8 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> implements Iterable<T> {
 

@@ -1,7 +1,5 @@
 package logisticspipes.renderer;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -9,26 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import net.minecraft.client.resources.model.BakedModel;
-import com.mojang.blaze3d.pipeline.RenderTarget; // was Framebuffer
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-
-
-
-
-
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.PipeBlockRequestTable;
@@ -40,20 +21,31 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.newpipe.LogisticsNewPipeItemBoxRenderer;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.transport.LPTravelingItem;
-import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGenericPipe> {
 
 	private static final ExecutorService pool = Executors.newFixedThreadPool(1);
 	private static final int LIQUID_STAGES = 40;
 	private static final int MAX_ITEMS_TO_RENDER = 10;
-	private static final ResourceLocation SIGN = new ResourceLocation("textures/entity/sign.png");
+	private static final ResourceLocation SIGN = ResourceLocation.withDefaultNamespace("textures/entity/sign.png");
 	public static LogisticsNewRenderPipe secondRenderer = new LogisticsNewRenderPipe();
 	public static LogisticsNewPipeItemBoxRenderer boxRenderer = new LogisticsNewPipeItemBoxRenderer();
 	public static ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
@@ -70,7 +62,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		// (empty sideNormal map), so broken-geometry states remain visible in-world. When
 		// loadModels() succeeded, the real LogisticsNewRenderPipe path emits textured quads
 		// through LPRenderStateImpl and the placeholder is skipped.
-		if (logisticspipes.renderer.newpipe.LogisticsNewRenderPipe.sideNormal.isEmpty()) {
+		if (LogisticsNewRenderPipe.sideNormal.isEmpty()) {
 			drawPlaceholderCube(tileentity, poseStack, bufferSource, packedLight, packedOverlay);
 		}
 
@@ -145,14 +137,14 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		quad(vc, m, n, x1, y0, z1, x1, y0, z0, x1, y1, z0, x1, y1, z1, 1, 0, 0, r, g, b, packedLight, packedOverlay);
 	}
 
-	private static void quad(com.mojang.blaze3d.vertex.VertexConsumer vc, org.joml.Matrix4f m, org.joml.Matrix3f n,
-			float x1, float y1, float z1, float x2, float y2, float z2,
-			float x3, float y3, float z3, float x4, float y4, float z4,
-			float nx, float ny, float nz, int r, int g, int b, int packedLight, int packedOverlay) {
-		vc.vertex(m, x1, y1, z1).color(r, g, b, 255).uv(0, 0).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
-		vc.vertex(m, x2, y2, z2).color(r, g, b, 255).uv(1, 0).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
-		vc.vertex(m, x3, y3, z3).color(r, g, b, 255).uv(1, 1).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
-		vc.vertex(m, x4, y4, z4).color(r, g, b, 255).uv(0, 1).overlayCoords(packedOverlay).uv2(packedLight).normal(n, nx, ny, nz).endVertex();
+	private static void quad(VertexConsumer vc, Matrix4f m, Matrix3f n,
+                             float x1, float y1, float z1, float x2, float y2, float z2,
+                             float x3, float y3, float z3, float x4, float y4, float z4,
+                             float nx, float ny, float nz, int r, int g, int b, int packedLight, int packedOverlay) {
+		vc.addVertex(m, x1, y1, z1).setColor(r, g, b, 255).setUv(0, 0).setOverlay(packedOverlay).setLight(packedLight).setNormal(nx, ny, nz);
+		vc.addVertex(m, x2, y2, z2).setColor(r, g, b, 255).setUv(1, 0).setOverlay(packedOverlay).setLight(packedLight).setNormal(nx, ny, nz);
+		vc.addVertex(m, x3, y3, z3).setColor(r, g, b, 255).setUv(1, 1).setOverlay(packedOverlay).setLight(packedLight).setNormal(nx, ny, nz);
+		vc.addVertex(m, x4, y4, z4).setColor(r, g, b, 255).setUv(0, 1).setOverlay(packedOverlay).setLight(packedLight).setNormal(nx, ny, nz);
 	}
 
 	private static logisticspipes.proxy.object3d.interfaces.TextureTransformation requestTableIcon = null;
@@ -181,7 +173,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		if (requestTableIcon == null) {
 			net.minecraft.client.renderer.texture.TextureAtlasSprite sprite = Minecraft.getInstance()
 					.getTextureAtlas(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)
-					.apply(new ResourceLocation(LPConstants.LP_MOD_ID, "blocks/requesttable/requesttexture"));
+					.apply(ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "blocks/requesttable/requesttexture"));
 			requestTableIcon = SimpleServiceLocator.cclProxy.createIconTransformer(sprite);
 		}
 		if (requestTableIcon == null) return;

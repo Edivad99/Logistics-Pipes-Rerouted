@@ -96,12 +96,8 @@ object FuzzyUtil {
         if (fuzzyFlagger(FuzzyFlag.IGNORE_NBT)) {
             return true
         }
-        if (firstStack.hasTag() xor secondStack.hasTag()) {
-            return false
-        }
-        return if (!firstStack.hasTag() && !secondStack.hasTag()) {
-            true
-        } else ItemStack.isSameItemSameTags(firstStack, secondStack)
+
+        return ItemStack.isSameItemSameComponents(firstStack, secondStack)
     }
 
 }

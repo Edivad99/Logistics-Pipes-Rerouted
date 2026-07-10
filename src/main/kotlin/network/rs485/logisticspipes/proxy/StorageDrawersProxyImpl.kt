@@ -41,10 +41,10 @@ import network.rs485.logisticspipes.inventory.ProviderMode
 import logisticspipes.LPConstants
 import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler
 import logisticspipes.utils.item.ItemIdentifier
-import net.minecraftforge.fml.ModList
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
+import net.neoforged.fml.ModList
 
 class StorageDrawersProxyImpl : SpecialInventoryHandler.Factory {
 

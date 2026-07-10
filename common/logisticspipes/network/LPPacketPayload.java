@@ -1,9 +1,11 @@
 package logisticspipes.network;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-
 import io.netty.buffer.Unpooled;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Single multiplexed payload type for all LogisticsPipes packets.
@@ -15,9 +17,10 @@ import io.netty.buffer.Unpooled;
  *   int    — debug ID
  *   ...    — LPDataOutput-encoded packet body
  */
-public final class LPPacketPayload {
+public final class LPPacketPayload implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = new ResourceLocation("logisticspipes", "packet");
+    public static final Type<LPPacketPayload> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath("logisticspipes", "packet"));
 
     private final FriendlyByteBuf data;
 
@@ -26,42 +29,50 @@ public final class LPPacketPayload {
     }
 
     /**
-     * Creates a payload for sending (the buffer is ready to write).
+     * Creates a payload for sending.
      */
     public static LPPacketPayload of(FriendlyByteBuf data) {
         return new LPPacketPayload(data);
     }
 
     /**
-     * Decoder factory — called by NeoForge upon receipt.
-     * Signature: {@code Function<FriendlyByteBuf, LPPacketPayload>}.
-     * Copies all remaining bytes so the returned payload owns its buffer.
+     * Decoder used by StreamCodec.
      */
-    public static LPPacketPayload decode(FriendlyByteBuf incoming) {
-        FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer(incoming.readableBytes()));
-        copy.writeBytes(incoming);
+    public static LPPacketPayload decode(RegistryFriendlyByteBuf buf) {
+        FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer(buf.readableBytes()));
+        copy.writeBytes(buf);
         return new LPPacketPayload(copy);
     }
 
-    /** Returns the raw payload buffer. The handler should call {@link #release()} when done. */
+    /**
+     * Encoder used by StreamCodec.
+     */
+    public static void encode(RegistryFriendlyByteBuf buf, LPPacketPayload payload) {
+        buf.writeBytes(
+                payload.data,
+                payload.data.readerIndex(),
+                payload.data.readableBytes()
+        );
+    }
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, LPPacketPayload> STREAM_CODEC =
+            StreamCodec.of(
+                    LPPacketPayload::encode,
+                    LPPacketPayload::decode
+            );
+
     public FriendlyByteBuf getData() {
         return data;
     }
 
-    /** Releases the underlying buffer — call after the handler finishes processing. */
     public void release() {
         if (data.refCnt() > 0) {
             data.release();
         }
     }
 
-    // ── CustomPacketPayload ──────────────────────────────────────────────────
-
-    public void write(FriendlyByteBuf buf) {
-        buf.writeBytes(data, data.readerIndex(), data.readableBytes());
-    }
-
-    public ResourceLocation id() {
-        return ID;
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }
