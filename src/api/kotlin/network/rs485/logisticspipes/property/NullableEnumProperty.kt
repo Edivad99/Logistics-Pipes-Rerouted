@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.property
 
+import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 
 class NullableEnumProperty<E : Enum<E>>(
@@ -45,7 +46,7 @@ class NullableEnumProperty<E : Enum<E>>(
     private val enumValues: Array<E>,
 ) : ValueProperty<E?>(defaultValue) {
 
-    override fun readFromNBT(tag: CompoundTag) {
+    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
         if (tag.contains(tagKey)) {
             val ordinalValue = tag.getInt(tagKey)
             value = if (ordinalValue == -1) {
@@ -56,7 +57,7 @@ class NullableEnumProperty<E : Enum<E>>(
         }
     }
 
-    override fun writeToNBT(tag: CompoundTag) =
+    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) =
         value?.let { tag.putInt(tagKey, it.ordinal) } ?: tag.putInt(tagKey, -1)
 
     override fun copyValue(): E? = value

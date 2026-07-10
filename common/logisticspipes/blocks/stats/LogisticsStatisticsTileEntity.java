@@ -64,7 +64,7 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidTileEntity impl
 		int count = 0;
 		for (TrackingTask task : tasks) {
 			CompoundTag subtag = new CompoundTag();
-			task.writeToNBT(subtag);
+			task.writeToNBT(subtag, registries);
 			tag.put("Task_" + count, subtag);
 			count++;
 		}

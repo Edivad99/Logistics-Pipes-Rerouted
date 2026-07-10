@@ -381,7 +381,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		bindPipe();
 
 		if (pipe != null) {
-			pipe.readFromNBT(nbt);
+			pipe.readFromNBT(nbt, registries);
 			pipe.finishInit();
 		} else {
 			LogisticsPipes.log.warn("Pipe failed to load from NBT at {}", getBlockPos());

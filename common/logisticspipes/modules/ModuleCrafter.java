@@ -90,6 +90,7 @@ import lombok.Getter;
 import net.minecraft.client.player.LocalPlayer; // was LocalPlayer
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -113,6 +114,7 @@ import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.UUIDListProperty;
 import network.rs485.logisticspipes.property.UUIDProperty;
 import network.rs485.logisticspipes.property.UUIDPropertyKt;
+import org.jetbrains.annotations.NotNull;
 
 public class ModuleCrafter extends LogisticsModule
 		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IGuiOpenControler, Gui {
@@ -614,8 +616,8 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag) {
-		super.readFromNBT(tag);
+	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.readFromNBT(tag, provider);
 
 	}
 

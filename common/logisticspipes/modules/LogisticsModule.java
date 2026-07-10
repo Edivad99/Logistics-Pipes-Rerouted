@@ -22,6 +22,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -30,6 +31,7 @@ import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
 import network.rs485.logisticspipes.property.UtilKt;
+import org.jetbrains.annotations.NotNull;
 
 @CCType(name = "LogisticsModule")
 public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, PropertyHolder {
@@ -109,13 +111,13 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag) {
-		PropertyHolder.readFromNBT(tag, this);
+	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		PropertyHolder.readFromNBT(tag, provider, this);
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag tag) {
-		PropertyHolder.writeToNBT(tag, this);
+	public void writeToNBT(@Nonnull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		PropertyHolder.writeToNBT(tag, provider, this);
 	}
 
 	/**

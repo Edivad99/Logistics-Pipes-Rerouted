@@ -18,6 +18,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -29,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import network.rs485.logisticspipes.IStore;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
+import org.jetbrains.annotations.NotNull;
 
 public class SimpleStackInventory implements Container, IStore, Iterable<Pair<ItemStack, Integer>> {
 
@@ -128,7 +130,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	public void stopOpen(@Nonnull Player player) {}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag nbttagcompound) {
+	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		readFromNBT(nbttagcompound, "");
 	}
 
@@ -147,7 +149,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag nbttagcompound) {
+	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		writeToNBT(nbttagcompound, "");
 	}
 

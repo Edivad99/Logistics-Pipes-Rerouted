@@ -7,6 +7,7 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.renderer.LogisticsRenderPipe;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -20,9 +21,9 @@ public interface IPipeSign {
 	void addSignTo(CoreRoutedPipe pipe, Direction dir, Player player);
 
 	// For Final Pipe
-	void readFromNBT(CompoundTag tag);
+	void readFromNBT(CompoundTag tag, HolderLookup.Provider provider);
 
-	void writeToNBT(CompoundTag tag);
+	void writeToNBT(CompoundTag tag, HolderLookup.Provider provider);
 
 	void init(CoreRoutedPipe pipe, Direction dir);
 

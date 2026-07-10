@@ -120,7 +120,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		transport.writeToNBT(data, provider);
 	}
 
-	public void readFromNBT(CompoundTag data) {
+	public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
 		transport.readFromNBT(data, provider);
 	}
 

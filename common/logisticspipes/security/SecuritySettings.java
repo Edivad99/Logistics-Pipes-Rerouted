@@ -2,9 +2,11 @@ package logisticspipes.security;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import network.rs485.logisticspipes.IStore;
+import org.jetbrains.annotations.NotNull;
 
 public class SecuritySettings implements IStore {
 
@@ -21,7 +23,7 @@ public class SecuritySettings implements IStore {
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag nbttagcompound) {
+	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		String prev = name;
 		name = nbttagcompound.getString("name");
 		if (name.equals("")) {
@@ -36,7 +38,7 @@ public class SecuritySettings implements IStore {
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag nbttagcompound) {
+	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		if (name == null || name.isEmpty()) {
 			return;
 		}

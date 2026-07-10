@@ -41,6 +41,7 @@ import logisticspipes.network.NewGuiHandler
 import logisticspipes.network.guis.pipe.FluidBasicGui
 import logisticspipes.textures.Textures
 import logisticspipes.utils.FluidSinkReply.FixedFluidPriority
+import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
@@ -56,11 +57,7 @@ class PipeFluidBasic(item: Item) : FluidSinkPipe(item, "Fluids to sink", 1) {
         NewGuiHandler.openGui(NewGuiHandler.getGui(FluidBasicGui::class.java).setPosX(x).setPosY(y).setPosZ(z), entityplayer)
     }
 
-    override fun readFromNBT(tag: CompoundTag) {
-        TODO("Not yet implemented")
-    }
-
-    override fun writeToNBT(tag: CompoundTag) {
+    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
         TODO("Not yet implemented")
     }
 }

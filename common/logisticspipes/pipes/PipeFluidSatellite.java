@@ -166,8 +166,8 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound) {
-		super.readFromNBT(nbttagcompound);
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.readFromNBT(nbttagcompound, provider);
 		if (nbttagcompound.contains("satelliteid")) {
 			int satelliteId = nbttagcompound.getInt("satelliteid");
 			satellitePipeName = Integer.toString(satelliteId);

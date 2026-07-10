@@ -70,7 +70,7 @@ class PropertyUpdater(
         if (shouldUpdate && !weakPlayer.isEnqueued) {
             val player = weakPlayer.get() ?: return
             val packet = PacketHandler.getPacket(ModulePropertiesUpdate::class.java)
-            changedProperties.writeToNBT(packet.tag)
+            changedProperties.writeToNBT(packet.tag, player.level().registryAccess())
             changedProperties.clear()
             MainProxy.sendPacketToPlayer(packet.setModulePos(module), player)
             shouldUpdate = false

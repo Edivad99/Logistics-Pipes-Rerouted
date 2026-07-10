@@ -40,6 +40,7 @@ package network.rs485.logisticspipes.property
 import logisticspipes.LPItems
 import logisticspipes.items.ItemModule
 import logisticspipes.modules.LogisticsModule
+import net.minecraft.core.HolderLookup
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 
@@ -48,7 +49,7 @@ class SlottedModuleListProperty(slots: Int, override val tagKey: String) :
 
     override fun defaultValue(idx: Int): SlottedModule = SlottedModule(idx, null)
 
-    override fun readSingleFromNBT(tag: CompoundTag, key: String): SlottedModule {
+    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): SlottedModule {
         val slottedModuleTag = tag.getCompound(key)
         val slot = slottedModuleTag.getInt(SLOT_INDEX_KEY)
         val moduleName = if (slottedModuleTag.contains(MODULE_NAME_KEY)) {
@@ -59,14 +60,14 @@ class SlottedModuleListProperty(slots: Int, override val tagKey: String) :
         // FIXME: move module creation to before readFromNBT
         val logisticsModule = itemModule?.getModule(null, null, null)
         return logisticsModule?.let { module ->
-            module.readFromNBT(slottedModuleTag)
+            module.readFromNBT(slottedModuleTag, provider)
             SlottedModule(slot = slot, module = module).also { list[slot] = it }
         } ?: list[slot]
     }
 
-    override fun writeSingleToNBT(tag: CompoundTag, key: String, value: SlottedModule) {
+    override fun writeSingleToNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String, value: SlottedModule) {
         tag.put(key, CompoundTag()
-            .also { value.module?.writeToNBT(it) }
+            .also { value.module?.writeToNBT(it, provider) }
             .apply {
                 putInt(SLOT_INDEX_KEY, value.slot)
                 value.module?.also { putString(MODULE_NAME_KEY, it.lpName) }

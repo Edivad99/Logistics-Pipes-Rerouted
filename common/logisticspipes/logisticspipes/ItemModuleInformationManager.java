@@ -7,6 +7,8 @@ import javax.annotation.Nonnull;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.proxy.MainProxy;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -14,12 +16,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class ItemModuleInformationManager {
 
-	public static void saveInformation(@Nonnull ItemStack stack, LogisticsModule module) {
+	public static void saveInformation(@Nonnull ItemStack stack, LogisticsModule module, HolderLookup.Provider provider) {
 		if (module == null) {
 			return;
 		}
 		CompoundTag nbt = new CompoundTag();
-		module.writeToNBT(nbt);
+		module.writeToNBT(nbt, provider);
 		if (nbt.equals(new CompoundTag())) {
 			return;
 		}
@@ -63,7 +65,7 @@ public class ItemModuleInformationManager {
 			CompoundTag nbt = Objects.requireNonNull(stack.getTag());
 			if (nbt.contains("moduleInformation")) {
 				CompoundTag moduleInformation = nbt.getCompound("moduleInformation");
-				module.readFromNBT(moduleInformation);
+				module.readFromNBT(moduleInformation, module.getWorld().registryAccess());
 			}
 		}
 	}

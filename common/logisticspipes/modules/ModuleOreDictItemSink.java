@@ -30,6 +30,7 @@ import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -42,6 +43,7 @@ import net.minecraft.world.level.block.Blocks;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.StringListProperty;
+import org.jetbrains.annotations.NotNull;
 
 public class ModuleOreDictItemSink extends LogisticsModule
 		implements IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, Gui {
@@ -139,8 +141,8 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag) {
-		super.readFromNBT(tag);
+	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		super.readFromNBT(tag, provider);
 		oreItemIdMap = null;
 	}
 
@@ -169,7 +171,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
 		CompoundTag nbt = new CompoundTag();
-		writeToNBT(nbt);
+		writeToNBT(nbt, player.registryAccess());
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this), player);
 	}
 
@@ -181,11 +183,11 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	public void OreListChanged() {
 		if (MainProxy.isServer(getWorld())) {
 			CompoundTag nbt = new CompoundTag();
-			writeToNBT(nbt);
+			writeToNBT(nbt, getWorld().registryAccess());
 			MainProxy.sendToPlayerList(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this), localModeWatchers);
 		} else {
 			CompoundTag nbt = new CompoundTag();
-			writeToNBT(nbt);
+			writeToNBT(nbt, getWorld().registryAccess());
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this));
 		}
 	}
@@ -219,7 +221,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		CompoundTag nbt = new CompoundTag();
-		writeToNBT(nbt);
+		writeToNBT(nbt, getWorld().registryAccess());
 		return NewGuiHandler.getGui(OreDictItemSinkModuleSlot.class).setNbt(nbt);
 	}
 

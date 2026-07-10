@@ -502,8 +502,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag par1nbtTagCompound) {
-		super.readFromNBT(par1nbtTagCompound);
+	public void readFromNBT(CompoundTag par1nbtTagCompound, HolderLookup.Provider provider) {
+		super.readFromNBT(par1nbtTagCompound, provider);
 		inv.readFromNBT(par1nbtTagCompound, "inv");
 		matrix.readFromNBT(par1nbtTagCompound, "matrix");
 		toSortInv.readFromNBT(par1nbtTagCompound, "toSortInv");

@@ -23,7 +23,7 @@ public class StringBasedItemSinkModuleGuiSlot extends NBTModuleCoordinatesGuiPro
 		if (!(module instanceof IStringBasedModule)) {
 			return null;
 		}
-		module.readFromNBT(getNbt());
+		module.readFromNBT(getNbt(), player.level().registryAccess());
 		return new GuiStringBasedItemSink(player.getInventory(), module);
 	}
 

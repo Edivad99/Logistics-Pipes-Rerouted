@@ -39,11 +39,12 @@ package network.rs485.logisticspipes.pipes
 
 import net.minecraft.world.Container
 import net.minecraft.core.Direction
+import net.minecraft.core.HolderLookup
 
 interface IChassisPipe {
     fun nextOrientation()
     fun setPointedOrientation(dir: Direction?)
     fun getPointedOrientation(): Direction?
-    fun getModuleInventory(): Container
+    fun getModuleInventory(provider: HolderLookup.Provider): Container
     fun getChassisSize(): Int
 }

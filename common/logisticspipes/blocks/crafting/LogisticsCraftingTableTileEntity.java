@@ -363,7 +363,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 		} else {
 			placedBy = PlayerIdentifier.readFromNBT(tag, "placedBy");
 		}
-		fuzzyFlags.readFromNBT(tag);
+		fuzzyFlags.readFromNBT(tag, registries);
 		if (tag.contains("targetType")) {
 			targetType = ItemIdentifier
 					.get(ItemStackLoader.loadAndFixItemStackFromNBT(tag.getCompound("targetType")));
@@ -379,7 +379,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 		if (placedBy != null) {
 			placedBy.writeToNBT(tag, "placedBy");
 		}
-		fuzzyFlags.writeToNBT(tag);
+		fuzzyFlags.writeToNBT(tag, registries);
 		if (targetType != null) {
 			CompoundTag type = new CompoundTag();
 			targetType.makeNormalStack(1).save(registries, type);

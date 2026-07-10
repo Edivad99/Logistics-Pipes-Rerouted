@@ -22,7 +22,7 @@ public class SaveSecurityPlayerPacket extends NBTCoordinatesPacket {
 	public void processPacket(Player player) {
 		LogisticsSecurityTileEntity tile = this.getTileAs(player.level(), LogisticsSecurityTileEntity.class);
 		if (tile != null) {
-			tile.saveNewSecuritySettings(getTag());
+			tile.saveNewSecuritySettings(getTag(), player.level().registryAccess());
 		}
 	}
 }

@@ -25,6 +25,7 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -37,6 +38,7 @@ import network.rs485.logisticspipes.IStore;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.SlotAccess;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemIdentifierInventory
 		implements IStore, Iterable<Pair<ItemIdentifierStack, Integer>>, IItemIdentifierInventory {
@@ -219,7 +221,7 @@ public class ItemIdentifierInventory
 	public void stopOpen(@Nonnull Player player) {}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag nbttagcompound) {
+	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		readFromNBT(nbttagcompound, "");
 	}
 
@@ -245,7 +247,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag nbttagcompound) {
+	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		writeToNBT(nbttagcompound, "");
 	}
 

@@ -58,8 +58,8 @@ public class PipeFluidExtractor extends PipeFluidInsertion {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound) {
-		super.readFromNBT(nbttagcompound);
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.readFromNBT(nbttagcompound, provider);
 		liquidToExtract = nbttagcompound.getIntArray("liquidToExtract");
 		if (liquidToExtract.length < 6) {
 			liquidToExtract = new int[6];

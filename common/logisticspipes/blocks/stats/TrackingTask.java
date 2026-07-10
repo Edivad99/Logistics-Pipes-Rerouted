@@ -3,6 +3,7 @@ package logisticspipes.blocks.stats;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
@@ -38,7 +39,7 @@ public class TrackingTask {
 		item = ItemIdentifier.get(ItemStackLoader.loadAndFixItemStackFromNBT(nbt));
 	}
 
-	public void writeToNBT(CompoundTag nbt) {
+	public void writeToNBT(CompoundTag nbt, HolderLookup.Provider provider) {
 		int[] amountRecorded_A = new int[amountRecorded.length];
 		int[] amountRecorded_B = new int[amountRecorded.length];
 		for (int i = 0; i < amountRecorded.length; i++) {
@@ -48,7 +49,7 @@ public class TrackingTask {
 		nbt.putIntArray("amountRecorded_A", amountRecorded_A);
 		nbt.putIntArray("amountRecorded_B", amountRecorded_B);
 		nbt.putInt("arrayPos", arrayPos);
-		item.makeNormalStack(1).save(nbt);
+		item.makeNormalStack(1).save(provider, nbt);
 	}
 
 	public void writeToLPData(LPDataOutput output) {

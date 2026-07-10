@@ -48,7 +48,7 @@ public class DummyModuleContainer extends DummyContainer {
 	@Override
 	public void removed(@Nonnull Player player) {
 		super.removed(player);
-		ItemModuleInformationManager.saveInformation(player.getInventory().items.get(slot), module);
+		ItemModuleInformationManager.saveInformation(player.getInventory().items.get(slot), module, player.registryAccess());
 		player.getInventory().setChanged();
 	}
 }

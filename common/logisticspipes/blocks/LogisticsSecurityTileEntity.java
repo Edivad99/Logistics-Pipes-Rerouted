@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import logisticspipes.LPItems;
@@ -142,7 +141,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implem
 		}
 		allowCC = tag.getBoolean("allowCC");
 		allowAutoDestroy = tag.getBoolean("allowAutoDestroy");
-		inv.readFromNBT(tag);
+		inv.readFromNBT(tag, registries);
 		settingsList.clear();
 		ListTag list = tag.getList("settings", 10);
 		while (!list.isEmpty()) {
@@ -150,7 +149,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implem
 			String name = ((CompoundTag) base).getString("name");
 			CompoundTag value = ((CompoundTag) base).getCompound("content");
 			SecuritySettings settings = new SecuritySettings(name);
-			settings.readFromNBT(value);
+			settings.readFromNBT(value, registries);
 			settingsList.put(name, settings);
 		}
 		excludedCC.clear();
@@ -167,13 +166,13 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implem
 		tag.putString("UUID", getSecId().toString());
 		tag.putBoolean("allowCC", allowCC);
 		tag.putBoolean("allowAutoDestroy", allowAutoDestroy);
-		inv.writeToNBT(tag);
+		inv.writeToNBT(tag, registries);
 		ListTag list = new ListTag();
 		for (Entry<String, SecuritySettings> entry : settingsList.entrySet()) {
 			CompoundTag nbt = new CompoundTag();
 			nbt.putString("name", entry.getKey());
 			CompoundTag value = new CompoundTag();
-			entry.getValue().writeToNBT(value);
+			entry.getValue().writeToNBT(value, registries);
 			nbt.put("content", value);
 			list.add(nbt);
 		}
@@ -231,17 +230,17 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implem
 			settingsList.put(string, setting);
 		}
 		CompoundTag nbt = new CompoundTag();
-		setting.writeToNBT(nbt);
+		setting.writeToNBT(nbt, player.level().registryAccess());
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationOpenPlayer.class).put(nbt), player);
 	}
 
-	public void saveNewSecuritySettings(CompoundTag tag) {
+	public void saveNewSecuritySettings(CompoundTag tag, HolderLookup.Provider provider) {
 		SecuritySettings setting = settingsList.get(tag.getString("name"));
 		if (setting == null) {
 			setting = new SecuritySettings(tag.getString("name"));
 			settingsList.put(tag.getString("name"), setting);
 		}
-		setting.readFromNBT(tag);
+		setting.readFromNBT(tag, provider);
 	}
 
 	public SecuritySettings getSecuritySettingsForPlayer(Player entityplayer, boolean usePower) {

@@ -39,6 +39,7 @@ package network.rs485.logisticspipes.property
 
 import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
+import net.minecraft.core.HolderLookup
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
@@ -83,11 +84,11 @@ class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, 
 
     override fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 
-    override fun readFromNBT(tag: CompoundTag) {
+    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
         if (tag.contains(tagKey + "items")) inv.readFromNBT(tag, tagKey).alsoIChanged()
     }
 
-    override fun writeToNBT(tag: CompoundTag) = inv.writeToNBT(tag, tagKey)
+    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.writeToNBT(tag, tagKey)
 
     override fun copyValue(): ItemIdentifierInventory = ItemIdentifierInventory(inv)
 

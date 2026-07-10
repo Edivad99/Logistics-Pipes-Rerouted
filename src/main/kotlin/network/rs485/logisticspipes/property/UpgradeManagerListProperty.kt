@@ -39,6 +39,7 @@ package network.rs485.logisticspipes.property
 
 import logisticspipes.pipes.PipeLogisticsChassis
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager
+import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 
 class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
@@ -103,7 +104,7 @@ class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
         parentChassis.originalUpgradeManager,
     )
 
-    override fun readSingleFromNBT(tag: CompoundTag, key: String): ModuleUpgradeManager = ModuleUpgradeManager(
+    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): ModuleUpgradeManager = ModuleUpgradeManager(
         parentChassis,
         parentChassis.originalUpgradeManager,
     ).apply {
@@ -112,7 +113,12 @@ class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
         }
     }
 
-    override fun writeSingleToNBT(tag: CompoundTag, key: String, value: ModuleUpgradeManager) {
+    override fun writeSingleToNBT(
+        tag: CompoundTag,
+        provider: HolderLookup.Provider,
+        key: String,
+        value: ModuleUpgradeManager
+    ) {
         tag.put(key, CompoundTag().also {
             value.writeToNBT(it, "")
         })

@@ -55,7 +55,7 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
 
 	private void sendSettings() {
 		CompoundTag nbt = new CompoundTag();
-		activeSetting.writeToNBT(nbt);
+		activeSetting.writeToNBT(nbt, _tile.getLevel().registryAccess());
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(SaveSecurityPlayerPacket.class).put(nbt).setBlockPos(_tile.getBlockPos()));
 	}
 

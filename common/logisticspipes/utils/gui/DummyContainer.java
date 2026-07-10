@@ -267,13 +267,13 @@ public class DummyContainer extends AbstractContainerMenu {
 		super.clicked(slotId, dragType, clickTypeIn, player);
 	}
 
-private void handleSwitch(Slot slot2, @Nonnull ItemStack out, @Nonnull ItemStack in, Player player) {
+	private void handleSwitch(Slot slot2, @Nonnull ItemStack out, @Nonnull ItemStack in, Player player) {
 		if (slot2 instanceof ModuleSlot) {
 			ChassisModule chassis = (ChassisModule) ((ModuleSlot) slot2).get_pipe().getLogisticsModule();
 			int moduleIndex = ((ModuleSlot) slot2).get_moduleIndex();
 			if (out.getItem() instanceof ItemModule) {
 				if (chassis.hasModule(moduleIndex)) {
-					ItemModuleInformationManager.saveInformation(out, chassis.getModule(moduleIndex));
+					ItemModuleInformationManager.saveInformation(out, chassis.getModule(moduleIndex), player.registryAccess());
 					chassis.removeModule(moduleIndex);
 				}
 			}

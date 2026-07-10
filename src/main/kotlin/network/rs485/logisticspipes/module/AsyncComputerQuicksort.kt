@@ -50,6 +50,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import net.minecraft.core.HolderLookup
 
 class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncResult?>(), Gui,
     IClientInformationProvider, IModuleWatchReciver {
@@ -118,15 +119,15 @@ class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsync
 
     override fun runSyncWork() = quicksort.runSyncWork()
 
-    override fun readFromNBT(tag: CompoundTag) {
-        super.readFromNBT(tag)
-        quicksort.readFromNBT(tag)
+    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
+        super.readFromNBT(tag, provider)
+        quicksort.readFromNBT(tag, provider)
         timeout = tag.getInt("Timeout")
     }
 
-    override fun writeToNBT(tag: CompoundTag) {
-        super.writeToNBT(tag)
-        quicksort.writeToNBT(tag)
+    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
+        super.writeToNBT(tag, provider)
+        quicksort.writeToNBT(tag, provider)
         tag.putInt("Timeout", timeout)
     }
 

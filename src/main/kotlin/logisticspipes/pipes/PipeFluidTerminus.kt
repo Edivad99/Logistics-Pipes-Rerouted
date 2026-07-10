@@ -59,12 +59,4 @@ class PipeFluidTerminus(item: Item) : FluidSinkPipe(item, "Fluids to terminate",
         MainProxy.sendPacketToPlayer(PipePropertiesUpdate.fromPropertyHolder(this).setBlockPos(pos), entityplayer)
         NewGuiHandler.openGui(NewGuiHandler.getGui(FluidTerminusGui::class.java).setPosX(x).setPosY(y).setPosZ(z), entityplayer)
     }
-
-    override fun writeToNBT(nbttagcompound: CompoundTag, provider: HolderLookup.Provider?) {
-        super.writeToNBT(nbttagcompound, provider)
-    }
-
-    override fun writeToNBT(tag: CompoundTag) {
-        TODO("Not yet implemented")
-    }
 }

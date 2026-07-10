@@ -56,13 +56,13 @@ public class PipeItemsSystemEntranceLogistics extends CoreRoutedPipe {
 	@Override
 	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.writeToNBT(nbttagcompound, provider);
-		inv.writeToNBT(nbttagcompound);
+		inv.writeToNBT(nbttagcompound, provider);
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound) {
-		super.readFromNBT(nbttagcompound);
-		inv.readFromNBT(nbttagcompound);
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.readFromNBT(nbttagcompound, provider);
+		inv.readFromNBT(nbttagcompound, provider);
 	}
 
 	@Override

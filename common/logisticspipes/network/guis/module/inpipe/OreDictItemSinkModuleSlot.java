@@ -22,7 +22,7 @@ public class OreDictItemSinkModuleSlot extends NBTModuleCoordinatesGuiProvider {
 		if (module == null) {
 			return null;
 		}
-		module.readFromNBT(getNbt());
+		module.readFromNBT(getNbt(), player.level().registryAccess());
 		return new GuiOreDictItemSink(player.getInventory(), module);
 	}
 

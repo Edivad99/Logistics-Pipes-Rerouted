@@ -44,6 +44,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.core.Direction
+import net.minecraft.core.HolderLookup
 
 class AdjacentProperty @JvmOverloads constructor(
     defaultValue: Adjacent = NoAdjacent,
@@ -55,7 +56,7 @@ class AdjacentProperty @JvmOverloads constructor(
 
     override fun copyProperty(): AdjacentProperty = AdjacentProperty(value, pipe, tagKey)
 
-    override fun readFromNBT(tag: CompoundTag) {
+    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
         if (tag.contains(tagKey)) {
             val adjacentConnectionsTagList = tag.getList(tagKey, 8)
             assert(adjacentConnectionsTagList.size in 0..6)
@@ -82,7 +83,7 @@ class AdjacentProperty @JvmOverloads constructor(
         }
     }
 
-    override fun writeToNBT(tag: CompoundTag) {
+    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
         tag.put(tagKey, ListTag().also { list ->
             if (value == NoAdjacent) {
                 return@also

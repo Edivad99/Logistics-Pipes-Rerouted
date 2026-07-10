@@ -112,7 +112,7 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
 		CompoundTag nbt = new CompoundTag();
-		writeToNBT(nbt);
+		writeToNBT(nbt, player.registryAccess());
 		MainProxy.sendPacketToPlayer(
 				PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this), player);
 	}
@@ -128,13 +128,13 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 		if (worldProvider == null) return;
 		if (MainProxy.isServer(worldProvider.getWorld())) {
 			CompoundTag nbt = new CompoundTag();
-			writeToNBT(nbt);
+			writeToNBT(nbt, worldProvider.getWorld().registryAccess());
 			MainProxy.sendToPlayerList(
 					PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this),
 					localModeWatchers);
 		} else {
 			CompoundTag nbt = new CompoundTag();
-			writeToNBT(nbt);
+			writeToNBT(nbt, worldProvider.getWorld().registryAccess());
 			MainProxy.sendPacketToServer(
 					PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this));
 		}
@@ -179,7 +179,7 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		CompoundTag nbt = new CompoundTag();
-		writeToNBT(nbt);
+		writeToNBT(nbt, getWorld().registryAccess());
 		return NewGuiHandler.getGui(StringBasedItemSinkModuleGuiSlot.class).setNbt(nbt);
 	}
 

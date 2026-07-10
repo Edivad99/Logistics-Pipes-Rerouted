@@ -758,7 +758,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		nbttagcompound.putLong("stat_lifetime_recieved", stat_lifetime_recieved);
 		nbttagcompound.putLong("stat_lifetime_relayed", stat_lifetime_relayed);
 		if (getLogisticsModule() != null) {
-			getLogisticsModule().writeToNBT(nbttagcompound);
+			getLogisticsModule().writeToNBT(nbttagcompound, provider);
 		}
 		CompoundTag upgradeNBT = new CompoundTag();
 		upgradeManager.writeToNBT(upgradeNBT);
@@ -795,7 +795,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				}
 				nbttagcompound.putInt("PipeSign_" + i + "_type", signType);
 				CompoundTag tag = new CompoundTag();
-				signItem[i].writeToNBT(tag);
+				signItem[i].writeToNBT(tag, provider);
 				nbttagcompound.put("PipeSign_" + i + "_tags", tag);
 			} else {
 				nbttagcompound.putBoolean("PipeSign_" + i, false);
@@ -803,13 +803,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 
 		if (this instanceof PropertyHolder) {
-			PropertyHolder.writeToNBT(nbttagcompound, (PropertyHolder) this);
+			PropertyHolder.writeToNBT(nbttagcompound, provider, (PropertyHolder) this);
 		}
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag nbttagcompound) {
-		super.readFromNBT(nbttagcompound);
+	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.readFromNBT(nbttagcompound, provider);
 
 		synchronized (routerIdLock) {
 			routerId = nbttagcompound.getString("routerId");
@@ -819,7 +819,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		stat_lifetime_recieved = nbttagcompound.getLong("stat_lifetime_recieved");
 		stat_lifetime_relayed = nbttagcompound.getLong("stat_lifetime_relayed");
 		if (getLogisticsModule() != null) {
-			getLogisticsModule().readFromNBT(nbttagcompound);
+			getLogisticsModule().readFromNBT(nbttagcompound, provider);
 		}
 		upgradeManager.readFromNBT(nbttagcompound.getCompound("upgradeManager"));
 		powerHandler.readFromNBT(nbttagcompound.getCompound("powerHandler"));
@@ -841,7 +841,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				try {
 					signItem[i] = typeClass.newInstance();
 					signItem[i].init(this, DirectionUtil.getOrientation(i));
-					signItem[i].readFromNBT(nbttagcompound.getCompound("PipeSign_" + i + "_tags"));
+					signItem[i].readFromNBT(nbttagcompound.getCompound("PipeSign_" + i + "_tags"), provider);
 				} catch (InstantiationException | IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}
@@ -849,7 +849,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 
 		if (this instanceof PropertyHolder) {
-			PropertyHolder.readFromNBT(nbttagcompound, (PropertyHolder) this);
+			PropertyHolder.readFromNBT(nbttagcompound, provider, (PropertyHolder) this);
 		}
 	}
 

@@ -37,15 +37,16 @@
 
 package network.rs485.logisticspipes.property
 
+import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 
 class IntegerProperty(initialValue: Int, override val tagKey: String) : ValueProperty<Int>(initialValue) {
 
-    override fun readFromNBT(tag: CompoundTag) {
+    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
         if (tag.contains(tagKey)) value = tag.getInt(tagKey)
     }
 
-    override fun writeToNBT(tag: CompoundTag) = tag.putInt(tagKey, value)
+    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = tag.putInt(tagKey, value)
 
     override fun copyValue(): Int = value
 

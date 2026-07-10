@@ -79,8 +79,8 @@ public class HSTubeGain extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag data) {
-		super.readFromNBT(data);
+	public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
+		super.readFromNBT(data, provider);
 		orientation = TubeGainOrientation.valueOf(data.getString("orientation"));
 	}
 

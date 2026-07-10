@@ -37,9 +37,10 @@
 
 package network.rs485.logisticspipes
 
+import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 
 interface IStore {
-    fun readFromNBT(tag: CompoundTag)
-    fun writeToNBT(tag: CompoundTag)
+    fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider)
+    fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider)
 }

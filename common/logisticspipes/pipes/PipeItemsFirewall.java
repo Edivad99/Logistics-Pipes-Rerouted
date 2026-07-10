@@ -51,7 +51,7 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 	@Override
 	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.writeToNBT(nbttagcompound, provider);
-		inv.writeToNBT(nbttagcompound);
+		inv.writeToNBT(nbttagcompound, provider);
 		nbttagcompound.putBoolean("blockProvider", blockProvider);
 		nbttagcompound.putBoolean("blockCrafer", blockCrafter);
 		nbttagcompound.putBoolean("blockSorting", blockSorting);
@@ -60,9 +60,9 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound) {
-		super.readFromNBT(nbttagcompound);
-		inv.readFromNBT(nbttagcompound);
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.readFromNBT(nbttagcompound, provider);
+		inv.readFromNBT(nbttagcompound, provider);
 		blockProvider = nbttagcompound.getBoolean("blockProvider");
 		blockCrafter = nbttagcompound.getBoolean("blockCrafer");
 		blockSorting = nbttagcompound.getBoolean("blockSorting");

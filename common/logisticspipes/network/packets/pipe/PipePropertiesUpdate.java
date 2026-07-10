@@ -49,7 +49,7 @@ public class PipePropertiesUpdate extends CoordinatesPacket {
 		}
 
 		// sync updated properties
-		tile.pipe.readFromNBT(tag);
+		tile.pipe.readFromNBT(tag, player.level().registryAccess());
 
 		MainProxy.runOnServer(player.level(), () -> () -> {
 			// resync client; always

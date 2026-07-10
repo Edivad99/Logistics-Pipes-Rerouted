@@ -69,8 +69,8 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound) {
-		super.readFromNBT(nbttagcompound);
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		super.readFromNBT(nbttagcompound, provider);
 		if (nbttagcompound.contains("Disk")) {
 			CompoundTag item = nbttagcompound.getCompound("Disk");
 			disk = ItemStackLoader.loadAndFixItemStackFromNBT(item);

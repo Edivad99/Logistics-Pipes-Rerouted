@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.property
 
+import net.minecraft.core.HolderLookup
 import network.rs485.logisticspipes.IStore
 import net.minecraft.nbt.CompoundTag
 
@@ -48,10 +49,10 @@ interface PropertyHolder {
 
     companion object {
         @JvmStatic
-        fun readFromNBT(tag: CompoundTag, holder: PropertyHolder) = holder.properties.readFromNBT(tag)
+        fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, holder: PropertyHolder) = holder.properties.readFromNBT(tag, provider)
 
         @JvmStatic
-        fun writeToNBT(tag: CompoundTag, holder: PropertyHolder) = holder.properties.writeToNBT(tag)
+        fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider, holder: PropertyHolder) = holder.properties.writeToNBT(tag, provider)
     }
 
 }

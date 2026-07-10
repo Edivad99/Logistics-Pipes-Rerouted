@@ -1,6 +1,8 @@
 package logisticspipes.pipes.signs;
 
 import java.util.List;
+
+import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.Nullable;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -45,10 +47,10 @@ public class CraftingPipeSign implements IPipeSign {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag) {}
+	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {}
 
 	@Override
-	public void writeToNBT(CompoundTag tag) {}
+	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {}
 
 	@Override
 	public ModernPacket getPacket() {

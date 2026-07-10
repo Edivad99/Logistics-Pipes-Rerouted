@@ -101,6 +101,7 @@ import network.rs485.logisticspipes.property.AdjacentProperty;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
 import network.rs485.logisticspipes.property.SlottedModule;
+import org.jetbrains.annotations.NotNull;
 
 @CCType(name = "LogisticsChassiePipe")
 public abstract class PipeLogisticsChassis extends CoreRoutedPipe
@@ -230,7 +231,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		}
 	}
 
-	private void updateModuleInventory() {
+	private void updateModuleInventory(HolderLookup.Provider provider) {
 		_module.slottedModules().forEach(slottedModule -> {
 			if (slottedModule.isEmpty()) {
 				_moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
@@ -247,15 +248,15 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				if (item == null) return;
 				moduleStack = new ItemStack(item);
 			}
-			ItemModuleInformationManager.saveInformation(moduleStack, module);
+			ItemModuleInformationManager.saveInformation(moduleStack, module, provider);
 			_moduleInventory.setItem(slottedModule.getSlot(), moduleStack);
 		});
 	}
 
 	@Override
 	@Nonnull
-	public Container getModuleInventory() {
-		updateModuleInventory();
+	public Container getModuleInventory(HolderLookup.@NotNull Provider provider) {
+		updateModuleInventory(provider);
 		return _moduleInventory;
 	}
 
@@ -290,8 +291,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag) {
-		super.readFromNBT(tag);
+	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+		super.readFromNBT(tag, provider);
 		_moduleInventory.readFromNBT(tag, "chassi");
 
 
@@ -309,7 +310,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	@Override
 	public void writeToNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
 		super.writeToNBT(tag, provider);
-		updateModuleInventory();
+		updateModuleInventory(provider);
 		_moduleInventory.writeToNBT(tag, "chassi");
 	}
 
@@ -324,7 +325,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 					y.onBlockRemoval();
 				}
 			}
-			updateModuleInventory();
+			updateModuleInventory(getWorld().registryAccess());
 			_moduleInventory.dropContents(getWorld(), getX(), getY(), getZ());
 
 			for (int i = 0; i < getChassisSize(); i++) {
@@ -457,7 +458,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	private boolean tryInsertingModule(Player entityplayer) {
-		updateModuleInventory();
+		updateModuleInventory(entityplayer.registryAccess());
 		for (int i = 0; i < _moduleInventory.getContainerSize(); i++) {
 			if (_moduleInventory.getIDStackInSlot(i) == null) {
 				_moduleInventory.setItem(i, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).split(1));
@@ -582,7 +583,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	@Override
 	public void playerStartWatching(Player player, int mode) {
 		if (mode == 1) {
-			updateModuleInventory();
+			updateModuleInventory(player.registryAccess());
 			localModeWatchers.add(player);
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChassisPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(_moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SendQueueContent.class).setIdentList(ItemIdentifierStack.getListSendQueue(_sendQueue)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);

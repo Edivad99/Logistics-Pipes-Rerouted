@@ -36,7 +36,7 @@ public class SecurityStationOpenPlayer extends NBTCoordinatesPacket {
 	private void handleClientSide(Player player) {
 		if (Minecraft.getInstance().screen instanceof GuiSecurityStation) {
 			SecuritySettings setting = new SecuritySettings(null);
-			setting.readFromNBT(getTag());
+			setting.readFromNBT(getTag(), player.level().registryAccess());
 			((GuiSecurityStation) Minecraft.getInstance().screen).handlePlayerSecurityOpen(setting);
 		}
 	}

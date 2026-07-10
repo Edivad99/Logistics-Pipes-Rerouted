@@ -48,7 +48,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	public GuiChassisPipe(Player player, PipeLogisticsChassis chassis, boolean hasUpgradeModuleUpgrade) { //, Screen previousGui) {
 		super(buildDummy(player, chassis, hasUpgradeModuleUpgrade));
 		chassisPipe = chassis;
-		_moduleInventory = chassis.getModuleInventory();
+		_moduleInventory = chassis.getModuleInventory(player.registryAccess());
 		//_previousGui = previousGui;
 		this.hasUpgradeModuleUpgrade = hasUpgradeModuleUpgrade;
 
@@ -60,7 +60,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 
 	}
 	private static DummyContainer buildDummy(Player player, PipeLogisticsChassis chassis, boolean hasUpgradeModuleUpgrade) {
-		Container moduleInventory = chassis.getModuleInventory();
+		Container moduleInventory = chassis.getModuleInventory(player.registryAccess());
 		DummyContainer dummy = new DummyContainer(player.getInventory(), moduleInventory);
 		dummy.addNormalSlotsForPlayerInventory(18, 9 + 20 * chassis.getChassisSize());
 		for (int i = 0; i < chassis.getChassisSize(); i++)

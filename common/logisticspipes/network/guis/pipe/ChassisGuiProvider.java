@@ -38,7 +38,7 @@ public class ChassisGuiProvider extends BooleanModuleCoordinatesGuiProvider {
 			return null;
 		}
 		final PipeLogisticsChassis _chassiPipe = (PipeLogisticsChassis) pipe.pipe;
-		Container _moduleInventory = _chassiPipe.getModuleInventory();
+		Container _moduleInventory = _chassiPipe.getModuleInventory(player.registryAccess());
 		DummyContainer dummy = new DummyContainer(player.getInventory(), _moduleInventory);
 		if (_chassiPipe.getChassisSize() < 5) {
 			dummy.addNormalSlotsForPlayerInventory(18, 97);

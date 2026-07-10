@@ -9,6 +9,7 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -51,11 +52,12 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 		}
 
 		// sync updated properties
-		module.readFromNBT(tag);
+		RegistryAccess registryAccess = player.level().registryAccess();
+		module.readFromNBT(tag, registryAccess);
 
 		if (!getType().isInWorld() && player.containerMenu instanceof InventoryMenu) {
 			// sync slot in player inventory and mark player inventory dirty
-			ItemModuleInformationManager.saveInformation(player.getInventory().items.get(getPositionInt()), module);
+			ItemModuleInformationManager.saveInformation(player.getInventory().items.get(getPositionInt()), module, registryAccess);
 			player.getInventory().setChanged();
 		}
 

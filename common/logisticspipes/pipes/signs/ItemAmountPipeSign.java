@@ -26,6 +26,7 @@ import logisticspipes.utils.tuples.Pair;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -68,13 +69,13 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag) {
-		itemTypeInv.readFromNBT(tag);
+	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
+		itemTypeInv.readFromNBT(tag, provider);
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag tag) {
-		itemTypeInv.writeToNBT(tag);
+	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {
+		itemTypeInv.writeToNBT(tag, provider);
 	}
 
 	@Override

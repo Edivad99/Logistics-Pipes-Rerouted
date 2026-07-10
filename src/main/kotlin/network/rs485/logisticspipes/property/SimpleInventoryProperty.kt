@@ -42,6 +42,7 @@ import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.BlockPos
+import net.minecraft.core.HolderLookup
 import net.minecraft.world.level.Level
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.stream.Stream
@@ -56,9 +57,9 @@ class SimpleInventoryProperty(private val inv: SimpleStackInventory, override va
 
     override fun copyProperty(): Property<SimpleStackInventory> = SimpleInventoryProperty(copyValue(), tagKey)
 
-    override fun readFromNBT(tag: CompoundTag) = inv.readFromNBT(tag, tagKey)
+    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.readFromNBT(tag, tagKey)
 
-    override fun writeToNBT(tag: CompoundTag) = inv.writeToNBT(tag, tagKey)
+    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.writeToNBT(tag, tagKey)
 
     fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 

@@ -25,7 +25,7 @@ public class OreDictItemSinkList extends NBTModuleCoordinatesPacket {
 		if (module == null) {
 			return;
 		}
-		module.readFromNBT(getTag());
+		module.readFromNBT(getTag(), player.level().registryAccess());
 		if (MainProxy.isServer(player.level()) && getType().isInWorld()) {
 			module.OreListChanged();
 		}
