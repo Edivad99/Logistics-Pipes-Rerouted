@@ -56,6 +56,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.NbtIo; // was CompressedStreamTools
@@ -337,7 +338,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		if (itemstack.isEmpty()) {
 			writeInt(0);
 		} else {
-			writeInt(net.minecraft.core.registries.BuiltInRegistries.ITEM.getId(itemstack.getItem()));
+			writeInt(BuiltInRegistries.ITEM.getId(itemstack.getItem()));
 			writeInt(itemstack.getCount());
 			writeInt(itemstack.getDamageValue());
 			writeCompoundTag(itemstack.getTag());
@@ -349,7 +350,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		if (item == null) {
 			writeInt(0);
 		} else {
-			writeInt(net.minecraft.core.registries.BuiltInRegistries.ITEM.getId(item.item));
+			writeInt(BuiltInRegistries.ITEM.getId(item.item));
 			writeInt(item.itemDamage);
 			writeCompoundTag(item.tag);
 		}

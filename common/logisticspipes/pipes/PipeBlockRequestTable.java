@@ -49,7 +49,9 @@ import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
@@ -61,7 +63,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
 	public SimpleStackInventory toSortInv = new SimpleStackInventory(1, "Sorting Slot", 64);
 	private ResultContainer vanillaResult = new ResultContainer();
-	private Recipe cache;
+	private RecipeHolder<CraftingRecipe> cache;
 	private ServerPlayer fake;
 	private int delay = 0;
 	private int tick = 0;
@@ -267,24 +269,26 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		for (int i = 0; i < 9; i++) {
 			craftInv.setItem(i, matrix.getItem(i));
 		}
-		List<Recipe<?>> list = new ArrayList<>();
-		for (Recipe<?> r : CraftingUtil.getRecipeList()) {
-			if (r.matches(craftInv, getWorld())) {
+		CraftingInput craftingInput = CraftingInput.of(3,3, craftInv.getItems());
+		List<RecipeHolder<CraftingRecipe>> list = new ArrayList<>();
+		for (RecipeHolder<CraftingRecipe> r : CraftingUtil.getRecipeList()) {
+			if (r.value().matches(craftingInput, getWorld())) {
 				list.add(r);
 			}
 		}
 		if (list.size() == 1) {
 			cache = list.get(0);
-			resultInv.setItem(0, cache.assemble(craftInv, getWorld().registryAccess()));
+			resultInv.setItem(0, cache.value().assemble(craftingInput, getWorld().registryAccess()));
 			targetType = null;
 		} else if (list.size() > 1) {
 			if (targetType != null) {
-				for (Recipe recipe : list) {
+				for (RecipeHolder<CraftingRecipe> recipe : list) {
 					craftInv = new AutoCraftingInventory(null);
 					for (int i = 0; i < 9; i++) {
 						craftInv.setItem(i, matrix.getItem(i));
 					}
-					ItemStack result = recipe.assemble(craftInv, getWorld().registryAccess());
+					craftingInput = CraftingInput.of(3,3, craftInv.getItems());
+					ItemStack result = recipe.value().assemble(craftingInput, getWorld().registryAccess());
 					if (targetType == ItemIdentifier.get(result)) {
 						resultInv.setItem(0, result);
 						cache = recipe;
@@ -294,7 +298,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			}
 			if (cache == null) {
 				cache = list.get(0);
-				ItemStack result = cache.assemble(craftInv, getWorld().registryAccess());
+				ItemStack result = cache.value().assemble(craftingInput, getWorld().registryAccess());
 				resultInv.setItem(0, result);
 				targetType = ItemIdentifier.get(result);
 			}
@@ -316,16 +320,17 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		for (int i = 0; i < 9; i++) {
 			craftInv.setItem(i, matrix.getItem(i));
 		}
-		List<Recipe<?>> list = new ArrayList<>();
-		for (Recipe<?> r : CraftingUtil.getRecipeList()) {
-			if (r.matches(craftInv, getWorld())) {
+		CraftingInput craftingInput = CraftingInput.of(3,3, craftInv.getItems());
+		List<RecipeHolder<CraftingRecipe>> list = new ArrayList<>();
+		for (RecipeHolder<CraftingRecipe> r : CraftingUtil.getRecipeList()) {
+			if (r.value().matches(craftingInput, getWorld())) {
 				list.add(r);
 			}
 		}
 		if (list.size() > 1) {
 			boolean found = false;
-			Recipe<?> prev = null;
-			for (Recipe<?> recipe : list) {
+			RecipeHolder<CraftingRecipe> prev = null;
+			for (RecipeHolder<CraftingRecipe> recipe : list) {
 				if (found) {
 					cache = recipe;
 					break;
@@ -334,7 +339,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				for (int i = 0; i < 9; i++) {
 					craftInv.setItem(i, matrix.getItem(i));
 				}
-				if (targetType == ItemIdentifier.get(recipe.assemble(craftInv, getWorld().registryAccess()))) {
+				craftingInput = CraftingInput.of(3,3, craftInv.getItems());
+				if (targetType == ItemIdentifier.get(recipe.value().assemble(craftingInput, getWorld().registryAccess()))) {
 					if (down) {
 						found = true;
 					} else {
@@ -355,7 +361,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			for (int i = 0; i < 9; i++) {
 				craftInv.setItem(i, matrix.getItem(i));
 			}
-			targetType = ItemIdentifier.get(cache.assemble(craftInv, getWorld().registryAccess()));
+			craftingInput = CraftingInput.of(3,3, craftInv.getItems());
+			targetType = ItemIdentifier.get(cache.value().assemble(craftingInput, getWorld().registryAccess()));
 		}
 		if (!localGuiWatcher.isEmpty() && getWorld() != null && MainProxy.isServer(getWorld())) {
 			MainProxy.sendToPlayerList(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), localGuiWatcher);
@@ -418,10 +425,11 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				crafter.setItem(i, inv.getItem(j));
 			}
 		}
-		if (!cache.matches(crafter, getWorld())) {
+		var craftingInput = CraftingInput.of(3,3, crafter.getItems());
+		if (!cache.value().matches(craftingInput, getWorld())) {
 			return ItemStack.EMPTY; //Fix MystCraft
 		}
-		ItemStack result = cache.assemble(crafter, getWorld().registryAccess());
+		ItemStack result = cache.value().assemble(craftingInput, getWorld().registryAccess());
 		if (result.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
@@ -435,7 +443,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				crafter.setItem(i, inv.removeItem(j, 1));
 			}
 		}
-		result = cache.assemble(crafter, getWorld().registryAccess());
+		craftingInput = CraftingInput.of(3,3, crafter.getItems());
+		result = cache.value().assemble(craftingInput, getWorld().registryAccess());
 		if (fake == null) {
 			fake = MainProxy.getFakePlayer(getWorld());
 		}

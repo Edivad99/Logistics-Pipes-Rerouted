@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import logisticspipes.LPItems;
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.items.ItemLogisticsProgrammer;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -101,9 +102,8 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 
 	private Ingredient getIngredientForProgrammer(Item targetPipe) {
 		ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer.get());
-		programmerStack.setTag(new CompoundTag());
-		programmerStack.getTag().putString(ItemLogisticsProgrammer.RECIPE_TARGET, BuiltInRegistries.ITEM.getKey(targetPipe).toString());
-		return NBTIngredient.fromStacks(programmerStack);
+		programmerStack.set(LogisticsPipesDataComponents.RECIPE_TARGET, BuiltInRegistries.ITEM.getKey(targetPipe).toString());
+		return Ingredient.of(programmerStack);
 	}
 
 	@Override

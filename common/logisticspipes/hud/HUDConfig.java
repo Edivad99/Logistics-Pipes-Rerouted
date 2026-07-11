@@ -1,92 +1,132 @@
 package logisticspipes.hud;
 
 import javax.annotation.Nonnull;
+
+import logisticspipes.LogisticsPipesDataComponents;
+import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IHUDConfig;
+import logisticspipes.items.component.HUDComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
 public class HUDConfig implements IHUDConfig {
 
-	private CompoundTag configTag;
+	private ItemStack itemStack;
 
 	public HUDConfig(@Nonnull ItemStack stack) {
-		this(stack.getTag());
-		stack.setTag(configTag);
+		stack.set(LogisticsPipesDataComponents.HUD, HUDComponent.DEFAULT);
+		this.itemStack = stack;
 	}
 
-	public HUDConfig(CompoundTag tag) {
-		configTag = tag;
-		if (configTag == null) {
-			configTag = new CompoundTag();
-		}
-
-		if (configTag.isEmpty()) {
-			configTag.putBoolean("HUDChassie", true);
-			configTag.putBoolean("HUDCrafting", true);
-			configTag.putBoolean("HUDInvSysCon", true);
-			configTag.putBoolean("HUDPowerJunction", true);
-			configTag.putBoolean("HUDProvider", true);
-			configTag.putBoolean("HUDSatellite", true);
-		}
+	private HUDComponent getComponent() {
+		return this.itemStack.get(LogisticsPipesDataComponents.HUD);
 	}
 
 	@Override
 	public boolean isChassisHUD() {
-		return configTag.getBoolean("HUDChassie");
+		return getComponent().HUDChassie();
 	}
 
 	@Override
 	public boolean isHUDCrafting() {
-		return configTag.getBoolean("HUDCrafting");
+		return getComponent().HUDCrafting();
 	}
 
 	@Override
 	public boolean isHUDInvSysCon() {
-		return configTag.getBoolean("HUDInvSysCon");
+		return getComponent().HUDInvSysCon();
 	}
 
 	@Override
 	public boolean isHUDPowerLevel() {
-		return configTag.getBoolean("HUDPowerJunction");
+		return getComponent().HUDPowerJunction();
 	}
 
 	@Override
 	public boolean isHUDProvider() {
-		return configTag.getBoolean("HUDProvider");
+		return getComponent().HUDProvider();
 	}
 
 	@Override
 	public boolean isHUDSatellite() {
-		return configTag.getBoolean("HUDSatellite");
+		return getComponent().HUDSatellite();
 	}
 
 	@Override
 	public void setChassisHUD(boolean flag) {
-		configTag.putBoolean("HUDChassie", flag);
+		HUDComponent currentHUDComponent = getComponent();
+		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+				flag,
+				currentHUDComponent.HUDCrafting(),
+				currentHUDComponent.HUDInvSysCon(),
+				currentHUDComponent.HUDPowerJunction(),
+				currentHUDComponent.HUDProvider(),
+				currentHUDComponent.HUDSatellite()
+		));
 	}
 
 	@Override
 	public void setHUDCrafting(boolean flag) {
-		configTag.putBoolean("HUDCrafting", flag);
+		HUDComponent currentHUDComponent = getComponent();
+		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+				currentHUDComponent.HUDChassie(),
+				flag,
+				currentHUDComponent.HUDInvSysCon(),
+				currentHUDComponent.HUDPowerJunction(),
+				currentHUDComponent.HUDProvider(),
+				currentHUDComponent.HUDSatellite()
+		));
 	}
 
 	@Override
 	public void setHUDInvSysCon(boolean flag) {
-		configTag.putBoolean("HUDInvSysCon", flag);
+		HUDComponent currentHUDComponent = getComponent();
+		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+				currentHUDComponent.HUDChassie(),
+				currentHUDComponent.HUDCrafting(),
+				flag,
+				currentHUDComponent.HUDPowerJunction(),
+				currentHUDComponent.HUDProvider(),
+				currentHUDComponent.HUDSatellite()
+		));
 	}
 
 	@Override
 	public void setHUDPowerJunction(boolean flag) {
-		configTag.putBoolean("HUDPowerJunction", flag);
+		HUDComponent currentHUDComponent = getComponent();
+		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+				currentHUDComponent.HUDChassie(),
+				currentHUDComponent.HUDCrafting(),
+				currentHUDComponent.HUDInvSysCon(),
+				flag,
+				currentHUDComponent.HUDProvider(),
+				currentHUDComponent.HUDSatellite()
+		));
 	}
 
 	@Override
 	public void setHUDProvider(boolean flag) {
-		configTag.putBoolean("HUDProvider", flag);
+		HUDComponent currentHUDComponent = getComponent();
+		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+				currentHUDComponent.HUDChassie(),
+				currentHUDComponent.HUDCrafting(),
+				currentHUDComponent.HUDInvSysCon(),
+				currentHUDComponent.HUDPowerJunction(),
+				flag,
+				currentHUDComponent.HUDSatellite()
+		));
 	}
 
 	@Override
 	public void setHUDSatellite(boolean flag) {
-		configTag.putBoolean("HUDSatellite", flag);
+		HUDComponent currentHUDComponent = getComponent();
+		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+				currentHUDComponent.HUDChassie(),
+				currentHUDComponent.HUDCrafting(),
+				currentHUDComponent.HUDInvSysCon(),
+				currentHUDComponent.HUDPowerJunction(),
+				currentHUDComponent.HUDProvider(),
+				flag
+		));
 	}
 }

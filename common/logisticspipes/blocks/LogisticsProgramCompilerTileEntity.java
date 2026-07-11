@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.config.Configs;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IGuiTileEntity;
@@ -22,6 +24,7 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.SimpleStackInventory;
 import lombok.Getter;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -175,12 +178,7 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 						case "flash":
 							if (!getInventory().getItem(1).isEmpty()) {
 								ItemStack programmer = getInventory().getItem(1);
-								if (!programmer.hasTag()) {
-									programmer.setTag(new CompoundTag());
-								}
-								assert programmer.getTag() != null;
-								programmer.getTag()
-										.putString(ItemLogisticsProgrammer.RECIPE_TARGET, currentTask.toString());
+								programmer.set(LogisticsPipesDataComponents.RECIPE_TARGET, currentTask.toString());
 							}
 							break;
 						default:
@@ -215,14 +213,14 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 	}
 
 	@Override
-	public void load(CompoundTag nbt) {
-		inventory.readFromNBT(nbt, "programcompilerinv");
-		super.load(nbt);
+	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		inventory.readFromNBT(tag, "programcompilerinv");
+		super.loadAdditional(tag, registries);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag nbt) {
-		inventory.writeToNBT(nbt, "programcompilerinv");
-		super.saveAdditional(nbt);
+	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		inventory.writeToNBT(tag, "programcompilerinv");
+		super.saveAdditional(tag, registries);
 	}
 }

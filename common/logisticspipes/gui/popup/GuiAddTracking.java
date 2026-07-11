@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
 import logisticspipes.network.PacketHandler;
@@ -19,8 +21,11 @@ import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
@@ -162,13 +167,16 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 		}
 		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
 		//Enchantment? Enchantment!
-		Map<Enchantment, Integer> enchantIdLvlMap = EnchantmentHelper.getEnchantments(item.unsafeMakeNormalStack(1));
-		for (Entry<Enchantment, Integer> e : enchantIdLvlMap.entrySet()) {
-			String enchantName = e.getKey().getDescriptionId();
-			if (enchantName != null) {
-				if (isSearched(enchantName.toLowerCase(Locale.US), search.getText().toLowerCase(Locale.US))) {
-					return true;
-				}
+		ItemEnchantments enchantments = item.unsafeMakeNormalStack(1)
+				.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+
+		for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.entrySet()) {
+			String enchantName = entry.getKey().value().description().getString();
+
+			if (isSearched(
+					enchantName.toLowerCase(Locale.US),
+					search.getText().toLowerCase(Locale.US))) {
+				return true;
 			}
 		}
 		return false;

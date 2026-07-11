@@ -12,8 +12,10 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 
 public class GuiDiskPopup extends SubGuiScreen {
 
@@ -31,8 +33,8 @@ public class GuiDiskPopup extends SubGuiScreen {
 		super(150, 200, 0, 0);
 		this.diskProvider = diskProvider;
 		name2 = "";
-		if (diskProvider.getDisk().hasTag()) {
-			name1 = diskProvider.getDisk().getTag().getString("name");
+		if (diskProvider.getDisk().has(DataComponents.CUSTOM_NAME)) {
+			name1 = diskProvider.getDisk().get(DataComponents.CUSTOM_NAME).getString();
 		} else {
 			name1 = "Disk";
 		}
@@ -99,12 +101,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 	private void writeDiskName() {
 		editName = false;
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskSetNamePacket.class).setString(name1 + name2).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
-		CompoundTag nbt = new CompoundTag();
-		if (diskProvider.getDisk().hasTag()) {
-			nbt = diskProvider.getDisk().getTag();
-		}
-		nbt.putString("name", name1 + name2);
-		diskProvider.getDisk().setTag(nbt);
+		diskProvider.getDisk().set(DataComponents.CUSTOM_NAME, Component.literal(name1 + name2));
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiscContent.class).setStack(diskProvider.getDisk()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
 	}
 

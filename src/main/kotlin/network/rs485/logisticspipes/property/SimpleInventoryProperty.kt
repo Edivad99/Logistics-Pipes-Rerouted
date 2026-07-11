@@ -59,7 +59,7 @@ class SimpleInventoryProperty(private val inv: SimpleStackInventory, override va
 
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.readFromNBT(tag, tagKey)
 
-    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.writeToNBT(tag, tagKey)
+    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.writeToNBT(tag, provider, tagKey)
 
     fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 

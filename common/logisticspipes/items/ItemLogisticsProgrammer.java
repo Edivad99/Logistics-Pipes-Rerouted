@@ -1,9 +1,11 @@
 package logisticspipes.items;
 
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import logisticspipes.LogisticsPipesDataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -18,26 +20,22 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemLogisticsProgrammer extends LogisticsItem {
 
-	public static final String RECIPE_TARGET = "LogisticsRecipeTarget";
-
 	public ItemLogisticsProgrammer() {
 		super(new Properties().stacksTo(1));
 	}
 
-	@Nonnull
 	@Override
-	public ItemStack getCraftingRemainingItem(@Nonnull ItemStack itemStack) {
-		ItemStack items = super.getCraftingRemainingItem(itemStack);
-		items.setTag(itemStack.getTag());
-		return items;
+	public ItemStack getCraftingRemainingItem(ItemStack itemStack) {
+		ItemStack result = super.getCraftingRemainingItem(itemStack);
+		result.applyComponents(itemStack.getComponents());
+		return result;
 	}
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 		if (!stack.isEmpty()) {
-			if (stack.hasTag()) {
-				CompoundTag nbt = stack.getTag();
-				String target = nbt.getString(RECIPE_TARGET);
+			if (stack.has(LogisticsPipesDataComponents.RECIPE_TARGET)) {
+				String target = Objects.requireNonNull(stack.get(LogisticsPipesDataComponents.RECIPE_TARGET));
 				if (!target.isEmpty()) {
 					Item targetItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(target));
 					if (targetItem instanceof ItemModule) {

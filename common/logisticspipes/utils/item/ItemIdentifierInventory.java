@@ -248,21 +248,21 @@ public class ItemIdentifierInventory
 
 	@Override
 	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
-		writeToNBT(nbttagcompound, "");
+		writeToNBT(nbttagcompound, provider, "");
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound, String prefix) {
-		ListTag nbttaglist = new ListTag();
-		for (int j = 0; j < _contents.length; ++j) {
-			if (_contents[j] != null && _contents[j].getStackSize() > 0) {
-				CompoundTag nbttagcompound2 = new CompoundTag();
-				nbttaglist.add(nbttagcompound2);
-				nbttagcompound2.putInt("index", j);
-				_contents[j].unsafeMakeNormalStack().save(nbttagcompound2);
+	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider, String prefix) {
+		ListTag listTag = new ListTag();
+		for (int i = 0; i < _contents.length; ++i) {
+			if (_contents[i] != null && _contents[i].getStackSize() > 0) {
+				CompoundTag stackTag = new CompoundTag();
+				stackTag.putInt("index", i);
+				_contents[i].unsafeMakeNormalStack().save(provider, stackTag);
+				listTag.add(stackTag);
 			}
 		}
-		nbttagcompound.put(prefix + "items", nbttaglist);
-		nbttagcompound.putInt(prefix + "itemsCount", _contents.length);
+		tag.put(prefix + "items", listTag);
+		tag.putInt(prefix + "itemsCount", _contents.length);
 	}
 
 	public void dropContents(Level world, BlockPos pos) {

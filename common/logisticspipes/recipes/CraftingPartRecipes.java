@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import logisticspipes.LPItems;
+import logisticspipes.LogisticsPipesDataComponents;
 import logisticspipes.items.ItemLogisticsProgrammer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -48,10 +49,8 @@ public abstract class CraftingPartRecipes implements IRecipeProvider {
 	@Nonnull
 	protected Ingredient programmerIngredient(String recipeTarget) {
 		ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer.get());
-		final CompoundTag tag = new CompoundTag();
-		tag.putString(ItemLogisticsProgrammer.RECIPE_TARGET, recipeTarget);
-		programmerStack.setTag(tag);
-		return NBTIngredient.fromStacks(programmerStack);
+		programmerStack.set(LogisticsPipesDataComponents.RECIPE_TARGET, recipeTarget);
+		return Ingredient.of(programmerStack);
 	}
 
 	protected abstract void loadRecipes(CraftingParts parts);

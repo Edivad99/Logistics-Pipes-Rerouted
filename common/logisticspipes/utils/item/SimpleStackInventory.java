@@ -150,22 +150,22 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 
 	@Override
 	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
-		writeToNBT(nbttagcompound, "");
+		writeToNBT(nbttagcompound, provider, "");
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound, String prefix) {
-		ListTag nbttaglist = new ListTag();
-		for (int j = 0; j < stackList.size(); ++j) {
-			final ItemStack stack = stackList.get(j);
+	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider, String prefix) {
+		ListTag listTag = new ListTag();
+		for (int i = 0; i < stackList.size(); ++i) {
+			ItemStack stack = stackList.get(i);
 			if (!stack.isEmpty()) {
-				CompoundTag nbttagcompound2 = new CompoundTag();
-				nbttaglist.add(nbttagcompound2);
-				nbttagcompound2.putInt("index", j);
-				stack.save(nbttagcompound2);
+				CompoundTag stackTag = new CompoundTag();
+				stackTag.putInt("index", i);
+				stack.save(provider, stackTag);
+				listTag.add(stackTag);
 			}
 		}
-		nbttagcompound.put(prefix + "items", nbttaglist);
-		nbttagcompound.putInt(prefix + "itemsCount", stackList.size());
+		tag.put(prefix + "items", listTag);
+		tag.putInt(prefix + "itemsCount", stackList.size());
 	}
 
 	public void dropContents(Level world, BlockPos pos) {

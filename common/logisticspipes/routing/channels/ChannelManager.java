@@ -16,6 +16,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerIdentifier;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -25,13 +26,12 @@ import net.minecraft.world.level.saveddata.SavedData;
 public class ChannelManager implements IChannelManager {
 
 	private static final String DATA_NAME = LPConstants.LP_MOD_ID + "_ChannelManager_SavedData";
-	private ChannelSavedData savedData;
+	private final ChannelSavedData savedData;
 
 	public ChannelManager(@Nonnull Level world) {
-		if (world instanceof ServerLevel) {
-			savedData = ((ServerLevel) world).getDataStorage().computeIfAbsent(
-					ChannelSavedData::load, ChannelSavedData::new, DATA_NAME
-			);
+		if (world instanceof ServerLevel serverLevel) {
+			savedData = serverLevel.getDataStorage()
+					.computeIfAbsent(new SavedData.Factory<>(ChannelSavedData::new, ChannelSavedData::load), DATA_NAME);
 		} else {
 			savedData = new ChannelSavedData();
 		}
@@ -116,7 +116,7 @@ public class ChannelManager implements IChannelManager {
 
 		public ChannelSavedData() {}
 
-		public static ChannelSavedData load(CompoundTag nbt) {
+		public static ChannelSavedData load(CompoundTag nbt, HolderLookup.Provider provider) {
 			ChannelSavedData data = new ChannelSavedData();
 			data.channels = new ArrayList<>();
 			for (int i = 0; i < nbt.getInt("dataSize"); i++) {
@@ -125,17 +125,16 @@ public class ChannelManager implements IChannelManager {
 			return data;
 		}
 
-		@Nonnull
 		@Override
-		public CompoundTag save(CompoundTag compound) {
-			compound.putInt("dataSize", channels.size());
+		public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
+			compoundTag.putInt("dataSize", channels.size());
 			for (int i = 0; i < channels.size(); i++) {
 				ChannelInformation channel = channels.get(i);
 				CompoundTag nbt = new CompoundTag();
 				channel.writeToNBT(nbt);
-				compound.put("data" + i, nbt);
+				compoundTag.put("data" + i, nbt);
 			}
-			return compound;
+			return compoundTag;
 		}
 
 		public List<ChannelInformation> getChannels() {

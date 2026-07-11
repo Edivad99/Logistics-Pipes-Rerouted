@@ -37,12 +37,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -73,19 +76,31 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void onEntitySpawn(EntityJoinLevelEvent event) {
-		if (event != null && event.getEntity() instanceof ItemEntity && !event.getLevel().isClientSide) {
-			ItemStack stack = ((ItemEntity) event.getEntity()).getItem();
-			if (!stack.isEmpty() && stack.getItem() instanceof IItemAdvancedExistance && !((IItemAdvancedExistance) stack.getItem()).canExistInWorld(stack)) {
+		if (event != null && event.getEntity() instanceof ItemEntity itemEntity && !event.getLevel().isClientSide) {
+			ItemStack stack = itemEntity.getItem();
+			if (!stack.isEmpty() &&
+					stack.getItem() instanceof IItemAdvancedExistance &&
+					!((IItemAdvancedExistance) stack.getItem()).canExistInWorld(stack)) {
 				event.setCanceled(true);
+				return;
 			}
-			if (stack.hasTag()) {
-				for (String key : Objects.requireNonNull(stack.getTag(), "nbt for stack must be non-null").getAllKeys()) {
-					if (key.startsWith("logisticspipes:routingdata")) {
-						ItemRoutingInformation info = ItemRoutingInformation.restoreFromNBT(stack.getTag().getCompound(key));
-						info.setItemTimedout();
-						((ItemEntity) event.getEntity()).setItem(info.getItem().getItem().makeNormalStack(stack.getCount()));
-						break;
-					}
+			CompoundTag tag = stack.getOrDefault(
+					DataComponents.CUSTOM_DATA,
+					CustomData.EMPTY
+			).copyTag();
+			for (String key : tag.getAllKeys()) {
+				if (key.startsWith("logisticspipes:routingdata")) {
+					ItemRoutingInformation info =
+							ItemRoutingInformation.restoreFromNBT(tag.getCompound(key));
+
+					info.setItemTimedout();
+
+					itemEntity.setItem(
+							info.getItem()
+									.getItem()
+									.makeNormalStack(stack.getCount())
+					);
+					break;
 				}
 			}
 		}
@@ -314,18 +329,21 @@ public class LogisticsEventListener {
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
 	public void onItemStackToolTip(ItemTooltipEvent event) {
-		if (event.getItemStack().hasTag()) {
-			for (String key : event.getItemStack().getTag().getAllKeys()) {
-				if (key.startsWith("logisticspipes:routingdata")) {
-					ItemRoutingInformation info = ItemRoutingInformation.restoreFromNBT(event.getItemStack().getTag().getCompound(key));
-					List<Component> list = event.getToolTip();
-					list.set(0, Component.literal(ChatColor.RED + "!!! " + ChatColor.WHITE)
-							.append(list.get(0))
-							.append(Component.literal(ChatColor.RED + " !!!" + ChatColor.WHITE)));
-					list.add(1, Component.translatable("itemstackinfo.lprouteditem"));
-					list.add(2, Component.translatable("itemstackinfo.lproutediteminfo"));
-					list.add(3, Component.literal(TextUtil.translate("itemstackinfo.lprouteditemtype") + ": " + info.getItem().toString()));
-				}
+		CompoundTag tag = event.getItemStack()
+				.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+				.copyTag();
+
+		for (String key : tag.getAllKeys()) {
+			if (key.startsWith("logisticspipes:routingdata")) {
+				ItemRoutingInformation info =
+						ItemRoutingInformation.restoreFromNBT(tag.getCompound(key));
+				List<Component> list = event.getToolTip();
+				list.set(0, Component.literal(ChatColor.RED + "!!! " + ChatColor.WHITE)
+						.append(list.get(0))
+						.append(Component.literal(ChatColor.RED + " !!!" + ChatColor.WHITE)));
+				list.add(1, Component.translatable("itemstackinfo.lprouteditem"));
+				list.add(2, Component.translatable("itemstackinfo.lproutediteminfo"));
+				list.add(3, Component.literal(TextUtil.translate("itemstackinfo.lprouteditemtype") + ": " + info.getItem().toString()));
 			}
 		}
 	}
