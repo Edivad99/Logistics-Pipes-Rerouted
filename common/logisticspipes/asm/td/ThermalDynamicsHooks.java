@@ -8,21 +8,21 @@ import net.minecraft.world.item.ItemStack;
 
 public class ThermalDynamicsHooks {
 
-	public static void travelingItemToNBT(Object /* TravelingItem */ travelingItem, CompoundTag paramCompoundTag) {
-		if (((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition() != null) {
-			CompoundTag save = new CompoundTag();
-			((ItemRoutingInformation) ((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition()).writeToNBT(save);
-			paramCompoundTag.put("LPRoutingInformation", save);
-		}
-	}
-
-	public static void travelingItemNBTContructor(Object /* TravelingItem */ travelingItem, CompoundTag paramCompoundTag) {
-		if (!paramCompoundTag.contains("LPRoutingInformation")) {
-			return;
-		}
-		((ILPTravelingItemInfo) travelingItem).setLPRoutingInfoAddition(new ItemRoutingInformation());
-		((ItemRoutingInformation) ((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition()).readFromNBT(paramCompoundTag.getCompound("LPRoutingInformation"));
-	}
+//	public static void travelingItemToNBT(Object /* TravelingItem */ travelingItem, CompoundTag paramCompoundTag) {
+//		if (((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition() != null) {
+//			CompoundTag save = new CompoundTag();
+//			((ItemRoutingInformation) ((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition()).writeToNBT(save);
+//			paramCompoundTag.put("LPRoutingInformation", save);
+//		}
+//	}
+//
+//	public static void travelingItemNBTContructor(Object /* TravelingItem */ travelingItem, CompoundTag paramCompoundTag) {
+//		if (!paramCompoundTag.contains("LPRoutingInformation")) {
+//			return;
+//		}
+//		((ILPTravelingItemInfo) travelingItem).setLPRoutingInfoAddition(new ItemRoutingInformation());
+//		((ItemRoutingInformation) ((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition()).readFromNBT(paramCompoundTag.getCompound("LPRoutingInformation"));
+//	}
 
 	public static void renderItemTransportBox(Object /* TravelingItem */ item) {
 		// TODO: ThermalDynamics TravelingItem.stack field access deferred — TD not on classpath for 1.20.1

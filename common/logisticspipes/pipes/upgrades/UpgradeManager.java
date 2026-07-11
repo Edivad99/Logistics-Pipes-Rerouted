@@ -21,6 +21,7 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.SimpleStackInventory;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
@@ -80,10 +81,10 @@ public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgrad
 		secInv.addListener(this);
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound) {
-		inv.readFromNBT(nbttagcompound, "UpgradeInventory_");
-		sneakyInv.readFromNBT(nbttagcompound, "SneakyUpgradeInventory_");
-		secInv.readFromNBT(nbttagcompound, "SecurityInventory_");
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		inv.readFromNBT(nbttagcompound, provider, "UpgradeInventory_");
+		sneakyInv.readFromNBT(nbttagcompound, provider, "SneakyUpgradeInventory_");
+		secInv.readFromNBT(nbttagcompound, provider, "SecurityInventory_");
 
 		if (!sneakyInv.getItem(8).isEmpty()) {
 			if (sneakyInv.getItem(8).getItem() == LPItems.itemCard.get() && sneakyInv.getItem(8).getDamageValue() == LogisticsItemCard.SEC_CARD) {
@@ -95,10 +96,10 @@ public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgrad
 		InventoryChanged(inv);
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound) {
-		inv.writeToNBT(nbttagcompound, "UpgradeInventory_");
-		sneakyInv.writeToNBT(nbttagcompound, "SneakyUpgradeInventory_");
-		secInv.writeToNBT(nbttagcompound, "SecurityInventory_");
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+		inv.writeToNBT(nbttagcompound, provider, "UpgradeInventory_");
+		sneakyInv.writeToNBT(nbttagcompound, provider, "SneakyUpgradeInventory_");
+		secInv.writeToNBT(nbttagcompound, provider, "SecurityInventory_");
 		InventoryChanged(inv);
 	}
 

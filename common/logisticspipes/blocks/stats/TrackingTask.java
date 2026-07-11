@@ -26,7 +26,7 @@ public class TrackingTask {
 		}
 	}
 
-	public void readFromNBT(CompoundTag nbt) {
+	public void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider) {
 		int[] amountRecorded_A = nbt.getIntArray("amountRecorded_A");
 		int[] amountRecorded_B = nbt.getIntArray("amountRecorded_B");
 		for (int i = 0; i < amountRecorded.length; i++) {
@@ -36,7 +36,7 @@ public class TrackingTask {
 			amountRecorded[i] = (((long) amountRecorded_B[i]) << 32) | amountRecorded_A[i];
 		}
 		arrayPos = nbt.getInt("arrayPos");
-		item = ItemIdentifier.get(ItemStackLoader.loadAndFixItemStackFromNBT(nbt));
+		item = ItemIdentifier.get(ItemStackLoader.loadAndFixItemStackFromNBT(nbt, provider));
 	}
 
 	public void writeToNBT(CompoundTag nbt, HolderLookup.Provider provider) {

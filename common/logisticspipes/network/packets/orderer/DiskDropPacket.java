@@ -8,8 +8,10 @@ import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.CustomData;
 
 @StaticResolve
 public class DiskDropPacket extends CoordinatesPacket {
@@ -29,16 +31,16 @@ public class DiskDropPacket extends CoordinatesPacket {
 		if (pipe == null) {
 			return;
 		}
-		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2) {
-			if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk() != null) {
-				if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().getItem().equals(LPItems.disk.get())) {
-					if (!((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().hasTag()) {
-						((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().setTag(new CompoundTag());
+		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2 pipeItemsRequestLogisticsMk2) {
+			if (pipeItemsRequestLogisticsMk2.getDisk() != null) {
+				if (pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.disk.get())) {
+					if (!pipeItemsRequestLogisticsMk2.getDisk().has(DataComponents.CUSTOM_DATA)) {
+						pipeItemsRequestLogisticsMk2.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
 					}
 				}
 			}
-			((PipeItemsRequestLogisticsMk2) pipe.pipe).dropDisk();
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk()).setBlockPos(pipe.getBlockPos()), player);
+			pipeItemsRequestLogisticsMk2.dropDisk();
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(pipeItemsRequestLogisticsMk2.getDisk()).setBlockPos(pipe.getBlockPos()), player);
 		}
 	}
 }

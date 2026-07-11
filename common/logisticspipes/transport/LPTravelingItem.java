@@ -28,6 +28,7 @@ import logisticspipes.utils.tuples.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
@@ -204,7 +205,7 @@ public abstract class LPTravelingItem {
 		public LPTravelingItemServer(CompoundTag data) {
 			super();
 			info = new ItemRoutingInformation();
-			readFromNBT(data);
+			readFromNBT(data, getContainer().getLevel().registryAccess());
 		}
 
 		@Override
@@ -217,7 +218,7 @@ public abstract class LPTravelingItem {
 		}
 
 		@Override
-		public void readFromNBT(CompoundTag data) {
+		public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
 			setPosition(data.getFloat("position"));
 			setSpeed(data.getFloat("speed"));
 			if (data.contains("input")) {
@@ -230,11 +231,11 @@ public abstract class LPTravelingItem {
 			} else {
 				output = null;
 			}
-			info.readFromNBT(data);
+			info.readFromNBT(data, provider);
 		}
 
 		@Override
-		public void writeToNBT(CompoundTag data) {
+		public void writeToNBT(CompoundTag data, HolderLookup.Provider provider) {
 			data.putFloat("position", getPosition());
 			data.putFloat("speed", getSpeed());
 			if (input != null) {
@@ -243,7 +244,7 @@ public abstract class LPTravelingItem {
 			if (output != null) {
 				data.putInt("output", output.ordinal());
 			}
-			info.writeToNBT(data);
+			info.writeToNBT(data, provider);
 		}
 
 		public ItemEntity toEntityItem() {

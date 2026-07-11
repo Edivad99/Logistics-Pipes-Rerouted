@@ -8,7 +8,11 @@ import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.CustomData;
+
+import java.util.Objects;
 
 @StaticResolve
 public class DiscContent extends ItemPacket {
@@ -28,26 +32,32 @@ public class DiscContent extends ItemPacket {
 		if (tile == null) {
 			return;
 		}
-		if (tile.pipe instanceof PipeItemsRequestLogisticsMk2) {
+		if (tile.pipe instanceof PipeItemsRequestLogisticsMk2 itemsRequestLogisticsMk2) {
 			if (MainProxy.isServer(tile.getLevel())) {
-				if (!((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().isEmpty() && ((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().getItem().equals(LPItems.disk.get())) {
+				if (!itemsRequestLogisticsMk2.getDisk().isEmpty() && itemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.disk.get())) {
 					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.disk.get())) {
-						((PipeItemsRequestLogisticsMk2) tile.pipe).getDisk().setTag(getStack().getTag());
+						if (getStack().has(DataComponents.CUSTOM_DATA)) {
+							var copyTag = Objects.requireNonNull(getStack().get(DataComponents.CUSTOM_DATA)).copyTag();
+							itemsRequestLogisticsMk2.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.of(copyTag));
+						}
 					}
 				}
 			} else {
-				((PipeItemsRequestLogisticsMk2) tile.pipe).setDisk(getStack());
+				itemsRequestLogisticsMk2.setDisk(getStack());
 			}
 		}
-		if (tile.pipe instanceof PipeBlockRequestTable) {
+		if (tile.pipe instanceof PipeBlockRequestTable pipeBlockRequestTable) {
 			if (MainProxy.isServer(tile.getLevel())) {
-				if (!((PipeBlockRequestTable) tile.pipe).diskInv.getItem(0).isEmpty() && ((PipeBlockRequestTable) tile.pipe).diskInv.getItem(0).getItem().equals(LPItems.disk.get())) {
+				if (!pipeBlockRequestTable.diskInv.getItem(0).isEmpty() && pipeBlockRequestTable.diskInv.getItem(0).getItem().equals(LPItems.disk.get())) {
 					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.disk.get())) {
-						((PipeBlockRequestTable) tile.pipe).diskInv.getItem(0).setTag(getStack().getTag());
+						if (getStack().has(DataComponents.CUSTOM_DATA)) {
+							var copyTag = Objects.requireNonNull(getStack().get(DataComponents.CUSTOM_DATA)).copyTag();
+							pipeBlockRequestTable.diskInv.getItem(0).set(DataComponents.CUSTOM_DATA, CustomData.of(copyTag));
+						}
 					}
 				}
 			} else {
-				((PipeBlockRequestTable) tile.pipe).diskInv.setItem(0, getStack());
+				pipeBlockRequestTable.diskInv.setItem(0, getStack());
 			}
 		}
 	}

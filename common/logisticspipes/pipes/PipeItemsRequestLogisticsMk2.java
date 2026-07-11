@@ -63,7 +63,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 		super.writeToNBT(nbttagcompound, provider);
 		if (!disk.isEmpty()) {
 			CompoundTag itemNBT = new CompoundTag();
-			disk.save(itemNBT);
+			disk.save(provider, itemNBT);
 			nbttagcompound.put("Disk", itemNBT);
 		}
 	}
@@ -73,7 +73,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 		super.readFromNBT(nbttagcompound, provider);
 		if (nbttagcompound.contains("Disk")) {
 			CompoundTag item = nbttagcompound.getCompound("Disk");
-			disk = ItemStackLoader.loadAndFixItemStackFromNBT(item);
+			disk = ItemStackLoader.loadAndFixItemStackFromNBT(item, provider);
 		}
 	}
 

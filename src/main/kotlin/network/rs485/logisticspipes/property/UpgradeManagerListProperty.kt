@@ -109,7 +109,7 @@ class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
         parentChassis.originalUpgradeManager,
     ).apply {
         if (tag.contains(key)) {
-            readFromNBT(tag.getCompound(key), "")
+            readFromNBT(tag.getCompound(key), provider, "")
         }
     }
 
@@ -120,7 +120,7 @@ class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
         value: ModuleUpgradeManager
     ) {
         tag.put(key, CompoundTag().also {
-            value.writeToNBT(it, "")
+            value.writeToNBT(it, provider,"")
         })
     }
 

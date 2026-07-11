@@ -8,6 +8,7 @@ import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.SimpleStackInventory;
 import lombok.Getter;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -180,12 +181,12 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 		}
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound, String prefix) {
-		internalInv.readFromNBT(nbttagcompound, "ModuleUpgradeInventory_" + prefix);
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider, String prefix) {
+		internalInv.readFromNBT(nbttagcompound, provider, "ModuleUpgradeInventory_" + prefix);
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound, String prefix) {
-		internalInv.writeToNBT(nbttagcompound, "ModuleUpgradeInventory_" + prefix);
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider, String prefix) {
+		internalInv.writeToNBT(nbttagcompound, provider, "ModuleUpgradeInventory_" + prefix);
 		InventoryChanged(inv);
 	}
 

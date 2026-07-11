@@ -52,7 +52,7 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidTileEntity impl
 		for (int i = 0; i < size; i++) {
 			CompoundTag subTag = (CompoundTag) tag.get("Task_" + i);
 			TrackingTask task = new TrackingTask();
-			task.readFromNBT(subTag);
+			task.readFromNBT(subTag, registries);
 			tasks.add(task);
 		}
 	}

@@ -150,11 +150,11 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 		for (Direction direction : Direction.values()) {
 			CompoundTag subTag = new CompoundTag();
-			sideTanks[direction.ordinal()].writeToNBT(subTag);
+			sideTanks[direction.ordinal()].writeToNBT(provider, subTag);
 			nbttagcompound.put("tank[" + direction.ordinal() + "]", subTag);
 		}
 		CompoundTag subTag = new CompoundTag();
-		internalTank.writeToNBT(subTag);
+		internalTank.writeToNBT(provider, subTag);
 		nbttagcompound.put("tank[middle]", subTag);
 	}
 

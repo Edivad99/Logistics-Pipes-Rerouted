@@ -1,6 +1,7 @@
 package logisticspipes.items;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,6 +19,7 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -182,9 +184,8 @@ public class ItemModule extends LogisticsItem {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-		if (stack.hasTag()) {
-			CompoundTag nbt = stack.getTag();
-			assert nbt != null;
+		if (stack.has(DataComponents.CUSTOM_DATA)) {
+			CompoundTag nbt = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
 
 			if (nbt.contains("informationList")) {
 				if (Screen.hasShiftDown()) {
@@ -204,7 +205,8 @@ public class ItemModule extends LogisticsItem {
 								}
 								ItemIdentifierInventory inv = new ItemIdentifierInventory(size,
 										"InformationTempInventory", Integer.MAX_VALUE);
-								inv.readFromNBT(module, prefix);
+								//TODO: A bit sus
+								inv.readFromNBT(module, this.moduleType.getILogisticsModule().getWorld().registryAccess(), prefix);
 								for (int pos = 0; pos < inv.getContainerSize(); pos++) {
 									ItemIdentifierStack identStack = inv.getIDStackInSlot(pos);
 									if (identStack != null) {

@@ -13,8 +13,10 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 
@@ -77,10 +79,7 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 	@Nonnull
 	public Stream<Direction> getSides(@Nonnull ItemStack stack) {
 		if (stack.isEmpty()) return Stream.empty();
-		if (!stack.hasTag()) {
-			stack.setTag(new CompoundTag());
-		}
-		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
+		final CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
 		return Arrays.stream(Sides.values()).filter(side -> tag.getBoolean(side.getLpName())).map(Sides::getDir);
 	}
 }

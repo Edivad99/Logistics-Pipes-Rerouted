@@ -293,7 +293,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	@Override
 	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
 		super.readFromNBT(tag, provider);
-		_moduleInventory.readFromNBT(tag, "chassi");
+		_moduleInventory.readFromNBT(tag, provider, "chassi");
 
 
 		// register slotted modules
@@ -311,7 +311,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	public void writeToNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
 		super.writeToNBT(tag, provider);
 		updateModuleInventory(provider);
-		_moduleInventory.writeToNBT(tag, "chassi");
+		_moduleInventory.writeToNBT(tag, provider, "chassi");
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringUtil;
 
 public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventListener {
 
@@ -59,7 +60,7 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
 
 	@Override
 	public boolean onKeyboardInput() {
-		return (isFocused() || Screen.hasAltDown()) && SharedConstants.isAllowedChatCharacter(' ');
+		return (isFocused() || Screen.hasAltDown()) && StringUtil.isAllowedChatCharacter(' ');
 	}
 
 	/**

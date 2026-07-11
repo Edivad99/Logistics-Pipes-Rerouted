@@ -9,8 +9,10 @@ import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.CustomData;
 
 @StaticResolve
 public class DiskRequestConectPacket extends CoordinatesPacket {
@@ -30,25 +32,25 @@ public class DiskRequestConectPacket extends CoordinatesPacket {
 		if (pipe == null) {
 			return;
 		}
-		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2) {
-			if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk() != null) {
-				if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().getItem().equals(LPItems.disk.get())) {
-					if (!((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().hasTag()) {
-						((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().setTag(new CompoundTag());
+		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2 pipeItemsRequestLogisticsMk2) {
+			if (pipeItemsRequestLogisticsMk2.getDisk() != null) {
+				if (pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.disk.get())) {
+					if (!pipeItemsRequestLogisticsMk2.getDisk().has(DataComponents.CUSTOM_DATA)) {
+						pipeItemsRequestLogisticsMk2.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
 					}
 				}
 			}
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk()).setBlockPos(pipe.getBlockPos()), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(pipeItemsRequestLogisticsMk2.getDisk()).setBlockPos(pipe.getBlockPos()), player);
 		}
-		if (pipe.pipe instanceof PipeBlockRequestTable) {
-			if (((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0) != null) {
-				if (((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0).getItem().equals(LPItems.disk.get())) {
-					if (!((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0).hasTag()) {
-						((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0).setTag(new CompoundTag());
+		if (pipe.pipe instanceof PipeBlockRequestTable pipeBlockRequestTable) {
+			if (!pipeBlockRequestTable.diskInv.getItem(0).isEmpty()) {
+				if (pipeBlockRequestTable.diskInv.getItem(0).getItem().equals(LPItems.disk.get())) {
+					if (!pipeBlockRequestTable.diskInv.getItem(0).has(DataComponents.CUSTOM_DATA)) {
+						pipeBlockRequestTable.diskInv.getItem(0).set(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
 					}
 				}
 			}
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(((PipeBlockRequestTable) pipe.pipe).diskInv.getItem(0)).setBlockPos(pipe.getBlockPos()), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(pipeBlockRequestTable.diskInv.getItem(0)).setBlockPos(pipe.getBlockPos()), player);
 		}
 	}
 }

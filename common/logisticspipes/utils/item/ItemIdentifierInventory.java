@@ -222,10 +222,10 @@ public class ItemIdentifierInventory
 
 	@Override
 	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
-		readFromNBT(nbttagcompound, "");
+		readFromNBT(nbttagcompound, provider, "");
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound, String prefix) {
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider, String prefix) {
 		ListTag nbttaglist = nbttagcompound.getList(prefix + "items", nbttagcompound.getId());
 
 		Arrays.fill(_contents, null);
@@ -233,7 +233,7 @@ public class ItemIdentifierInventory
 			CompoundTag nbttagcompound2 = nbttaglist.getCompound(j);
 			int index = nbttagcompound2.getInt("index");
 			if (index < _contents.length) {
-				ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2);
+				ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2, provider);
 				ItemIdentifierStack itemstack = ItemIdentifierStack.getFromStack(stack);
 				if (isValidStack(itemstack)) {
 					_contents[index] = itemstack;

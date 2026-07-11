@@ -91,7 +91,7 @@ public class LogisticsEventListener {
 			for (String key : tag.getAllKeys()) {
 				if (key.startsWith("logisticspipes:routingdata")) {
 					ItemRoutingInformation info =
-							ItemRoutingInformation.restoreFromNBT(tag.getCompound(key));
+							ItemRoutingInformation.restoreFromNBT(tag.getCompound(key), event.getLevel().registryAccess());
 
 					info.setItemTimedout();
 
@@ -336,7 +336,7 @@ public class LogisticsEventListener {
 		for (String key : tag.getAllKeys()) {
 			if (key.startsWith("logisticspipes:routingdata")) {
 				ItemRoutingInformation info =
-						ItemRoutingInformation.restoreFromNBT(tag.getCompound(key));
+						ItemRoutingInformation.restoreFromNBT(tag.getCompound(key), event.getEntity().registryAccess());
 				List<Component> list = event.getToolTip();
 				list.set(0, Component.literal(ChatColor.RED + "!!! " + ChatColor.WHITE)
 						.append(list.get(0))

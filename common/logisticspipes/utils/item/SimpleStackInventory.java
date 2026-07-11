@@ -131,17 +131,17 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 
 	@Override
 	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
-		readFromNBT(nbttagcompound, "");
+		readFromNBT(nbttagcompound, provider, "");
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound, String prefix) {
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider, String prefix) {
 		ListTag nbttaglist = nbttagcompound.getList(prefix + "items", nbttagcompound.getId());
 
 		for (int j = 0; j < nbttaglist.size(); ++j) {
 			CompoundTag nbttagcompound2 = nbttaglist.getCompound(j);
 			int index = nbttagcompound2.getInt("index");
 			if (index < stackList.size()) {
-				stackList.set(index, ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2));
+				stackList.set(index, ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2, provider));
 			} else {
 				LogisticsPipes.log.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of " + stackList.size());
 			}

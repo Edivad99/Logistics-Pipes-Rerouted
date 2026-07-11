@@ -16,6 +16,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.component.CustomData;
+
+import java.util.Objects;
 
 public class GuiDiskPopup extends SubGuiScreen {
 
@@ -42,34 +45,45 @@ public class GuiDiskPopup extends SubGuiScreen {
 
 			@Override
 			public int getSize() {
-				CompoundTag nbt = diskProvider.getDisk().getTag();
-				if (nbt == null) {
-					diskProvider.getDisk().setTag(new CompoundTag());
-					nbt = diskProvider.getDisk().getTag();
-				}
+				diskProvider.getDisk().update(
+						DataComponents.CUSTOM_DATA,
+						CustomData.EMPTY,
+						customData -> {
+							CompoundTag tag = customData.copyTag();
+							if (!tag.contains("macroList")) {
+								ListTag list = new ListTag();
+								tag.put("macroList", list);
+							}
+							return CustomData.of(tag);
+						}
+				);
 
-				if (!nbt.contains("macroList")) {
-					ListTag list = new ListTag();
-					nbt.put("macroList", list);
-				}
-				ListTag list = nbt.getList("macroList", 10);
+				var tag = Objects.requireNonNull(diskProvider.getDisk().get(DataComponents.CUSTOM_DATA)).copyTag();
+				ListTag list = tag.getList("macroList", 10);
 				return list.size();
 			}
 
 			@Override
 			public String getTextAt(int index) {
-				CompoundTag nbt = diskProvider.getDisk().getTag();
-				if (nbt == null) {
-					diskProvider.getDisk().setTag(new CompoundTag());
-					nbt = diskProvider.getDisk().getTag();
-				}
+				diskProvider.getDisk().update(
+						DataComponents.CUSTOM_DATA,
+						CustomData.EMPTY,
+						customData -> {
+							CompoundTag tag = customData.copyTag();
+							if (!tag.contains("macroList")) {
+								ListTag list = new ListTag();
+								tag.put("macroList", list);
+							}
+							return CustomData.of(tag);
+						}
+				);
 
-				if (!nbt.contains("macroList")) {
-					ListTag list = new ListTag();
-					nbt.put("macroList", list);
+				var tag = Objects.requireNonNull(diskProvider.getDisk().get(DataComponents.CUSTOM_DATA)).copyTag();
+				ListTag list = tag.getList("macroList", 10);
+				if (index < list.size()) {
+					return list.getCompound(index).getString("name");
 				}
-				ListTag list = nbt.getList("macroList", 10);
-				return list.getCompound(index).getString("name");
+				return "";
 			}
 
 			@Override
@@ -167,34 +181,38 @@ public class GuiDiskPopup extends SubGuiScreen {
 	}
 
 	private void handleDelete() {
-		CompoundTag nbt = diskProvider.getDisk().getTag();
-		if (nbt == null) {
-			diskProvider.getDisk().setTag(new CompoundTag());
-			nbt = diskProvider.getDisk().getTag();
-		}
+		diskProvider.getDisk().update(
+				DataComponents.CUSTOM_DATA,
+				CustomData.EMPTY,
+				customData -> {
+					CompoundTag tag = customData.copyTag();
+					if (!tag.contains("macroList")) {
+						ListTag list = new ListTag();
+						tag.put("macroList", list);
+					}
 
-		if (!nbt.contains("macroList")) {
-			ListTag list = new ListTag();
-			nbt.put("macroList", list);
-		}
+					ListTag list = tag.getList("macroList", 10);
+					ListTag newList = new ListTag();
 
-		ListTag list = nbt.getList("macroList", 10);
-		ListTag newList = new ListTag();
+					for (int i = 0; i < list.size(); i++) {
+						if (i != textList.getSelected()) {
+							newList.add(list.getCompound(i));
+						}
+					}
 
-		for (int i = 0; i < list.size(); i++) {
-			if (i != textList.getSelected()) {
-				newList.add(list.getCompound(i));
-			}
-		}
-		textList.setSelected(-1);
-		nbt.put("macroList", newList);
+					textList.setSelected(-1);
+					tag.put("macroList", newList);
+					return CustomData.of(tag);
+				}
+		);
+
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiscContent.class).setStack(diskProvider.getDisk()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
 	}
 
 	private void handleAddEdit() {
 		String macroName = "";
-		CompoundTag nbt = diskProvider.getDisk().getTag();
-		if (nbt != null) {
+		if (diskProvider.getDisk().has(DataComponents.CUSTOM_DATA)) {
+			CompoundTag nbt = Objects.requireNonNull(diskProvider.getDisk().get(DataComponents.CUSTOM_DATA)).copyTag();
 			if (nbt.contains("macroList")) {
 				ListTag list = nbt.getList("macroList", 10);
 				if (textList.getSelected() != -1 && textList.getSelected() < list.size()) {

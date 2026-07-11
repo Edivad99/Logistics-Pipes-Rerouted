@@ -56,7 +56,9 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.NbtIo; // was CompressedStreamTools
@@ -76,6 +78,7 @@ import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.world.item.component.CustomData;
 
 public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
@@ -341,7 +344,11 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 			writeInt(BuiltInRegistries.ITEM.getId(itemstack.getItem()));
 			writeInt(itemstack.getCount());
 			writeInt(itemstack.getDamageValue());
-			writeCompoundTag(itemstack.getTag());
+			CompoundTag tag = null;
+			if (itemstack.has(DataComponents.CUSTOM_DATA)) {
+				tag = Objects.requireNonNull(itemstack.get(DataComponents.CUSTOM_DATA)).copyTag();
+			}
+			writeCompoundTag(tag);
 		}
 	}
 
@@ -534,7 +541,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		}
 
 		try {
-			return NbtIo.readCompressed(new ByteArrayInputStream(Objects.requireNonNull(readByteArray())));
+			return NbtIo.readCompressed(new ByteArrayInputStream(Objects.requireNonNull(readByteArray())), NbtAccounter.unlimitedHeap());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -636,9 +643,11 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 		int stackSize = readInt();
 		int damage = readInt();
-		ItemStack stack = new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.byId(itemId), stackSize);
-		// may be null, see code
-		stack.setTag(readCompoundTag());
+		ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.byId(itemId), stackSize);
+		var tag = readCompoundTag();
+		if (tag != null) {
+			stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+		}
 		return stack;
 	}
 

@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import logisticspipes.utils.item.SimpleStackInventory;
 import lombok.Getter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -94,14 +95,14 @@ public class LogicController {
 		//*/
 	}
 
-	public void writeToNBT(CompoundTag nbt) {
-		diskInv.writeToNBT(nbt, "LogicDiskInv");
+	public void writeToNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+		diskInv.writeToNBT(nbt, provider, "LogicDiskInv");
 		writeTasks(nbt);
 		writeConnections(nbt);
 	}
 
-	public void readFromNBT(CompoundTag nbt) {
-		diskInv.readFromNBT(nbt, "LogicDiskInv");
+	public void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+		diskInv.readFromNBT(nbt, provider, "LogicDiskInv");
 		readTasks(nbt);
 		readConnections(nbt);
 	}

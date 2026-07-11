@@ -31,6 +31,8 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.FinalCompoundTag;
 import lombok.AllArgsConstructor;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ByteArrayTag;
 import net.minecraft.nbt.ByteTag;
@@ -47,6 +49,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
 
@@ -63,9 +66,12 @@ import net.neoforged.fml.ModList;
 public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTypeHolder {
 
 	//a key to look up a ItemIdentifier by Item:damage:tag
+	// Legacy key: Item + damage + tag
 	private static class ItemKey {
 
 		public final Item item;
+		//TODO: REPLACE WITH DATACOMPONENTMAP
+		//public final DataComponentMap components;
 		public final int itemDamage;
 		public final FinalCompoundTag tag;
 
@@ -269,7 +275,9 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		//again no locking, we can end up removing or overwriting ItemIdentifiers concurrently added by another thread, but that doesn't affect anything.
 		IDamagedIdentifierHolder damages = ItemIdentifier.damageIdentifiers.get(item);
 		if (damages == null) {
-			if (item.getMaxDamage() < 32767) {
+			// TODO: TEMP FIX - in 1.21 max damage belongs to ItemStack components
+			ItemStack stack = new ItemStack(item);
+			if (stack.getMaxDamage() < 32767) {
 				damages = new ArrayDamagedItentifierHolder(damage);
 			} else {
 				damages = new MapDamagedItentifierHolder();
@@ -330,7 +338,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return get(item, itemUndamagableDamage, tag, null);
 	}
 
-	private static ItemIdentifier get(Item item, int itemUndamagableDamage, CompoundTag tag, ItemIdentifier proposal) {
+	private static ItemIdentifier get(Item item, int itemUndamagableDamage, @Nullable CompoundTag tag, ItemIdentifier proposal) {
 		if (itemUndamagableDamage < 0) {
 			throw new IllegalArgumentException("Item Damage out of range");
 		}
@@ -357,15 +365,25 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	public static ItemIdentifier get(@Nonnull ItemStack itemStack) {
 		ItemIdentifier proposal = null;
 		IAddInfoProvider prov = null;
-		if (((Object) itemStack) instanceof IAddInfoProvider && !itemStack.hasTag()) {
+		boolean hasTag = itemStack.has(DataComponents.CUSTOM_DATA);
+		if (((Object) itemStack) instanceof IAddInfoProvider && !hasTag) {
 			prov = (IAddInfoProvider) (Object) itemStack;
 			ItemStackAddInfo info = prov.getLogisticsPipesAddInfo(ItemStackAddInfo.class);
 			if (info != null) {
 				proposal = info.ident;
 			}
 		}
-		ItemIdentifier ident = ItemIdentifier.get(itemStack.getItem(), itemStack.getDamageValue(), itemStack.getTag(), proposal);
-		if (ident != proposal && prov != null && !itemStack.hasTag()) {
+
+		FinalCompoundTag tag = null;
+		if (hasTag) {
+			CompoundTag customData = itemStack
+					.get(DataComponents.CUSTOM_DATA)
+					.copyTag();
+			tag = new FinalCompoundTag(customData);
+		}
+
+		ItemIdentifier ident = ItemIdentifier.get(itemStack.getItem(), itemStack.getDamageValue(), tag, proposal);
+		if (ident != proposal && prov != null && !hasTag) {
 			prov.setLogisticsPipesAddInfo(new ItemStackAddInfo(ident));
 		}
 		return ident;
@@ -525,17 +543,29 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	@Nonnull
 	public ItemStack unsafeMakeNormalStack(int stackSize) {
 		ItemStack stack = new ItemStack(item, stackSize);
-		if (itemDamage != 0) stack.setDamageValue(itemDamage);
-		stack.setTag(tag);
+		if (itemDamage != 0) {
+			stack.setDamageValue(itemDamage);
+		}
+		if (tag != null) {
+			stack.set(
+					DataComponents.CUSTOM_DATA,
+					CustomData.of(tag.copy())
+			);
+		}
 		return stack;
 	}
 
 	@Nonnull
 	public ItemStack makeNormalStack(int stackSize) {
 		ItemStack stack = new ItemStack(item, stackSize);
-		if (itemDamage != 0) stack.setDamageValue(itemDamage);
+		if (itemDamage != 0) {
+			stack.setDamageValue(itemDamage);
+		}
 		if (tag != null) {
-			stack.setTag(tag.copy());
+			stack.set(
+					DataComponents.CUSTOM_DATA,
+					CustomData.of(tag.copy())
+			);
 		}
 		return stack;
 	}

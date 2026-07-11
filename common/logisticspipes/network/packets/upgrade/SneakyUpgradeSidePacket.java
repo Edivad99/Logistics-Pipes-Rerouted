@@ -9,9 +9,11 @@ import logisticspipes.utils.gui.UpgradeSlot;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -31,11 +33,15 @@ public class SneakyUpgradeSidePacket extends SlotPacket {
 		UpgradeSlot slot = getSlot(player, UpgradeSlot.class);
 		ItemStack stack = slot.getItem();
 		if (stack.isEmpty()) return;
-		if (!stack.hasTag()) {
-			stack.setTag(new CompoundTag());
-		}
-		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
-		tag.putString(SneakyUpgradeConfig.SIDE_KEY, SneakyUpgradeConfig.Sides.getNameForDirection(side));
+		stack.update(
+				DataComponents.CUSTOM_DATA,
+				CustomData.EMPTY,
+				customData -> {
+					CompoundTag tag = customData.copyTag();
+					tag.putString(SneakyUpgradeConfig.SIDE_KEY, SneakyUpgradeConfig.Sides.getNameForDirection(side));
+					return CustomData.of(tag);
+				}
+		);
 		slot.set(stack);
 	}
 

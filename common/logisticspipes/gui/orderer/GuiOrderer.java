@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import logisticspipes.config.Configs;
 import logisticspipes.gui.popup.GuiRequestPopup;
 import logisticspipes.interfaces.ISpecialItemRenderer;
@@ -37,11 +39,15 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer {
 
@@ -162,13 +168,16 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		}
 		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
 		//Enchantment? Enchantment!
-		Map<Enchantment, Integer> enchantIdLvlMap = EnchantmentHelper.getEnchantments(item.unsafeMakeNormalStack(1));
-		for (Entry<Enchantment, Integer> e : enchantIdLvlMap.entrySet()) {
-			String enchantname = e.getKey().getDescriptionId();
-			if (enchantname != null) {
-				if (isSearched(enchantname.toLowerCase(Locale.US), search.getText().toLowerCase(Locale.US))) {
-					return true;
-				}
+		ItemEnchantments enchantments =
+				item.unsafeMakeNormalStack(1).getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+
+		for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.entrySet()) {
+			String enchantName = entry.getKey().value().description().getString();
+
+			if (isSearched(
+					enchantName.toLowerCase(Locale.US),
+					search.getText().toLowerCase(Locale.US))) {
+				return true;
 			}
 		}
 		return false;
@@ -270,7 +279,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 			if (!search.isEmpty() && search.handleKey(c, i)) {
 				return true;
 			}
-		} else if (Screen.hasAltDown() && SharedConstants.isAllowedChatCharacter(c)) {
+		} else if (Screen.hasAltDown() && StringUtil.isAllowedChatCharacter(c)) {
 			itemDisplay.setFocused(false);
 			search.setFocused(true);
 			search.setText("");

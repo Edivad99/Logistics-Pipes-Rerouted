@@ -34,7 +34,7 @@ public class ModuleBasedItemSinkList extends ModuleCoordinatesPacket {
 		if (module == null) {
 			return;
 		}
-		module.readFromNBT(nbt);
+		module.readFromNBT(nbt, player.registryAccess());
 		if (MainProxy.isServer(player.level()) && getType().isInWorld()) {
 			module.listChanged();
 		}

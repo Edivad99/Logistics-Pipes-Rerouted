@@ -13,6 +13,7 @@ import logisticspipes.routing.order.IDistanceTracker;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
@@ -59,18 +60,18 @@ public class ItemRoutingInformation {
 	@Setter
 	private ItemIdentifierStack item;
 
-	public void readFromNBT(CompoundTag nbttagcompound) {
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		if (nbttagcompound.contains("destinationUUID")) {
 			destinationUUID = UUID.fromString(nbttagcompound.getString("destinationUUID"));
 		}
 		arrived = nbttagcompound.getBoolean("arrived");
 		bufferCounter = nbttagcompound.getInt("bufferCounter");
 		_transportMode = TransportMode.values()[nbttagcompound.getInt("transportMode")];
-		ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound.getCompound("Item"));
+		ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound.getCompound("Item"), provider);
 		setItem(ItemIdentifierStack.getFromStack(stack));
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound) {
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		if (destinationUUID != null) {
 			nbttagcompound.putString("destinationUUID", destinationUUID.toString());
 		}
@@ -79,7 +80,7 @@ public class ItemRoutingInformation {
 		nbttagcompound.putInt("transportMode", _transportMode.ordinal());
 
 		CompoundTag nbttagcompound2 = new CompoundTag();
-		getItem().makeNormalStack().save(nbttagcompound2);
+		getItem().makeNormalStack().save(provider, nbttagcompound2);
 		nbttagcompound.put("Item", nbttagcompound2);
 	}
 
@@ -112,14 +113,14 @@ public class ItemRoutingInformation {
 		return String.format("(%s, %d, %s, %s, %s, %d, %s)", item, destinationint, destinationUUID, _transportMode, jamlist, delay, tracker);
 	}
 
-	public void storeToNBT(CompoundTag nbtTagCompound) {
+	public void storeToNBT(CompoundTag nbtTagCompound, HolderLookup.Provider provider) {
 		UUID uuid = UUID.randomUUID();
 		nbtTagCompound.putString("StoreUUID", uuid.toString());
-		this.writeToNBT(nbtTagCompound);
+		this.writeToNBT(nbtTagCompound, provider);
 		storeMap.put(uuid, this);
 	}
 
-	public static ItemRoutingInformation restoreFromNBT(CompoundTag nbtTagCompound) {
+	public static ItemRoutingInformation restoreFromNBT(CompoundTag nbtTagCompound, HolderLookup.Provider provider) {
 		if (nbtTagCompound.contains("StoreUUID")) {
 			UUID uuid = UUID.fromString(nbtTagCompound.getString("StoreUUID"));
 			if (storeMap.containsKey(uuid)) {
@@ -129,7 +130,7 @@ public class ItemRoutingInformation {
 			}
 		}
 		ItemRoutingInformation info = new ItemRoutingInformation();
-		info.readFromNBT(nbtTagCompound);
+		info.readFromNBT(nbtTagCompound, provider);
 		return info;
 	}
 

@@ -15,6 +15,7 @@ import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.order.IDistanceTracker;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 /**
@@ -66,9 +67,9 @@ public interface IRoutedItem {
 
 	ItemIdentifierStack getItemIdentifierStack();
 
-	void readFromNBT(CompoundTag data);
+	void readFromNBT(CompoundTag data, HolderLookup.Provider provider);
 
-	void writeToNBT(CompoundTag tagEntityItem);
+	void writeToNBT(CompoundTag tagEntityItem, HolderLookup.Provider provider);
 
 	void setDistanceTracker(IDistanceTracker tracker);
 

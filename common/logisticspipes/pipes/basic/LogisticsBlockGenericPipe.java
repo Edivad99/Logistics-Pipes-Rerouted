@@ -40,6 +40,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -502,7 +503,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 	public InternalRayTraceResult doRayTrace(Level world, BlockPos pos, Player player) {
 		double reachDistance = player instanceof ServerPlayer
-				? player.getAttributeValue(net.minecraftforge.common.ForgeMod.BLOCK_REACH.get())
+				? player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE)
 				: 5;
 
 		Vec3 lookVec = player.getLookAngle();

@@ -6,8 +6,10 @@ import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.CustomData;
 
 @StaticResolve
 public class DiskSetNamePacket extends StringCoordinatesPacket {
@@ -27,18 +29,22 @@ public class DiskSetNamePacket extends StringCoordinatesPacket {
 		if (pipe == null) {
 			return;
 		}
-		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2) {
-			if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk() == null) {
+		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2 pipeItemsRequestLogisticsMk2) {
+			if (pipeItemsRequestLogisticsMk2.getDisk() == null) {
 				return;
 			}
-			if (!((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().getItem().equals(LPItems.disk.get())) {
+			if (!pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.disk.get())) {
 				return;
 			}
-			if (!((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().hasTag()) {
-				((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().setTag(new CompoundTag());
-			}
-			CompoundTag nbt = ((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().getTag();
-			nbt.putString("name", getString());
+			pipeItemsRequestLogisticsMk2.getDisk().update(
+					DataComponents.CUSTOM_DATA,
+					CustomData.EMPTY,
+					customData -> {
+						CompoundTag tag = customData.copyTag();
+						tag.putString("name", getString());
+						return CustomData.of(tag);
+					}
+			);
 		}
 	}
 }

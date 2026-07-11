@@ -3,10 +3,15 @@ package logisticspipes.network.abstractpackets;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
+
+import java.util.Objects;
 
 public abstract class ItemPacket extends CoordinatesPacket {
 
@@ -28,7 +33,11 @@ public abstract class ItemPacket extends CoordinatesPacket {
 			output.writeInt(BuiltInRegistries.ITEM.getId(getStack().getItem()));
 			output.writeInt(getStack().getCount());
 			output.writeInt(getStack().getDamageValue());
-			output.writeCompoundTag(getStack().getTag());
+			CompoundTag tag = null;
+			if (getStack().has(DataComponents.CUSTOM_DATA)) {
+				tag = Objects.requireNonNull(getStack().get(DataComponents.CUSTOM_DATA)).copyTag();
+			}
+			output.writeCompoundTag(tag);
 		}
 	}
 
@@ -45,7 +54,10 @@ public abstract class ItemPacket extends CoordinatesPacket {
 			ItemStack newStack = new ItemStack(BuiltInRegistries.ITEM.byId(itemID), stackSize);
 			newStack.setDamageValue(damage);
 			setStack(newStack);
-			getStack().setTag(input.readCompoundTag());
+			var tag = input.readCompoundTag();
+			if (tag != null) {
+				getStack().set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+			}
 		}
 	}
 }

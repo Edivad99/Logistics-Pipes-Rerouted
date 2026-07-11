@@ -8,9 +8,12 @@ import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.request.RequestHandler;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.Objects;
 
 @StaticResolve
 public class DiskMacroRequestPacket extends IntegerCoordinatesPacket {
@@ -30,17 +33,17 @@ public class DiskMacroRequestPacket extends IntegerCoordinatesPacket {
 		if (pipe == null) {
 			return;
 		}
-		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2) {
-			if (((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk() == null) {
+		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2 pipeItemsRequestLogisticsMk2) {
+			if (pipeItemsRequestLogisticsMk2.getDisk() == null) {
 				return;
 			}
-			if (!((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().getItem().equals(LPItems.disk.get())) {
+			if (!pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.disk.get())) {
 				return;
 			}
-			if (!((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().hasTag()) {
+			if (!pipeItemsRequestLogisticsMk2.getDisk().has(DataComponents.CUSTOM_DATA)) {
 				return;
 			}
-			CompoundTag nbt = ((PipeItemsRequestLogisticsMk2) pipe.pipe).getDisk().getTag();
+			CompoundTag nbt = Objects.requireNonNull(pipeItemsRequestLogisticsMk2.getDisk().get(DataComponents.CUSTOM_DATA)).copyTag();
 			if (!nbt.contains("macroList")) {
 				ListTag list = new ListTag();
 				nbt.put("macroList", list);
@@ -49,22 +52,22 @@ public class DiskMacroRequestPacket extends IntegerCoordinatesPacket {
 			for (int i = 0; i < list.size(); i++) {
 				if (i == getInteger()) {
 					CompoundTag itemlist = list.getCompound(i);
-					RequestHandler.requestMacrolist(itemlist, (PipeItemsRequestLogisticsMk2) pipe.pipe, player);
+					RequestHandler.requestMacrolist(itemlist, pipeItemsRequestLogisticsMk2, player);
 					break;
 				}
 			}
 		}
-		if (pipe.pipe instanceof PipeBlockRequestTable) {
-			if (((PipeBlockRequestTable) pipe.pipe).getDisk() == null) {
+		if (pipe.pipe instanceof PipeBlockRequestTable pipeBlockRequestTable) {
+			if (pipeBlockRequestTable.getDisk() == null) {
 				return;
 			}
-			if (!((PipeBlockRequestTable) pipe.pipe).getDisk().getItem().equals(LPItems.disk.get())) {
+			if (!pipeBlockRequestTable.getDisk().getItem().equals(LPItems.disk.get())) {
 				return;
 			}
-			if (!((PipeBlockRequestTable) pipe.pipe).getDisk().hasTag()) {
+			if (!pipeBlockRequestTable.getDisk().has(DataComponents.CUSTOM_DATA)) {
 				return;
 			}
-			CompoundTag nbt = ((PipeBlockRequestTable) pipe.pipe).getDisk().getTag();
+			CompoundTag nbt = Objects.requireNonNull(pipeBlockRequestTable.getDisk().get(DataComponents.CUSTOM_DATA)).copyTag();
 			if (!nbt.contains("macroList")) {
 				ListTag list = new ListTag();
 				nbt.put("macroList", list);
@@ -73,7 +76,7 @@ public class DiskMacroRequestPacket extends IntegerCoordinatesPacket {
 			for (int i = 0; i < list.size(); i++) {
 				if (i == getInteger()) {
 					CompoundTag itemlist = list.getCompound(i);
-					RequestHandler.requestMacrolist(itemlist, (PipeBlockRequestTable) pipe.pipe, player);
+					RequestHandler.requestMacrolist(itemlist, pipeBlockRequestTable, player);
 					break;
 				}
 			}

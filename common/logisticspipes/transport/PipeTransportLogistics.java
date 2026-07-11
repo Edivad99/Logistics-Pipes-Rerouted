@@ -385,7 +385,7 @@ public class PipeTransportLogistics {
 		ListTag nbttaglist2 = nbt.getList("buffercontents", Tag.TAG_COMPOUND);
 		for (int i = 0; i < nbttaglist2.size(); i++) {
 			CompoundTag nbttagcompound1 = nbttaglist2.getCompound(i);
-			_itemBuffer.add(new Triplet<>(ItemIdentifierStack.getFromStack(ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound1)), new Pair<>(_bufferTimeOut, 0), null));
+			_itemBuffer.add(new Triplet<>(ItemIdentifierStack.getFromStack(ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound1, provider)), new Pair<>(_bufferTimeOut, 0), null));
 		}
 
 	}
@@ -399,7 +399,7 @@ public class PipeTransportLogistics {
 				if (item instanceof LPTravelingItemServer) {
 					CompoundTag dataTag = new CompoundTag();
 					nbttaglist.add(dataTag);
-					((LPTravelingItemServer) item).writeToNBT(dataTag);
+					((LPTravelingItemServer) item).writeToNBT(dataTag, provider);
 				}
 			}
 

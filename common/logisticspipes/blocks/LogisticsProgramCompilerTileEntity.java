@@ -25,12 +25,15 @@ import logisticspipes.utils.item.SimpleStackInventory;
 import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -84,17 +87,18 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 	}
 
 	public ListTag getListTagForKey(String key) {
-		CompoundTag nbt = this.getInventory().getItem(0).getTag();
-		if (nbt == null) {
-			this.getInventory().getItem(0).setTag(new CompoundTag());
-			nbt = this.getInventory().getItem(0).getTag();
+		ItemStack stack = this.getInventory().getItem(0);
+		CompoundTag nbt;
+		if (stack.has(DataComponents.CUSTOM_DATA)) {
+			nbt = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+		} else {
+			nbt = new CompoundTag();
 		}
-
 		if (!nbt.contains(key)) {
-			ListTag list = new ListTag();
-			nbt.put(key, list);
+			nbt.put(key, new ListTag());
 		}
-		return nbt.getList(key, 8 /* String */);
+		stack.set(DataComponents.CUSTOM_DATA, CustomData.of(nbt));
+		return nbt.getList(key, Tag.TAG_STRING);
 	}
 
 	public void triggerNewTask(ResourceLocation category, String taskType) {
@@ -214,13 +218,13 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 
 	@Override
 	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		inventory.readFromNBT(tag, "programcompilerinv");
+		inventory.readFromNBT(tag, registries, "programcompilerinv");
 		super.loadAdditional(tag, registries);
 	}
 
 	@Override
 	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		inventory.writeToNBT(tag, "programcompilerinv");
+		inventory.writeToNBT(tag, registries, "programcompilerinv");
 		super.saveAdditional(tag, registries);
 	}
 }

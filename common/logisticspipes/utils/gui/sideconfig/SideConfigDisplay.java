@@ -244,13 +244,12 @@ public abstract class SideConfigDisplay {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 
 		Tesselator tes = Tesselator.getInstance();
-		BufferBuilder buf = tes.getBuilder();
-		buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		BufferBuilder buf = tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 		for (Vertex v : corners) {
-			buf.vertex((float) (v.x() - origin.x), (float) (v.y() - origin.y), (float) (v.z() - origin.z))
-				.uv(v.u(), v.v()).endVertex();
+			buf.addVertex((float) (v.x() - origin.x), (float) (v.y() - origin.y), (float) (v.z() - origin.z))
+				.setUv(v.u(), v.v());
 		}
-		BufferUploader.drawWithShader(buf.end());
+		BufferUploader.drawWithShader(buf.buildOrThrow());
 
 		RenderSystem.disableBlend();
 		RenderSystem.enableDepthTest();

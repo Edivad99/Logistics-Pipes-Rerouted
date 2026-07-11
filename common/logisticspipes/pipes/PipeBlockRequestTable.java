@@ -513,10 +513,10 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	@Override
 	public void readFromNBT(CompoundTag par1nbtTagCompound, HolderLookup.Provider provider) {
 		super.readFromNBT(par1nbtTagCompound, provider);
-		inv.readFromNBT(par1nbtTagCompound, "inv");
-		matrix.readFromNBT(par1nbtTagCompound, "matrix");
-		toSortInv.readFromNBT(par1nbtTagCompound, "toSortInv");
-		diskInv.readFromNBT(par1nbtTagCompound, "diskInv");
+		inv.readFromNBT(par1nbtTagCompound, provider, "inv");
+		matrix.readFromNBT(par1nbtTagCompound, provider, "matrix");
+		toSortInv.readFromNBT(par1nbtTagCompound, provider, "toSortInv");
+		diskInv.readFromNBT(par1nbtTagCompound, provider, "diskInv");
 		rotation = par1nbtTagCompound.getInt("blockRotation");
 		// cacheRecipe() skipped here — world/registry not available during NBT load; cache is rebuilt lazily on first use
 		//cacheRecipe();
@@ -525,10 +525,10 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	@Override
 	public void writeToNBT(CompoundTag par1nbtTagCompound, HolderLookup.Provider provider) {
 		super.writeToNBT(par1nbtTagCompound, provider);
-		inv.writeToNBT(par1nbtTagCompound, "inv");
-		matrix.writeToNBT(par1nbtTagCompound, "matrix");
-		toSortInv.writeToNBT(par1nbtTagCompound, "toSortInv");
-		diskInv.writeToNBT(par1nbtTagCompound, "diskInv");
+		inv.writeToNBT(par1nbtTagCompound, provider, "inv");
+		matrix.writeToNBT(par1nbtTagCompound, provider, "matrix");
+		toSortInv.writeToNBT(par1nbtTagCompound, provider, "toSortInv");
+		diskInv.writeToNBT(par1nbtTagCompound, provider, "diskInv");
 		par1nbtTagCompound.putInt("blockRotation", rotation);
 	}
 

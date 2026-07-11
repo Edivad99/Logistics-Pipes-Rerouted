@@ -131,8 +131,6 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	private boolean blockNeighborChange = false;
 	private boolean refreshRenderState = false;
 	private boolean pipeBound = false;
-	@OnlyIn(Dist.CLIENT)
-	private AABB renderBox;
 	private EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers;
 
 	public LogisticsTileGenericPipe(BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
@@ -350,7 +348,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		}
 
 		CompoundTag logicNBT = new CompoundTag();
-		logicController.writeToNBT(logicNBT);
+		logicController.writeToNBT(logicNBT, registries);
 		nbt.put("logicController", logicNBT);
 	}
 
@@ -392,7 +390,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			turtleConnect[i] = nbt.getBoolean("turtleConnect_" + i);
 		}
 
-		logicController.readFromNBT(nbt.getCompound("logicController"));
+		logicController.readFromNBT(nbt.getCompound("logicController"), registries);
 	}
 
 	public boolean canPipeConnect(BlockEntity with, Direction side) {
@@ -852,28 +850,6 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	@Override
 	public ILPPipe getLPPipe() {
 		return pipe;
-	}
-
-	@Nonnull
-	@OnlyIn(Dist.CLIENT)
-	@Override
-	public AABB getRenderBoundingBox() {
-		if (renderBox != null) {
-			return renderBox;
-		}
-		if (pipe == null) {
-			return new AABB(getBlockPos()); // 1.20.1: AABB(BlockPos) creates the unit block cube
-		}
-		if (!pipe.isMultiBlock()) {
-			renderBox = new AABB(getBlockPos()); // 1.20.1: AABB(BlockPos) creates the unit block cube
-		} else {
-			LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> set = ((CoreMultiBlockPipe) pipe).getRotatedSubBlocks();
-			set.addToAll(pipe.getLPPosition());
-			set.add(new DoubleCoordinatesType<>(getBlockPos(), CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
-			set.add(new DoubleCoordinatesType<>(getBlockPos().getX() + 1, getBlockPos().getY() + 1, getBlockPos().getZ() + 1, CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
-			renderBox = new AABB(set.getMinXD() - 1, set.getMinYD() - 1, set.getMinZD() - 1, set.getMaxXD() + 1, set.getMaxYD() + 1, set.getMaxZD() + 1);
-		}
-		return renderBox;
 	}
 
 	@Override

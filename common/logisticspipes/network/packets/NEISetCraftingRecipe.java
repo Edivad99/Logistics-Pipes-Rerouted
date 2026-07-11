@@ -45,16 +45,13 @@ public class NEISetCraftingRecipe extends CoordinatesPacket {
 	@Override
 	public void writeData(LPDataOutput output) {
 		super.writeData(output);
-		output.writeCollection(stackList, (out, stack) -> out.writeCompoundTag(stack.isEmpty() ? null : stack.save(new CompoundTag())));
+		output.writeCollection(stackList, LPDataOutput::writeItemStack);
 	}
 
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
-		NonNullList<ItemStack> readList = input.readNonNullList(inp -> {
-			CompoundTag tag = inp.readCompoundTag();
-			return tag == null ? null : ItemStack.of(tag);
-		}, ItemStack.EMPTY);
+		NonNullList<ItemStack> readList = input.readNonNullList(LPDataInput::readItemStack, ItemStack.EMPTY);
 		if (readList != null) stackList = readList;
 	}
 }

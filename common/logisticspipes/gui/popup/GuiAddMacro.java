@@ -19,10 +19,12 @@ import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
@@ -59,12 +61,14 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	}
 
 	private void loadMacroItems() {
-		if ((name1 + name2).equals("")) {
+		if ((name1 + name2).isEmpty()) {
 			return;
 		}
 		ListTag inventar = null;
 
-		ListTag list = diskProvider.getDisk().getTag().getList("macroList", 10);
+		var compTag = diskProvider.getDisk().getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+
+		ListTag list = compTag.getList("macroList", 10);
 		for (int i = 0; i < list.size(); i++) {
 			CompoundTag tag = list.getCompound(i);
 			String name = tag.getString("name");
@@ -126,7 +130,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			}
 
 			boolean flag = false;
-			ListTag list = diskProvider.getDisk().getTag().getList("macroList", 10);
+			var compTag = diskProvider.getDisk().getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+
+			ListTag list = compTag.getList("macroList", 10);
 
 			for (int i = 0; i < list.size(); i++) {
 				CompoundTag tag = list.getCompound(i);
@@ -143,7 +149,8 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 				nbt.put("inventar", inventar);
 				list.add(nbt);
 			}
-			diskProvider.getDisk().getTag().put("macroList", list);
+			compTag.put("macroList", list);
+			diskProvider.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.of(compTag));
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiscContent.class).setStack(diskProvider.getDisk()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
 			exitGui();
 		} else if (macroItems.size() != 0) {

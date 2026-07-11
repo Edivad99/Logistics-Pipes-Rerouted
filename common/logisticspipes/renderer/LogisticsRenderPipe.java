@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.PipeBlockRequestTable;
+import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -21,6 +22,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.newpipe.LogisticsNewPipeItemBoxRenderer;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.transport.LPTravelingItem;
+import logisticspipes.utils.LPPositionSet;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.tuples.Pair;
@@ -34,9 +36,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
+import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -50,6 +54,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 	public static LogisticsNewPipeItemBoxRenderer boxRenderer = new LogisticsNewPipeItemBoxRenderer();
 	public static ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 	private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
+	private AABB renderBox;
 
 	public LogisticsRenderPipe(BlockEntityRendererProvider.Context context) {
 	}
@@ -503,5 +508,25 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 			}
 		}
 		return sum.toString();
+	}
+
+	@Override
+	public AABB getRenderBoundingBox(LogisticsTileGenericPipe blockEntity) {
+		if (renderBox != null) {
+			return renderBox;
+		}
+		if (blockEntity.pipe == null) {
+			return new AABB(blockEntity.getBlockPos()); // 1.20.1: AABB(BlockPos) creates the unit block cube
+		}
+		if (!blockEntity.pipe.isMultiBlock()) {
+			renderBox = new AABB(blockEntity.getBlockPos()); // 1.20.1: AABB(BlockPos) creates the unit block cube
+		} else {
+			LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> set = ((CoreMultiBlockPipe) blockEntity.pipe).getRotatedSubBlocks();
+			set.addToAll(blockEntity.pipe.getLPPosition());
+			set.add(new DoubleCoordinatesType<>(blockEntity.getBlockPos(), CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
+			set.add(new DoubleCoordinatesType<>(blockEntity.getBlockPos().getX() + 1, blockEntity.getBlockPos().getY() + 1, blockEntity.getBlockPos().getZ() + 1, CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
+			renderBox = new AABB(set.getMinXD() - 1, set.getMinYD() - 1, set.getMinZD() - 1, set.getMaxXD() + 1, set.getMaxYD() + 1, set.getMaxZD() + 1);
+		}
+		return renderBox;
 	}
 }

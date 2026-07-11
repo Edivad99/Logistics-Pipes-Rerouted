@@ -11,6 +11,7 @@ import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -21,6 +22,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -45,8 +47,11 @@ public class RemoteOrderer extends LogisticsItem {
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 		super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-		if (stack.hasTag() && Objects.requireNonNull(stack.getTag()).contains("connectedPipe-x")) {
-			tooltipComponents.add(Component.literal("\u00a77Has Remote Pipe"));
+		if (stack.has(DataComponents.CUSTOM_DATA)) {
+			var tag = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
+			if (tag.contains("connectedPipe-x")) {
+				tooltipComponents.add(Component.literal("\u00a77Has Remote Pipe"));
+			}
 		}
 	}
 
@@ -54,7 +59,7 @@ public class RemoteOrderer extends LogisticsItem {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand handIn) {
 		ItemStack par1ItemStack = player.getMainHandItem();
-		if (par1ItemStack.isEmpty() || !par1ItemStack.hasTag()) {
+		if (par1ItemStack.isEmpty() || !par1ItemStack.has(DataComponents.CUSTOM_DATA)) {
 			return InteractionResultHolder.fail(par1ItemStack);
 		}
 		PipeItemsRemoteOrdererLogistics pipe = RemoteOrderer.getPipe(par1ItemStack);
@@ -80,8 +85,7 @@ public class RemoteOrderer extends LogisticsItem {
 	}
 
 	public static void connectToPipe(@Nonnull ItemStack stack, PipeItemsRemoteOrdererLogistics pipe) {
-		stack.setTag(new CompoundTag());
-		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
+		CompoundTag tag = new CompoundTag();
 		tag.putInt("connectedPipe-x", pipe.getX());
 		tag.putInt("connectedPipe-y", pipe.getY());
 		tag.putInt("connectedPipe-z", pipe.getZ());
@@ -90,13 +94,14 @@ public class RemoteOrderer extends LogisticsItem {
 		int dimension = pipe.getWorld().dimension().location().hashCode();
 		tag.putInt("connectedPipe-world-dim", dimension);
 		tag.putString("connectedPipe-world-dim-key", pipe.getWorld().dimension().location().toString());
+		stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 	}
 
 	public static PipeItemsRemoteOrdererLogistics getPipe(@Nonnull ItemStack stack) {
-		if (stack.isEmpty() || !stack.hasTag()) {
+		if (stack.isEmpty() || !stack.has(DataComponents.CUSTOM_DATA)) {
 			return null;
 		}
-		final CompoundTag tag = Objects.requireNonNull(stack.getTag());
+		final CompoundTag tag = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
 		if (!tag.contains("connectedPipe-x") || !tag.contains("connectedPipe-y") || !tag.contains("connectedPipe-z")) {
 			return null;
 		}

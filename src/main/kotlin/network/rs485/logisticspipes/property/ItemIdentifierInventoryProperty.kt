@@ -85,7 +85,7 @@ class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, 
     override fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(tagKey + "items")) inv.readFromNBT(tag, tagKey).alsoIChanged()
+        if (tag.contains(tagKey + "items")) inv.readFromNBT(tag, provider, tagKey).alsoIChanged()
     }
 
     override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.writeToNBT(tag, provider,tagKey)

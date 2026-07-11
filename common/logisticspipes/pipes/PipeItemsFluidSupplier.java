@@ -239,14 +239,14 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 	@Override
 	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.readFromNBT(nbttagcompound, provider);
-		dummyInventory.readFromNBT(nbttagcompound, "");
+		dummyInventory.readFromNBT(nbttagcompound, provider, "");
 		_requestPartials = nbttagcompound.getBoolean("requestpartials");
 	}
 
 	@Override
 	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.writeToNBT(nbttagcompound, provider);
-		dummyInventory.writeToNBT(nbttagcompound, "");
+		dummyInventory.writeToNBT(nbttagcompound, provider, "");
 		nbttagcompound.putBoolean("requestpartials", _requestPartials);
 	}
 

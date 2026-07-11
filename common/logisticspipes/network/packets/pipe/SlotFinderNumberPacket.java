@@ -9,11 +9,13 @@ import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifier;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -80,7 +82,7 @@ public class SlotFinderNumberPacket extends ModuleCoordinatesPacket {
 			ItemStack dummyStack = new ItemStack(Blocks.DIRT, 1);
 			CompoundTag nbt = new CompoundTag();
 			nbt.putBoolean("LPStackFinderBoolean", true); //Make it unique
-			dummyStack.setTag(nbt); // dummyStack: yay, I am unique
+			dummyStack.set(DataComponents.CUSTOM_DATA, CustomData.of(nbt)); // dummyStack: yay, I am unique
 			result.set(dummyStack);
 			for (int i = 0; i < util.getContainerSize(); i++) {
 				if (dummyStack == util.getItem(i)) {

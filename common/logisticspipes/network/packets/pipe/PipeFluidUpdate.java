@@ -37,7 +37,7 @@ public class PipeFluidUpdate extends CoordinatesPacket {
 		for (int i = 0; i < renderCache.length; i++) {
 			if (bits.get(i)) {
 				Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(input.readUTF()));
-				renderCache[i] = new FluidStack(fluid, input.readInt(), input.readCompoundTag());
+				renderCache[i] = new FluidStack(fluid, input.readInt()); //TODO:, input.readCompoundTag());
 			}
 		}
 	}
@@ -53,7 +53,7 @@ public class PipeFluidUpdate extends CoordinatesPacket {
 			if (aRenderCache != null && !aRenderCache.isEmpty()) {
 				output.writeUTF(net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(aRenderCache.getFluid()).toString());
 				output.writeInt(aRenderCache.getAmount());
-				output.writeCompoundTag(aRenderCache.getTag());
+				// output.writeCompoundTag(aRenderCache.getTag());
 			}
 		}
 	}

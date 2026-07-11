@@ -761,7 +761,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			getLogisticsModule().writeToNBT(nbttagcompound, provider);
 		}
 		CompoundTag upgradeNBT = new CompoundTag();
-		upgradeManager.writeToNBT(upgradeNBT);
+		upgradeManager.writeToNBT(upgradeNBT, provider);
 		nbttagcompound.put("upgradeManager", upgradeNBT);
 
 		CompoundTag powerNBT = new CompoundTag();
@@ -774,7 +774,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		for (Triplet<IRoutedItem, Direction, ItemSendMode> p : _sendQueue) {
 			CompoundTag tagentry = new CompoundTag();
 			CompoundTag tagentityitem = new CompoundTag();
-			p.getValue1().writeToNBT(tagentityitem);
+			p.getValue1().writeToNBT(tagentityitem, provider);
 			tagentry.put("entityitem", tagentityitem);
 			tagentry.putByte("from", (byte) (p.getValue2().ordinal()));
 			tagentry.putByte("mode", (byte) (p.getValue3().ordinal()));
@@ -821,7 +821,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (getLogisticsModule() != null) {
 			getLogisticsModule().readFromNBT(nbttagcompound, provider);
 		}
-		upgradeManager.readFromNBT(nbttagcompound.getCompound("upgradeManager"));
+		upgradeManager.readFromNBT(nbttagcompound.getCompound("upgradeManager"), provider);
 		powerHandler.readFromNBT(nbttagcompound.getCompound("powerHandler"));
 
 		_sendQueue.clear();

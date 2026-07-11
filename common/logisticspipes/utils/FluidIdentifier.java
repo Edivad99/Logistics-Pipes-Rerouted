@@ -17,9 +17,12 @@ import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import lombok.AllArgsConstructor;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -77,7 +80,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	}
 
 	private static String getFluidName(Fluid fluid) {
-		ResourceLocation key = net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(fluid);
+		ResourceLocation key = BuiltInRegistries.FLUID.getKey(fluid);
 		return key != null ? key.toString() : "unknown";
 	}
 
@@ -178,15 +181,16 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		}
 		FluidIdentifier proposal = null;
 		IAddInfoProvider prov = null;
-		if (stack instanceof IAddInfoProvider) {
-			prov = (IAddInfoProvider) stack;
-			FluidStackAddInfo info = prov.getLogisticsPipesAddInfo(FluidStackAddInfo.class);
-			if (info != null) {
-				proposal = info.fluid;
-			}
-		}
-		FluidIdentifier ident = FluidIdentifier.get(stack.getFluid(), stack.getTag(), proposal);
-		if (proposal != ident && stack.getTag() == null && prov != null) {
+		//TODO: IDK
+//		if (stack instanceof IAddInfoProvider) {
+//			prov = (IAddInfoProvider) stack;
+//			FluidStackAddInfo info = prov.getLogisticsPipesAddInfo(FluidStackAddInfo.class);
+//			if (info != null) {
+//				proposal = info.fluid;
+//			}
+//		}
+		FluidIdentifier ident = FluidIdentifier.get(stack.getFluid(), stack.get(DataComponents.CUSTOM_DATA).copyTag(), proposal);
+		if (proposal != ident && stack.getComponentsPatch().isEmpty() && prov != null) {
 			prov.setLogisticsPipesAddInfo(new FluidStackAddInfo(ident));
 		}
 		return ident;
@@ -251,7 +255,9 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	public FluidStack makeFluidStack(int amount) {
 		// In 1.20, FluidStack(Fluid, int, CompoundTag) was removed — use setTag()
 		FluidStack fs = new FluidStack(getFluid(), amount);
-		if (tag != null) fs.setTag(tag.copy());
+		if (tag != null) {
+			fs.set(DataComponents.CUSTOM_DATA, CustomData.of(tag.copy()));
+		}
 		return fs;
 	}
 

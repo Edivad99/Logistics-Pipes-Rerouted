@@ -17,8 +17,10 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 
@@ -85,10 +87,7 @@ public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 	@Nullable
 	public Direction getSide(@Nonnull ItemStack stack) {
 		if (stack.isEmpty()) return null;
-		if (!stack.hasTag()) {
-			stack.setTag(new CompoundTag());
-		}
-		CompoundTag tag = Objects.requireNonNull(stack.getTag());
+		CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
 		String sideString = tag.getString(SIDE_KEY);
 		return Arrays.stream(Sides.values())
 				.filter(side -> side.getLpName().equals(sideString))
