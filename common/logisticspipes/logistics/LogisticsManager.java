@@ -41,6 +41,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 
 public class LogisticsManager implements ILogisticsManager {
@@ -188,7 +189,7 @@ public class LogisticsManager implements ILogisticsManager {
 		Collections.sort(validDestinations);
 		final ItemStack stack = itemIdStack.makeNormalStack();
 		if (stack.getItem() instanceof LogisticsFluidContainer) {
-			Pair<Integer, FluidSinkReply> bestReply = SimpleServiceLocator.logisticsFluidManager.getBestReply(SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(itemIdStack), sourceRouter, item.getJamList());
+			Pair<Integer, FluidSinkReply> bestReply = SimpleServiceLocator.logisticsFluidManager.getBestReply(SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(itemIdStack, Minecraft.getInstance().level.registryAccess()), sourceRouter, item.getJamList());
 			if (bestReply != null) {
 				item.setDestination(bestReply.getValue1());
 			}

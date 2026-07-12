@@ -49,6 +49,7 @@ import logisticspipes.modules.ModuleProvider
 import logisticspipes.network.packets.module.ModulePropertiesUpdate
 import logisticspipes.proxy.MainProxy
 import logisticspipes.utils.Color
+import net.minecraft.client.Minecraft
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
 import java.util.concurrent.atomic.AtomicReference
@@ -158,7 +159,7 @@ class ProviderGui private constructor(
         if (minecraft?.player != null && propertyLayer.properties.isNotEmpty()) {
             // send update to server, when there are changed properties
             MainProxy.sendPacketToServer(
-                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(providerModule),
+                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, Minecraft.getInstance().level?.registryAccess()).setModulePos(providerModule),
             )
         }
     }

@@ -9,6 +9,7 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -63,14 +64,14 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 
 		MainProxy.runOnServer(player.level(), () -> () -> {
 			// resync client; always
-			MainProxy.sendPacketToPlayer(fromPropertyHolder(module).setModulePos(module), player);
+			MainProxy.sendPacketToPlayer(fromPropertyHolder(module, player.registryAccess()).setModulePos(module), player);
 		});
 	}
 
 	@Nonnull
-	public static ModuleCoordinatesPacket fromPropertyHolder(PropertyHolder holder) {
+	public static ModuleCoordinatesPacket fromPropertyHolder(PropertyHolder holder, HolderLookup.Provider provider) {
 		final ModulePropertiesUpdate packet = PacketHandler.getPacket(ModulePropertiesUpdate.class);
-		PropertyHolder.writeToNBT(packet.tag, holder);
+		PropertyHolder.writeToNBT(packet.tag, provider, holder);
 		return packet;
 	}
 

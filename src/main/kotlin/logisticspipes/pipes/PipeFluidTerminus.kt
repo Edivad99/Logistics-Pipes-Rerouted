@@ -56,7 +56,7 @@ class PipeFluidTerminus(item: Item) : FluidSinkPipe(item, "Fluids to terminate",
     override fun getCenterTexture(): Textures.TextureType = Textures.LOGISTICSPIPE_LIQUID_TERMINUS
 
     override fun onWrenchClicked(entityplayer: Player) {
-        MainProxy.sendPacketToPlayer(PipePropertiesUpdate.fromPropertyHolder(this).setBlockPos(pos), entityplayer)
+        MainProxy.sendPacketToPlayer(PipePropertiesUpdate.fromPropertyHolder(this, entityplayer.registryAccess()).setBlockPos(pos), entityplayer)
         NewGuiHandler.openGui(NewGuiHandler.getGui(FluidTerminusGui::class.java).setPosX(x).setPosY(y).setPosZ(z), entityplayer)
     }
 }

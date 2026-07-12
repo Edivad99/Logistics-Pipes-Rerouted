@@ -17,6 +17,7 @@ import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import lombok.AllArgsConstructor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -206,7 +207,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 
 	public static FluidIdentifier get(ItemIdentifierStack stack) {
 		FluidStack f = null;
-		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack);
+		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack, Minecraft.getInstance().level.registryAccess());
 		if (fstack != null) {
 			f = fstack.makeFluidStack();
 		}
@@ -363,7 +364,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	}
 
 	public ItemIdentifier getItemIdentifier() {
-		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1)).getItem();
+		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1), Minecraft.getInstance().level.registryAccess()).getItem();
 	}
 
 	@Override

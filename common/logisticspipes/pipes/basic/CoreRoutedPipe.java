@@ -1308,7 +1308,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (this instanceof IRequireReliableFluidTransport) {
 			ItemIdentifierStack stack = information.getItem();
 			if (stack.getItem().isFluidContainer()) {
-				FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack);
+				FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack, getWorld().registryAccess());
 				if (liquid != null) {
 					((IRequireReliableFluidTransport) this).liquidArrived(liquid.getFluid(), liquid.getAmount());
 				}

@@ -94,11 +94,15 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import network.rs485.logisticspipes.connection.AdjacentUtilKt;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
@@ -810,13 +814,24 @@ public class ModuleCrafter extends LogisticsModule
 			if (neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
 					.anyMatch(provider -> provider.canOpenGui(neighbor.getTileEntity()))) {
 				final BlockPos pos = neighbor.getTileEntity().getBlockPos();
-				BlockState blockState = worldProvider.getWorld().getBlockState(pos);
-				return !blockState.isAir() && blockState.getBlock()
-						.use(blockState, worldProvider.getWorld(), pos, player, InteractionHand.MAIN_HAND,
-								new net.minecraft.world.phys.BlockHitResult(
-										net.minecraft.world.phys.Vec3.atCenterOf(pos),
-										Direction.UP, pos, false))
-						!= net.minecraft.world.InteractionResult.PASS;
+				Level level = worldProvider.getWorld();
+				BlockState blockState = level.getBlockState(pos);
+				if (blockState.isAir()) {
+					return false;
+				}
+				BlockHitResult hit = new BlockHitResult(
+						Vec3.atCenterOf(pos),
+						Direction.UP,
+						pos,
+						false
+				);
+				return blockState.useItemOn(
+						player.getMainHandItem(),
+						level,
+						player,
+						InteractionHand.MAIN_HAND,
+						hit
+				).result() != InteractionResult.PASS;
 			} else {
 				return false;
 			}

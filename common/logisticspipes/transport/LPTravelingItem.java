@@ -333,7 +333,7 @@ public abstract class LPTravelingItem {
 					}
 					if (destinationRouter.getPipe() instanceof IRequireReliableFluidTransport) {
 						if (info.getItem().getItem().isFluidContainer()) {
-							FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(info.getItem());
+							FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(info.getItem(), getContainer().getLevel().registryAccess());
 							((IRequireReliableFluidTransport) destinationRouter.getPipe()).liquidLost(liquid.getFluid(), liquid.getAmount());
 						}
 					}

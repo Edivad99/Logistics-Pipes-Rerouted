@@ -9,6 +9,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -51,7 +52,7 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
 			MainProxy.sendPacketToServer(
-					PipePropertiesUpdate.fromPropertyHolder(propertyLayer).setBlockPos(pipePosition));
+					PipePropertiesUpdate.fromPropertyHolder(propertyLayer, this.minecraft.level.registryAccess()).setBlockPos(pipePosition));
 		}
 	}
 

@@ -198,7 +198,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		for (ItemRoutingInformation next : _inTransitToMe) {
 			ItemIdentifierStack item = next.getItem();
 			if (item.getItem().isFluidContainer()) {
-				FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(item);
+				FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(item, getWorld().registryAccess());
 				if (liquid.getFluid().equals(ident)) {
 					amount += liquid.getAmount();
 				}
@@ -223,7 +223,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 				return false;
 			}
 			int filled;
-			FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(arrivingItem.getItemIdentifierStack());
+			FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(arrivingItem.getItemIdentifierStack(), getWorld().registryAccess());
 			if (isConnectableTank(tile, arrivingItem.output, false)) {
 				//Try to put liquid into all adjacent tanks.
 				for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> util : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
@@ -253,7 +253,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 				((IRequireReliableFluidTransport) this).liquidNotInserted(liquid.getFluid(), liquid.getAmount());
 			}
 
-			IRoutedItem routedItem = SimpleServiceLocator.routedItemHelper.createNewTravelItem(SimpleServiceLocator.logisticsFluidManager.getFluidContainer(liquid));
+			IRoutedItem routedItem = SimpleServiceLocator.routedItemHelper.createNewTravelItem(SimpleServiceLocator.logisticsFluidManager.getFluidContainer(liquid, getWorld().registryAccess()));
 			// Carry forward the arriving item's jam list so the rerouted remainder does
 			// not immediately pick the same (now-full) path again, and add this pipe's
 			// router to prevent looping back here on the very next hop.

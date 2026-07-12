@@ -143,8 +143,8 @@ public class LogisticsPipes {
 		instance = this;
 		var modEventBus = modContainer.getEventBus();
 		loadManifestValues(LogisticsPipes.class.getClassLoader());
-		LPRegistries.register(modEventBus);
 		Configs.registerConfig(modContainer);
+		LPRegistries.register(modEventBus);
 
 		modEventBus.addListener(this::preInit);
 		modEventBus.addListener(this::commonSetup);

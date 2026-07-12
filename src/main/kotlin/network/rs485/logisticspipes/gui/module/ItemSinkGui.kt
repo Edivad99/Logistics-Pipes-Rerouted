@@ -52,6 +52,7 @@ import logisticspipes.network.packets.module.ModulePropertiesUpdate
 import logisticspipes.proxy.MainProxy
 import logisticspipes.utils.Color
 import logisticspipes.utils.item.ItemIdentifier
+import net.minecraft.client.Minecraft
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
 import java.awt.Rectangle
@@ -180,7 +181,9 @@ class ItemSinkGui private constructor(
         if (minecraft?.player != null && propertyLayer.properties.isNotEmpty()) {
             // send update to server, when there are changed properties
             MainProxy.sendPacketToServer(
-                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(itemSinkModule),
+                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer,
+                    Minecraft.getInstance().level?.registryAccess()
+                ).setModulePos(itemSinkModule),
             )
         }
     }

@@ -15,11 +15,14 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
@@ -86,10 +89,17 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 
 							// EnderStorage check removed — no 1.20.1 port (former dummy isEnderChestBlock was always false).
 
-							net.minecraft.world.phys.BlockHitResult blockHit = new net.minecraft.world.phys.BlockHitResult(
-									new net.minecraft.world.phys.Vec3(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5),
+							BlockHitResult blockHit = new BlockHitResult(
+									new Vec3(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5),
 									Direction.UP, blockPos, false);
-							if (block.use(blockState, player.level(), blockPos, player, InteractionHand.MAIN_HAND, blockHit) != net.minecraft.world.InteractionResult.PASS) {
+							InteractionResult result = blockState.useItemOn(
+									player.getMainHandItem(),
+									player.level(),
+									player,
+									InteractionHand.MAIN_HAND,
+									blockHit
+							).result();
+							if (result != InteractionResult.PASS) {
 								MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SlotFinderActivatePacket.class)
 										.setTargetPosX(xCoord)
 										.setTargetPosY(yCoord)
@@ -105,7 +115,7 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 		}
 
 		if (!openedGui) {
-			LogisticsPipes.log.warn("Ignored SlotFinderOpenGuiPacket from " + player.toString() + ", because of failing preconditions");
+			LogisticsPipes.log.warn("Ignored SlotFinderOpenGuiPacket from " + player + ", because of failing preconditions");
 		}
 
 		player.getInventory().selected = savedEquipped;

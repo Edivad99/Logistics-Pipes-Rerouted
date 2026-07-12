@@ -82,6 +82,8 @@ neoForge {
     minecraftVersion = project.parchment_minecraft_version
   }
 
+  accessTransformers.from "./resources/META-INF/accesstransformer.cfg"
+
   validateAccessTransformers = true
 
   runs {
@@ -147,12 +149,16 @@ configurations {
 }
 
 dependencies {
+  implementation 'curse.maven:kotlin-for-forge-351264:8335665'
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  libraries "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines"
-  libraries "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization"
 
-  jarJar(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version)
-  jarJar(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines)
+  jarJar(implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"))
+  jarJar(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"))
+  //jarJar(implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"))
+  //jarJar(implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization"))
 
   compileOnly "org.projectlombok:lombok:$lombok_version"
   annotationProcessor "org.projectlombok:lombok:$lombok_version"
@@ -171,12 +177,12 @@ kotlinLombok {
 spotless {
   java {
     target 'src/*/java/**/*.java'
-    importOrder('\\#', 'java|javax|org|com|')
+    /*importOrder('\\#', 'java|javax|org|com|')
 
     endWithNewline()
     trimTrailingWhitespace()
     removeUnusedImports()
-    leadingTabsToSpaces(2)
+    leadingTabsToSpaces(2)*/
   }
 }
 
@@ -213,6 +219,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
           minecraft_version      : minecraft_version,
           minecraft_version_range: minecraft_version_range,
           neo_version            : neo_version,
+          neo_version_range      : neo_version_range,
           loader_version_range   : loader_version_range,
           mod_id                 : mod_id,
           mod_name               : mod_name,

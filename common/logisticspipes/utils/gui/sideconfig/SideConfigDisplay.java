@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -257,14 +260,19 @@ public abstract class SideConfigDisplay {
 
 	private void renderOverlay(int mx, int my) {
 		// Restore modelview stack pushed in applyCamera
-		PoseStack modelViewStack = RenderSystem.getModelViewStack();
-		modelViewStack.popPose();
-		RenderSystem.applyModelViewMatrix();
-		// Restore projection matrix backed up in applyCamera
-		RenderSystem.restoreProjectionMatrix();
+//		PoseStack modelViewStack = RenderSystem.getModelViewStack();
+//		modelViewStack.popPose();
+//		RenderSystem.applyModelViewMatrix();
+//		// Restore projection matrix backed up in applyCamera
+//		RenderSystem.restoreProjectionMatrix();
 		// Restore full-screen viewport
-		com.mojang.blaze3d.platform.Window win = Minecraft.getInstance().getWindow();
+		Window win = Minecraft.getInstance().getWindow();
 		RenderSystem.viewport(0, 0, win.getWidth(), win.getHeight());
+		// restore projection vanilla
+		RenderSystem.setProjectionMatrix(
+				Minecraft.getInstance().gameRenderer.getProjectionMatrix(70.0f),
+				VertexSorting.DISTANCE_TO_ORIGIN
+		);
 	}
 
 	private void renderScene() {
@@ -332,16 +340,21 @@ public abstract class SideConfigDisplay {
 		// Set sub-viewport for the 3D scene rectangle
 		RenderSystem.viewport(vp.x, vp.y, vp.width, vp.height);
 		// Clear the depth buffer so blocks render over the GUI background
-		com.mojang.blaze3d.platform.GlStateManager._clearDepth(1.0);
-		com.mojang.blaze3d.platform.GlStateManager._clear(0x00000100 /* GL_DEPTH_BUFFER_BIT */, Minecraft.ON_OSX);
+		GlStateManager._clearDepth(1.0);
+		GlStateManager._clear(0x00000100 /* GL_DEPTH_BUFFER_BIT */, Minecraft.ON_OSX);
 		// Swap in custom perspective projection matrix
-		RenderSystem.backupProjectionMatrix();
-		RenderSystem.setProjectionMatrix(toJoml(camera.getProjectionMatrix()), VertexSorting.DISTANCE_TO_ORIGIN);
-		// Load view matrix into the modelview stack
-		PoseStack modelViewStack = RenderSystem.getModelViewStack();
-		modelViewStack.pushPose();
-		modelViewStack.last().pose().set(toJoml(camera.getViewMatrix()));
-		RenderSystem.applyModelViewMatrix();
+//		RenderSystem.backupProjectionMatrix();
+//		RenderSystem.setProjectionMatrix(toJoml(camera.getProjectionMatrix()), VertexSorting.DISTANCE_TO_ORIGIN);
+//		// Load view matrix into the modelview stack
+//		PoseStack modelViewStack = RenderSystem.getModelViewStack();
+//		modelViewStack.pushPose();
+//		modelViewStack.last().pose().set(toJoml(camera.getViewMatrix()));
+//		RenderSystem.applyModelViewMatrix();
+
+		RenderSystem.setProjectionMatrix(
+				toJoml(camera.getProjectionMatrix()),
+				VertexSorting.DISTANCE_TO_ORIGIN
+		);
 	}
 
 	/** Convert our row-major Matrix4d to a JOML column-major Matrix4f for RenderSystem. */

@@ -55,7 +55,7 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
 
 	@Override
 	public void onUpdateScreen() {
-		tick(); // was: updateCursorCounter() in 1.12.2
+		//tick(); // was: updateCursorCounter() in 1.12.2
 	}
 
 	@Override

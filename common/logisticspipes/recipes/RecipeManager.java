@@ -146,8 +146,8 @@ public class RecipeManager {
 				} else if (index.getValue() instanceof Block) {
 					key.addProperty("item", BuiltInRegistries.ITEM.getKey(Item.BY_BLOCK.get((Block) index.getValue())).toString());
 				} else if (index.getValue() instanceof NBTIngredient) {
-					NBTIngredient nbtIng = (NBTIngredient) index.getValue();
-					key = nbtIng.toJson().getAsJsonObject();
+//					NBTIngredient nbtIng = (NBTIngredient) index.getValue();
+//					key = nbtIng.toJson().getAsJsonObject();
 				} else {
 					// Unhandled type — skip this recipe
 					return null;

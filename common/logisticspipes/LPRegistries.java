@@ -38,6 +38,8 @@ import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.module.AsyncExtractorModule;
 import network.rs485.logisticspipes.module.AsyncQuicksortModule;
 
+import java.util.function.Supplier;
+
 public final class LPRegistries {
 
     private LPRegistries() {
@@ -219,7 +221,7 @@ public final class LPRegistries {
     public static final DeferredItem<ItemUpgrade> UPGRADE_ITEM_EXTRACTION = registerUpgrade(ItemExtractionUpgrade.getName(), ItemExtractionUpgrade::new);
     public static final DeferredItem<ItemUpgrade> UPGRADE_ITEM_STACK_EXTRACTION = registerUpgrade(ItemStackExtractionUpgrade.getName(), ItemStackExtractionUpgrade::new);
 
-    private static DeferredItem<ItemUpgrade> registerUpgrade(String name, java.util.function.Supplier<? extends logisticspipes.pipes.upgrades.IPipeUpgrade> ctor) {
+    private static DeferredItem<ItemUpgrade> registerUpgrade(String name, Supplier<? extends IPipeUpgrade> ctor) {
         String regName = "upgrade_" + name;
         LPItems.upgrades.put(name, ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, regName));
         return ITEMS.register(regName, () -> ItemUpgrade.of(ctor));

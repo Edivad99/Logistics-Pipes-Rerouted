@@ -69,7 +69,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 					drained = handler.drainFrom(pair.getValue1().getTileEntity(), order.getFluid(), amountToSend.get(), true);
 					int amount = drained.getAmount();
 					amountToSend.addAndGet(-amount);
-					ItemIdentifierStack stack = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(FluidIdentifierStack.getFromStack(drained));
+					ItemIdentifierStack stack = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(FluidIdentifierStack.getFromStack(drained), getWorld().registryAccess());
 					IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
 					item.setDestination(order.getRouter().getSimpleID());
 					item.setTransportMode(TransportMode.Active);
@@ -103,7 +103,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 									}
 									amount = drained.getAmount();
 									amountToSend.addAndGet(-amount);
-									ItemIdentifierStack stack = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(drained);
+									ItemIdentifierStack stack = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(drained, getWorld().registryAccess());
 									IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
 									item.setDestination(order.getRouter().getSimpleID());
 									item.setTransportMode(TransportMode.Active);

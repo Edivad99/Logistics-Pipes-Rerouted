@@ -10,15 +10,16 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.core.HolderLookup;
 
 public interface ILogisticsFluidManager {
 
 	@Nullable
 	Pair<Integer, FluidSinkReply> getBestReply(FluidIdentifierStack stack, IRouter sourceRouter, List<Integer> jamList);
 
-	ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack);
+	ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack, HolderLookup.Provider provider);
 
-	FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack);
+	FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack, HolderLookup.Provider provider);
 
 	TreeSet<FluidIdentifierStack> getAvailableFluid(List<ExitRoute> list);
 }

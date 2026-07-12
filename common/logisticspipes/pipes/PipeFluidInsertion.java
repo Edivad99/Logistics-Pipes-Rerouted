@@ -80,7 +80,7 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 			}
 
 			FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.getValue2().getSinkAmountInt(), IFluidHandler.FluidAction.EXECUTE);
-			ItemIdentifierStack liquidContainer = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(FluidIdentifierStack.getFromStack(toSend));
+			ItemIdentifierStack liquidContainer = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(FluidIdentifierStack.getFromStack(toSend), getWorld().registryAccess());
 			IRoutedItem routed = SimpleServiceLocator.routedItemHelper.createNewTravelItem(liquidContainer);
 			routed.setDestination(result.getValue1());
 			routed.setTransportMode(TransportMode.Passive);

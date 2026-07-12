@@ -22,6 +22,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -94,7 +95,7 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
 			MainProxy.sendPacketToServer(
-					ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(supplierModule));
+					ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, Minecraft.getInstance().level.registryAccess()).setModulePos(supplierModule));
 		}
 	}
 

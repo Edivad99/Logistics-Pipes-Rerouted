@@ -3,6 +3,7 @@ package logisticspipes.recipes;
 import logisticspipes.LPItems;
 import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +25,7 @@ public class CraftingRecipes implements IRecipeProvider {
 				if (module == null) continue;
 				CompoundTag tag = new CompoundTag();
 				//TODO: FIX
-				module.writeToNBT(tag, null);
+				//module.writeToNBT(tag, Minecraft.getInstance().level.registryAccess());
 				if (!tag.isEmpty()) {
 					RecipeManager.craftingManager.addShapelessResetRecipe(item, 0);
 				}

@@ -339,7 +339,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		propertyLayer.unregister();
 		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
-			MainProxy.sendPacketToServer(ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(module));
+			MainProxy.sendPacketToServer(ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, this.minecraft.level.registryAccess()).setModulePos(module));
 		}
 	}
 

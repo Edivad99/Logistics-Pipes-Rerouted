@@ -24,8 +24,11 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class LogisticsFluidManager implements ILogisticsFluidManager {
@@ -55,19 +58,29 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 	}
 
 	@Override
-	public ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack) {
+	public ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack, HolderLookup.Provider provider) {
 		ItemStack item = new ItemStack(LPItems.fluidContainer.get(), 1);
 		CompoundTag nbt = new CompoundTag();
-		stack.makeFluidStack().writeToNBT(nbt);
-		item.setTag(nbt);
+		stack.makeFluidStack().save(provider, nbt);
+		item.set(
+				DataComponents.CUSTOM_DATA,
+				CustomData.of(nbt)
+		);
 		return ItemIdentifierStack.getFromStack(item);
 	}
 
 	@Override
-	public FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack) {
+	public FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack, HolderLookup.Provider provider) {
 		ItemStack itemStack = stack.makeNormalStack();
-		if (itemStack.getItem() instanceof LogisticsFluidContainer && stack.getItem().tag != null) {
-			return FluidIdentifierStack.getFromStack(FluidStack.loadFluidStackFromNBT(stack.getItem().tag));
+		if (itemStack.getItem() instanceof LogisticsFluidContainer) {
+			CompoundTag tag = itemStack
+					.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+					.copyTag();
+			if (!tag.isEmpty()) {
+				return FluidIdentifierStack.getFromStack(
+						FluidStack.parse(provider, tag).orElse(FluidStack.EMPTY)
+				);
+			}
 		}
 		return null;
 	}

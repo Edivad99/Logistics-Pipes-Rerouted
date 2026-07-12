@@ -11,13 +11,18 @@ package logisticspipes.utils.gui;
 import java.util.List;
 import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Divisor;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import logisticspipes.gui.GuiFirewall;
 import logisticspipes.utils.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -295,17 +300,39 @@ public final class LPGuiGraphics {
 
 		// Edges (tiled)
 		if (innerW > 0) {
-			if (displayTop)    gg.blitRepeating(BACKGROUND_TEXTURE, innerX, guiTop,        innerW, BORDER, BORDER, 0,      BORDER, BORDER, TEX, TEX);
-			if (displayBottom) gg.blitRepeating(BACKGROUND_TEXTURE, innerX, bottom-BORDER, innerW, BORDER, BORDER, 30,     BORDER, BORDER, TEX, TEX);
+			if (displayTop)    blitRepeating(gg, BACKGROUND_TEXTURE, innerX, guiTop,        innerW, BORDER, BORDER, 0,      BORDER, BORDER, TEX, TEX);
+			if (displayBottom) blitRepeating(gg, BACKGROUND_TEXTURE, innerX, bottom-BORDER, innerW, BORDER, BORDER, 30,     BORDER, BORDER, TEX, TEX);
 		}
 		if (innerH > 0) {
-			if (displayLeft)   gg.blitRepeating(BACKGROUND_TEXTURE, guiLeft,        innerY, BORDER, innerH, 0,  BORDER, BORDER, BORDER, TEX, TEX);
-			if (displayRight)  gg.blitRepeating(BACKGROUND_TEXTURE, right - BORDER, innerY, BORDER, innerH, 30, BORDER, BORDER, BORDER, TEX, TEX);
+			if (displayLeft)   blitRepeating(gg, BACKGROUND_TEXTURE, guiLeft,        innerY, BORDER, innerH, 0,  BORDER, BORDER, BORDER, TEX, TEX);
+			if (displayRight)  blitRepeating(gg, BACKGROUND_TEXTURE, right - BORDER, innerY, BORDER, innerH, 30, BORDER, BORDER, BORDER, TEX, TEX);
 		}
 
 		// Center (always drawn)
 		if (innerW > 0 && innerH > 0) {
-			gg.blitRepeating(BACKGROUND_TEXTURE, innerX, innerY, innerW, innerH, BORDER, BORDER, BORDER, BORDER, TEX, TEX);
+			blitRepeating(gg, BACKGROUND_TEXTURE, innerX, innerY, innerW, innerH, BORDER, BORDER, BORDER, BORDER, TEX, TEX);
 		}
+	}
+
+	private static void blitRepeating(GuiGraphics guiGraphics, ResourceLocation p_283059_, int p_283575_, int p_283192_, int p_281790_, int p_283642_, int p_282691_, int p_281912_, int p_281728_, int p_282324_, int textureWidth, int textureHeight) {
+		int i = p_283575_;
+
+		int j;
+		for(IntIterator intiterator = slices(p_281790_, p_281728_); intiterator.hasNext(); i += j) {
+			j = intiterator.nextInt();
+			int k = (p_281728_ - j) / 2;
+			int l = p_283192_;
+
+			int i1;
+			for(IntIterator intiterator1 = slices(p_283642_, p_282324_); intiterator1.hasNext(); l += i1) {
+				i1 = intiterator1.nextInt();
+				int j1 = (p_282324_ - i1) / 2;
+				guiGraphics.blit(p_283059_, i, l, p_282691_ + k, p_281912_ + j1, j, i1, textureWidth, textureHeight);
+			}
+		}
+	}
+	private static IntIterator slices(int p_282197_, int p_282161_) {
+		int i = Mth.positiveCeilDiv(p_282197_, p_282161_);
+		return new Divisor(p_282197_, i);
 	}
 }

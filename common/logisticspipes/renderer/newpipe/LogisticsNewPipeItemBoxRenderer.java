@@ -10,6 +10,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -58,7 +59,7 @@ public class LogisticsNewPipeItemBoxRenderer {
 		SimpleServiceLocator.cclProxy.getRenderState().draw();
 
 		if (!itemstack.isEmpty() && itemstack.getItem() instanceof LogisticsFluidContainer) {
-			FluidIdentifierStack f = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(itemstack));
+			FluidIdentifierStack f = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(itemstack), Minecraft.getInstance().level.registryAccess());
 			if (f != null) {
 				/*
 				FluidContainerRenderer.skipNext = true;

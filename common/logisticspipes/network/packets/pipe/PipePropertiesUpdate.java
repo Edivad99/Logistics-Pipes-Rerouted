@@ -8,6 +8,7 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.property.PropertyHolder;
@@ -44,23 +45,23 @@ public class PipePropertiesUpdate extends CoordinatesPacket {
 	@Override
 	public void processPacket(Player player) {
 		LogisticsTileGenericPipe tile = this.getPipe(player.level(), LTGPCompletionCheck.PIPE);
-		if (!(tile.pipe instanceof PropertyHolder)) {
+		if (!(tile.pipe instanceof PropertyHolder pipePropertyHolder)) {
 			return;
 		}
 
 		// sync updated properties
-		tile.pipe.readFromNBT(tag, player.level().registryAccess());
+		tile.pipe.readFromNBT(tag, player.registryAccess());
 
 		MainProxy.runOnServer(player.level(), () -> () -> {
 			// resync client; always
-			MainProxy.sendPacketToPlayer(fromPropertyHolder((PropertyHolder) tile.pipe).setPacketPos(this), player);
+			MainProxy.sendPacketToPlayer(fromPropertyHolder(pipePropertyHolder, player.registryAccess()).setPacketPos(this), player);
 		});
 	}
 
 	@Nonnull
-	public static PipePropertiesUpdate fromPropertyHolder(PropertyHolder holder) {
+	public static PipePropertiesUpdate fromPropertyHolder(PropertyHolder holder, HolderLookup.Provider provider) {
 		final PipePropertiesUpdate packet = PacketHandler.getPacket(PipePropertiesUpdate.class);
-		PropertyHolder.writeToNBT(packet.tag, holder);
+		PropertyHolder.writeToNBT(packet.tag, provider, holder);
 		return packet;
 	}
 
