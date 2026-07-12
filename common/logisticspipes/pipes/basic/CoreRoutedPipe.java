@@ -171,7 +171,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	private final PowerSupplierHandler powerHandler = new PowerSupplierHandler(this);
 	@Getter
 	private final List<IOrderInfoProvider> clientSideOrderManager = new ArrayList<>();
-	private int throttleTimeLeft = 20 + new Random().nextInt(Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
+	private int throttleTimeLeft;
 	private final int[] queuedParticles = new int[Particles.values().length];
 	private boolean hasQueuedParticles = false;
 	private boolean isOpaqueClientSide = false;
@@ -222,6 +222,12 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 		CoreRoutedPipe.pipecount++;
 
+	}
+
+	@Override
+	public void initialize() {
+		super.initialize();
+		throttleTimeLeft = 20 + new Random().nextInt(Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
 		//Roughly spread pipe updates throughout the frequency, no need to maintain balance
 		_delayOffset = CoreRoutedPipe.pipecount % Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
 	}

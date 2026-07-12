@@ -311,7 +311,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 	public static void loadModels() {
 		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
 		try {
-			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/logisticspipes/models/PipeModel_moved.obj"), 7, new LPScale(1 / 100f));
+			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/PipeModel_moved.obj"), 7, new LPScale(1 / 100f));
 			List<IModel3D> highlightList = new ArrayList<>();
 
 			for (Direction dir : Direction.values()) {
@@ -525,7 +525,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 
 			highlight = SimpleServiceLocator.cclProxy.combine(highlightList);
 
-			pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/logisticspipes/models/PipeModel_Transport_Box.obj"), 7, new LPScale(1 / 100f));
+			pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/PipeModel_Transport_Box.obj"), 7, new LPScale(1 / 100f));
 
 			LogisticsNewRenderPipe.innerTransportBox = LogisticsNewRenderPipe.compute(pipePartModels.get("InnerTransportBox").backfacedCopy().apply(new LPTranslation(0.0, 0.0, 1.0)).apply(new LPTranslation(-0.5, -0.5, -0.5)).apply(new LPScale(0.99D)).apply(new LPTranslation(0.5, 0.5, 0.5)));
 

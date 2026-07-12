@@ -78,7 +78,7 @@ public class LogisticsNewSolidBlockWorldRenderer {
 	public static void loadModels() {
 		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
 		try {
-			Map<String, IModel3D> blockPartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/logisticspipes/models/BlockModel_result.obj"), 7, new LPScale(1 / 100f));
+			Map<String, IModel3D> blockPartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/BlockModel_result.obj"), 7, new LPScale(1 / 100f));
 
 			LogisticsNewSolidBlockWorldRenderer.block = null;
 			for (Entry<String, IModel3D> entry : blockPartModels.entrySet()) {

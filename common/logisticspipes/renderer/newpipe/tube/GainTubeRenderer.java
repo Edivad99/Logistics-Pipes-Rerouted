@@ -50,7 +50,7 @@ public class GainTubeRenderer implements ISpecialPipeRenderer, IHighlightPlaceme
 
 	public static void loadModels() {
 		try {
-			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/logisticspipes/models/HSTube-Gain_result.obj"), 7, new LPScale(1 / 100f));
+			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/HSTube-Gain_result.obj"), 7, new LPScale(1 / 100f));
 
 			//tubeTurnMounts
 			for (TubeGainRenderOrientation turn : TubeGainRenderOrientation.values()) {

@@ -39,7 +39,7 @@ public final class SpeedupTubeRenderer implements ISpecialPipeRenderer, IHighlig
 
 	public static void loadModels() {
 		try {
-			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/logisticspipes/models/HSTube-Speedup_result.obj"), 7, new LPScale(1 / 100f));
+			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/HSTube-Speedup_result.obj"), 7, new LPScale(1 / 100f));
 
 			//tubeTurnMounts
 			for (SpeedupDirection turn : SpeedupDirection.values()) {
