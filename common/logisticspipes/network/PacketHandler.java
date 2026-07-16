@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
@@ -42,7 +43,7 @@ public class PacketHandler {
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, event -> {
-            var registrar = event.registrar("logisticspipes").versioned("1");
+            var registrar = event.registrar(LPConstants.ID).versioned("1");
             registrar.playBidirectional(
                     LPPacketPayload.TYPE,
                     LPPacketPayload.STREAM_CODEC,
@@ -120,7 +121,7 @@ public class PacketHandler {
                 PacketHandler.packetlist.set(id, instance);
                 PacketHandler.packetmap.put(cls, instance);
             } catch (Throwable t) {
-                LogisticsPipes.log.error("Failed to load packet (id " + id + ") " + cls.getName(), t);
+                LogisticsPipes.LOG.error("Failed to load packet (id " + id + ") " + cls.getName(), t);
             }
         }
     }
@@ -184,7 +185,7 @@ public class PacketHandler {
     /** Sends a packet from the server to a specific player. Must only be called server-side. */
     public static void sendToPlayer(@Nonnull ModernPacket msg, @Nonnull Player player) {
         if (!(player instanceof ServerPlayer sp)) {
-            LogisticsPipes.log.warn("sendToPlayer: player is not a ServerPlayer, skipping");
+            LogisticsPipes.LOG.warn("sendToPlayer: player is not a ServerPlayer, skipping");
             return;
         }
 
@@ -247,9 +248,9 @@ public class PacketHandler {
             if (packet.retry() && MainProxy.isClient(player.level())) {
                 SimpleServiceLocator.clientBufferHandler.queuePacket(packet, player);
             } else if (LogisticsPipes.isDEBUG()) {
-                LogisticsPipes.log.error(packet.getClass().getName());
-                LogisticsPipes.log.error(packet.toString());
-                LogisticsPipes.log.error("Packet handling error", e);
+                LogisticsPipes.LOG.error(packet.getClass().getName());
+                LogisticsPipes.LOG.error(packet.toString());
+                LogisticsPipes.LOG.error("Packet handling error", e);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

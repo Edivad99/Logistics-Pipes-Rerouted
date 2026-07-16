@@ -115,7 +115,7 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
                 }
             }
         } catch (e: IOException) {
-            LogisticsPipes.log.error("File not found: ${imageResource.path}")
+            LogisticsPipes.LOG.error("File not found: ${imageResource.path}")
         }
         broken = !success
     }

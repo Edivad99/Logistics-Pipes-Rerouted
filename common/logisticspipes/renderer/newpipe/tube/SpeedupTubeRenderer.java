@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
@@ -35,11 +36,12 @@ public final class SpeedupTubeRenderer implements ISpecialPipeRenderer, IHighlig
 	//Global Access
 	public static Map<SpeedupDirection, IModel3D> tubeSpeedup = new HashMap<>();
 
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/blocks/pipes/hs-speedup.png");
+	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/blocks/pipes/hs-speedup.png");
 
 	public static void loadModels() {
 		try {
-			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/HSTube-Speedup_result.obj"), 7, new LPScale(1 / 100f));
+			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(
+          LogisticsPipes.class.getResourceAsStream("/models/HSTube-Speedup_result.obj"), 7, new LPScale(1 / 100f));
 
 			//tubeTurnMounts
 			for (SpeedupDirection turn : SpeedupDirection.values()) {

@@ -31,7 +31,6 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.FinalCompoundTag;
 import lombok.AllArgsConstructor;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ByteArrayTag;
@@ -514,7 +513,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 						}
 					}
 				} catch (Exception e) {
-					LogisticsPipes.log.warn("Failed to read creative tab contents for {}", tabName, e);
+					LogisticsPipes.LOG.warn("Failed to read creative tab contents for {}", tabName, e);
 				}
 			}
 			ItemIdentifier.creativeTabNameByItem = map;
@@ -782,7 +781,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		}
 		sb.append("Mod: ").append(getModName()).append('\n');
 		sb.append("CreativeTab: ").append(getCreativeTabName());
-		LogisticsPipes.log.info("{}", sb);
+		LogisticsPipes.LOG.info("{}", sb);
 		if (getDictIdentifiers() != null) {
 			getDictIdentifiers().debugDumpData(isClient);
 		}

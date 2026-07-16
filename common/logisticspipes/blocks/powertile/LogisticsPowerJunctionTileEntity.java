@@ -2,12 +2,11 @@ package logisticspipes.blocks.powertile;
 
 import java.util.List;
 import logisticspipes.LPConstants;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.blocks.LogisticsSolidTileEntity;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockWatchingHandler;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -27,7 +26,7 @@ import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.utils.PlayerCollectionList;
-import net.minecraft.CrashReportCategory;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -119,7 +118,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	};
 
 	public LogisticsPowerJunctionTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(logisticspipes.LPRegistries.BE_POWER_JUNCTION.get(), pos, state);
+		super(LPBlockEntityTypes.BE_POWER_JUNCTION.get(), pos, state);
 		HUD = new HUDPowerLevel(this);
 	}
 
@@ -130,7 +129,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		}
 		if (canUseEnergy(amount, null)) {
 			this.setChanged();
-			internalStorage -= (int) ((amount * Configs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
+			internalStorage -= (int) ((amount * LPConfigs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
 			if (internalStorage < LogisticsPowerJunctionTileEntity.MAX_STORAGE / 2) {
 				needMorePowerTriggerCheck = true;
 			}
@@ -144,7 +143,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 		if (providersToIgnore != null && providersToIgnore.contains(this)) {
 			return false;
 		}
-		return internalStorage >= (int) ((amount * Configs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
+		return internalStorage >= (int) ((amount * LPConfigs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
 	}
 
 	@Override
@@ -334,12 +333,6 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	@Override
 	public boolean isHUDExistent() {
 		return getWorld().getBlockEntity(getBlockPos()) == this;
-	}
-
-	@Override
-	public void fillCrashReportCategory(CrashReportCategory par1CrashReportCategory) {
-		super.fillCrashReportCategory(par1CrashReportCategory);
-		par1CrashReportCategory.setDetail("LP-Version", LogisticsPipes.getVersionString());
 	}
 
 	// @Override removed — IEnergySink not in implements

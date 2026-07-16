@@ -33,12 +33,12 @@ public class RoutingUpdateDebugCanidateList extends ModernPacket {
 			try {
 				return new ExitRoute(objInput);
 			} catch (RuntimeException e) {
-				LogisticsPipes.log.error("Could not read ExitRoute in RoutingUpdateDebugCanidateList", e);
+				LogisticsPipes.LOG.error("Could not read ExitRoute in RoutingUpdateDebugCanidateList", e);
 			}
 			return null;
 		});
 		if (readExitRoutes == null) {
-			LogisticsPipes.log.error("Read a non-existent ExitRoute collection in RoutingUpdateDebugCanidateList");
+			LogisticsPipes.LOG.error("Read a non-existent ExitRoute collection in RoutingUpdateDebugCanidateList");
 			exitRoutes = Collections.emptyList();
 			return;
 		}

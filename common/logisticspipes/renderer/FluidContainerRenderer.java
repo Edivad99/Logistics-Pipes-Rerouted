@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import com.mojang.blaze3d.platform.NativeImage;
 import logisticspipes.LPConstants;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.utils.FluidIdentifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -39,15 +39,15 @@ public class FluidContainerRenderer {
 	/** Model predicate: 1 when the container holds a fluid — selects fluid_container_filled. */
 	public static void registerItemProperties() {
 		net.minecraft.client.renderer.item.ItemProperties.register(
-				LPItems.fluidContainer.get(),
-				ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "fluid"),
+				LPItems.FLUID_CONTAINER.get(),
+				LPConstants.rl("fluid"),
 				(stack, level, entity, seed) -> FluidIdentifier.get(stack) != null ? 1.0F : 0.0F);
 	}
 
 	@SubscribeEvent
 	public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
 		event.register((stack, tintIndex) -> tintIndex == 1 ? getFluidColor(stack) : 0xFFFFFFFF,
-				LPItems.fluidContainer.get());
+				LPItems.FLUID_CONTAINER.get());
 	}
 
 	private static int getFluidColor(@Nonnull ItemStack stack) {

@@ -2,8 +2,8 @@ package logisticspipes.network.guis.pipe;
 
 import java.util.Objects;
 import java.util.UUID;
-import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipesDataComponents;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.gui.GuiPipeController;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.items.ItemUpgrade;
@@ -17,7 +17,6 @@ import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
@@ -80,16 +79,16 @@ public class PipeController extends CoordinatesGuiProvider {
 			if (itemStack.isEmpty()) {
 				return false;
 			}
-			if (itemStack.getItem() != LPItems.itemCard.get()) {
+			if (itemStack.getItem() != LPItems.ITEM_CARD.get()) {
 				return false;
 			}
 			if (itemStack.getDamageValue() != LogisticsItemCard.SEC_CARD) {
 				return false;
 			}
-			final UUID uuid = Objects.requireNonNull(itemStack.get(LogisticsPipesDataComponents.UUID));
+			final UUID uuid = Objects.requireNonNull(itemStack.get(LPDataComponents.UUID));
 			return SimpleServiceLocator.securityStationManager.isAuthorized(uuid);
 		}, 1);
-		dummy.addRestrictedSlot(0, tile.logicController.diskInv, 14, 36, LPItems.disk.get());
+		dummy.addRestrictedSlot(0, tile.logicController.diskInv, 14, 36, LPItems.DISK.get());
 		return dummy;
 	}
 

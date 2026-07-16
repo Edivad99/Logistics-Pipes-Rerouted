@@ -1,6 +1,6 @@
 package logisticspipes.blocks;
 
-import logisticspipes.LPRegistries;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -12,6 +12,6 @@ import net.minecraft.world.level.block.state.BlockState;
 public class LogisticsFrameTileEntity extends LogisticsSolidTileEntity {
 
 	public LogisticsFrameTileEntity(BlockPos pos, BlockState state) {
-		super(LPRegistries.BE_FRAME.get(), pos, state);
+		super(LPBlockEntityTypes.BE_FRAME.get(), pos, state);
 	}
 }

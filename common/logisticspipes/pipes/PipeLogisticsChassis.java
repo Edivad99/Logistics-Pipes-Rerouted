@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IBufferItems;
@@ -345,7 +345,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				}
 			} else {
 				if (LogisticsPipes.isDEBUG() && info != null) {
-					LogisticsPipes.log.warn("[ItemArrived] info not for chassis pipe: {}", item, new RuntimeException("stack trace"));
+					LogisticsPipes.LOG.warn("[ItemArrived] info not for chassis pipe: {}", item, new RuntimeException("stack trace"));
 				}
 			}
 		}
@@ -362,7 +362,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				}
 			} else {
 				if (LogisticsPipes.isDEBUG()) {
-					LogisticsPipes.log.warn("[ItemLost] info not for chassis pipe: {}", item, new RuntimeException("stack trace"));
+					LogisticsPipes.LOG.warn("[ItemLost] info not for chassis pipe: {}", item, new RuntimeException("stack trace"));
 				}
 			}
 		}
@@ -379,7 +379,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				}
 			} else {
 				if (LogisticsPipes.isDEBUG()) {
-					LogisticsPipes.log.warn("[AddToBuffer] info not for chassis pipe: {}", item, new RuntimeException("stack trace"));
+					LogisticsPipes.LOG.warn("[AddToBuffer] info not for chassis pipe: {}", item, new RuntimeException("stack trace"));
 				}
 			}
 		}
@@ -605,7 +605,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	@Override
 	public int sendQueueChanged(boolean force) {
 		if (MainProxy.isServer(getWorld())) {
-			if (Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0 && !force) {
+			if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0 && !force) {
 				HudUpdateTick.add(getRouter());
 			} else {
 				if (localModeWatchers.size() > 0) {

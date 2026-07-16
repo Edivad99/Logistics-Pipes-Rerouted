@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import logisticspipes.LPBlocks;
 import logisticspipes.api.IRoutedPowerProvider;
 import logisticspipes.blocks.LogisticsSolidTileEntity;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.network.NewGuiHandler;
@@ -26,6 +25,8 @@ import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.level.block.LPBlocks;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -38,7 +39,6 @@ import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -68,7 +68,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 	private PlayerCollectionList guiWatcher = new PlayerCollectionList();
 
 	public LogisticsCraftingTableTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(logisticspipes.LPRegistries.BE_CRAFTING_TABLE.get(), pos, state);
+		super(LPBlockEntityTypes.BE_CRAFTING_TABLE.get(), pos, state);
 		matrix.addListener(this);
 	}
 
@@ -299,7 +299,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 				return ItemStack.EMPTY;
 			}
 		}
-		if (!power.useEnergy(Configs.COMMON.LOGISTICS_CRAFTING_TABLE_POWER_USAGE.getAsInt())) {
+		if (!power.useEnergy(LPConfigs.COMMON.LOGISTICS_CRAFTING_TABLE_POWER_USAGE.getAsInt())) {
 			return ItemStack.EMPTY;
 		}
 		crafter = new AutoCraftingInventory(placedBy);
@@ -493,7 +493,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 	}
 
 	public boolean isFuzzy() {
-		return level.getBlockState(worldPosition).getBlock() == LPBlocks.crafterFuzzy.get();
+		return level.getBlockState(worldPosition).is(LPBlocks.CRAFTER_FUZZY);
 	}
 
 	@Override

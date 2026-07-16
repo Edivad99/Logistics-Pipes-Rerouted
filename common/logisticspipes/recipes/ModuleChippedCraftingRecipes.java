@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleCrafter;
@@ -22,6 +22,7 @@ import logisticspipes.modules.ModulePassiveSupplier;
 import logisticspipes.modules.ModulePolymorphicItemSink;
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.modules.ModuleTerminus;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -52,13 +53,13 @@ public class ModuleChippedCraftingRecipes extends CraftingPartRecipes {
 
 	private void registerModuleRecipe(CraftingParts parts, RecipeType type, ResourceLocation recipeCategory, @Nonnull String moduleName, @Nullable String baseModuleName) {
 		final ResourceLocation moduleResource = LPItems.modules.get(moduleName);
-		Item module = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(moduleResource);
+		Item module = BuiltInRegistries.ITEM.get(moduleResource);
 		if (module == null) return;
 		Item baseModule;
 		if (baseModuleName == null) {
-			baseModule = LPItems.blankModule.get();
+			baseModule = LPItems.MODULE_BLANK.get();
 		} else {
-			baseModule = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(LPItems.modules.get(baseModuleName));
+			baseModule = BuiltInRegistries.ITEM.get(LPItems.modules.get(baseModuleName));
 		}
 		if (baseModule == null) return;
 

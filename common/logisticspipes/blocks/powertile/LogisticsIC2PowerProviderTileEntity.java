@@ -6,6 +6,7 @@ import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.renderer.LogisticsHUDRenderer;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -25,7 +26,7 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 	private boolean init = false;
 
 	public LogisticsIC2PowerProviderTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(logisticspipes.LPRegistries.BE_POWER_PROVIDER_EU.get(), pos, state);
+		super(LPBlockEntityTypes.BE_POWER_PROVIDER_EU.get(), pos, state);
 	}
 
 	@Override

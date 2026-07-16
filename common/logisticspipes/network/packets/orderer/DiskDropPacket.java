@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.orderer;
 
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -9,7 +9,6 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.CustomData;
 
@@ -33,7 +32,7 @@ public class DiskDropPacket extends CoordinatesPacket {
 		}
 		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2 pipeItemsRequestLogisticsMk2) {
 			if (pipeItemsRequestLogisticsMk2.getDisk() != null) {
-				if (pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.disk.get())) {
+				if (pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.DISK.get())) {
 					if (!pipeItemsRequestLogisticsMk2.getDisk().has(DataComponents.CUSTOM_DATA)) {
 						pipeItemsRequestLogisticsMk2.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
 					}

@@ -245,7 +245,7 @@ public class Textures {
 		// sprite registration must use TextureStitchEvent.Pre or RegisterSpriteSheetIconEvent
 
 		if (LogisticsPipes.isDEBUG()) {
-			LogisticsPipes.log.debug("LP: pipetextures {}", index);
+			LogisticsPipes.LOG.debug("LP: pipetextures {}", index);
 		}
 	}
 

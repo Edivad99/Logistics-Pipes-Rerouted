@@ -1,6 +1,7 @@
 package logisticspipes.network;
 
 import io.netty.buffer.Unpooled;
+import logisticspipes.LPConstants;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,8 +20,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public final class LPPacketPayload implements CustomPacketPayload {
 
-    public static final Type<LPPacketPayload> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath("logisticspipes", "packet"));
+    public static final Type<LPPacketPayload> TYPE = new Type<>(LPConstants.rl("packet"));
 
     private final FriendlyByteBuf data;
 

@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.LogisticsPipesDataComponents;
+import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.network.PacketHandler;
@@ -52,7 +52,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		Security security = new Security(dummy);
 		Statistics statistics = new Statistics();
 		//Logic logic = new Logic();
-		addHiddenSlot(dummy.addRestrictedSlot(0, pipe.container.logicController.diskInv, 14, 36, LPItems.disk.get())); //Keep it for now, but hidden. Maybe it will be used again later
+		addHiddenSlot(dummy.addRestrictedSlot(0, pipe.container.logicController.diskInv, 14, 36, LPItems.DISK.get())); //Keep it for now, but hidden. Maybe it will be used again later
 		Tasks tasks = new Tasks();
 
 		//Here order doesn't matter/can be changed to reorganise tabs
@@ -72,7 +72,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 	}
 	private static DummyContainer buildDummy(final Player player, final CoreRoutedPipe pipe) {
 		DummyContainer dummy = new DummyContainer(player, null, pipe.getOriginalUpgradeManager().getGuiController());
-		dummy.addNormalSlotsForPlayerInventory(10, 135);
+		dummy.addNormalSlotsForPlayerInventory(11, 136);
 		return dummy;
 	}
 
@@ -175,14 +175,14 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 						if (itemStack.isEmpty()) {
 							return false;
 						}
-						if (itemStack.getItem() != LPItems.itemCard.get()) {
+						if (itemStack.getItem() != LPItems.ITEM_CARD.get()) {
 							return false;
 						}
 						if (itemStack.getDamageValue() != LogisticsItemCard.SEC_CARD) {
 							return false;
 						}
 						return SimpleServiceLocator.securityStationManager
-								.isAuthorized(itemStack.get(LogisticsPipesDataComponents.UUID));
+								.isAuthorized(itemStack.get(LPDataComponents.UUID));
 					}, 1));
 		}
 
@@ -201,7 +201,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "security"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 			ItemStack itemStack = pipe.getOriginalUpgradeManager().secInv.getItem(0);
 			if (!itemStack.isEmpty()) {
-				UUID id = itemStack.get(LogisticsPipesDataComponents.UUID);
+				UUID id = itemStack.get(LPDataComponents.UUID);
 				guiGraphics.drawString(font, "Id: ", 10, 68, Color.getValue(Color.DARKER_GREY), false);
 				guiGraphics.drawString(font, ChatColor.BLUE.toString() + id.toString(), 10, 80, Color.getValue(Color.DARKER_GREY), false);
 				guiGraphics.drawString(font, "Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? ChatColor.GREEN + "Authorized" : ChatColor.RED + "Unauthorized"), 10, 94, Color.getValue(Color.DARKER_GREY), false);

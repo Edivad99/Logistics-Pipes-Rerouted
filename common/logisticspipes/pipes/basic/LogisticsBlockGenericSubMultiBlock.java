@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import logisticspipes.LPBlocks;
 import logisticspipes.interfaces.ITickable;
+import logisticspipes.world.level.block.LPBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -74,7 +74,8 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 			for (LogisticsTileGenericPipe mainPipe : ((LogisticsTileGenericSubMultiBlock) tile).getConnectedMainPipes()) {
 				if (mainPipe.isMultiBlock()) {
 					BlockState mainState = level.getBlockState(mainPipe.getBlockPos());
-					ItemStack pick = LPBlocks.pipe.get().getCloneItemStack(mainState, target, level, mainPipe.getBlockPos(), player);
+					ItemStack pick = LPBlocks.PIPE.get()
+							.getCloneItemStack(mainState, target, level, mainPipe.getBlockPos(), player);
 					if (!pick.isEmpty()) {
 						return pick;
 					}
@@ -139,7 +140,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 						.forEach(mainPipe -> {
 							redirectedToMainPipe = true;
 							BlockState mainState = worldIn.getBlockState(mainPipe.getBlockPos());
-							LPBlocks.pipe.get().onRemove(mainState, worldIn, mainPipe.getBlockPos(), mainState, false);
+							LPBlocks.PIPE.get().onRemove(mainState, worldIn, mainPipe.getBlockPos(), mainState, false);
 							redirectedToMainPipe = false;
 							worldIn.removeBlock(mainPipe.getBlockPos(), false);
 						});

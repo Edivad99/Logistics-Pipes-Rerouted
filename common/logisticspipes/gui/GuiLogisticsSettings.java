@@ -103,7 +103,7 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 				config.setRenderPipeDistance(renderDistance.getInt());
 				config.setRenderPipeContentDistance(contentRenderDistance.getInt());
 			} catch (Exception e) {
-				LogisticsPipes.log.error("Failed to update render distance config", e);
+				LogisticsPipes.LOG.error("Failed to update render distance config", e);
 			}
 			//config.setUseNewRenderer(useNewRendererButton.getState());
 			//config.setUseFallbackRenderer(useFallbackRendererButton.getState());

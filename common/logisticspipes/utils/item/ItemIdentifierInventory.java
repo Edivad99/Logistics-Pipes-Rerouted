@@ -239,7 +239,7 @@ public class ItemIdentifierInventory
 					_contents[index] = itemstack;
 				}
 			} else {
-				LogisticsPipes.log.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of "
+				LogisticsPipes.LOG.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of "
 						+ _contents.length);
 			}
 		}

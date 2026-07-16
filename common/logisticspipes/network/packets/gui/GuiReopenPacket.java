@@ -39,7 +39,7 @@ public class GuiReopenPacket extends CoordinatesPacket {
 	@Override
 	public void processPacket(Player player) {
 		if (NewGuiHandler.guilist == null || guiID < 0 || guiID >= NewGuiHandler.guilist.size()) {
-			LogisticsPipes.log.warn("GuiReopenPacket: invalid guiID {}", guiID);
+			LogisticsPipes.LOG.warn("GuiReopenPacket: invalid guiID {}", guiID);
 			return;
 		}
 		GuiProvider provider = NewGuiHandler.guilist.get(guiID).template();

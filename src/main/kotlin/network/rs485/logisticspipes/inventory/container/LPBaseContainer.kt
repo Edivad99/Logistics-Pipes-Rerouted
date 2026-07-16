@@ -47,7 +47,6 @@ import logisticspipes.utils.gui.ModuleSlot
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
@@ -163,7 +162,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Abstrac
         when {
             playerHotbarSlots.contains(slot) -> handleShiftClickFromSlotToList(slot, playerBackpackSlots, player)
             playerBackpackSlots.contains(slot) -> handleShiftClickFromSlotToList(slot, playerHotbarSlots, player)
-            else -> LogisticsPipes.log.warn("Something is wrong, this slot is not apart of the player's inventory and wasn't dealt with properly before.")
+            else -> LogisticsPipes.LOG.warn("Something is wrong, this slot is not apart of the player's inventory and wasn't dealt with properly before.")
         }
         return ItemStack.EMPTY
     }
@@ -321,7 +320,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Abstrac
         clickTypeIn: ClickType,
         player: Player,
     ) {
-        LogisticsPipes.log.info("DragType $dragType, ClickType: $clickTypeIn")
+        LogisticsPipes.LOG.info("DragType $dragType, ClickType: $clickTypeIn")
         // Copy the grabbedStack and insert it into the GhostItemSlot
         if (slot !is Unmodifiable) {
             applyItemStackToGhostItemSlot(grabbedItemStack, slot)

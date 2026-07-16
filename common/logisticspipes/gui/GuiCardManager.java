@@ -1,7 +1,7 @@
 package logisticspipes.gui;
 
 import javax.annotation.Nonnull;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.items.ItemModule;
 import logisticspipes.utils.CardManagementInventory;
@@ -33,7 +33,7 @@ public class GuiCardManager extends LogisticsBaseGuiScreen {
 		dummy.addRestrictedSlot(0, Cinv, 21, 21, ItemModule.class);
 		dummy.addRestrictedSlot(1, Cinv, 61, 21, ItemModule.class);
 		dummy.addRestrictedSlot(2, Cinv, 41, 58, itemStack -> false);
-		dummy.addRestrictedSlot(3, Cinv, 121, 39, LPItems.itemCard.get());
+		dummy.addRestrictedSlot(3, Cinv, 121, 39, LPItems.ITEM_CARD.get());
 		for (int i = 4; i < 7; i++) {
 			dummy.addColorSlot(i, Cinv, 101, 21 + (i - 4) * 18);
 		}

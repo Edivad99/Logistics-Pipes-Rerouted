@@ -37,10 +37,11 @@
 
 package network.rs485.markdown
 
-import logisticspipes.LPItems
+import logisticspipes.world.item.LPItems
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.MinecraftColor
 import com.google.common.collect.ImmutableSet
+import logisticspipes.LPConstants
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -71,17 +72,19 @@ class ItemLink(translationKey: String) : Link() {
         stack = if (translationKey.isNotEmpty() && translationKey.contains(":")) {
             val resourceLocation = translationKey.split(":").let { it ->
                 ResourceLocation.fromNamespaceAndPath(
-                        it.getOrElse(0) { "logisticspipes" },
+                        it.getOrElse(0) { LPConstants.ID },
                         it.getOrElse(1) { "broken_item" }
                 )
             }
-            val item: Item? = BuiltInRegistries.ITEM.get(resourceLocation)
-            if(item == null) {
-                LogisticsPipes.log.error("Item doesn't exist: $translationKey")
-            }
-            ItemStack(item ?: LPItems.getBrokenItem())
+          if (BuiltInRegistries.ITEM.containsKey(resourceLocation)) {
+            val item: Item = BuiltInRegistries.ITEM.get(resourceLocation)
+            ItemStack(item)
+          } else {
+            LogisticsPipes.LOG.error("Item doesn't exist: $translationKey")
+            LPItems.BROKEN_ITEM.toStack()
+          }
         } else {
-            ItemStack(LPItems.getBrokenItem())
+            LPItems.BROKEN_ITEM.toStack()
         }
     }
 }

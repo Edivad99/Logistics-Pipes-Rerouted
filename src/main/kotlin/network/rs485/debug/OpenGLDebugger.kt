@@ -357,12 +357,12 @@ class OpenGLDebugger(override var printOnCycle: Int) : IOpenGLDebugger {
         debuggerLock.withLock {
             glStuff.startSession()
             val toRemove = glVariablesToCheck.filter { variable ->
-                LogisticsPipes.log.warn("Getting ${variable.getName(niceToHave[variable.pname])}")
+                LogisticsPipes.LOG.warn("Getting ${variable.getName(niceToHave[variable.pname])}")
                 val value = variable.type.getterFunction(variable.pname)
                 val glError = 0 /* TODO: glGetError */
                 val isInvalid = glError == GL11.GL_INVALID_ENUM
                 if (glError != GL11.GL_NO_ERROR) {
-                    LogisticsPipes.log.warn("  got error ${Integer.toHexString(glError)}")
+                    LogisticsPipes.LOG.warn("  got error ${Integer.toHexString(glError)}")
                 }
                 value?.takeUnless { isInvalid }?.also {
                     glStuff.put(variable, it)

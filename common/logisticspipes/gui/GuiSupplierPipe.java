@@ -10,6 +10,7 @@ package logisticspipes.gui;
 import java.util.List;
 import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
+import logisticspipes.LPConstants;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
 import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
@@ -38,7 +39,7 @@ import network.rs485.logisticspipes.util.TextUtil;
 public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 
 	private static final String PREFIX = "gui.supplierpipe.";
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/supplier.png");
+	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/supplier.png");
 	private final boolean hasPatternUpgrade;
 	private final PropertyLayer propertyLayer;
 	private final ModuleActiveSupplier supplierModule;

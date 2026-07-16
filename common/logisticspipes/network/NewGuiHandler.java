@@ -98,7 +98,7 @@ public class NewGuiHandler {
 		try {
 			container = guiProvider.getContainer(player);
 		} catch (Throwable t) {
-			LogisticsPipes.log.error("getContainer threw for provider {}", guiProvider.getClass().getSimpleName(), t);
+			LogisticsPipes.LOG.error("getContainer threw for provider {}", guiProvider.getClass().getSimpleName(), t);
 			return;
 		}
 		if (container == null) {
@@ -160,8 +160,8 @@ public class NewGuiHandler {
 				} catch (TargetNotFoundException e) {
 					throw e;
 				} catch (Exception e) {
-					LogisticsPipes.log.error(packet.getClass().getName());
-					LogisticsPipes.log.error(packet.toString());
+					LogisticsPipes.LOG.error(packet.getClass().getName());
+					LogisticsPipes.LOG.error(packet.toString());
 					throw new RuntimeException(e);
 				}
 				if (newSub != null) {
@@ -183,7 +183,7 @@ public class NewGuiHandler {
 			} catch (TargetNotFoundException e) {
 				throw e;
 			} catch (Exception e) {
-				LogisticsPipes.log.error("getClientGui failed for provider {}", provider.getClass().getName(), e);
+				LogisticsPipes.LOG.error("getClientGui failed for provider {}", provider.getClass().getName(), e);
 				return;
 			}
 			// Mirror the server-side windowId onto the client-side menu so vanilla
@@ -192,12 +192,12 @@ public class NewGuiHandler {
 				try {
 					CONTAINER_ID_FIELD.setInt(screen.getMenu(), packet.getWindowID());
 				} catch (ReflectiveOperationException ex) {
-					LogisticsPipes.log.error("Failed to set client menu containerId", ex);
+					LogisticsPipes.LOG.error("Failed to set client menu containerId", ex);
 				}
 				player.containerMenu = screen.getMenu();
 			}
 			if (screen == null) {
-				LogisticsPipes.log.warn("getClientGui returned null for provider {} (guiID={}) — closing current screen instead of opening a GUI",
+				LogisticsPipes.LOG.warn("getClientGui returned null for provider {} (guiID={}) — closing current screen instead of opening a GUI",
 						provider.getClass().getName(), guiID);
 			}
 			Minecraft.getInstance().setScreen(screen);

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSolidTileEntity;
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockWatchingHandler;
@@ -39,7 +38,6 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
-import net.minecraft.CrashReportCategory;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -310,12 +308,6 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTil
 	public void updateClients() {
 		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).putDouble(internalStorage).setTilePos(this), guiListener);
 		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).putDouble(internalStorage).setTilePos(this), watcherList);
-	}
-
-	@Override
-	public void fillCrashReportCategory(CrashReportCategory par1CrashReportCategory) {
-		super.fillCrashReportCategory(par1CrashReportCategory);
-		par1CrashReportCategory.setDetail("LP-Version", LogisticsPipes.getVersionString());
 	}
 
 	public void handlePowerPacket(double d) {

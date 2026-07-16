@@ -9,6 +9,7 @@ package logisticspipes.gui.modules;
 
 import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
+import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.utils.gui.DummyContainer;
 import net.minecraft.client.gui.GuiGraphics;
@@ -46,7 +47,7 @@ public class GuiSimpleFilter extends ModuleBaseGui {
 		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040, false);
 	}
 
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/itemsink.png");
+	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/itemsink.png");
 
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {

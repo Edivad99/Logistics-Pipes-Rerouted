@@ -2,7 +2,7 @@ package logisticspipes.network.packets.orderer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.gui.orderer.GuiOrderer;
 import logisticspipes.gui.orderer.GuiRequestTable;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -53,10 +53,10 @@ public class ComponentList extends ModernPacket {
 	// sent server-side. processPacket stays free of client classes.
 	@OnlyIn(Dist.CLIENT)
 	private void handleClient(Player player) {
-		if (Configs.COMMON.DISPLAY_POPUP.getAsBoolean() && Minecraft.getInstance().screen instanceof GuiOrderer) {
+		if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && Minecraft.getInstance().screen instanceof GuiOrderer) {
 			((GuiOrderer) Minecraft.getInstance().screen)
 					.handleSimulateAnswer(used, missing, (GuiOrderer) Minecraft.getInstance().screen, player);
-		} else if (Configs.COMMON.DISPLAY_POPUP.getAsBoolean() && Minecraft.getInstance().screen instanceof GuiRequestTable) {
+		} else if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && Minecraft.getInstance().screen instanceof GuiRequestTable) {
 			((GuiRequestTable) Minecraft.getInstance().screen)
 					.handleSimulateAnswer(used, missing, (GuiRequestTable) Minecraft.getInstance().screen, player);
 		} else {

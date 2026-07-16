@@ -4,7 +4,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.api.ILPPipe;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.pipes.basic.debug.DebugLogController;
@@ -221,7 +221,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	public void addStatusInformation(List<StatusEntry> status) {}
 
 	public boolean isOpaque() {
-		return Configs.COMMON.OPAQUE.getAsBoolean();
+		return LPConfigs.COMMON.OPAQUE.getAsBoolean();
 	}
 
 	@Override

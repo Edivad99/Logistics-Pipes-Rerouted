@@ -49,7 +49,7 @@ object FontParser {
         return try {
             read(Minecraft.getInstance().resourceManager.getResource(resourceLocation).map { it.open().bufferedReader().use { r -> r.readLines() } }.orElseThrow { IOException("Resource not found: ${resourceLocation.path}") })
         } catch (e: IOException) {
-            LogisticsPipes.log.error("Font ${resourceLocation.path} not found, and will not be rendered.", e)
+            LogisticsPipes.LOG.error("Font ${resourceLocation.path} not found, and will not be rendered.", e)
             null
         }
     }
@@ -136,7 +136,7 @@ object FontParser {
                     currentByte = 0
                 }
 
-                else -> if(LogisticsPipes.isDEBUG()) LogisticsPipes.log.warn("[@$state][Ln$index] Declaration start not recognized: $head")
+                else -> if(LogisticsPipes.isDEBUG()) LogisticsPipes.LOG.warn("[@$state][Ln$index] Declaration start not recognized: $head")
             }
         }
 

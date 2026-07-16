@@ -7,6 +7,7 @@ package logisticspipes.renderer.newpipe;
 
 import java.util.Map;
 import com.google.common.collect.Maps;
+import logisticspipes.LPConstants;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -18,7 +19,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class LogisticsNewPipeModel {
 
-	private static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "blocks/blank_pipe");
+	private static final ResourceLocation BASE_TEXTURE = LPConstants.rl("blocks/blank_pipe");
 	public static TextureAtlasSprite BASE_TEXTURE_SPRITE;
 	public static TextureTransformation BASE_TEXTURE_TRANSFORM;
 

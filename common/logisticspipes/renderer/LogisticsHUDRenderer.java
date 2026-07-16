@@ -15,7 +15,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import logisticspipes.api.IHUDArmor;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IDebugHUDProvider;
 import logisticspipes.interfaces.IHUDConfig;
@@ -100,7 +100,7 @@ public class LogisticsHUDRenderer {
 			}
 			if (pipe.getWorld() == Minecraft.getInstance().level) {
 				double dis = Math.hypot(pipe.getX() - x + 0.5, Math.hypot(pipe.getY() - y + 0.5, pipe.getZ() - z + 0.5));
-				if (dis < Configs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75) {
+				if (dis < LPConfigs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75) {
 					newList.add(new Pair<>(dis, (IHeadUpDisplayRendererProvider) pipe));
 					if (!list.contains(pipe)) {
 						((IHeadUpDisplayRendererProvider) pipe).startWatching();
@@ -113,7 +113,7 @@ public class LogisticsHUDRenderer {
 		providers.stream().filter(provider -> provider.getLevelForHUD() == Minecraft.getInstance().level)
 				.forEach(provider -> {
 					double dis = Math.hypot(provider.getX() - x + 0.5, Math.hypot(provider.getY() - y + 0.5, provider.getZ() - z + 0.5));
-					if (dis < Configs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75 && !provider.isHUDInvalid() && provider.isHUDExistent()) {
+					if (dis < LPConfigs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75 && !provider.isHUDInvalid() && provider.isHUDExistent()) {
 						newList.add(new Pair<>(dis, provider));
 						if (!list.contains(provider)) {
 							provider.startWatching();

@@ -45,7 +45,7 @@ public class RoutingUpdateCanidatePipe extends ModernPacket {
 		try {
 			exitRoute = new ExitRoute(input);
 		} catch (RuntimeException e) {
-			LogisticsPipes.log.error("Could not read ExitRoute from RoutingUpdateCanidatePipe", e);
+			LogisticsPipes.LOG.error("Could not read ExitRoute from RoutingUpdateCanidatePipe", e);
 		}
 	}
 

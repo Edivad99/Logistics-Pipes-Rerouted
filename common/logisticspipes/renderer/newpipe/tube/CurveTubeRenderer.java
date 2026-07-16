@@ -48,7 +48,8 @@ public class CurveTubeRenderer implements ISpecialPipeRenderer, IHighlightPlacem
 
 	public static void loadModels() {
 		try {
-			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/HSTube-Turn_result.obj"), 7, new LPScale(1 / 100f));
+			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(
+          LogisticsPipes.class.getResourceAsStream("/models/HSTube-Turn_result.obj"), 7, new LPScale(1 / 100f));
 
 			//tubeTurnMounts
 			for (TurnDirection turn : TurnDirection.values()) {

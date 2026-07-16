@@ -64,11 +64,11 @@ class ServerConfigurationManager {
                 gson.fromJson(gson.newJsonReader(it), ServerConfiguration::class.java)
             }
         } catch (e: JsonParseException) {
-            LogisticsPipes.log.error("Cannot read LP configuration! Moving current configuration away and starting a new one!")
+            LogisticsPipes.LOG.error("Cannot read LP configuration! Moving current configuration away and starting a new one!")
             Files.move(configFile.toPath(), getTimedFile(".bkp").toPath())
             ServerConfiguration()
         } catch (e: FileNotFoundException) {
-            LogisticsPipes.log.info("Starting a new LP configuration")
+            LogisticsPipes.LOG.info("Starting a new LP configuration")
             ServerConfiguration()
         }
     }

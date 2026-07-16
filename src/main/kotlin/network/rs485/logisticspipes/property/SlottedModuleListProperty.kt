@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.property
 
-import logisticspipes.LPItems
+import logisticspipes.world.item.LPItems
 import logisticspipes.items.ItemModule
 import logisticspipes.modules.LogisticsModule
 import net.minecraft.core.HolderLookup

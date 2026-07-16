@@ -9,7 +9,6 @@ package logisticspipes.items;
 
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import logisticspipes.LPBlocks;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
@@ -18,6 +17,7 @@ import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.renderer.IIconProvider;
 import logisticspipes.utils.LPPositionSet;
+import logisticspipes.world.level.block.LPBlocks;
 import lombok.Getter;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -63,7 +63,7 @@ public class ItemLogisticsPipe extends LogisticsItem {
 		BlockPos pos = _ctx.getClickedPos();
 		InteractionHand hand = _ctx.getHand();
 		Direction facing = _ctx.getClickedFace();
-		Block block = LPBlocks.pipe.get();
+		Block block = LPBlocks.PIPE.get();
 
 		BlockState iblockstate = world.getBlockState(pos);
 		Block worldBlock = iblockstate.getBlock();
@@ -83,13 +83,13 @@ public class ItemLogisticsPipe extends LogisticsItem {
 				CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.createPipe(this);
 
 				if (pipe == null) {
-					LogisticsPipes.log.warn("Pipe failed to create during placement at {},{},{}", pos.getX(), pos.getY(), pos.getZ());
+					LogisticsPipes.LOG.warn("Pipe failed to create during placement at {},{},{}", pos.getX(), pos.getY(), pos.getZ());
 					return InteractionResult.PASS;
 				}
 
 				if (LogisticsBlockGenericPipe.placePipe(pipe, world, pos, block, null)) {
 					BlockState state = world.getBlockState(pos);
-					if (state.getBlock() == block) {
+					if (state.is(block)) {
 						//setTileEntityNBT(world, player, pos, stack);
 						block.setPlacedBy(world, pos, state, player, itemstack);
 
@@ -144,7 +144,7 @@ public class ItemLogisticsPipe extends LogisticsItem {
 				CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.createPipe(this);
 
 				if (pipe == null) {
-					LogisticsPipes.log.warn("Pipe failed to create during placement at {},{},{}", pos.getX(), pos.getY(), pos.getZ());
+					LogisticsPipes.LOG.warn("Pipe failed to create during placement at {},{},{}", pos.getX(), pos.getY(), pos.getZ());
 					return InteractionResult.SUCCESS;
 				}
 

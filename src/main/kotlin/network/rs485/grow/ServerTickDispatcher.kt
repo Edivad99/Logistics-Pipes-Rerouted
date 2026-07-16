@@ -48,15 +48,15 @@ object ServerTickDispatcher : CoroutineDispatcher() {
 
     fun serverStart() {
         val startupJob = Coroutines.serverScope.launch {
-            LogisticsPipes.log.info("Hello from the server tick")
+            LogisticsPipes.LOG.info("Hello from the server tick")
         }
         Coroutines.asynchronousScope.async {
-            LogisticsPipes.log.info("Waiting for server tick")
+            LogisticsPipes.LOG.info("Waiting for server tick")
             startupJob.join()
-            LogisticsPipes.log.info("Server tick complete! Hello from the async scope")
+            LogisticsPipes.LOG.info("Server tick complete! Hello from the async scope")
         }.invokeOnCompletion { throwable ->
             throwable?.stackTraceToString()?.also { stacktrace ->
-                LogisticsPipes.log.error("Error when greeting server tick scope:\n$stacktrace")
+                LogisticsPipes.LOG.error("Error when greeting server tick scope:\n$stacktrace")
             }
         }
     }

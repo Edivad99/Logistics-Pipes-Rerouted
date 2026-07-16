@@ -31,13 +31,14 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -55,7 +56,6 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 	public static LogisticsNewPipeItemBoxRenderer boxRenderer = new LogisticsNewPipeItemBoxRenderer();
 	public static ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 	private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
-	private AABB renderBox;
 
 	public LogisticsRenderPipe(BlockEntityRendererProvider.Context context) {
 	}
@@ -177,9 +177,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		rs.reset();
 
 		if (requestTableIcon == null) {
-			net.minecraft.client.renderer.texture.TextureAtlasSprite sprite = Minecraft.getInstance()
-					.getTextureAtlas(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)
-					.apply(ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "blocks/requesttable/requesttexture"));
+			TextureAtlasSprite sprite = Minecraft.getInstance()
+					.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
+					.apply(LPConstants.rl("blocks/requesttable/requesttexture"));
 			requestTableIcon = SimpleServiceLocator.cclProxy.createIconTransformer(sprite);
 		}
 		if (requestTableIcon == null) return;
@@ -513,21 +513,17 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
 	@Override
 	public AABB getRenderBoundingBox(LogisticsTileGenericPipe blockEntity) {
-		if (renderBox != null) {
-			return renderBox;
-		}
 		if (blockEntity.pipe == null) {
 			return new AABB(blockEntity.getBlockPos()); // 1.20.1: AABB(BlockPos) creates the unit block cube
 		}
 		if (!blockEntity.pipe.isMultiBlock()) {
-			renderBox = new AABB(blockEntity.getBlockPos()); // 1.20.1: AABB(BlockPos) creates the unit block cube
+			return new AABB(blockEntity.getBlockPos()); // 1.20.1: AABB(BlockPos) creates the unit block cube
 		} else {
 			LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> set = ((CoreMultiBlockPipe) blockEntity.pipe).getRotatedSubBlocks();
 			set.addToAll(blockEntity.pipe.getLPPosition());
 			set.add(new DoubleCoordinatesType<>(blockEntity.getBlockPos(), CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
 			set.add(new DoubleCoordinatesType<>(blockEntity.getBlockPos().getX() + 1, blockEntity.getBlockPos().getY() + 1, blockEntity.getBlockPos().getZ() + 1, CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
-			renderBox = new AABB(set.getMinXD() - 1, set.getMinYD() - 1, set.getMinZD() - 1, set.getMaxXD() + 1, set.getMaxYD() + 1, set.getMaxZD() + 1);
+			return new AABB(set.getMinXD() - 1, set.getMinYD() - 1, set.getMinZD() - 1, set.getMaxXD() + 1, set.getMaxYD() + 1, set.getMaxZD() + 1);
 		}
-		return renderBox;
 	}
 }

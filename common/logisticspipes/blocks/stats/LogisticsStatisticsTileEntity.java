@@ -10,6 +10,7 @@ import logisticspipes.network.guis.block.StatisticsGui;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
@@ -18,7 +19,7 @@ import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 public class LogisticsStatisticsTileEntity extends LogisticsSolidTileEntity implements IGuiTileEntity {
 
 	public LogisticsStatisticsTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(logisticspipes.LPRegistries.BE_STATISTICS_TABLE.get(), pos, state);
+		super(LPBlockEntityTypes.BE_STATISTICS_TABLE.get(), pos, state);
 	}
 
 	public List<TrackingTask> tasks = new ArrayList<>();

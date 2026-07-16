@@ -143,7 +143,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 			if (index < stackList.size()) {
 				stackList.set(index, ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2, provider));
 			} else {
-				LogisticsPipes.log.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of " + stackList.size());
+				LogisticsPipes.LOG.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of " + stackList.size());
 			}
 		}
 	}

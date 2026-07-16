@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.orderer;
 
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
@@ -33,7 +33,7 @@ public class DiskSetNamePacket extends StringCoordinatesPacket {
 			if (pipeItemsRequestLogisticsMk2.getDisk() == null) {
 				return;
 			}
-			if (!pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.disk.get())) {
+			if (!pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.DISK.get())) {
 				return;
 			}
 			pipeItemsRequestLogisticsMk2.getDisk().update(

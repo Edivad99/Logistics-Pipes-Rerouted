@@ -311,7 +311,8 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 	public static void loadModels() {
 		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
 		try {
-			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/PipeModel_moved.obj"), 7, new LPScale(1 / 100f));
+			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(
+          LogisticsPipes.class.getResourceAsStream("/models/PipeModel_moved.obj"), 7, new LPScale(1 / 100f));
 			List<IModel3D> highlightList = new ArrayList<>();
 
 			for (Direction dir : Direction.values()) {

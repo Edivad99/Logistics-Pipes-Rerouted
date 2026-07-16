@@ -2,7 +2,7 @@
 package logisticspipes.gui;
 
 import javax.annotation.Nonnull;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -19,7 +19,7 @@ public class GuiFreqCardContent extends LogisticsBaseGuiScreen {
 	private static DummyContainer buildDummy(Player player, Container card) {
 		DummyContainer dummy = new DummyContainer(player.getInventory(), card);
 		dummy.addRestrictedSlot(0, card, 82, 15, itemStack ->
-				!itemStack.isEmpty() && itemStack.getItem() == LPItems.itemCard.get() && itemStack.getDamageValue() == LogisticsItemCard.FREQ_CARD);
+				!itemStack.isEmpty() && itemStack.getItem() == LPItems.ITEM_CARD.get() && itemStack.getDamageValue() == LogisticsItemCard.FREQ_CARD);
 		dummy.addNormalSlotsForPlayerInventory(10, 45);
 		return dummy;
 	}

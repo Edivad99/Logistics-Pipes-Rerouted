@@ -37,11 +37,11 @@ import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.changedetection.TEControl;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
-import logisticspipes.utils.LPPositionSet;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.TileBuffer;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import lombok.Getter;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
@@ -57,7 +57,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -67,7 +66,6 @@ import network.rs485.logisticspipes.connection.PipeInventoryConnectionChecker;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
-import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 // import dan200.computercraft.api.peripheral.IComputerAccess; // CC not ported to 1.20.1; @ModDependentField stubs
 // OpenComputers imports removed — OC not on classpath for 1.20.1; interfaces added at runtime via @ModDependentInterface ASM
@@ -134,7 +132,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	private EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers;
 
 	public LogisticsTileGenericPipe(BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(logisticspipes.LPRegistries.BE_PIPE.get(), pos, state);
+		super(LPBlockEntityTypes.BE_PIPE.get(), pos, state);
 		itemInsertionHandlers = new EnumMap<>(Direction.class);
 		Arrays.stream(Direction.values()).forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));
 		ItemInsertionHandler itemInsertionHandlerNull = new ItemInsertionHandler(this, null);
@@ -272,7 +270,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		try {
 			PacketHandler.addPacketToNBT(getLPDescriptionPacket(), nbt);
 		} catch (Exception e) {
-			LogisticsPipes.log.error("Failed to embed LP description packet in update tag at {}", getBlockPos(), e);
+			LogisticsPipes.LOG.error("Failed to embed LP description packet in update tag at {}", getBlockPos(), e);
 		}
 		return nbt;
 	}
@@ -297,7 +295,6 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	// Custom public method — called from crash report hooks; not an override of BlockEntity or IBlockEntityExtension.
 	public void addInfoToCrashReport(@Nonnull CrashReportCategory reportCategory) {
-		reportCategory.setDetail("LP-Version", LogisticsPipes.getVersionString());
 		if (pipe != null) {
 			reportCategory.setDetail("Pipe", pipe.getClass().getCanonicalName());
 			if (pipe.transport != null) {
@@ -358,7 +355,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			StackTraceElement[] trace = Thread.currentThread().getStackTrace();
 			if (trace.length > 2 && trace[2].getMethodName().equals("handle") && trace[2].getClassName()
 					.equals("com.xcompwiz.lookingglass.network.packet.PacketTileEntityNBT")) {
-				LogisticsPipes.log.warn("Prevented false data injection by LookingGlass");
+				LogisticsPipes.LOG.warn("Prevented false data injection by LookingGlass");
 				return;
 			}
 		}
@@ -382,7 +379,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			pipe.readFromNBT(nbt, registries);
 			pipe.finishInit();
 		} else {
-			LogisticsPipes.log.warn("Pipe failed to load from NBT at {}", getBlockPos());
+			LogisticsPipes.LOG.warn("Pipe failed to load from NBT at {}", getBlockPos());
 			deletePipe = true;
 		}
 
@@ -652,7 +649,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		// blockType field removed in 1.20.1; use getBlockState().getBlock()
 		
 		if (pipe == null) {
-			LogisticsPipes.log.warn("Pipe failed to initialize at " + getBlockPos().toString() + ", deleting");
+			LogisticsPipes.LOG.warn("Pipe failed to initialize at " + getBlockPos().toString() + ", deleting");
 			level.removeBlock(getBlockPos(), false);
 			return;
 		}

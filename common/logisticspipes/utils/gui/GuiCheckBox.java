@@ -2,6 +2,7 @@ package logisticspipes.utils.gui;
 
 import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
+import logisticspipes.LPConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -35,7 +36,7 @@ public class GuiCheckBox extends AbstractButton {
 	public void renderWidget(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
 		if (visible) {
 			boolean hover = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
-			ResourceLocation tex = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/checkbox-" + (state ? "on" : "out") + (hover ? "-mouse" : "") + ".png");
+			ResourceLocation tex = LPConstants.rl("textures/gui/checkbox-" + (state ? "on" : "out") + (hover ? "-mouse" : "") + ".png");
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			guiGraphics.blit(tex, getX(), getY(), 0, 0, width, height, width, height);
 		}

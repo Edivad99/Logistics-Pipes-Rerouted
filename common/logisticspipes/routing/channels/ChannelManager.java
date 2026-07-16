@@ -25,7 +25,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 public class ChannelManager implements IChannelManager {
 
-	private static final String DATA_NAME = LPConstants.LP_MOD_ID + "_ChannelManager_SavedData";
+	private static final String DATA_NAME = LPConstants.ID + "_ChannelManager_SavedData";
 	private final ChannelSavedData savedData;
 
 	public ChannelManager(@Nonnull Level world) {

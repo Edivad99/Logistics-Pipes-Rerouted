@@ -837,7 +837,7 @@ public class ModuleCrafter extends LogisticsModule
 			}
 		});
 		if (!guiOpened) {
-			LogisticsPipes.log.warn("Ignored open attached GUI request at " + player.level() + " @ " + getBlockPos());
+			LogisticsPipes.LOG.warn("Ignored open attached GUI request at " + player.level() + " @ " + getBlockPos());
 		}
 		player.getInventory().selected = savedEquipped;
 		return guiOpened;

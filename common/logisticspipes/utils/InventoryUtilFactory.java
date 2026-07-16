@@ -28,9 +28,9 @@ public class InventoryUtilFactory {
 	public void registerHandler(@Nonnull SpecialInventoryHandler.Factory handlerFactory) {
 		if (handlerFactory.init()) {
 			handlerFactories.add(handlerFactory);
-			LogisticsPipes.log.info("Loaded SpecialInventoryHandler.Factory: " + handlerFactory.getClass().getCanonicalName());
+			LogisticsPipes.LOG.info("Loaded SpecialInventoryHandler.Factory: " + handlerFactory.getClass().getCanonicalName());
 		} else {
-			LogisticsPipes.log.warn("Could not load SpecialInventoryHandler.Factory: " + handlerFactory.getClass().getCanonicalName());
+			LogisticsPipes.LOG.warn("Could not load SpecialInventoryHandler.Factory: " + handlerFactory.getClass().getCanonicalName());
 		}
 	}
 

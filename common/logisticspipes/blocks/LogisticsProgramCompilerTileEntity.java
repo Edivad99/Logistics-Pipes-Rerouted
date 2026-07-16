@@ -5,11 +5,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import logisticspipes.LogisticsPipesDataComponents;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConstants;
+import logisticspipes.world.item.component.LPDataComponents;
+import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IGuiTileEntity;
-import logisticspipes.items.ItemLogisticsProgrammer;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
@@ -22,6 +22,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.SimpleStackInventory;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -42,14 +43,14 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 
 	public static class ProgrammCategories {
 
-		public static final ResourceLocation BASIC = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.basic");
-		public static final ResourceLocation TIER_2 = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.tier_2");
-		public static final ResourceLocation FLUID = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.fluid");
-		public static final ResourceLocation TIER_3 = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.tier_3");
-		public static final ResourceLocation CHASSIS = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.chassis");
-		public static final ResourceLocation CHASSIS_2 = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.chassis_2");
-		public static final ResourceLocation CHASSIS_3 = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.chassis_3");
-		public static final ResourceLocation MODDED = ResourceLocation.fromNamespaceAndPath("logisticspipes", "compilercategory.modded");
+		public static final ResourceLocation BASIC = LPConstants.rl("compilercategory.basic");
+		public static final ResourceLocation TIER_2 = LPConstants.rl("compilercategory.tier_2");
+		public static final ResourceLocation FLUID = LPConstants.rl("compilercategory.fluid");
+		public static final ResourceLocation TIER_3 = LPConstants.rl("compilercategory.tier_3");
+		public static final ResourceLocation CHASSIS = LPConstants.rl("compilercategory.chassis");
+		public static final ResourceLocation CHASSIS_2 = LPConstants.rl("compilercategory.chassis_2");
+		public static final ResourceLocation CHASSIS_3 = LPConstants.rl("compilercategory.chassis_3");
+		public static final ResourceLocation MODDED = LPConstants.rl("compilercategory.modded");
 
 		static {
 			//Force the order of keys
@@ -65,7 +66,7 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 	}
 
 	public LogisticsProgramCompilerTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(logisticspipes.LPRegistries.BE_PROGRAM_COMPILER.get(), pos, state);
+		super(LPBlockEntityTypes.BE_PROGRAM_COMPILER.get(), pos, state);
 	}
 
 	public static final Map<ResourceLocation, Set<ResourceLocation>> programByCategory = new LinkedHashMap<>();
@@ -152,13 +153,13 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 					if (pipe.useEnergy(10)) {
 						switch (taskType) {
 							case "category":
-								taskProgress += 0.0005 * Configs.COMMON.COMPILER_SPEED.getAsDouble();
+								taskProgress += 0.0005 * LPConfigs.COMMON.COMPILER_SPEED.getAsDouble();
 								break;
 							case "program":
-								taskProgress += 0.0025 * Configs.COMMON.COMPILER_SPEED.getAsDouble();
+								taskProgress += 0.0025 * LPConfigs.COMMON.COMPILER_SPEED.getAsDouble();
 								break;
 							case "flash":
-								taskProgress += 0.01 * Configs.COMMON.COMPILER_SPEED.getAsDouble();
+								taskProgress += 0.01 * LPConfigs.COMMON.COMPILER_SPEED.getAsDouble();
 								break;
 							default:
 								taskProgress = 1;
@@ -182,7 +183,7 @@ public class LogisticsProgramCompilerTileEntity extends LogisticsSolidTileEntity
 						case "flash":
 							if (!getInventory().getItem(1).isEmpty()) {
 								ItemStack programmer = getInventory().getItem(1);
-								programmer.set(LogisticsPipesDataComponents.RECIPE_TARGET, currentTask.toString());
+								programmer.set(LPDataComponents.RECIPE_TARGET, currentTask.toString());
 							}
 							break;
 						default:

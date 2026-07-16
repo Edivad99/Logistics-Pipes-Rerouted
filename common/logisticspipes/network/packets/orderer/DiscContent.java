@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.orderer;
 
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.network.abstractpackets.ItemPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeBlockRequestTable;
@@ -34,8 +34,8 @@ public class DiscContent extends ItemPacket {
 		}
 		if (tile.pipe instanceof PipeItemsRequestLogisticsMk2 itemsRequestLogisticsMk2) {
 			if (MainProxy.isServer(tile.getLevel())) {
-				if (!itemsRequestLogisticsMk2.getDisk().isEmpty() && itemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.disk.get())) {
-					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.disk.get())) {
+				if (!itemsRequestLogisticsMk2.getDisk().isEmpty() && itemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.DISK.get())) {
+					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.DISK.get())) {
 						if (getStack().has(DataComponents.CUSTOM_DATA)) {
 							var copyTag = Objects.requireNonNull(getStack().get(DataComponents.CUSTOM_DATA)).copyTag();
 							itemsRequestLogisticsMk2.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.of(copyTag));
@@ -48,8 +48,8 @@ public class DiscContent extends ItemPacket {
 		}
 		if (tile.pipe instanceof PipeBlockRequestTable pipeBlockRequestTable) {
 			if (MainProxy.isServer(tile.getLevel())) {
-				if (!pipeBlockRequestTable.diskInv.getItem(0).isEmpty() && pipeBlockRequestTable.diskInv.getItem(0).getItem().equals(LPItems.disk.get())) {
-					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.disk.get())) {
+				if (!pipeBlockRequestTable.diskInv.getItem(0).isEmpty() && pipeBlockRequestTable.diskInv.getItem(0).getItem().equals(LPItems.DISK.get())) {
+					if (!getStack().isEmpty() && getStack().getItem().equals(LPItems.DISK.get())) {
 						if (getStack().has(DataComponents.CUSTOM_DATA)) {
 							var copyTag = Objects.requireNonNull(getStack().get(DataComponents.CUSTOM_DATA)).copyTag();
 							pipeBlockRequestTable.diskInv.getItem(0).set(DataComponents.CUSTOM_DATA, CustomData.of(copyTag));

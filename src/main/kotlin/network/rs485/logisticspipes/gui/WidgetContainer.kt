@@ -58,7 +58,7 @@ abstract class WidgetContainer(
 
     override fun <T : Drawable> createChild(childGetter: () -> T): T {
         if (LogisticsPipes.isDEBUG()) {
-            LogisticsPipes.log.warn("createChild called on WidgetContainer, but WidgetContainer does not support lazy child creation")
+            LogisticsPipes.LOG.warn("createChild called on WidgetContainer, but WidgetContainer does not support lazy child creation")
             Throwable().printStackTrace()
         }
         return childGetter()

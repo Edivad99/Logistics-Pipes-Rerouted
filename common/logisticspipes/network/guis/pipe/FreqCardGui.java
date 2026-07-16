@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.pipe;
 
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.gui.GuiFreqCardContent;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
@@ -50,7 +50,7 @@ public class FreqCardGui extends CoordinatesGuiProvider {
 				: ((PipeItemsSystemDestinationLogistics) pipe).inv;
 		DummyContainer dummy = new DummyContainer(player.getInventory(), inv);
 		dummy.addRestrictedSlot(0, inv, 82, 15, itemStack ->
-				!itemStack.isEmpty() && itemStack.getItem() == LPItems.itemCard.get()
+				!itemStack.isEmpty() && itemStack.getItem() == LPItems.ITEM_CARD.get()
 						&& itemStack.getDamageValue() == LogisticsItemCard.FREQ_CARD);
 		dummy.addNormalSlotsForPlayerInventory(10, 45);
 		return dummy;

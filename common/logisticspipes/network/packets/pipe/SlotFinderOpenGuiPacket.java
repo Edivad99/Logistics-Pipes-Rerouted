@@ -115,7 +115,7 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 		}
 
 		if (!openedGui) {
-			LogisticsPipes.log.warn("Ignored SlotFinderOpenGuiPacket from " + player + ", because of failing preconditions");
+			LogisticsPipes.LOG.warn("Ignored SlotFinderOpenGuiPacket from " + player + ", because of failing preconditions");
 		}
 
 		player.getInventory().selected = savedEquipped;

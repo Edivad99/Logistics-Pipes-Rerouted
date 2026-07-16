@@ -91,7 +91,7 @@ abstract class AsyncModule<S, C> : LogisticsModule() {
                         val isGamePaused = world?.isClientSide == false && Minecraft.getInstance().isPaused
                         if (e !is TimeoutCancellationException && !isGamePaused) {
                             val connected = connectedEntity?.let { " connected to $it at ${it.blockPos}" } ?: ""
-                            LogisticsPipes.log.error("Error in ticking async module $module$connected", e)
+                            LogisticsPipes.LOG.error("Error in ticking async module $module$connected", e)
                         }
                     }
                     return@async null

@@ -1,10 +1,10 @@
-package logisticspipes.config;
+package logisticspipes;
 
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class Configs {
+public class LPConfigs {
 
 	public static final String CATEGORY_MULTITHREAD = "multithread";
 	public static final String CATEGORY_PERFORMANCE = "performance";
@@ -19,7 +19,7 @@ public class Configs {
 	}
 
 	public static void registerConfig(ModContainer container) {
-		container.registerConfig(ModConfig.Type.COMMON, Configs.COMMON_SPEC);
+		container.registerConfig(ModConfig.Type.COMMON, LPConfigs.COMMON_SPEC);
 	}
 
 	public static class Common {
@@ -40,7 +40,6 @@ public class Configs {
 		public final ModConfigSpec.IntValue LOGISTICS_CRAFTING_TABLE_POWER_USAGE;
 		public final ModConfigSpec.BooleanValue TOOLTIP_INFO;
 		public final ModConfigSpec.BooleanValue ENABLE_PARTICLE_FX;
-		public final ModConfigSpec.BooleanValue CHECK_FOR_UPDATES;
 		public final ModConfigSpec.BooleanValue EASTER_EGGS;
 		public final ModConfigSpec.BooleanValue OPAQUE;
 		public final ModConfigSpec.IntValue MAX_ROBOT_DISTANCE;
@@ -83,7 +82,6 @@ public class Configs {
 			COMPILER_SPEED = b.comment("Program compiler speed multiplier").defineInRange("compilerSpeed", 1.0, 0.01, 100.0);
 			ENABLE_RESEARCH_SYSTEM = b.comment("Enable research system").define("enableResearchSystem", false);
 			ENABLE_PARTICLE_FX = b.comment("Enable particle effects").define("enableParticleFx", true);
-			CHECK_FOR_UPDATES = b.comment("Check for mod updates on startup").define("checkForUpdates", true);
 			EASTER_EGGS = b.comment("Enable easter eggs").define("easterEggs", true);
 			MAX_ROBOT_DISTANCE = b.comment("Max robot operation distance in blocks").defineInRange("maxRobotDistance", 64, 1, 512);
 			b.pop();

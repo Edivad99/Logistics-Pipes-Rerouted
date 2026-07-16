@@ -2,11 +2,9 @@ package logisticspipes.hud;
 
 import javax.annotation.Nonnull;
 
-import logisticspipes.LogisticsPipesDataComponents;
-import logisticspipes.gui.hud.HudChassisPipe;
+import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.interfaces.IHUDConfig;
-import logisticspipes.items.component.HUDComponent;
-import net.minecraft.nbt.CompoundTag;
+import logisticspipes.world.item.component.HUDComponent;
 import net.minecraft.world.item.ItemStack;
 
 public class HUDConfig implements IHUDConfig {
@@ -14,12 +12,12 @@ public class HUDConfig implements IHUDConfig {
 	private ItemStack itemStack;
 
 	public HUDConfig(@Nonnull ItemStack stack) {
-		stack.set(LogisticsPipesDataComponents.HUD, HUDComponent.DEFAULT);
+		stack.set(LPDataComponents.HUD, HUDComponent.DEFAULT);
 		this.itemStack = stack;
 	}
 
 	private HUDComponent getComponent() {
-		return this.itemStack.get(LogisticsPipesDataComponents.HUD);
+		return this.itemStack.get(LPDataComponents.HUD);
 	}
 
 	@Override
@@ -55,7 +53,7 @@ public class HUDConfig implements IHUDConfig {
 	@Override
 	public void setChassisHUD(boolean flag) {
 		HUDComponent currentHUDComponent = getComponent();
-		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+		this.itemStack.set(LPDataComponents.HUD, new HUDComponent(
 				flag,
 				currentHUDComponent.HUDCrafting(),
 				currentHUDComponent.HUDInvSysCon(),
@@ -68,7 +66,7 @@ public class HUDConfig implements IHUDConfig {
 	@Override
 	public void setHUDCrafting(boolean flag) {
 		HUDComponent currentHUDComponent = getComponent();
-		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+		this.itemStack.set(LPDataComponents.HUD, new HUDComponent(
 				currentHUDComponent.HUDChassie(),
 				flag,
 				currentHUDComponent.HUDInvSysCon(),
@@ -81,7 +79,7 @@ public class HUDConfig implements IHUDConfig {
 	@Override
 	public void setHUDInvSysCon(boolean flag) {
 		HUDComponent currentHUDComponent = getComponent();
-		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+		this.itemStack.set(LPDataComponents.HUD, new HUDComponent(
 				currentHUDComponent.HUDChassie(),
 				currentHUDComponent.HUDCrafting(),
 				flag,
@@ -94,7 +92,7 @@ public class HUDConfig implements IHUDConfig {
 	@Override
 	public void setHUDPowerJunction(boolean flag) {
 		HUDComponent currentHUDComponent = getComponent();
-		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+		this.itemStack.set(LPDataComponents.HUD, new HUDComponent(
 				currentHUDComponent.HUDChassie(),
 				currentHUDComponent.HUDCrafting(),
 				currentHUDComponent.HUDInvSysCon(),
@@ -107,7 +105,7 @@ public class HUDConfig implements IHUDConfig {
 	@Override
 	public void setHUDProvider(boolean flag) {
 		HUDComponent currentHUDComponent = getComponent();
-		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+		this.itemStack.set(LPDataComponents.HUD, new HUDComponent(
 				currentHUDComponent.HUDChassie(),
 				currentHUDComponent.HUDCrafting(),
 				currentHUDComponent.HUDInvSysCon(),
@@ -120,7 +118,7 @@ public class HUDConfig implements IHUDConfig {
 	@Override
 	public void setHUDSatellite(boolean flag) {
 		HUDComponent currentHUDComponent = getComponent();
-		this.itemStack.set(LogisticsPipesDataComponents.HUD, new HUDComponent(
+		this.itemStack.set(LPDataComponents.HUD, new HUDComponent(
 				currentHUDComponent.HUDChassie(),
 				currentHUDComponent.HUDCrafting(),
 				currentHUDComponent.HUDInvSysCon(),

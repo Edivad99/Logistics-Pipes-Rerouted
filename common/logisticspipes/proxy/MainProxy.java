@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.entity.FakePlayerLP;
 import logisticspipes.modules.LogisticsModule;
@@ -143,7 +143,7 @@ public class MainProxy {
 	/** Sends a packet from the client to the server. */
 	public static void sendPacketToServer(ModernPacket packet) {
 		if (MainProxy.isServer()) {
-			LogisticsPipes.log.error("sendPacketToServer called server-side!");
+			LogisticsPipes.LOG.error("sendPacketToServer called server-side!");
 			return;
 		}
 		logisticspipes.network.PacketHandler.sendToServer(packet);
@@ -152,7 +152,7 @@ public class MainProxy {
 	/** Sends a packet from the server to a specific player. */
 	public static void sendPacketToPlayer(ModernPacket packet, Player player) {
 		if (!MainProxy.isServer()) {
-			LogisticsPipes.log.error("sendPacketToPlayer called client-side!");
+			LogisticsPipes.LOG.error("sendPacketToPlayer called client-side!");
 			return;
 		}
 		logisticspipes.network.PacketHandler.sendToPlayer(packet, player);
@@ -224,7 +224,7 @@ public class MainProxy {
 
 	public static void sendToAllPlayers(ModernPacket packet) {
 		if (!MainProxy.isServer()) {
-			LogisticsPipes.log.error("sendToAllPlayers called client-side!");
+			LogisticsPipes.LOG.error("sendToAllPlayers called client-side!");
 			return;
 		}
 		var server = ServerLifecycleHooks.getCurrentServer();
@@ -277,7 +277,7 @@ public class MainProxy {
 	public static boolean isPipeControllerEquipped(Player player) {
 		return player != null &&
 				!player.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() &&
-				player.getItemBySlot(EquipmentSlot.MAINHAND).getItem() == LPItems.pipeController.get();
+				player.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.PIPE_CONTROLLER.get());
 	}
 
 	@SubscribeEvent

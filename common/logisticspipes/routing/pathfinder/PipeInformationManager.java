@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import logisticspipes.LogisticsPipes;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -30,7 +31,7 @@ public class PipeInformationManager {
 							return provider;
 						}
 					} catch (InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException | SecurityException | NoSuchMethodException e) {
-						logisticspipes.LogisticsPipes.log.error("Failed to instantiate IPipeInformationProvider for type {}", type.getName(), e);
+						LogisticsPipes.LOG.error("Failed to instantiate IPipeInformationProvider for type {}", type.getName(), e);
 					}
 				}
 			}
@@ -76,7 +77,7 @@ public class PipeInformationManager {
 							return true;
 						}
 					} catch (InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException | NoSuchMethodException | SecurityException e) {
-						logisticspipes.LogisticsPipes.log.error("Failed to check IPipeInformationProvider for type {}", type.getName(), e);
+						LogisticsPipes.LOG.error("Failed to check IPipeInformationProvider for type {}", type.getName(), e);
 					}
 				}
 			}

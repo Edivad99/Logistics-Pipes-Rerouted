@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -118,7 +118,7 @@ public class RequestRoutingLasersPacket extends CoordinatesPacket {
 			}
 			lasers.add(new LaserData(pipe.getX(), pipe.getY(), pipe.getZ(), dir, connectionType).setStartPipe(firstPipe));
 			firstPipe = false;
-			HashMap<CoreRoutedPipe, ExitRoute> map = PathFinder.paintAndgetConnectedRoutingPipes(pipe, dir, Configs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), Configs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), (world, laser) -> {
+			HashMap<CoreRoutedPipe, ExitRoute> map = PathFinder.paintAndgetConnectedRoutingPipes(pipe, dir, LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), (world, laser) -> {
 				if (pipe.getWorld() == world) {
 					lasers.add(laser);
 				}

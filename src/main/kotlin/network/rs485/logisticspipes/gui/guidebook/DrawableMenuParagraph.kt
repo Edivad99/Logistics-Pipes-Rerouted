@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.LPItems
+import logisticspipes.world.item.LPItems
 import logisticspipes.utils.MinecraftColor
 import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.core.registries.BuiltInRegistries
@@ -62,7 +62,7 @@ private fun iconStack(icon: String): ItemStack {
     // tryParse instead of the constructor: book pages are data-driven and a malformed identifier
     // (e.g. uppercase) must degrade to the broken item, not throw (1.12's constructor never threw).
     val item = ResourceLocation.tryParse(icon)?.let { BuiltInRegistries.ITEM.get(it) }
-    return if (item == null || item === Items.AIR) ItemStack(LPItems.getBrokenItem()) else ItemStack(item)
+    return if (item == null || item === Items.AIR) LPItems.BROKEN_ITEM.toStack() else ItemStack(item)
 }
 
 private const val listEntryHeight = 24

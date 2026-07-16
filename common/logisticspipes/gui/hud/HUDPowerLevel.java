@@ -1,5 +1,6 @@
 package logisticspipes.gui.hud;
 
+import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IPowerLevelDisplay;
@@ -11,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer {
 
 	private final IPowerLevelDisplay junction;
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/power_junction.png");
+	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/power_junction.png");
 
 	public HUDPowerLevel(IPowerLevelDisplay junction) {
 		this.junction = junction;

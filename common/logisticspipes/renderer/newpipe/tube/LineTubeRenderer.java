@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
@@ -34,11 +35,12 @@ public final class LineTubeRenderer implements ISpecialPipeRenderer, IHighlightP
 	//Global Access
 	public static Map<TubeLineRenderOrientation, IModel3D> tubeLine = new HashMap<>();
 
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/blocks/pipes/hs-tube-line.png");
+	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/blocks/pipes/hs-tube-line.png");
 
 	public static void loadModels() {
 		try {
-			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(LogisticsPipes.class.getResourceAsStream("/models/HSTube-Line_result.obj"), 7, new LPScale(1 / 100f));
+			Map<String, IModel3D> pipePartModels = SimpleServiceLocator.cclProxy.parseObjModels(
+          LogisticsPipes.class.getResourceAsStream("/models/HSTube-Line_result.obj"), 7, new LPScale(1 / 100f));
 
 			//tubeTurnMounts
 			for (TubeLineRenderOrientation turn : TubeLineRenderOrientation.values()) {

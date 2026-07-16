@@ -15,12 +15,12 @@ public class SpecialTankHandler {
 		try {
 			if (handler.init()) {
 				handlers.add(handler);
-				LogisticsPipes.log.info("Loaded SpecialTankHandler: " + handler.getClass().getName());
+				LogisticsPipes.LOG.info("Loaded SpecialTankHandler: " + handler.getClass().getName());
 			} else {
-				LogisticsPipes.log.warn("Didn't load SpecialTankHandler: " + handler.getClass().getName());
+				LogisticsPipes.LOG.warn("Didn't load SpecialTankHandler: " + handler.getClass().getName());
 			}
 		} catch (Exception e) {
-			LogisticsPipes.log.error("Failed to register SpecialTankHandler", e);
+			LogisticsPipes.LOG.error("Failed to register SpecialTankHandler", e);
 		}
 	}
 

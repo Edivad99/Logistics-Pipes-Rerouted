@@ -503,7 +503,7 @@ public class PipeTransportLogistics {
 						positionInt = ((ChassiTargetInformation) arrivingItem.getInfo().targetInfo).getModuleSlot();
 						slot = ModulePositionType.SLOT;
 					} else if (LogisticsPipes.isDEBUG() && container.pipe instanceof PipeLogisticsChassis) {
-						LogisticsPipes.log.warn("[ItemInsertion] info not for chassis pipe: {}", arrivingItem, new RuntimeException("stack trace"));
+						LogisticsPipes.LOG.warn("[ItemInsertion] info not for chassis pipe: {}", arrivingItem, new RuntimeException("stack trace"));
 					}
 					slotManager = getRoutedPipe().getUpgradeManager(slot, positionInt);
 				}

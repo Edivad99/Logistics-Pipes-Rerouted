@@ -38,7 +38,7 @@ public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvide
 		LogisticsTileGenericPipe pipe = getTileAs(world, LogisticsTileGenericPipe.class);
 		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
 			if (LogisticsPipes.isDEBUG() && pipe.isInitialized()) {
-				LogisticsPipes.log.error(toString());
+				LogisticsPipes.LOG.error(toString());
 				new RuntimeException("Couldn't find " + clazz.getName() + ", pipe didn't exsist").printStackTrace();
 			}
 			return null;
@@ -51,7 +51,7 @@ public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvide
 		} else {
 			if (!(pipe.pipe instanceof PipeLogisticsChassis)) {
 				if (LogisticsPipes.isDEBUG()) {
-					LogisticsPipes.log.error(toString());
+					LogisticsPipes.LOG.error(toString());
 					new RuntimeException("Couldn't find " + clazz.getName() + ", pipe wasn't a chassi pipe").printStackTrace();
 				}
 				return null;
@@ -61,14 +61,14 @@ public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvide
 		if (module != null) {
 			if (!(clazz.isAssignableFrom(module.getClass()))) {
 				if (LogisticsPipes.isDEBUG()) {
-					LogisticsPipes.log.error(toString());
+					LogisticsPipes.LOG.error(toString());
 					new RuntimeException("Couldn't find " + clazz.getName() + ", found " + module.getClass()).printStackTrace();
 				}
 				return null;
 			}
 		} else {
 			if (LogisticsPipes.isDEBUG()) {
-				LogisticsPipes.log.error(toString());
+				LogisticsPipes.LOG.error(toString());
 				new RuntimeException("Couldn't find " + clazz.getName()).printStackTrace();
 			}
 		}

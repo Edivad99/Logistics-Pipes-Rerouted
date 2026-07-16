@@ -37,10 +37,6 @@
 
 package network.rs485.logisticspipes.gui.font
 
-import logisticspipes.LogisticsPipes
-import java.util.*
-import kotlin.math.max
-
 // TODO: Rendering deferred — GL11/GlStateManager/TextureUtil usage stubbed for 1.20.1 migration.
 
 private val buffer = java.nio.ByteBuffer.allocateDirect(10000000).asIntBuffer()

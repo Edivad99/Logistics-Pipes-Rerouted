@@ -21,7 +21,7 @@ public class DictItemIdentifier {
 		boolean hasDict = false;
 		final ItemStack stack = itemIdent.unsafeMakeNormalStack(1);
 		if (stack.isEmpty()) {
-			LogisticsPipes.log.error("Cannot make stack from item " + itemIdent.toString() + " -- item creates and empty stack!");
+			LogisticsPipes.LOG.error("Cannot make stack from item " + itemIdent.toString() + " -- item creates and empty stack!");
 			return null;
 		}
 		// 1.20.1 replacement for OreDictionary.getOreIDs: walk the item's tag keys and
@@ -79,6 +79,6 @@ public class DictItemIdentifier {
 			first = false;
 		}
 		builder.append("]");
-		LogisticsPipes.log.info("{}", builder);
+		LogisticsPipes.LOG.info("{}", builder);
 	}
 }

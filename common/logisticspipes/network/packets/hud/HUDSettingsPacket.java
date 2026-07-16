@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.hud;
 
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -40,7 +40,7 @@ public class HUDSettingsPacket extends ModernPacket {
 	@Override
 	public void processPacket(Player player) {
 		final ItemStack equipment = player.getInventory().getItem(slot);
-		if (equipment.getItem() != LPItems.hudGlasses.get()) return;
+		if (equipment.getItem() != LPItems.HUD_GLASSES.get()) return;
 		IHUDConfig config = new HUDConfig(equipment);
 		switch (buttonId) {
 			case 0:

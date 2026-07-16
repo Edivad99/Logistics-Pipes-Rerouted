@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Divisor;
 import it.unimi.dsi.fastutil.ints.IntIterator;
+import logisticspipes.LPConstants;
 import logisticspipes.gui.GuiFirewall;
 import logisticspipes.utils.Color;
 import net.minecraft.ChatFormatting;
@@ -34,15 +35,15 @@ import net.neoforged.api.distmarker.OnlyIn;
 public final class LPGuiGraphics {
 
 	public static final ResourceLocation WIDGETS_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/widgets.png");
-	public static final ResourceLocation SLOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot.png");
-	public static final ResourceLocation BIG_SLOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot-big.png");
-	public static final ResourceLocation SMALL_SLOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot-small.png");
-	public static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/guibackground.png");
-	public static final ResourceLocation LOCK_ICON = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/lock.png");
-	public static final ResourceLocation LINES_ICON = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/lines.png");
-	public static final ResourceLocation STATS_ICON = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/stats.png");
-	public static final ResourceLocation SLOT_DISK_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot_disk.png");
-	public static final ResourceLocation SLOT_PROGRAMMER_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/slot_programmer.png");
+	public static final ResourceLocation SLOT_TEXTURE = LPConstants.rl("textures/gui/slot.png");
+	public static final ResourceLocation BIG_SLOT_TEXTURE = LPConstants.rl("textures/gui/slot-big.png");
+	public static final ResourceLocation SMALL_SLOT_TEXTURE = LPConstants.rl("textures/gui/slot-small.png");
+	public static final ResourceLocation BACKGROUND_TEXTURE = LPConstants.rl("textures/gui/guibackground.png");
+	public static final ResourceLocation LOCK_ICON = LPConstants.rl("textures/gui/lock.png");
+	public static final ResourceLocation LINES_ICON = LPConstants.rl("textures/gui/lines.png");
+	public static final ResourceLocation STATS_ICON = LPConstants.rl("textures/gui/stats.png");
+	public static final ResourceLocation SLOT_DISK_TEXTURE = LPConstants.rl("textures/gui/slot_disk.png");
+	public static final ResourceLocation SLOT_PROGRAMMER_TEXTURE = LPConstants.rl("textures/gui/slot_programmer.png");
 	public static float zLevel = 0.0F;
 
 	private LPGuiGraphics() {}

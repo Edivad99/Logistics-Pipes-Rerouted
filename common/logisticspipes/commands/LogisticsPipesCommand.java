@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import logisticspipes.LPConstants;
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.commands.exception.CommandNotFoundException;
 import logisticspipes.commands.exception.LPCommandException;
@@ -28,7 +29,7 @@ public class LogisticsPipesCommand {
 
 	public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
-			Commands.literal("logisticspipes")
+			Commands.literal(LPConstants.ID)
 				.requires(src -> src.hasPermission(0))
 				.then(Commands.literal("help")
 					.executes(ctx -> {
@@ -50,7 +51,7 @@ public class LogisticsPipesCommand {
 		dispatcher.register(
 			Commands.literal("lp")
 				.requires(src -> src.hasPermission(0))
-				.redirect(dispatcher.getRoot().getChild("logisticspipes"))
+				.redirect(dispatcher.getRoot().getChild(LPConstants.ID))
 		);
 	}
 

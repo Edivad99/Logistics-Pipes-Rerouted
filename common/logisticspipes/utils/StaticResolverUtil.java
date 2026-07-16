@@ -44,9 +44,9 @@ public class StaticResolverUtil {
 		}
 		Map<String, Set<String>> map = new HashMap<>();
 		try {
-			IModFileInfo modFile = ModList.get().getModFileById(LPConstants.LP_MOD_ID);
+			IModFileInfo modFile = ModList.get().getModFileById(LPConstants.ID);
 			if (modFile == null) {
-				LogisticsPipes.log.error("StaticResolverUtil: LP mod file not found; class resolution disabled");
+				LogisticsPipes.LOG.error("StaticResolverUtil: LP mod file not found; class resolution disabled");
 				childrenByParent = Collections.emptyMap();
 				return;
 			}
@@ -59,7 +59,7 @@ public class StaticResolverUtil {
 				}
 			}
 		} catch (Throwable t) {
-			LogisticsPipes.log.error("StaticResolverUtil: failed to build scan index", t);
+			LogisticsPipes.LOG.error("StaticResolverUtil: failed to build scan index", t);
 			childrenByParent = Collections.emptyMap();
 			return;
 		}

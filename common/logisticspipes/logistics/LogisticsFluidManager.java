@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.interfaces.routing.IFluidSink;
 import logisticspipes.interfaces.routing.IProvideFluids;
 import logisticspipes.items.LogisticsFluidContainer;
@@ -59,7 +59,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 
 	@Override
 	public ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack, HolderLookup.Provider provider) {
-		ItemStack item = new ItemStack(LPItems.fluidContainer.get(), 1);
+		ItemStack item = new ItemStack(LPItems.FLUID_CONTAINER.get(), 1);
 		CompoundTag nbt = new CompoundTag();
 		stack.makeFluidStack().save(provider, nbt);
 		item.set(

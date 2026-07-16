@@ -8,9 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.LogisticsPipesDataComponents;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.api.IRoutedPowerProvider;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IGuiTileEntity;
@@ -30,7 +29,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
-import net.minecraft.CrashReportCategory;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -44,7 +43,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implements IGuiOpenControler, ISecurityProvider, IGuiTileEntity {
 
 	public LogisticsSecurityTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(logisticspipes.LPRegistries.BE_SECURITY_STATION.get(), pos, state);
+		super(LPBlockEntityTypes.BE_SECURITY_STATION.get(), pos, state);
 	}
 
 	public ItemIdentifierInventory inv = new ItemIdentifierInventory(1, "ID Slots", 64);
@@ -198,14 +197,14 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implem
 					return;
 				}
 				if (inv.getIDStackInSlot(0) == null) {
-					ItemStack stack = new ItemStack(LPItems.itemCard.get(), 1);
-					stack.set(LogisticsPipesDataComponents.UUID, getSecId());
+					ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 1);
+					stack.set(LPDataComponents.UUID, getSecId());
 					inv.setItem(0, stack);
 				} else {
 					ItemStack slot = inv.getItem(0);
 					if (slot.getCount() < 64) {
 						slot.grow(1);
-						slot.set(LogisticsPipesDataComponents.UUID, getSecId());
+						slot.set(LPDataComponents.UUID, getSecId());
 						inv.setItem(0, slot);
 					}
 				}
@@ -215,8 +214,8 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implem
 					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 					return;
 				}
-				ItemStack stack = new ItemStack(LPItems.itemCard.get(), 64);
-				stack.set(LogisticsPipesDataComponents.UUID, getSecId());
+				ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 64);
+				stack.set(LPDataComponents.UUID, getSecId());
 				inv.setItem(0, stack);
 				break;
 		}
@@ -333,12 +332,6 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implem
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public void fillCrashReportCategory(CrashReportCategory par1CrashReportCategory) {
-		super.fillCrashReportCategory(par1CrashReportCategory);
-		par1CrashReportCategory.setDetail("LP-Version", LogisticsPipes.getVersionString());
 	}
 
 	@Override

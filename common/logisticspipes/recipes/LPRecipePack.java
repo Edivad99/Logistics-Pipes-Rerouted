@@ -25,7 +25,6 @@ import net.minecraft.server.packs.resources.IoSupplier;
 public class LPRecipePack implements PackResources {
 
 	private static final String PACK_ID = "logisticspipes:virtual_recipes";
-	private static final String NAMESPACE = LPConstants.LP_MOD_ID;
 
 	@Override
 	public String packId() {
@@ -42,7 +41,7 @@ public class LPRecipePack implements PackResources {
 	@Override
 	public IoSupplier<InputStream> getResource(PackType type, ResourceLocation location) {
 		if (type != PackType.SERVER_DATA) return null;
-		if (!NAMESPACE.equals(location.getNamespace())) return null;
+		if (!LPConstants.ID.equals(location.getNamespace())) return null;
 		if (!location.getPath().startsWith("recipes/")) return null;
 
 		// Strip "recipes/" prefix, reconstruct ResourceLocation key
@@ -50,7 +49,7 @@ public class LPRecipePack implements PackResources {
 		if (recipeName.endsWith(".json")) {
 			recipeName = recipeName.substring(0, recipeName.length() - ".json".length());
 		}
-		ResourceLocation recipeKey = ResourceLocation.fromNamespaceAndPath(NAMESPACE, recipeName);
+		ResourceLocation recipeKey = LPConstants.rl(recipeName);
 		String json = RecipeManager.craftingManager.virtualRecipes.get(recipeKey);
 		if (json == null) return null;
 
@@ -61,12 +60,12 @@ public class LPRecipePack implements PackResources {
 	@Override
 	public void listResources(PackType type, String namespace, String path, ResourceOutput output) {
 		if (type != PackType.SERVER_DATA) return;
-		if (!NAMESPACE.equals(namespace)) return;
+		if (!LPConstants.ID.equals(namespace)) return;
 		if (!"recipes".equals(path) && !path.startsWith("recipes/")) return;
 
 		for (ResourceLocation key : RecipeManager.craftingManager.virtualRecipes.keySet()) {
-			if (!key.getNamespace().equals(NAMESPACE)) continue;
-			ResourceLocation fileLocation = ResourceLocation.fromNamespaceAndPath(NAMESPACE, "recipes/" + key.getPath() + ".json");
+			if (!key.getNamespace().equals(LPConstants.ID)) continue;
+			ResourceLocation fileLocation = LPConstants.rl("recipes/" + key.getPath() + ".json");
 			IoSupplier<InputStream> supplier = getResource(type, fileLocation);
 			if (supplier != null) {
 				output.accept(fileLocation, supplier);
@@ -77,7 +76,7 @@ public class LPRecipePack implements PackResources {
 	@Override
 	public Set<String> getNamespaces(PackType type) {
 		if (type != PackType.SERVER_DATA) return Set.of();
-		return Set.of(NAMESPACE);
+		return Set.of(LPConstants.ID);
 	}
 
 	@SuppressWarnings("unchecked")

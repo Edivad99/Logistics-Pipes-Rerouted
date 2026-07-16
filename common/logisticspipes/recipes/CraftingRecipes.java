@@ -1,9 +1,8 @@
 package logisticspipes.recipes;
 
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -37,6 +36,6 @@ public class CraftingRecipes implements IRecipeProvider {
 		// id alone. Until/unless the coloured orderer is reintroduced as NBT-tagged state or as
 		// 16 separate items, there is only one canonical remote orderer — and a single reset
 		// recipe is enough.
-		RecipeManager.craftingManager.addShapelessResetRecipe(LPItems.remoteOrderer.get(), 0);
+		RecipeManager.craftingManager.addShapelessResetRecipe(LPItems.REMOTE_ORDERER.get(), 0);
 	}
 }

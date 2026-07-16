@@ -10,7 +10,7 @@ package logisticspipes.gui;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nonnull;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
@@ -40,7 +40,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	//private final Screen _previousGui;
 	private final List<SmallGuiButton> moduleConfigButtons = new LinkedList<>();
 
-	private final Slot[] upgradeSlots = new Slot[2 * Configs.CHASSIS_SLOTS_ARRAY[4]];
+	private final Slot[] upgradeSlots = new Slot[2 * LPConfigs.CHASSIS_SLOTS_ARRAY[4]];
 	private net.minecraft.client.gui.components.AbstractButton[] upgradeConfig;
 
 	private final boolean hasUpgradeModuleUpgrade;

@@ -1,7 +1,7 @@
 package logisticspipes.pipes;
 
 import javax.annotation.Nonnull;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
@@ -45,7 +45,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 	public void openGui(Player entityplayer) {
 		boolean flag = true;
 		if (disk.isEmpty()) {
-			if (!entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).getItem().equals(LPItems.disk.get())) {
+			if (!entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).getItem().equals(LPItems.DISK.get())) {
 				disk = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
 				entityplayer.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
 				flag = false;

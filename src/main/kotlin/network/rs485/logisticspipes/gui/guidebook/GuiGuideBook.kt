@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.LPItems
+import logisticspipes.world.item.LPItems
 import logisticspipes.LogisticsPipes
 import logisticspipes.modplugins.jei.JEIPluginLoader
 import logisticspipes.utils.MinecraftColor
@@ -113,7 +113,7 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
                     minecraft?.setScreen(this@GuiGuideBook)
                 }, webLink, true))
             } catch (error: URISyntaxException) {
-                LogisticsPipes.log.warn("Could not parse link $webLink in GuiGuideBook", error)
+                LogisticsPipes.LOG.warn("Could not parse link $webLink in GuiGuideBook", error)
             }
         }
         fun onItemLinkClick(stack: ItemStack) {
@@ -222,7 +222,7 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
     }
 
     override fun onClose() {
-        LPItems.getItemGuideBook().saveState(state)
+        LPItems.GUIDE_BOOK.get().saveState(state)
         if (LogisticsPipes.isDEBUG()) BookContents.clear()
         super.onClose()
     }

@@ -1,6 +1,6 @@
 package logisticspipes.renderer.state;
 
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import lombok.Getter;
@@ -69,10 +69,10 @@ public class TextureMatrix {
 				dirty = true;
 			}
 			hasPowerUpgrade = cPipe.getUpgradeManager().hasRFPowerSupplierUpgrade() || cPipe.getUpgradeManager().getIC2PowerLevel() > 0;
-			if (hasPower != (cPipe._textureBufferPowered || Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean())) {
+			if (hasPower != (cPipe._textureBufferPowered || LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean())) {
 				dirty = true;
 			}
-			hasPower = cPipe._textureBufferPowered || Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean();
+			hasPower = cPipe._textureBufferPowered || LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean();
 			if (isFluid != cPipe.isFluidPipe()) {
 				dirty = true;
 			}

@@ -1,11 +1,12 @@
 package logisticspipes.recipes;
 
+import logisticspipes.LPConstants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 public class NBTIngredient /*extends AbstractIngredient*/ {
 
-	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("logisticspipes", "nbt");
+	public static final ResourceLocation ID = LPConstants.rl("nbt");
 
 //	public static final IIngredientSerializer<NBTIngredient> SERIALIZER = new IIngredientSerializer<NBTIngredient>() {
 //		@Override

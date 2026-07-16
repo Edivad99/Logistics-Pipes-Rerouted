@@ -9,14 +9,12 @@ package logisticspipes.gui.orderer;
 
 import java.util.Collection;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.gui.popup.GuiRequestPopup;
 import logisticspipes.interfaces.ISpecialItemRenderer;
 import logisticspipes.network.PacketHandler;
@@ -36,7 +34,6 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
@@ -46,7 +43,6 @@ import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer {
@@ -104,7 +100,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		addRenderableWidget(wire(new SmallGuiButton(6, xCenter + 26, bottom - 26, 10, 10, "+"), 6)); // +1
 		addRenderableWidget(wire(new SmallGuiButton(7, xCenter + 38, bottom - 26, 15, 10, "++"), 7)); // +10
 		addRenderableWidget(wire(new SmallGuiButton(11, xCenter + 26, bottom - 15, 26, 10, "+++"), 11)); // +64
-		popupCheck = new GuiCheckBox(8, leftPos + 9, bottom - 60, 14, 14, Configs.COMMON.DISPLAY_POPUP.getAsBoolean());
+		popupCheck = new GuiCheckBox(8, leftPos + 9, bottom - 60, 14, 14, LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean());
 		popupCheck.setPressListener(b -> handleBtn(8, b));
 		addRenderableWidget(popupCheck); // Popup
 
@@ -257,8 +253,8 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 			itemDisplay.add(3);
 		} else if (id == 8) {
 			GuiCheckBox button = (GuiCheckBox) guibutton;
-			Configs.COMMON.DISPLAY_POPUP.set(button.change());
-			Configs.savePopupState();
+			LPConfigs.COMMON.DISPLAY_POPUP.set(button.change());
+			LPConfigs.savePopupState();
 		} else if (id == 13 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestComponentPacket.class).setStack(stack).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));

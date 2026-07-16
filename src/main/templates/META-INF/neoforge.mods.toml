@@ -3,7 +3,7 @@ loaderVersion = "${loader_version_range}"
 license     = "MMPL-1.0.1"
 
 [[mods]]
-    modId       = "logisticspipes"
+    modId = "${mod_id}"
     version = "${mod_version}"
     displayName = "Logistic Pipes 2"
     description = '''
@@ -14,9 +14,9 @@ license     = "MMPL-1.0.1"
         Originally by Krapht; 1.12.2 codebase by the RS485 LP team. This port is
         maintained by NoZeroG and distributed under the MMPL-1.0.1.
     '''
-    authors     = "NoZeroG (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
-    displayURL       = "https://github.com/VoiceLessQ/Logistic-Pipes-2"
-    issueTrackerURL  = "https://github.com/VoiceLessQ/Logistic-Pipes-2/issues"
+    authors = "NoZeroG (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
+    displayURL = "https://github.com/VoiceLessQ/Logistic-Pipes-2"
+    issueTrackerURL = "https://github.com/VoiceLessQ/Logistic-Pipes-2/issues"
 
 [[dependencies.logisticspipes]]
     type = "required"

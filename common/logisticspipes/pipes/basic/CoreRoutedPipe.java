@@ -25,13 +25,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import kotlin.Unit;
 import logisticspipes.LPConstants;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
@@ -227,9 +227,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Override
 	public void initialize() {
 		super.initialize();
-		throttleTimeLeft = 20 + new Random().nextInt(Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
+		throttleTimeLeft = 20 + new Random().nextInt(LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
 		//Roughly spread pipe updates throughout the frequency, no need to maintain balance
-		_delayOffset = CoreRoutedPipe.pipecount % Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
+		_delayOffset = CoreRoutedPipe.pipecount % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
 	}
 
 	@Override
@@ -425,14 +425,14 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			final ItemRoutingInformation polledInfo = _inTransitToMe.poll();
 			if (polledInfo != null) {
 				if (LogisticsPipes.isDEBUG()) {
-					LogisticsPipes.log.info("Timed Out: " + polledInfo.getItem().getFriendlyName() + " (" + polledInfo.hashCode() + ")");
+					LogisticsPipes.LOG.info("Timed Out: " + polledInfo.getItem().getFriendlyName() + " (" + polledInfo.hashCode() + ")");
 				}
 				debug.log("Timed Out: " + polledInfo.getItem().getFriendlyName() + " (" + polledInfo.hashCode() + ")");
 			}
 		}
 		//update router before ticking logic/transport
 		final boolean doFullRefresh =
-				getWorld().getGameTime() % Configs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt() == _delayOffset
+				getWorld().getGameTime() % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt() == _delayOffset
 				|| _initialInit || recheckConnections;
 		if (doFullRefresh) {
 			// update adjacent cache first, so interests can be gathered correctly
@@ -591,7 +591,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 		sb.append("################END#################\n");
 		refreshConnectionAndRender(true);
-		LogisticsPipes.log.info("{}", sb);
+		LogisticsPipes.LOG.info("{}", sb);
 		router.CreateRouteTable(Integer.MAX_VALUE);
 	}
 
@@ -610,7 +610,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			}
 			getOriginalUpgradeManager().dropUpgrades();
 		} catch (Exception e) {
-			LogisticsPipes.log.error("Exception during pipe teardown at ({}, {}, {})", getX(), getY(), getZ(), e);
+			LogisticsPipes.LOG.error("Exception during pipe teardown at ({}, {}, {})", getX(), getY(), getZ(), e);
 		}
 	}
 
@@ -633,7 +633,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	public void checkTexturePowered() {
-		if (Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
+		if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return;
 		}
 		if (!isNthTick(10)) {
@@ -680,7 +680,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				} else if (texture.fileName.equals(Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE.fileName)) {
 					texture = Textures.LOGISTICSPIPE_DIRECTION_POWERED_TEXTURE;
 				} else {
-					LogisticsPipes.log.warn("Unknown texture to power: {} class={} connection={}", texture.fileName, this.getClass(), connection);
+					LogisticsPipes.LOG.warn("Unknown texture to power: {} class={} connection={}", texture.fileName, this.getClass(), connection);
 				}
 			}
 			return texture;
@@ -704,7 +704,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public void spawnParticle(Particles particle, int amount) {
-		if (!Configs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
+		if (!LPConfigs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
 			return;
 		}
 		queuedParticles[particle.ordinal()] += amount;
@@ -863,7 +863,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Nonnull
 	public IRouter getRouter() {
 		if (stillNeedReplace) {
-			LogisticsPipes.log.debug("Pipe not ready at ({}, {}, {}, '{}')", this.getX(), this.getY(), this.getZ(),
+			LogisticsPipes.LOG.debug("Pipe not ready at ({}, {}, {}, '{}')", this.getX(), this.getY(), this.getZ(),
 					getWorld() != null ? getWorld().dimension().location().toString() : "unknown");
 		}
 		if (router == null) {
@@ -935,7 +935,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			return true;
 		}
 
-		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).getItem() == LPItems.remoteOrderer.get()) {
+		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openRequest) {
 					logisticspipes.network.guis.pipe.NormalOrdererGui gui = NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
@@ -1113,7 +1113,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (MainProxy.isClient(getWorld())) {
 			return false;
 		}
-		if (Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
+		if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return true;
 		}
 		if (amount == 0) {
@@ -1149,7 +1149,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (MainProxy.isClient(getWorld())) {
 			return false;
 		}
-		if (Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
+		if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return true;
 		}
 		if (amount == 0) {
@@ -1285,7 +1285,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 			if (wantItem <= item.getStackSize()) {
 				if (queue.remove() != pair) {
-					LogisticsPipes.log.error("Item queue mismatch");
+					LogisticsPipes.LOG.error("Item queue mismatch");
 					return null;
 				}
 				if (queue.isEmpty()) {
@@ -1338,7 +1338,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		TextureType texture = getTextureType(connection);
 		if (_textureBufferPowered) {
 			return texture.powered;
-		} else if (Configs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
+		} else if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return texture.normal;
 		} else {
 			return texture.unpowered;
@@ -1457,7 +1457,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@CCCommand(description = "Returns the global LP object which is used to access general LP methods.", needPermission = false)
 	@CCDirectCall
 	public Object getLP() throws PermissionException {
-		return LogisticsPipes.getComputerLP();
+		return null;//LogisticsPipes.getComputerLP();
 	}
 
 	@CCCommand(description = "Returns true if the pipe has an internal module")
@@ -1643,9 +1643,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Override
 	public boolean isOpaque() {
 		if (MainProxy.isClient(getWorld())) {
-			return Configs.COMMON.OPAQUE.getAsBoolean() || isOpaqueClientSide;
+			return LPConfigs.COMMON.OPAQUE.getAsBoolean() || isOpaqueClientSide;
 		} else {
-			return Configs.COMMON.OPAQUE.getAsBoolean() || this.getUpgradeManager().isOpaque();
+			return LPConfigs.COMMON.OPAQUE.getAsBoolean() || this.getUpgradeManager().isOpaque();
 		}
 	}
 

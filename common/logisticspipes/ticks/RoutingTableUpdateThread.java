@@ -2,7 +2,7 @@ package logisticspipes.ticks;
 
 import java.util.concurrent.PriorityBlockingQueue;
 
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 
 public class RoutingTableUpdateThread extends Thread {
 
@@ -13,7 +13,7 @@ public class RoutingTableUpdateThread extends Thread {
 	public RoutingTableUpdateThread(int i) {
 		super("LogisticsPipes RoutingTableUpdateThread #" + i);
 		setDaemon(true);
-		setPriority(Configs.COMMON.MULTI_THREAD_PRIORITY.getAsInt());
+		setPriority(LPConfigs.COMMON.MULTI_THREAD_PRIORITY.getAsInt());
 		start();
 	}
 

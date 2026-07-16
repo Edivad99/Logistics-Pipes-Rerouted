@@ -15,6 +15,7 @@ import logisticspipes.renderer.state.PipeSubRenderState;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.ISubMultiBlockPipeInformationProvider;
 import logisticspipes.utils.TileBuffer;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -40,12 +41,12 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 
 	@Deprecated
 	public LogisticsTileGenericSubMultiBlock(BlockPos blockPos, BlockState blockState) {
-		super(logisticspipes.LPRegistries.BE_SUB_PIPE.get(), blockPos, blockState);
+		super(LPBlockEntityTypes.BE_SUB_PIPE.get(), blockPos, blockState);
 		renderState = new PipeSubRenderState();
 	}
 
 	public LogisticsTileGenericSubMultiBlock(BlockPos blockPos, BlockState blockState, DoubleCoordinates pos) {
-		super(logisticspipes.LPRegistries.BE_SUB_PIPE.get(), blockPos, blockState);
+		super(LPBlockEntityTypes.BE_SUB_PIPE.get(), blockPos, blockState);
 		if (pos != null) {
 			mainPipePos.add(pos);
 		}

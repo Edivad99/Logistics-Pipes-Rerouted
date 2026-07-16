@@ -216,12 +216,12 @@ public class RecipeManager {
 	}
 
 	private static ResourceLocation getFreeRecipeResourceLocation(Item item) {
-		ResourceLocation baseLoc = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, BuiltInRegistries.ITEM.getKey(item).getPath());
+		ResourceLocation baseLoc = LPConstants.rl(BuiltInRegistries.ITEM.getKey(item).getPath());
 		ResourceLocation recipeLoc = baseLoc;
 		int index = 0;
 		while (craftingManager.virtualRecipes.containsKey(recipeLoc)) {
 			index++;
-			recipeLoc = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, BuiltInRegistries.ITEM.getKey(item).getPath() + "_" + index);
+			recipeLoc = LPConstants.rl(BuiltInRegistries.ITEM.getKey(item).getPath() + "_" + index);
 		}
 		return recipeLoc;
 	}

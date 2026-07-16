@@ -42,7 +42,7 @@ import network.rs485.logisticspipes.property.NullableEnumProperty
 import network.rs485.logisticspipes.property.Property
 import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
-import logisticspipes.config.Configs
+import logisticspipes.LPConfigs
 import logisticspipes.interfaces.*
 import logisticspipes.network.NewGuiHandler
 import logisticspipes.network.PacketHandler
@@ -126,7 +126,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
     }
 
     suspend fun runAsyncWork() {
-        if (!Configs.COMMON.DISABLE_ASYNC_WORK.asBoolean) {
+        if (!LPConfigs.COMMON.DISABLE_ASYNC_WORK.asBoolean) {
             updateRoutingTableMsgChannel.consumeAsFlow().collect {
                 module.serverRouter?.also { serverRouter ->
                     AsyncRouting.updateRoutingTable(serverRouter)
@@ -222,7 +222,7 @@ class AsyncExtractorModule(
             NewGuiHandler.getGui(SneakyModuleInHandGuiProvider::class.java)
 
     override val everyNthTick: Int
-        get() = (80 / upgradeManager.let { 2.0.pow(it.actionSpeedUpgrade) }).toInt() + Configs.COMMON.MINIMUM_JOB_TICK_LENGTH.asInt
+        get() = (80 / upgradeManager.let { 2.0.pow(it.actionSpeedUpgrade) }).toInt() + LPConfigs.COMMON.MINIMUM_JOB_TICK_LENGTH.asInt
 
     val stacksToExtract: Int
         get() = 1 + upgradeManager.itemStackExtractionUpgrade

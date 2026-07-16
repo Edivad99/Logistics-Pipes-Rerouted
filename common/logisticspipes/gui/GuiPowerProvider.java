@@ -3,6 +3,7 @@ package logisticspipes.gui;
 
 import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
+import logisticspipes.LPConstants;
 import logisticspipes.blocks.powertile.LogisticsPowerProviderTileEntity;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
@@ -29,7 +30,7 @@ public class GuiPowerProvider extends LogisticsBaseGuiScreen {
 	}
 
 
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/power_junction.png");
+	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/power_junction.png");
 
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {

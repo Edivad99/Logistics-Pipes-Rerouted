@@ -58,7 +58,7 @@ data class WorldCoordinatesWrapper(private val world: Level, private val pos: Bl
     fun connectedTileEntities(): List<LPNeighborTileEntity<BlockEntity>> {
         val pipe = tileEntity
         if (SimpleServiceLocator.pipeInformationManager.isNotAPipe(pipe)) {
-            LogisticsPipes.log.warn("The coordinates didn't hold a pipe at all", Throwable("Stack trace"))
+            LogisticsPipes.LOG.warn("The coordinates didn't hold a pipe at all", Throwable("Stack trace"))
             return emptyList()
         }
         return allNeighborTileEntities().filter { adjacent -> MainProxy.checkPipesConnections(pipe, adjacent.tileEntity, adjacent.direction) }

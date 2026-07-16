@@ -96,7 +96,7 @@ private val metadataRegex = "^\\s*<!---\\s*\\n(.*?)\\n\\s*--->\\s*(.*)$".toRegex
 fun loadPage(path: String, lang: String): PageInfoProvider {
     val resolvedLocation = resolveAbsoluteLocation(resolvedLocation = Paths.get(path), language = lang).toLocation(false)
     return try {
-        val bookFile = Minecraft.getInstance().resourceManager.getResource(ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, resolvedLocation))
+        val bookFile = Minecraft.getInstance().resourceManager.getResource(LPConstants.rl(resolvedLocation))
             .orElseThrow { IOException("Resource not found: $resolvedLocation") }
         LoadedPage(
             fileLocation = path,
@@ -106,7 +106,7 @@ fun loadPage(path: String, lang: String): PageInfoProvider {
     } catch (error: IOException) {
         if (lang != "en_us") {
             // Didn't find current file, checking for english version.
-            if (LogisticsPipes.isDEBUG()) LogisticsPipes.log.error("Language $lang for the current file ($resolvedLocation) was not found. Defaulting to en_us.")
+            if (LogisticsPipes.isDEBUG()) LogisticsPipes.LOG.error("Language $lang for the current file ($resolvedLocation) was not found. Defaulting to en_us.")
             loadPage(path, "en_us")
         } else {
             // English not found, this may be normal. Maybe the previous language file pointed to a non-existent file.
@@ -140,7 +140,7 @@ private fun parseMetadata(metadataString: String, markdownFile: String): YamlPag
     return try {
         parseYamlMetadata(metadataString)
     } catch (e: Exception) {
-        LogisticsPipes.log.error("The following Yaml in $markdownFile is malformed! \n$metadataString", e)
+        LogisticsPipes.LOG.error("The following Yaml in $markdownFile is malformed! \n$metadataString", e)
         MISSING_META
     }
 }
@@ -239,10 +239,10 @@ class LoadedPage(override val fileLocation: String, override val language: Strin
                                 this@apply[1],
                             )
                         )
-                        if (item == null) LogisticsPipes.log.error("Item does not exist! ${it.icon}")
+                        if (item == null) LogisticsPipes.LOG.error("Item does not exist! ${it.icon}")
                     }
                 } catch (e: Exception) {
-                    LogisticsPipes.log.warn("Problem while checking if \\\"${it.icon}\\\" exists.")
+                    LogisticsPipes.LOG.warn("Problem while checking if \\\"${it.icon}\\\" exists.")
                 }
             }
         }
@@ -273,7 +273,7 @@ interface PageInfoProvider {
     fun resolveResource(location: String): ResourceLocation =
         location.lastIndexOf(':').let { idx ->
             val resourceDomain = when (idx) {
-                -1 -> LPConstants.LP_MOD_ID
+                -1 -> LPConstants.ID
                 else -> location.substring(0 until idx)
             }
             var resourcePath: String = ((idx + 1)..location.lastIndex).let { if (it.isEmpty()) "" else location.substring(it) }

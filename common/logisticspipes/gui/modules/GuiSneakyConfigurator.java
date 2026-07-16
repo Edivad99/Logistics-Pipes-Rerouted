@@ -10,6 +10,7 @@ package logisticspipes.gui.modules;
 import java.util.Locale;
 import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
+import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
@@ -79,7 +80,7 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0x404040, false);
 	}
 
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/sneaky.png");
+	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/sneaky.png");
 
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {

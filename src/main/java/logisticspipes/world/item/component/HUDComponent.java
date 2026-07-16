@@ -1,4 +1,4 @@
-package logisticspipes.items.component;
+package logisticspipes.world.item.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

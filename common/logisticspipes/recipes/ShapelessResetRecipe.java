@@ -25,7 +25,7 @@ import net.minecraft.world.level.Level;
  */
 public class ShapelessResetRecipe extends CustomRecipe {
 
-	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "reset");
+	public static final ResourceLocation ID = LPConstants.rl("reset");
 
 	public static final RecipeSerializer<ShapelessResetRecipe> SERIALIZER =
 			new RecipeSerializer<>() {

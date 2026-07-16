@@ -3,7 +3,7 @@ package logisticspipes.renderer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.PowerPacketLaser;
 import logisticspipes.pipefxhandlers.PipeFXLaserPowerBall;
@@ -187,7 +187,7 @@ public class LogisticsTileRenderController {
 	}
 
 	public void addLaser(Direction dir, float length, int color, boolean reverse, boolean renderBall) {
-		if (!Configs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
+		if (!LPConfigs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
 			return;
 		}
 		boolean sendPacket = false;

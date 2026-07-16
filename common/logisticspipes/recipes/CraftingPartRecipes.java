@@ -3,10 +3,8 @@ package logisticspipes.recipes;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
-import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipesDataComponents;
-import logisticspipes.items.ItemLogisticsProgrammer;
-import net.minecraft.nbt.CompoundTag;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.component.LPDataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -32,9 +30,9 @@ public abstract class CraftingPartRecipes implements IRecipeProvider {
 
 			if (true) { // TODO: Add Config Option
 				craftingPartList.add(new CraftingParts(
-						new ItemStack(LPItems.chipFPGA.get(), 1),
-						new ItemStack(LPItems.chipBasic.get(), 1),
-						new ItemStack(LPItems.chipAdvanced.get(), 1)));
+						new ItemStack(LPItems.CHIP_FPGA.get(), 1),
+						new ItemStack(LPItems.CHIP_BASIC.get(), 1),
+						new ItemStack(LPItems.CHIP_ADVANCED.get(), 1)));
 			}
 		}
 
@@ -48,8 +46,8 @@ public abstract class CraftingPartRecipes implements IRecipeProvider {
 
 	@Nonnull
 	protected Ingredient programmerIngredient(String recipeTarget) {
-		ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer.get());
-		programmerStack.set(LogisticsPipesDataComponents.RECIPE_TARGET, recipeTarget);
+		ItemStack programmerStack = new ItemStack(LPItems.LOGISTICS_PROGRAMMER.get());
+		programmerStack.set(LPDataComponents.RECIPE_TARGET, recipeTarget);
 		return Ingredient.of(programmerStack);
 	}
 

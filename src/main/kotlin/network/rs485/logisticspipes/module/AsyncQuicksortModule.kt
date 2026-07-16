@@ -42,7 +42,7 @@ import network.rs485.logisticspipes.logistics.LogisticsManager
 import network.rs485.logisticspipes.property.Property
 import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
-import logisticspipes.config.Configs
+import logisticspipes.LPConfigs
 import logisticspipes.interfaces.IInventoryUtil
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.packets.modules.QuickSortState
@@ -108,7 +108,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
         if (!stalled && slot == stallSlot) stalled = true
         if (stack.isEmpty) return null
         serverRouter.updateServerRouterLsa()
-        if (!Configs.COMMON.DISABLE_ASYNC_WORK.asBoolean && serverRouter.needsRoutingTableUpdate()) {
+        if (!LPConfigs.COMMON.DISABLE_ASYNC_WORK.asBoolean && serverRouter.needsRoutingTableUpdate()) {
             // go async
             return slot to stack
         }

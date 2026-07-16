@@ -2,11 +2,12 @@ package logisticspipes.blocks.powertile;
 
 import javax.annotation.Nullable;
 
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICoFHEnergyStorage;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -58,7 +59,7 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	private ICoFHEnergyStorage storage;
 
 	public LogisticsRFPowerProviderTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(logisticspipes.LPRegistries.BE_POWER_PROVIDER_RF.get(), pos, state);
+		super(LPBlockEntityTypes.BE_POWER_PROVIDER_RF.get(), pos, state);
 		storage = SimpleServiceLocator.powerProxy.getEnergyStorage(10000);
 	}
 
@@ -118,7 +119,7 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 		super.update();
 		if (MainProxy.isServer(getWorld())) {
 			if (freeSpace() > 0) {
-				if (Configs.COMMON.POWER_SOURCE_MODE.get().equals(Configs.PowerSourceMode.ADJACENT)) {
+				if (LPConfigs.COMMON.POWER_SOURCE_MODE.get().equals(LPConfigs.PowerSourceMode.ADJACENT)) {
 					pullFromAdjacentStorage();
 				} else {
 					addStoredRF();

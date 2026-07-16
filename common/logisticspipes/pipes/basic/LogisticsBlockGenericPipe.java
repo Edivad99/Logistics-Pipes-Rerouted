@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import logisticspipes.LPBlocks;
+import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
@@ -36,7 +36,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -65,7 +64,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -245,7 +243,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			try {
 				item.setDummyPipe(constructor.apply(item));
 			} catch (Exception e) {
-				LogisticsPipes.log.error("Failed to create dummy pipe for {}", name, e);
+				LogisticsPipes.LOG.error("Failed to create dummy pipe for {}", name, e);
 			}
 			return item;
 		});
@@ -256,7 +254,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		if (pipe != null) {
 			return pipe.apply(key);
 		} else {
-			LogisticsPipes.log.warn("Detected pipe with unknown key (" + key + "). This should not have happend.");
+			LogisticsPipes.LOG.warn("Detected pipe with unknown key (" + key + "). This should not have happend.");
 		}
 
 		return null;
@@ -297,7 +295,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 							((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(pos.getType());
 							MainProxy.sendPacketToAllWatchingChunk(subTile, ((LogisticsTileGenericSubMultiBlock) subTile).getLPDescriptionPacket());
 						} else {
-							world.setBlock(pos.getBlockPos(), LPBlocks.subMultiblock.get().defaultBlockState(), 3);
+							world.setBlock(pos.getBlockPos(), LPBlocks.SUB_MULTIBLOCK.get().defaultBlockState(), 3);
 							subTile = world.getBlockEntity(pos.getBlockPos());
 							if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
 								((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(pos.getType());
@@ -345,8 +343,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 				return null;
 			}
 			boolean changed = false;
-			if (worldCache.getBlockState(posCache).getBlock() != LPBlocks.pipe.get()) {
-				worldCache.setBlock(posCache, LPBlocks.pipe.get().defaultBlockState(), 3);
+			if (!worldCache.getBlockState(posCache).is(LPBlocks.PIPE)) {
+				worldCache.setBlock(posCache, LPBlocks.PIPE.get().defaultBlockState(), 3);
 				changed = true;
 			}
 			if (worldCache.getBlockEntity(posCache) != tileCache) {

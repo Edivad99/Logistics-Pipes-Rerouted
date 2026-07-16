@@ -1,8 +1,7 @@
-package logisticspipes;
+package logisticspipes.world.item.component;
 
 import com.mojang.serialization.Codec;
-import io.netty.buffer.ByteBuf;
-import logisticspipes.items.component.HUDComponent;
+import logisticspipes.LPConstants;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -13,9 +12,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.UUID;
 
-public class LogisticsPipesDataComponents {
+public class LPDataComponents {
     private static final DeferredRegister.DataComponents deferredRegister =
-            DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LPConstants.LP_MOD_ID);
+            DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, LPConstants.ID);
 
     public static void register(IEventBus modEventBus) {
         deferredRegister.register(modEventBus);

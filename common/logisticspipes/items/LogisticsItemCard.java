@@ -4,19 +4,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-import logisticspipes.LogisticsPipesDataComponents;
+import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.proxy.SimpleServiceLocator;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExistance {
@@ -31,8 +26,8 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 		super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-		if (stack.has(LogisticsPipesDataComponents.UUID)) {
-			UUID uuid = Objects.requireNonNull(stack.get(LogisticsPipesDataComponents.UUID));
+		if (stack.has(LPDataComponents.UUID)) {
+			UUID uuid = Objects.requireNonNull(stack.get(LPDataComponents.UUID));
 			if (stack.getDamageValue() == LogisticsItemCard.FREQ_CARD) {
 				tooltipComponents.add(Component.literal("Freq. Card"));
 			} else if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {

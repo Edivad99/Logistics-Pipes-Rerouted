@@ -72,14 +72,14 @@ public class LogisticsWrapperHandler {
 		} catch (NoClassDefFoundError | ClassNotFoundException ignored) {}
 		GenericLPPipeConfigToolWrapper instance = new GenericLPPipeConfigToolWrapper(wrapper, name);
 		if (wrapper != null) {
-			LogisticsPipes.log.info("Loaded " + name + " PipeConfigToolWrapper");
+			LogisticsPipes.LOG.info("Loaded " + name + " PipeConfigToolWrapper");
 		} else {
 			if (e != null) {
 				instance.setState(WrapperState.Exception);
 				instance.setReason(e);
-				LogisticsPipes.log.info("Couldn't load " + name + " PipeConfigToolWrapper");
+				LogisticsPipes.LOG.info("Couldn't load " + name + " PipeConfigToolWrapper");
 			} else {
-				LogisticsPipes.log.info("Didn't load " + name + " PipeConfigToolWrapper");
+				LogisticsPipes.LOG.info("Didn't load " + name + " PipeConfigToolWrapper");
 				instance.setState(WrapperState.ModMissing);
 			}
 		}
@@ -106,14 +106,14 @@ public class LogisticsWrapperHandler {
 		}
 		GenericProgressProviderWrapper instance = new GenericProgressProviderWrapper(provider, modId + ": " + name);
 		if (provider != null) {
-			LogisticsPipes.log.info("Loaded " + modId + ", " + name + " ProgressProvider");
+			LogisticsPipes.LOG.info("Loaded " + modId + ", " + name + " ProgressProvider");
 		} else {
 			if (e != null) {
 				instance.setState(WrapperState.Exception);
 				instance.setReason(e);
-				LogisticsPipes.log.info("Couldn't load " + modId + ", " + name + " ProgressProvider");
+				LogisticsPipes.LOG.info("Couldn't load " + modId + ", " + name + " ProgressProvider");
 			} else {
-				LogisticsPipes.log.info("Didn't load " + modId + ", " + name + " ProgressProvider");
+				LogisticsPipes.LOG.info("Didn't load " + modId + ", " + name + " ProgressProvider");
 				instance.setState(WrapperState.ModMissing);
 			}
 		}
@@ -141,14 +141,14 @@ public class LogisticsWrapperHandler {
 		}
 		CraftingRecipeProviderWrapper instance = new CraftingRecipeProviderWrapper(provider, name);
 		if (provider != null) {
-			LogisticsPipes.log.info("Loaded " + name + " RecipeProvider");
+			LogisticsPipes.LOG.info("Loaded " + name + " RecipeProvider");
 		} else {
 			if (e != null) {
 				instance.setState(WrapperState.Exception);
 				instance.setReason(e);
-				LogisticsPipes.log.info("Couldn't load " + name + " RecipeProvider");
+				LogisticsPipes.LOG.info("Couldn't load " + name + " RecipeProvider");
 			} else {
-				LogisticsPipes.log.info("Didn't load " + name + " RecipeProvider");
+				LogisticsPipes.LOG.info("Didn't load " + name + " RecipeProvider");
 				instance.setState(WrapperState.ModMissing);
 			}
 		}
@@ -293,9 +293,9 @@ public class LogisticsWrapperHandler {
 		}
 		T instance = (T) clazz.getConstructor(new Class<?>[] { interfaze, interfaze }).newInstance(dummyProxy, proxy);
 		if (proxy != null) {
-			LogisticsPipes.log.info("Loaded " + proxyName + "Proxy");
+			LogisticsPipes.LOG.info("Loaded " + proxyName + "Proxy");
 		} else {
-			LogisticsPipes.log.info("Loaded " + proxyName + " DummyProxy");
+			LogisticsPipes.LOG.info("Loaded " + proxyName + " DummyProxy");
 			if (e != null) {
 				((AbstractWrapper) instance).setState(WrapperState.Exception);
 				((AbstractWrapper) instance).setReason(e);
@@ -678,13 +678,13 @@ public class LogisticsWrapperHandler {
 		}
 
 		try {
-			LogisticsPipes.log.debug("Saving transformed class \"{}\" to \"{}\"", transformedName, outFile.getAbsolutePath().replace('\\', '/'));
+			LogisticsPipes.LOG.debug("Saving transformed class \"{}\" to \"{}\"", transformedName, outFile.getAbsolutePath().replace('\\', '/'));
 
 			final OutputStream output = new FileOutputStream(outFile);
 			output.write(data);
 			output.close();
 		} catch (IOException ex) {
-			LogisticsPipes.log.warn("Could not save transformed class \"{}\"", transformedName, ex);
+			LogisticsPipes.LOG.warn("Could not save transformed class \"{}\"", transformedName, ex);
 		}
 	}
 }

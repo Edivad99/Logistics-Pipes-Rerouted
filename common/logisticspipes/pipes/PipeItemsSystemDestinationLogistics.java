@@ -3,7 +3,7 @@ package logisticspipes.pipes;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import logisticspipes.LogisticsPipesDataComponents;
+import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -47,11 +47,11 @@ public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe {
 			return null;
 		}
 		final ItemStack stack = itemIdent.makeNormalStack();
-		if (!stack.has(LogisticsPipesDataComponents.UUID)) {
+		if (!stack.has(LPDataComponents.UUID)) {
 			return null;
 		}
 		spawnParticle(Particles.WhiteParticle, 2);
-		return stack.get(LogisticsPipesDataComponents.UUID);
+		return stack.get(LPDataComponents.UUID);
 	}
 
 	@Override

@@ -59,7 +59,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.NbtIo; // was CompressedStreamTools
 import net.minecraft.nbt.CompoundTag;
@@ -627,7 +626,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 		ItemIdentifier item = readItemIdentifier();
 		if (item == null) {
-			LogisticsPipes.log.error("Read null ItemIdentifier in readItemIdentifierStack");
+			LogisticsPipes.LOG.error("Read null ItemIdentifier in readItemIdentifierStack");
 			return null;
 		}
 		return new ItemIdentifierStack(item, stacksize);

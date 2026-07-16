@@ -43,11 +43,8 @@ import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
-import net.minecraft.resources.ResourceLocation
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.ceil
-import kotlin.math.tan
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -72,13 +69,13 @@ class LPFontRenderer(private val fontName: String) {
                 }.forEach { deferred ->
                     deferred.invokeOnCompletion {
                         if (it != null) {
-                            LogisticsPipes.log.error("Error while preloading fonts:\n${it.stackTraceToString()}")
+                            LogisticsPipes.LOG.error("Error while preloading fonts:\n${it.stackTraceToString()}")
                         } else {
                             val fontRenderer = deferred.getCompleted()
-                            LogisticsPipes.log.info("Preloaded font files: ${fontRenderer.fontName}")
+                            LogisticsPipes.LOG.info("Preloaded font files: ${fontRenderer.fontName}")
                             Minecraft.getInstance().execute {
                                 fontRenderer::wrapperPlain.get()
-                                LogisticsPipes.log.info("Created font textures for: ${fontRenderer.fontName}")
+                                LogisticsPipes.LOG.info("Created font textures for: ${fontRenderer.fontName}")
                             }
                         }
                     }
@@ -89,14 +86,14 @@ class LPFontRenderer(private val fontName: String) {
 
     private val fontPlain: IFont by lazy {
         val initialTime = System.currentTimeMillis()
-        val fontResourcePlain = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "fonts/$fontName.bdf")
-        FontParser.read(fontResourcePlain).also { LogisticsPipes.log.info("Elapsed time parsing font: ${System.currentTimeMillis() - initialTime}ms") }
+        val fontResourcePlain = LPConstants.rl("fonts/$fontName.bdf")
+        FontParser.read(fontResourcePlain).also { LogisticsPipes.LOG.info("Elapsed time parsing font: ${System.currentTimeMillis() - initialTime}ms") }
             ?: throw IOException("Failed to load ${fontResourcePlain.path}, this is not tolerated.")
     }
 
     private val wrapperPlain: FontWrapper by lazy {
         val initialTime = System.currentTimeMillis()
-        FontWrapper(fontPlain).also { LogisticsPipes.log.info("Elapsed time wrapping font: ${System.currentTimeMillis() - initialTime}ms") }
+        FontWrapper(fontPlain).also { LogisticsPipes.LOG.info("Elapsed time wrapping font: ${System.currentTimeMillis() - initialTime}ms") }
     }
 
     var zLevel: Float = 5f

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
-import logisticspipes.LPItems;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.items.ItemModule;
@@ -129,8 +129,8 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 	}
 	private static DummyContainer buildDummy(Player player, LogisticsProgramCompilerTileEntity compiler) {
 		DummyContainer dummy = new DummyContainer(player.getInventory(), compiler.getInventory());
-		dummy.addRestrictedSlot(0, compiler.getInventory(), 10, 10, LPItems.disk.get());
-		dummy.addRestrictedSlot(1, compiler.getInventory(), 154, 10, LPItems.logisticsProgrammer.get());
+		dummy.addRestrictedSlot(0, compiler.getInventory(), 10, 10, LPItems.DISK.get());
+		dummy.addRestrictedSlot(1, compiler.getInventory(), 154, 10, LPItems.LOGISTICS_PROGRAMMER.get());
 		dummy.addNormalSlotsForPlayerInventory(10, 105);
 		return dummy;
 	}

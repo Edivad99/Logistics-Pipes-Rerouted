@@ -2,6 +2,7 @@ package logisticspipes.ticks;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import logisticspipes.LPConstants;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
@@ -43,7 +44,7 @@ import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 public class RenderTickHandler {
 
-	private static final ResourceLocation GHOST_PIPE_TEXTURE = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/blocks/pipes/white.png");
+	private static final ResourceLocation GHOST_PIPE_TEXTURE = LPConstants.rl("textures/blocks/pipes/white.png");
 
 	private long renderTicks = 0;
 

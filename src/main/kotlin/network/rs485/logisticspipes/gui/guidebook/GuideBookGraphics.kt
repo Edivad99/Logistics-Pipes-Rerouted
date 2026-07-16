@@ -56,8 +56,8 @@ import net.minecraft.resources.ResourceLocation
 internal object GuideBookGraphics {
 
     const val ATLAS_SIZE = 256
-    val GUI_ATLAS = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "textures/gui/gui.png")
-    val GUI_DARK_PATTERN = ResourceLocation.fromNamespaceAndPath(LPConstants.LP_MOD_ID, "textures/gui/dark.png")
+    val GUI_ATLAS: ResourceLocation = LPConstants.rl("textures/gui/gui.png")
+    val GUI_DARK_PATTERN: ResourceLocation = LPConstants.rl("textures/gui/dark.png")
 
     /**
      * Blits a region of the guide book atlas. The destination rectangle is screen-space; the texture

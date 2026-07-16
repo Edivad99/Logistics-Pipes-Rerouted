@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import javax.imageio.ImageIO;
 import com.mojang.blaze3d.systems.RenderSystem;
+import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.routing.order.IOrderInfoProvider;
@@ -70,7 +71,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 	}
 
-	private static final ResourceLocation achievementTextures = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/gui_border.png");
+	private static final ResourceLocation achievementTextures = LPConstants.rl("textures/gui/gui_border.png");
 	private final PipeBlockRequestTable _table;
 	private final int orderId;
 
@@ -221,7 +222,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 					ImageIO.write(bufferedimage, "png", candidate);
 					Minecraft.getInstance().player.sendSystemMessage(net.minecraft.network.chat.Component.literal("Saved tree view as " + candidate.getName()));
 				} catch (IOException e) {
-					LogisticsPipes.log.error("Failed to save tree view PNG", e);
+					LogisticsPipes.LOG.error("Failed to save tree view PNG", e);
 				}
 				return;
 			}

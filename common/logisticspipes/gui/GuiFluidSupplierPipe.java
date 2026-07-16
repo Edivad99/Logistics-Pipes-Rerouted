@@ -8,6 +8,7 @@ package logisticspipes.gui;
 
 import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
+import logisticspipes.LPConstants;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.FluidSupplierMode;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
@@ -55,7 +56,7 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Partialrequests") + ":", imageWidth - 140, imageHeight - 112, 0x404040, false);
 	}
 
-	protected static final ResourceLocation SUPPLIER = ResourceLocation.fromNamespaceAndPath("logisticspipes", "textures/gui/supplier.png");
+	protected static final ResourceLocation SUPPLIER = LPConstants.rl("textures/gui/supplier.png");
 
 	@Override
 	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {

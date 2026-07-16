@@ -49,7 +49,7 @@ object StorageDrawersProxy {
                 val implClass = StorageDrawersProxy::class.java.classLoader.loadClass("network.rs485.logisticspipes.proxy.StorageDrawersProxyImpl")
                 return@lazy (implClass.getDeclaredConstructor().newInstance() as? StorageDrawersProxyImpl)
             } catch (e: ReflectiveOperationException) {
-                LogisticsPipes.log.error("Could not load proxy implementation for mod ${LPConstants.storagedrawersModID}", e)
+                LogisticsPipes.LOG.error("Could not load proxy implementation for mod ${LPConstants.storagedrawersModID}", e)
             }
         }
         null

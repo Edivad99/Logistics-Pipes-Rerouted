@@ -6,11 +6,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import logisticspipes.config.Configs;
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.PlayerConfigToClientPacket;
@@ -25,17 +23,16 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.GuiOverlay;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.ItemRoutingInformation;
-import logisticspipes.ticks.VersionChecker;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
 import logisticspipes.utils.string.ChatColor;
+import logisticspipes.world.item.LPItems;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -293,37 +290,6 @@ public class LogisticsEventListener {
 	@OnlyIn(Dist.CLIENT)
 	public void clientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
 		SimpleServiceLocator.clientBufferHandler.clear();
-
-		if (Configs.COMMON.CHECK_FOR_UPDATES.getAsBoolean()) {
-			LogisticsPipes.singleThreadExecutor.execute(() -> {
-				// try to get player entity ten times, once a second
-				int times = 0;
-				LocalPlayer playerEntity;
-				do {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						return;
-					}
-					playerEntity = Minecraft.getInstance().player;
-					++times;
-				} while (playerEntity == null && times <= 10);
-
-				if (times > 10) {
-					return;
-				}
-
-				VersionChecker checker = LogisticsPipes.versionChecker;
-				String versionMessage = checker.getVersionCheckerStatus();
-
-				if (checker.isVersionCheckDone() && checker.getVersionInfo().isNewVersionAvailable() && !checker.getVersionInfo().isImcMessageSent()) {
-					playerEntity.sendSystemMessage(Component.literal(versionMessage));
-					playerEntity.sendSystemMessage(Component.literal("Use \"/logisticspipes changelog\" to see a changelog."));
-				} else if (!checker.isVersionCheckDone()) {
-					playerEntity.sendSystemMessage(Component.literal(versionMessage));
-				}
-			});
-		}
 	}
 
 	@SubscribeEvent
@@ -374,11 +340,11 @@ public class LogisticsEventListener {
 	@SubscribeEvent
 	public void onItemCrafting(PlayerEvent.ItemCraftedEvent event) {
 		if (!event.getEntity().level().isClientSide && !event.getCrafting().isEmpty()) {
-			if (BuiltInRegistries.ITEM.getKey(event.getCrafting().getItem()).getNamespace().equals(LPConstants.LP_MOD_ID)) {
+			if (BuiltInRegistries.ITEM.getKey(event.getCrafting().getItem()).getNamespace().equals(LPConstants.ID)) {
 				PlayerIdentifier identifier = PlayerIdentifier.get(event.getEntity());
 				PlayerConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(identifier);
 				if (!config.getHasCraftedLPItem() && !LogisticsPipes.isDEBUG()) {
-					ItemStack book = new ItemStack(LPItems.itemGuideBook.get(), 1);
+					ItemStack book = LPItems.GUIDE_BOOK.toStack(1);
 					event.getEntity().addItem(book);
 
 					config.setHasCraftedLPItem(true);

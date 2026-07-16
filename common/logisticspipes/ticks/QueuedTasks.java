@@ -3,6 +3,7 @@ package logisticspipes.ticks;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
+import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.utils.tuples.Pair;
@@ -38,7 +39,7 @@ public class QueuedTasks {
 				try {
 					call.call();
 				} catch (Exception e) {
-					logisticspipes.LogisticsPipes.log.error("Exception in queued task", e);
+					LogisticsPipes.LOG.error("Exception in queued task", e);
 				}
 			}
 		}

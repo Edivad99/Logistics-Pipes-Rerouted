@@ -60,7 +60,7 @@ private fun findSlotField(mojmapName: String, srgName: String): Field? {
         try {
             cls.getDeclaredField(srgName)
         } catch (e2: NoSuchFieldException) {
-            LogisticsPipes.log.error("Could not resolve Slot.{} / {} — GUI slots will be misaligned", mojmapName, srgName)
+            LogisticsPipes.LOG.error("Could not resolve Slot.{} / {} — GUI slots will be misaligned", mojmapName, srgName)
             null
         }
     }
@@ -72,6 +72,6 @@ internal fun Slot.setXY(newX: Int, newY: Int) {
         slotXField?.setInt(this, newX)
         slotYField?.setInt(this, newY)
     } catch (e: Exception) {
-        LogisticsPipes.log.error("Failed to reposition GUI slot", e)
+        LogisticsPipes.LOG.error("Failed to reposition GUI slot", e)
     }
 }

@@ -38,7 +38,7 @@ import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.asm.te.ITileEntityChangeListener;
 import logisticspipes.asm.te.LPTileEntityObject;
-import logisticspipes.config.Configs;
+import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
@@ -344,7 +344,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	private void lazyUpdateRoutingTable() {
 		if (_LSAVersion > ServerRouter._lastLSAVersion[simpleID]) {
-			if (Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+			if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 				RoutingTableUpdateThread.add(new UpdateRouterRunnable(this));
 			} else {
 				CreateRouteTable(_LSAVersion);
@@ -410,7 +410,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		HashMap<CoreRoutedPipe, ExitRoute> adjacent;
 		List<Pair<ILogisticsPowerProvider, List<IFilter>>> power;
 		List<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower;
-		PathFinder finder = new PathFinder(thisPipe.container, Configs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), Configs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), localChangeListener);
+		PathFinder finder = new PathFinder(thisPipe.container, LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), localChangeListener);
 		power = finder.powerNodes;
 		subSystemPower = finder.subPowerProvider;
 		adjacent = finder.result;
@@ -423,7 +423,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 		pipeDirections.entrySet().stream()
-				.filter(entry -> entry.getValue().size() > Configs.COMMON.MAX_UNROUTED_CONNECTIONS.getAsInt())
+				.filter(entry -> entry.getValue().size() > LPConfigs.COMMON.MAX_UNROUTED_CONNECTIONS.getAsInt())
 				.forEach(entry -> entry.getValue().forEach(adjacent::remove));
 
 		listenedPipes.stream().filter(list -> !finder.listenedPipes.contains(list)).forEach(list -> list.remove(localChangeListener));
@@ -616,7 +616,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		if (_subSystemPowerAdjacent != null) {
 			subSystemPower = new ArrayList<>(_subSystemPowerAdjacent);
 		}
-		if (Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+		if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 			RoutingTableUpdateThread.add(new LSARouterRunnable(neighboursWithMetric, power, subSystemPower));
 		} else {
 			lockAndUpdateLSA(neighboursWithMetric, power, subSystemPower);
@@ -1042,7 +1042,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 			ensureChangeListenerAttachedToPipe(pipe);
 			lazyUpdateRoutingTable();
-		} else if (Configs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+		} else if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 			lazyUpdateRoutingTable();
 		}
 	}
@@ -1393,7 +1393,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 				}
 				CreateRouteTable(newVersion);
 			} catch (Exception e) {
-				LogisticsPipes.log.error("Exception during route table update", e);
+				LogisticsPipes.LOG.error("Exception during route table update", e);
 			}
 			run = false;
 		}

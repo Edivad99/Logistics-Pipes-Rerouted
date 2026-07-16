@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.module
 
-import logisticspipes.config.Configs
+import logisticspipes.LPConfigs
 
 /**
  * Checks inventory size, everyNthTick and configuration values
@@ -49,10 +49,10 @@ import logisticspipes.config.Configs
 fun determineSlotsPerTick(everyNthTick: Int, inventorySize: Int): Int {
     var slotsPerTick = 0
     if (inventorySize > 0) {
-        slotsPerTick = (inventorySize / everyNthTick).coerceAtLeast(Configs.COMMON.MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt)
+        slotsPerTick = (inventorySize / everyNthTick).coerceAtLeast(LPConfigs.COMMON.MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt)
     }
-    if (Configs.COMMON.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt > 0) {
-        slotsPerTick = slotsPerTick.coerceAtMost(Configs.COMMON.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt)
+    if (LPConfigs.COMMON.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt > 0) {
+        slotsPerTick = slotsPerTick.coerceAtMost(LPConfigs.COMMON.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.asInt)
     }
     return slotsPerTick
 }

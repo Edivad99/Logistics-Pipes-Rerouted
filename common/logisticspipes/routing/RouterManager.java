@@ -20,6 +20,7 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.ISecurityStationManager;
 import logisticspipes.interfaces.routing.IChannelConnectionManager;
@@ -297,6 +298,6 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 	}
 
 	public void printAllRouters() {
-		_routersServer.stream().filter(router -> router != null).forEach(router -> logisticspipes.LogisticsPipes.log.info("{}", router));
+		_routersServer.stream().filter(router -> router != null).forEach(router -> LogisticsPipes.LOG.info("{}", router));
 	}
 }
