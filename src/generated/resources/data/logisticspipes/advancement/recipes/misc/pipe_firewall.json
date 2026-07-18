@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_logistics_programmer": {
+      "conditions": {
+        "items": [
+          {
+            "items": "logisticspipes:logistics_programmer"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_pipe_basic": {
+      "conditions": {
+        "items": [
+          {
+            "items": "logisticspipes:pipe_basic"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "logisticspipes:pipe_firewall"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_pipe_basic",
+      "has_logistics_programmer"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "logisticspipes:pipe_firewall"
+    ]
+  }
+}

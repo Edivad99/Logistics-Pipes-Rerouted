@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:chip_basic_raw"
+    },
+    "b": {
+      "tag": "c:gems/diamond"
+    }
+  },
+  "pattern": [
+    "ab",
+    "ba"
+  ],
+  "result": {
+    "count": 2,
+    "id": "logisticspipes:chip_advanced_raw"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:chip_advanced"
+    },
+    "b": {
+      "item": "logisticspipes:pipe_request_mk2"
+    },
+    "c": {
+      "item": "logisticspipes:frame"
+    },
+    "d": {
+      "item": "logisticspipes:pipe_crafting"
+    },
+    "e": {
+      "item": "minecraft:chest"
+    }
+  },
+  "pattern": [
+    " a ",
+    "bcd",
+    " e "
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:pipe_request_table"
+  }
+}

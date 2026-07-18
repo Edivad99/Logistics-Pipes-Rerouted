@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:chip_basic"
+    },
+    "b": {
+      "tag": "c:dusts/redstone"
+    },
+    "c": {
+      "item": "logisticspipes:frame"
+    },
+    "d": {
+      "tag": "c:ingots/iron"
+    },
+    "e": {
+      "tag": "c:gems/lapis"
+    }
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    "ede"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:program_compiler"
+  }
+}

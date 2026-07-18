@@ -1,0 +1,30 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:logistics_programmer"
+    },
+    "b": {
+      "item": "logisticspipes:pipe_basic"
+    },
+    "c": {
+      "item": "logisticspipes:chip_basic"
+    },
+    "d": {
+      "tag": "c:ingots/iron"
+    },
+    "e": {
+      "item": "minecraft:bucket"
+    }
+  },
+  "pattern": [
+    " a ",
+    "cbc",
+    "ded"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:fluid_container"
+  }
+}

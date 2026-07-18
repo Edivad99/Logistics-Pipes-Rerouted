@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_chip_advanced": {
+      "conditions": {
+        "items": [
+          {
+            "items": "logisticspipes:chip_advanced"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "logisticspipes:sign_creator"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_chip_advanced"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "logisticspipes:sign_creator"
+    ]
+  }
+}

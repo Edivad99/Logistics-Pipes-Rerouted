@@ -1,0 +1,24 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:logistics_programmer"
+    },
+    "b": {
+      "item": "logisticspipes:chip_fpga"
+    },
+    "c": {
+      "item": "logisticspipes:module_extractor"
+    }
+  },
+  "pattern": [
+    "a",
+    "b",
+    "c"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:module_extractor_advanced"
+  }
+}

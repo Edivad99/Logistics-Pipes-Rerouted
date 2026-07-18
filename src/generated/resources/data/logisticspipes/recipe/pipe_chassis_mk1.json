@@ -1,0 +1,27 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:logistics_programmer"
+    },
+    "b": {
+      "item": "logisticspipes:chip_basic"
+    },
+    "c": {
+      "item": "logisticspipes:chip_fpga"
+    },
+    "d": {
+      "item": "logisticspipes:pipe_basic"
+    }
+  },
+  "pattern": [
+    " a ",
+    " b ",
+    "cdc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:pipe_chassis_mk1"
+  }
+}

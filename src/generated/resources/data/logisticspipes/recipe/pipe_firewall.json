@@ -1,0 +1,33 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:logistics_programmer"
+    },
+    "b": {
+      "item": "logisticspipes:chip_advanced"
+    },
+    "c": {
+      "item": "minecraft:ender_pearl"
+    },
+    "d": {
+      "tag": "c:ingots/iron"
+    },
+    "e": {
+      "item": "logisticspipes:pipe_basic"
+    },
+    "f": {
+      "tag": "c:dusts/redstone"
+    }
+  },
+  "pattern": [
+    " a ",
+    "cbf",
+    "ded"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:pipe_firewall"
+  }
+}

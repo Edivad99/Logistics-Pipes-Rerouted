@@ -1,0 +1,33 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:logistics_programmer"
+    },
+    "b": {
+      "item": "minecraft:blaze_powder"
+    },
+    "c": {
+      "item": "logisticspipes:chip_advanced"
+    },
+    "d": {
+      "tag": "c:ingots/gold"
+    },
+    "e": {
+      "item": "logisticspipes:module_blank"
+    },
+    "f": {
+      "item": "logisticspipes:chip_basic"
+    }
+  },
+  "pattern": [
+    "faf",
+    "bcb",
+    "ded"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:module_active_supplier"
+  }
+}

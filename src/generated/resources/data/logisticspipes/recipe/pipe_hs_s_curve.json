@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:pipe_hs_line"
+    }
+  },
+  "pattern": [
+    "aa ",
+    " aa"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:pipe_hs_s_curve"
+  }
+}

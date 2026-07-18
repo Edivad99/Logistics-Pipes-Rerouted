@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:chip_advanced"
+    },
+    "b": {
+      "tag": "c:ingots/gold"
+    },
+    "c": {
+      "tag": "c:dusts/redstone"
+    },
+    "d": {
+      "tag": "c:gems/lapis"
+    },
+    "e": {
+      "tag": "c:glass_blocks"
+    }
+  },
+  "pattern": [
+    "aba",
+    "ced",
+    "ccd"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:remote_orderer"
+  }
+}

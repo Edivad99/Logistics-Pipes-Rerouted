@@ -115,4 +115,13 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
-# End of https://www.gitignore.io/api/java,gradle,kotlin,forgegradle,intellij+iml
+### Mac OS ###
+.DS_Store
+
+### Minecraft Modding ###
+runs/
+!**/src/**/run/
+**/src/generated/**/.cache/
+repo/
+!**/src/**/repo/
+/.kotlin

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_pipe_provider": {
+      "conditions": {
+        "items": [
+          {
+            "items": "logisticspipes:pipe_provider"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "logisticspipes:pipe_system_entrance"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_pipe_provider"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "logisticspipes:pipe_system_entrance"
+    ]
+  }
+}

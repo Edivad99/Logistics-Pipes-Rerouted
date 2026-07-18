@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_logistics_programmer": {
+      "conditions": {
+        "items": [
+          {
+            "items": "logisticspipes:logistics_programmer"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "logisticspipes:upgrade_crafting_cleanup"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_logistics_programmer"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "logisticspipes:upgrade_crafting_cleanup"
+    ]
+  }
+}

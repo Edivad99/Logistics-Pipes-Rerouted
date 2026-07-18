@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:chip_basic"
+    },
+    "b": {
+      "tag": "c:dusts/redstone"
+    },
+    "c": {
+      "item": "logisticspipes:frame"
+    },
+    "d": {
+      "tag": "c:ingots/iron"
+    },
+    "e": {
+      "tag": "c:storage_blocks/redstone"
+    }
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    "ded"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:power_junction"
+  }
+}

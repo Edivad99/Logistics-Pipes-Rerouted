@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_chip_fpga": {
+      "conditions": {
+        "items": [
+          {
+            "items": "logisticspipes:chip_fpga"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "logisticspipes:logistics_programmer"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_chip_fpga"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "logisticspipes:logistics_programmer"
+    ]
+  }
+}

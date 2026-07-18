@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "tag": "c:ingots/iron"
+    },
+    "b": {
+      "tag": "c:dusts/redstone"
+    },
+    "c": {
+      "tag": "c:glass_blocks"
+    }
+  },
+  "pattern": [
+    "aba",
+    "c c",
+    "aba"
+  ],
+  "result": {
+    "count": 8,
+    "id": "logisticspipes:pipe_transport_basic"
+  }
+}

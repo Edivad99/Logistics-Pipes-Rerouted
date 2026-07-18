@@ -1,0 +1,30 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:logistics_programmer"
+    },
+    "b": {
+      "tag": "c:dusts/redstone"
+    },
+    "c": {
+      "item": "logisticspipes:chip_fpga"
+    },
+    "d": {
+      "tag": "c:ingots/iron"
+    },
+    "e": {
+      "item": "logisticspipes:module_blank"
+    }
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    "ded"
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:module_passive_supplier"
+  }
+}

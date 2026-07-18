@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 1.0,
+  "group": "chip_fpga",
+  "ingredient": {
+    "item": "logisticspipes:chip_fpga_raw"
+  },
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:chip_fpga"
+  }
+}

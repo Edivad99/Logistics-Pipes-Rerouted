@@ -8,6 +8,7 @@ import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.client.ClientManager;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.chathelper.LPChatListener;
+import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.datafixer.LPDataFixer;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
@@ -260,6 +261,8 @@ public class LogisticsPipes {
     var lookupProvider = event.getLookupProvider();
     var fileHelper = event.getExistingFileHelper();
 
+    generator.addProvider(event.includeServer(),
+        new LPRecipeProvider(packOutput, lookupProvider));
   }
 
     // NeoForge Events

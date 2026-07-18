@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "logisticspipes:chip_basic"
+    },
+    "b": {
+      "tag": "minecraft:signs"
+    },
+    "c": {
+      "item": "logisticspipes:chip_advanced"
+    }
+  },
+  "pattern": [
+    "a a",
+    " b ",
+    " c "
+  ],
+  "result": {
+    "count": 1,
+    "id": "logisticspipes:sign_creator"
+  }
+}

@@ -19,8 +19,13 @@ public class ItemLogisticsProgrammer extends LogisticsItem {
 	}
 
 	@Override
+	public boolean hasCraftingRemainingItem(ItemStack stack) {
+		return true;
+	}
+
+	@Override
 	public ItemStack getCraftingRemainingItem(ItemStack itemStack) {
-		ItemStack result = super.getCraftingRemainingItem(itemStack);
+		ItemStack result = new ItemStack(this);
 		result.applyComponents(itemStack.getComponents());
 		return result;
 	}

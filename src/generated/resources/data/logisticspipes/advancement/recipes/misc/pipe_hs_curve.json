@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_pipe_hs_line": {
+      "conditions": {
+        "items": [
+          {
+            "items": "logisticspipes:pipe_hs_line"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "logisticspipes:pipe_hs_curve"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_pipe_hs_line"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "logisticspipes:pipe_hs_curve"
+    ]
+  }
+}
