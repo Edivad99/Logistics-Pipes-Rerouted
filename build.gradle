@@ -257,11 +257,11 @@ tasks.named('jar', Jar).configure {
   manifest {
     attributes([
             'Specification-Title'   : project.name,
-            'Specification-Vendor'  : 'Edivad99',
+            'Specification-Vendor'  : 'NoZeroG, Edivad99',
             'Specification-Version' : '1',
             'Implementation-Title'  : project.name,
             'Implementation-Version': project.version,
-            'Implementation-Vendor' : 'Edivad99',
+            'Implementation-Vendor' : 'NoZeroG, Edivad99',
             'Implementation-Commit' : lastCommit,
     ])
   }
