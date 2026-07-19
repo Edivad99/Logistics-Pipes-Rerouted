@@ -40,8 +40,6 @@ package network.rs485.logisticspipes.integration
 import network.rs485.grow.ServerTickDispatcher
 import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
-import logisticspipes.LPBlocks
-import logisticspipes.LPItems
 import logisticspipes.blocks.LogisticsSolidBlock
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity
 import logisticspipes.interfaces.routing.IRequestItems
@@ -55,10 +53,11 @@ import logisticspipes.request.resources.IResource
 import logisticspipes.routing.order.LinkedLogisticsOrderList
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
+import logisticspipes.world.item.LPItems
+import logisticspipes.world.level.block.LPBlocks
 import net.minecraft.world.Container
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.core.Direction
@@ -76,9 +75,9 @@ fun BlockPosSelector.setupLogisticsPower(
     amount: Float,
 ): Pair<PipePlacer<PipeItemsBasicLogistics>, BlockPlacer<LogisticsSolidBlock>> =
     resetOffsetAfter {
-        val basicPipePlacer = PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic.get()))
+        val basicPipePlacer = PipePlacer(PipeItemsBasicLogistics(LPItems.PIPE_BASIC.get()))
             .also { direction(direction).place(it) }
-        val powerJunctionPlacer = BlockPlacer(LPBlocks.powerJunction.get()) {
+        val powerJunctionPlacer = BlockPlacer(LPBlocks.POWER_JUNCTION.get()) {
             it.getTileEntity<LogisticsPowerJunctionTileEntity>().apply {
                 addEnergy(amount)
             }
@@ -91,7 +90,7 @@ fun BlockPosSelector.setupProvidingChest(
     vararg stacks: ItemStack,
 ): Pair<PipePlacer<PipeItemsProviderLogistics>, BlockPlacer<Block>> =
     resetOffsetAfter {
-        val providerPlacer = PipePlacer(PipeItemsProviderLogistics(LPItems.pipeProvider.get()))
+        val providerPlacer = PipePlacer(PipeItemsProviderLogistics(LPItems.PIPE_PROVIDER.get()))
             .also { direction(direction).place(it) }
         val chestPlacer = BlockPlacer(Blocks.CHEST) {
             it.getTileEntity<ChestBlockEntity>().apply {
@@ -105,7 +104,7 @@ fun BlockPosSelector.setupRequestingChest(
     direction: Direction,
 ): Pair<PipePlacer<PipeItemsRequestLogistics>, BlockPlacer<Block>> =
     resetOffsetAfter {
-        val requesterPlacer = PipePlacer(PipeItemsRequestLogistics(LPItems.pipeRequest.get()))
+        val requesterPlacer = PipePlacer(PipeItemsRequestLogistics(LPItems.PIPE_REQUEST.get()))
             .also { direction(direction).place(it) }
         val chestPlacer = BlockPlacer(Blocks.CHEST)
             .also { direction(direction).place(it) }

@@ -131,6 +131,15 @@ neoForge {
       sourceSet sourceSets.main
     }
   }
+
+  unitTest {
+     enable()
+     testedMod = mods.logisticspipes
+  }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 repositories {
@@ -168,6 +177,7 @@ dependencies {
   localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
 
   localRuntime "curse.maven:mekanism-268560:7904058"
+  testImplementation "org.jetbrains.kotlin:kotlin-test:2.4.0"
 }
 
 kotlinLombok {

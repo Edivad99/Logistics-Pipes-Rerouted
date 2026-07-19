@@ -45,8 +45,6 @@ import network.rs485.logisticspipes.util.FuzzyUtil
 import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.configurator
-import logisticspipes.LPBlocks
-import logisticspipes.LPItems
 import logisticspipes.blocks.LogisticsSolidBlock
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity
 import logisticspipes.pipes.PipeItemsBasicLogistics
@@ -55,13 +53,15 @@ import logisticspipes.pipes.PipeItemsRequestLogistics
 import logisticspipes.pipes.upgrades.FuzzyUpgrade
 import logisticspipes.pipes.upgrades.UpgradeManager
 import logisticspipes.utils.item.ItemIdentifier
+import logisticspipes.world.item.LPItems
+import logisticspipes.world.level.block.LPBlocks
 import net.minecraft.world.level.block.Block
 // BlockPlanks removed — planks are a vanilla Block
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.core.Direction
+import net.minecraft.core.registries.BuiltInRegistries
 import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -70,7 +70,7 @@ import kotlinx.coroutines.delay
 
 @Suppress("FunctionName")
 object CraftingTest {
-    private val fuzzyUpgradeItem = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(LPItems.upgrades[FuzzyUpgrade.getName()])!!
+    private val fuzzyUpgradeItem = BuiltInRegistries.ITEM.get(LPItems.upgrades[FuzzyUpgrade.getName()])
 
     suspend fun `test single fuzzy ingredient crafting fails multi-request with mixed OreDict input`(
         loggerIn: (Any) -> Unit,
@@ -186,7 +186,7 @@ object CraftingTest {
         )
         selector.direction(Direction.NORTH)
             .apply {
-                place(PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic.get())))
+                place(PipePlacer(PipeItemsBasicLogistics(LPItems.PIPE_BASIC.get())))
                 setupProvidingChest(Direction.WEST,
                     ItemStack(Blocks.DARK_OAK_PLANKS, 4))
             }
@@ -217,7 +217,7 @@ object CraftingTest {
             .direction(Direction.NORTH)
             .place(UnroutedPipePlacer)
             .direction(Direction.NORTH)
-            .place(PipePlacer(PipeItemsBasicLogistics(LPItems.pipeBasic.get())))
+            .place(PipePlacer(PipeItemsBasicLogistics(LPItems.PIPE_BASIC.get())))
             .apply {
                 setupProvidingChest(Direction.WEST,
                     ItemStack(Blocks.DARK_OAK_PLANKS, 4))
@@ -368,7 +368,7 @@ object CraftingTest {
         extraCraftingTableConfigurator: LogisticsCraftingTableTileEntity.() -> Unit = {},
     ): FuzzyCraftingSetup {
         val fuzzyCraftingTableHasRecipe = CompletableDeferred<Unit>()
-        val fuzzyCraftingTablePlacer = BlockPlacer(block = LPBlocks.crafterFuzzy.get()) { placer ->
+        val fuzzyCraftingTablePlacer = BlockPlacer(block = LPBlocks.CRAFTER_FUZZY.get()) { placer ->
             placer.getTileEntity<LogisticsCraftingTableTileEntity>().apply {
                 (0 until 9).filter { it != 4 }.forEach {
                     matrix.setItem(it, ItemStack(Blocks.OAK_PLANKS))
@@ -381,7 +381,7 @@ object CraftingTest {
         }
 
         val craftingPipeInitialized = CompletableDeferred<PipeItemsCraftingLogistics>()
-        val craftingPipePlacer = PipePlacer(PipeItemsCraftingLogistics(LPItems.pipeCrafting.get())) {
+        val craftingPipePlacer = PipePlacer(PipeItemsCraftingLogistics(LPItems.PIPE_CRAFTING.get())) {
             (it.pipe.upgradeManager as UpgradeManager).inv.apply {
                 setItem(0, ItemStack(fuzzyUpgradeItem))
                 setChanged()

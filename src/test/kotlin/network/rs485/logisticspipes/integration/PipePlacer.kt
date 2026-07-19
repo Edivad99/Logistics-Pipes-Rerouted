@@ -36,7 +36,6 @@
  */
 package network.rs485.logisticspipes.integration
 
-import logisticspipes.LPBlocks
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe
 import net.minecraft.core.BlockPos
@@ -44,6 +43,7 @@ import net.minecraft.server.level.ServerLevel
 import network.rs485.minecraft.Configurator
 import network.rs485.minecraft.Placer
 import network.rs485.minecraft.configurator
+import logisticspipes.world.level.block.LPBlocks
 import java.time.Duration
 import kotlin.test.assertTrue
 
@@ -64,7 +64,7 @@ class PipePlacer<T : CoreRoutedPipe>(
         this.pos = pos
         this.world = world
         assertTrue(message = "Expected $pipe to be placed at $pos (${world})") {
-            LogisticsBlockGenericPipe.placePipe(pipe, world, pos, LPBlocks.pipe.get())
+            LogisticsBlockGenericPipe.placePipe(pipe, world, pos, LPBlocks.PIPE.get())
         }
         return configurator(name = "$pipe at $pos") { pipePlacerConfigurator(this@PipePlacer) }
     }

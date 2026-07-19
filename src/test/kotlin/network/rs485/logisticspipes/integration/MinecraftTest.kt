@@ -42,15 +42,14 @@ import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.TestState
 import network.rs485.util.checkBooleanProperty
 import logisticspipes.LogisticsPipes
-import net.minecraftforge.server.ServerLifecycleHooks
-import net.minecraftforge.event.server.ServerStartedEvent
+import net.neoforged.neoforge.event.server.ServerStartedEvent
+import net.neoforged.neoforge.server.ServerLifecycleHooks
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.GameRules
 import java.lang.management.ManagementFactory
 import java.time.Duration
-import kotlin.test.assertTrue
 import kotlinx.coroutines.*
 import kotlinx.coroutines.time.withTimeout
 
@@ -87,11 +86,11 @@ object MinecraftTest {
             world.setRainLevel(0f)
             world.setThunderLevel(0f)
         }
-        val task = startTests { msg: Any -> LogisticsPipes.log.info(msg.toString()) }
+        val task = startTests { msg: Any -> LogisticsPipes.LOG.info(msg.toString()) }
         task.invokeOnCompletion {
             if (it != null) throw it
             repeat(3) {
-                LogisticsPipes.log.info("All Tests done.")
+                LogisticsPipes.LOG.info("All Tests done.")
             }
             if (!isDebugging) serverInstance.halt(false)
         }
