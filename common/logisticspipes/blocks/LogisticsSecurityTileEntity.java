@@ -30,6 +30,8 @@ import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
+
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -40,10 +42,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class LogisticsSecurityTileEntity extends LogisticsSolidTileEntity implements IGuiOpenControler, ISecurityProvider, IGuiTileEntity {
+public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IGuiOpenControler, ISecurityProvider, IGuiTileEntity {
 
 	public LogisticsSecurityTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(LPBlockEntityTypes.BE_SECURITY_STATION.get(), pos, state);
+		super(LPBlockEntityTypes.SECURITY_STATION.get(), pos, state);
 	}
 
 	public ItemIdentifierInventory inv = new ItemIdentifierInventory(1, "ID Slots", 64);

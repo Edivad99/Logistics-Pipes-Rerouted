@@ -80,8 +80,7 @@ public class ItemRoutingInformation {
 		nbttagcompound.putInt("transportMode", _transportMode.ordinal());
 
 		CompoundTag nbttagcompound2 = new CompoundTag();
-		getItem().makeNormalStack().save(provider, nbttagcompound2);
-		nbttagcompound.put("Item", nbttagcompound2);
+		nbttagcompound.put("Item", getItem().makeNormalStack().save(provider, nbttagcompound2));
 	}
 
 	// the global LP tick in which getTickToTimeOut returns 0.

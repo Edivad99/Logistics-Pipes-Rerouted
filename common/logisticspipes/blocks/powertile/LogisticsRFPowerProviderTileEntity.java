@@ -59,7 +59,7 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	private ICoFHEnergyStorage storage;
 
 	public LogisticsRFPowerProviderTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(LPBlockEntityTypes.BE_POWER_PROVIDER_RF.get(), pos, state);
+		super(LPBlockEntityTypes.POWER_PROVIDER_RF.get(), pos, state);
 		storage = SimpleServiceLocator.powerProxy.getEnergyStorage(10000);
 	}
 

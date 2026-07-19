@@ -15,10 +15,13 @@ import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
+
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
+
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -57,7 +61,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 		LOGISTICS_IC2_POWERPROVIDER(11, LogisticsIC2PowerProviderTileEntity::new),
 		LOGISTICS_BC_POWERPROVIDER(12),
 
-		LOGISTICS_PROGRAM_COMPILER(14, LogisticsProgramCompilerTileEntity::new),
+		LOGISTICS_PROGRAM_COMPILER(14, LogisticsProgramCompilerBlockEntity::new),
 
 		LOGISTICS_BLOCK_FRAME(15, LogisticsFrameTileEntity::new);
 
@@ -108,8 +112,8 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
 		super.neighborChanged(state, world, pos, block, fromPos, isMoving);
 		BlockEntity tile = world.getBlockEntity(pos);
-		if (tile instanceof LogisticsSolidTileEntity) {
-			((LogisticsSolidTileEntity) tile).notifyOfBlockChange();
+		if (tile instanceof LogisticsSolidBlockEntity) {
+			((LogisticsSolidBlockEntity) tile).notifyOfBlockChange();
 		}
 	}
 
@@ -144,8 +148,8 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 	public void onRemove(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
 		if (state.getBlock() != newState.getBlock()) {
 			BlockEntity tile = worldIn.getBlockEntity(pos);
-			if (tile instanceof LogisticsSolidTileEntity) {
-				((LogisticsSolidTileEntity) tile).onBlockBreak();
+			if (tile instanceof LogisticsSolidBlockEntity) {
+				((LogisticsSolidBlockEntity) tile).onBlockBreak();
 			}
 		}
 		super.onRemove(state, worldIn, pos, newState, isMoving);
@@ -169,12 +173,12 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 
 	@Override
 	@Nonnull
-	public net.minecraft.world.level.block.RenderShape getRenderShape(@Nonnull BlockState state) {
+	public RenderShape getRenderShape(@Nonnull BlockState state) {
 		// Types with a BlockEntity are drawn by LogisticsSolidBlockRenderer — suppress the
 		// flat cube_all JSON model so only the 3D OBJ geometry is visible. Types without a
 		// TE (frame, BC power provider) fall back to the JSON model for now.
 		if (type.hasTE()) {
-			return net.minecraft.world.level.block.RenderShape.ENTITYBLOCK_ANIMATED;
+			return RenderShape.ENTITYBLOCK_ANIMATED;
 		}
 		return super.getRenderShape(state);
 	}

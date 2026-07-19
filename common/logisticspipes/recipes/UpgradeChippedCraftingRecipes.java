@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.pipes.upgrades.ActionSpeedUpgrade;
 import logisticspipes.pipes.upgrades.AdvancedSatelliteUpgrade;
 import logisticspipes.pipes.upgrades.CombinedSneakyUpgrade;
@@ -51,7 +51,7 @@ public class UpgradeChippedCraftingRecipes extends CraftingPartRecipes {
 		if (upgrade == null) return;
 
 		Ingredient programmer = programmerIngredient(upgradeResource.toString());
-		final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerTileEntity.programByCategory.computeIfAbsent(recipeCategory, k -> new HashSet<>());
+		final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerBlockEntity.programByCategory.computeIfAbsent(recipeCategory, k -> new HashSet<>());
 		compilerPrograms.add(upgradeResource);
 
 		RecipeManager.RecipeLayout layout = null;
@@ -109,23 +109,23 @@ public class UpgradeChippedCraftingRecipes extends CraftingPartRecipes {
 
 	@Override
 	protected void loadRecipes(CraftingParts parts) {
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, SneakyUpgradeConfig.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, SpeedUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, CombinedSneakyUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, ConnectionUpgradeConfig.getName(), 8);
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, AdvancedSatelliteUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, FluidCraftingUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, CraftingByproductUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, PatternUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, FuzzyUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, PowerTransportationUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, CraftingMonitoringUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, OpaqueUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, CraftingCleanupUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_3, UpgradeModuleUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_3, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, ActionSpeedUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_3, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, ItemExtractionUpgrade.getName());
-		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, ItemStackExtractionUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, SneakyUpgradeConfig.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, SpeedUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, CombinedSneakyUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, ConnectionUpgradeConfig.getName(), 8);
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, AdvancedSatelliteUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, FluidCraftingUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, CraftingByproductUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, PatternUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, FuzzyUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, PowerTransportationUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, CraftingMonitoringUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, OpaqueUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, CraftingCleanupUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_3, UpgradeModuleUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_3, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, ActionSpeedUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_3, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, ItemExtractionUpgrade.getName());
+		registerUpgradeRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, ItemStackExtractionUpgrade.getName());
 	}
 
 }

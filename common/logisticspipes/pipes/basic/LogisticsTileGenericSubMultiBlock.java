@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.ITickable;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -27,8 +27,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements ISubMultiBlockPipeInformationProvider, ITickable {
@@ -41,12 +40,12 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 
 	@Deprecated
 	public LogisticsTileGenericSubMultiBlock(BlockPos blockPos, BlockState blockState) {
-		super(LPBlockEntityTypes.BE_SUB_PIPE.get(), blockPos, blockState);
+		super(LPBlockEntityTypes.SUB_PIPE.get(), blockPos, blockState);
 		renderState = new PipeSubRenderState();
 	}
 
 	public LogisticsTileGenericSubMultiBlock(BlockPos blockPos, BlockState blockState, DoubleCoordinates pos) {
-		super(LPBlockEntityTypes.BE_SUB_PIPE.get(), blockPos, blockState);
+		super(LPBlockEntityTypes.SUB_PIPE.get(), blockPos, blockState);
 		if (pos != null) {
 			mainPipePos.add(pos);
 		}

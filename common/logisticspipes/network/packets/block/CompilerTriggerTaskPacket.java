@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.block;
 
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
@@ -28,7 +28,7 @@ public class CompilerTriggerTaskPacket extends CoordinatesPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		LogisticsProgramCompilerTileEntity tile = this.getTileAs(player.level(), LogisticsProgramCompilerTileEntity.class);
+		LogisticsProgramCompilerBlockEntity tile = this.getTileAs(player.level(), LogisticsProgramCompilerBlockEntity.class);
 		tile.triggerNewTask(getCategory(), getType());
 	}
 

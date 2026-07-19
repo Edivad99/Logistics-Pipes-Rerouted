@@ -26,7 +26,7 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 	private boolean init = false;
 
 	public LogisticsIC2PowerProviderTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(LPBlockEntityTypes.BE_POWER_PROVIDER_EU.get(), pos, state);
+		super(LPBlockEntityTypes.POWER_PROVIDER_EU.get(), pos, state);
 	}
 
 	@Override

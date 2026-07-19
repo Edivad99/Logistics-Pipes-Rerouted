@@ -5,7 +5,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
-import logisticspipes.blocks.LogisticsSolidTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockWatchingHandler;
@@ -40,7 +40,7 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 
 @ModDependentInterface(modId = { LPConstants.ic2ModID }, interfacePath = { "ic2.api.energy.tile.IEnergySink" })
 @CCType(name = "LogisticsPowerJunction")
-public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenControler, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler
+public class LogisticsPowerJunctionTileEntity extends LogisticsSolidBlockEntity implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenControler, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler
 		// IEnergySink — added at runtime by @ModDependentInterface ASM when IC2 is present
 {
 
@@ -118,7 +118,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidTileEntity i
 	};
 
 	public LogisticsPowerJunctionTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(LPBlockEntityTypes.BE_POWER_JUNCTION.get(), pos, state);
+		super(LPBlockEntityTypes.POWER_JUNCTION.get(), pos, state);
 		HUD = new HUDPowerLevel(this);
 	}
 

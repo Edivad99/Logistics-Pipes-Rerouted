@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.modules.ModuleCreativeTabBasedItemSink;
@@ -64,7 +64,7 @@ public class ModuleChippedCraftingRecipes extends CraftingPartRecipes {
 		if (baseModule == null) return;
 
 		Ingredient programmer = programmerIngredient(moduleResource.toString());
-		final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerTileEntity.programByCategory.computeIfAbsent(recipeCategory, k -> new HashSet<>());
+		final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerBlockEntity.programByCategory.computeIfAbsent(recipeCategory, k -> new HashSet<>());
 		compilerPrograms.add(moduleResource);
 
 		RecipeManager.RecipeLayout layout = null;
@@ -191,21 +191,21 @@ public class ModuleChippedCraftingRecipes extends CraftingPartRecipes {
 
 	@Override
 	protected void loadRecipes(CraftingParts parts) {
-		registerModuleRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, ModuleItemSink.getName(), null);
-		registerModuleRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, ModulePassiveSupplier.getName(), null);
-		registerModuleRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, AsyncExtractorModule.getName(), null);
-		registerModuleRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, ModulePolymorphicItemSink.getName(), null);
-		registerModuleRecipe(parts, RecipeType.LEVEL_3, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, AsyncQuicksortModule.getName(), null);
-		registerModuleRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, ModuleTerminus.getName(), null);
-		registerModuleRecipe(parts, RecipeType.UPGRADE_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, AsyncAdvancedExtractor.getName(), AsyncExtractorModule.getName());
-		registerModuleRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, ModuleProvider.getName(), null);
-		registerModuleRecipe(parts, RecipeType.UPGRADE_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS_2, ModuleModBasedItemSink.getName(), null);
-		registerModuleRecipe(parts, RecipeType.UPGRADE_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS_2, ModuleOreDictItemSink.getName(), null);
-		registerModuleRecipe(parts, RecipeType.UPGRADE_5, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS_2, ModuleEnchantmentSink.getName(), ModuleItemSink.getName());
-		registerModuleRecipe(parts, RecipeType.UPGRADE_6, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS_2, ModuleEnchantmentSinkMK2.getName(), ModuleEnchantmentSink.getName());
-		registerModuleRecipe(parts, RecipeType.UPGRADE_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS_2, ModuleCreativeTabBasedItemSink.getName(), null);
-		registerModuleRecipe(parts, RecipeType.ADVANCED_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS_2, ModuleCrafter.getName(), null);
-		registerModuleRecipe(parts, RecipeType.ADVANCED_4, LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS_2, ModuleActiveSupplier.getName(), null);
+		registerModuleRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, ModuleItemSink.getName(), null);
+		registerModuleRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, ModulePassiveSupplier.getName(), null);
+		registerModuleRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, AsyncExtractorModule.getName(), null);
+		registerModuleRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, ModulePolymorphicItemSink.getName(), null);
+		registerModuleRecipe(parts, RecipeType.LEVEL_3, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, AsyncQuicksortModule.getName(), null);
+		registerModuleRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, ModuleTerminus.getName(), null);
+		registerModuleRecipe(parts, RecipeType.UPGRADE_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, AsyncAdvancedExtractor.getName(), AsyncExtractorModule.getName());
+		registerModuleRecipe(parts, RecipeType.LEVEL_4, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, ModuleProvider.getName(), null);
+		registerModuleRecipe(parts, RecipeType.UPGRADE_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS_2, ModuleModBasedItemSink.getName(), null);
+		registerModuleRecipe(parts, RecipeType.UPGRADE_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS_2, ModuleOreDictItemSink.getName(), null);
+		registerModuleRecipe(parts, RecipeType.UPGRADE_5, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS_2, ModuleEnchantmentSink.getName(), ModuleItemSink.getName());
+		registerModuleRecipe(parts, RecipeType.UPGRADE_6, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS_2, ModuleEnchantmentSinkMK2.getName(), ModuleEnchantmentSink.getName());
+		registerModuleRecipe(parts, RecipeType.UPGRADE_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS_2, ModuleCreativeTabBasedItemSink.getName(), null);
+		registerModuleRecipe(parts, RecipeType.ADVANCED_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS_2, ModuleCrafter.getName(), null);
+		registerModuleRecipe(parts, RecipeType.ADVANCED_4, LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS_2, ModuleActiveSupplier.getName(), null);
 	}
 
 }

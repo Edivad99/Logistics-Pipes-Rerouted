@@ -8,7 +8,7 @@ package logisticspipes.pipes;
 
 import java.util.Collection;
 import javax.annotation.Nonnull;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
@@ -39,7 +39,7 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 					Direction ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
 					return ori != null && ori != Direction.DOWN && ori != Direction.UP;
 				}
-				if (tile instanceof LogisticsProgramCompilerTileEntity) {
+				if (tile instanceof LogisticsProgramCompilerBlockEntity) {
 					Direction ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
 					return ori != null && ori != Direction.DOWN;
 				}

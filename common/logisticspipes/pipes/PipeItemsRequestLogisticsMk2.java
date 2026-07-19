@@ -63,8 +63,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 		super.writeToNBT(nbttagcompound, provider);
 		if (!disk.isEmpty()) {
 			CompoundTag itemNBT = new CompoundTag();
-			disk.save(provider, itemNBT);
-			nbttagcompound.put("Disk", itemNBT);
+			nbttagcompound.put("Disk", disk.save(provider, itemNBT));
 		}
 	}
 

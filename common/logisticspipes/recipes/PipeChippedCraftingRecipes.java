@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -26,10 +26,10 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 	}
 
 	private void registerPipeRecipeCategory(ResourceLocation recipeCategory, Item targetPipe) {
-		if (!LogisticsProgramCompilerTileEntity.programByCategory.containsKey(recipeCategory)) {
-			LogisticsProgramCompilerTileEntity.programByCategory.put(recipeCategory, new HashSet<>());
+		if (!LogisticsProgramCompilerBlockEntity.programByCategory.containsKey(recipeCategory)) {
+			LogisticsProgramCompilerBlockEntity.programByCategory.put(recipeCategory, new HashSet<>());
 		}
-		LogisticsProgramCompilerTileEntity.programByCategory.get(recipeCategory).add(BuiltInRegistries.ITEM.getKey(targetPipe));
+		LogisticsProgramCompilerBlockEntity.programByCategory.get(recipeCategory).add(BuiltInRegistries.ITEM.getKey(targetPipe));
 	}
 
 	private void registerPipeRecipe(CraftingParts parts, RecipeType type, ResourceLocation recipeCategory, Item targetPipe, Item basePipe) {
@@ -106,20 +106,20 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 
 	@Override
 	protected void loadRecipes(CraftingParts parts) {
-		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, LPItems.PIPE_REQUEST.get(), LPItems.PIPE_BASIC.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, LPItems.PIPE_PROVIDER.get(), LPItems.PIPE_BASIC.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, LPItems.PIPE_CRAFTING.get(), LPItems.PIPE_BASIC.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, LPItems.PIPE_SATELLITE.get(), LPItems.PIPE_BASIC.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.BASIC, LPItems.PIPE_SUPPLIER.get(), LPItems.PIPE_BASIC.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_3, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, LPItems.PIPE_REQUEST_MK2.get(), LPItems.PIPE_REQUEST.get());
-		registerPipeRecipe(parts, RecipeType.ENDER_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, LPItems.PIPE_REMOTE_ORDERER.get(), LPItems.PIPE_BASIC.get());
-		registerPipeRecipe(parts, RecipeType.ENDER_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_3, LPItems.PIPE_INV_SYS_CONNECTOR.get(), LPItems.PIPE_BASIC.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, LPItems.PIPE_REQUEST.get(), LPItems.PIPE_BASIC.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, LPItems.PIPE_PROVIDER.get(), LPItems.PIPE_BASIC.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, LPItems.PIPE_CRAFTING.get(), LPItems.PIPE_BASIC.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, LPItems.PIPE_SATELLITE.get(), LPItems.PIPE_BASIC.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.BASIC, LPItems.PIPE_SUPPLIER.get(), LPItems.PIPE_BASIC.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_3, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, LPItems.PIPE_REQUEST_MK2.get(), LPItems.PIPE_REQUEST.get());
+		registerPipeRecipe(parts, RecipeType.ENDER_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, LPItems.PIPE_REMOTE_ORDERER.get(), LPItems.PIPE_BASIC.get());
+		registerPipeRecipe(parts, RecipeType.ENDER_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_3, LPItems.PIPE_INV_SYS_CONNECTOR.get(), LPItems.PIPE_BASIC.get());
 
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, LPItems.PIPE_SYSTEM_ENTRANCE.get(), LPItems.PIPE_PROVIDER.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_2, LPItems.PIPE_SYSTEM_DESTINATION.get(), LPItems.PIPE_PROVIDER.get());
-		registerPipeRecipe(parts, RecipeType.ENDER_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.TIER_3, LPItems.PIPE_FIREWALL.get(), LPItems.PIPE_BASIC.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, LPItems.PIPE_SYSTEM_ENTRANCE.get(), LPItems.PIPE_PROVIDER.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_2, LPItems.PIPE_SYSTEM_DESTINATION.get(), LPItems.PIPE_PROVIDER.get());
+		registerPipeRecipe(parts, RecipeType.ENDER_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.TIER_3, LPItems.PIPE_FIREWALL.get(), LPItems.PIPE_BASIC.get());
 
-		registerPipeRecipeCategory(LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK1.get());
+		registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK1.get());
 		RecipeManager.craftingManager.addRecipe(new ItemStack(LPItems.PIPE_CHASSIS_MK1.get()),
 				new RecipeManager.RecipeLayout(
 						" p ",
@@ -132,7 +132,7 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 				new RecipeManager.RecipeIndex('f', parts.getChipFpga())
 		);
 
-		registerPipeRecipeCategory(LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK2.get());
+		registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK2.get());
 		RecipeManager.craftingManager.addRecipe(new ItemStack(LPItems.PIPE_CHASSIS_MK2.get()),
 				new RecipeManager.RecipeLayout(
 						" p ",
@@ -146,7 +146,7 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 				new RecipeManager.RecipeIndex('i', "ingotIron")
 		);
 
-		registerPipeRecipeCategory(LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK3.get());
+		registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK3.get());
 		RecipeManager.craftingManager.addRecipe(new ItemStack(LPItems.PIPE_CHASSIS_MK3.get()),
 				new RecipeManager.RecipeLayout(
 						" p ",
@@ -160,7 +160,7 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 				new RecipeManager.RecipeIndex('i', "ingotIron")
 		);
 
-		registerPipeRecipeCategory(LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK4.get());
+		registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK4.get());
 		RecipeManager.craftingManager.addRecipe(new ItemStack(LPItems.PIPE_CHASSIS_MK4.get()),
 				new RecipeManager.RecipeLayout(
 						" p ",
@@ -174,7 +174,7 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 				new RecipeManager.RecipeIndex('g', "ingotGold")
 		);
 
-		registerPipeRecipeCategory(LogisticsProgramCompilerTileEntity.ProgrammCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK5.get());
+		registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.CHASSIS, LPItems.PIPE_CHASSIS_MK5.get());
 		RecipeManager.craftingManager.addRecipe(new ItemStack(LPItems.PIPE_CHASSIS_MK5.get()),
 				new RecipeManager.RecipeLayout(
 						" p ",
@@ -188,7 +188,7 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 				new RecipeManager.RecipeIndex('n', "gemQuartz")
 		);
 
-		registerPipeRecipeCategory(LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.PIPE_FLUID_SUPPLIER.get());
+		registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID, LPItems.PIPE_FLUID_SUPPLIER.get());
 		RecipeManager.craftingManager.addRecipe(new ItemStack(LPItems.PIPE_FLUID_SUPPLIER.get()),
 				new RecipeManager.RecipeLayout(
 						" p ",
@@ -206,12 +206,12 @@ public class PipeChippedCraftingRecipes extends CraftingPartRecipes {
 		// LPItems fields are null. LP1 used pipeFluidBasic as the 's' base for the rest of the
 		// fluid-pipe line, so here we substitute pipeFluidSupplier (a registered fluid pipe) as
 		// the base — mirroring how the pipeFluidSupplierMk2 recipe below is keyed off pipeFluidSupplier.
-		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.PIPE_FLUID_REQUEST.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.PIPE_FLUID_PROVIDER.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.PIPE_FLUID_SUPPLIER_MK2.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.PIPE_FLUID_SATELLITE.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.PIPE_FLUID_INSERTION.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
-		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerTileEntity.ProgrammCategories.FLUID, LPItems.PIPE_FLUID_EXTRACTOR.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID, LPItems.PIPE_FLUID_REQUEST.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID, LPItems.PIPE_FLUID_PROVIDER.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_2, LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID, LPItems.PIPE_FLUID_SUPPLIER_MK2.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID, LPItems.PIPE_FLUID_SATELLITE.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID, LPItems.PIPE_FLUID_INSERTION.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
+		registerPipeRecipe(parts, RecipeType.LEVEL_1, LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID, LPItems.PIPE_FLUID_EXTRACTOR.get(), LPItems.PIPE_FLUID_SUPPLIER.get());
 
 	}
 

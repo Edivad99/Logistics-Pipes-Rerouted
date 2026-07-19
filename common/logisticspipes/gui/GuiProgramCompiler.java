@@ -5,10 +5,9 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.items.ItemModule;
 import logisticspipes.items.ItemUpgrade;
@@ -23,17 +22,18 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.TextListDisplay;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import network.rs485.logisticspipes.util.TextUtil;
 
 //TODO: Config Option for disabling program compilation
 public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 
-	private final LogisticsProgramCompilerTileEntity compiler;
+	private final LogisticsProgramCompilerBlockEntity compiler;
 	private final TextListDisplay.List categoryTextList;
 	private final TextListDisplay.List programTextList;
 	private final TextListDisplay categoryList;
@@ -47,7 +47,7 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 	private SmallGuiButton programmerButton;
 	private InputBar search;
 
-	public GuiProgramCompiler(Player player, LogisticsProgramCompilerTileEntity compiler) {
+	public GuiProgramCompiler(Player player, LogisticsProgramCompilerBlockEntity compiler) {
 		super(buildDummy(player, compiler), 180, 190, 0, 0);
 		this.compiler = compiler;
 
@@ -59,8 +59,9 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 					return 0;
 				}
 				ListTag list = compiler.getListTagForKey("compilerCategories");
-				return (int) LogisticsProgramCompilerTileEntity.programByCategory.keySet().stream()
-						.filter(it -> StreamSupport.stream(list.spliterator(), false).noneMatch(nbtBase -> ((StringTag) nbtBase).getAsString().equals(it.toString()))).count();
+				return (int) LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
+						.filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.getAsString().equals(it.toString())))
+						.count();
 			}
 
 			@Override
@@ -69,8 +70,8 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 					return "";
 				}
 				ListTag list = compiler.getListTagForKey("compilerCategories");
-				return TextUtil.translate("gui.compiler." + LogisticsProgramCompilerTileEntity.programByCategory.keySet().stream()
-						.filter(it -> StreamSupport.stream(list.spliterator(), false).noneMatch(nbtBase -> ((StringTag) nbtBase).getAsString().equals(it.toString())))
+				return TextUtil.translate("gui.compiler." + LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
+						.filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.getAsString().equals(it.toString())))
 						.skip(index)
 						.findFirst()
 						.map(it -> String.format("%s.%s", it.getNamespace(), it.getPath()))
@@ -103,12 +104,9 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 				ListTag list = compiler.getListTagForKey("compilerCategories");
 				ResourceLocation sel = getProgramListForSelectionIndex(list).get(index);
 
-				Item selItem = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(sel);
-				if (selItem != null) {
-					return TextUtil.translate(selItem.getDescriptionId());
-				}
-				return "UNDEFINED";
-			}
+				Item selItem = BuiltInRegistries.ITEM.get(sel);
+        return TextUtil.translate(selItem.getDescriptionId());
+      }
 
 			@Override
 			public int getTextColor(int index) {
@@ -119,7 +117,8 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 				ResourceLocation sel = getProgramListForSelectionIndex(list).get(index);
 
 				ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
-				return listPrograms.stream().anyMatch(it -> ResourceLocation.parse(it.getAsString()).equals(sel))
+				return listPrograms.stream()
+						.anyMatch(it -> ResourceLocation.parse(it.getAsString()).equals(sel))
 						? 0xAAFFAA : 0xFFAAAA;
 			}
 		};
@@ -127,14 +126,13 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 		programList = new TextListDisplay(this, 80, 30, 8, 104, 5, programTextList);
 		programListLarge = new TextListDisplay(this, 8, 30, 8, 104, 5, programTextList);
 	}
-	private static DummyContainer buildDummy(Player player, LogisticsProgramCompilerTileEntity compiler) {
+	private static DummyContainer buildDummy(Player player, LogisticsProgramCompilerBlockEntity compiler) {
 		DummyContainer dummy = new DummyContainer(player.getInventory(), compiler.getInventory());
 		dummy.addRestrictedSlot(0, compiler.getInventory(), 10, 10, LPItems.DISK.get());
 		dummy.addRestrictedSlot(1, compiler.getInventory(), 154, 10, LPItems.LOGISTICS_PROGRAMMER.get());
 		dummy.addNormalSlotsForPlayerInventory(10, 105);
 		return dummy;
 	}
-
 
 	@Override
 	public void init() {
@@ -150,11 +148,16 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 		unlock.setPressListener(b -> {
 			if (categoryList.getSelected() != -1) {
 				ListTag list = compiler.getListTagForKey("compilerCategories");
-				LogisticsProgramCompilerTileEntity.programByCategory.keySet().stream()
-						.filter(it -> StreamSupport.stream(list.spliterator(), false).noneMatch(nbtBase -> ((StringTag) nbtBase).getAsString().equals(it.toString())))
+				LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
+						.filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.getAsString().equals(it.toString())))
 						.skip(categoryList.getSelected())
 						.findFirst()
-						.ifPresent(it -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CompilerTriggerTaskPacket.class).setCategory(it).setType("category").setTilePos(compiler)));
+						.ifPresent(it -> MainProxy.sendPacketToServer(
+								PacketHandler.getPacket(CompilerTriggerTaskPacket.class)
+								.setCategory(it)
+								.setType("category")
+								.setTilePos(compiler))
+						);
 			}
 		});
 		addRenderableWidget(unlock);
@@ -259,11 +262,11 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 
 	private List<ResourceLocation> getProgramListForSelectionIndex(ListTag list) {
 		return list.stream().flatMap(
-				nbtBase -> LogisticsProgramCompilerTileEntity.programByCategory.get(ResourceLocation.parse(nbtBase.getAsString()))
+				nbtBase -> LogisticsProgramCompilerBlockEntity.programByCategory.get(ResourceLocation.parse(nbtBase.getAsString()))
 						.stream())
-				.filter(it -> TextUtil.translate(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(it).getDescriptionId()).toLowerCase().contains(search.getText().toLowerCase()))
-				.sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(o)))
-						.thenComparing(o -> TextUtil.translate(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(o).getDescriptionId()).toLowerCase())
+				.filter(it -> TextUtil.translate(BuiltInRegistries.ITEM.get(it).getDescriptionId()).toLowerCase().contains(search.getText().toLowerCase()))
+				.sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(BuiltInRegistries.ITEM.get(o)))
+						.thenComparing(o -> TextUtil.translate(BuiltInRegistries.ITEM.get(o).getDescriptionId()).toLowerCase())
 				)
 				.collect(Collectors.toList());
 	}
@@ -312,9 +315,9 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 		super.renderLabels(guiGraphics, par1, par2);
 		if (compiler.getCurrentTask() != null) {
 			guiGraphics.drawString(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0x000000, false);
-			Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(compiler.getCurrentTask());
+			Item item = BuiltInRegistries.ITEM.get(compiler.getCurrentTask());
 			String name;
-			if (item != null) {
+			if (!item.equals(Items.AIR)) {
 				name = item.getDescriptionId();
 			} else {
 				name = "gui.compiler." + compiler.getCurrentTask().toString().replace(':', '.');

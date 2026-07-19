@@ -257,8 +257,7 @@ public class ItemIdentifierInventory
 			if (_contents[i] != null && _contents[i].getStackSize() > 0) {
 				CompoundTag stackTag = new CompoundTag();
 				stackTag.putInt("index", i);
-				_contents[i].unsafeMakeNormalStack().save(provider, stackTag);
-				listTag.add(stackTag);
+				listTag.add(_contents[i].unsafeMakeNormalStack().save(provider, stackTag));
 			}
 		}
 		tag.put(prefix + "items", listTag);

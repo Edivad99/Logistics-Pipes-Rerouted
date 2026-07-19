@@ -7,7 +7,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.api.IRoutedPowerProvider;
-import logisticspipes.blocks.LogisticsSolidTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IGuiTileEntity;
@@ -49,7 +49,7 @@ import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
-public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
+public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
 		implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenControler {
 
 	public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
@@ -68,7 +68,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 	private PlayerCollectionList guiWatcher = new PlayerCollectionList();
 
 	public LogisticsCraftingTableTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(LPBlockEntityTypes.BE_CRAFTING_TABLE.get(), pos, state);
+		super(LPBlockEntityTypes.CRAFTING_TABLE.get(), pos, state);
 		matrix.addListener(this);
 	}
 
@@ -390,8 +390,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidTileEntity
 		fuzzyFlags.writeToNBT(tag, registries);
 		if (targetType != null) {
 			CompoundTag type = new CompoundTag();
-			targetType.makeNormalStack(1).save(registries, type);
-			tag.put("targetType", type);
+			tag.put("targetType", targetType.makeNormalStack(1).save(registries, type));
 		} else {
 			tag.remove("targetType");
 		}

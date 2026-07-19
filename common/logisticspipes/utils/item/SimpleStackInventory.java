@@ -160,8 +160,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 			if (!stack.isEmpty()) {
 				CompoundTag stackTag = new CompoundTag();
 				stackTag.putInt("index", i);
-				stack.save(provider, stackTag);
-				listTag.add(stackTag);
+				listTag.add(stack.save(provider, stackTag));
 			}
 		}
 		tag.put(prefix + "items", listTag);

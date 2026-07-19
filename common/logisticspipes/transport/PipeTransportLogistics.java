@@ -410,8 +410,7 @@ public class PipeTransportLogistics {
 
 		for (Pair<ItemIdentifierStack, Pair<Integer, Integer>> stack : _itemBuffer) {
 			CompoundTag nbttagcompound1 = new CompoundTag();
-			stack.getValue1().makeNormalStack().save(provider, nbttagcompound1);
-			nbttaglist2.add(nbttagcompound1);
+			nbttaglist2.add(stack.getValue1().makeNormalStack().save(provider, nbttagcompound1));
 		}
 		nbt.put("buffercontents", nbttaglist2);
 

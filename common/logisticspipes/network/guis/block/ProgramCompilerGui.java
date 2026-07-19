@@ -1,7 +1,7 @@
 package logisticspipes.network.guis.block;
 
 import logisticspipes.world.item.LPItems;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.gui.GuiProgramCompiler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -19,12 +19,12 @@ public class ProgramCompilerGui extends CoordinatesGuiProvider {
 
 	@Override
 	public Object getClientGui(Player player) {
-		return new GuiProgramCompiler(player, getTileAs(player.level(), LogisticsProgramCompilerTileEntity.class));
+		return new GuiProgramCompiler(player, getTileAs(player.level(), LogisticsProgramCompilerBlockEntity.class));
 	}
 
 	@Override
 	public AbstractContainerMenu getContainer(Player player) {
-		LogisticsProgramCompilerTileEntity compilerBlock = getTileAs(player.level(), LogisticsProgramCompilerTileEntity.class);
+		LogisticsProgramCompilerBlockEntity compilerBlock = getTileAs(player.level(), LogisticsProgramCompilerBlockEntity.class);
 		DummyContainer dummy = new DummyContainer(player, null, compilerBlock);
 
 		dummy.addRestrictedSlot(0, compilerBlock.getInventory(), 10, 10, LPItems.DISK.get());

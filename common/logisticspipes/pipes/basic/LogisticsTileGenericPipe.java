@@ -17,7 +17,7 @@ import logisticspipes.api.ILPPipeTile;
 import logisticspipes.asm.ModDependentField;
 import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
-import logisticspipes.blocks.LogisticsSolidTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.logic.LogicController;
@@ -132,7 +132,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	private EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers;
 
 	public LogisticsTileGenericPipe(BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
-		super(LPBlockEntityTypes.BE_PIPE.get(), pos, state);
+		super(LPBlockEntityTypes.PIPE.get(), pos, state);
 		itemInsertionHandlers = new EnumMap<>(Direction.class);
 		Arrays.stream(Direction.values()).forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));
 		ItemInsertionHandler itemInsertionHandlerNull = new ItemInsertionHandler(this, null);
@@ -632,7 +632,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	@ModDependentMethod(modId = LPConstants.openComputersModID)
 	public Object sidedNode(Direction side) {
-		if (this.getTile(side) instanceof LogisticsTileGenericPipe || this.getTile(side) instanceof LogisticsSolidTileEntity) {
+		if (this.getTile(side) instanceof LogisticsTileGenericPipe || this.getTile(side) instanceof LogisticsSolidBlockEntity) {
 			return null;
 		} else {
 			return node();
@@ -642,7 +642,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	@OnlyIn(Dist.CLIENT)
 	@ModDependentMethod(modId = LPConstants.openComputersModID)
 	public boolean canConnect(Direction side) {
-		return !(this.getTile(side) instanceof LogisticsTileGenericPipe) && !(this.getTile(side) instanceof LogisticsSolidTileEntity);
+		return !(this.getTile(side) instanceof LogisticsTileGenericPipe) && !(this.getTile(side) instanceof LogisticsSolidBlockEntity);
 	}
 
 	public void initialize(CoreUnroutedPipe pipe) {

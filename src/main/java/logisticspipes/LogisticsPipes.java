@@ -147,13 +147,13 @@ public class LogisticsPipes {
   // Mod Events
   private void handleRegisterCapabilities(RegisterCapabilitiesEvent event) {
     event.registerBlockEntity(Capabilities.ItemHandler.BLOCK,
-        LPBlockEntityTypes.BE_PIPE.get(), LogisticsTileGenericPipe::getItemCap);
+        LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getItemCap);
 
     event.registerBlockEntity(Capabilities.FluidHandler.BLOCK,
-        LPBlockEntityTypes.BE_PIPE.get(), LogisticsTileGenericPipe::getFluidCap);
+        LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getFluidCap);
 
     event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
-        LPBlockEntityTypes.BE_POWER_PROVIDER_RF.get(), LogisticsRFPowerProviderTileEntity::getEnergyStorageCap);
+        LPBlockEntityTypes.POWER_PROVIDER_RF.get(), LogisticsRFPowerProviderTileEntity::getEnergyStorageCap);
   }
 
   private void handleCommonSetup(FMLCommonSetupEvent event) {

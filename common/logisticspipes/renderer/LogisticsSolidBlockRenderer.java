@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSolidBlock;
-import logisticspipes.blocks.LogisticsSolidTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.world.CoordinateUtils;
@@ -90,11 +89,11 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
 		Block block = be.getBlockState().getBlock();
 		if (!(block instanceof LogisticsSolidBlock)) return;
 		LogisticsSolidBlock.Type type = ((LogisticsSolidBlock) block).getType();
-		if (!(be instanceof LogisticsSolidTileEntity) || be.getLevel() == null) {
+		if (!(be instanceof LogisticsSolidBlockEntity) || be.getLevel() == null) {
 			renderSolid(type, pose, buffers, light, overlay);
 			return;
 		}
-		LogisticsSolidTileEntity tile = (LogisticsSolidTileEntity) be;
+		LogisticsSolidBlockEntity tile = (LogisticsSolidBlockEntity) be;
 
 		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
 		if (!(SimpleServiceLocator.cclProxy.getRenderState() instanceof LPRenderStateImpl)) return;

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import logisticspipes.blocks.LogisticsSolidTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockWatchingHandler;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -48,7 +48,7 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 @CCType(name = "LogisticsPowerProvider")
-public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidTileEntity
+public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlockEntity
 		implements IGuiTileEntity, ISubSystemPowerProvider, IPowerLevelDisplay, IGuiOpenControler, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
 
 	public static final int BC_COLOR = 0x00ffff;
