@@ -2,15 +2,23 @@ package logisticspipes.data.recipes;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import logisticspipes.LPConstants;
 import logisticspipes.data.recipes.builders.ProgrammerRecipeBuilder;
+import logisticspipes.items.ItemModule;
+import logisticspipes.modules.LogisticsModule;
 import logisticspipes.world.item.LPItems;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
@@ -27,6 +35,7 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
     buildChips(recipeOutput);
     buildMisc(recipeOutput);
     buildModules(recipeOutput);
+    buildModulesReset(recipeOutput);
     buildUpgrades(recipeOutput);
     buildBlocks(recipeOutput);
     buildPipe(recipeOutput);
@@ -311,6 +320,23 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
         .define('e', LPItems.MODULE_BLANK)
         .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
         .save(recipeOutput);
+  }
+
+  private void buildModulesReset(RecipeOutput recipeOutput) {
+      for (var moduleResource : LPItems.modules.values()) {
+          final Item item = BuiltInRegistries.ITEM.get(moduleResource);
+          if (item instanceof ItemModule itemModule) {
+              LogisticsModule module = itemModule.getModuleForItem(new ItemStack(item), null, null, null);
+              if (module == null) {
+                  continue;
+              }
+              var moduleName = RecipeProvider.getItemName(item);
+              ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item)
+                  .requires(item)
+                  .unlockedBy(getHasName(item), has(item))
+                  .save(recipeOutput, LPConstants.rl("reset_module/" + moduleName));
+          }
+      }
   }
 
   private void buildUpgrades(RecipeOutput recipeOutput) {
