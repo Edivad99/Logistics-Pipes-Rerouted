@@ -7,7 +7,6 @@
 
 package logisticspipes.utils.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.utils.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -48,7 +47,7 @@ public class SmallGuiButton extends AbstractButton {
 	}
 
 	@Override
-	public void renderWidget(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		Font fontrenderer = Minecraft.getInstance().font;
 		boolean flag = isHovered();
 		// Background fill
@@ -65,7 +64,7 @@ public class SmallGuiButton extends AbstractButton {
 	}
 
 	@Override
-	protected void updateWidgetNarration(@Nonnull net.minecraft.client.gui.narration.NarrationElementOutput narrationElementOutput) {
+	protected void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput narrationElementOutput) {
 		defaultButtonNarrationText(narrationElementOutput);
 	}
 }

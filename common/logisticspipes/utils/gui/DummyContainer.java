@@ -10,7 +10,7 @@ package logisticspipes.utils.gui;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -80,7 +80,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(@Nonnull Player entityplayer) {
+	public boolean stillValid(Player entityplayer) {
 		return true;
 	}
 
@@ -194,9 +194,8 @@ public class DummyContainer extends AbstractContainerMenu {
 		return slot;
 	}
 
-	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(@Nonnull Player player, int i) {
+	public ItemStack quickMoveStack(Player player, int i) {
 		if (transferTop.isEmpty() || transferBottom.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
@@ -267,7 +266,7 @@ public class DummyContainer extends AbstractContainerMenu {
 		super.clicked(slotId, dragType, clickTypeIn, player);
 	}
 
-	private void handleSwitch(Slot slot2, @Nonnull ItemStack out, @Nonnull ItemStack in, Player player) {
+	private void handleSwitch(Slot slot2, ItemStack out, ItemStack in, Player player) {
 		if (slot2 instanceof ModuleSlot) {
 			ChassisModule chassis = (ChassisModule) ((ModuleSlot) slot2).get_pipe().getLogisticsModule();
 			int moduleIndex = ((ModuleSlot) slot2).get_moduleIndex();
@@ -284,7 +283,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	 * Clone/clear itemstacks for items
 	 */
 	@Override
-	public void clicked(int slotId, int mouseButton, @Nonnull ClickType shiftMode, @Nonnull Player player) {
+	public void clicked(int slotId, int mouseButton, ClickType shiftMode, Player player) {
 		lastClicked = System.currentTimeMillis();
 		if (slotId < 0) {
 			superSlotClick(slotId, mouseButton, shiftMode, player);
@@ -333,7 +332,7 @@ public class DummyContainer extends AbstractContainerMenu {
 		handleDummyClick(slot, slotId, currentlyEquippedStack, mouseButton, shiftMode, player);
 	}
 
-	public void handleDummyClick(Slot slot, int slotId, @Nonnull ItemStack currentlyEquippedStack, int mouseButton, ClickType shiftMode, Player entityplayer) {
+	public void handleDummyClick(Slot slot, int slotId, ItemStack currentlyEquippedStack, int mouseButton, ClickType shiftMode, Player entityplayer) {
 		if (slot instanceof FluidSlot) {
 			if (!currentlyEquippedStack.isEmpty()) {
 				FluidIdentifier ident = FluidIdentifier.get(currentlyEquippedStack);
@@ -475,7 +474,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	}
 
 	@Override
-	public void removed(@Nonnull Player player) {
+	public void removed(Player player) {
 		if (_controler != null) {
 			for (IGuiOpenControler element : _controler) {
 				element.guiClosedByPlayer(player);
@@ -504,7 +503,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	}
 
 	// @Override // canDragIntoSlot may not be in AbstractContainerMenu in 1.20.1
-	public boolean canDragIntoSlot(@Nonnull Slot slot) {
+	public boolean canDragIntoSlot(Slot slot) {
 		if (slot instanceof UnmodifiableSlot || slot instanceof FluidSlot || slot instanceof ColorSlot || slot instanceof HandelableSlot) {
 			return false;
 		}
@@ -528,7 +527,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	// getSlotFromInventory removed in 1.20.1 — no override needed
 
 	@Override
-	public void setItem(int par1, int stateId, @Nonnull ItemStack par2ItemStack) {
+	public void setItem(int par1, int stateId, ItemStack par2ItemStack) {
 		if (this.slots.isEmpty()) {
 			_playerInventory.setItem(par1, par2ItemStack);
 			_playerInventory.setChanged();
@@ -560,21 +559,20 @@ public class DummyContainer extends AbstractContainerMenu {
 		super.broadcastChanges();
 	}
 
-	@Nonnull
 	@Override
-	protected Slot addSlot(@Nonnull Slot slotIn) {
+	protected Slot addSlot(Slot slotIn) {
 		this.slotsFuzzyFlags.add(null);
 		return super.addSlot(slotIn);
 	}
 
 	@Override
-	public void addSlotListener(@Nonnull ContainerListener listener) {
+	public void addSlotListener(ContainerListener listener) {
 		super.addSlotListener(listener);
 		lpListeners.add(listener);
 	}
 
 	@Override
-	public void removeSlotListener(@Nonnull ContainerListener listener) {
+	public void removeSlotListener(ContainerListener listener) {
 		super.removeSlotListener(listener);
 		lpListeners.remove(listener);
 	}

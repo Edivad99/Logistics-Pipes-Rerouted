@@ -9,7 +9,6 @@ package logisticspipes.utils;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IInventoryUtil;
@@ -25,7 +24,7 @@ public class InventoryUtilFactory {
 
 	private final ArrayList<SpecialInventoryHandler.Factory> handlerFactories = new ArrayList<>();
 
-	public void registerHandler(@Nonnull SpecialInventoryHandler.Factory handlerFactory) {
+	public void registerHandler(SpecialInventoryHandler.Factory handlerFactory) {
 		if (handlerFactory.init()) {
 			handlerFactories.add(handlerFactory);
 			LogisticsPipes.LOG.info("Loaded SpecialInventoryHandler.Factory: " + handlerFactory.getClass().getCanonicalName());
@@ -45,7 +44,7 @@ public class InventoryUtilFactory {
 	}
 
 	@Nullable
-	public IInventoryUtil getInventoryUtil(@Nonnull NeighborTileEntity<BlockEntity> adj) {
+	public IInventoryUtil getInventoryUtil(NeighborTileEntity<BlockEntity> adj) {
 		return getHidingInventoryUtil(adj.getTileEntity(), adj.getOurDirection(), ProviderMode.DEFAULT);
 	}
 
@@ -55,7 +54,7 @@ public class InventoryUtilFactory {
 	}
 
 	@Nullable
-	public IInventoryUtil getHidingInventoryUtil(@Nullable BlockEntity tile, @Nullable Direction direction, @Nonnull ProviderMode mode) {
+	public IInventoryUtil getHidingInventoryUtil(@Nullable BlockEntity tile, @Nullable Direction direction, ProviderMode mode) {
 		if (tile != null) {
 			IInventoryUtil util = getSpecialHandlerFor(tile, direction, mode);
 			if (util != null) {

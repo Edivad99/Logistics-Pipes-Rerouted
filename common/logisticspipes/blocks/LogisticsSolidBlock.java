@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.blocks.powertile.LogisticsIC2PowerProviderTileEntity;
@@ -133,7 +132,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 	}
 
 	@Override
-	public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
+	public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
 		super.setPlacedBy(world, pos, state, placer, stack);
 		BlockEntity tile = world.getBlockEntity(pos);
 		if (tile instanceof LogisticsCraftingTableTileEntity) {
@@ -145,7 +144,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 	}
 
 	@Override
-	public void onRemove(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
 		if (state.getBlock() != newState.getBlock()) {
 			BlockEntity tile = worldIn.getBlockEntity(pos);
 			if (tile instanceof LogisticsSolidBlockEntity) {
@@ -157,14 +156,14 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		if (!type.hasTE()) return null;
 		return type.createTE(pos, state);
 	}
 
 	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		// Tick all ITickable solid block entities
 		return (lvl, pos, st, be) -> {
 			if (be instanceof ITickable) ((ITickable) be).update();
@@ -172,8 +171,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 	}
 
 	@Override
-	@Nonnull
-	public RenderShape getRenderShape(@Nonnull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
 		// Types with a BlockEntity are drawn by LogisticsSolidBlockRenderer — suppress the
 		// flat cube_all JSON model so only the 3D OBJ geometry is visible. Types without a
 		// TE (frame, BC power provider) fall back to the JSON model for now.

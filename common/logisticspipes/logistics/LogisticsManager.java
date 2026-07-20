@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.routing.ICraftItems;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvideItems;
@@ -46,7 +46,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class LogisticsManager implements ILogisticsManager {
 
-	private Triplet<Integer, SinkReply, List<IFilter>> getBestReply(@Nonnull ItemStack stack, ItemIdentifier item, @Nonnull IRouter sourceRouter, @Nonnull List<ExitRoute> validDestinations, boolean excludeSource, List<Integer> jamList, Triplet<Integer, SinkReply, List<IFilter>> result, boolean allowDefault) {
+	private Triplet<Integer, SinkReply, List<IFilter>> getBestReply(ItemStack stack, ItemIdentifier item, IRouter sourceRouter, List<ExitRoute> validDestinations, boolean excludeSource, List<Integer> jamList, Triplet<Integer, SinkReply, List<IFilter>> result, boolean allowDefault) {
 		if (result == null) {
 			result = new Triplet<>(null, null, null);
 		}
@@ -108,11 +108,11 @@ public class LogisticsManager implements ILogisticsManager {
 		return result;
 	}
 
-	public static SinkReply canSink(@Nonnull ItemStack stack, @Nonnull IRouter destination, IRouter sourceRouter, boolean excludeSource, ItemIdentifier item, SinkReply result, boolean activeRequest, boolean allowDefault) {
+	public static SinkReply canSink(ItemStack stack, IRouter destination, IRouter sourceRouter, boolean excludeSource, ItemIdentifier item, SinkReply result, boolean activeRequest, boolean allowDefault) {
 		return canSink(stack, destination, sourceRouter, excludeSource, item, result, activeRequest, allowDefault, true);
 	}
 
-	public static SinkReply canSink(@Nonnull ItemStack stack, @Nonnull IRouter destination, IRouter sourceRouter, boolean excludeSource, ItemIdentifier item, SinkReply result, boolean activeRequest, boolean allowDefault, boolean forcePassive) {
+	public static SinkReply canSink(ItemStack stack, IRouter destination, IRouter sourceRouter, boolean excludeSource, ItemIdentifier item, SinkReply result, boolean activeRequest, boolean allowDefault, boolean forcePassive) {
 
 		SinkReply reply;
 		LogisticsModule module = destination.getLogisticsModule();

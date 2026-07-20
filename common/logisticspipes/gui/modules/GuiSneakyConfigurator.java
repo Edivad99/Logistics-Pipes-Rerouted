@@ -8,7 +8,7 @@
 package logisticspipes.gui.modules;
 
 import java.util.Locale;
-import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
@@ -83,7 +83,7 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/sneaky.png");
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		// texture: GuiSneakyConfigurator.TEXTURE
 		int j = leftPos;

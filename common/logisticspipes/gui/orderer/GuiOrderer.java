@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import logisticspipes.LPConfigs;
@@ -123,7 +122,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	public void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 
 		itemDisplay.renderPageNumber(right - 47, topPos + 6);

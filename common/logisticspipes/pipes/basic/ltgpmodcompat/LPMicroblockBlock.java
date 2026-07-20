@@ -1,6 +1,5 @@
 package logisticspipes.pipes.basic.ltgpmodcompat;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.interfaces.ITickable;
 import net.minecraft.core.BlockPos;
@@ -25,11 +24,11 @@ public abstract class LPMicroblockBlock extends Block implements EntityBlock {
 
 	@Nullable
 	@Override
-	public abstract BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state);
+	public abstract BlockEntity newBlockEntity(BlockPos pos, BlockState state);
 
 	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		return (lvl, pos, st, be) -> {
 			if (be instanceof ITickable) ((ITickable) be).update();
 		};

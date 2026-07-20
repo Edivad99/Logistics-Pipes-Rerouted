@@ -2,7 +2,7 @@ package logisticspipes.pipes;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
@@ -91,14 +91,14 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {
 		super.writeToNBT(tag, provider);
 		tag.putIntArray("nextSendMax", nextSendMax);
 		tag.putIntArray("nextSendMin", nextSendMin);
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
 		super.readFromNBT(tag, provider);
 		nextSendMax = tag.getIntArray("nextSendMax");
 		if (nextSendMax.length < 6) {

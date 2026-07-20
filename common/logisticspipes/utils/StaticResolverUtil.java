@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.neoforged.fml.ModList;
@@ -66,9 +65,8 @@ public class StaticResolverUtil {
 		childrenByParent = map;
 	}
 
-	@Nonnull
 	@SuppressWarnings("unchecked")
-	public static <T> Set<Class<? extends T>> findClassesByType(@Nonnull Class<T> cls) {
+	public static <T> Set<Class<? extends T>> findClassesByType(Class<T> cls) {
 		buildIndex();
 		Map<String, Set<String>> index = childrenByParent;
 		if (index == null || index.isEmpty()) {
@@ -109,7 +107,7 @@ public class StaticResolverUtil {
 	}
 
 	@Nullable
-	private static Class<?> loadClass(@Nonnull String classPathSpec) {
+	private static Class<?> loadClass(String classPathSpec) {
 		try {
 			return Class.forName(classPathSpec, false, LogisticsPipes.class.getClassLoader());
 		} catch (Throwable t) {

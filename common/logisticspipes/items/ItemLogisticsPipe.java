@@ -8,7 +8,7 @@
 package logisticspipes.items;
 
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
@@ -55,7 +55,6 @@ public class ItemLogisticsPipe extends LogisticsItem {
 		super();
 	}
 
-	@Nonnull
 	@Override
 	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
 		Player player = _ctx.getPlayer();

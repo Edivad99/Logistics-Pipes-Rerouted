@@ -3,12 +3,11 @@ package logisticspipes.logisticspipes;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.proxy.MainProxy;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -18,7 +17,7 @@ import net.minecraft.world.item.component.CustomData;
 
 public class ItemModuleInformationManager {
 
-	public static void saveInformation(@Nonnull ItemStack stack, LogisticsModule module, HolderLookup.Provider provider) {
+	public static void saveInformation(ItemStack stack, LogisticsModule module, HolderLookup.Provider provider) {
 		if (module == null) {
 			return;
 		}
@@ -67,7 +66,7 @@ public class ItemModuleInformationManager {
 		);
 	}
 
-	public static void readInformation(@Nonnull ItemStack stack, LogisticsModule module) {
+	public static void readInformation(ItemStack stack, LogisticsModule module) {
 		if (module == null) {
 			return;
 		}

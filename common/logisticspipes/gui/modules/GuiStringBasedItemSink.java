@@ -3,7 +3,7 @@ package logisticspipes.gui.modules;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
@@ -93,7 +93,7 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 7, topPos + 126);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 6, topPos + 7);

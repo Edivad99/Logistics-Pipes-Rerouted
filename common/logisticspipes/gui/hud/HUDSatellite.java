@@ -1,6 +1,5 @@
 package logisticspipes.gui.hud;
 
-import javax.annotation.Nonnull;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
@@ -11,11 +10,10 @@ import network.rs485.logisticspipes.SatellitePipe;
 
 public class HUDSatellite extends BasicHUDGui {
 
-	@Nonnull
 	private final SatellitePipe pipe;
 	private int page;
 
-	public HUDSatellite(@Nonnull SatellitePipe pipe) {
+	public HUDSatellite(SatellitePipe pipe) {
 		this.pipe = pipe;
 		addRenderableWidget(new BasicHUDButton("<", -2, -40, 8, 8) {
 

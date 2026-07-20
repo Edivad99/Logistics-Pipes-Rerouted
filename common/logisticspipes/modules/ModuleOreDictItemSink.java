@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.annotation.Nonnull;
+
 import logisticspipes.gui.hud.modules.HUDOreDictItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -64,20 +64,18 @@ public class ModuleOreDictItemSink extends LogisticsModule
 		return "item_sink_oredict";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.singletonList(oreList);
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.OreDictItemSink,
 				0,
@@ -89,7 +87,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority, boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority, boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal() && bestCustomPriority >= _sinkReply.customPriority)) {
 			return null;
 		}
@@ -141,7 +139,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
 		super.readFromNBT(tag, provider);
 		oreItemIdMap = null;
 	}
@@ -150,7 +148,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	public void tick() {}
 
 	@Override
-	public @Nonnull List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Ores: ");
 		list.addAll(oreList);
@@ -217,7 +215,6 @@ public class ModuleOreDictItemSink extends LogisticsModule
 		return true;
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		CompoundTag nbt = new CompoundTag();
@@ -225,7 +222,6 @@ public class ModuleOreDictItemSink extends LogisticsModule
 		return NewGuiHandler.getGui(OreDictItemSinkModuleSlot.class).setNbt(nbt);
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return NewGuiHandler.getGui(OreDictItemSinkModuleInHand.class);

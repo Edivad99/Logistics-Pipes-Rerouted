@@ -8,7 +8,7 @@
 package logisticspipes.gui;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LPConstants;
 import logisticspipes.modules.ModuleActiveSupplier;
@@ -122,7 +122,7 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		if (!hasPatternUpgrade) {
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			// texture: GuiSupplierPipe.TEXTURE
@@ -181,7 +181,6 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 		}
 	}
 
-	@Nonnull
 	private String getLimitationText() {
 		return limitedPropertyOverlay.get() ? "Limited" : "Unlimited";
 	}

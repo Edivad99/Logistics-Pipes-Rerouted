@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nonnull;
+
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -59,11 +59,9 @@ public class ModuleTerminus extends LogisticsModule
 		return "terminus";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() { return getName(); }
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.singletonList(filterInventory);
@@ -71,20 +69,19 @@ public class ModuleTerminus extends LogisticsModule
 
 	@Override
 	@CCCommand(description = "Returns the FilterInventory of this Module")
-	@Nonnull
-	public IItemIdentifierInventory getFilterInventory() {
+    public IItemIdentifierInventory getFilterInventory() {
 		return filterInventory;
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.Terminus, 0, true, false, 2, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
 				&& bestCustomPriority >= _sinkReply.customPriority)) {
@@ -105,8 +102,7 @@ public class ModuleTerminus extends LogisticsModule
 	public void tick() {}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Terminated: ");
 		list.add("<inventory>");
@@ -155,7 +151,7 @@ public class ModuleTerminus extends LogisticsModule
 	}
 
 	@Override
-	public void handleInvContent(@Nonnull Collection<ItemIdentifierStack> list) {
+	public void handleInvContent(Collection<ItemIdentifierStack> list) {
 		filterInventory.handleItemIdentifierList(list);
 	}
 
@@ -165,7 +161,7 @@ public class ModuleTerminus extends LogisticsModule
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		Set<ItemIdentifier> filterItemIds = filterInventory.getItemsAndCount().keySet();
 		itemIdentifiers.addAll(filterItemIds);
 		filterItemIds.stream().map(ItemIdentifier::getUndamaged).forEach(itemIdentifiers::add);
@@ -186,13 +182,11 @@ public class ModuleTerminus extends LogisticsModule
 		return true;
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		return SimpleFilter.getPipeGuiProvider();
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return SimpleFilter.getInHandGuiProvider();

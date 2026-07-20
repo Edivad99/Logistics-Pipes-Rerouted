@@ -1,6 +1,5 @@
 package logisticspipes.network.packets.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.ColorSlot;
@@ -27,8 +26,7 @@ public class DummyContainerSlotClick extends ModernPacket {
 
 	@Getter
 	@Setter
-	@Nonnull
-	ItemStack stack;
+    ItemStack stack;
 
 	@Getter
 	@Setter
@@ -48,7 +46,7 @@ public class DummyContainerSlotClick extends ModernPacket {
 	@Override
 	public void processPacket(Player player) {
 		if (player instanceof ServerPlayer && ((ServerPlayer) player).containerMenu instanceof DummyContainer) {
-			DummyContainer container = (DummyContainer) ((ServerPlayer) player).containerMenu;
+			DummyContainer container = (DummyContainer) player.containerMenu;
 			Slot slot = container.slots.get(slotId);
 			if (slot instanceof DummySlot || slot instanceof ColorSlot || slot instanceof FluidSlot) {
 				container.handleDummyClick(slot, slotId, stack, button, ClickType.PICKUP, player);

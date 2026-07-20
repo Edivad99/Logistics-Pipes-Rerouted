@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+
 import logisticspipes.gui.hud.HUDProvider;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -46,7 +46,6 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe implements IProvi
 	public final LinkedList<ItemIdentifierStack> itemListOrderer = new LinkedList<>();
 	private final HUDProvider HUD = new HUDProvider(this);
 
-	@Nonnull
 	protected final ModuleProvider providerModule = new ModuleProvider();
 
 	public ArrayList<ItemIdentifierStack> getDisplayList() {
@@ -91,7 +90,7 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe implements IProvi
 	}
 
 	@Override
-	public @Nonnull ModuleProvider getLogisticsModule() {
+	public ModuleProvider getLogisticsModule() {
 		return providerModule;
 	}
 
@@ -153,7 +152,7 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe implements IProvi
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		if (providerModule.isExclusionFilter.getValue() || providerModule.filterInventory.isEmpty()) {
 			itemIdentifiers.addAll(
 					providerModule.inventoriesWithMode()

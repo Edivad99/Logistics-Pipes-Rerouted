@@ -1,8 +1,6 @@
 package logisticspipes.pipes.upgrades;
 
 import java.util.Arrays;
-import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleCreativeTabBasedItemSink;
@@ -85,7 +83,7 @@ public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 	}
 
 	@Nullable
-	public Direction getSide(@Nonnull ItemStack stack) {
+	public Direction getSide(ItemStack stack) {
 		if (stack.isEmpty()) return null;
 		CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
 		String sideString = tag.getString(SIDE_KEY);

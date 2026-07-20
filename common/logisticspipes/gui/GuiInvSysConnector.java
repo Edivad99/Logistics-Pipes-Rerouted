@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.InvSysConContentRequest;
@@ -99,7 +99,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 135);
 		guiGraphics.fill(leftPos + 9, topPos + 78, leftPos + 170, topPos + 132, Color.getValue(Color.GREY));

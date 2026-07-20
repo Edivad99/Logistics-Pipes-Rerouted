@@ -1,7 +1,6 @@
 package logisticspipes.items;
 
 import java.util.List;
-import javax.annotation.Nonnull;
 
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -25,18 +24,17 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
 	}
 
 	@Override
-	public boolean canExistInNormalInventory(@Nonnull ItemStack stack) {
+	public boolean canExistInNormalInventory(ItemStack stack) {
 		return false;
 	}
 
 	@Override
-	public boolean canExistInWorld(@Nonnull ItemStack stack) {
+	public boolean canExistInWorld(ItemStack stack) {
 		return false;
 	}
 
 	@Override
-	@Nonnull
-	public String getDescriptionId(@Nonnull ItemStack stack) {
+    public String getDescriptionId(ItemStack stack) {
 		FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(stack), Minecraft.getInstance().level.registryAccess());
 		if (fluidStack != null) {
 			// Fluid.getDescriptionId() removed in 1.20.1; use FluidStack.getDisplayName()
@@ -49,8 +47,7 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
 	}
 
 	@Override
-	@Nonnull
-	public net.minecraft.network.chat.Component getName(@Nonnull ItemStack itemstack) {
+    public net.minecraft.network.chat.Component getName(ItemStack itemstack) {
 		// getUnlocalizedNameInefficiently removed in 1.20.1; use getDescriptionId() for base key
 		String translationKey = getDescriptionId(itemstack);
 		String baseKey = getDescriptionId();

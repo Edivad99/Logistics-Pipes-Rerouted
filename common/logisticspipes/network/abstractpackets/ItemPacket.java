@@ -1,6 +1,5 @@
 package logisticspipes.network.abstractpackets;
 
-import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.component.DataComponents;
@@ -17,8 +16,7 @@ public abstract class ItemPacket extends CoordinatesPacket {
 
 	@Getter
 	@Setter
-	@Nonnull
-	private ItemStack stack = ItemStack.EMPTY;
+    private ItemStack stack = ItemStack.EMPTY;
 
 	public ItemPacket(int id) {
 		super(id);

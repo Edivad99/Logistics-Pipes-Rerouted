@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nonnull;
+
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import logisticspipes.LPConstants;
@@ -1124,7 +1124,6 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		}
 	}
 
-	@Nonnull
 	public ArrayList<BakedQuad> getQuadsFromRenderList(List<RenderEntry> renderEntryList, VertexFormat format, boolean skipNonBlockTextures) {
 		ArrayList<BakedQuad> quads = Lists.newArrayList();
 		for (RenderEntry model : renderEntryList) {

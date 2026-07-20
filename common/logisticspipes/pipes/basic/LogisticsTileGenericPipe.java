@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -277,7 +276,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void handleUpdateTag(@Nonnull CompoundTag tag, HolderLookup.Provider lookupProvider) {
+	public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
 		PacketHandler.queueAndRemovePacketFromNBT(tag);
 		super.handleUpdateTag(tag, lookupProvider);
 	}
@@ -294,7 +293,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
     }
 
 	// Custom public method — called from crash report hooks; not an override of BlockEntity or IBlockEntityExtension.
-	public void addInfoToCrashReport(@Nonnull CrashReportCategory reportCategory) {
+	public void addInfoToCrashReport(CrashReportCategory reportCategory) {
 		if (pipe != null) {
 			reportCategory.setDetail("Pipe", pipe.getClass().getCanonicalName());
 			if (pipe.transport != null) {
@@ -327,7 +326,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	/* IPipeInformationProvider */
 
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag nbt, HolderLookup.Provider registries) {
+	public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
 		super.saveAdditional(nbt, registries);
 
 		if (pipe != null && pipe.item != null) {
@@ -433,8 +432,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		return 0;
 	}
 
-	@Nonnull
-	public ItemStack insertItem(Direction from, @Nonnull ItemStack stack) {
+	public ItemStack insertItem(Direction from, ItemStack stack) {
 		int used = injectItem(stack, true, from);
 		if (used == stack.getCount()) {
 			return ItemStack.EMPTY;
@@ -574,7 +572,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		return 1;
 	}
 
-	public int injectItem(@Nonnull ItemStack payload, boolean doAdd, Direction from) {
+	public int injectItem(ItemStack payload, boolean doAdd, Direction from) {
 		if (LogisticsBlockGenericPipe.isValid(pipe) && pipe.transport != null && isPipeConnectedCached(from)) {
 			if (doAdd && MainProxy.isServer(getLevel())) {
 				ItemStack leftStack = payload.copy();

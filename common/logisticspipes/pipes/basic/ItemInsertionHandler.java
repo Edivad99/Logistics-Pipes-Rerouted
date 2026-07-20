@@ -2,7 +2,7 @@ package logisticspipes.pipes.basic;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.ILPItemAcceptor;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -25,27 +25,24 @@ public class ItemInsertionHandler implements IItemHandler {
 		return 1;
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack getStackInSlot(int slot) { // getItem → getStackInSlot in IItemHandler 1.20.1
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+	public boolean isItemValid(int slot, ItemStack stack) {
 		return true;
 	}
 
-	@Nonnull
 	@Override
-	public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		if (!simulate) {
 			return handleItemInsetion(pipe, dir, stack);
 		}
 		return ItemStack.EMPTY;
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
 		return ItemStack.EMPTY;
@@ -56,8 +53,7 @@ public class ItemInsertionHandler implements IItemHandler {
 		return 64;
 	}
 
-	@Nonnull
-	public static ItemStack handleItemInsetion(LogisticsTileGenericPipe pipe, Direction from, @Nonnull ItemStack stack) {
+	public static ItemStack handleItemInsetion(LogisticsTileGenericPipe pipe, Direction from, ItemStack stack) {
 		for (ILPItemAcceptor acceptor : ACCEPTORS) {
 			if (acceptor.accept(pipe, from, stack)) {
 				return ItemStack.EMPTY;

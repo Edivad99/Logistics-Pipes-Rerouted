@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.platform.NativeImage;
 import logisticspipes.LPConstants;
 import logisticspipes.world.item.LPItems;
@@ -50,7 +50,7 @@ public class FluidContainerRenderer {
 				LPItems.FLUID_CONTAINER.get());
 	}
 
-	private static int getFluidColor(@Nonnull ItemStack stack) {
+	private static int getFluidColor(ItemStack stack) {
 		FluidIdentifier ident = FluidIdentifier.get(stack);
 		if (ident == null) return 0xFFFFFFFF;
 		Fluid fluid = ident.getFluid();

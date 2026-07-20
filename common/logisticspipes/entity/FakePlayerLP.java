@@ -1,6 +1,5 @@
 package logisticspipes.entity;
 
-import javax.annotation.Nonnull;
 import logisticspipes.LPConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -16,7 +15,6 @@ public class FakePlayerLP extends FakePlayer {
     this.setPos(0, 0, 0);
   }
 
-  @Nonnull
   @Override
   public Component getDisplayName() {
     return DISPLAY_NAME;

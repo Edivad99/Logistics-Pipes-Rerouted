@@ -1,7 +1,7 @@
 package logisticspipes.network.abstractpackets;
 
 import java.util.function.Function;
-import javax.annotation.Nonnull;
+
 import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import lombok.Getter;
@@ -31,7 +31,6 @@ public abstract class CoordinatesPacket extends ModernPacket {
 		super(id);
 	}
 
-	@Nonnull
 	@SuppressWarnings("unchecked")
 	public static <T> T getTileAs(Object whosAsking, Level world, BlockPos blockPos, Class<T> clazz) {
 		final BlockEntity tile = getWorldTile(whosAsking, world, blockPos);
@@ -147,7 +146,6 @@ public abstract class CoordinatesPacket extends ModernPacket {
 		return getPipe(world, LTGPCompletionCheck.NONE);
 	}
 
-	@Nonnull
 	public LogisticsTileGenericPipe getPipe(Level world, LTGPCompletionCheck check) {
 		LogisticsTileGenericPipe pipe = getTileAs(world, LogisticsTileGenericPipe.class);
 		if (check == LTGPCompletionCheck.PIPE || check == LTGPCompletionCheck.TRANSPORT) {

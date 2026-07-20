@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -63,15 +63,13 @@ public final class LineTubeRenderer implements ISpecialPipeRenderer, IHighlightP
 
 	}
 
-	@Nonnull
 	@Override
 	public List<IModel3D> getModelsWithoutPipe() {
 		return LineTubeRenderer.tubeLineBase.get(TubeLineRenderOrientation.NORTH_SOUTH);
 	}
 
-	@Nonnull
 	@Override
-	public List<IModel3D> getModelsFromPipe(@Nonnull CoreUnroutedPipe pipe) {
+	public List<IModel3D> getModelsFromPipe(CoreUnroutedPipe pipe) {
 		if (pipe instanceof HSTubeLine && ((HSTubeLine) pipe).getOrientation() != null) {
 			final TubeLineRenderOrientation orientation = ((HSTubeLine) pipe).getOrientation().getRenderOrientation();
 			return Objects.requireNonNull(LineTubeRenderer.tubeLineBase.get(orientation), "Could not fetch model for LineTubeRenderer for orientation " + orientation);
@@ -80,7 +78,6 @@ public final class LineTubeRenderer implements ISpecialPipeRenderer, IHighlightP
 		}
 	}
 
-	@Nonnull
 	@Override
 	public ResourceLocation getTexture() {
 		return LineTubeRenderer.TEXTURE;

@@ -1,7 +1,5 @@
 package logisticspipes.hud;
 
-import javax.annotation.Nonnull;
-
 import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.world.item.component.HUDComponent;
@@ -11,7 +9,7 @@ public class HUDConfig implements IHUDConfig {
 
 	private ItemStack itemStack;
 
-	public HUDConfig(@Nonnull ItemStack stack) {
+	public HUDConfig(ItemStack stack) {
 		stack.set(LPDataComponents.HUD, HUDComponent.DEFAULT);
 		this.itemStack = stack;
 	}

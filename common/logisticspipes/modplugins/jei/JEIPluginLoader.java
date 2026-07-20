@@ -1,6 +1,5 @@
 package logisticspipes.modplugins.jei;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.recipe.IFocusFactory;
@@ -15,7 +14,7 @@ public class JEIPluginLoader {
     @Nullable
     private static IJeiRuntime jeiRuntime = null;
 
-    public static void setRuntime(@Nonnull IJeiRuntime runtime) {
+    public static void setRuntime(IJeiRuntime runtime) {
         jeiRuntime = runtime;
     }
 
@@ -24,7 +23,7 @@ public class JEIPluginLoader {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void showRecipe(@Nonnull ItemStack stack) {
+    public static void showRecipe(ItemStack stack) {
         if (jeiRuntime == null || stack.isEmpty()) return;
         IFocusFactory focusFactory = jeiRuntime.getJeiHelpers().getFocusFactory();
         jeiRuntime.getRecipesGui().show(

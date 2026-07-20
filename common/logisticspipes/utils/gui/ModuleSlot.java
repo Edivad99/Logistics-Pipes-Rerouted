@@ -1,6 +1,5 @@
 package logisticspipes.utils.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -23,7 +22,7 @@ public class ModuleSlot extends RestrictedSlot {
 	}
 
 	@Override
-	public void onTake(@Nonnull Player player, @Nonnull ItemStack itemStack) {
+	public void onTake(Player player, ItemStack itemStack) {
 		ItemModuleInformationManager.saveInformation(itemStack, _pipe.getSubModule(_moduleIndex), player.registryAccess());
 		super.onTake(player, itemStack);
 	}

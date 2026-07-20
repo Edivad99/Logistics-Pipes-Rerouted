@@ -3,7 +3,6 @@ package logisticspipes.items;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IWorldProvider;
@@ -22,7 +21,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,8 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -70,12 +67,12 @@ public class ItemModule extends LogisticsItem {
 	}
 
 	/** Factory for use with DeferredRegister. */
-	public static ItemModule of(@Nonnull Supplier<? extends LogisticsModule> moduleConstructor) {
+	public static ItemModule of(Supplier<? extends LogisticsModule> moduleConstructor) {
 		return new ItemModule(new Module(moduleConstructor));
 	}
 
 	@Nullable
-	public static LogisticsModule getLogisticsModule(@Nonnull Player player, int invSlot) {
+	public static LogisticsModule getLogisticsModule(Player player, int invSlot) {
 		ItemStack item = player.getInventory().items.get(invSlot);
 		if (item.isEmpty() || !(item.getItem() instanceof ItemModule)) return null;
 		LogisticsModule module = ((ItemModule) item.getItem()).getModuleForItem(
@@ -87,7 +84,7 @@ public class ItemModule extends LogisticsItem {
 		return module;
 	}
 
-	private void openConfigGui(@Nonnull ItemStack stack, Player player, Level world) {
+	private void openConfigGui(ItemStack stack, Player player, Level world) {
 		LogisticsModule module = getModuleForItem(stack, null, new DummyLevelProvider(world), null);
 		if (module instanceof Gui && !stack.isEmpty()) {
 			module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().selected);
@@ -97,7 +94,7 @@ public class ItemModule extends LogisticsItem {
 	}
 
 	@Override
-	public boolean isFoil(@Nonnull ItemStack stack) {
+	public boolean isFoil(ItemStack stack) {
 		LogisticsModule module = getModuleForItem(stack, null, null, null);
 		if (module != null) {
 			if (stack.getCount() > 0) {
@@ -108,9 +105,8 @@ public class ItemModule extends LogisticsItem {
 	}
 
 	@Override
-	@Nonnull
-	public InteractionResultHolder<ItemStack> use(final Level world, final Player player,
-			@Nonnull final InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(final Level world, final Player player,
+			final InteractionHand hand) {
 		if (MainProxy.isServer(player.level())) {
 			openConfigGui(player.getItemInHand(hand), player, world);
 		}
@@ -118,8 +114,7 @@ public class ItemModule extends LogisticsItem {
 	}
 
 	@Override
-	@Nonnull
-	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+    public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
 		Player player = context.getPlayer();
 		Level world = context.getLevel();
 		BlockPos pos = context.getClickedPos();
@@ -162,7 +157,7 @@ public class ItemModule extends LogisticsItem {
 
 	@Nullable
 	public LogisticsModule getModuleForItem(
-			@Nonnull ItemStack itemStack,
+			ItemStack itemStack,
 			@Nullable LogisticsModule currentModule,
 			@Nullable IWorldProvider world,
 			@Nullable IPipeServiceProvider service

@@ -1,7 +1,6 @@
 
 package logisticspipes.gui.orderer;
 
-import javax.annotation.Nonnull;
 import logisticspipes.gui.popup.GuiDiskPopup;
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
@@ -41,7 +40,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 	}
 
 	@Override
-	public void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		super.renderBg(guiGraphics, f, i, j);
 
 		guiGraphics.fill(right - 39, bottom - 47, right - 19, bottom - 27, Color.getValue(Color.BLACK));
@@ -66,8 +65,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 	}
 
 	@Override
-	@Nonnull
-	public ItemStack getDisk() {
+    public ItemStack getDisk() {
 		return pipe.getDisk();
 	}
 

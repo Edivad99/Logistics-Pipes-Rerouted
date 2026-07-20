@@ -1,6 +1,5 @@
 package logisticspipes.pipes;
 
-import javax.annotation.Nonnull;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
@@ -18,7 +17,6 @@ import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 
-	@Nonnull
 	private ItemStack disk = ItemStack.EMPTY;
 
 	public PipeItemsRequestLogisticsMk2(Item item) {
@@ -81,7 +79,6 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 		return Textures.LOGISTICSPIPE_REQUESTERMK2_TEXTURE;
 	}
 
-	@Nonnull
 	public ItemStack getDisk() {
 		return disk;
 	}
@@ -101,7 +98,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 		}
 	}
 
-	public void setDisk(@Nonnull ItemStack itemstack) {
+	public void setDisk(ItemStack itemstack) {
 		disk = itemstack;
 	}
 }

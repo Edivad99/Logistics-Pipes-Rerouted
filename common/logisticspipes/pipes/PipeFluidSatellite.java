@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChestContentReceiver;
@@ -263,18 +262,16 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 		return false;
 	}
 
-	@Nonnull
 	@Override
 	public Set<SatellitePipe> getSatellitesOfType() {
 		return Collections.unmodifiableSet(AllSatellites);
 	}
 
 	@Override
-	public void setSatellitePipeName(@Nonnull String satellitePipeName) {
+	public void setSatellitePipeName(String satellitePipeName) {
 		this.satellitePipeName = satellitePipeName;
 	}
 
-	@Nonnull
 	@Override
 	public List<ItemIdentifierStack> getItemList() {
 		return itemList;

@@ -1,10 +1,9 @@
 package logisticspipes.pipes.upgrades;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
@@ -76,8 +75,7 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 		return NewGuiHandler.getGui(DisconnectionUpgradeConfigGuiProvider.class);
 	}
 
-	@Nonnull
-	public Stream<Direction> getSides(@Nonnull ItemStack stack) {
+	public Stream<Direction> getSides(ItemStack stack) {
 		if (stack.isEmpty()) return Stream.empty();
 		final CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
 		return Arrays.stream(Sides.values()).filter(side -> tag.getBoolean(side.getLpName())).map(Sides::getDir);

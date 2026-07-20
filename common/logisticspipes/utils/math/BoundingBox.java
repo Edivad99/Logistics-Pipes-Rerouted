@@ -2,7 +2,6 @@ package logisticspipes.utils.math;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
 
 import net.minecraft.core.Direction;
 
@@ -41,8 +40,7 @@ public class BoundingBox {
 		this(bc.getXDouble(), bc.getYDouble(), bc.getZDouble(), bc.getXDouble() + 1, bc.getYDouble() + 1, bc.getZDouble() + 1);
 	}
 
-	@Nonnull
-	public List<Vertex> getCornersWithUvForFace(@Nonnull Direction face, float minU, float maxU, float minV, float maxV) {
+	public List<Vertex> getCornersWithUvForFace(Direction face, float minU, float maxU, float minV, float maxV) {
 		List<Vertex> result = new ArrayList<>(4);
 		switch (face) {
 			case NORTH:

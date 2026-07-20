@@ -1,7 +1,5 @@
 package logisticspipes.request.resources;
 
-import javax.annotation.Nonnull;
-
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -54,8 +52,7 @@ public class ItemResource implements IResource {
 	}
 
 	@Override
-	@Nonnull
-	public IRouter getRouter() {
+    public IRouter getRouter() {
 		return requester.getRouter();
 	}
 

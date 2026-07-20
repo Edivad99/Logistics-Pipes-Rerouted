@@ -8,7 +8,7 @@
 package logisticspipes.gui;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
 import logisticspipes.pipes.SatelliteNamingResult;
@@ -24,15 +24,13 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 
-	@Nonnull
 	private final SatellitePipe satellitePipe;
 
-	@Nonnull
 	private String response = "";
 
 	private InputBar input;
 
-	public GuiSatellitePipe(@Nonnull SatellitePipe satellitePipe) {
+	public GuiSatellitePipe(SatellitePipe satellitePipe) {
 		super(new DummyContainer(null, null));
 		imageWidth = 116;
 		imageHeight = 77;
@@ -71,7 +69,7 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		super.renderBg(guiGraphics, f, x, y);
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		input.drawTextBox();

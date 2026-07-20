@@ -1,6 +1,5 @@
 package logisticspipes.network.packets;
 
-import javax.annotation.Nonnull;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packetcontent.IntegerContent;
 import logisticspipes.network.packetcontent.ItemStackContent;
@@ -52,7 +51,7 @@ public class SetGhostItemPacket extends ModernPacket {
 		return this;
 	}
 
-	public SetGhostItemPacket setStack(@Nonnull ItemStack value) {
+	public SetGhostItemPacket setStack(ItemStack value) {
 		stack.setValue(value);
 		return this;
 	}

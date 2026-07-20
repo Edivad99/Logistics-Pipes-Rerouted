@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChestContentReceiver;
@@ -250,18 +249,16 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
 	}
 
-	@Nonnull
 	@Override
 	public Set<SatellitePipe> getSatellitesOfType() {
 		return Collections.unmodifiableSet(AllSatellites);
 	}
 
 	@Override
-	public void setSatellitePipeName(@Nonnull String satellitePipeName) {
+	public void setSatellitePipeName(String satellitePipeName) {
 		this.satellitePipeName = satellitePipeName;
 	}
 
-	@Nonnull
 	@Override
 	public List<ItemIdentifierStack> getItemList() {
 		return itemList;

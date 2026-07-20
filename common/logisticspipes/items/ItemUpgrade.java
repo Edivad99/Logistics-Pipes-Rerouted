@@ -5,8 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -14,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -57,17 +56,16 @@ public class ItemUpgrade extends LogisticsItem {
 	}
 
 	/** Factory for use with DeferredRegister. */
-	public static ItemUpgrade of(@Nonnull Supplier<? extends IPipeUpgrade> upgradeConstructor) {
+	public static ItemUpgrade of(Supplier<? extends IPipeUpgrade> upgradeConstructor) {
 		return new ItemUpgrade(new Upgrade(upgradeConstructor));
 	}
 
-	@Nonnull
 	public static Item getAndCheckUpgrade(ResourceLocation resource) {
 		Objects.requireNonNull(resource, "Resource for upgrade is null. Was the upgrade registered?");
 		return Objects.requireNonNull(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(resource), "Upgrade " + resource.toString() + " not found in Item registry");
 	}
 
-	public IPipeUpgrade getUpgradeForItem(@Nonnull ItemStack itemStack, IPipeUpgrade currentUpgrade) {
+	public IPipeUpgrade getUpgradeForItem(ItemStack itemStack, IPipeUpgrade currentUpgrade) {
 		if (itemStack.isEmpty()) {
 			return null;
 		}

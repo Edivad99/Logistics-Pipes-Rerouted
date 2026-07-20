@@ -1,6 +1,5 @@
 package logisticspipes.items;
 
-import javax.annotation.Nonnull;
 import logisticspipes.api.IHUDArmor;
 import logisticspipes.interfaces.ILogisticsItem;
 import logisticspipes.proxy.MainProxy;
@@ -19,9 +18,8 @@ public class ItemHUDArmor extends ArmorItem implements IHUDArmor, ILogisticsItem
 		super(net.minecraft.world.item.ArmorMaterials.LEATHER, Type.HELMET, new Properties());
 	}
 
-	@Nonnull
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand handIn) {
+	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand handIn) {
 		ItemStack stack = player.getItemInHand(handIn);
 		if (MainProxy.isClient(world)) {
 			return InteractionResultHolder.pass(stack);
@@ -30,7 +28,6 @@ public class ItemHUDArmor extends ArmorItem implements IHUDArmor, ILogisticsItem
 		return InteractionResultHolder.success(stack);
 	}
 
-	@Nonnull
 	@Override
 	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
 		Player player = _ctx.getPlayer();
@@ -51,13 +48,12 @@ public class ItemHUDArmor extends ArmorItem implements IHUDArmor, ILogisticsItem
 	}
 
 	@Override
-	public boolean isEnabled(@Nonnull ItemStack item) {
+	public boolean isEnabled(ItemStack item) {
 		return true;
 	}
 
-	@Nonnull
 	@Override
-	public net.minecraft.network.chat.Component getName(@Nonnull ItemStack itemstack) {
+	public net.minecraft.network.chat.Component getName(ItemStack itemstack) {
 		return net.minecraft.network.chat.Component.literal(I18n.get(getDescriptionId(itemstack) + ".name").trim());
 	}
 

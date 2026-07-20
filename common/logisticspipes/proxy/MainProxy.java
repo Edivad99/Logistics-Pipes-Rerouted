@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 import logisticspipes.world.item.LPItems;
@@ -126,11 +125,11 @@ public class MainProxy {
 		return MainProxy.isClient();
 	}
 
-	public static void runOnServer(@Nullable LevelAccessor world, @Nonnull Supplier<Runnable> runnableConsumer) {
+	public static void runOnServer(@Nullable LevelAccessor world, Supplier<Runnable> runnableConsumer) {
 		if (isServer(world)) runnableConsumer.get().run();
 	}
 
-	public static void runOnClient(@Nullable LevelAccessor world, @Nonnull Supplier<Runnable> runnableConsumer) {
+	public static void runOnClient(@Nullable LevelAccessor world, Supplier<Runnable> runnableConsumer) {
 		if (isClient(world)) runnableConsumer.get().run();
 	}
 
@@ -254,7 +253,7 @@ public class MainProxy {
 		MainProxy.globalTick++;
 	}
 
-	public static ItemEntity dropItems(Level world, @Nonnull ItemStack stack, int xCoord, int yCoord, int zCoord) {
+	public static ItemEntity dropItems(Level world, ItemStack stack, int xCoord, int yCoord, int zCoord) {
 		ItemEntity item = new ItemEntity(world, xCoord, yCoord, zCoord, stack);
 		world.addFreshEntity(item);
 		return item;

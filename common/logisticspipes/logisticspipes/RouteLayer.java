@@ -6,7 +6,6 @@
 
 package logisticspipes.logisticspipes;
 
-import javax.annotation.Nonnull;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -20,11 +19,11 @@ import net.minecraft.core.Direction;
  */
 public class RouteLayer {
 
-	protected final @Nonnull IRouter _router;
+	protected final IRouter _router;
 	private final TransportLayer _transport;
 	private final CoreRoutedPipe _pipe;
 
-	public RouteLayer(@Nonnull IRouter router, TransportLayer transportLayer, CoreRoutedPipe pipe) {
+	public RouteLayer(IRouter router, TransportLayer transportLayer, CoreRoutedPipe pipe) {
 		_router = router;
 		_transport = transportLayer;
 		_pipe = pipe;

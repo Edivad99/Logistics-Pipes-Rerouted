@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+
 import com.google.common.collect.ImmutableList;
 import logisticspipes.gui.hud.modules.HUDItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
@@ -85,13 +85,11 @@ public class ModuleItemSink extends LogisticsModule
 		return "item_sink";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return properties;
@@ -99,8 +97,7 @@ public class ModuleItemSink extends LogisticsModule
 
 	@Override
 	@CCCommand(description = "Returns the FilterInventory of this Module")
-	@Nonnull
-	public IItemIdentifierInventory getFilterInventory() {
+    public IItemIdentifierInventory getFilterInventory() {
 		return filterInventory;
 	}
 
@@ -120,7 +117,7 @@ public class ModuleItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0,
 			new ChassiTargetInformation(getPositionInt()));
@@ -140,7 +137,7 @@ public class ModuleItemSink extends LogisticsModule
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 		boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (defaultRoute.getValue() && !allowDefault) {
 			return null;
@@ -203,8 +200,7 @@ public class ModuleItemSink extends LogisticsModule
 	public void tick() {}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Default: " + (isDefaultRoute() ? "Yes" : "No"));
 		list.add("Filter: ");
@@ -255,7 +251,7 @@ public class ModuleItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void handleInvContent(@Nonnull Collection<ItemIdentifierStack> list) {
+	public void handleInvContent(Collection<ItemIdentifierStack> list) {
 		filterInventory.handleItemIdentifierList(list);
 	}
 
@@ -265,7 +261,7 @@ public class ModuleItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		if (defaultRoute.getValue()) {
 			return;
 		}
@@ -312,14 +308,12 @@ public class ModuleItemSink extends LogisticsModule
 		this.fuzzyFlags.replaceWith(fuzzyFlags);
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		return NewGuiHandler.getGui(ItemSinkSlot.class).setDefaultRoute(defaultRoute.getValue())
 			.setFuzzyFlags(fuzzyFlags.copyValue()).setHasFuzzyUpgrade(getUpgradeManager().isFuzzyUpgrade());
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return NewGuiHandler.getGui(ItemSinkInHand.class);

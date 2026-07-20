@@ -6,7 +6,6 @@
 
 package logisticspipes.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.FluidSupplierAmount;
 import logisticspipes.network.packets.pipe.FluidSupplierMinMode;
@@ -58,7 +57,7 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 13, topPos + 92);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 59, topPos + 17);

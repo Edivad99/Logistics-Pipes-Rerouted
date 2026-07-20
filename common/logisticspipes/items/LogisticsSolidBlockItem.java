@@ -1,6 +1,5 @@
 package logisticspipes.items;
 
-import javax.annotation.Nonnull;
 import logisticspipes.blocks.LogisticsSolidBlock;
 import logisticspipes.interfaces.ILogisticsItem;
 import lombok.Getter;
@@ -25,8 +24,7 @@ public class LogisticsSolidBlockItem extends BlockItem implements ILogisticsItem
 		updateItemMap.put(type.getMeta(), this);
 	}
 
-	@Nonnull
-	public net.minecraft.network.chat.Component getHoverName(@Nonnull ItemStack itemstack) {
+	public net.minecraft.network.chat.Component getHoverName(ItemStack itemstack) {
 		return net.minecraft.network.chat.Component.literal(I18n.get(getDescriptionId(itemstack) + ".name"));
 	}
 

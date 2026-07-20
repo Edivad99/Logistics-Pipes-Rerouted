@@ -1,7 +1,6 @@
 package logisticspipes.request.resources;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
 
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.routing.IRouter;
@@ -56,8 +55,7 @@ public class FluidResource implements IResource {
 	}
 
 	@Override
-	@Nonnull
-	public IRouter getRouter() {
+    public IRouter getRouter() {
 		return target.getRouter();
 	}
 

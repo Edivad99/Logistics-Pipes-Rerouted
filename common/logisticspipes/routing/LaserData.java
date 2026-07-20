@@ -2,7 +2,6 @@ package logisticspipes.routing;
 
 import java.util.EnumSet;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 
 import net.minecraft.core.Direction;
 
@@ -18,12 +17,10 @@ public class LaserData {
 	private boolean startPipe = false;
 	private int length = 1;
 
-	@Nonnull
 	private Direction dir;
-	@Nonnull
 	private EnumSet<PipeRoutingConnectionType> connectionType;
 
-	public LaserData(int posX, int posY, int posZ, @Nonnull Direction dir, @Nonnull EnumSet<PipeRoutingConnectionType> connectionType) {
+	public LaserData(int posX, int posY, int posZ, Direction dir, EnumSet<PipeRoutingConnectionType> connectionType) {
 		this.posX = posX;
 		this.posY = posY;
 		this.posZ = posZ;
@@ -87,7 +84,6 @@ public class LaserData {
 		return this;
 	}
 
-	@Nonnull
 	public Direction getDir() {
 		return this.dir;
 	}
@@ -97,12 +93,11 @@ public class LaserData {
 		return this;
 	}
 
-	@Nonnull
 	public EnumSet<PipeRoutingConnectionType> getConnectionType() {
 		return this.connectionType;
 	}
 
-	public LaserData setConnectionType(@Nonnull EnumSet<PipeRoutingConnectionType> connectionType) {
+	public LaserData setConnectionType(EnumSet<PipeRoutingConnectionType> connectionType) {
 		this.connectionType = connectionType;
 		return this;
 	}

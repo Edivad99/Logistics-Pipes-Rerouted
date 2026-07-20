@@ -9,12 +9,11 @@
 package logisticspipes.utils.gui;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Divisor;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import logisticspipes.LPConstants;
-import logisticspipes.gui.GuiFirewall;
 import logisticspipes.utils.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -57,7 +56,7 @@ public final class LPGuiGraphics {
 	 * @param zLevel    the z-level for the bar
 	 * TextureManager, ItemStack, int, int, String)
 	 */
-	public static void drawDurabilityBar(@Nonnull ItemStack itemstack, int x, int y, double zLevel) {
+	public static void drawDurabilityBar(ItemStack itemstack, int x, int y, double zLevel) {
 		if (itemstack.getItem().isBarVisible(itemstack)) {
 			double health = itemstack.getMaxDamage() == 0 ? 0.0D : (double) itemstack.getDamageValue() / itemstack.getMaxDamage();
 			int j1 = (int) Math.round(13.0D - health * 13.0D);

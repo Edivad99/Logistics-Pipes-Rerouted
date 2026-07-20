@@ -1,6 +1,5 @@
 package logisticspipes.items;
 
-import javax.annotation.Nonnull;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.guis.LogisticsPlayerSettingsGuiProvider;
 import logisticspipes.proxy.MainProxy;
@@ -17,9 +16,8 @@ public class ItemPipeController extends LogisticsItem {
 		super();
 	}
 
-	@Nonnull
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand handIn) {
+	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand handIn) {
 		ItemStack stack = player.getItemInHand(handIn);
 		if (MainProxy.isClient(world)) {
 			return InteractionResultHolder.pass(stack);
@@ -28,7 +26,6 @@ public class ItemPipeController extends LogisticsItem {
 		return InteractionResultHolder.success(stack);
 	}
 
-	@Nonnull
 	@Override
 	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
 		Player player = _ctx.getPlayer();

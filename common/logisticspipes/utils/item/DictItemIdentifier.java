@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.LogisticsPipes;
 import net.minecraft.tags.TagKey;
@@ -16,7 +15,7 @@ public class DictItemIdentifier {
 	private static ConcurrentHashMap<BitSet, DictItemIdentifier> identifiers = new ConcurrentHashMap<>();
 
 	@Nullable
-	public static DictItemIdentifier getDictItemIdentifier(@Nonnull ItemIdentifier itemIdent) {
+	public static DictItemIdentifier getDictItemIdentifier(ItemIdentifier itemIdent) {
 		BitSet ids = new BitSet();
 		boolean hasDict = false;
 		final ItemStack stack = itemIdent.unsafeMakeNormalStack(1);

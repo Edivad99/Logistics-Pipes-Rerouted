@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -57,33 +57,30 @@ public class ModulePassiveSupplier extends LogisticsModule
 		return "passive_supplier";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.singletonList(filterInventory);
 	}
 
 	@Override
-	@Nonnull
-	public Container getFilterInventory() {
+    public Container getFilterInventory() {
 		return filterInventory;
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.PassiveSupplier, 0, true, false, 2, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
 				&& bestCustomPriority >= _sinkReply.customPriority)) {
@@ -119,8 +116,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 	public void tick() {}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Supplied: ");
 		list.add("<inventory>");
@@ -156,7 +152,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void handleInvContent(@Nonnull Collection<ItemIdentifierStack> list) {
+	public void handleInvContent(Collection<ItemIdentifierStack> list) {
 		filterInventory.handleItemIdentifierList(list);
 	}
 
@@ -178,7 +174,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		itemIdentifiers.addAll(filterInventory.getItemsAndCount().keySet());
 	}
 
@@ -197,13 +193,11 @@ public class ModulePassiveSupplier extends LogisticsModule
 		return true;
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		return SimpleFilter.getPipeGuiProvider();
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return SimpleFilter.getInHandGuiProvider();

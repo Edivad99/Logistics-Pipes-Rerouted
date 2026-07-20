@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nonnull;
+
 import logisticspipes.world.item.LPItems;
 import logisticspipes.blocks.crafting.AutoCraftingInventory;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -370,7 +370,6 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		cacheRecipe();
 	}
 
-	@Nonnull
 	public ItemStack getOutput(boolean oreDict) {
 		if (cache == null) {
 			cacheRecipe();
@@ -476,7 +475,6 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		return result;
 	}
 
-	@Nonnull
 	public ItemStack getResultForClick() {
 		if (MainProxy.isServer(getWorld())) {
 			ItemStack result = getOutput(true);
@@ -537,7 +535,6 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		return false;
 	}
 
-	@Nonnull
 	@Override
 	public TransportLayer getTransportLayer() {
 		if (_transportLayer == null) {
@@ -609,7 +606,6 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 	}
 
-	@Nonnull
 	public ItemStack getDisk() {
 		return diskInv.getItem(0);
 	}

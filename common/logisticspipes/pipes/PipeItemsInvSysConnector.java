@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.gui.hud.HUDInvSysConnector;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -140,7 +139,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 		}
 	}
 
-	private boolean checkOneConnectedInv(@Nonnull IInventoryUtil inv, Direction dir) {
+	private boolean checkOneConnectedInv(IInventoryUtil inv, Direction dir) {
 		boolean contentChanged = false;
 		if (!itemsOnRoute.isEmpty()) { // don't check the inventory if you don't want anything
 			List<ItemIdentifier> items = new ArrayList<>(itemsOnRoute.keySet());

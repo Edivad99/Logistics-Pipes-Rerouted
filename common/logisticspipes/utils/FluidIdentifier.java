@@ -9,7 +9,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.IntStream;
-import javax.annotation.Nonnull;
+
 import logisticspipes.asm.addinfo.IAddInfo;
 import logisticspipes.asm.addinfo.IAddInfoProvider;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -201,7 +201,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return FluidIdentifier.get(stack.makeStack(1));
 	}
 
-	public static FluidIdentifier get(@Nonnull ItemStack stack) {
+	public static FluidIdentifier get(ItemStack stack) {
 		return FluidIdentifier.get(ItemIdentifierStack.getFromStack(stack));
 	}
 

@@ -1,6 +1,5 @@
 package logisticspipes.network.abstractguis;
 
-import javax.annotation.Nonnull;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,7 +59,6 @@ public abstract class CoordinatesPopupGuiProvider extends PopupGuiProvider {
 		return this;
 	}
 
-	@Nonnull
 	public <T> T getTileAs(Level world, Class<T> clazz) {
 		return CoordinatesPacket.getTileAs(this, world, new BlockPos(getPosX(), getPosY(), getPosZ()), clazz);
 	}

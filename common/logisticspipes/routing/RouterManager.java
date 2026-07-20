@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
@@ -82,7 +81,6 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		}
 	}
 
-	@Nonnull
 	public IRouter getOrCreateRouter(UUID UUid, Level world, int xCoord, int yCoord, int zCoord) {
 		IRouter r;
 		int id = getIDforUUID(UUid);

@@ -3,7 +3,6 @@ package logisticspipes.modules;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import logisticspipes.interfaces.IInventoryUtil;
@@ -40,13 +39,11 @@ public class ChassisModule extends LogisticsModule implements Gui {
 		registerPosition(ModulePositionType.IN_PIPE, 0);
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		throw new RuntimeException("Cannot get LP name for " + this);
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return ImmutableList.<Property<?>>builder()
@@ -83,7 +80,7 @@ public class ChassisModule extends LogisticsModule implements Gui {
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		SinkReply bestresult = null;
 		for (SlottedModule slottedModule : modules) {
@@ -188,20 +185,17 @@ public class ChassisModule extends LogisticsModule implements Gui {
 		return list;
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		return NewGuiHandler.getGui(ChassisGuiProvider.class)
 				.setFlag(parentChassis.getUpgradeManager().hasUpgradeModuleUpgrade());
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		throw new UnsupportedOperationException("Chassis GUI can never be opened in hand");
 	}
 
-	@Nonnull
 	public ModuleUpgradeManager getModuleUpgradeManager(int slot) {
 		return slotUpgradeManagers.get(slot);
 	}

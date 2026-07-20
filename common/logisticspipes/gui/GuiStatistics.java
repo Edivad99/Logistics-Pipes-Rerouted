@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
@@ -94,7 +93,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
 		drawBG();
 		getActiveTab().draw(mouseX, mouseY);
 

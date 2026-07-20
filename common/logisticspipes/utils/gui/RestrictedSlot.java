@@ -1,6 +1,5 @@
 package logisticspipes.utils.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.interfaces.ISlotCheck;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
@@ -35,7 +34,7 @@ public class RestrictedSlot extends Slot {
 	 * the armor slots.
 	 */
 	@Override
-	public boolean mayPlace(@Nonnull ItemStack par1ItemStack) {
+	public boolean mayPlace(ItemStack par1ItemStack) {
 		if (slotCheck == null) {
 			return par1ItemStack.getItem() == item;
 		} else {

@@ -9,7 +9,7 @@
 package logisticspipes.utils.item;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.SimpleGraphics;
 import lombok.Data;
@@ -32,7 +32,6 @@ public class ItemStackRenderer {
 	private TextureManager texManager;
 	private Font font;
 
-	@Nonnull
 	private ItemStack itemstack = ItemStack.EMPTY;
 	private ItemIdentifierStack itemIdentStack;
 	private int posX;

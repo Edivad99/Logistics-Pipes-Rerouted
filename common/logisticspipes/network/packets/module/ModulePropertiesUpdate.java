@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.module;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
+
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
@@ -21,7 +21,6 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 @StaticResolve
 public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 
-	@Nonnull
 	public CompoundTag tag = new CompoundTag();
 
 	public ModulePropertiesUpdate(int id) {
@@ -68,7 +67,6 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 		});
 	}
 
-	@Nonnull
 	public static ModuleCoordinatesPacket fromPropertyHolder(PropertyHolder holder, HolderLookup.Provider provider) {
 		final ModulePropertiesUpdate packet = PacketHandler.getPacket(ModulePropertiesUpdate.class);
 		PropertyHolder.writeToNBT(packet.tag, provider, holder);

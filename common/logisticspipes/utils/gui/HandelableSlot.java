@@ -1,6 +1,5 @@
 package logisticspipes.utils.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.interfaces.ISlotClick;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -17,11 +16,10 @@ public class HandelableSlot extends Slot {
 	}
 
 	@Override
-	public boolean mayPlace(@Nonnull ItemStack par1ItemStack) {
+	public boolean mayPlace(ItemStack par1ItemStack) {
 		return par1ItemStack.isEmpty();
 	}
 
-	@Nonnull
 	public ItemStack getProvidedStack() {
 		return _handler.getResultForClick();
 	}

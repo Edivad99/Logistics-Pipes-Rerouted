@@ -9,8 +9,7 @@
 package logisticspipes.items;
 
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
 import logisticspipes.interfaces.ILogisticsItem;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
@@ -19,9 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class LogisticsItem extends Item implements ILogisticsItem {
@@ -55,9 +52,8 @@ public class LogisticsItem extends Item implements ILogisticsItem {
 		return 1;
 	}
 
-	@Nonnull
 	@Override
-	public String getDescriptionId(@Nonnull ItemStack stack) {
+	public String getDescriptionId(ItemStack stack) {
 		// getHasSubtypes() removed in 1.20.1 (damage-based subtypes no longer exist)
 		return super.getDescriptionId(stack);
 	}
@@ -80,8 +76,7 @@ public class LogisticsItem extends Item implements ILogisticsItem {
 		return true;
 	}
 
-	@Nonnull
-	public String getHoverName(@Nonnull ItemStack itemstack) {
+	public String getHoverName(ItemStack itemstack) {
 		// getHoverName(ItemStack) removed from Item in 1.20.1; kept as custom method for internal use
 		return I18n.get(getDescriptionId(itemstack) + ".name").trim();
 	}

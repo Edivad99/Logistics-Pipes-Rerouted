@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import org.jetbrains.annotations.NotNull;
+
 import com.google.common.collect.ImmutableList;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -93,21 +92,18 @@ public class ModuleActiveSupplier extends LogisticsModule
 		return "active_supplier";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@NotNull
 	@Override
 	public List<Property<?>> getProperties() {
 		return properties;
 	}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Supplied: ");
 		list.add("<inventory>");
@@ -146,7 +142,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void handleInvContent(@Nonnull Collection<ItemIdentifierStack> list) {
+	public void handleInvContent(Collection<ItemIdentifierStack> list) {
 		inventory.handleItemIdentifierList(list);
 	}
 
@@ -463,7 +459,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 		status.add(entry);
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		final boolean hasPatternUpgrade = hasPatternUpgrade();
@@ -474,15 +469,13 @@ public class ModuleActiveSupplier extends LogisticsModule
 				.setLimit(isLimited.getValue());
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return NewGuiHandler.getGui(ActiveSupplierInHand.class);
 	}
 
 	@Override
-	@Nonnull
-	public IRouter getRouter() {
+    public IRouter getRouter() {
 		final IPipeServiceProvider service = Objects.requireNonNull(_service);
 		return service.getRouter();
 	}
@@ -493,7 +486,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public int compareTo(@Nonnull IRequestItems other) {
+	public int compareTo(IRequestItems other) {
 		return Integer.compare(getID(), other.getID());
 	}
 

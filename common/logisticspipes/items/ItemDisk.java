@@ -2,20 +2,17 @@ package logisticspipes.items;
 
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 
 public class ItemDisk extends LogisticsItem {
 
 	@Override
-	public int getMaxStackSize(@Nonnull ItemStack stack) {
+	public int getMaxStackSize(ItemStack stack) {
 		return 1;
 	}
 

@@ -2,7 +2,6 @@ package logisticspipes.recipes;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -73,7 +72,7 @@ public class ProgrammerRecipes {
     }
 
     private static void registerModuleRecipe(ResourceLocation recipeCategory,
-        @Nonnull String moduleName, @Nullable String baseModuleName) {
+        String moduleName, @Nullable String baseModuleName) {
         final ResourceLocation moduleResource = LPItems.modules.get(moduleName);
         Item module = BuiltInRegistries.ITEM.get(moduleResource);
         if (module.equals(Items.AIR)) {

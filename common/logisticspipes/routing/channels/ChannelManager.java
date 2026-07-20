@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.routing.IChannelManager;
@@ -28,7 +28,7 @@ public class ChannelManager implements IChannelManager {
 	private static final String DATA_NAME = LPConstants.ID + "_ChannelManager_SavedData";
 	private final ChannelSavedData savedData;
 
-	public ChannelManager(@Nonnull Level world) {
+	public ChannelManager(Level world) {
 		if (world instanceof ServerLevel serverLevel) {
 			savedData = serverLevel.getDataStorage()
 					.computeIfAbsent(new SavedData.Factory<>(ChannelSavedData::new, ChannelSavedData::load), DATA_NAME);

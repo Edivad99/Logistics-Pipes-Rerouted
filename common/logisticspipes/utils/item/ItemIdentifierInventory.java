@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.FluidIdentifier;
@@ -47,7 +47,6 @@ public class ItemIdentifierInventory
 	private final ItemIdentifierStack[] _contents;
 	private final String _name;
 	private final int _stackLimit;
-	@Nonnull
 	private final HashMap<ItemIdentifier, Integer> _contentsMap;
 	private final HashSet<ItemIdentifier> _contentsUndamagedSet;
 	private final HashSet<ItemIdentifier> _contentsNoNBTSet;
@@ -96,7 +95,7 @@ public class ItemIdentifierInventory
 		this(size, name, stackLimit, false);
 	}
 
-	public ItemIdentifierInventory(@Nonnull ItemIdentifierInventory copy) {
+	public ItemIdentifierInventory(ItemIdentifierInventory copy) {
 		_contents = Arrays.copyOf(copy._contents, copy._contents.length);
 		for (int i = 0; i < _contents.length; i++) {
 			if (copy._contents[i] != null) _contents[i] = new ItemIdentifierStack(copy._contents[i]);
@@ -110,11 +109,11 @@ public class ItemIdentifierInventory
 		isLiquidInventory = copy.isLiquidInventory;
 	}
 
-	public static void dropItems(Level world, @Nonnull ItemStack stack, BlockPos pos) {
+	public static void dropItems(Level world, ItemStack stack, BlockPos pos) {
 		dropItems(world, stack, pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public static void dropItems(Level world, @Nonnull ItemStack stack, int i, int j, int k) {
+	public static void dropItems(Level world, ItemStack stack, int i, int j, int k) {
 		if (stack.isEmpty()) return;
 		float f1 = 0.7F;
 		double d = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
@@ -132,8 +131,7 @@ public class ItemIdentifierInventory
 
 	@Override
 	@Deprecated
-	@Nonnull
-	public ItemStack getItem(int i) {
+    public ItemStack getItem(int i) {
 		if (_contents[i] == null) {
 			return ItemStack.EMPTY;
 		}
@@ -146,8 +144,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	@Nonnull
-	public ItemStack removeItem(int slot, int count) {
+    public ItemStack removeItem(int slot, int count) {
 		if (_contents[slot] == null) {
 			return ItemStack.EMPTY;
 		}
@@ -163,7 +160,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void setItem(int i, @Nonnull ItemStack itemstack) {
+	public void setItem(int i, ItemStack itemstack) {
 		if (itemstack.isEmpty()) {
 			_contents[i] = null;
 		} else {
@@ -210,18 +207,18 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public boolean stillValid(@Nonnull Player entityplayer) {
+	public boolean stillValid(Player entityplayer) {
 		return true;
 	}
 
 	@Override
-	public void startOpen(@Nonnull Player player) {}
+	public void startOpen(Player player) {}
 
 	@Override
-	public void stopOpen(@Nonnull Player player) {}
+	public void stopOpen(Player player) {}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		readFromNBT(nbttagcompound, provider, "");
 	}
 
@@ -247,7 +244,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		writeToNBT(nbttagcompound, provider, "");
 	}
 
@@ -281,18 +278,17 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void addListener(@Nonnull ISimpleInventoryEventHandler listener) {
+	public void addListener(ISimpleInventoryEventHandler listener) {
 		if (!_listener.contains(listener)) {
 			_listener.add(listener);
 		}
 	}
 
 	@Override
-	public void removeListener(@Nonnull ISimpleInventoryEventHandler listener) {
+	public void removeListener(ISimpleInventoryEventHandler listener) {
 		_listener.remove(listener);
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack removeItemNoUpdate(int i) {
 		if (_contents[i] == null) {
@@ -318,7 +314,7 @@ public class ItemIdentifierInventory
 		setChanged();
 	}
 
-	private int tryAddToSlot(int i, @Nonnull ItemStack stack, int realstacklimit) {
+	private int tryAddToSlot(int i, ItemStack stack, int realstacklimit) {
 		if (isInvalidStack(stack)) {
 			if (LogisticsPipes.isDEBUG()) {
 				new UnsupportedOperationException("Not valid for this Inventory: (" + stack + ")").printStackTrace();
@@ -351,7 +347,7 @@ public class ItemIdentifierInventory
 		}
 	}
 
-	public int addCompressed(@Nonnull ItemStack stack, boolean ignoreMaxStackSize) {
+	public int addCompressed(ItemStack stack, boolean ignoreMaxStackSize) {
 		if (stack.isEmpty()) return 0;
 
 		if (isInvalidStack(stack)) {
@@ -411,13 +407,12 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public int itemCount(@Nonnull final ItemIdentifier item) {
+	public int itemCount(final ItemIdentifier item) {
 		return _contentsMap.getOrDefault(item, 0);
 	}
 
 	@Override
-	@Nonnull
-	public Map<ItemIdentifier, Integer> getItemsAndCount() {
+    public Map<ItemIdentifier, Integer> getItemsAndCount() {
 		return _contentsMap;
 	}
 
@@ -427,17 +422,17 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public boolean containsUndamagedItem(@Nonnull final ItemIdentifier item) {
+	public boolean containsUndamagedItem(final ItemIdentifier item) {
 		return _contentsUndamagedSet.contains(item);
 	}
 
 	@Override
-	public boolean containsExcludeNBTItem(@Nonnull final ItemIdentifier item) {
+	public boolean containsExcludeNBTItem(final ItemIdentifier item) {
 		return _contentsNoNBTSet.contains(item);
 	}
 
 	@Override
-	public boolean containsUndamagedExcludeNBTItem(@Nonnull final ItemIdentifier item) {
+	public boolean containsUndamagedExcludeNBTItem(final ItemIdentifier item) {
 		return _contentsUndamagedNoNBTSet.contains(item);
 	}
 
@@ -447,7 +442,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public boolean canPlaceItem(int i, @Nonnull ItemStack itemstack) {
+	public boolean canPlaceItem(int i, ItemStack itemstack) {
 		return true;
 	}
 
@@ -486,7 +481,7 @@ public class ItemIdentifierInventory
 		}
 	}
 
-	private boolean isInvalidStack(@Nonnull ItemStack stack) {
+	private boolean isInvalidStack(ItemStack stack) {
 		if (isLiquidInventory && !stack.isEmpty()) {
 			return FluidIdentifier.get(stack) == null;
 		}
@@ -502,8 +497,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	@Nonnull
-	public Iterator<Pair<ItemIdentifierStack, Integer>> iterator() {
+    public Iterator<Pair<ItemIdentifierStack, Integer>> iterator() {
 		final Iterator<ItemIdentifierStack> iter = Arrays.asList(_contents).iterator();
 		return new Iterator<Pair<ItemIdentifierStack, Integer>>() {
 
@@ -529,7 +523,6 @@ public class ItemIdentifierInventory
 		updateContents();
 	}
 
-	@Nonnull
 	public String getName() {
 		return _name;
 	}
@@ -538,7 +531,6 @@ public class ItemIdentifierInventory
 		return true;
 	}
 
-	@Nonnull
 	public Component getDisplayName() {
 		return Component.literal(getName());
 	}
@@ -553,8 +545,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		return Arrays.stream(_contents).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.toList());
 	}
 
@@ -563,13 +554,11 @@ public class ItemIdentifierInventory
 		return ccTypeHolder;
 	}
 
-	@Nonnull
 	@Override
 	public Iterable<Pair<ItemIdentifierStack, Integer>> contents() {
 		return this;
 	}
 
-	@Nonnull
 	@Override
 	public SlotAccess getSlotAccess() {
 		return slotAccess;

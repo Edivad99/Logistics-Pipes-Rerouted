@@ -1,7 +1,6 @@
 package logisticspipes.pipes.basic;
 
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.api.ILPPipe;
 import logisticspipes.LPConfigs;
@@ -185,7 +184,6 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		return getPos().getZ();
 	}
 
-	@Nonnull
 	public final BlockPos getPos() {
 		return container.getBlockPos();
 	}

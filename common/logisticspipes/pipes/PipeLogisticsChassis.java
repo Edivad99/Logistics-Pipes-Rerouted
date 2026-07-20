@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
@@ -117,7 +116,6 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final HudChassisPipe hud;
 
-	@Nonnull
 	private final AdjacentProperty pointedAdjacentProperty = new AdjacentProperty(this, "pointedAdjacent");
 
 	private final List<Property<?>> properties = Collections.singletonList(pointedAdjacentProperty);
@@ -131,7 +129,6 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		hud = new HudChassisPipe(this, _moduleInventory);
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return properties;
@@ -149,7 +146,6 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	/**
 	 * Returns just the adjacent this chassis points at or no adjacent.
 	 */
-	@Nonnull
 	@Override
 	public Adjacent getAvailableAdjacent() {
 		return pointedAdjacentProperty.getValue();
@@ -254,13 +250,11 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	@Nonnull
-	public Container getModuleInventory(HolderLookup.@NotNull Provider provider) {
+    public Container getModuleInventory(HolderLookup.@NotNull Provider provider) {
 		updateModuleInventory(provider);
 		return _moduleInventory;
 	}
 
-	@Nonnull
 	public ModuleUpgradeManager getModuleUpgradeManager(int slot) {
 		return _module.getModuleUpgradeManager(slot);
 	}
@@ -291,7 +285,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
 		super.readFromNBT(tag, provider);
 		_moduleInventory.readFromNBT(tag, provider, "chassi");
 
@@ -308,7 +302,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {
 		super.writeToNBT(tag, provider);
 		updateModuleInventory(provider);
 		_moduleInventory.writeToNBT(tag, provider, "chassi");
@@ -448,7 +442,6 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		return _module;
 	}
 
-	@Nonnull
 	@Override
 	public TransportLayer getTransportLayer() {
 		if (_transportLayer == null) {
@@ -640,7 +633,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		// if we don't have a pointed inventory we can't be interested in anything
 		if (pointedAdjacentProperty.getValue().inventories().isEmpty()) {
 			return;
@@ -764,7 +757,6 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		return false;
 	}
 
-	@Nonnull
 	@Override
 	public ISlotUpgradeManager getUpgradeManager(ModulePositionType slot, int positionInt) {
 		if (slot != ModulePositionType.SLOT || positionInt >= getChassisSize()) {

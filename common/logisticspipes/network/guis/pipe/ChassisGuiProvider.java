@@ -1,6 +1,5 @@
 package logisticspipes.network.guis.pipe;
 
-import javax.annotation.Nonnull;
 import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.modules.LogisticsModule;
@@ -60,7 +59,7 @@ public class ChassisGuiProvider extends BooleanModuleCoordinatesGuiProvider {
 		return dummy;
 	}
 
-	public static boolean checkStack(@Nonnull ItemStack stack, PipeLogisticsChassis chassiPipe, int moduleSlot) {
+	public static boolean checkStack(ItemStack stack, PipeLogisticsChassis chassiPipe, int moduleSlot) {
 		if (stack.isEmpty() || !(stack.getItem() instanceof ItemUpgrade)) {
 			return false;
 		}

@@ -1,6 +1,5 @@
 package logisticspipes.network.packets.block;
 
-import javax.annotation.Nonnull;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -34,13 +33,11 @@ public class CompilerStatusPacket extends CoordinatesPacket {
 
 	@Getter
 	@Setter
-	@Nonnull
-	private ItemStack disk;
+    private ItemStack disk;
 
 	@Getter
 	@Setter
-	@Nonnull
-	private ItemStack programmer;
+    private ItemStack programmer;
 
 	@Override
 	public void processPacket(Player player) {

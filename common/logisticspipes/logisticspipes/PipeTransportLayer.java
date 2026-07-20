@@ -1,7 +1,7 @@
 package logisticspipes.logisticspipes;
 
 import java.util.LinkedList;
-import javax.annotation.Nonnull;
+
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.IRouter;
 import net.minecraft.core.Direction;
@@ -18,9 +18,9 @@ public class PipeTransportLayer extends TransportLayer {
 
 	private final CoreRoutedPipe routedPipe;
 	private final ITrackStatistics _trackStatistics;
-	private final @Nonnull IRouter _router;
+	private final IRouter _router;
 
-	public PipeTransportLayer(CoreRoutedPipe routedPipe, ITrackStatistics trackStatistics, @Nonnull IRouter router) {
+	public PipeTransportLayer(CoreRoutedPipe routedPipe, ITrackStatistics trackStatistics, IRouter router) {
 		this.routedPipe = routedPipe;
 		_trackStatistics = trackStatistics;
 		_router = router;

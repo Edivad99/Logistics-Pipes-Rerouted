@@ -3,7 +3,6 @@ package logisticspipes.items;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import javax.annotation.Nonnull;
 
 import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.interfaces.IItemAdvancedExistance;
@@ -51,17 +50,17 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
 	}
 
 	@Override
-	public int getMaxStackSize(@Nonnull ItemStack stack) {
+	public int getMaxStackSize(ItemStack stack) {
 		return 64;
 	}
 
 	@Override
-	public boolean canExistInNormalInventory(@Nonnull ItemStack stack) {
+	public boolean canExistInNormalInventory(ItemStack stack) {
 		return true;
 	}
 
 	@Override
-	public boolean canExistInWorld(@Nonnull ItemStack stack) {
+	public boolean canExistInWorld(ItemStack stack) {
 		return stack.getDamageValue() != LogisticsItemCard.SEC_CARD;
 	}
 }

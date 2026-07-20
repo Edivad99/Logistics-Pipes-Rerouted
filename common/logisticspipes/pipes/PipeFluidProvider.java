@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.ISpecialTankAccessHandler;
 import logisticspipes.interfaces.ISpecialTankUtil;
 import logisticspipes.interfaces.ITankUtil;
@@ -245,7 +245,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 
 	@Override
 	//work in progress, currently not active code.
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
 			boolean fallback = true;
 			if (pair.getValue2() instanceof ISpecialTankUtil) {

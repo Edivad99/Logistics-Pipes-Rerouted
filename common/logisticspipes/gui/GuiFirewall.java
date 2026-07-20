@@ -1,7 +1,6 @@
 
 package logisticspipes.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
@@ -46,7 +45,7 @@ public class GuiFirewall extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 33, topPos + 175);
 		for (int x = 0; x < 6; x++) {

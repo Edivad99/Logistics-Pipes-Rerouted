@@ -2,8 +2,7 @@ package logisticspipes.items;
 
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.RequestPipeDimension;
 import logisticspipes.pipes.PipeItemsRemoteOrdererLogistics;
@@ -55,9 +54,8 @@ public class RemoteOrderer extends LogisticsItem {
 		}
 	}
 
-	@Nonnull
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand handIn) {
+	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand handIn) {
 		ItemStack par1ItemStack = player.getMainHandItem();
 		if (par1ItemStack.isEmpty() || !par1ItemStack.has(DataComponents.CUSTOM_DATA)) {
 			return InteractionResultHolder.fail(par1ItemStack);
@@ -84,7 +82,7 @@ public class RemoteOrderer extends LogisticsItem {
 		return InteractionResultHolder.pass(par1ItemStack);
 	}
 
-	public static void connectToPipe(@Nonnull ItemStack stack, PipeItemsRemoteOrdererLogistics pipe) {
+	public static void connectToPipe(ItemStack stack, PipeItemsRemoteOrdererLogistics pipe) {
 		CompoundTag tag = new CompoundTag();
 		tag.putInt("connectedPipe-x", pipe.getX());
 		tag.putInt("connectedPipe-y", pipe.getY());
@@ -97,7 +95,7 @@ public class RemoteOrderer extends LogisticsItem {
 		stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 	}
 
-	public static PipeItemsRemoteOrdererLogistics getPipe(@Nonnull ItemStack stack) {
+	public static PipeItemsRemoteOrdererLogistics getPipe(ItemStack stack) {
 		if (stack.isEmpty() || !stack.has(DataComponents.CUSTOM_DATA)) {
 			return null;
 		}

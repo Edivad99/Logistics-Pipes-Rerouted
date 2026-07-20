@@ -1,7 +1,7 @@
 package logisticspipes.routing.channels;
 
 import java.lang.ref.WeakReference;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.interfaces.routing.IChannelManagerProvider;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ public class ChannelManagerProvider implements IChannelManagerProvider {
 	}
 
 	@Override
-	public IChannelManager getChannelManager(@Nonnull Level world) {
+	public IChannelManager getChannelManager(Level world) {
 		if (worldWeakReference == null || worldWeakReference.get() == null || channelManager == null) {
 			worldWeakReference = new WeakReference<>(world);
 			if (channelManager != null) {

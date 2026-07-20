@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import kotlin.Unit;
 import logisticspipes.LogisticsPipes;
@@ -61,10 +60,8 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	 * Returns the name this module is registered in LP with, as used in
 	 * {@link logisticspipes.items.ItemModule#registerModule} and saved in {@link LPItems#modules}.
 	 */
-	@Nonnull
 	public abstract String getLPName();
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.emptyList();
@@ -73,12 +70,11 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	/**
 	 * Registers the slot type the module is in
 	 */
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		this.slot = slot;
 		this.positionInt = positionInt;
 	}
 
-	@Nonnull
 	public BlockPos getBlockPos() {
 		final IPipeServiceProvider service = _service;
 		if (service == null) {
@@ -112,12 +108,12 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
 		PropertyHolder.readFromNBT(tag, provider, this);
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+	public void writeToNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
 		PropertyHolder.writeToNBT(tag, provider, this);
 	}
 
@@ -134,7 +130,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	 * @param forcePassive       check for passive routing only, in case this method is redirected to other sinks
 	 * @return SinkReply whether the module sinks the item or not
 	 */
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		return null;
 	}
@@ -158,7 +154,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	 *
 	 * @param itemIdentifiers the collection to add the interests to
 	 */
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 	}
 
 	public abstract boolean interestedInAttachedInventory();
@@ -193,12 +189,10 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 		return this instanceof Gui;
 	}
 
-	@Nonnull
 	public LogisticsModule getModule() {
 		return this;
 	}
 
-	@Nonnull
 	protected ISlotUpgradeManager getUpgradeManager() {
 		return Objects.requireNonNull(_service, "service object was null in " + this)
 				.getUpgradeManager(slot, positionInt);

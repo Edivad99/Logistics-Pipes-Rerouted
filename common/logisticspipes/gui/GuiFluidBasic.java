@@ -1,7 +1,6 @@
 
 package logisticspipes.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
@@ -30,7 +29,7 @@ public class GuiFluidBasic extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 45);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 27, topPos + 12);

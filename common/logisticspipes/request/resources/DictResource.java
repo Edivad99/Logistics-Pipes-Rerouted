@@ -1,7 +1,6 @@
 package logisticspipes.request.resources;
 
 import java.util.BitSet;
-import javax.annotation.Nonnull;
 
 import com.google.common.base.Objects;
 
@@ -67,8 +66,7 @@ public class DictResource implements IResource {
 	}
 
 	@Override
-	@Nonnull
-	public IRouter getRouter() {
+    public IRouter getRouter() {
 		return requester.getRouter();
 	}
 

@@ -1,6 +1,5 @@
 package logisticspipes.utils;
 
-import javax.annotation.Nonnull;
 import logisticspipes.items.ItemModule;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.utils.item.ItemIdentifierInventory;
@@ -26,7 +25,6 @@ public class CardManagementInventory implements Container {
 		return inv.isEmpty();
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack getItem(int i) {
 		if (i > -1 && i < 4) {
@@ -57,7 +55,6 @@ public class CardManagementInventory implements Container {
 		return ItemStack.EMPTY;
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack removeItem(int i, int j) {
 		if (i > -1 && i < 4) {
@@ -66,7 +63,6 @@ public class CardManagementInventory implements Container {
 		return ItemStack.EMPTY;
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack removeItemNoUpdate(int i) {
 		if (i > -1 && i < 4) {
@@ -76,7 +72,7 @@ public class CardManagementInventory implements Container {
 	}
 
 	@Override
-	public void setItem(int i, @Nonnull ItemStack itemstack) {
+	public void setItem(int i, ItemStack itemstack) {
 		if (i > -1 && i < 4) {
 			if (i == 0 && !itemstack.isEmpty() && !inv.getItem(1).isEmpty() && inv.getItem(2).isEmpty() && inv.getItem(1).getDamageValue() == itemstack.getDamageValue()) {
 				// TODO: IDK if I have to copy only customdata or the entire components
@@ -106,12 +102,10 @@ public class CardManagementInventory implements Container {
 		}
 	}
 
-	@Nonnull
 	public String getName() {
 		return "Card Managment Inventory";
 	}
 
-	@Nonnull
 	public Component getDisplayName() {
 		return Component.literal("");
 	}
@@ -126,7 +120,7 @@ public class CardManagementInventory implements Container {
 	}
 
 	@Override
-	public boolean stillValid(@Nonnull Player entityplayer) {
+	public boolean stillValid(Player entityplayer) {
 		return true;
 	}
 
@@ -134,13 +128,13 @@ public class CardManagementInventory implements Container {
 	public void setChanged() {}
 
 	@Override
-	public void startOpen(@Nonnull Player player) {}
+	public void startOpen(Player player) {}
 
 	@Override
-	public void stopOpen(@Nonnull Player player) {}
+	public void stopOpen(Player player) {}
 
 	@Override
-	public boolean canPlaceItem(int i, @Nonnull ItemStack itemstack) {
+	public boolean canPlaceItem(int i, ItemStack itemstack) {
 		if (itemstack.isEmpty()) {
 			return false;
 		}

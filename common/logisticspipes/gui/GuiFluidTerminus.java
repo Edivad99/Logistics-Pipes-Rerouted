@@ -1,7 +1,6 @@
 
 package logisticspipes.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.network.packets.pipe.PipePropertiesUpdate;
 import logisticspipes.pipes.PipeFluidTerminus;
 import logisticspipes.proxy.MainProxy;
@@ -9,7 +8,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierInventory;
-import net.minecraft.client.Minecraft;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -62,7 +61,7 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 45);
 		for (int i = 0; i < 9; i++) {

@@ -14,7 +14,6 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.LogisticsPipes;
@@ -124,8 +123,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		REQUEST_TABLE;
 
 		@Override
-		@Nonnull
-		public String getSerializedName() {
+        public String getSerializedName() {
 			return name().toLowerCase();
 		}
 	}
@@ -146,16 +144,16 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new LogisticsTileGenericPipe(pos, state);
 	}
 
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-			@Nonnull Level level,
-			@Nonnull BlockState state,
-			@Nonnull BlockEntityType<T> type) {
+			Level level,
+			BlockState state,
+			BlockEntityType<T> type) {
 		// Without a ticker registered on the owning block, BlockEntity.tick equivalents
 		// (here: LogisticsTileGenericPipe.update via ITickable) are never called and the
 		// entire mod — routing graph updates, module logic, item transport — sits idle.
@@ -165,8 +163,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	@Nonnull
-	public net.minecraft.world.level.block.RenderShape getRenderShape(@Nonnull BlockState state) {
+    public net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
 		// Pipe geometry is emitted by LogisticsRenderPipe (BlockEntityRenderer) via the
 		// CCL-replacement pipeline in logisticspipes.proxy.object3d.impl — not a JSON model.
 		return net.minecraft.world.level.block.RenderShape.ENTITYBLOCK_ANIMATED;
@@ -359,9 +356,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		});
 	}
 
-	@Nonnull
 	// @Override removed — getDrops(BlockGetter...) does not match 1.20.1 Block API
-	public NonNullList<ItemStack> getDrops(@Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, int fortune) {
+	public NonNullList<ItemStack> getDrops(BlockGetter world, BlockPos pos, BlockState state, int fortune) {
 		NonNullList<ItemStack> list = NonNullList.create();
 		if (world instanceof Level && MainProxy.isClient((Level) world)) {
 			return list;
@@ -388,7 +384,6 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	// getBlockFaceShape removed in 1.20.1; dead stub kept for reference
-	@Nonnull
 	public Object /* BlockFaceShape */ getBlockFaceShape_DEAD(BlockGetter worldIn, BlockState state, BlockPos pos, Direction face) {
 		return null; // BlockFaceShape.UNDEFINED — removed in 1.20.1
 	}
@@ -406,7 +401,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	// Internal collision helper — addCollisionBoxToList is no longer an MC override in 1.20.1; called from the overload above
-	public void addCollisionBoxToList(@Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull AABB entityBox, @Nonnull List<AABB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
+	public void addCollisionBoxToList(BlockState state, Level world, BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
 		BlockEntity te = world.getBlockEntity(pos);
 		if (te instanceof LogisticsTileGenericPipe) {
 			LogisticsTileGenericPipe tile = (LogisticsTileGenericPipe) te;
@@ -429,8 +424,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	@Nonnull
-	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		BlockEntity te = world.getBlockEntity(pos);
 		if (!(te instanceof LogisticsTileGenericPipe)) return Shapes.block();
 		LogisticsTileGenericPipe tile = (LogisticsTileGenericPipe) te;
@@ -451,8 +445,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	@Nonnull
-	public VoxelShape getCollisionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return getShape(state, world, pos, context);
 	}
 
@@ -461,8 +454,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	 * world-space collision boxes (the same geometry LP1 fed to addCollisionBoxToList).
 	 * Returns {@link Shapes#empty()} when no box touches the cell.
 	 */
-	@Nonnull
-	public static VoxelShape getMultiBlockShape(CoreMultiBlockPipe pipe, @Nonnull BlockPos cell) {
+	public static VoxelShape getMultiBlockShape(CoreMultiBlockPipe pipe, BlockPos cell) {
 		List<AABB> boxes = new ArrayList<>();
 		pipe.addCollisionBoxesToList(boxes, new AABB(cell));
 		VoxelShape shape = Shapes.empty();
@@ -475,7 +467,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	// getSelectedBoundingBox removed in 1.20.1 — replaced by getShape(state, level, pos, context)
 	// Renamed to avoid @Override on non-existent method; logic preserved for reference
 	@OnlyIn(Dist.CLIENT)
-	public AABB getSelectedBoundingBox_DEAD(BlockState state, Level world, @Nonnull BlockPos pos) {
+	public AABB getSelectedBoundingBox_DEAD(BlockState state, Level world, BlockPos pos) {
 		BlockEntity tile = world.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).isPipeBlock()) {
 			return new AABB((double) pos.getX() + 0, (double) pos.getY() + 0, (double) pos.getZ() + 0,
@@ -677,7 +669,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	// isFullBlock / isFullCube / isNormalCube / isOpaqueCube / isTopSolid — all removed in 1.20.1
 
 	// @Override removed — canBeReplacedByLeaves removed in 1.20.1
-	public boolean canBeReplacedByLeaves_DEAD(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos) {
+	public boolean canBeReplacedByLeaves_DEAD(BlockState state, BlockGetter world, BlockPos pos) {
 		return false;
 	}
 
@@ -695,7 +687,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	public void onRemove(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
 		if (state.getBlock() != newState.getBlock()) {
 			LogisticsBlockGenericPipe.removePipe(LogisticsBlockGenericPipe.getPipe(world, pos));
 		}
@@ -703,7 +695,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	// @Override removed — dropBlockAsItemWithChance removed in 1.20.1
-	public void dropBlockAsItemWithChance_DEAD(Level world, @Nonnull final BlockPos pos, @Nonnull BlockState state, float chance, int fortune) {
+	public void dropBlockAsItemWithChance_DEAD(Level world, final BlockPos pos, BlockState state, float chance, int fortune) {
 
 		if (world.isClientSide) {
 			return;
@@ -739,8 +731,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	@Nonnull
-	public ItemStack getPickedResult(BlockState state, HitResult target, net.minecraft.world.level.LevelReader levelReader, BlockPos pos, Player player) {
+    public ItemStack getPickedResult(BlockState state, HitResult target, net.minecraft.world.level.LevelReader levelReader, BlockPos pos, Player player) {
 		ItemStack pick = getCloneItemStack(levelReader, pos, state);
 		if (!pick.isEmpty()) {
 			return pick;
@@ -784,7 +775,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
+	public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
 		super.setPlacedBy(world, pos, state, placer, stack);
 		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
 

@@ -2,7 +2,7 @@ package logisticspipes.gui.modules;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import kotlin.Unit;
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
@@ -94,7 +94,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		int pointerX = var2 - leftPos;
 		int pointerY = var3 - topPos;
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
@@ -181,7 +181,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 		}
 	}
 
-	private List<String> getOreNames(@Nonnull ItemStack stack) {
+	private List<String> getOreNames(ItemStack stack) {
 		List<String> oreNames = new ArrayList<>();
 		stack.getTags().forEach(tag -> {
 			String oreName = tag.location().toString();

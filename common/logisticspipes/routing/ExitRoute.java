@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -36,7 +35,7 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 	public final double destinationDistanceToRoot;
 	public final int blockDistance;
 	public final EnumSet<PipeRoutingConnectionType> connectionDetails;
-	public final @Nonnull IRouter destination;
+	public final IRouter destination;
 	public Direction exitOrientation;
 	public Direction insertOrientation;
 	public double distanceToDestination;
@@ -48,7 +47,7 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 	 */
 	public ExitRouteDebug debug = new ExitRouteDebug();
 
-	public ExitRoute(@Nullable IRouter source, @Nonnull IRouter destination, @Nullable Direction exitOrientation, @Nullable Direction insertOrientation, double metric,
+	public ExitRoute(@Nullable IRouter source, IRouter destination, @Nullable Direction exitOrientation, @Nullable Direction insertOrientation, double metric,
 			EnumSet<PipeRoutingConnectionType> connectionDetails, int blockDistance) {
 		this.destination = destination;
 		this.root = source;

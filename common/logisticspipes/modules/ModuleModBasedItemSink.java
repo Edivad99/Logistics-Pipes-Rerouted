@@ -3,7 +3,7 @@ package logisticspipes.modules;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.gui.hud.modules.HUDStringBasedItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -49,27 +49,25 @@ public class ModuleModBasedItemSink extends LogisticsModule
 		return "item_sink_mod";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.singletonList(modList);
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.ModBasedItemSink, 0, true, false, 5, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
 				&& bestCustomPriority >= _sinkReply.customPriority)) {
@@ -90,8 +88,7 @@ public class ModuleModBasedItemSink extends LogisticsModule
 	public void tick() {}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Mods: ");
 		list.addAll(modList);
@@ -175,7 +172,6 @@ public class ModuleModBasedItemSink extends LogisticsModule
 		return ident.getModName();
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		CompoundTag nbt = new CompoundTag();
@@ -183,7 +179,6 @@ public class ModuleModBasedItemSink extends LogisticsModule
 		return NewGuiHandler.getGui(StringBasedItemSinkModuleGuiSlot.class).setNbt(nbt);
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return NewGuiHandler.getGui(StringBasedItemSinkModuleGuiInHand.class);

@@ -1,7 +1,6 @@
 
 package logisticspipes.gui;
 
-import javax.annotation.Nonnull;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.ItemAmountPipeSign;
 import logisticspipes.utils.gui.DummyContainer;
@@ -26,7 +25,7 @@ public class ItemAmountSignCreationGui extends LogisticsBaseGuiScreen {
 
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 40);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 9, topPos + 12);

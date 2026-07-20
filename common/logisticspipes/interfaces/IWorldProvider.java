@@ -1,9 +1,11 @@
 package logisticspipes.interfaces;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.world.level.Level;
 
 public interface IWorldProvider {
 
-	Level getWorld();
-
+	@Nullable
+    Level getWorld();
 }

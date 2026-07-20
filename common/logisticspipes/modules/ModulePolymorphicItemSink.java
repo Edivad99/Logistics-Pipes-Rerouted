@@ -2,8 +2,7 @@ package logisticspipes.modules;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
-import org.jetbrains.annotations.NotNull;
+
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -23,20 +22,18 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 		return "item_sink_polymorphic";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@NotNull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.ItemSink,
 				0,
@@ -48,7 +45,7 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
 				&& bestCustomPriority >= _sinkReply.customPriority)) {

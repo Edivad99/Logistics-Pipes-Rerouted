@@ -1,6 +1,5 @@
 package logisticspipes.items;
 
-import javax.annotation.Nonnull;
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import net.minecraft.world.item.ItemStack;
 
@@ -9,12 +8,12 @@ public class LogisticsBrokenItem extends LogisticsItem implements IItemAdvancedE
 	private static final String PREFIX = "tooltip.brokenItem.";
 
 	@Override
-	public boolean canExistInNormalInventory(@Nonnull ItemStack stack) {
+	public boolean canExistInNormalInventory(ItemStack stack) {
 		return false;
 	}
 
 	@Override
-	public boolean canExistInWorld(@Nonnull ItemStack stack) {
+	public boolean canExistInWorld(ItemStack stack) {
 		return false;
 	}
 

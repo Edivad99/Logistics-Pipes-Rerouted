@@ -7,7 +7,6 @@
 
 package logisticspipes.gui.modules;
 
-import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.module.AdvancedExtractorSneakyGuiPacket;
@@ -82,7 +81,7 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		// texture: LogisticsBaseGuiScreen.ITEMSINK
 		int j = leftPos;

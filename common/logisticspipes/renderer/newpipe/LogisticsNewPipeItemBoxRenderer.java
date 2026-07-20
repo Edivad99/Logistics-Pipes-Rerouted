@@ -2,7 +2,7 @@ package logisticspipes.renderer.newpipe;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import logisticspipes.items.LogisticsFluidContainer;
@@ -27,7 +27,7 @@ public class LogisticsNewPipeItemBoxRenderer {
 	private static final Map<FluidIdentifier, int[]> renderLists = new HashMap<>();
 
 	@OnlyIn(Dist.CLIENT)
-	public void doRenderItem(@Nonnull ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+	public void doRenderItem(ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 		if (LogisticsNewRenderPipe.innerTransportBox == null) return;
 		poseStack.pushPose();
 

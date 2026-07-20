@@ -1,7 +1,6 @@
 package logisticspipes.utils.transactor;
 
 import java.util.Iterator;
-import javax.annotation.Nonnull;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -15,7 +14,6 @@ class InventoryIteratorSimple implements Iterable<IInvSlot> {
 		this.inv = inv;
 	}
 
-	@Nonnull
 	@Override
 	public Iterator<IInvSlot> iterator() {
 		return new Iterator<IInvSlot>() {
@@ -43,19 +41,16 @@ class InventoryIteratorSimple implements Iterable<IInvSlot> {
 			this.slot = slot;
 		}
 
-		@Nonnull
 		@Override
 		public ItemStack getItem() {
 			return inv.getStackInSlot(slot);
 		}
 
-		@Nonnull
 		@Override
-		public ItemStack insertItem(@Nonnull ItemStack stack, boolean simulate) {
+		public ItemStack insertItem(ItemStack stack, boolean simulate) {
 			return inv.insertItem(slot, stack.copy(), simulate);
 		}
 
-		@Nonnull
 		@Override
 		public ItemStack extractItem(int amount, boolean simulate) {
 			return inv.extractItem(slot, amount, simulate);
@@ -67,7 +62,7 @@ class InventoryIteratorSimple implements Iterable<IInvSlot> {
 		}
 
 		@Override
-		public boolean canPutStackInSlot(@Nonnull ItemStack stack) {
+		public boolean canPutStackInSlot(ItemStack stack) {
 			ItemStack toTest = stack.copy();
 			toTest.setCount(1);
 			return inv.insertItem(slot, toTest, true).isEmpty();

@@ -37,8 +37,6 @@
 
 package network.rs485.logisticspipes.world;
 
-import javax.annotation.Nonnull;
-
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -162,7 +160,6 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 		return "(" + getXCoord() + ", " + getYCoord() + ", " + getZCoord() + ")";
 	}
 
-	@Nonnull
 	public BlockState getBlockState(BlockGetter world) {
 		return world.getBlockState(getBlockPos());
 	}

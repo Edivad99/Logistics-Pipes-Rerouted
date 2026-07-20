@@ -7,7 +7,6 @@
 
 package logisticspipes.gui.modules;
 
-import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
@@ -50,7 +49,7 @@ public class GuiSimpleFilter extends ModuleBaseGui {
 	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/itemsink.png");
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		// texture: GuiSimpleFilter.TEXTURE
 		int j = leftPos;

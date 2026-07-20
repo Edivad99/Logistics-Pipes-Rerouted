@@ -8,7 +8,7 @@
 package logisticspipes.pipes;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
@@ -43,7 +43,7 @@ public class PipeItemsSupplierLogistics extends CoreRoutedPipe implements IReque
 	}
 
 	@Override
-	public @Nonnull ModuleActiveSupplier getLogisticsModule() {
+	public ModuleActiveSupplier getLogisticsModule() {
 		return supplierModule;
 	}
 

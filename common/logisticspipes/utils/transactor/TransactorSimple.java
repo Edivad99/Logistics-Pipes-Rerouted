@@ -2,7 +2,7 @@ package logisticspipes.utils.transactor;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -16,7 +16,7 @@ public class TransactorSimple extends Transactor {
 	}
 
 	@Override
-	public int inject(@Nonnull ItemStack stack, Direction orientation, boolean doAdd) {
+	public int inject(ItemStack stack, Direction orientation, boolean doAdd) {
 		List<IInvSlot> filledSlots = new ArrayList<>(inventory.getSlots());
 		List<IInvSlot> emptySlots = new ArrayList<>(inventory.getSlots());
 		for (IInvSlot slot : InventoryIterator.getIterable(inventory, orientation)) {
@@ -36,7 +36,7 @@ public class TransactorSimple extends Transactor {
 		return injected;
 	}
 
-	private int tryPut(@Nonnull ItemStack stack, List<IInvSlot> slots, int injected, boolean doAdd) {
+	private int tryPut(ItemStack stack, List<IInvSlot> slots, int injected, boolean doAdd) {
 		int realInjected = injected;
 
 		if (realInjected >= stack.getCount()) {
@@ -66,7 +66,7 @@ public class TransactorSimple extends Transactor {
 	 * @param doAdd
 	 * @return Return the number of items moved.
 	 */
-	protected int addToSlot(IInvSlot slot, @Nonnull ItemStack stack, int injected, boolean doAdd) {
+	protected int addToSlot(IInvSlot slot, ItemStack stack, int injected, boolean doAdd) {
 		int available = stack.getCount() - injected;
 
 		ItemStack newStack = stack.copy();
@@ -76,7 +76,7 @@ public class TransactorSimple extends Transactor {
 		return available - rest.getCount();
 	}
 
-	private boolean canStacksMerge(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
+	private boolean canStacksMerge(ItemStack stack1, ItemStack stack2) {
 		if (stack1.isEmpty() || stack2.isEmpty()) {
 			return false;
 		}

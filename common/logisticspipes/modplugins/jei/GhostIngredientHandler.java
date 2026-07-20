@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import net.minecraft.client.Minecraft;
@@ -29,8 +29,8 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
     @Override
     @SuppressWarnings("unchecked")
     public <I> List<Target<I>> getTargetsTyped(
-            @Nonnull AbstractContainerScreen<?> gui,
-            @Nonnull ITypedIngredient<I> typedIngredient,
+            AbstractContainerScreen<?> gui,
+            ITypedIngredient<I> typedIngredient,
             boolean doStart) {
 
         Optional<ItemStack> itemStackOpt = typedIngredient.getItemStack();

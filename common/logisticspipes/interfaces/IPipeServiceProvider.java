@@ -1,6 +1,5 @@
 package logisticspipes.interfaces;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.api.IRoutedPowerProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
@@ -18,12 +17,10 @@ public interface IPipeServiceProvider extends IRoutedPowerProvider, ISpawnPartic
 
 	boolean isNthTick(int n);
 
-	@Nonnull
 	DebugLogController getDebug();
 
 	CacheHolder getCacheHolder();
 
-	@Nonnull
 	BlockPos getPos();
 
 	void markTileDirty();
@@ -31,8 +28,7 @@ public interface IPipeServiceProvider extends IRoutedPowerProvider, ISpawnPartic
 	/**
 	 * @return the available adjacent cache.
 	 */
-	@Nonnull
-	Adjacent getAvailableAdjacent();
+    Adjacent getAvailableAdjacent();
 
 	/**
 	 * Only makes sense to use this on the chassis pipe.
@@ -47,7 +43,6 @@ public interface IPipeServiceProvider extends IRoutedPowerProvider, ISpawnPartic
 
 	void queueRoutedItem(IRoutedItem routedItem, Direction from);
 
-	@Nonnull
 	ISlotUpgradeManager getUpgradeManager(LogisticsModule.ModulePositionType slot, int positionInt);
 
 	int countOnRoute(ItemIdentifier item);

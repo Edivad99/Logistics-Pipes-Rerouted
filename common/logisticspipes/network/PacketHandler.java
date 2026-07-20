@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import logisticspipes.LPConstants;
@@ -132,7 +132,7 @@ public class PacketHandler {
      * Writes a ModernPacket into a raw ByteBuf (short id + int debugId + LP body).
      * Used both for network sending and for NBT embedding.
      */
-    public static void fillByteBuf(@Nonnull ModernPacket msg, @Nonnull ByteBuf buffer) {
+    public static void fillByteBuf(ModernPacket msg, ByteBuf buffer) {
         buffer.writeShort(msg.getId());
         buffer.writeInt(msg.getDebugId());
         LPDataIOWrapper.writeData(buffer, msg::writeData);
@@ -166,24 +166,24 @@ public class PacketHandler {
 
     // ── Sending ──────────────────────────────────────────────────────────────
 
-    private static LPPacketPayload buildPayload(@Nonnull ModernPacket msg) {
+    private static LPPacketPayload buildPayload(ModernPacket msg) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         fillByteBuf(msg, buf);
         return LPPacketPayload.of(buf);
     }
 
-    public static LPPacketPayload buildPayloadPublic(@Nonnull ModernPacket msg) {
+    public static LPPacketPayload buildPayloadPublic(ModernPacket msg) {
         return buildPayload(msg);
     }
 
     /** Sends a packet from the client to the server. Must only be called client-side. */
     @OnlyIn(Dist.CLIENT)
-    public static void sendToServer(@Nonnull ModernPacket msg) {
+    public static void sendToServer(ModernPacket msg) {
         PacketDistributor.sendToServer(buildPayload(msg));
     }
 
     /** Sends a packet from the server to a specific player. Must only be called server-side. */
-    public static void sendToPlayer(@Nonnull ModernPacket msg, @Nonnull Player player) {
+    public static void sendToPlayer(ModernPacket msg, Player player) {
         if (!(player instanceof ServerPlayer sp)) {
             LogisticsPipes.LOG.warn("sendToPlayer: player is not a ServerPlayer, skipping");
             return;
@@ -196,7 +196,7 @@ public class PacketHandler {
     }
 
     /** Sends a packet to every connected player. Must only be called server-side. */
-    public static void sendToAll(@Nonnull ModernPacket msg) {
+    public static void sendToAll(ModernPacket msg) {
         PacketDistributor.sendToAllPlayers(
                 buildPayload(msg)
         );
@@ -218,7 +218,7 @@ public class PacketHandler {
     // ── Dispatch ──────────────────────────────────────────────────────────────
 
     /** Decodes and dispatches a raw LP packet from a FriendlyByteBuf. */
-    public static void onPacketData(@Nonnull final FriendlyByteBuf data, @Nonnull final Player player) {
+    public static void onPacketData(final FriendlyByteBuf data, final Player player) {
         LPDataIOWrapper.provideData(data, input -> {
             final int packetID = input.readShort();
             final ModernPacket packet = PacketHandler.templateForId(packetID);
@@ -229,7 +229,7 @@ public class PacketHandler {
     }
 
     /** Decodes a raw LP packet from an LPDataInput (used by NBT-embedded packets). */
-    public static void onPacketData(@Nonnull final LPDataInput data, @Nonnull final Player player) {
+    public static void onPacketData(final LPDataInput data, final Player player) {
         final int packetID = data.readShort();
         final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
         packet.setDebugId(data.readInt());
@@ -238,7 +238,7 @@ public class PacketHandler {
     }
 
     /** Processes a fully-decoded ModernPacket on the correct thread. */
-    public static void onPacketData(@Nonnull ModernPacket packet, @Nonnull final Player player) {
+    public static void onPacketData(ModernPacket packet, final Player player) {
         try {
             packet.processPacket(player);
             if (LogisticsPipes.isDEBUG()) {

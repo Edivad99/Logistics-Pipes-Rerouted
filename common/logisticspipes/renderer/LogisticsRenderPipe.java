@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -63,7 +62,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 	}
 
 	@Override
-	public void render(LogisticsTileGenericPipe tileentity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+	public void render(LogisticsTileGenericPipe tileentity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 		if (tileentity == null || tileentity.pipe == null) return;
 
 		// Fallback placeholder cube — only draws when the OBJ model pipeline failed to load
@@ -358,7 +357,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		poseStack.popPose();
 	}
 
-	public void doRenderItem(@Nonnull ItemStack itemstack, Level world, double x, double y, double z, float light, float renderScale, double boxScale, double yaw, double pitch, double yawForPitch, float partialTickTime,
+	public void doRenderItem(ItemStack itemstack, Level world, double x, double y, double z, float light, float renderScale, double boxScale, double yaw, double pitch, double yawForPitch, float partialTickTime,
 			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 		LogisticsRenderPipe.boxRenderer.doRenderItem(itemstack, light, x, y, z, boxScale, yaw, pitch, yawForPitch, poseStack, bufferSource, packedLight, packedOverlay);
 
@@ -472,11 +471,11 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		RenderSystem.enableDepthTest();
 	}
 
-	public void renderItemStackOnSign(@Nonnull ItemStack itemstack) {
+	public void renderItemStackOnSign(ItemStack itemstack) {
 		// Legacy no-arg stub — rendering deferred. Use the PoseStack overload instead.
 	}
 
-	public void renderItemStackOnSign(@Nonnull ItemStack itemstack, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+	public void renderItemStackOnSign(ItemStack itemstack, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		if (itemstack.isEmpty()) return;
 		poseStack.pushPose();
 		// Position the item onto the front face of the sign and scale it down to fit.

@@ -1,7 +1,7 @@
 package logisticspipes.gui;
 
 import java.util.Arrays;
-import javax.annotation.Nonnull;
+
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.CraftingCycleRecipe;
@@ -70,7 +70,7 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float fA, int iA, int jA) {
+	protected void renderBg(GuiGraphics guiGraphics, float fA, int iA, int jA) {
 		for (net.minecraft.client.gui.components.AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _crafter.targetType != null;
 		}

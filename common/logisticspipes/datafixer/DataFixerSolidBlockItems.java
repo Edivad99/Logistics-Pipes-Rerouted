@@ -1,6 +1,5 @@
 package logisticspipes.datafixer;
 
-import javax.annotation.Nonnull;
 import logisticspipes.items.LogisticsSolidBlockItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -15,8 +14,6 @@ public class DataFixerSolidBlockItems {
 	public int getFixVersion() {
 		return VERSION;
 	}
-
-	@Nonnull
 
 	public CompoundTag fixTagCompound(CompoundTag compound) {
 		if (

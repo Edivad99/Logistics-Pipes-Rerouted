@@ -1,7 +1,7 @@
 package logisticspipes.datafixer;
 
 import java.util.Map;
-import javax.annotation.Nonnull;
+
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.nbt.CompoundTag;
 
@@ -28,8 +28,6 @@ public class DataFixerTE {
 	public int getFixVersion() {
 		return VERSION;
 	}
-
-	@Nonnull
 
 	public CompoundTag fixTagCompound(CompoundTag compound) {
 		String teName = compound.getString("id");

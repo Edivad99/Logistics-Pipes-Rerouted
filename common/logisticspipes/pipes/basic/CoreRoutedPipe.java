@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.PriorityBlockingQueue;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import kotlin.Unit;
 import logisticspipes.LPConstants;
@@ -158,7 +157,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	protected RouteLayer _routeLayer;
 	protected TransportLayer _transportLayer;
 
-	@Nonnull
 	final protected UpgradeManager upgradeManager = new UpgradeManager(this);
 
 	protected LogisticsItemOrderManager _orderItemManager = null;
@@ -177,13 +175,11 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	private boolean isOpaqueClientSide = false;
 
 	/** Caches adjacent state, only on Side.SERVER */
-	@Nonnull
 	private Adjacent adjacent = NoAdjacent.INSTANCE;
 
 	/**
 	 * @return the adjacent cache directly.
 	 */
-	@Nonnull
 	protected Adjacent getAdjacent() {
 		return adjacent;
 	}
@@ -191,7 +187,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	/**
 	 * Returns all adjacents on a regular routed pipe.
 	 */
-	@Nonnull
 	@Override
 	public Adjacent getAvailableAdjacent() {
 		return getAdjacent();
@@ -237,7 +232,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (container != null) container.setChanged();
 	}
 
-	@Nonnull
 	public RouteLayer getRouteLayer() {
 		if (_routeLayer == null) {
 			_routeLayer = new RouteLayer(getRouter(), getTransportLayer(), this);
@@ -245,7 +239,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		return _routeLayer;
 	}
 
-	@Nonnull
 	public TransportLayer getTransportLayer() {
 		if (_transportLayer == null) {
 			_transportLayer = new PipeTransportLayer(this, this, getRouter());
@@ -253,7 +246,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		return _transportLayer;
 	}
 
-	@Nonnull
 	@Override
 	public ISlotUpgradeManager getUpgradeManager(ModulePositionType slot, int positionInt) {
 		return upgradeManager;
@@ -277,7 +269,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		sendQueueChanged(false);
 	}
 
-	public void queueRoutedItem(IRoutedItem routedItem, @Nonnull Direction from, ItemSendMode mode) {
+	public void queueRoutedItem(IRoutedItem routedItem, Direction from, ItemSendMode mode) {
 		if (from == null) {
 			throw new NullPointerException();
 		}
@@ -747,7 +739,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.writeToNBT(nbttagcompound, provider);
 
 		synchronized (routerIdLock) {
@@ -814,7 +806,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.readFromNBT(nbttagcompound, provider);
 
 		synchronized (routerIdLock) {
@@ -860,8 +852,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	@Nonnull
-	public IRouter getRouter() {
+    public IRouter getRouter() {
 		if (stillNeedReplace) {
 			LogisticsPipes.LOG.debug("Pipe not ready at ({}, {}, {}, '{}')", this.getX(), this.getY(), this.getZ(),
 					getWorld() != null ? getWorld().dimension().location().toString() : "unknown");
@@ -1205,7 +1196,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public int compareTo(@Nonnull IRequestItems other) {
+	public int compareTo(IRequestItems other) {
 		return Integer.compare(getID(), other.getID());
 	}
 
@@ -1214,7 +1205,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		return getRouter().getSimpleID();
 	}
 
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {}
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {}
 
 	public boolean hasGenericInterests() {
 		return false;
@@ -1490,7 +1481,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	/* ISendRoutedItem */
 
 	@Override
-	public IRoutedItem sendStack(@Nonnull ItemStack stack, Pair<Integer, SinkReply> reply, ItemSendMode mode, @Nonnull Direction direction) {
+	public IRoutedItem sendStack(ItemStack stack, Pair<Integer, SinkReply> reply, ItemSendMode mode, Direction direction) {
 		IRoutedItem itemToSend = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
 		itemToSend.setDestination(reply.getValue1());
 		if (reply.getValue2().isPassive) {
@@ -1506,7 +1497,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public IRoutedItem sendStack(@Nonnull ItemStack stack, int destination, ItemSendMode mode, IAdditionalTargetInformation info, @Nonnull Direction direction) {
+	public IRoutedItem sendStack(ItemStack stack, int destination, ItemSendMode mode, IAdditionalTargetInformation info, Direction direction) {
 		IRoutedItem itemToSend = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
 		itemToSend.setDestination(destination);
 		itemToSend.setTransportMode(TransportMode.Active);
@@ -1677,8 +1668,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	@Nonnull
-	public DebugLogController getDebug() {
+    public DebugLogController getDebug() {
 		return debug;
 	}
 

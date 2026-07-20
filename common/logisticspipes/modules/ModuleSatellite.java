@@ -3,8 +3,7 @@ package logisticspipes.modules;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import org.jetbrains.annotations.NotNull;
+
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
@@ -17,20 +16,18 @@ public class ModuleSatellite extends LogisticsModule {
 
 	private final SinkReply _sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0, null);
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		throw new RuntimeException("Cannot get LP name for " + this);
 	}
 
-	@NotNull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
 				&& bestCustomPriority >= _sinkReply.customPriority)) {
@@ -44,7 +41,7 @@ public class ModuleSatellite extends LogisticsModule {
 		}
 	}
 
-	private int spaceFor(@Nonnull ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
+	private int spaceFor(ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
 		final IPipeServiceProvider service = Objects.requireNonNull(_service);
 		int count = service.getAvailableAdjacent().inventories().stream()
 				.map(neighbor -> LPNeighborTileEntityKt.sneakyInsertion(neighbor).from(getUpgradeManager()))

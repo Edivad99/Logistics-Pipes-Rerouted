@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+
 import logisticspipes.gui.hud.HUDCrafting;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -140,7 +140,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 	}
 
 	@Override
-	public @Nonnull ModuleCrafter getLogisticsModule() {
+	public ModuleCrafter getLogisticsModule() {
 		return craftingModule;
 	}
 
@@ -226,7 +226,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		craftingModule.collectSpecificInterests(itemIdentifiers);
 	}
 

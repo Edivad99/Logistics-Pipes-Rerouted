@@ -1,6 +1,5 @@
 package logisticspipes.asm.wrapper;
 
-import javax.annotation.Nonnull;
 import logisticspipes.api.ILPPipeConfigTool;
 import logisticspipes.api.ILPPipeTile;
 import logisticspipes.proxy.interfaces.ILPPipeConfigToolWrapper;
@@ -28,7 +27,7 @@ public class GenericLPPipeConfigToolWrapper extends AbstractWrapper implements I
 	}
 
 	@Override
-	public ILPPipeConfigTool getWrappedTool(@Nonnull ItemStack stack) {
+	public ILPPipeConfigTool getWrappedTool(ItemStack stack) {
 		if (isEnabled()) {
 			try {
 				ILPPipeConfigTool tool = wrapper.getWrappedTool(stack);
@@ -52,7 +51,7 @@ public class GenericLPPipeConfigToolWrapper extends AbstractWrapper implements I
 		}
 
 		@Override
-		public boolean canWrench(Player player, @Nonnull ItemStack wrench, ILPPipeTile pipe) {
+		public boolean canWrench(Player player, ItemStack wrench, ILPPipeTile pipe) {
 			if (isEnabled()) {
 				try {
 					return tool.canWrench(player, wrench, pipe);
@@ -64,7 +63,7 @@ public class GenericLPPipeConfigToolWrapper extends AbstractWrapper implements I
 		}
 
 		@Override
-		public void wrenchUsed(Player player, @Nonnull ItemStack wrench, ILPPipeTile pipe) {
+		public void wrenchUsed(Player player, ItemStack wrench, ILPPipeTile pipe) {
 			if (isEnabled()) {
 				try {
 					tool.wrenchUsed(player, wrench, pipe);

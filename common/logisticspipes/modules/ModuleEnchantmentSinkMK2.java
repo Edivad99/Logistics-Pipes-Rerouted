@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -58,13 +58,11 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 		return "enchantment_sink_mk2";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.singletonList(filterInventory);
@@ -72,20 +70,19 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 
 	@Override
 	@CCCommand(description = "Returns the FilterInventory of this Module")
-	@Nonnull
-	public IItemIdentifierInventory getFilterInventory() {
+    public IItemIdentifierInventory getFilterInventory() {
 		return filterInventory;
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.EnchantmentItemSink, 1, true, false, 1, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
 				&& bestCustomPriority >= _sinkReply.customPriority)) {
@@ -104,8 +101,7 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	public void tick() {}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Filter: ");
 		list.add("<inventory>");
@@ -153,7 +149,7 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	}
 
 	@Override
-	public void handleInvContent(@Nonnull Collection<ItemIdentifierStack> list) {
+	public void handleInvContent(Collection<ItemIdentifierStack> list) {
 		filterInventory.handleItemIdentifierList(list);
 	}
 
@@ -168,7 +164,7 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		Map<ItemIdentifier, Integer> mapIC = filterInventory.getItemsAndCount();
 		itemIdentifiers.addAll(mapIC.keySet());
 		for (ItemIdentifier id : mapIC.keySet()) {
@@ -197,13 +193,11 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 		return true;
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		return SimpleFilter.getPipeGuiProvider();
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return SimpleFilter.getInHandGuiProvider();

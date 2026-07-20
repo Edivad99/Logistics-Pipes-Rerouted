@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
@@ -65,13 +65,11 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 		return stackList.stream().allMatch(ItemStack::isEmpty);
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack getItem(int i) {
 		return stackList.get(i);
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack removeItem(int slot, int count) {
 		final ItemStack stack = stackList.get(slot);
@@ -88,7 +86,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	}
 
 	@Override
-	public void setItem(int slot, @Nonnull ItemStack itemstack) {
+	public void setItem(int slot, ItemStack itemstack) {
 		if (itemstack.isEmpty()) {
 			stackList.set(slot, ItemStack.EMPTY);
 		} else {
@@ -96,12 +94,10 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 		}
 	}
 
-	@Nonnull
 	public String getName() {
 		return _name;
 	}
 
-	@Nonnull
 	public Component getDisplayName() {
 		return TEXT_COMPONENT_EMPTY;
 	}
@@ -119,18 +115,18 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	}
 
 	@Override
-	public boolean stillValid(@Nonnull Player entityplayer) {
+	public boolean stillValid(Player entityplayer) {
 		return false;
 	}
 
 	@Override
-	public void startOpen(@Nonnull Player player) {}
+	public void startOpen(Player player) {}
 
 	@Override
-	public void stopOpen(@Nonnull Player player) {}
+	public void stopOpen(Player player) {}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
+	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		readFromNBT(nbttagcompound, provider, "");
 	}
 
@@ -149,7 +145,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	}
 
 	@Override
-	public void writeToNBT(@Nonnull CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
+	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
 		writeToNBT(nbttagcompound, provider, "");
 	}
 
@@ -201,13 +197,12 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 		_listener.remove(listner);
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack removeItemNoUpdate(int i) {
 		return stackList.set(i, ItemStack.EMPTY);
 	}
 
-	private int tryAddToSlot(int i, @Nonnull ItemStack stack, int realstacklimit) {
+	private int tryAddToSlot(int i, ItemStack stack, int realstacklimit) {
 		ItemStack slotStack = stackList.get(i);
 		if (slotStack.isEmpty()) {
 			final ItemStack copy = stack.copy();
@@ -231,7 +226,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 		}
 	}
 
-	public int addCompressed(@Nonnull ItemStack stack, boolean ignoreMaxStackSize) {
+	public int addCompressed(ItemStack stack, boolean ignoreMaxStackSize) {
 		if (stack.isEmpty()) return 0;
 		stack = stack.copy();
 
@@ -263,7 +258,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	}
 
 	@Override
-	public boolean canPlaceItem(int i, @Nonnull ItemStack itemstack) {
+	public boolean canPlaceItem(int i, ItemStack itemstack) {
 		return true;
 	}
 
@@ -293,7 +288,6 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 		return true;
 	}
 
-	@Nonnull
 	@Override
 	public Iterator<Pair<ItemStack, Integer>> iterator() {
 		final Iterator<ItemStack> iter = stackList.iterator();
@@ -322,7 +316,6 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	/**
 	 * Returns a stream over all non-empty item stacks in this inventory.
 	 */
-	@Nonnull
 	public Stream<ItemStack> stackStream() {
 		return stackList.stream().filter(itemStack -> !itemStack.isEmpty());
 	}

@@ -1,7 +1,7 @@
 package logisticspipes.utils.gui;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
+
 import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
@@ -37,8 +37,7 @@ public class DummyModuleContainer extends DummyContainer {
 	}
 
 	@Override
-	@Nonnull
-	protected Slot addSlot(@Nonnull Slot slotIn) {
+    protected Slot addSlot(Slot slotIn) {
 		if (slotIn.getSlotIndex() == slot && slotIn.container == _playerInventory) {
 			return super.addSlot(new UnmodifiableSlot(slotIn));
 		}
@@ -46,7 +45,7 @@ public class DummyModuleContainer extends DummyContainer {
 	}
 
 	@Override
-	public void removed(@Nonnull Player player) {
+	public void removed(Player player) {
 		super.removed(player);
 		ItemModuleInformationManager.saveInformation(player.getInventory().items.get(slot), module, player.registryAccess());
 		player.getInventory().setChanged();

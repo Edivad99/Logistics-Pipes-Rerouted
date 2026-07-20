@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import javax.annotation.Nonnull;
+
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.api.IRoutedPowerProvider;
@@ -223,7 +223,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		}
 	}
 
-	public void handleOpenSecurityPlayer(Player player, @Nonnull String string) {
+	public void handleOpenSecurityPlayer(Player player, String string) {
 		SecuritySettings setting = settingsList.get(string);
 		if (setting == null) {
 			if (string.isEmpty()) return;

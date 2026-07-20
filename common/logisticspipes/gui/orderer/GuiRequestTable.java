@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import logisticspipes.world.item.LPItems;
@@ -190,7 +189,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
-	public void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		for (net.minecraft.client.gui.components.AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _table.targetType != null;
 		}
@@ -649,8 +648,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
-	@Nonnull
-	public ItemStack getDisk() {
+    public ItemStack getDisk() {
 		return _table.diskInv.getItem(0);
 	}
 

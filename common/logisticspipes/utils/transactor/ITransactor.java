@@ -1,6 +1,5 @@
 package logisticspipes.utils.transactor;
 
-import javax.annotation.Nonnull;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 
@@ -13,6 +12,5 @@ public interface ITransactor {
 	 * @param doAdd whether to commit or simulate transaction
 	 * @return added stack.
 	 */
-	@Nonnull
-	ItemStack add(@Nonnull ItemStack stack, Direction orientation, boolean doAdd);
+    ItemStack add(ItemStack stack, Direction orientation, boolean doAdd);
 }

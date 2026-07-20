@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.asm.addinfo.IAddInfo;
@@ -360,8 +359,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	}
 
 	@SuppressWarnings("ConstantConditions")
-	@Nonnull
-	public static ItemIdentifier get(@Nonnull ItemStack itemStack) {
+    public static ItemIdentifier get(ItemStack itemStack) {
 		ItemIdentifier proposal = null;
 		IAddInfoProvider prov = null;
 		boolean hasTag = itemStack.has(DataComponents.CUSTOM_DATA);
@@ -443,12 +441,10 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return item.getDescriptionId() + "(ID: " + BuiltInRegistries.ITEM.getId(item) + ", Damage: " + itemDamage + ")";
 	}
 
-	@Nonnull
-	private String getName(@Nonnull ItemStack stack) {
+	private String getName(ItemStack stack) {
 		return stack.getHoverName().getString();
 	}
 
-	@Nonnull
 	public String getFriendlyName() {
 		return getName(unsafeMakeNormalStack(1));
 	}
@@ -534,12 +530,10 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return creativeTabName;
 	}
 
-	@Nonnull
 	public ItemIdentifierStack makeStack(int stackSize) {
 		return new ItemIdentifierStack(this, stackSize);
 	}
 
-	@Nonnull
 	public ItemStack unsafeMakeNormalStack(int stackSize) {
 		ItemStack stack = new ItemStack(item, stackSize);
 		if (itemDamage != 0) {
@@ -554,7 +548,6 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return stack;
 	}
 
-	@Nonnull
 	public ItemStack makeNormalStack(int stackSize) {
 		ItemStack stack = new ItemStack(item, stackSize);
 		if (itemDamage != 0) {
@@ -569,7 +562,6 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return stack;
 	}
 
-	@Nonnull
 	public ItemEntity makeEntityItem(int stackSize, Level world, double x, double y, double z) {
 		return new ItemEntity(world, x, y, z, makeNormalStack(stackSize));
 	}
@@ -738,7 +730,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		return this.item == item.item && (item.isDamageable() || (itemDamage == item.itemDamage));
 	}
 
-	public boolean equalsWithoutNBT(@Nonnull ItemStack stack) {
+	public boolean equalsWithoutNBT(ItemStack stack) {
 		return item == stack.getItem() && itemDamage == stack.getDamageValue();
 	}
 

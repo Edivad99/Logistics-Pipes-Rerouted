@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.api.IRoutedPowerProvider;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
@@ -210,7 +209,6 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
 		return fuzzyFlags.get(startIdx, startIdx + 3);
 	}
 
-	@Nonnull
 	public ItemStack getOutput(IResource wanted, IRoutedPowerProvider power) {
 		boolean isFuzzy = isFuzzy();
 		if (cache == null) {
@@ -412,25 +410,22 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
 	}
 
 	@Override
-	@Nonnull
-	public ItemStack getItem(int i) {
+    public ItemStack getItem(int i) {
 		return inv.getItem(i);
 	}
 
 	@Override
-	@Nonnull
-	public ItemStack removeItem(int i, int j) {
+    public ItemStack removeItem(int i, int j) {
 		return inv.removeItem(i, j);
 	}
 
 	@Override
-	@Nonnull
-	public ItemStack removeItemNoUpdate(int i) {
+    public ItemStack removeItemNoUpdate(int i) {
 		return inv.removeItemNoUpdate(i);
 	}
 
 	@Override
-	public void setItem(int i, @Nonnull ItemStack itemstack) {
+	public void setItem(int i, ItemStack itemstack) {
 		inv.setItem(i, itemstack);
 	}
 
@@ -440,20 +435,20 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
 	}
 
 	@Override
-	public boolean stillValid(@Nonnull Player entityplayer) {
+	public boolean stillValid(Player entityplayer) {
 		return true;
 	}
 
 	@Override
-	public void startOpen(@Nonnull Player player) {
+	public void startOpen(Player player) {
 	}
 
 	@Override
-	public void stopOpen(@Nonnull Player player) {
+	public void stopOpen(Player player) {
 	}
 
 	@Override
-	public boolean canPlaceItem(int i, @Nonnull ItemStack itemstack) {
+	public boolean canPlaceItem(int i, ItemStack itemstack) {
 		if (i < 9 && i >= 0) {
 			ItemIdentifierStack stack = matrix.getIDStackInSlot(i);
 			if (stack != null && !itemstack.isEmpty()) {
@@ -510,7 +505,6 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
 		guiWatcher.remove(player);
 	}
 
-	@Nonnull
 	public String getName() {
 		return "LogisticsCraftingTable";
 	}

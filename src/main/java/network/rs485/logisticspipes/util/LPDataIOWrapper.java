@@ -53,7 +53,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.component.DataComponents;
@@ -90,7 +89,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		localBuffer = buffer;
 	}
 
-	@Nonnull
 	private static LPDataIOWrapper getInstance(ByteBuf buffer) {
 		if (buffer.hasMemoryAddress()) {
 			synchronized (BUFFER_WRAPPER_MAP) {
@@ -117,7 +115,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		dataBuffer.release();
 	}
 
-	@Nonnull
 	public static byte[] collectData(LPDataOutputConsumer dataOutputConsumer) {
 		ByteBuf dataBuffer = buffer();
 		LPDataIOWrapper lpData = getInstance(dataBuffer);
@@ -274,7 +271,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	}
 
 	@Override
-	public void writeBitSet(@Nonnull BitSet bits) {
+	public void writeBitSet(BitSet bits) {
 		writeLongArray(bits.toLongArray());
 	}
 
@@ -336,7 +333,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	}
 
 	@Override
-	public void writeItemStack(@Nonnull ItemStack itemstack) {
+	public void writeItemStack(ItemStack itemstack) {
 		if (itemstack.isEmpty()) {
 			writeInt(0);
 		} else {
@@ -504,7 +501,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		return null;
 	}
 
-	@Nonnull
 	@Override
 	public <T extends Enum<T>> EnumSet<T> readEnumSet(Class<T> clazz) {
 		EnumSet<T> types = EnumSet.noneOf(clazz);
@@ -520,7 +516,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		return types;
 	}
 
-	@Nonnull
 	@Override
 	public BitSet readBitSet() {
 		final long[] words = readLongArray();
@@ -595,7 +590,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		return arr;
 	}
 
-	@Nonnull
 	@Override
 	public byte[] readBytes(int length) {
 		byte[] arr = new byte[length];
@@ -632,7 +626,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		return new ItemIdentifierStack(item, stacksize);
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack readItemStack() {
 		final int itemId = readInt();
@@ -697,7 +690,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Nullable
 	@Override
-	public <T> NonNullList<T> readNonNullList(IReadListObject<T> reader, @Nonnull T fillItem) {
+	public <T> NonNullList<T> readNonNullList(IReadListObject<T> reader, T fillItem) {
 		int size = readInt();
 		if (size == -1) {
 			return null;
@@ -717,7 +710,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		return clazz.getEnumConstants()[localBuffer.readInt()];
 	}
 
-	@Nonnull
 	@Override
 	public ByteBuf readByteBuf() {
 		byte[] arr = readByteArray();
@@ -741,7 +733,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		return arr;
 	}
 
-	@Nonnull
 	@Override
 	public ChannelInformation readChannelInformation() {
 		return new ChannelInformation(this.readUTF(), this.readUUID(), this.readPlayerIdentifier(), this.readEnum(ChannelInformation.AccessRights.class), this.readUUID());
@@ -756,7 +747,6 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		return new UUID(this.readLong(), this.readLong());
 	}
 
-	@Nonnull
 	@Override
 	public PlayerIdentifier readPlayerIdentifier() {
 		return PlayerIdentifier.get(this.readUTF(), this.readUUID());

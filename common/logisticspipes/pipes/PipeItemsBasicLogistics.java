@@ -7,7 +7,7 @@
 package logisticspipes.pipes;
 
 import java.util.Collection;
-import javax.annotation.Nonnull;
+
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
@@ -90,7 +90,7 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public @Nonnull ModuleItemSink getLogisticsModule() {
+	public ModuleItemSink getLogisticsModule() {
 		return itemSinkModule;
 	}
 
@@ -106,7 +106,7 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		if (!itemSinkModule.isDefaultRoute()) {
 			itemSinkModule.collectSpecificInterests(itemIdentifiers);
 		}

@@ -3,7 +3,7 @@ package logisticspipes.modules;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.network.NewGuiHandler;
@@ -29,25 +29,22 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 
 	private SinkReply _sinkReply;
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		throw new RuntimeException("Cannot get LP name for " + this);
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.singletonList(filterInventory);
 	}
 
-	@Nonnull
 	public Container getFilterInventory() {
 		return filterInventory;
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.ItemSink,
 				0,
@@ -59,7 +56,7 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal()
 				|| (bestPriority == _sinkReply.fixedPriority.ordinal()
@@ -79,8 +76,7 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 	public void tick() {}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Supplied: ");
 		list.add("<inventory>");
@@ -108,13 +104,11 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 		return true;
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		return NewGuiHandler.getGui(FluidSupplierSlot.class);
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		throw new UnsupportedOperationException("Fluid Supplier GUI cannot be opened in hand");

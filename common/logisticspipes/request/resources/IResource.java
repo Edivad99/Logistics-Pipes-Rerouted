@@ -1,6 +1,5 @@
 package logisticspipes.request.resources;
 
-import javax.annotation.Nonnull;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -19,7 +18,6 @@ public interface IResource extends ILPCCTypeHolder, LPFinalSerializable {
 
 	int getRequestedAmount();
 
-	@Nonnull
 	IRouter getRouter();
 
 	boolean matches(IResource resource, MatchSettings settings);

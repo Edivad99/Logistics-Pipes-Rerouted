@@ -14,7 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
@@ -770,7 +770,7 @@ public class PipeTransportLogistics {
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeContentRequest.class).setInteger(travelId));
 	}
 
-	public void sendItem(@Nonnull ItemStack stackToSend) {
+	public void sendItem(ItemStack stackToSend) {
 		this.injectItem((LPTravelingItem) SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend), Direction.UP);
 	}
 

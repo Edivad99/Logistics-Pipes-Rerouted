@@ -1,7 +1,6 @@
 
 package logisticspipes.gui;
 
-import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -48,7 +47,7 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/power_junction.png");
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		int j = leftPos;
 		int k = topPos;

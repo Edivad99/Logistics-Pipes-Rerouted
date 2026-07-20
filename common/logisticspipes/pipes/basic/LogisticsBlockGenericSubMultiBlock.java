@@ -3,7 +3,6 @@ package logisticspipes.pipes.basic;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import logisticspipes.interfaces.ITickable;
 import logisticspipes.world.level.block.LPBlocks;
@@ -34,8 +33,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	}
 
 	@Override
-	@Nonnull
-	public net.minecraft.world.level.block.RenderShape getRenderShape(@Nonnull BlockState state) {
+    public net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
 		// Sub-multiblocks are invisible helpers; main pipe BER renders the visible geometry.
 		return net.minecraft.world.level.block.RenderShape.INVISIBLE;
 	}
@@ -44,8 +42,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	private static final VoxelShape FALLBACK_SHAPE = Shapes.box(0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
 
 	@Override
-	@Nonnull
-	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		BlockEntity tile = world.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 			VoxelShape shape = Shapes.empty();
@@ -62,8 +59,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	}
 
 	@Override
-	@Nonnull
-	public VoxelShape getCollisionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return getShape(state, world, pos, context);
 	}
 
@@ -87,7 +83,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		if (LogisticsBlockGenericSubMultiBlock.currentCreatedMultiBlock == null && logisticspipes.proxy.MainProxy.isServer(null)) {
 			new RuntimeException("Unknown MultiBlock controller").printStackTrace();
 		}
@@ -96,15 +92,14 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 
 	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		return (lvl, pos, st, be) -> {
 			if (be instanceof ITickable) ((ITickable) be).update();
 		};
 	}
 
 	@Override
-	@Nonnull
-	public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+    public List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
 		// Sub-blocks drop nothing; the main pipe block entity handles drops.
 		return Collections.emptyList();
 	}
@@ -125,7 +120,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	public static DoubleCoordinates currentCreatedMultiBlock;
 
 	@Override
-	public void onRemove(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
 		if (state.getBlock() != newState.getBlock()) {
 			if (redirectedToMainPipe) {
 				super.onRemove(state, worldIn, pos, newState, isMoving);
@@ -150,7 +145,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	}
 
 	@Override
-	public void neighborChanged(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Block block, @Nonnull BlockPos fromPos, boolean isMoving) {
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
 		super.neighborChanged(state, world, pos, block, fromPos, isMoving);
 		BlockEntity tile = world.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericSubMultiBlock) {

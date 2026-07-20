@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LPConstants;
 import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
@@ -198,7 +198,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		renderExtensions();
 	}
 
@@ -311,8 +311,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		}
 	}
 
-	@Nonnull
-	public <T extends net.minecraft.client.gui.components.AbstractWidget> T addRenderableWidget(@Nonnull T button) {
+	public <T extends net.minecraft.client.gui.components.AbstractWidget> T addRenderableWidget(T button) {
 		buttonList.add(button);
 		return super.addRenderableWidget(button);
 	}
@@ -494,13 +493,13 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 
 	// @Override removed — INEIGuiHandler not in implements
 	@ModDependentMethod(modId = LPConstants.neiModID)
-	public Iterable<Integer> getItemSpawnSlots(AbstractContainerScreen gui, @Nonnull ItemStack stack) {
+	public Iterable<Integer> getItemSpawnSlots(AbstractContainerScreen gui, ItemStack stack) {
 		return null;
 	}
 
 	// @Override removed — INEIGuiHandler not in implements
 	@ModDependentMethod(modId = LPConstants.neiModID)
-	public boolean handleDragNDrop(AbstractContainerScreen gui, int mouseX, int mouseY, @Nonnull ItemStack stack, int button) {
+	public boolean handleDragNDrop(AbstractContainerScreen gui, int mouseX, int mouseY, ItemStack stack, int button) {
 		if (gui instanceof LogisticsBaseGuiScreen && gui.getMenu() instanceof DummyContainer && !stack.isEmpty()) {
 			Slot result = null;
 			int pos = -1;

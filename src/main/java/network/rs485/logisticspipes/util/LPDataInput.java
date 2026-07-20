@@ -43,7 +43,6 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.UUID;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.world.item.ItemStack;
@@ -112,10 +111,8 @@ public interface LPDataInput {
 	@Nullable
 	ResourceLocation readResourceLocation();
 
-	@Nonnull
 	<T extends Enum<T>> EnumSet<T> readEnumSet(Class<T> clazz);
 
-	@Nonnull
 	BitSet readBitSet();
 
 	@Nullable
@@ -130,7 +127,6 @@ public interface LPDataInput {
 	@Nullable
 	int[] readIntArray();
 
-	@Nonnull
 	byte[] readBytes(int length);
 
 	@Nullable
@@ -139,7 +135,6 @@ public interface LPDataInput {
 	@Nullable
 	ItemIdentifierStack readItemIdentifierStack();
 
-	@Nonnull
 	ItemStack readItemStack();
 
 	@Nullable
@@ -152,24 +147,21 @@ public interface LPDataInput {
 	<T> Set<T> readSet(IReadListObject<T> handler);
 
 	@Nullable
-	<T> NonNullList<T> readNonNullList(IReadListObject<T> reader, @Nonnull T fillItem);
+	<T> NonNullList<T> readNonNullList(IReadListObject<T> reader, T fillItem);
 
 	@Nullable
 	<T extends Enum<T>> T readEnum(Class<T> clazz);
 
-	@Nonnull
 	ByteBuf readByteBuf();
 
 	@Nullable
 	long[] readLongArray();
 
-	@Nonnull
 	ChannelInformation readChannelInformation();
 
 	@Nullable
 	UUID readUUID();
 
-	@Nonnull
 	PlayerIdentifier readPlayerIdentifier();
 
 	default void readSerializable(LPSerializable serializable) {

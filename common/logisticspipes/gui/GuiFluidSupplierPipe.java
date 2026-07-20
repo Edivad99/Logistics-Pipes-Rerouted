@@ -6,7 +6,6 @@
 
 package logisticspipes.gui;
 
-import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LPConstants;
 import logisticspipes.network.PacketHandler;
@@ -59,7 +58,7 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 	protected static final ResourceLocation SUPPLIER = LPConstants.rl("textures/gui/supplier.png");
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		// texture: GuiFluidSupplierPipe.SUPPLIER
 		int j = leftPos;

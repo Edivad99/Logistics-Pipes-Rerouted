@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -69,14 +69,12 @@ public final class SpeedupTubeRenderer implements ISpecialPipeRenderer, IHighlig
 	}
 
 	@Override
-	@Nonnull
-	public List<IModel3D> getModelsWithoutPipe() {
+    public List<IModel3D> getModelsWithoutPipe() {
 		return SpeedupTubeRenderer.tubeSpeedupBase.get(SpeedupDirection.NORTH);
 	}
 
 	@Override
-	@Nonnull
-	public List<IModel3D> getModelsFromPipe(@Nonnull CoreUnroutedPipe pipe) {
+    public List<IModel3D> getModelsFromPipe(CoreUnroutedPipe pipe) {
 		if (pipe instanceof HSTubeSpeedup && ((HSTubeSpeedup) pipe).getOrientation() != null) {
 			final ITubeRenderOrientation orientation = ((HSTubeSpeedup) pipe).getOrientation().getRenderOrientation();
 			return Objects.requireNonNull(SpeedupTubeRenderer.tubeSpeedupBase.get(orientation), "Could not fetch model for HSTubeSpeedup for orientation " + orientation);
@@ -86,8 +84,7 @@ public final class SpeedupTubeRenderer implements ISpecialPipeRenderer, IHighlig
 	}
 
 	@Override
-	@Nonnull
-	public ResourceLocation getTexture() {
+    public ResourceLocation getTexture() {
 		return SpeedupTubeRenderer.TEXTURE;
 	}
 

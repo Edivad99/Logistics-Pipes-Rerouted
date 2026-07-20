@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import org.joml.Quaternionf;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -154,7 +154,7 @@ public class LogisticsHUDRenderer {
 				&& checkItemStackForHUD(Minecraft.getInstance().player.getInventory().armor.get(3));
 	}
 
-	private boolean checkItemStackForHUD(@Nonnull ItemStack stack) {
+	private boolean checkItemStackForHUD(ItemStack stack) {
 		if (stack.getItem() instanceof IHUDArmor) {
 			return ((IHUDArmor) stack.getItem()).isEnabled(stack);
 		}

@@ -1,6 +1,5 @@
 package logisticspipes.network.guis;
 
-import javax.annotation.Nonnull;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import net.minecraft.world.InteractionHand;
@@ -44,14 +43,12 @@ public class OpenGuideBook extends ModernPacket {
 		return new OpenGuideBook(getId());
 	}
 
-	@Nonnull
-	public OpenGuideBook setHand(@Nonnull InteractionHand hand) {
+	public OpenGuideBook setHand(InteractionHand hand) {
 		this.hand = hand;
 		return this;
 	}
 
-	@Nonnull
-	public OpenGuideBook setStack(@Nonnull ItemStack stack) {
+	public OpenGuideBook setStack(ItemStack stack) {
 		this.stack = stack;
 		return this;
 	}

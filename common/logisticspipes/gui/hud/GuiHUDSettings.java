@@ -1,7 +1,7 @@
 package logisticspipes.gui.hud;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
+
 import logisticspipes.world.item.LPItems;
 import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IHUDConfig;
@@ -57,7 +57,7 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		if (player.getInventory().getItem(slot).isEmpty() || player.getInventory().getItem(slot).getItem() != LPItems.HUD_GLASSES.get()) {
 			minecraft.player.closeContainer();
 		}

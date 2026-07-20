@@ -3,7 +3,6 @@ package logisticspipes.utils.item;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nonnull;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -25,7 +24,7 @@ public class DictIdentifier {
 	private static final List<DictIdentifier> identifiers = new ArrayList<>();
 	private static final ConcurrentHashMap<ResourceLocation, Integer> tagToId = new ConcurrentHashMap<>();
 
-	static synchronized DictIdentifier getForTag(@Nonnull TagKey<Item> tag) {
+	static synchronized DictIdentifier getForTag(TagKey<Item> tag) {
 		ResourceLocation loc = tag.location();
 		Integer existing = tagToId.get(loc);
 		if (existing != null) {

@@ -2,7 +2,7 @@ package logisticspipes.renderer;
 
 import java.util.EnumMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import logisticspipes.LPConstants;
@@ -84,8 +84,8 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
 	}
 
 	@Override
-	public void render(@Nonnull T be, float partialTicks, @Nonnull PoseStack pose,
-			@Nonnull MultiBufferSource buffers, int light, int overlay) {
+	public void render(T be, float partialTicks, PoseStack pose,
+			MultiBufferSource buffers, int light, int overlay) {
 		Block block = be.getBlockState().getBlock();
 		if (!(block instanceof LogisticsSolidBlock)) return;
 		LogisticsSolidBlock.Type type = ((LogisticsSolidBlock) block).getType();

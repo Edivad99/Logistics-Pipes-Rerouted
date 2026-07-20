@@ -4,7 +4,7 @@ package logisticspipes.utils.gui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.inventory.Slot;
@@ -46,7 +46,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int mouse_x, int mouse_y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int mouse_x, int mouse_y) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int i = 0; i < tabList.size(); i++) {
 			LPGuiGraphics.drawGuiBackGround(minecraft, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);

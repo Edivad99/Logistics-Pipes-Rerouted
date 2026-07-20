@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.DelayQueue;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import logisticspipes.LogisticsPipes;
@@ -174,13 +173,11 @@ public class ModuleCrafter extends LogisticsModule
 		return "crafter";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return properties;
@@ -196,14 +193,14 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
 				&& bestCustomPriority >= _sinkReply.customPriority)) {
@@ -218,7 +215,7 @@ public class ModuleCrafter extends LogisticsModule
 		}
 	}
 
-	protected int spaceFor(@Nonnull ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
+	protected int spaceFor(ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
 		Pair<String, ItemIdentifier> key = new Pair<>("spaceFor", item);
 		final IPipeServiceProvider service = _service;
 		if (service == null) return 0;
@@ -292,7 +289,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		List<ItemIdentifierStack> result = getCraftedItems();
 		if (result == null) {
 			return;
@@ -399,8 +396,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	@Nonnull
-	public IRouter getRouter() {
+    public IRouter getRouter() {
 		return Objects.requireNonNull(_service, "service was null").getRouter();
 	}
 
@@ -410,7 +406,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public int compareTo(@Nonnull IRequestItems other) {
+	public int compareTo(IRequestItems other) {
 		return Integer.compare(getID(), other.getID());
 	}
 
@@ -620,7 +616,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
 		super.readFromNBT(tag, provider);
 
 	}
@@ -678,7 +674,6 @@ public class ModuleCrafter extends LogisticsModule
 		}
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		return NewGuiHandler.getGui(CraftingModuleSlot.class)
@@ -691,7 +686,6 @@ public class ModuleCrafter extends LogisticsModule
 				.setCleanupExclude(cleanupModeIsExclude.getValue());
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return NewGuiHandler.getGui(CraftingModuleInHand.class).setAmount(liquidAmounts.getArray())
@@ -1016,7 +1010,6 @@ public class ModuleCrafter extends LogisticsModule
 		cachedAreAllOrderesToBuffer = result;
 	}
 
-	@Nonnull
 	private ItemStack extract(NeighborTileEntity<BlockEntity> adjacent, IResource item, int amount) {
 		return LPNeighborTileEntityKt.optionalIs(adjacent, LogisticsCraftingTableTileEntity.class)
 				.map(adjacentCraftingTable -> extractFromLogisticsCraftingTable(adjacentCraftingTable, item, amount))
@@ -1027,7 +1020,6 @@ public class ModuleCrafter extends LogisticsModule
 				});
 	}
 
-	@Nonnull
 	private ItemStack extractFiltered(NeighborTileEntity<BlockEntity> neighbor, IItemIdentifierInventory inv,
 			boolean isExcluded, int filterInvLimit) {
 		final IInventoryUtil invUtil = LPNeighborTileEntityKt.getInventoryUtil(neighbor);
@@ -1035,8 +1027,7 @@ public class ModuleCrafter extends LogisticsModule
 		return extractFromInventoryFiltered(invUtil, inv, isExcluded, filterInvLimit);
 	}
 
-	@Nonnull
-	private ItemStack extractFromInventory(@Nonnull IInventoryUtil invUtil, IResource wantedItem, int count) {
+	private ItemStack extractFromInventory(IInventoryUtil invUtil, IResource wantedItem, int count) {
 		final IPipeServiceProvider service = _service;
 		if (service == null) return ItemStack.EMPTY;
 		ItemIdentifier itemToExtract = null;
@@ -1068,8 +1059,7 @@ public class ModuleCrafter extends LogisticsModule
 		return extracted;
 	}
 
-	@Nonnull
-	private ItemStack extractFromInventoryFiltered(@Nonnull IInventoryUtil invUtil, IItemIdentifierInventory filter,
+	private ItemStack extractFromInventoryFiltered(IInventoryUtil invUtil, IItemIdentifierInventory filter,
 			boolean isExcluded, int filterInvLimit) {
 		final IPipeServiceProvider service = _service;
 		if (service == null) return ItemStack.EMPTY;
@@ -1110,7 +1100,6 @@ public class ModuleCrafter extends LogisticsModule
 		return found;
 	}
 
-	@Nonnull
 	private ItemStack extractFromLogisticsCraftingTable(
 			NeighborTileEntity<LogisticsCraftingTableTileEntity> adjacentCraftingTable, IResource wantedItem,
 			int count) {
@@ -1281,14 +1270,14 @@ public class ModuleCrafter extends LogisticsModule
 
 	public static class ClientSideSatelliteNames {
 
-		public @Nonnull
-		String satelliteName = "";
-		public @Nonnull
-		String[] advancedSatelliteNameArray = {};
-		public @Nonnull
-		String liquidSatelliteName = "";
-		public @Nonnull
-		String[] liquidSatelliteNameArray = {};
+		public
+        String satelliteName = "";
+		public
+        String[] advancedSatelliteNameArray = {};
+		public
+        String liquidSatelliteName = "";
+		public
+        String[] liquidSatelliteNameArray = {};
 	}
 
 	public boolean hasByproductUpgrade() {

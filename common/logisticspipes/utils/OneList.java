@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import javax.annotation.Nonnull;
 
 public class OneList<E> implements List<E> {
 
@@ -28,12 +27,12 @@ public class OneList<E> implements List<E> {
 	}
 
 	@Override
-	public boolean addAll(@Nonnull Collection<? extends E> c) {
+	public boolean addAll(Collection<? extends E> c) {
 		throw new UnsupportedOperationException("Cannot modify OneList");
 	}
 
 	@Override
-	public boolean addAll(int index, @Nonnull Collection<? extends E> c) {
+	public boolean addAll(int index, Collection<? extends E> c) {
 		throw new UnsupportedOperationException("Cannot modify OneList");
 	}
 
@@ -73,7 +72,6 @@ public class OneList<E> implements List<E> {
 		return false;
 	}
 
-	@Nonnull
 	@Override
 	public Iterator<E> iterator() {
 		return listIterator();
@@ -84,7 +82,6 @@ public class OneList<E> implements List<E> {
 		return indexOf(o);
 	}
 
-	@Nonnull
 	@Override
 	public ListIterator<E> listIterator() {
 		return new ListIterator<E>() {
@@ -146,7 +143,6 @@ public class OneList<E> implements List<E> {
 		};
 	}
 
-	@Nonnull
 	@Override
 	public ListIterator<E> listIterator(int index) {
 		if (!checkRange(index)) {
@@ -166,12 +162,12 @@ public class OneList<E> implements List<E> {
 	}
 
 	@Override
-	public boolean removeAll(@Nonnull Collection<?> c) {
+	public boolean removeAll(Collection<?> c) {
 		throw new UnsupportedOperationException("Cannot modify OneList");
 	}
 
 	@Override
-	public boolean retainAll(@Nonnull Collection<?> c) {
+	public boolean retainAll(Collection<?> c) {
 		throw new UnsupportedOperationException("Cannot modify OneList");
 	}
 
@@ -185,21 +181,18 @@ public class OneList<E> implements List<E> {
 		return 1;
 	}
 
-	@Nonnull
 	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Nonnull
 	@Override
 	public Object[] toArray() {
 		return new Object[] { content };
 	}
 
-	@Nonnull
 	@Override
-	public <T> T[] toArray(@Nonnull T[] a) {
+	public <T> T[] toArray(T[] a) {
 		throw new UnsupportedOperationException();
 	}
 

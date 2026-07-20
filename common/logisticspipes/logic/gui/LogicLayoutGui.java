@@ -2,7 +2,7 @@ package logisticspipes.logic.gui;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.logic.LogicController;
 import logisticspipes.routing.order.IOrderInfoProvider;
@@ -114,7 +114,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int i, int j) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		super.renderBg(guiGraphics, f, i, j);
 		drawTransparentBack();
 		drawMap(i, j);

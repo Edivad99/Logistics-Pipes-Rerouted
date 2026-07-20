@@ -3,7 +3,7 @@ package logisticspipes.items;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.signs.CraftingPipeSign;
@@ -34,7 +34,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
 	}
 
 	@Override
-	public boolean isEnchantable(@Nonnull ItemStack stack) {
+	public boolean isEnchantable(ItemStack stack) {
 		return false;
 	}
 
@@ -43,7 +43,6 @@ public class ItemPipeSignCreator extends LogisticsItem {
 		return false;
 	}
 
-	@Nonnull
 	@Override
 	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
 		Player player = _ctx.getPlayer();
@@ -112,7 +111,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
 	}
 
 	// getMetadata removed in 1.20.1 — item variants handled differently
-	public int getMetadata(@Nonnull ItemStack stack) {
+	public int getMetadata(ItemStack stack) {
 		if (stack.isEmpty() || !stack.has(DataComponents.CUSTOM_DATA)) {
 			return 0;
 		}
@@ -126,9 +125,8 @@ public class ItemPipeSignCreator extends LogisticsItem {
 		return signTypes.size();
 	}
 
-	@Nonnull
 	@Override
-	public InteractionResultHolder<ItemStack> use(final Level world, final Player player, @Nonnull final InteractionHand hand) {
+	public InteractionResultHolder<ItemStack> use(final Level world, final Player player, final InteractionHand hand) {
 		ItemStack stack = player.getMainHandItem();
 		if (MainProxy.isClient(world)) {
 			return InteractionResultHolder.pass(stack);

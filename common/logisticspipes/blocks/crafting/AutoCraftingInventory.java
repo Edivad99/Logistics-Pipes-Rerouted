@@ -1,6 +1,5 @@
 package logisticspipes.blocks.crafting;
 
-import javax.annotation.Nonnull;
 import logisticspipes.utils.PlayerIdentifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -14,9 +13,9 @@ public class AutoCraftingInventory extends TransientCraftingContainer {
 	public AutoCraftingInventory(PlayerIdentifier playerID) {
 		super(new AbstractContainerMenu(null, 0) {
 			@Override
-			public boolean stillValid(@Nonnull Player entityplayer) { return false; }
+			public boolean stillValid(Player entityplayer) { return false; }
 			@Override
-			public ItemStack quickMoveStack(@Nonnull Player player, int i) { return ItemStack.EMPTY; }
+			public ItemStack quickMoveStack(Player player, int i) { return ItemStack.EMPTY; }
 		}, 3, 3);
 		placedByPlayer = playerID;
 	}

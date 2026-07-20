@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
@@ -203,7 +203,6 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 	/**
 	 * DON'T MODIFY TROUGH THIS ONLY READ THE VALUES
 	 */
-	@Nonnull
 	@Override
 	public Iterator<T> iterator() {
 		return this._orders.iterator();

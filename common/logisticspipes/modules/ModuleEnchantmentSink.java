@@ -2,8 +2,7 @@ package logisticspipes.modules;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
-import org.jetbrains.annotations.NotNull;
+
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
@@ -19,20 +18,18 @@ public class ModuleEnchantmentSink extends LogisticsModule {
 		return "enchantment_sink";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
 	}
 
-	@NotNull
 	@Override
 	public List<Property<?>> getProperties() {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
 		_sinkReply = new SinkReply(FixedPriority.EnchantmentItemSink,
 				0,
@@ -44,7 +41,7 @@ public class ModuleEnchantmentSink extends LogisticsModule {
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		// check to see if a better route is already found
 		// Note: Higher MKs are higher priority

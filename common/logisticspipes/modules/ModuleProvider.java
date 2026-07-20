@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+
 import com.google.common.collect.ImmutableList;
 import logisticspipes.gui.hud.modules.HUDProviderModule;
 import logisticspipes.interfaces.IClientInformationProvider;
@@ -104,7 +104,6 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		return "provider";
 	}
 
-	@Nonnull
 	@Override
 	public String getLPName() {
 		return getName();
@@ -113,7 +112,6 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	/**
 	 * Returns a list of all the properties of this module.
 	 */
-	@Nonnull
 	@Override
 	public List<Property<?>> getProperties() {
 		return propertyList;
@@ -155,7 +153,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	@Override
-	public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		return null;
 	}
@@ -205,7 +203,6 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		}
 	}
 
-	@Nonnull
 	public Stream<IInventoryUtil> inventoriesWithMode() {
 		final IPipeServiceProvider service = _service;
 		if (service == null) return Stream.empty();
@@ -362,8 +359,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	@Override
-	public @Nonnull
-	List<String> getClientInformation() {
+	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add(!(boolean) isExclusionFilter.getValue() ? "Included" : "Excluded");
 		list.add("Mode: " + providerMode.getValue().name());
@@ -425,7 +421,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	@Override
-	public void handleInvContent(@Nonnull Collection<ItemIdentifierStack> list) {
+	public void handleInvContent(Collection<ItemIdentifierStack> list) {
 		displayList.clear();
 		displayList.addAll(list);
 	}
@@ -436,7 +432,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	@Override
-	public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemIdentifiers) {
+	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
 		//when filter is empty or in exclude mode, this is interested in attached inventory already
 		if (!isExclusionFilter.getValue() && !filterInventory.isEmpty()) {
 			// when items included this is only interested in items in the filter
@@ -461,14 +457,12 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		return false;
 	}
 
-	@Nonnull
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
 		return NewGuiHandler.getGui(ProviderModuleGuiProvider.class).setExtractorMode(providerMode.getValue().ordinal())
 				.setExclude(isExclusionFilter.getValue());
 	}
 
-	@Nonnull
 	@Override
 	public ModuleInHandGuiProvider getInHandGuiProvider() {
 		return NewGuiHandler.getGui(ProviderModuleInHand.class);

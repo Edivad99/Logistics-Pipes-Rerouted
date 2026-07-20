@@ -1,7 +1,5 @@
 package logisticspipes.network.packetcontent;
 
-import javax.annotation.Nonnull;
-
 import net.minecraft.world.item.ItemStack;
 
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -9,17 +7,15 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 
 public class ItemStackContent implements IPacketContent<ItemStack> {
 
-	@Nonnull
 	private ItemStack stack = ItemStack.EMPTY;
 
 	@Override
-	@Nonnull
-	public ItemStack getValue() {
+    public ItemStack getValue() {
 		return stack;
 	}
 
 	@Override
-	public void setValue(@Nonnull ItemStack value) {
+	public void setValue(ItemStack value) {
 		stack = value;
 	}
 

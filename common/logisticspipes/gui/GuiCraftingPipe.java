@@ -8,7 +8,7 @@
 package logisticspipes.gui;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+
 import kotlin.Unit;
 import logisticspipes.gui.modules.ModuleBaseGui;
 import logisticspipes.gui.popup.GuiSelectSatellitePopup;
@@ -380,7 +380,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, leftPos + imageWidth - (hasByproductExtractor ? 40 : 0), topPos + imageHeight, 0.0f, true, true, true, true, true);
 
 		if (!isAdvancedSat) {

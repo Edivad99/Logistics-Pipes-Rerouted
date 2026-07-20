@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.items.ItemLogisticsPipe;
@@ -200,7 +200,7 @@ public class GuiProgramCompiler extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(@Nonnull GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 105);
 		LPGuiGraphics.drawSlotDiskBackground(minecraft, leftPos + 9, topPos + 9);

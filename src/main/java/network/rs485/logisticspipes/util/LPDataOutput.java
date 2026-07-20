@@ -41,7 +41,6 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.UUID;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.world.item.ItemStack;
@@ -123,11 +122,11 @@ public interface LPDataOutput {
 
 	<T extends Enum<T>> void writeEnumSet(EnumSet<T> types, Class<T> clazz);
 
-	void writeBitSet(@Nonnull BitSet bits);
+	void writeBitSet(BitSet bits);
 
 	void writeCompoundTag(@Nullable CompoundTag tag);
 
-	void writeItemStack(@Nonnull ItemStack itemstack);
+	void writeItemStack(ItemStack itemstack);
 
 	void writeItemIdentifier(@Nullable ItemIdentifier item);
 

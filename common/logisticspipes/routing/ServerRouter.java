@@ -31,7 +31,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+
 import it.unimi.dsi.fastutil.objects.ObjectSets;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
@@ -82,16 +82,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	protected static LSA[] SharedLSADatabase = new LSA[0];
 
 	// things with specific interests -- providers (including crafters)
-	@Nonnull
 	private static final ConcurrentHashMap<ItemIdentifier, TreeSet<ServerRouter>> globalSpecificInterests = new ConcurrentHashMap<>();
 
 	// things potentially interested in every item (chassi with generic sinks)
-	@Nonnull
 	private static TreeSet<ServerRouter> genericInterests = new TreeSet<>();
 	private static final Lock genericInterestsWLock = new ReentrantLock();
 
 	// things this pipe is interested in (either providing or sinking)
-	@Nonnull
 	private TreeSet<ItemIdentifier> interests = new TreeSet<>();
 	private final Lock interestsRWLock = new ReentrantLock();
 
@@ -221,7 +218,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		return ServerRouter.simpleIdUsedSet.size();
 	}
 
-	private static void setBitsForItemInterests(@Nonnull final BitSet bitset, @Nonnull final ItemIdentifier itemid) {
+	private static void setBitsForItemInterests(final BitSet bitset, final ItemIdentifier itemid) {
 		TreeSet<ServerRouter> specifics = ServerRouter.globalSpecificInterests.get(itemid);
 		if (specifics != null) {
 			for (IRouter r : specifics) {
