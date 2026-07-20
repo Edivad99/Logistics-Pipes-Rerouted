@@ -196,30 +196,41 @@ spotless {
   }
 }
 
-tasks.register('generatePackageInfos', Task) {
-  doLast {
-    fileTree('src/main/java').each { javaFile ->
-      def packageInfoFile = new File(javaFile.parent, 'package-info.java')
-      if (!packageInfoFile.exists()) {
-        def pkgName = javaFile.toString().replaceAll(Matcher.quoteReplacement(File.separator), '/')
-        pkgName = pkgName.substring(pkgName.indexOf('logisticspipes/'), pkgName.lastIndexOf('/'))
-        pkgName = pkgName.replaceAll('/', '.')
+tasks.register('generatePackageInfos') {
+    def srcDirs = [
+        layout.projectDirectory.dir("common"),
+        //layout.projectDirectory.dir("src/main/java"),
+        //layout.projectDirectory.dir("src/api/java")
+    ]
+    def javaFiles = files(srcDirs.collect { dir ->
+        project.fileTree(dir) { include '**/*.java' }
+    })
 
-        def pkgInfoText = """
-            |@FieldsAreNonnullByDefault
-            |@MethodsReturnNonnullByDefault
-            |@ParametersAreNonnullByDefault
-            |package $pkgName;
-            |
-            |import javax.annotation.ParametersAreNonnullByDefault;
-            |import net.minecraft.FieldsAreNonnullByDefault;
-            |import net.minecraft.MethodsReturnNonnullByDefault;
-        """.stripMargin().trim()
+    srcDirs.each { inputs.dir(it) }
+    outputs.upToDateWhen { false }
 
-        packageInfoFile.text = pkgInfoText
-      }
+    doLast {
+        javaFiles.each { javaFile ->
+            def packageInfoFile = new File(javaFile.parent, 'package-info.java')
+            if (!packageInfoFile.exists()) {
+                def pkgName = javaFile.toString().replaceAll(Matcher.quoteReplacement(File.separator), '/')
+                print(pkgName)
+                pkgName = pkgName.substring(pkgName.indexOf('logisticspipes'), pkgName.lastIndexOf('/'))
+                pkgName = pkgName.replaceAll('/', '.')
+                def pkgInfoText = """
+                    |@FieldsAreNonnullByDefault
+                    |@MethodsReturnNonnullByDefault
+                    |@ParametersAreNonnullByDefault
+                    |package $pkgName;
+                    |
+                    |import javax.annotation.ParametersAreNonnullByDefault;
+                    |import net.minecraft.FieldsAreNonnullByDefault;
+                    |import net.minecraft.MethodsReturnNonnullByDefault;
+                """.stripMargin().trim()+"\n"
+                packageInfoFile.text = pkgInfoText
+            }
+        }
     }
-  }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
