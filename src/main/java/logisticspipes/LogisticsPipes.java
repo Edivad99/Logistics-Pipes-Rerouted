@@ -100,7 +100,6 @@ public class LogisticsPipes {
     modEventBus.addListener(this::handleRegisterCapabilities);
     modEventBus.addListener(this::handleCommonSetup);
     modEventBus.addListener(this::handleLoadComplete);
-    modEventBus.addListener(this::handleAddPackFinders);
     modEventBus.addListener(this::handleGatherData);
 
     if (dist.isClient()) {
@@ -232,22 +231,6 @@ public class LogisticsPipes {
     MainProxy.proxy.registerParticles();
 
     FluidIdentifier.initFromForge(false);
-  }
-
-  private void handleAddPackFinders(AddPackFindersEvent event) {
-//		if (event.getPackType() != PackType.SERVER_DATA) return;
-//		event.addRepositorySource(consumer -> {
-//			var test = new LPRecipePack()
-//			Pack pack = Pack.readMetaAndCreate(
-//					"logisticspipes:virtual_recipes",
-//					Component.literal("LogisticsPipes virtual recipes"),
-//					true,
-//					id -> new LPRecipePack(),
-//					PackType.SERVER_DATA,
-//					Pack.Position.TOP,
-//					PackSource.BUILT_IN);
-//			if (pack != null) consumer.accept(pack);
-//		});
   }
 
   private void handleGatherData(GatherDataEvent event) {

@@ -192,10 +192,10 @@ public class ItemModule extends LogisticsItem {
 					ListTag nbttaglist = nbt.getList("informationList", 8);
 					for (int i = 0; i < nbttaglist.size(); i++) {
 						net.minecraft.nbt.Tag nbtTag = nbttaglist.get(i);
-						String data = ((StringTag) nbtTag).getAsString();
+						String data = nbtTag.getAsString();
 						if (data.equals("<inventory>") && i + 1 < nbttaglist.size()) {
 							nbtTag = nbttaglist.get(i + 1);
-							data = ((StringTag) nbtTag).getAsString();
+							data = nbtTag.getAsString();
 							if (data.startsWith("<that>")) {
 								String prefix = data.substring(6);
 								CompoundTag module = nbt.getCompound("moduleInformation");

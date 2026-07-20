@@ -19,6 +19,7 @@ import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
 import logisticspipes.renderer.newpipe.LogisticsNewPipeItemBoxRenderer;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.transport.LPTravelingItem;
@@ -29,6 +30,7 @@ import logisticspipes.utils.tuples.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -74,11 +76,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
 		// Bind CCL render state buffers only when the CCL-based pipe geometry path is active.
 		if (SimpleServiceLocator.cclProxy.isActivated()) {
-			if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
-				logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
-					(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
-				com.mojang.blaze3d.vertex.VertexConsumer buffer =
-					bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.cutoutMipped());
+			if (SimpleServiceLocator.cclProxy.getRenderState() instanceof LPRenderStateImpl rs) {
+				VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
 				rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
 				rs.bufferSource = bufferSource;
 			}
