@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+
+import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.LPConfigs;
@@ -52,7 +54,6 @@ import logisticspipes.network.packets.pipe.ChassisOrientationPacket;
 import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
 import logisticspipes.network.packets.pipe.RequestChassisOrientationPacket;
 import logisticspipes.network.packets.pipe.SendQueueContent;
-import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.proxy.MainProxy;
@@ -525,7 +526,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				ILegacyActiveModule y = (ILegacyActiveModule) x;
 				LogisticsOrder result = y.fullFill(promise, destination, info);
 				if (result != null) {
-					spawnParticle(Particles.WhiteParticle, 2);
+					spawnParticle(Particles.WHITE_SPARKLE, 2);
 					return result;
 				}
 			}

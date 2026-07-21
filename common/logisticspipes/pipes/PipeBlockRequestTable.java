@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.blocks.crafting.AutoCraftingInventory;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -19,7 +20,6 @@ import logisticspipes.network.packets.block.CraftingSetType;
 import logisticspipes.network.packets.block.RequestRotationPacket;
 import logisticspipes.network.packets.orderer.OrderWatchRemovePacket;
 import logisticspipes.network.packets.orderer.OrdererWatchPacket;
-import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -172,7 +172,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			if (itemToSend.getDestinationUUID() != null) {
 				Direction dir = getRouteLayer().getOrientationForItem(itemToSend, null);
 				super.queueRoutedItem(itemToSend, dir.getOpposite());
-				spawnParticle(Particles.OrangeParticle, 4);
+				spawnParticle(Particles.ORANGE_SPARKLE, 4);
 				toSortInv.clearInventorySlotContents(0);
 			} else {
 				delay = 100;

@@ -22,9 +22,7 @@ public interface IProxy {
 
 	void addLogisticsPipesOverride(Object par1IIconRegister, int index, String override1, String override2, boolean flag);
 
-	void registerParticles();
-
-	String getName(ItemIdentifier item);
+    String getName(ItemIdentifier item);
 
 	void updateNames(ItemIdentifier item, String name);
 

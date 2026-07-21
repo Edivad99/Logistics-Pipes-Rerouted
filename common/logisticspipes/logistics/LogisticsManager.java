@@ -24,7 +24,7 @@ import logisticspipes.items.LogisticsFluidContainer;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipefxhandlers.Particles;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.PipeItemsProviderLogistics;
 import logisticspipes.pipes.PipeItemsRequestLogistics;
@@ -103,7 +103,7 @@ public class LogisticsManager implements ILogisticsManager {
 		if (result.getValue1() != null) {
 			CoreRoutedPipe pipe = SimpleServiceLocator.routerManager.getServerRouter(result.getValue1()).getPipe();
 			pipe.useEnergy(result.getValue2().energyUse);
-			pipe.spawnParticle(Particles.BlueParticle, 10);
+			pipe.spawnParticle(Particles.BLUE_SPARKLE, 10);
 		}
 		return result;
 	}

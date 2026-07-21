@@ -10,7 +10,7 @@ import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inpipe.FluidSupplierSlot;
-import logisticspipes.pipefxhandlers.Particles;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
@@ -66,7 +66,7 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 		final IPipeServiceProvider service = _service;
 		if (service == null) return null;
 		if (filterInventory.containsItem(item)) {
-			service.spawnParticle(Particles.VioletParticle, 2);
+			service.spawnParticle(Particles.VIOLET_SPARKLE, 2);
 			return _sinkReply;
 		}
 		return null;

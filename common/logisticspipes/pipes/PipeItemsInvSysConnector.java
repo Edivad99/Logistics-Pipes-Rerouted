@@ -32,7 +32,7 @@ import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
 import logisticspipes.network.packets.orderer.OrdererManagerContent;
 import logisticspipes.network.packets.pipe.InvSysConResistance;
-import logisticspipes.pipefxhandlers.Particles;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -198,7 +198,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 	public void sendStack(ItemRoutingInformation info, Direction dir) {
 		IRoutedItem itemToSend = SimpleServiceLocator.routedItemHelper.createNewTravelItem(info);
 		super.queueRoutedItem(itemToSend, dir);
-		spawnParticle(Particles.OrangeParticle, 4);
+		spawnParticle(Particles.ORANGE_SPARKLE, 4);
 	}
 
 	private static UUID testUUID = UUID.randomUUID();
@@ -362,7 +362,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 				if (bestConnection.isPresent() && bestConnection.get() instanceof IChannelRoutingConnection) {
 					IChannelRoutingConnection pipe = (IChannelRoutingConnection) bestConnection.get();
 					pipe.addItem(info);
-					spawnParticle(Particles.OrangeParticle, 4);
+					spawnParticle(Particles.ORANGE_SPARKLE, 4);
 				}
 			}
 		}

@@ -3,9 +3,9 @@ package logisticspipes.pipes;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import logisticspipes.particle.Particles;
 import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
@@ -34,7 +34,7 @@ public class PipeItemsSystemEntranceLogistics extends CoreRoutedPipe {
 			return null;
 		}
 
-		spawnParticle(Particles.WhiteParticle, 2);
+		spawnParticle(Particles.WHITE_SPARKLE, 2);
 		return inv.getItem(0).get(LPDataComponents.UUID);
 	}
 

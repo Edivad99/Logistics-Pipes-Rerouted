@@ -43,10 +43,7 @@ public class ServerProxy implements IProxy {
 		return null;
 	}
 
-	@Override
-	public void registerParticles() {}
-
-	@Override
+    @Override
 	public String getName(ItemIdentifier item) {
 		return item.getFriendlyName();
 	}

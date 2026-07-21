@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.minecraft.client.multiplayer.ClientLevel;
+
 import logisticspipes.interfaces.IDebugHUDProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateCanidatePipe;
@@ -17,8 +19,9 @@ import logisticspipes.network.packets.routingdebug.RoutingUpdateDebugFilters;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateDoneDebug;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateInitDebug;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateSourcePipe;
-import logisticspipes.pipefxhandlers.Particles;
-import logisticspipes.pipefxhandlers.PipeFXRenderHandler;
+import logisticspipes.particle.Particles;
+import logisticspipes.particle.PipeFXRenderHandler;
+import logisticspipes.proxy.MainProxy;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;
@@ -70,10 +73,10 @@ public class ClientViewController implements IDebugHUDProvider {
 			return;
 		}
 		if (mainPipe != null) {
-			PipeFXRenderHandler.spawnGenericParticle(Particles.WhiteParticle, mainPipe.getXInt(), mainPipe.getYInt(), mainPipe.getZInt(), 1);
+			PipeFXRenderHandler.spawnGenericParticle((ClientLevel) MainProxy.getClientMainWorld(), logisticspipes.particle.Particles.WHITE_SPARKLE, mainPipe.getXInt(), mainPipe.getYInt(), mainPipe.getZInt(), 1);
 		}
 		for (DoubleCoordinates pos : canidates) {
-			PipeFXRenderHandler.spawnGenericParticle(Particles.OrangeParticle, pos.getXInt(), pos.getYInt(), pos.getZInt(), 1);
+			PipeFXRenderHandler.spawnGenericParticle((ClientLevel) MainProxy.getClientMainWorld(), Particles.ORANGE_SPARKLE, pos.getXInt(), pos.getYInt(), pos.getZInt(), 1);
 		}
 	}
 

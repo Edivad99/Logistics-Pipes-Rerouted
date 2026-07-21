@@ -53,7 +53,7 @@ import logisticspipes.network.guis.module.inpipe.SneakyModuleInSlotGuiProvider
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket
 import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate
-import logisticspipes.pipefxhandlers.Particles
+import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.MainProxy
 import logisticspipes.routing.AsyncRouting
@@ -163,7 +163,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
             var extract = getExtractionMax(stack.count, sourceStackLeft, sinkReply)
             if (extract < 1) return@forEach
             while (!service.useEnergy(module.energyPerItem * extract)) {
-                service.spawnParticle(Particles.OrangeParticle, 2)
+                service.spawnParticle(Particles.ORANGE_SPARKLE, 2)
                 if (extract < 2) break
                 extract /= 2
             }

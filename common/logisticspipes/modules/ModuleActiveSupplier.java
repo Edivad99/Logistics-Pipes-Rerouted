@@ -30,7 +30,7 @@ import logisticspipes.network.guis.module.inpipe.ActiveSupplierSlot;
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.packets.module.ModuleInventory;
-import logisticspipes.pipefxhandlers.Particles;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.proxy.MainProxy;
@@ -193,7 +193,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 		}
 
 		_requestedItems.values().stream().filter(amount -> amount > 0)
-				.forEach(amount -> service.spawnParticle(Particles.VioletParticle, 2));
+				.forEach(amount -> service.spawnParticle(Particles.VIOLET_SPARKLE, 2));
 
 		AdjacentUtilKt.sneakyInventoryUtils(service.getAvailableAdjacent(), getUpgradeManager()).stream()
 				.filter(invUtil -> invUtil != null && invUtil.getContainerSize() > 0)

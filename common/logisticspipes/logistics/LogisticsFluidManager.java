@@ -8,11 +8,12 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
+import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.interfaces.routing.IFluidSink;
 import logisticspipes.interfaces.routing.IProvideFluids;
 import logisticspipes.items.LogisticsFluidContainer;
-import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
@@ -52,7 +53,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 			ServerRouter serverRouter = SimpleServiceLocator.routerManager.getServerRouter(pair.getValue1());
 			if (serverRouter == null) return;
 			CoreRoutedPipe pipe = serverRouter.getPipe();
-			if (pipe != null) pipe.spawnParticle(Particles.BlueParticle, 10);
+			if (pipe != null) pipe.spawnParticle(Particles.BLUE_SPARKLE, 10);
 		});
 		return bestReply.orElse(null);
 	}

@@ -38,7 +38,7 @@
 package network.rs485.logisticspipes.logistics
 
 import logisticspipes.modules.LogisticsModule
-import logisticspipes.pipefxhandlers.Particles
+import logisticspipes.particle.Particles
 import logisticspipes.proxy.SimpleServiceLocator
 import logisticspipes.routing.AsyncRouting
 import logisticspipes.routing.ExitRoute
@@ -105,7 +105,7 @@ object LogisticsManager {
             resultRouterId?.let { destinationRouterId ->
                 val pipe = SimpleServiceLocator.routerManager.getServerRouter(destinationRouterId)!!.pipe!!
                 pipe.useEnergy(sinkReply.energyUse)
-                pipe.spawnParticle(Particles.BlueParticle, 10)
+                pipe.spawnParticle(Particles.BLUE_SPARKLE, 10)
                 Pair(destinationRouterId, sinkReply)
             }
         }

@@ -43,7 +43,7 @@ import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipefxhandlers.Particles;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -395,7 +395,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 				info.end();
 			}
 			*/
-			getPipe().spawnParticle(Particles.LightRedParticle, 5);
+			getPipe().spawnParticle(Particles.LIGHT_RED_SPARKLE, 5);
 		}
 
 		LPTickHandler.adjChecksDone++;
@@ -905,7 +905,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			routingTableUpdateWriteLock.unlock();
 		}
 		if (getCachedPipe() != null) {
-			getCachedPipe().spawnParticle(Particles.LightGreenParticle, 5);
+			getCachedPipe().spawnParticle(Particles.LIGHT_GREEN_SPARKLE, 5);
 		}
 
 		debug.done();

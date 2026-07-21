@@ -46,7 +46,7 @@ import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.packets.pipe.CraftingPipeUpdatePacket;
 import logisticspipes.network.packets.pipe.FluidCraftingAmount;
-import logisticspipes.pipefxhandlers.Particles;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
@@ -381,11 +381,11 @@ public class ModuleCrafter extends LogisticsModule
 					.removeExtras(new DictResource(new ItemIdentifierStack(promise.item, promise.numberOfItems), null));
 		}
 		if (promise instanceof LogisticsDictPromise) {
-			service.spawnParticle(Particles.WhiteParticle, 2);
+			service.spawnParticle(Particles.WHITE_SPARKLE, 2);
 			return service.getItemOrderManager()
 					.addOrder(((LogisticsDictPromise) promise).getResource(), destination, ResourceType.CRAFTING, info);
 		}
-		service.spawnParticle(Particles.WhiteParticle, 2);
+		service.spawnParticle(Particles.WHITE_SPARKLE, 2);
 		return service.getItemOrderManager()
 				.addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
 						ResourceType.CRAFTING, info);
@@ -892,7 +892,7 @@ public class ModuleCrafter extends LogisticsModule
 			return;
 		}
 
-		service.spawnParticle(Particles.VioletParticle, 2);
+		service.spawnParticle(Particles.VIOLET_SPARKLE, 2);
 
 		int itemsLeft = itemsToExtract();
 		int stacksLeft = stacksToExtract();

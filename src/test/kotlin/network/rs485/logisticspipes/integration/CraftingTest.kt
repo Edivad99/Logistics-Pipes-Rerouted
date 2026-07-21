@@ -250,7 +250,7 @@ object CraftingTest {
         (0 until 8).forEach {
             setup.craftingPipe.dummyInventory.setItem(it,
                 ItemStack(Blocks.OAK_PLANKS, 1))
-            FuzzyUtil.set(setup.craftingPipe.logisticsModule.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
+            FuzzyUtil.set(setup.craftingPipe.logisticsModule!!.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
         }
         delay(5000)
         setup.requesterPipe.router.update(true, setup.requesterPipe)
@@ -279,7 +279,7 @@ object CraftingTest {
         (0 until 8).forEach {
             setup.craftingPipe.dummyInventory.setItem(it,
                 ItemStack(Blocks.OAK_PLANKS, 1))
-            FuzzyUtil.set(setup.craftingPipe.logisticsModule.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
+            FuzzyUtil.set(setup.craftingPipe.logisticsModule!!.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
         }
         delay(5000)
         setup.requesterPipe.router.update(true, setup.requesterPipe)
@@ -313,7 +313,7 @@ object CraftingTest {
         (0 until 8).forEach {
             setup.craftingPipe.dummyInventory.setItem(it,
                 ItemStack(Blocks.OAK_PLANKS, 1))
-            FuzzyUtil.set(setup.craftingPipe.logisticsModule.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
+            FuzzyUtil.set(setup.craftingPipe.logisticsModule!!.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
         }
         delay(5000)
         setup.requesterPipe.router.update(true, setup.requesterPipe)
@@ -345,7 +345,7 @@ object CraftingTest {
         (0 until 8).forEach {
             setup.craftingPipe.dummyInventory.setItem(it,
                 ItemStack(Blocks.OAK_PLANKS, 1))
-            FuzzyUtil.set(setup.craftingPipe.logisticsModule.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
+            FuzzyUtil.set(setup.craftingPipe.logisticsModule!!.inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
         }
         delay(5000)
         setup.requesterPipe.router.update(true, setup.requesterPipe)
@@ -388,7 +388,7 @@ object CraftingTest {
             }
             it.waitForPipeInitialization()
             assertTrue(message = "Expected crafting pipe to have fuzzy upgrade") {
-                it.pipe.logisticsModule.hasFuzzyUpgrade()
+                it.pipe.logisticsModule!!.hasFuzzyUpgrade()
             }
             craftingPipeInitialized.complete(it.pipe)
             it.updateConnectionsAndWait()
@@ -400,7 +400,7 @@ object CraftingTest {
             .configure(configurator(name = "crafting recipe importer") {
                 fuzzyCraftingTableHasRecipe.await()
                 val craftingPipe = craftingPipeInitialized.await()
-                craftingPipe.logisticsModule.importFromCraftingTable(null)
+                craftingPipe.logisticsModule!!.importFromCraftingTable(null)
             })
             .run {
                 setupLogisticsPower(Direction.EAST, 100000F)

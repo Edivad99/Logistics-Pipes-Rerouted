@@ -8,12 +8,14 @@ import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.client.ClientManager;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.chathelper.LPChatListener;
+import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.datafixer.LPDataFixer;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
+import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -119,7 +121,7 @@ public class LogisticsPipes {
 //    RailcraftFluidTypes.register(modEventBus);
 //    RailcraftMenuTypes.register(modEventBus);
 //    RailcraftSoundEvents.register(modEventBus);
-//    RailcraftParticleTypes.register(modEventBus);
+    LPParticleTypes.register(modEventBus);
     LPRecipeSerializers.register(modEventBus);
 //    RailcraftRecipeTypes.register(modEventBus);
 //    RailcraftGameEvents.register(modEventBus);
@@ -228,7 +230,6 @@ public class LogisticsPipes {
 
     // BlockEntityTypes are registered via DeferredRegister in LPRegistries.
     MainProxy.proxy.registerTileEntities();
-    MainProxy.proxy.registerParticles();
 
     FluidIdentifier.initFromForge(false);
   }
@@ -241,6 +242,8 @@ public class LogisticsPipes {
 
     generator.addProvider(event.includeServer(),
         new LPRecipeProvider(packOutput, lookupProvider));
+
+    generator.addProvider(event.includeClient(), new LPParticleProvider(packOutput, fileHelper));
   }
 
     // NeoForge Events

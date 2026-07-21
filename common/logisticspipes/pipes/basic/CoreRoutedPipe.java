@@ -24,6 +24,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import javax.annotation.Nullable;
 import kotlin.Unit;
 import logisticspipes.LPConstants;
+import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
@@ -59,12 +60,10 @@ import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.guis.pipe.PipeController;
-import logisticspipes.network.packets.pipe.ParticleFX;
 import logisticspipes.network.packets.pipe.PipeSignTypes;
 import logisticspipes.network.packets.pipe.RequestSignPacket;
 import logisticspipes.network.packets.pipe.StatUpdate;
-import logisticspipes.pipefxhandlers.Particles;
-import logisticspipes.pipefxhandlers.PipeFXRenderHandler;
+import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.pipes.signs.IPipeSign;
@@ -103,13 +102,16 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import lombok.Getter;
 import net.minecraft.CrashReportCategory;
+import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -159,6 +161,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	final protected UpgradeManager upgradeManager = new UpgradeManager(this);
 
+    @Nullable
 	protected LogisticsItemOrderManager _orderItemManager = null;
 	protected int throttleTime = 20;
 	protected IPipeSign[] signItem = new IPipeSign[6];
@@ -307,7 +310,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			// permanently-orphaned items.
 		} // should not be able to send to a non-existing router
 		// router.startTrackingRoutedItem((RoutedEntityItem) routedItem.getTravelingItem());
-		spawnParticle(Particles.OrangeParticle, 2);
+		spawnParticle(Particles.ORANGE_SPARKLE, 2);
 		stat_lifetime_sent++;
 		stat_session_sent++;
 		updateStats();
@@ -638,7 +641,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if ((flag = canUseEnergy(1)) != _textureBufferPowered) {
 			_textureBufferPowered = flag;
 			refreshRender(false);
-			spawnParticle(Particles.RedParticle, 3);
+			spawnParticle(Particles.RED_SPARKLE, 3);
 		}
 	}
 
@@ -694,7 +697,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		return Textures.LOGISTICSPIPE_NOTROUTED_TEXTURE;
 	}
 
-	@Override
+    @Override
 	public void spawnParticle(Particles particle, int amount) {
 		if (!LPConfigs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
 			return;
@@ -707,23 +710,24 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (!hasQueuedParticles) {
 			return;
 		}
-		if (MainProxy.isServer(getWorld())) {
-			ArrayList<ParticleCount> tosend = new ArrayList<>(queuedParticles.length);
-			for (int i = 0; i < queuedParticles.length; i++) {
-				if (queuedParticles[i] > 0) {
-					tosend.add(new ParticleCount(Particles.values()[i], queuedParticles[i]));
-				}
-			}
-			MainProxy.sendPacketToAllWatchingChunk(container, PacketHandler.getPacket(ParticleFX.class).setParticles(tosend).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
-		} else {
-			if (Minecraft.useFancyGraphics()) {
-				for (int i = 0; i < queuedParticles.length; i++) {
-					if (queuedParticles[i] > 0) {
-						PipeFXRenderHandler.spawnGenericParticle(Particles.values()[i], getX(), getY(), getZ(), queuedParticles[i]);
-					}
-				}
-			}
-		}
+        if (getWorld() instanceof ServerLevel serverLevel) {
+            for (int i = 0; i < this.queuedParticles.length; i++) {
+                if (this.queuedParticles[i] > 0) {
+                    var amount = this.queuedParticles[i];
+                    serverLevel.sendParticles(Particles.values()[i].getSparkleFXParticleOptions(amount),
+                        getX(), getY(), getZ(), amount, 0, 0, 0, 1);
+                }
+            }
+        } else if (getWorld() instanceof ClientLevel clientLevel) {
+            if (!Minecraft.getInstance().options.graphicsMode().get().equals(GraphicsStatus.FAST)) {
+                for (int i = 0; i < queuedParticles.length; i++) {
+                    if (this.queuedParticles[i] > 0) {
+                        PipeFXRenderHandler.spawnGenericParticle(clientLevel, Particles.values()[i],
+                            getX(), getY(), getZ(), queuedParticles[i]);
+                    }
+                }
+            }
+        }
 		Arrays.fill(queuedParticles, 0);
 		hasQueuedParticles = false;
 	}
@@ -971,14 +975,14 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public void refreshRender(boolean spawnPart) {
 		container.scheduleRenderUpdate();
 		if (spawnPart) {
-			spawnParticle(Particles.GreenParticle, 3);
+			spawnParticle(Particles.GREEN_SPARKLE, 3);
 		}
 	}
 
 	public void refreshConnectionAndRender(boolean spawnPart) {
 		container.scheduleNeighborChange();
 		if (spawnPart) {
-			spawnParticle(Particles.GreenParticle, 3);
+			spawnParticle(Particles.GREEN_SPARKLE, 3);
 		}
 	}
 
@@ -1171,7 +1175,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 						if (particlecount > 10) {
 							particlecount = 10;
 						}
-						spawnParticle(Particles.GoldParticle, particlecount);
+						spawnParticle(Particles.GOLD_SPARKLE, particlecount);
 					}
 					return true;
 				}

@@ -1,7 +1,9 @@
 package logisticspipes.client;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.client.particle.SparkParticle;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
+import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
@@ -20,6 +22,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor;
 import network.rs485.logisticspipes.gui.font.LPFontRenderer;
@@ -29,6 +32,7 @@ public class ClientManager {
   public static void init(IEventBus modEventBus) {
     modEventBus.addListener(ClientManager::handleClientSetup);
     modEventBus.addListener(ClientManager::handleRegisterRenderers);
+    modEventBus.addListener(ClientManager::handleParticleRegistration);
 
     modEventBus.register(TextureRegistrar.class);
     modEventBus.register(FluidContainerRenderer.class);
@@ -81,6 +85,10 @@ public class ClientManager {
   private static void handleRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
     LPBlockEntityRenderers.register(event);
   }
+
+    private static void handleParticleRegistration(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(LPParticleTypes.SPARKLE.get(), SparkParticle.Provider::new);
+    }
 
   private static void safeLoadModels(String name, Runnable loader) {
     try {

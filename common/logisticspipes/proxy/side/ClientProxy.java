@@ -7,17 +7,6 @@ import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.DummyContainerSlotClick;
-import logisticspipes.pipefxhandlers.Particles;
-import logisticspipes.pipefxhandlers.PipeFXRenderHandler;
-import logisticspipes.pipefxhandlers.providers.EntityBlueSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityGoldSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityGreenSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityLightGreenSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityLightRedSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityOrangeSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityRedSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityVioletSparkleFXProvider;
-import logisticspipes.pipefxhandlers.providers.EntityWhiteSparkleFXProvider;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
@@ -65,24 +54,7 @@ public class ClientProxy implements IProxy {
 		return Minecraft.getInstance().player;
 	}
 
-	@Override
-	public void registerParticles() {
-		// LP has its own particle pipeline — particles are spawned directly via
-		// mc.particleEngine.add(...) from PipeFXRenderHandler and do not go through
-		// the vanilla ParticleType registry, so RegisterParticleProvidersEvent is
-		// not involved. Wire the color → provider map once at client init.
-		PipeFXRenderHandler.registerParticleHandler(Particles.WhiteParticle, new EntityWhiteSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.RedParticle, new EntityRedSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.BlueParticle, new EntityBlueSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.GreenParticle, new EntityGreenSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.GoldParticle,	new EntityGoldSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.VioletParticle,	new EntityVioletSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.OrangeParticle,	new EntityOrangeSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.LightGreenParticle,	new EntityLightGreenSparkleFXProvider());
-		PipeFXRenderHandler.registerParticleHandler(Particles.LightRedParticle,	new EntityLightRedSparkleFXProvider());
-	}
-
-	@Override
+    @Override
 	public String getName(ItemIdentifier item) {
 		return item.getFriendlyName();
 	}

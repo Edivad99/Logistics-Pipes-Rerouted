@@ -46,7 +46,7 @@ import logisticspipes.LPConfigs
 import logisticspipes.interfaces.IInventoryUtil
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.packets.modules.QuickSortState
-import logisticspipes.pipefxhandlers.Particles
+import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.MainProxy
 import logisticspipes.routing.AsyncRouting
@@ -163,7 +163,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
             CoreRoutedPipe.ItemSendMode.Fast,
             pointedOrientation,
         )
-        service.spawnParticle(Particles.OrangeParticle, 8)
+        service.spawnParticle(Particles.ORANGE_SPARKLE, 8)
     }
 
     override fun runSyncWork() {}

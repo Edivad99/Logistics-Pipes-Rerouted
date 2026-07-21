@@ -36,7 +36,7 @@ import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.packets.module.ModuleInventory;
 import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
-import logisticspipes.pipefxhandlers.Particles;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -180,7 +180,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 			if (sent < 0) {
 				break;
 			}
-			service.spawnParticle(Particles.VioletParticle, 3);
+			service.spawnParticle(Particles.VIOLET_SPARKLE, 3);
 			stacksLeft -= 1;
 			itemsLeft -= sent;
 		}
@@ -243,7 +243,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 			IAdditionalTargetInformation info) {
 		final IPipeServiceProvider service = _service;
 		if (service == null) return null;
-		service.spawnParticle(Particles.WhiteParticle, 2);
+		service.spawnParticle(Particles.WHITE_SPARKLE, 2);
 		return service.getItemOrderManager()
 				.addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
 						ResourceType.PROVIDER, info);
