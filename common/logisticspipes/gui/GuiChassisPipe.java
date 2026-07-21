@@ -27,6 +27,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.string.StringUtils;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -41,7 +42,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	private final List<SmallGuiButton> moduleConfigButtons = new LinkedList<>();
 
 	private final Slot[] upgradeSlots = new Slot[2 * LPConfigs.CHASSIS_SLOTS_ARRAY[4]];
-	private net.minecraft.client.gui.components.AbstractButton[] upgradeConfig;
+	private final AbstractButton[] upgradeConfig;
 
 	private final boolean hasUpgradeModuleUpgrade;
 
@@ -58,7 +59,9 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 		imageWidth = playerInventoryWidth + 26;
 		imageHeight = playerInventoryHeight + 14 + (20 * chassisPipe.getChassisSize());
 
-	}
+        this.upgradeConfig = new AbstractButton[chassisPipe.getChassisSize() * 2];
+    }
+
 	private static DummyContainer buildDummy(Player player, PipeLogisticsChassis chassis, boolean hasUpgradeModuleUpgrade) {
 		Container moduleInventory = chassis.getModuleInventory(player.registryAccess());
 		DummyContainer dummy = new DummyContainer(player.getInventory(), moduleInventory);
@@ -86,7 +89,6 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 		int top = height / 2 - imageHeight / 2;
 
 		moduleConfigButtons.clear();
-		upgradeConfig = new net.minecraft.client.gui.components.Button[chassisPipe.getChassisSize() * 2];
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++) {
 			final int slot = i;
 			SmallGuiButton cfgBtn = new SmallGuiButton(i, left + 5, top + 12 + 20 * i, 10, 10, "!");
