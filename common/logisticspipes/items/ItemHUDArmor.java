@@ -9,13 +9,15 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 public class ItemHUDArmor extends ArmorItem implements IHUDArmor, ILogisticsItem {
 
-	public ItemHUDArmor() {
-		super(net.minecraft.world.item.ArmorMaterials.LEATHER, Type.HELMET, new Properties());
+	public ItemHUDArmor(Properties properties) {
+		super(ArmorMaterials.LEATHER, Type.HELMET, properties);
 	}
 
 	@Override
@@ -29,7 +31,7 @@ public class ItemHUDArmor extends ArmorItem implements IHUDArmor, ILogisticsItem
 	}
 
 	@Override
-	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
+	public InteractionResult useOn(UseOnContext _ctx) {
 		Player player = _ctx.getPlayer();
 		Level world = _ctx.getLevel();
 		useItem(player, world);

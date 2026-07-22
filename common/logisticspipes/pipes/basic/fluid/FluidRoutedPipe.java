@@ -51,7 +51,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 	}
 
 	@Override
-	public boolean logisitcsIsPipeConnected(BlockEntity tile, Direction dir) {
+	public boolean logisticsIsPipeConnected(BlockEntity tile, Direction dir) {
 		ITankUtil tank = PipeFluidUtil.INSTANCE.getTankUtilForTE(tile, dir.getOpposite());
 		return (tank != null && tank.containsTanks()) || tile instanceof LogisticsTileGenericPipe;
 	}

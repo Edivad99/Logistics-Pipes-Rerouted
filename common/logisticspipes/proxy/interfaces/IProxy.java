@@ -1,5 +1,7 @@
 package logisticspipes.proxy.interfaces;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
@@ -13,8 +15,10 @@ public interface IProxy {
 
 	String getSide();
 
-	/** Returns the client-side main level, or null on the dedicated server. */
-	Level getWorld();
+	/**
+     * Returns the client-side main level, or null on the dedicated server.
+     */
+	@Nullable Level getWorld();
 
 	void registerTileEntities();
 

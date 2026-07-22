@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
@@ -84,7 +86,7 @@ public class ClientRouter implements IRouter {
 	}
 
 	@Override
-	public CoreRoutedPipe getPipe() {
+	public @Nullable CoreRoutedPipe getPipe() {
 		Level world = MainProxy.proxy.getWorld();
 		if (world == null) {
 			return null;
@@ -102,7 +104,7 @@ public class ClientRouter implements IRouter {
 	}
 
 	@Override
-	public CoreRoutedPipe getCachedPipe() {
+	public @Nullable CoreRoutedPipe getCachedPipe() {
 		return getPipe();
 	}
 

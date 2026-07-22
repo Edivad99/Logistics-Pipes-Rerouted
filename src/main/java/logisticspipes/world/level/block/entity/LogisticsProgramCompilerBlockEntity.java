@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.LPConstants;
 import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.LPConfigs;
@@ -78,6 +80,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
   private final PlayerCollectionList playerList = new PlayerCollectionList();
   private String taskType = "";
   @Getter
+  @Nullable
   private ResourceLocation currentTask = null;
   @Getter
   private double taskProgress = 0;
@@ -85,7 +88,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
   private boolean wasAbleToConsumePower = false;
 
   @Getter
-  private SimpleStackInventory inventory = new SimpleStackInventory(2, "programcompilerinv", 64);
+  private final SimpleStackInventory inventory = new SimpleStackInventory(2, "programcompilerinv", 64);
 
   @Override
   public CoordinatesGuiProvider getGuiProvider() {

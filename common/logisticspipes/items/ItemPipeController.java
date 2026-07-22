@@ -12,8 +12,8 @@ import net.minecraft.world.level.Level;
 
 public class ItemPipeController extends LogisticsItem {
 
-	public ItemPipeController() {
-		super();
+	public ItemPipeController(Properties properties) {
+		super(properties);
 	}
 
 	@Override

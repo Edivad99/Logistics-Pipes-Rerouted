@@ -95,15 +95,19 @@ public class MainProxy {
 		return MainProxy.getEffectiveSide() == LogicalSide.SERVER;
 	}
 
-	public static boolean isClient(Level level) {
+	public static boolean isClient(@Nullable Level level) {
 		// Mirror isServer(Level): fall back to thread detection when no level is available
 		// (e.g. a pipe queried before its container is bound).
-		if (level == null) return MainProxy.getEffectiveSide() == LogicalSide.CLIENT;
+		if (level == null) {
+            return MainProxy.getEffectiveSide() == LogicalSide.CLIENT;
+        }
 		return level.isClientSide;
 	}
 
-	public static boolean isServer(Level level) {
-		if (level == null) return MainProxy.getEffectiveSide() == LogicalSide.SERVER;
+	public static boolean isServer(@Nullable Level level) {
+		if (level == null) {
+            return MainProxy.getEffectiveSide() == LogicalSide.SERVER;
+        }
 		return !level.isClientSide;
 	}
 

@@ -158,7 +158,7 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 
 	@Override
 	protected void handlePower(CoreRoutedPipe pipe, double toSend) {
-		pipe.handleRFPowerArival(toSend);
+		pipe.handleRFPowerArrival(toSend);
 	}
 
 	@Override

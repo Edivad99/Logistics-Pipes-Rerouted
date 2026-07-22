@@ -61,14 +61,14 @@ public class ItemModule extends LogisticsItem {
 
 	private final Module moduleType;
 
-	public ItemModule(Module moduleType) {
-		super();
+	public ItemModule(Module moduleType, Properties properties) {
+		super(properties);
 		this.moduleType = moduleType;
 	}
 
 	/** Factory for use with DeferredRegister. */
-	public static ItemModule of(Supplier<? extends LogisticsModule> moduleConstructor) {
-		return new ItemModule(new Module(moduleConstructor));
+	public static ItemModule of(Supplier<? extends LogisticsModule> moduleConstructor, Properties properties) {
+		return new ItemModule(new Module(moduleConstructor), properties);
 	}
 
 	@Nullable

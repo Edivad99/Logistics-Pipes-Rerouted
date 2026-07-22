@@ -44,15 +44,26 @@ public abstract class LPTravelingItem {
 	public static final SlidingWindowBitSet clientSideKnownIDs = new SlidingWindowBitSet(20); // 20
 
 	private static int nextFreeId = 0;
-	protected int id;
-	protected float speed = 0.01F;
+	@Getter
+    protected int id;
+	@Setter
+    @Getter
+    protected float speed = 0.01F;
 
 	public int lastTicked = 0;
 
-	protected BlockEntity container;
-	protected float position = 0;
-	protected float yaw = 0;
+	@Getter
+    @Setter
+    @Nullable
+    protected BlockEntity container;
+	@Getter
+    @Setter
+    protected float position = 0;
+	@Getter
+    protected float yaw = 0;
+    @Nullable
 	public Direction input = null;
+    @Nullable
 	public Direction output = null;
 	public final EnumSet<Direction> blacklist = EnumSet.noneOf(Direction.class);
 
@@ -76,43 +87,11 @@ public abstract class LPTravelingItem {
 		return ++LPTravelingItem.nextFreeId;
 	}
 
-	public void setPosition(float position) {
-		this.position = position;
-	}
-
-	public void setYaw(float yaw) {
+    public void setYaw(float yaw) {
 		this.yaw = yaw % 360;
 	}
 
-	public float getPosition() {
-		return position;
-	}
-
-	public float getYaw() {
-		return yaw;
-	}
-
-	public float getSpeed() {
-		return speed;
-	}
-
-	public void setSpeed(float speed) {
-		this.speed = speed;
-	}
-
-	public void setContainer(BlockEntity container) {
-		this.container = container;
-	}
-
-	public BlockEntity getContainer() {
-		return container;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public abstract ItemIdentifierStack getItemIdentifierStack();
+    public abstract ItemIdentifierStack getItemIdentifierStack();
 
 	public boolean isCorrupted() {
 		return getItemIdentifierStack() == null || getItemIdentifierStack().getStackSize() <= 0;
@@ -247,6 +226,7 @@ public abstract class LPTravelingItem {
 			info.writeToNBT(data, provider);
 		}
 
+        @Nullable
 		public ItemEntity toEntityItem() {
 			Level world = container.getLevel();
 			if (MainProxy.isServer(world)) {
@@ -259,7 +239,7 @@ public abstract class LPTravelingItem {
 					return null;
 				}
 
-				Direction exitdirection = output;
+				@Nullable Direction exitdirection = output;
 				if (exitdirection == null) {
 					exitdirection = input;
 				}
@@ -279,7 +259,7 @@ public abstract class LPTravelingItem {
 					case EAST:
 						CoordinateUtils.add(position, exitdirection, 0.625);
 						break;
-					default:
+                    case null, default:
 						break;
 				}
 

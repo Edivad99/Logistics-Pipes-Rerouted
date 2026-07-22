@@ -7,7 +7,11 @@ public class LogisticsBrokenItem extends LogisticsItem implements IItemAdvancedE
 
 	private static final String PREFIX = "tooltip.brokenItem.";
 
-	@Override
+    public LogisticsBrokenItem(Properties properties) {
+        super(properties);
+    }
+
+    @Override
 	public boolean canExistInNormalInventory(ItemStack stack) {
 		return false;
 	}

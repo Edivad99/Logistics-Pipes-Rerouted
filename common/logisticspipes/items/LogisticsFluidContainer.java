@@ -19,8 +19,8 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
 
 	static int capacity = 8000;
 
-	public LogisticsFluidContainer() {
-		super(new Properties().stacksTo(1));
+	public LogisticsFluidContainer(Properties properties) {
+		super(properties.stacksTo(1));
 	}
 
 	@Override

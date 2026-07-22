@@ -1,6 +1,8 @@
 package logisticspipes.pipes.tubes;
 
 import java.util.List;
+import javax.annotation.Nullable;
+
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
@@ -138,7 +140,7 @@ public class HSTubeLine extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public int getIconIndex(Direction direction) {
+	public int getIconIndex(@Nullable Direction direction) {
 		return 0;
 	}
 

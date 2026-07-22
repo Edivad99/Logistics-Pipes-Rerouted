@@ -14,8 +14,8 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemLogisticsProgrammer extends LogisticsItem {
 
-	public ItemLogisticsProgrammer() {
-		super(new Properties().stacksTo(1));
+	public ItemLogisticsProgrammer(Properties properties) {
+		super(properties.stacksTo(1));
 	}
 
 	@Override

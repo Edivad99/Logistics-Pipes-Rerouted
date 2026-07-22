@@ -32,6 +32,8 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import it.unimi.dsi.fastutil.objects.ObjectSets;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
@@ -298,7 +300,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	@Override
-	public CoreRoutedPipe getPipe() {
+	public @Nullable CoreRoutedPipe getPipe() {
 		CoreRoutedPipe crp = getCachedPipe();
 		if (crp != null) {
 			return crp;
@@ -327,7 +329,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	@Override
-	public CoreRoutedPipe getCachedPipe() {
+	public @Nullable CoreRoutedPipe getCachedPipe() {
 		if (_myPipeCache != null) {
 			return _myPipeCache.get();
 		}

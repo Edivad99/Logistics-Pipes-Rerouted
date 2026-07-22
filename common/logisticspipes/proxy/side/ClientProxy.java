@@ -2,6 +2,8 @@ package logisticspipes.proxy.side;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
+
 import logisticspipes.gui.popup.SelectItemOutOfList;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
@@ -38,6 +40,7 @@ public class ClientProxy implements IProxy {
 	}
 
 	@Override
+    @Nullable
 	public Level getWorld() {
 		return Minecraft.getInstance().level;
 	}
@@ -71,17 +74,25 @@ public class ClientProxy implements IProxy {
 	@Override
 	public LogisticsTileGenericPipe getPipeInDimensionAt(ResourceLocation dimension, int x, int y, int z, Player player) {
 		Level level = Minecraft.getInstance().level;
-		if (level == null) return null;
-		if (!level.dimension().location().equals(dimension)) return null;
+		if (level == null) {
+            return null;
+        }
+		if (!level.dimension().location().equals(dimension)) {
+            return null;
+        }
 		return getPipe(level, x, y, z);
 	}
 
-	private static LogisticsTileGenericPipe getPipe(Level level, int x, int y, int z) {
-		if (level == null) return null;
+    @Nullable
+	private static LogisticsTileGenericPipe getPipe(@Nullable Level level, int x, int y, int z) {
+		if (level == null) {
+            return null;
+        }
 		BlockPos pos = new BlockPos(x, y, z);
-		if (level.isEmptyBlock(pos)) return null;
-		BlockEntity tile = level.getBlockEntity(pos);
-		return tile instanceof LogisticsTileGenericPipe ? (LogisticsTileGenericPipe) tile : null;
+		if (level.isEmptyBlock(pos)) {
+            return null;
+        }
+		return level.getBlockEntity(pos) instanceof LogisticsTileGenericPipe be ? be : null;
 	}
 
 	@Override

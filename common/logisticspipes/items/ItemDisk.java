@@ -11,10 +11,9 @@ import net.minecraft.world.item.TooltipFlag;
 
 public class ItemDisk extends LogisticsItem {
 
-	@Override
-	public int getMaxStackSize(ItemStack stack) {
-		return 1;
-	}
+    public ItemDisk(Properties properties) {
+        super(properties.stacksTo(1));
+    }
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {

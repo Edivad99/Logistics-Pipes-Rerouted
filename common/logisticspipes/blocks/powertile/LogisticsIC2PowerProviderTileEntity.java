@@ -107,7 +107,7 @@ public class LogisticsIC2PowerProviderTileEntity extends LogisticsPowerProviderT
 
 	@Override
 	protected void handlePower(CoreRoutedPipe pipe, double toSend) {
-		pipe.handleIC2PowerArival(toSend);
+		pipe.handleIC2PowerArrival(toSend);
 	}
 
 	@Override

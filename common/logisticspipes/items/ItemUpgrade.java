@@ -50,14 +50,14 @@ public class ItemUpgrade extends LogisticsItem {
 
 	private Upgrade upgradeType;
 
-	public ItemUpgrade(Upgrade upgradeType) {
-		super();
+	public ItemUpgrade(Upgrade upgradeType, Properties properties) {
+		super(properties);
 		this.upgradeType = upgradeType;
 	}
 
 	/** Factory for use with DeferredRegister. */
-	public static ItemUpgrade of(Supplier<? extends IPipeUpgrade> upgradeConstructor) {
-		return new ItemUpgrade(new Upgrade(upgradeConstructor));
+	public static ItemUpgrade of(Supplier<? extends IPipeUpgrade> upgradeConstructor, Properties properties) {
+		return new ItemUpgrade(new Upgrade(upgradeConstructor), properties);
 	}
 
 	public static Item getAndCheckUpgrade(ResourceLocation resource) {

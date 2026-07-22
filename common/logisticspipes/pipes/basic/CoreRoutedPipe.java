@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
@@ -101,6 +102,8 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import lombok.Getter;
+import lombok.Setter;
+
 import net.minecraft.CrashReportCategory;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
@@ -144,19 +147,23 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public long delayTo = 0;
 	public int repeatFor = 0;
 	public int stat_session_sent;
-	public int stat_session_recieved;
+	public int stat_session_received;
 	public int stat_session_relayed;
 	public long stat_lifetime_sent;
-	public long stat_lifetime_recieved;
+	public long stat_lifetime_received;
 	public long stat_lifetime_relayed;
 	public int server_routing_table_size = 0;
 	protected boolean stillNeedReplace = true;
+    @Nullable
 	protected IRouter router;
+    @Nullable
 	protected String routerId;
 	protected final Object routerIdLock = new Object();
 	protected int _delayOffset;
 	protected boolean _initialInit = true;
+    @Nullable
 	protected RouteLayer _routeLayer;
+    @Nullable
 	protected TransportLayer _transportLayer;
 
 	final protected UpgradeManager upgradeManager = new UpgradeManager(this);
@@ -166,7 +173,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	protected int throttleTime = 20;
 	protected IPipeSign[] signItem = new IPipeSign[6];
 	private boolean recheckConnections = false;
-	private boolean enabled = true;
+	@Setter
+    @Getter
+    private boolean enabled = true;
 	private boolean preventRemove = false;
 	private boolean destroyByPlayer = false;
 	private final PowerSupplierHandler powerHandler = new PowerSupplierHandler(this);
@@ -209,6 +218,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		adjacent = AdjacentFactory.INSTANCE.createAdjacentCache(this);
 	}
 
+    @Nullable
 	private CacheHolder cacheHolder;
 
 	public CoreRoutedPipe(Item item) {
@@ -265,17 +275,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public void queueRoutedItem(IRoutedItem routedItem, Direction from) {
-		if (from == null) {
-			throw new NullPointerException();
-		}
+        Objects.requireNonNull(from);
 		_sendQueue.addLast(new Triplet<>(routedItem, from, ItemSendMode.Normal));
 		sendQueueChanged(false);
 	}
 
 	public void queueRoutedItem(IRoutedItem routedItem, Direction from, ItemSendMode mode) {
-		if (from == null) {
-			throw new NullPointerException();
-		}
+        Objects.requireNonNull(from);
 		_sendQueue.addLast(new Triplet<>(routedItem, from, mode));
 		sendQueueChanged(false);
 	}
@@ -289,10 +295,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	private void sendRoutedItem(IRoutedItem routedItem, Direction from) {
-
-		if (from == null) {
-			throw new NullPointerException();
-		}
+        Objects.requireNonNull(from);
 
 		transport.injectItem(routedItem, from.getOpposite());
 
@@ -600,10 +603,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			//Just in case
 			CoreRoutedPipe.pipecount = Math.max(CoreRoutedPipe.pipecount - 1, 0);
 
-			if (transport != null) {
-				transport.dropBuffer();
-			}
-			getOriginalUpgradeManager().dropUpgrades();
+            transport.dropBuffer();
+            getOriginalUpgradeManager().dropUpgrades();
 		} catch (Exception e) {
 			LogisticsPipes.LOG.error("Exception during pipe teardown at ({}, {}, {})", getX(), getY(), getZ(), e);
 		}
@@ -652,7 +653,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	public abstract TextureType getCenterTexture();
 
-	public TextureType getTextureType(Direction connection) {
+	public TextureType getTextureType(@Nullable Direction connection) {
 		if (stillNeedReplace || _initialInit) {
 			return getCenterTexture();
 		}
@@ -718,11 +719,11 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
                         getX(), getY(), getZ(), amount, 0, 0, 0, 1);
                 }
             }
-        } else if (getWorld() instanceof ClientLevel clientLevel) {
+        } else if (getWorld() instanceof ClientLevel) {
             if (!Minecraft.getInstance().options.graphicsMode().get().equals(GraphicsStatus.FAST)) {
                 for (int i = 0; i < queuedParticles.length; i++) {
                     if (this.queuedParticles[i] > 0) {
-                        PipeFXRenderHandler.spawnGenericParticle(clientLevel, Particles.values()[i],
+                        PipeFXRenderHandler.spawnGenericParticle(Particles.values()[i],
                             getX(), getY(), getZ(), queuedParticles[i]);
                     }
                 }
@@ -757,7 +758,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 		nbttagcompound.putString("routerId", routerId);
 		nbttagcompound.putLong("stat_lifetime_sent", stat_lifetime_sent);
-		nbttagcompound.putLong("stat_lifetime_recieved", stat_lifetime_recieved);
+		nbttagcompound.putLong("stat_lifetime_received", stat_lifetime_received);
 		nbttagcompound.putLong("stat_lifetime_relayed", stat_lifetime_relayed);
 		if (getLogisticsModule() != null) {
 			getLogisticsModule().writeToNBT(nbttagcompound, provider);
@@ -818,7 +819,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 
 		stat_lifetime_sent = nbttagcompound.getLong("stat_lifetime_sent");
-		stat_lifetime_recieved = nbttagcompound.getLong("stat_lifetime_recieved");
+		stat_lifetime_received = nbttagcompound.getLong("stat_lifetime_received");
 		stat_lifetime_relayed = nbttagcompound.getLong("stat_lifetime_relayed");
 		if (getLogisticsModule() != null) {
 			getLogisticsModule().readFromNBT(nbttagcompound, provider);
@@ -874,15 +875,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		return router;
 	}
 
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-
-	@CCCommand(description = "Returns the Internal LogisticsModule for this pipe")
+    @CCCommand(description = "Returns the Internal LogisticsModule for this pipe")
 	public abstract @Nullable LogisticsModule getLogisticsModule();
 
 	@Override
@@ -990,8 +983,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public void receivedItem(int count) {
-		stat_session_recieved += count;
-		stat_lifetime_recieved += count;
+		stat_session_received += count;
+		stat_lifetime_received += count;
 		updateStats();
 	}
 
@@ -1034,7 +1027,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		return false;
 	}
 
-	public boolean logisitcsIsPipeConnected(BlockEntity tile, Direction dir) {
+	public boolean logisticsIsPipeConnected(BlockEntity tile, Direction dir) {
 		return false;
 	}
 
@@ -1049,7 +1042,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (isSideBlocked(side, ignoreSystemDisconnection)) {
 			return false;
 		}
-		return (super.canPipeConnect(tile, dir) || logisitcsIsPipeConnected(tile, dir));
+		return (super.canPipeConnect(tile, dir) || logisticsIsPipeConnected(tile, dir));
 	}
 
 	@Override
@@ -1077,6 +1070,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		getOriginalUpgradeManager().insetSecurityID(id);
 	}
 
+    @Nullable
 	public List<Pair<ILogisticsPowerProvider, List<IFilter>>> getRoutedPowerProviders() {
 		if (MainProxy.isClient(getWorld())) {
 			return null;
@@ -1268,6 +1262,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 	}
 
+    @Nullable
 	public ItemRoutingInformation getQueuedForItemStack(ItemIdentifierStack item) {
 		synchronized (queuedDataForUnroutedItems) {
 			Queue<Pair<Integer, ItemRoutingInformation>> queue = queuedDataForUnroutedItems.get(item.getItem());
@@ -1329,7 +1324,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public final int getIconIndex(Direction connection) {
+	public final int getIconIndex(@Nullable Direction connection) {
 		TextureType texture = getTextureType(connection);
 		if (_textureBufferPowered) {
 			return texture.powered;
@@ -1474,11 +1469,11 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		//do nothing, every pipe with a GUI should either have a LogisticsGuiModule or override this method
 	}
 
-	public void handleRFPowerArival(double toSend) {
+	public void handleRFPowerArrival(double toSend) {
 		powerHandler.addRFPower(toSend);
 	}
 
-	public void handleIC2PowerArival(double toSend) {
+	public void handleIC2PowerArrival(double toSend) {
 		powerHandler.addIC2Power(toSend);
 	}
 
@@ -1711,8 +1706,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Override
 	public CacheHolder getCacheHolder() {
 		if (cacheHolder == null) {
-			if (container instanceof ILPTEInformation && ((ILPTEInformation) container).getLPTileEntityObject() != null) {
-				cacheHolder = ((ILPTEInformation) container).getLPTileEntityObject().getCacheHolder();
+			if (container instanceof ILPTEInformation containerInfo && containerInfo.getLPTileEntityObject() != null) {
+				cacheHolder = containerInfo.getLPTileEntityObject().getCacheHolder();
 			} else {
 				cacheHolder = new CacheHolder();
 			}

@@ -109,7 +109,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	 *                  Unknown for pipe center
 	 * @return An index valid in the array returned by getTextureIcons()
 	 */
-	public abstract int getIconIndex(Direction direction);
+	public abstract int getIconIndex(@Nullable Direction direction);
 
 	public void updateEntity() {
 		transport.updateEntity();
@@ -343,6 +343,7 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		return false;
 	}
 
+    @Nullable
 	public DoubleCoordinates getItemRenderPos(float fPos, LPTravelingItem travelItem) {
 		DoubleCoordinates pos = new DoubleCoordinates(0.5, 0.5, 0.5);
 		if (fPos < 0.5) {

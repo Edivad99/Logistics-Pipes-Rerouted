@@ -56,6 +56,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -117,6 +119,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	public boolean[] pipeConnectionsBuffer = new boolean[6];
 	public boolean[] pipeBCConnectionsBuffer = new boolean[6];
 	public boolean[] pipeTDConnectionsBuffer = new boolean[6];
+    @Nullable
 	public CoreUnroutedPipe pipe;
 	private LogisticsTileRenderController renderController;
 	private boolean sendInitPacket = true;
@@ -130,7 +133,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	private boolean pipeBound = false;
 	private EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers;
 
-	public LogisticsTileGenericPipe(BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+	public LogisticsTileGenericPipe(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.PIPE.get(), pos, state);
 		itemInsertionHandlers = new EnumMap<>(Direction.class);
 		Arrays.stream(Direction.values()).forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));

@@ -56,7 +56,7 @@ import network.rs485.logisticspipes.gui.guidebook.PageData
 import network.rs485.logisticspipes.gui.guidebook.Page
 import network.rs485.logisticspipes.network.packets.SetCurrentPagePacket
 
-class ItemGuideBook : LogisticsItem() {
+class ItemGuideBook(properties: Properties) : LogisticsItem(properties) {
 
     companion object {
         /**

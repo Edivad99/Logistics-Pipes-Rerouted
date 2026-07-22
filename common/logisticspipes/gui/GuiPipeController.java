@@ -244,7 +244,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_sent);
 			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 55, 0x303030, false);
 
-			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_recieved);
+			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_received);
 			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 70, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_relayed);
@@ -253,7 +253,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_sent);
 			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 55, 0x303030, false);
 
-			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_recieved);
+			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_received);
 			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 70, 0x303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_relayed);

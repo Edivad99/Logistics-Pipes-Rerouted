@@ -15,8 +15,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class ItemPipeManager extends LogisticsItem implements ILPPipeConfigTool {
 
-	public ItemPipeManager() {
-		super();
+	public ItemPipeManager(Properties properties) {
+		super(properties);
 	}
 
 	@Override

@@ -18,8 +18,8 @@ public class LogisticsSolidBlockItem extends BlockItem implements ILogisticsItem
 	@Getter
 	private final LogisticsSolidBlock.Type type;
 
-	public LogisticsSolidBlockItem(LogisticsSolidBlock block) {
-		super(block, new Properties());
+	public LogisticsSolidBlockItem(LogisticsSolidBlock block, Properties properties) {
+		super(block, properties);
 		type = block.getType();
 		updateItemMap.put(type.getMeta(), this);
 	}

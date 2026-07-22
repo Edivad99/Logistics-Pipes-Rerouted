@@ -46,6 +46,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -54,6 +55,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -163,10 +165,10 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-    public net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
 		// Pipe geometry is emitted by LogisticsRenderPipe (BlockEntityRenderer) via the
 		// CCL-replacement pipeline in logisticspipes.proxy.object3d.impl — not a JSON model.
-		return net.minecraft.world.level.block.RenderShape.ENTITYBLOCK_ANIMATED;
+		return RenderShape.ENTITYBLOCK_ANIMATED;
 	}
 
 	public static void removePipe(CoreUnroutedPipe pipe) {
@@ -233,7 +235,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			String name,
 			Function<Item, ? extends CoreUnroutedPipe> constructor) {
 		return registry.register("pipe_" + name, () -> {
-			ItemLogisticsPipe item = new ItemLogisticsPipe();
+            Item.Properties properties = new Item.Properties();
+			ItemLogisticsPipe item = new ItemLogisticsPipe(properties);
 			LogisticsBlockGenericPipe.pipes.put(item, constructor);
 			// Create a dummy pipe instance for type/size queries (isMultiBlock, etc.)
 			// used by ItemLogisticsPipe.useOn before a real pipe is placed.
@@ -426,10 +429,13 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	@Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		BlockEntity te = world.getBlockEntity(pos);
-		if (!(te instanceof LogisticsTileGenericPipe)) return Shapes.block();
-		LogisticsTileGenericPipe tile = (LogisticsTileGenericPipe) te;
-		CoreUnroutedPipe pipe = tile.pipe;
-		if (pipe == null || pipe.isPipeBlock()) return Shapes.block();
+		if (!(te instanceof LogisticsTileGenericPipe tile)) {
+            return Shapes.block();
+        }
+        CoreUnroutedPipe pipe = tile.pipe;
+		if (pipe == null || pipe.isPipeBlock()) {
+            return Shapes.block();
+        }
 		if (pipe.isMultiBlock() && !pipe.actAsNormalPipe()) {
 			// The pipe centre stays included so the main block is always targetable,
 			// matching doRayTraceMultiblock's centre-box test.
@@ -540,6 +546,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		public Part part;
 	}
 
+    @Nullable
 	private InternalRayTraceResult doRayTrace(LogisticsTileGenericPipe tileG, CoreUnroutedPipe pipe, Vec3 start, Vec3 end) {
 		if (tileG == null) return null;
 		if (!LogisticsBlockGenericPipe.isValid(pipe)) return null;
@@ -591,7 +598,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	 * and {@link VoxelShape#clip} since the 1.12
 	 * {@code AABB.calculateIntercept} API is gone.
 	 */
-	private InternalRayTraceResult doRayTraceMultiblock(LogisticsTileGenericPipe tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 end) {
+	@Nullable
+    private InternalRayTraceResult doRayTraceMultiblock(LogisticsTileGenericPipe tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 end) {
 		ArrayList<Hit> list = new ArrayList<>();
 		// Centre block — always test so the player can click the main pipe body itself.
 		BlockPos mainPos = tileG.getBlockPos();

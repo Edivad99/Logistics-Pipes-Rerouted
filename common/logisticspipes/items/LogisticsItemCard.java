@@ -18,8 +18,8 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
 	public static final int FREQ_CARD = 0;
 	public static final int SEC_CARD = 1;
 
-	public LogisticsItemCard() {
-		// hasSubtypes removed in 1.20.1 — item variants handled via DamageValue or separate items
+	public LogisticsItemCard(Properties properties) {
+        super(properties.stacksTo(64));
 	}
 
 	@Override
@@ -47,11 +47,6 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
 	// getShareTag() removed in 1.20 — NBT always shared now
 	@Deprecated public boolean getShareTag__REMOVED() {
 		return true;
-	}
-
-	@Override
-	public int getMaxStackSize(ItemStack stack) {
-		return 64;
 	}
 
 	@Override

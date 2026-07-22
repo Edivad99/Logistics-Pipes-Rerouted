@@ -1,5 +1,7 @@
 package logisticspipes.pipes.unrouted;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.renderer.LogisticsRenderPipe;
 import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
@@ -23,7 +25,7 @@ public class PipeItemsBasicTransport extends CoreUnroutedPipe {
 	public void readData(LPDataInput input) {}
 
 	@Override
-	public int getIconIndex(Direction direction) {
+	public int getIconIndex(@Nullable Direction direction) {
 		return Textures.LOGISTICSPIPE_BASIC_TRANSPORT_TEXTURE.normal;
 	}
 

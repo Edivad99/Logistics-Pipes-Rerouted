@@ -2,8 +2,8 @@ package logisticspipes.items;
 
 public class ItemBlankModule extends LogisticsItem {
 
-	public ItemBlankModule() {
-		super();
+	public ItemBlankModule(Properties properties) {
+		super(properties);
 	}
 
 	@Override

@@ -18,10 +18,10 @@ public class StatUpdate extends CoordinatesPacket {
 	@Setter
 	private CoreRoutedPipe pipe;
 	private int stat_session_sent;
-	private int stat_session_recieved;
+	private int stat_session_received;
 	private int stat_session_relayed;
 	private long stat_lifetime_sent;
-	private long stat_lifetime_recieved;
+	private long stat_lifetime_received;
 	private long stat_lifetime_relayed;
 	private int server_routing_table_size;
 
@@ -40,15 +40,14 @@ public class StatUpdate extends CoordinatesPacket {
 		if (pipe == null) {
 			return;
 		}
-		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
+		if (!(pipe.pipe instanceof CoreRoutedPipe cPipe)) {
 			return;
 		}
-		CoreRoutedPipe cPipe = (CoreRoutedPipe) pipe.pipe;
 		cPipe.stat_session_sent = stat_session_sent;
-		cPipe.stat_session_recieved = stat_session_recieved;
+		cPipe.stat_session_received = stat_session_received;
 		cPipe.stat_session_relayed = stat_session_relayed;
 		cPipe.stat_lifetime_sent = stat_lifetime_sent;
-		cPipe.stat_lifetime_recieved = stat_lifetime_recieved;
+		cPipe.stat_lifetime_received = stat_lifetime_received;
 		cPipe.stat_lifetime_relayed = stat_lifetime_relayed;
 		cPipe.server_routing_table_size = server_routing_table_size;
 	}
@@ -58,10 +57,10 @@ public class StatUpdate extends CoordinatesPacket {
 		setPosY(pipe.getY());
 		setPosZ(pipe.getZ());
 		stat_session_sent = pipe.stat_session_sent;
-		stat_session_recieved = pipe.stat_session_recieved;
+		stat_session_received = pipe.stat_session_received;
 		stat_session_relayed = pipe.stat_session_relayed;
 		stat_lifetime_sent = pipe.stat_lifetime_sent;
-		stat_lifetime_recieved = pipe.stat_lifetime_recieved;
+		stat_lifetime_received = pipe.stat_lifetime_received;
 		stat_lifetime_relayed = pipe.stat_lifetime_relayed;
 		int numentries = 0;
 		for (List<ExitRoute> route : pipe.getRouter().getRouteTable()) {
@@ -77,10 +76,10 @@ public class StatUpdate extends CoordinatesPacket {
 		initData();
 		super.writeData(output);
 		output.writeInt(stat_session_sent);
-		output.writeInt(stat_session_recieved);
+		output.writeInt(stat_session_received);
 		output.writeInt(stat_session_relayed);
 		output.writeLong(stat_lifetime_sent);
-		output.writeLong(stat_lifetime_recieved);
+		output.writeLong(stat_lifetime_received);
 		output.writeLong(stat_lifetime_relayed);
 		output.writeInt(server_routing_table_size);
 	}
@@ -89,10 +88,10 @@ public class StatUpdate extends CoordinatesPacket {
 	public void readData(LPDataInput input) {
 		super.readData(input);
 		stat_session_sent = input.readInt();
-		stat_session_recieved = input.readInt();
+		stat_session_received = input.readInt();
 		stat_session_relayed = input.readInt();
 		stat_lifetime_sent = input.readLong();
-		stat_lifetime_recieved = input.readLong();
+		stat_lifetime_received = input.readLong();
 		stat_lifetime_relayed = input.readLong();
 		server_routing_table_size = input.readInt();
 	}

@@ -1,5 +1,7 @@
 package logisticspipes.proxy.side;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
@@ -31,6 +33,7 @@ public class ServerProxy implements IProxy {
 	}
 
 	@Override
+    @Nullable
 	public Level getWorld() {
 		return null;
 	}

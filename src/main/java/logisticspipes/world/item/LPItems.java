@@ -8,7 +8,6 @@ import logisticspipes.LPConstants;
 import logisticspipes.items.ItemBlankModule;
 import logisticspipes.items.ItemDisk;
 import logisticspipes.items.ItemHUDArmor;
-import logisticspipes.items.ItemLogisticsChips;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.items.ItemLogisticsProgrammer;
 import logisticspipes.items.ItemModule;
@@ -19,6 +18,7 @@ import logisticspipes.items.ItemPipeSignCreator;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.items.LogisticsBrokenItem;
 import logisticspipes.items.LogisticsFluidContainer;
+import logisticspipes.items.LogisticsItem;
 import logisticspipes.items.LogisticsItemCard;
 import logisticspipes.items.LogisticsSolidBlockItem;
 import logisticspipes.items.RemoteOrderer;
@@ -123,81 +123,75 @@ public class LPItems {
 
   // MISC
   public static final DeferredItem<LogisticsItemCard> ITEM_CARD =
-      deferredRegister.register("item_card", LogisticsItemCard::new);
+      deferredRegister.registerItem("item_card", LogisticsItemCard::new);
   public static final DeferredItem<RemoteOrderer> REMOTE_ORDERER =
-      deferredRegister.register("remote_orderer", RemoteOrderer::new);
+      deferredRegister.registerItem("remote_orderer", RemoteOrderer::new);
   public static final DeferredItem<ItemPipeSignCreator> SIGN_CREATOR =
-      deferredRegister.register("sign_creator", ItemPipeSignCreator::new);
+      deferredRegister.registerItem("sign_creator", ItemPipeSignCreator::new);
   public static final DeferredItem<ItemHUDArmor> HUD_GLASSES =
-      deferredRegister.register("hud_glasses", ItemHUDArmor::new);
+      deferredRegister.registerItem("hud_glasses", ItemHUDArmor::new);
   public static final DeferredItem<ItemParts> PARTS =
-      deferredRegister.register("parts", ItemParts::new);
+      deferredRegister.registerItem("parts", ItemParts::new);
   public static final DeferredItem<ItemBlankModule> MODULE_BLANK =
-      deferredRegister.register("module_blank", ItemBlankModule::new);
+      deferredRegister.registerItem("module_blank", ItemBlankModule::new);
   public static final DeferredItem<ItemDisk> DISK =
-      deferredRegister.register("disk", ItemDisk::new);
+      deferredRegister.registerItem("disk", ItemDisk::new);
   public static final DeferredItem<LogisticsFluidContainer> FLUID_CONTAINER =
-      deferredRegister.register("fluid_container", LogisticsFluidContainer::new);
+      deferredRegister.registerItem("fluid_container", LogisticsFluidContainer::new);
   public static final DeferredItem<LogisticsBrokenItem> BROKEN_ITEM =
-      deferredRegister.register("broken_item", LogisticsBrokenItem::new);
+      deferredRegister.registerItem("broken_item", LogisticsBrokenItem::new);
   public static final DeferredItem<ItemGuideBook> GUIDE_BOOK =
-      deferredRegister.register("guide_book", ItemGuideBook::new);
+      deferredRegister.registerItem("guide_book", ItemGuideBook::new);
   public static final DeferredItem<ItemPipeController> PIPE_CONTROLLER =
-      deferredRegister.register("pipe_controller", ItemPipeController::new);
+      deferredRegister.registerItem("pipe_controller", ItemPipeController::new);
   public static final DeferredItem<ItemPipeManager> PIPE_MANAGER =
-      deferredRegister.register("pipe_manager", ItemPipeManager::new);
+      deferredRegister.registerItem("pipe_manager", ItemPipeManager::new);
   public static final DeferredItem<ItemLogisticsProgrammer> LOGISTICS_PROGRAMMER =
-      deferredRegister.register("logistics_programmer", ItemLogisticsProgrammer::new);
-  public static final DeferredItem<ItemLogisticsChips> CHIP_BASIC =
-      deferredRegister.register("chip_basic",
-          () -> new ItemLogisticsChips(ItemLogisticsChips.ITEM_CHIP_BASIC));
-  public static final DeferredItem<ItemLogisticsChips> CHIP_BASIC_RAW =
-      deferredRegister.register("chip_basic_raw",
-          () -> new ItemLogisticsChips(ItemLogisticsChips.ITEM_CHIP_BASIC_RAW));
-  public static final DeferredItem<ItemLogisticsChips> CHIP_ADVANCED =
-      deferredRegister.register("chip_advanced",
-          () -> new ItemLogisticsChips(ItemLogisticsChips.ITEM_CHIP_ADVANCED));
-  public static final DeferredItem<ItemLogisticsChips> CHIP_ADVANCED_RAW =
-      deferredRegister.register("chip_advanced_raw",
-          () -> new ItemLogisticsChips(ItemLogisticsChips.ITEM_CHIP_ADVANCED_RAW));
-  public static final DeferredItem<ItemLogisticsChips> CHIP_FPGA =
-      deferredRegister.register("chip_fpga",
-          () -> new ItemLogisticsChips(ItemLogisticsChips.ITEM_CHIP_FPGA));
-  public static final DeferredItem<ItemLogisticsChips> CHIP_FPGA_RAW =
-      deferredRegister.register("chip_fpga_raw",
-          () -> new ItemLogisticsChips(ItemLogisticsChips.ITEM_CHIP_FPGA_RAW));
+      deferredRegister.registerItem("logistics_programmer", ItemLogisticsProgrammer::new);
+  public static final DeferredItem<LogisticsItem> CHIP_BASIC =
+      deferredRegister.registerItem("chip_basic", LogisticsItem::new);
+  public static final DeferredItem<LogisticsItem> CHIP_BASIC_RAW =
+      deferredRegister.registerItem("chip_basic_raw", LogisticsItem::new);
+  public static final DeferredItem<LogisticsItem> CHIP_ADVANCED =
+      deferredRegister.registerItem("chip_advanced", LogisticsItem::new);
+  public static final DeferredItem<LogisticsItem> CHIP_ADVANCED_RAW =
+      deferredRegister.registerItem("chip_advanced_raw", LogisticsItem::new);
+  public static final DeferredItem<LogisticsItem> CHIP_FPGA =
+      deferredRegister.registerItem("chip_fpga", LogisticsItem::new);
+  public static final DeferredItem<LogisticsItem> CHIP_FPGA_RAW =
+      deferredRegister.registerItem("chip_fpga_raw", LogisticsItem::new);
 
   // BLOCKITEM
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_FRAME =
-      deferredRegister.register("frame",
-          () -> new LogisticsSolidBlockItem(LPBlocks.FRAME.get()));
+      deferredRegister.registerItem("frame",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.FRAME.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_JUNCTION =
-      deferredRegister.register("power_junction",
-          () -> new LogisticsSolidBlockItem(LPBlocks.POWER_JUNCTION.get()));
+      deferredRegister.registerItem("power_junction",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_JUNCTION.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_SECURITY_STATION =
-      deferredRegister.register("security_station",
-          () -> new LogisticsSolidBlockItem(LPBlocks.SECURITY_STATION.get()));
+      deferredRegister.registerItem("security_station",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.SECURITY_STATION.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_CRAFTER =
-      deferredRegister.register("crafting_table",
-          () -> new LogisticsSolidBlockItem(LPBlocks.CRAFTER.get()));
+      deferredRegister.registerItem("crafting_table",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.CRAFTER.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_CRAFTER_FUZZY =
-      deferredRegister.register("crafting_table_fuzzy",
-          () -> new LogisticsSolidBlockItem(LPBlocks.CRAFTER_FUZZY.get()));
+      deferredRegister.registerItem("crafting_table_fuzzy",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.CRAFTER_FUZZY.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_STATISTICS_TABLE =
-      deferredRegister.register("statistics_table",
-          () -> new LogisticsSolidBlockItem(LPBlocks.STATISTICS_TABLE.get()));
+      deferredRegister.registerItem("statistics_table",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.STATISTICS_TABLE.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_RF =
-      deferredRegister.register("power_provider_rf",
-          () -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_RF.get()));
+      deferredRegister.registerItem("power_provider_rf",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_RF.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_EU =
-      deferredRegister.register("power_provider_eu",
-          () -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_EU.get()));
+      deferredRegister.registerItem("power_provider_eu",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_EU.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_MJ =
-      deferredRegister.register("power_provider_mj",
-          () -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_MJ.get()));
+      deferredRegister.registerItem("power_provider_mj",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_MJ.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_PROGRAM_COMPILER =
-      deferredRegister.register("program_compiler",
-          () -> new LogisticsSolidBlockItem(LPBlocks.PROGRAM_COMPILER.get()));
+      deferredRegister.registerItem("program_compiler",
+          properties -> new LogisticsSolidBlockItem(LPBlocks.PROGRAM_COMPILER.get(), properties));
 
   // Items — item pipes (declared before modules/upgrades to avoid circular static-init:
   // registerModule/registerUpgrade call LPItems.modules/upgrades.put() which triggers LPItems
@@ -381,12 +375,14 @@ public class LPItems {
   private static DeferredItem<ItemModule> registerModule(String name, Supplier<? extends LogisticsModule> ctor) {
     String regName = "module_" + name;
     LPItems.modules.put(name, LPConstants.rl(regName));
-    return deferredRegister.register(regName, () -> ItemModule.of(ctor));
+    Item.Properties properties = new Item.Properties();
+    return deferredRegister.register(regName, () -> ItemModule.of(ctor, properties));
   }
 
   private static DeferredItem<ItemUpgrade> registerUpgrade(String name, Supplier<? extends IPipeUpgrade> ctor) {
     String regName = "upgrade_" + name;
     LPItems.upgrades.put(name, LPConstants.rl(regName));
-    return deferredRegister.register(regName, () -> ItemUpgrade.of(ctor));
+    Item.Properties properties = new Item.Properties();
+    return deferredRegister.register(regName, () -> ItemUpgrade.of(ctor, properties));
   }
 }

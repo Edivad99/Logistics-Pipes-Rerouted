@@ -73,10 +73,10 @@ public class ClientViewController implements IDebugHUDProvider {
 			return;
 		}
 		if (mainPipe != null) {
-			PipeFXRenderHandler.spawnGenericParticle((ClientLevel) MainProxy.getClientMainWorld(), logisticspipes.particle.Particles.WHITE_SPARKLE, mainPipe.getXInt(), mainPipe.getYInt(), mainPipe.getZInt(), 1);
+			PipeFXRenderHandler.spawnGenericParticle(Particles.WHITE_SPARKLE, mainPipe.getXInt(), mainPipe.getYInt(), mainPipe.getZInt(), 1);
 		}
 		for (DoubleCoordinates pos : canidates) {
-			PipeFXRenderHandler.spawnGenericParticle((ClientLevel) MainProxy.getClientMainWorld(), Particles.ORANGE_SPARKLE, pos.getXInt(), pos.getYInt(), pos.getZInt(), 1);
+			PipeFXRenderHandler.spawnGenericParticle(Particles.ORANGE_SPARKLE, pos.getXInt(), pos.getYInt(), pos.getZInt(), 1);
 		}
 	}
 

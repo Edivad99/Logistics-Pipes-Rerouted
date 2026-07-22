@@ -29,8 +29,8 @@ public class ItemPipeSignCreator extends LogisticsItem {
 
 	//private TextureAtlasSprite[] itemIcon = new TextureAtlasSprite[2];
 
-	public ItemPipeSignCreator() {
-		super(new Properties().stacksTo(1).durability(250));
+	public ItemPipeSignCreator(Properties properties) {
+		super(properties.stacksTo(1).durability(250));
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package logisticspipes.pipes.tubes;
 
 import java.util.List;
+import javax.annotation.Nullable;
+
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
@@ -56,7 +58,7 @@ public class HSTubeCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public int getIconIndex(Direction direction) {
+	public int getIconIndex(@Nullable Direction direction) {
 		return 0;
 	}
 
@@ -258,7 +260,7 @@ public class HSTubeCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public DoubleCoordinates getItemRenderPos(float fPos, LPTravelingItem travelItem) {
+	public @Nullable DoubleCoordinates getItemRenderPos(float fPos, LPTravelingItem travelItem) {
 		if (orientation.getRenderOrientation().getDir1().getOpposite() != travelItem.input) {
 			fPos = transport.getPipeLength() - fPos;
 		}

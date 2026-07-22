@@ -41,8 +41,10 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	protected IWorldProvider _world;
 	@Nullable
 	protected IPipeServiceProvider _service;
-	protected ModulePositionType slot;
-	protected int positionInt;
+	@Getter
+    protected ModulePositionType slot;
+	@Getter
+    protected int positionInt;
 	protected boolean initialized;
 
 	/**
@@ -99,15 +101,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 		return worldProvider.getWorld();
 	}
 
-	public ModulePositionType getSlot() {
-		return this.slot;
-	}
-
-	public int getPositionInt() {
-		return this.positionInt;
-	}
-
-	@Override
+    @Override
 	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
 		PropertyHolder.readFromNBT(tag, provider, this);
 	}

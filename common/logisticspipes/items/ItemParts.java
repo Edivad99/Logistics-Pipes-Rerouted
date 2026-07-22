@@ -5,8 +5,8 @@ package logisticspipes.items;
 
 public class ItemParts extends LogisticsItem {
 
-	public ItemParts() {
-		super();
+	public ItemParts(Properties properties) {
+		super(properties);
 	}
 
 	@Override

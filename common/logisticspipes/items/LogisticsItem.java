@@ -23,11 +23,7 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 public class LogisticsItem extends Item implements ILogisticsItem {
 
-	public LogisticsItem() {
-		super(new Properties()); // creative tab registration handled via event in 1.20.1
-	}
-
-	protected LogisticsItem(Properties properties) {
+    public LogisticsItem(Properties properties) {
 		super(properties);
 	}
 

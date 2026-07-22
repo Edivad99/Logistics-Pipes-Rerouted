@@ -9,6 +9,8 @@ package logisticspipes.routing;
 
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
+
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
@@ -42,9 +44,9 @@ public interface IRouter extends LPFinalSerializable {
 
 	List<ExitRoute> getIRoutersByCost();
 
-	CoreRoutedPipe getPipe();
+	@Nullable CoreRoutedPipe getPipe();
 
-	CoreRoutedPipe getCachedPipe();
+	@Nullable CoreRoutedPipe getCachedPipe();
 
 	boolean isInDim(ResourceLocation dimension);
 

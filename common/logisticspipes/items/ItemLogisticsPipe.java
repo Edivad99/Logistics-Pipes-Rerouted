@@ -51,8 +51,8 @@ public class ItemLogisticsPipe extends LogisticsItem {
 	@Getter
 	private CoreUnroutedPipe dummyPipe;
 
-	public ItemLogisticsPipe() {
-		super();
+	public ItemLogisticsPipe(Properties properties) {
+		super(properties);
 	}
 
 	@Override

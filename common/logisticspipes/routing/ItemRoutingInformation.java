@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
+
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.proxy.MainProxy;
@@ -45,13 +47,16 @@ public class ItemRoutingInformation {
 	}
 
 	public int destinationint = -1;
+    @Nullable
 	public UUID destinationUUID;
 	public boolean arrived;
 	public int bufferCounter = 0;
 	public boolean _doNotBuffer;
 	public TransportMode _transportMode = TransportMode.Unknown;
 	public List<Integer> jamlist = new ArrayList<>();
+    @Nullable
 	public IDistanceTracker tracker = null;
+    @Nullable
 	public IAdditionalTargetInformation targetInfo;
 
 	private long delay = 640 + MainProxy.getGlobalTick();

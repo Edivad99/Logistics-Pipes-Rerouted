@@ -28,7 +28,11 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class RemoteOrderer extends LogisticsItem {
 
-	@Override
+    public RemoteOrderer(Properties properties) {
+        super(properties);
+    }
+
+    @Override
 	public String getModelSubdir() {
 		return "remote_orderer";
 	}
@@ -136,6 +140,4 @@ public class RemoteOrderer extends LogisticsItem {
 		}
 		return null;
 	}
-
-
 }
