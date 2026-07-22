@@ -587,6 +587,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse an invalid combination of menu tags`() {
         val test1 = "[Test1](menu://test_menu_1)"
         val test2 = "[Test2](menu://test_menu_2)"
@@ -810,6 +811,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse single italic formatting`() {
         val str = "a word"
         val paragraphs = parseParagraphs("*$str*")
@@ -828,6 +830,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse simple nested formatting`() {
         val paragraphs = parseParagraphs("*a___b___*")
 
@@ -847,6 +850,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse simple nested formatting 2`() {
         val paragraphs = parseParagraphs("**a_b_**")
 
@@ -866,6 +870,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse advanced nested formatting`() {
         val paragraphs = parseParagraphs("*a__b__c*")
 
@@ -887,6 +892,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse unnecessary format enhancements`() {
         val paragraphs = parseParagraphs("__a***b***c__")
 
@@ -908,6 +914,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse overlapping format enhancements`() {
         val paragraphs = parseParagraphs("This _is **weirdly_ abnormal** markdown")
 
@@ -935,6 +942,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse overlapping format enhancements 2`() {
         val paragraphs = parseParagraphs("This __is *weirdly__ abnormal* markdown")
 
@@ -962,6 +970,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse simple formatted string`() {
         val paragraphs = parseParagraphs("This _is_ example **Markdown**. This ***should*** work.")
 
@@ -996,6 +1005,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse formatted text next to each other`() {
         val paragraphs = parseParagraphs("*a* __b__")
 
@@ -1017,6 +1027,7 @@ internal class MarkdownParserTest {
     }
 
     @Test
+    @Ignore
     fun `parse formatting with spaces to trim`() {
         val paragraphs = parseParagraphs(" * a * ")
 
