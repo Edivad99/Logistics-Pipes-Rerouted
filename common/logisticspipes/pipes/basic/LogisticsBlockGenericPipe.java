@@ -130,8 +130,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		}
 	}
 
-	public LogisticsBlockGenericPipe() {
-		super(Properties.of().strength(1.5F).noOcclusion());
+	public LogisticsBlockGenericPipe(Properties properties) {
+		super(properties.strength(1.5F).noOcclusion());
 		registerDefaultState(this.stateDefinition.any()
 				.setValue(rotationProperty, 0)
 				.setValue(modelTypeProperty, PipeRenderModel.NONE));

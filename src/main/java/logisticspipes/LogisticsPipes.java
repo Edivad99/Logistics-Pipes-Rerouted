@@ -4,13 +4,14 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
+
+import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.client.ClientManager;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.chathelper.LPChatListener;
 import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
-import logisticspipes.datafixer.LPDataFixer;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.NewGuiHandler;
@@ -136,14 +137,14 @@ public class LogisticsPipes {
 //    RailcraftAttachmentTypes.register(modEventBus);
 //    RailcraftDataMaps.register(modEventBus);
       LPDataComponents.register(modEventBus);
-
-    LPDataFixer.INSTANCE.init();
   }
 
   // Mod Events
   private void handleRegisterCapabilities(RegisterCapabilitiesEvent event) {
     event.registerBlockEntity(Capabilities.ItemHandler.BLOCK,
         LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getItemCap);
+      event.registerBlockEntity(Capabilities.ItemHandler.BLOCK,
+          LPBlockEntityTypes.CRAFTING_TABLE.get(), LogisticsCraftingTableTileEntity::getItemCap);
 
     event.registerBlockEntity(Capabilities.FluidHandler.BLOCK,
         LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getFluidCap);

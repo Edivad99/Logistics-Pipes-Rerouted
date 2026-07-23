@@ -4,7 +4,6 @@ import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsFrameTileEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
-import logisticspipes.blocks.powertile.LogisticsIC2PowerProviderTileEntity;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
@@ -37,10 +36,6 @@ public class LPBlockEntityTypes {
       deferredRegister.register("power_provider_rf",
           () -> BlockEntityType.Builder.of(LogisticsRFPowerProviderTileEntity::new,
               LPBlocks.POWER_PROVIDER_RF.get()).build(null));
-  public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsIC2PowerProviderTileEntity>> POWER_PROVIDER_EU =
-      deferredRegister.register("power_provider_ic2",
-          () -> BlockEntityType.Builder.of(LogisticsIC2PowerProviderTileEntity::new,
-              LPBlocks.POWER_PROVIDER_EU.get()).build(null));
   public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsSecurityTileEntity>> SECURITY_STATION =
       deferredRegister.register("security_station",
           () -> BlockEntityType.Builder.of(LogisticsSecurityTileEntity::new,

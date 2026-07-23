@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.client.renderer.blockentity.LogisticsSolidBlockRenderer;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe;

@@ -28,6 +28,8 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.MinecraftColor;
 import logisticspipes.utils.item.ItemIdentifier;
+
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -350,8 +352,8 @@ public class DummyContainer extends AbstractContainerMenu {
 				ident = FluidIdentifier.get(ItemIdentifier.get(slot.getItem()));
 			}
 			if (ident == null) {
-				if (MainProxy.isClient(entityplayer.level())) {
-					MainProxy.proxy.openFluidSelectGui(slotId);
+				if (entityplayer instanceof LocalPlayer) {
+					MainProxy.getProxy(true).openFluidSelectGui(slotId);
 				}
 			}
 			slot.set(ItemStack.EMPTY);

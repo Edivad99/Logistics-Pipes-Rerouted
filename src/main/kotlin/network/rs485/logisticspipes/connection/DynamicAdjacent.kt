@@ -45,7 +45,7 @@ import java.util.*
 
 class DynamicAdjacent(private val parent: CoreRoutedPipe, private val cache: Array<ConnectionType?>) : Adjacent {
     override fun connectedPos(): Map<BlockPos, ConnectionType> = cache
-        .mapIndexedNotNull { index, type -> type?.let { parent.getPos().relative(Direction.values()[index]) to type } }
+        .mapIndexedNotNull { index, type -> type?.let { parent.getPos()!!.relative(Direction.entries[index]) to type } }
         .let { it.associateTo(LinkedHashMap(it.size)) { pair -> pair } }
 
     override fun get(direction: Direction): ConnectionType? = cache[direction.get3DDataValue()]
@@ -55,8 +55,8 @@ class DynamicAdjacent(private val parent: CoreRoutedPipe, private val cache: Arr
     override fun neighbors(): Map<NeighborTileEntity<BlockEntity>, ConnectionType> = cache
         .mapIndexedNotNull { index, connectionType ->
             connectionType?.let {
-                Direction.values()[index].let { dir ->
-                    parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))?.let { LPNeighborTileEntity(it, dir) to connectionType }
+                Direction.entries[index].let { dir ->
+                    parent.getWorld()?.getBlockEntity(parent.getPos()!!.relative(dir))?.let { LPNeighborTileEntity(it, dir) to connectionType }
                 }
             }
         }
@@ -65,8 +65,8 @@ class DynamicAdjacent(private val parent: CoreRoutedPipe, private val cache: Arr
     override fun inventories() = cache
         .filter { it?.isItem() ?: false }
         .mapIndexedNotNull { index, _ ->
-            Direction.values()[index].let { dir ->
-                parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))?.let { it to dir }
+            Direction.entries[index].let { dir ->
+                parent.getWorld()?.getBlockEntity(parent.getPos()!!.relative(dir))?.let { it to dir }
             }
         }
         .mapNotNull { (tile, dir) -> LPNeighborTileEntity(tile, dir).takeIf { it.canHandleItems() } }
@@ -74,11 +74,11 @@ class DynamicAdjacent(private val parent: CoreRoutedPipe, private val cache: Arr
     override fun fluidTanks(): List<NeighborTileEntity<BlockEntity>> = cache
         .filter { it?.isFluid() ?: false }
         .mapIndexedNotNull { index, _ ->
-            Direction.values()[index].let { dir ->
-                parent.getWorld()?.getBlockEntity(parent.getPos().relative(dir))?.let { it to dir }
+            Direction.entries[index].let { dir ->
+                parent.getWorld()?.getBlockEntity(parent.getPos()!!.relative(dir))?.let { it to dir }
             }
         }
         .mapNotNull { (tile, dir) -> LPNeighborTileEntity(tile, dir).takeIf { it.canHandleFluids() } }
 
-    override fun toString(): String = "DynamicAdjacent(${Direction.values().withIndex().joinToString { "{${it.value.getName()}: ${cache[it.index]}}" }})"
+    override fun toString(): String = "DynamicAdjacent(${Direction.entries.withIndex().joinToString { "{${it.value.getName()}: ${cache[it.index]}}" }})"
 }

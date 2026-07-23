@@ -61,7 +61,7 @@ public class ItemModule extends LogisticsItem {
 
 	private final Module moduleType;
 
-	public ItemModule(Module moduleType, Properties properties) {
+	private ItemModule(Module moduleType, Properties properties) {
 		super(properties);
 		this.moduleType = moduleType;
 	}
@@ -74,11 +74,13 @@ public class ItemModule extends LogisticsItem {
 	@Nullable
 	public static LogisticsModule getLogisticsModule(Player player, int invSlot) {
 		ItemStack item = player.getInventory().items.get(invSlot);
-		if (item.isEmpty() || !(item.getItem() instanceof ItemModule)) return null;
-		LogisticsModule module = ((ItemModule) item.getItem()).getModuleForItem(
-				item, null, new DummyLevelProvider(player.level()), null
-		);
-		if (module == null) return null;
+		if (item.isEmpty() || !(item.getItem() instanceof ItemModule itemModule)) {
+            return null;
+        }
+		LogisticsModule module = itemModule.getModuleForItem(item, null, new DummyLevelProvider(player.level()), null);
+		if (module == null) {
+            return null;
+        }
 		module.registerPosition(ModulePositionType.IN_HAND, invSlot);
 		ItemModuleInformationManager.readInformation(item, module);
 		return module;

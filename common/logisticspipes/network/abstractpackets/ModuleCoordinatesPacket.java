@@ -93,7 +93,7 @@ public abstract class ModuleCoordinatesPacket extends CoordinatesPacket {
 					throw new TargetNotFoundException("Couldn't find " + clazz.getName() + ", no DummyModuleContainer open and the player is in another GUI", this);
 				}
 			} else {
-				module = MainProxy.proxy.getModuleFromGui();
+				module = MainProxy.getProxy(true).getModuleFromGui();
 				if (module == null) {
 					module = ItemModule.getLogisticsModule(player, getPositionInt());
 				}

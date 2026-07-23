@@ -61,19 +61,26 @@ public class ServerProxy implements IProxy {
 	public void sendNameUpdateRequest(Player player) {}
 
 	@Override
+    @Nullable
 	public LogisticsTileGenericPipe getPipeInDimensionAt(ResourceLocation dimension, int x, int y, int z, Player player) {
 		var server = ServerLifecycleHooks.getCurrentServer();
-		if (server == null) return null;
-		Level lvl = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
-		return getPipe(lvl, x, y, z);
+		if (server == null) {
+            return null;
+        }
+		Level level = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
+		return getPipe(level, x, y, z);
 	}
 
-	protected static LogisticsTileGenericPipe getPipe(Level level, int x, int y, int z) {
-		if (level == null) return null;
+    @Nullable
+	protected static LogisticsTileGenericPipe getPipe(@Nullable Level level, int x, int y, int z) {
+		if (level == null) {
+            return null;
+        }
 		BlockPos pos = new BlockPos(x, y, z);
-		if (level.isEmptyBlock(pos)) return null;
-		BlockEntity tile = level.getBlockEntity(pos);
-		return tile instanceof LogisticsTileGenericPipe ? (LogisticsTileGenericPipe) tile : null;
+		if (level.isEmptyBlock(pos)) {
+            return null;
+        }
+		return level.getBlockEntity(pos) instanceof LogisticsTileGenericPipe tile ? tile : null;
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,9 @@ import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolverUtil;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,6 +32,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import network.rs485.logisticspipes.util.LPDataIOWrapper;
@@ -158,7 +163,8 @@ public class PacketHandler {
                 final ModernPacket packet = PacketHandler.templateForId(packetID);
                 packet.setDebugId(dataInput.readInt());
                 packet.readData(dataInput);
-                SimpleServiceLocator.clientBufferHandler.queuePacket(packet, MainProxy.proxy.getClientPlayer());
+                LocalPlayer localPlayer = Minecraft.getInstance().player;
+                SimpleServiceLocator.clientBufferHandler.queuePacket(packet, Objects.requireNonNull(localPlayer));
             });
         }
         nbt.remove("LogisticsPipes:PacketData");

@@ -438,14 +438,6 @@
     },
     {
       "type": "single",
-      "resource": "logisticspipes:solid_block/power_provider_eu"
-    },
-    {
-      "type": "single",
-      "resource": "logisticspipes:solid_block/power_provider_mj"
-    },
-    {
-      "type": "single",
       "resource": "logisticspipes:solid_block/power_provider_rf"
     },
     {

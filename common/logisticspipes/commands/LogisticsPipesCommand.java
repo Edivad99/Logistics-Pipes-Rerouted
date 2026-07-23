@@ -77,6 +77,7 @@ public class LogisticsPipesCommand {
 
 	public static boolean isOP(Player sender) {
 		return Arrays.asList(ServerLifecycleHooks.getCurrentServer().getPlayerList().getOps().getUserList())
-				.contains(sender.getName().getString().toLowerCase(Locale.US)) || (MainProxy.proxy.checkSinglePlayerOwner(sender.getName().getString()));
+            .contains(sender.getName().getString().toLowerCase(Locale.US)) ||
+            (MainProxy.proxy.checkSinglePlayerOwner(sender.getName().getString()));
 	}
 }

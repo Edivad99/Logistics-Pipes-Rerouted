@@ -6,6 +6,10 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
+
+import logisticspipes.LogisticsEventListener;
+import logisticspipes.proxy.side.ClientProxy;
+import logisticspipes.proxy.side.ServerProxy;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.entity.FakePlayerLP;
@@ -20,12 +24,14 @@ import logisticspipes.utils.PlayerCollectionList;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -46,17 +52,27 @@ public class MainProxy {
 	 * Replaces 1.12.2 {@code @SidedProxy} annotation.
 	 */
 	// NeoForge 1.20.1: DistExecutor removed — use FMLEnvironment.dist check
+    @Deprecated(forRemoval = true)
 	public static IProxy proxy = FMLEnvironment.dist.isClient()
 			? new logisticspipes.proxy.side.ClientProxy()
 			: new logisticspipes.proxy.side.ServerProxy();
+
+    private static final ClientProxy clientProxy = new ClientProxy();
+    private static final ServerProxy serverProxy = new ServerProxy();
+
+    public static IProxy getProxy(boolean client) {
+        if (client) {
+            return clientProxy;
+        }
+        return serverProxy;
+    }
+
 
 	@Getter
 	private static int globalTick;
 
 	private static final WeakHashMap<Thread, LogicalSide> threadSideMap = new WeakHashMap<>();
 	private static final Map<ResourceKey<Level>, FakePlayerLP> fakePlayers = Maps.newHashMap();
-
-	public static final String networkChannelName = "LogisticsPipes";
 
 	// ── Side detection ────────────────────────────────────────────────────────
 
@@ -137,10 +153,6 @@ public class MainProxy {
 		if (isClient(world)) runnableConsumer.get().run();
 	}
 
-	public static Level getClientMainWorld() {
-		return MainProxy.proxy.getWorld();
-	}
-
 	// ── Networking ────────────────────────────────────────────────────────────
 
 	/** Sends a packet from the client to the server. */
@@ -149,7 +161,7 @@ public class MainProxy {
 			LogisticsPipes.LOG.error("sendPacketToServer called server-side!");
 			return;
 		}
-		logisticspipes.network.PacketHandler.sendToServer(packet);
+		PacketHandler.sendToServer(packet);
 	}
 
 	/** Sends a packet from the server to a specific player. */
@@ -158,32 +170,30 @@ public class MainProxy {
 			LogisticsPipes.LOG.error("sendPacketToPlayer called client-side!");
 			return;
 		}
-		logisticspipes.network.PacketHandler.sendToPlayer(packet, player);
+		PacketHandler.sendToPlayer(packet, player);
 	}
 
 	// ── Chunk-watch / broadcast helpers ──────────────────────────────────────
 
 	public static boolean isAnyoneWatching(BlockPos pos, int dimensionID) {
-		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(pos);
-		PlayerCollectionList list = logisticspipes.LogisticsEventListener.watcherList.get(chunkPos);
+		ChunkPos chunkPos = new ChunkPos(pos);
+		PlayerCollectionList list = LogisticsEventListener.watcherList.get(chunkPos);
 		return list != null && !list.isEmpty();
 	}
 
 	public static boolean isAnyoneWatching(int X, int Z, int dimensionID) {
-		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(
-				net.minecraft.core.SectionPos.blockToSectionCoord(X),
-				net.minecraft.core.SectionPos.blockToSectionCoord(Z));
-		PlayerCollectionList list = logisticspipes.LogisticsEventListener.watcherList.get(chunkPos);
+		ChunkPos chunkPos = new ChunkPos(SectionPos.blockToSectionCoord(X), SectionPos.blockToSectionCoord(Z));
+		PlayerCollectionList list = LogisticsEventListener.watcherList.get(chunkPos);
 		return list != null && !list.isEmpty();
 	}
 
-	public static void sendPacketToAllWatchingChunk(LogisticsModule module, ModernPacket packet) {
+	public static void sendPacketToAllWatchingChunk(@Nullable LogisticsModule module, ModernPacket packet) {
 		if (module == null || module.getBlockPos() == null) return;
-		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(module.getBlockPos());
+		ChunkPos chunkPos = new ChunkPos(module.getBlockPos());
 		sendPacketToChunkWatchers(chunkPos, packet);
 	}
 
-	public static void sendPacketToAllWatchingChunk(BlockEntity tile, ModernPacket packet) {
+	public static void sendPacketToAllWatchingChunk(@Nullable BlockEntity tile, ModernPacket packet) {
 		if (tile == null) return;
 		Level lvl = tile.getLevel();
 		if (lvl instanceof ServerLevel serverLevel) {
@@ -195,18 +205,16 @@ public class MainProxy {
 			);
 			return;
 		}
-		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(tile.getBlockPos());
+		ChunkPos chunkPos = new ChunkPos(tile.getBlockPos());
 		sendPacketToChunkWatchers(chunkPos, packet);
 	}
 
 	public static void sendPacketToAllWatchingChunk(int X, int Z, int dimensionId, ModernPacket packet) {
-		net.minecraft.world.level.ChunkPos chunkPos = new net.minecraft.world.level.ChunkPos(
-				net.minecraft.core.SectionPos.blockToSectionCoord(X),
-				net.minecraft.core.SectionPos.blockToSectionCoord(Z));
+		ChunkPos chunkPos = new ChunkPos(SectionPos.blockToSectionCoord(X), SectionPos.blockToSectionCoord(Z));
 		sendPacketToChunkWatchers(chunkPos, packet);
 	}
 
-	private static void sendPacketToChunkWatchers(net.minecraft.world.level.ChunkPos chunkPos, ModernPacket packet) {
+	private static void sendPacketToChunkWatchers(ChunkPos chunkPos, ModernPacket packet) {
 		PlayerCollectionList list = logisticspipes.LogisticsEventListener.watcherList.get(chunkPos);
 		if (list != null) {
 			list.players().forEach(p -> sendPacketToPlayer(packet, p));
@@ -267,7 +275,7 @@ public class MainProxy {
 		return MainProxy.checkPipesConnections(from, to, way, false);
 	}
 
-	public static boolean checkPipesConnections(BlockEntity from, BlockEntity to, Direction way, boolean ignoreSystemDisconnection) {
+	public static boolean checkPipesConnections(@Nullable BlockEntity from, @Nullable BlockEntity to, Direction way, boolean ignoreSystemDisconnection) {
 		if (from == null || to == null) return false;
 		IPipeInformationProvider fromInfo = SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(from);
 		IPipeInformationProvider toInfo   = SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(to);
@@ -277,7 +285,7 @@ public class MainProxy {
 		return true;
 	}
 
-	public static boolean isPipeControllerEquipped(Player player) {
+	public static boolean isPipeControllerEquipped(@Nullable Player player) {
 		return player != null &&
 				!player.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() &&
 				player.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.PIPE_CONTROLLER.get());

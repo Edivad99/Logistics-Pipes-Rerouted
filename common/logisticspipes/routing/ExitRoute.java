@@ -18,6 +18,8 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.debug.ExitRouteDebug;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.api.distmarker.Dist;
@@ -118,7 +120,7 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 	@OnlyIn(Dist.CLIENT)
 	private IRouter readRouter(LPDataInput input) {
 		DoubleCoordinates pos = new DoubleCoordinates(input);
-		BlockEntity tile = pos.getTileEntity(MainProxy.getClientMainWorld());
+		BlockEntity tile = pos.getTileEntity(Minecraft.getInstance().level);
 		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe instanceof CoreRoutedPipe) {
 			return ((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).getRouter();
 		}

@@ -1,5 +1,8 @@
 package logisticspipes.network.packets.orderer;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.RequestPacket;
@@ -8,26 +11,27 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.RequestHandler;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class SubmitFluidRequestPacket extends RequestPacket {
 
-	public SubmitFluidRequestPacket(int id) {
-		super(id);
-	}
+    public SubmitFluidRequestPacket(int id) {
+        super(id);
+    }
 
-	@Override
-	public ModernPacket template() {
-		return new SubmitFluidRequestPacket(getId());
-	}
+    @Override
+    public ModernPacket template() {
+        return new SubmitFluidRequestPacket(getId());
+    }
 
-	@Override
-	public void processPacket(Player player) {
-		final LogisticsTileGenericPipe pipe = MainProxy.proxy.getPipeInDimensionAt(getDimension(), getPosX(), getPosY(), getPosZ(), player);
-		if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe) || !(pipe.pipe instanceof IRequestFluid)) {
-			return;
-		}
-		RequestHandler.requestFluid(player, getStack(), (CoreRoutedPipe) pipe.pipe, (IRequestFluid) pipe.pipe);
-	}
+    @Override
+    public void processPacket(Player player) {
+        assert player instanceof ServerPlayer;
+        final LogisticsTileGenericPipe pipe = MainProxy.getProxy(false)
+            .getPipeInDimensionAt(getDimension(), getPosX(), getPosY(), getPosZ(), player);
+        if (pipe != null && pipe.pipe instanceof CoreRoutedPipe coreRoutedPipe
+            && pipe.pipe instanceof IRequestFluid requestFluid) {
+            RequestHandler.requestFluid(player, getStack(), coreRoutedPipe, requestFluid);
+        }
+    }
 }

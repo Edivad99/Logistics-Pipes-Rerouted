@@ -12,6 +12,7 @@ import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
@@ -87,19 +88,22 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	}
 
 	private void pullFromAdjacentStorage() {
-		net.minecraft.world.level.Level world = getWorld();
-		if (world == null) return;
+		if (this.level == null) {
+            return;
+        }
 		int remaining = freeSpace();
 		for (Direction dir : Direction.values()) {
-			remaining = pullFromNeighbor(world, dir, remaining);
-			if (remaining <= 0) return;
+			remaining = pullFromNeighbor(this.level, dir, remaining);
+			if (remaining <= 0) {
+                return;
+            }
 		}
 	}
 
-	private int pullFromNeighbor(net.minecraft.world.level.Level world, Direction dir, int remaining) {
-		BlockEntity neighbor = world.getBlockEntity(getBlockPos().relative(dir));
+	private int pullFromNeighbor(Level level, Direction dir, int remaining) {
+		BlockEntity neighbor = level.getBlockEntity(getBlockPos().relative(dir));
 		if (neighbor == null) return remaining;
-		IEnergyStorage neighborStorage = world.getCapability(Capabilities.EnergyStorage.BLOCK, neighbor.getBlockPos(), dir.getOpposite());
+		IEnergyStorage neighborStorage = level.getCapability(Capabilities.EnergyStorage.BLOCK, neighbor.getBlockPos(), dir.getOpposite());
 		if (neighborStorage == null) return remaining;
 		if (!neighborStorage.canExtract()) return remaining;
 		int extracted = neighborStorage.extractEnergy(remaining, false);
@@ -130,7 +134,7 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 
 	@Override
 	public int getMaxStorage() {
-		maxMode = Math.min(LogisticsRFPowerProviderTileEntity.MAX_MAXMODE, Math.max(1, maxMode));
+		maxMode = Math.clamp(maxMode, 1, LogisticsRFPowerProviderTileEntity.MAX_MAXMODE);
 		return (LogisticsRFPowerProviderTileEntity.MAX_STORAGE / maxMode);
 	}
 

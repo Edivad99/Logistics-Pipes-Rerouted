@@ -28,8 +28,8 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 
 	public static boolean redirectedToMainPipe = false;
 
-	public LogisticsBlockGenericSubMultiBlock() {
-		super(Properties.of().strength(1.5F).noOcclusion());
+	public LogisticsBlockGenericSubMultiBlock(Properties properties) {
+		super(properties.strength(1.5F).noOcclusion());
 	}
 
 	@Override

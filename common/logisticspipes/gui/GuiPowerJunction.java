@@ -39,9 +39,7 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerJunction.PREFIX + "StoredEnergy") + ":", 40, 23, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.formatNumberWithCommas(junction.getPowerLevel()) + " LP", 40, 33, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, "/ " + TextUtil.formatNumberWithCommas(LogisticsPowerJunctionTileEntity.MAX_STORAGE) + " LP", 40, 43, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "1 MJ = 5 LP", 30, 58, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "1 EU = 2 LP", 100, 58, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "10 RF = 5 LP", 24, 68, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "10 RF = 5 LP", 30, 58, 0x404040, false);
 	}
 
 	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/power_junction.png");

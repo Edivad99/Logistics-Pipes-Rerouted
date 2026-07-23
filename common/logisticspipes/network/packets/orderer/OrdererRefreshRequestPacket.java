@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.orderer;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -7,41 +9,29 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.RequestHandler;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class OrdererRefreshRequestPacket extends IntegerCoordinatesPacket {
 
-	public OrdererRefreshRequestPacket(int id) {
-		super(id);
-	}
+    public OrdererRefreshRequestPacket(int id) {
+        super(id);
+    }
 
-	@Override
-	public ModernPacket template() {
-		return new OrdererRefreshRequestPacket(getId());
-	}
+    @Override
+    public ModernPacket template() {
+        return new OrdererRefreshRequestPacket(getId());
+    }
 
-	@Override
-	public void processPacket(Player player) {
-		final LogisticsTileGenericPipe pipe = MainProxy.proxy.getPipeInDimensionAt(getDimension(), getPosX(), getPosY(), getPosZ(), player);
-		if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe)) {
-			return;
-		}
-		RequestHandler.DisplayOptions option;
-		switch (getInteger() % 10) {
-			case 0:
-				option = RequestHandler.DisplayOptions.Both;
-				break;
-			case 1:
-				option = RequestHandler.DisplayOptions.SupplyOnly;
-				break;
-			case 2:
-				option = RequestHandler.DisplayOptions.CraftOnly;
-				break;
-			default:
-				option = RequestHandler.DisplayOptions.Both;
-				break;
-		}
-		RequestHandler.refresh(player, (CoreRoutedPipe) pipe.pipe, option);
-	}
+    @Override
+    public void processPacket(Player player) {
+        final LogisticsTileGenericPipe pipe = MainProxy.getProxy(false).getPipeInDimensionAt(getDimension(), getPosX(), getPosY(), getPosZ(), player);
+        if (pipe != null && pipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
+            RequestHandler.DisplayOptions option = switch (getInteger() % 10) {
+                case 1 -> RequestHandler.DisplayOptions.SupplyOnly;
+                case 2 -> RequestHandler.DisplayOptions.CraftOnly;
+                default -> RequestHandler.DisplayOptions.Both;
+            };
+            RequestHandler.refresh(player, coreRoutedPipe, option);
+        }
+    }
 }

@@ -5,139 +5,139 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.regex.Matcher
 
 plugins {
-  id 'java-library'
-  id 'idea'
-  id 'eclipse'
-  id 'net.neoforged.moddev' version "$mod_dev_gradle"
-  id 'com.diffplug.spotless' version '8.0.0'
-  id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
-  id 'org.jetbrains.kotlin.plugin.lombok' version "$kotlin_version"
+    id 'java-library'
+    id 'idea'
+    id 'eclipse'
+    id 'net.neoforged.moddev' version "$mod_dev_gradle"
+    id 'com.diffplug.spotless' version '8.0.0'
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'org.jetbrains.kotlin.plugin.lombok' version "$kotlin_version"
 }
 
 tasks.named('wrapper', Wrapper).configure {
-  distributionType = Wrapper.DistributionType.BIN
+    distributionType = Wrapper.DistributionType.BIN
 }
 
 version = "$minecraft_version-$mod_version"
 group = 'network.rs485'
 base {
-  archivesName = mod_id
+    archivesName = mod_id
 }
 
 java {
-  toolchain {
-    languageVersion = JavaLanguageVersion.of(21)
-    if (System.getProperty('idea.active')) {
-      vendor = JvmVendorSpec.JETBRAINS
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        if (System.getProperty('idea.active')) {
+            vendor = JvmVendorSpec.JETBRAINS
+        }
     }
-  }
 }
 
 tasks.withType(KotlinCompile).configureEach {
-  compilerOptions {
-    languageVersion.set(
+    compilerOptions {
+        languageVersion.set(
             KotlinVersion.KOTLIN_2_0
-    )
-    jvmTarget.set(JvmTarget.JVM_21)
-    freeCompilerArgs.add("-Xjvm-default=all")
-  }
+        )
+        jvmTarget.set(JvmTarget.JVM_21)
+        freeCompilerArgs.add("-Xjvm-default=all")
+    }
 }
 
 sourceSets {
-  api {
-    // API has no resources
-    resources.srcDirs = []
-    compileClasspath += main.compileClasspath
-    runtimeClasspath += main.runtimeClasspath
-    java { srcDirs = ['src/api/java'] }
-  }
-  main {
-    compileClasspath += api.output
-    runtimeClasspath += api.output
-    java { srcDirs += 'common' }
-    resources {
-      srcDir 'src/generated/resources'
-      srcDirs += 'resources'
-      exclude '**/*.bbmodel'
-      exclude 'src/generated/**/.cache'
+    api {
+        // API has no resources
+        resources.srcDirs = []
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+        java { srcDirs = ['src/api/java'] }
     }
-    test {
-      compileClasspath += api.output
-      runtimeClasspath += api.output
+    main {
+        compileClasspath += api.output
+        runtimeClasspath += api.output
+        java { srcDirs += 'common' }
+        resources {
+            srcDir 'src/generated/resources'
+            srcDirs += 'resources'
+            exclude '**/*.bbmodel'
+            exclude 'src/generated/**/.cache'
+        }
+        test {
+            compileClasspath += api.output
+            runtimeClasspath += api.output
+        }
     }
-  }
 }
 
 configurations {
-  libraries
-  implementation.extendsFrom libraries
+    libraries
+    implementation.extendsFrom libraries
 }
 
 neoForge {
-  // Specify the version of NeoForge to use.
-  version = project.neo_version
+    // Specify the version of NeoForge to use.
+    version = project.neo_version
 
-  parchment {
-    mappingsVersion = project.parchment_mappings_version
-    minecraftVersion = project.parchment_minecraft_version
-  }
-
-  accessTransformers.from "./resources/META-INF/accesstransformer.cfg"
-
-  validateAccessTransformers = true
-
-  runs {
-    configureEach {
-      systemProperty 'forge.logging.markers', 'REGISTRIES'
-      logLevel = org.slf4j.event.Level.DEBUG
-
-      systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-
-      if (System.getProperty('idea.active')) {
-        jvmArguments.add("-XX:+AllowEnhancedClassRedefinition")
-      }
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
     }
 
-    client {
-      client()
-      gameDirectory = project.file('runs/client')
+    accessTransformers.from "./resources/META-INF/accesstransformer.cfg"
+
+    validateAccessTransformers = true
+
+    runs {
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+
+            if (System.getProperty('idea.active')) {
+                jvmArguments.add("-XX:+AllowEnhancedClassRedefinition")
+            }
+        }
+
+        client {
+            client()
+            gameDirectory = project.file('runs/client')
+        }
+
+        server {
+            server()
+            gameDirectory = project.file('runs/server')
+            programArgument '--nogui'
+        }
+
+        data {
+            data()
+            gameDirectory = project.file('runs/data')
+            programArguments.addAll '--mod', project.mod_id, '--all',
+                '--output', file('src/generated/resources/').getAbsolutePath(),
+                '--existing', file('resources/').getAbsolutePath()
+        }
+
+        gameTestServer {
+            type = "gameTestServer"
+            gameDirectory = project.file('runs/gameTestServer')
+        }
     }
 
-    server {
-      server()
-      gameDirectory = project.file('runs/server')
-      programArgument '--nogui'
+
+    mods {
+        // define mod <-> source bindings
+        // these are used to tell the game which sources are for which mod
+        // multi mod projects should define one per mod
+        "${mod_id}" {
+            sourceSet sourceSets.api
+            sourceSet sourceSets.main
+        }
     }
 
-    data {
-      data()
-      gameDirectory = project.file('runs/data')
-      programArguments.addAll '--mod', project.mod_id, '--all',
-          '--output', file('src/generated/resources/').getAbsolutePath(),
-          '--existing', file('resources/').getAbsolutePath()
+    unitTest {
+        enable()
+        testedMod = mods.logisticspipes
     }
-
-    gameTestServer {
-      type = "gameTestServer"
-      gameDirectory = project.file('runs/gameTestServer')
-    }
-  }
-
-
-  mods {
-    // define mod <-> source bindings
-    // these are used to tell the game which sources are for which mod
-    // multi mod projects should define one per mod
-    "${mod_id}" {
-      sourceSet sourceSets.api
-      sourceSet sourceSets.main
-    }
-  }
-
-  unitTest {
-     enable()
-     testedMod = mods.logisticspipes
-  }
 }
 
 test {
@@ -145,57 +145,57 @@ test {
 }
 
 repositories {
-  maven {
-    name 'JEI/Patchouli'
-    url 'https://maven.blamejared.com/'
-  }
-  maven {
-    name 'curseforge'
-    url 'https://www.cursemaven.com'
-  }
+    maven {
+        name 'JEI/Patchouli'
+        url 'https://maven.blamejared.com/'
+    }
+    maven {
+        name 'curseforge'
+        url 'https://www.cursemaven.com'
+    }
 }
 
 configurations {
-  runtimeClasspath.extendsFrom localRuntime
+    runtimeClasspath.extendsFrom localRuntime
 }
 
 dependencies {
-  implementation 'curse.maven:kotlin-for-forge-351264:8335665'
-  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"
-  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"
-  implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization"
+    implementation 'curse.maven:kotlin-for-forge-351264:8335665'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization"
 
-  jarJar(implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"))
-  jarJar(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"))
-  //jarJar(implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"))
-  //jarJar(implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization"))
+    jarJar(implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"))
+    jarJar(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"))
+    //jarJar(implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization"))
+    //jarJar(implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization"))
 
-  compileOnly "org.projectlombok:lombok:$lombok_version"
-  annotationProcessor "org.projectlombok:lombok:$lombok_version"
+    compileOnly "org.projectlombok:lombok:$lombok_version"
+    annotationProcessor "org.projectlombok:lombok:$lombok_version"
 
-  compileOnly "mezz.jei:jei-$minecraft_version-common-api:$jei_version"
-  compileOnly "mezz.jei:jei-$minecraft_version-neoforge-api:$jei_version"
-  localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
+    compileOnly "mezz.jei:jei-$minecraft_version-common-api:$jei_version"
+    compileOnly "mezz.jei:jei-$minecraft_version-neoforge-api:$jei_version"
+    localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
 
-  localRuntime "curse.maven:mekanism-268560:7904058"
-  testImplementation "org.jetbrains.kotlin:kotlin-test:2.4.0"
+    localRuntime "curse.maven:mekanism-268560:7904058"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:2.4.0"
 }
 
 kotlinLombok {
-  lombokConfigurationFile file("lombok.config")
+    lombokConfigurationFile file("lombok.config")
 }
 
 spotless {
-  java {
-    target 'src/*/java/**/*.java'
-    /*importOrder('\\#', 'java|javax|org|com|')
+    java {
+        target 'src/*/java/**/*.java'
+        /*importOrder('\\#', 'java|javax|org|com|')
 
-    endWithNewline()
-    trimTrailingWhitespace()
-    removeUnusedImports()
-    leadingTabsToSpaces(2)*/
-  }
+        endWithNewline()
+        trimTrailingWhitespace()
+        removeUnusedImports()
+        leadingTabsToSpaces(4)*/
+    }
 }
 
 tasks.register('generatePackageInfos') {
@@ -228,7 +228,7 @@ tasks.register('generatePackageInfos') {
                     |import javax.annotation.ParametersAreNonnullByDefault;
                     |import net.minecraft.FieldsAreNonnullByDefault;
                     |import net.minecraft.MethodsReturnNonnullByDefault;
-                """.stripMargin().trim()+"\n"
+                """.stripMargin().trim() + "\n"
                 packageInfoFile.text = pkgInfoText
             }
         }
@@ -238,47 +238,47 @@ tasks.register('generatePackageInfos') {
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
-  var replaceProperties = [
-          minecraft_version      : minecraft_version,
-          minecraft_version_range: minecraft_version_range,
-          neo_version            : neo_version,
-          neo_version_range      : neo_version_range,
-          loader_version_range   : loader_version_range,
-          mod_id                 : mod_id,
-          mod_name               : mod_name,
-          mod_license            : mod_license,
-          mod_version            : mod_version,
-  ]
-  inputs.properties replaceProperties
-  expand replaceProperties
-  from "src/main/templates"
-  into "build/generated/sources/modMetadata"
+    var replaceProperties = [
+        minecraft_version      : minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        neo_version            : neo_version,
+        neo_version_range      : neo_version_range,
+        loader_version_range   : loader_version_range,
+        mod_id                 : mod_id,
+        mod_name               : mod_name,
+        mod_license            : mod_license,
+        mod_version            : mod_version,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
 }
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
 
 tasks.withType(JavaCompile).configureEach {
-  options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-  options.compilerArgs.addAll(['-Xmaxerrs', '100000'])
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    options.compilerArgs.addAll(['-Xmaxerrs', '100000'])
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
 idea {
-  module {
-    downloadSources = true
-    downloadJavadoc = true
-  }
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }
 
 def lastCommit = providers.exec {
-  commandLine 'git', 'rev-parse', 'HEAD'
+    commandLine 'git', 'rev-parse', 'HEAD'
 }.standardOutput.asText.get().trim()
 
 tasks.named('jar', Jar).configure {
-  from(sourceSets.main.output)
-  manifest {
-    attributes([
+    from(sourceSets.main.output)
+    manifest {
+        attributes([
             'Specification-Title'   : project.name,
             'Specification-Vendor'  : 'NoZeroG, Edivad99',
             'Specification-Version' : '1',
@@ -286,6 +286,6 @@ tasks.named('jar', Jar).configure {
             'Implementation-Version': project.version,
             'Implementation-Vendor' : 'NoZeroG, Edivad99',
             'Implementation-Commit' : lastCommit,
-    ])
-  }
+        ])
+    }
 }

@@ -1,7 +1,6 @@
 package logisticspipes.client.renderer.blockentity;
 
 import logisticspipes.renderer.LogisticsRenderPipe;
-import logisticspipes.renderer.LogisticsSolidBlockRenderer;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
@@ -14,8 +13,6 @@ public class LPBlockEntityRenderers {
     event.registerBlockEntityRenderer(LPBlockEntityTypes.POWER_JUNCTION.get(),
         LogisticsSolidBlockRenderer::new);
     event.registerBlockEntityRenderer(LPBlockEntityTypes.POWER_PROVIDER_RF.get(),
-        LogisticsSolidBlockRenderer::new);
-    event.registerBlockEntityRenderer(LPBlockEntityTypes.POWER_PROVIDER_EU.get(),
         LogisticsSolidBlockRenderer::new);
     event.registerBlockEntityRenderer(LPBlockEntityTypes.SECURITY_STATION.get(),
         LogisticsSolidBlockRenderer::new);

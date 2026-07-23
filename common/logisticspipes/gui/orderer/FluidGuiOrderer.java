@@ -6,6 +6,7 @@ import logisticspipes.network.packets.orderer.SubmitFluidRequestPacket;
 import logisticspipes.pipes.PipeFluidRequestLogistics;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.ItemDisplay;
+import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.world.entity.player.Player;
 
@@ -21,10 +22,10 @@ public class FluidGuiOrderer extends GuiOrderer {
 	public void init() {
 		boolean setItemDisplay = itemDisplay == null;
 		super.init();
-		logisticspipes.utils.gui.SmallGuiButton refreshBtn = new logisticspipes.utils.gui.SmallGuiButton(3, leftPos + 10, bottom - 25, 46, 20, "Refresh");
+		SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 25, 46, 20, "Refresh");
 		refreshBtn.setPressListener(b -> refreshItems());
 		addRenderableWidget(refreshBtn);
-		logisticspipes.utils.gui.SmallGuiButton submitBtn = new logisticspipes.utils.gui.SmallGuiButton(0, leftPos + 60, bottom - 25, 46, 20, "Request");
+		SmallGuiButton submitBtn = new SmallGuiButton(0, leftPos + 60, bottom - 25, 46, 20, "Request");
 		submitBtn.setPressListener(b -> {
 			if (itemDisplay.getSelectedItem() != null) {
 				MainProxy.sendPacketToServer(PacketHandler.getPacket(SubmitFluidRequestPacket.class).setStack(itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount())).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));

@@ -34,7 +34,7 @@ public interface IProxy {
 
 	void sendNameUpdateRequest(Player player);
 
-	LogisticsTileGenericPipe getPipeInDimensionAt(ResourceLocation dimension, int x, int y, int z, Player player);
+	@Nullable LogisticsTileGenericPipe getPipeInDimensionAt(ResourceLocation dimension, int x, int y, int z, Player player);
 
 	void sendBroadCast(String message);
 

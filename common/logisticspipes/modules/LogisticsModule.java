@@ -42,6 +42,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	@Nullable
 	protected IPipeServiceProvider _service;
 	@Getter
+    @Nullable
     protected ModulePositionType slot;
 	@Getter
     protected int positionInt;
@@ -77,6 +78,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 		this.positionInt = positionInt;
 	}
 
+    @Nullable
 	public BlockPos getBlockPos() {
 		final IPipeServiceProvider service = _service;
 		if (service == null) {

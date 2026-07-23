@@ -25,7 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -72,6 +72,7 @@ public class ClientProxy implements IProxy {
 	public void sendNameUpdateRequest(Player player) {}
 
 	@Override
+    @Nullable
 	public LogisticsTileGenericPipe getPipeInDimensionAt(ResourceLocation dimension, int x, int y, int z, Player player) {
 		Level level = Minecraft.getInstance().level;
 		if (level == null) {

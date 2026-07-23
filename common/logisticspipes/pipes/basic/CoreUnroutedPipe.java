@@ -184,7 +184,11 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		return getPos().getZ();
 	}
 
+    @Nullable
 	public final BlockPos getPos() {
+        if (container == null) {
+            return null;
+        }
 		return container.getBlockPos();
 	}
 

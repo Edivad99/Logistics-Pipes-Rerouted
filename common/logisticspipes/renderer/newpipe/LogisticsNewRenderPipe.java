@@ -600,7 +600,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 	public static boolean checkAndCalculateRenderCache(LogisticsTileGenericPipe pipeTile) {
 		PipeRenderState renderState = pipeTile.renderState;
 
-		if (renderState.cachedRenderIndex != MainProxy.proxy.getRenderIndex()) {
+		if (renderState.cachedRenderIndex != MainProxy.getProxy(true).getRenderIndex()) {
 			renderState.clearRenderCaches();
 		}
 
@@ -614,7 +614,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 				pipeTile.pipe.getSpecialRenderer().renderToList(pipeTile.pipe, objectsToRender);
 			}
 
-			renderState.cachedRenderIndex = MainProxy.proxy.getRenderIndex();
+			renderState.cachedRenderIndex = MainProxy.getProxy(true).getRenderIndex();
 			renderState.cachedRenderer = Collections.unmodifiableList(objectsToRender);
 			return true;
 		}

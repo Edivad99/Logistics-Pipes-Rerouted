@@ -20,7 +20,6 @@ import logisticspipes.items.LogisticsBrokenItem;
 import logisticspipes.items.LogisticsFluidContainer;
 import logisticspipes.items.LogisticsItem;
 import logisticspipes.items.LogisticsItemCard;
-import logisticspipes.items.LogisticsSolidBlockItem;
 import logisticspipes.items.RemoteOrderer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleActiveSupplier;
@@ -183,12 +182,6 @@ public class LPItems {
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_RF =
       deferredRegister.registerItem("power_provider_rf",
           properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_RF.get(), properties));
-  public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_EU =
-      deferredRegister.registerItem("power_provider_eu",
-          properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_EU.get(), properties));
-  public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_MJ =
-      deferredRegister.registerItem("power_provider_mj",
-          properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_MJ.get(), properties));
   public static final DeferredItem<LogisticsSolidBlockItem> ITEM_PROGRAM_COMPILER =
       deferredRegister.registerItem("program_compiler",
           properties -> new LogisticsSolidBlockItem(LPBlocks.PROGRAM_COMPILER.get(), properties));

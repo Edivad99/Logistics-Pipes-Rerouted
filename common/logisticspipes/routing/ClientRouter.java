@@ -16,8 +16,11 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.tuples.Pair;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -28,7 +31,7 @@ public class ClientRouter implements IRouter {
 	private final int _yCoord;
 	private final int _zCoord;
 
-	public ClientRouter(UUID id, net.minecraft.resources.ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+	public ClientRouter(UUID id, ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
 		_xCoord = xCoord;
 		_yCoord = yCoord;
 		_zCoord = zCoord;
@@ -86,22 +89,19 @@ public class ClientRouter implements IRouter {
 	}
 
 	@Override
-	public @Nullable CoreRoutedPipe getPipe() {
-		Level world = MainProxy.proxy.getWorld();
-		if (world == null) {
+    @Nullable
+	public CoreRoutedPipe getPipe() {
+		Level level = Minecraft.getInstance().level;
+		if (level == null) {
 			return null;
 		}
-		BlockEntity tile = world.getBlockEntity(new BlockPos(_xCoord, _yCoord, _zCoord));
-
-		if (!(tile instanceof LogisticsTileGenericPipe)) {
-			return null;
-		}
-		LogisticsTileGenericPipe pipe = (LogisticsTileGenericPipe) tile;
-		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
-			return null;
-		}
-		return (CoreRoutedPipe) pipe.pipe;
-	}
+        if (level.getBlockEntity(new BlockPos(_xCoord, _yCoord, _zCoord)) instanceof LogisticsTileGenericPipe pipe) {
+            if (pipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
+                return coreRoutedPipe;
+            }
+        }
+        return null;
+    }
 
 	@Override
 	public @Nullable CoreRoutedPipe getCachedPipe() {

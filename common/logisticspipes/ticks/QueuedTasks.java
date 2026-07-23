@@ -43,7 +43,7 @@ public class QueuedTasks {
 				}
 			}
 		}
-		MainProxy.proxy.tick();
+		MainProxy.getProxy(false).tick();
 		synchronized (LPTravelingItem.forceKeep) {
 			Iterator<Pair<Integer, Object>> iter = LPTravelingItem.forceKeep.iterator();
 			while (iter.hasNext()) {

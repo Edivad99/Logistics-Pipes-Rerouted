@@ -179,9 +179,9 @@ public class Textures {
 	//this gets called with null par1IIconRegister from preinit, and later with non-null from textureprestitch
 	public void registerBlockIcons(Object par1IIconRegister) {
 		//Register Empty Texture for slot 0
-		MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, 0, "empty", "", true);
-		MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, 1, "empty", "", true);
-		MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, 2, "empty", "", true);
+		MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, 0, "empty", "", true);
+		MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, 1, "empty", "", true);
+		MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, 2, "empty", "", true);
 
 		index = 3;
 		newTextureIndex = 0;
@@ -272,18 +272,18 @@ public class Textures {
 		texture.fileName = fileName;
 		boolean isClient = MainProxy.isClient();
 		if (isClient) {
-			MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, texture.normal, fileName, Textures.LOGISTICSPIPE_UN_OVERLAY_TEXTURE_FILE, (flag == 2));
+			MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, texture.normal, fileName, Textures.LOGISTICSPIPE_UN_OVERLAY_TEXTURE_FILE, (flag == 2));
 		}
 		if (flag == 1) {
 			texture.powered = index++;
 			texture.unpowered = index++;
 			if (isClient) {
-				MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, texture.powered, fileName, Textures.LOGISTICSPIPE_OVERLAY_POWERED_TEXTURE_FILE, false);
-				MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, texture.unpowered, fileName, Textures.LOGISTICSPIPE_OVERLAY_UNPOWERED_TEXTURE_FILE, false);
+				MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, texture.powered, fileName, Textures.LOGISTICSPIPE_OVERLAY_POWERED_TEXTURE_FILE, false);
+				MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, texture.unpowered, fileName, Textures.LOGISTICSPIPE_OVERLAY_UNPOWERED_TEXTURE_FILE, false);
 			}
 			if (!fileName.contains("status_overlay")) {
 				texture.newTexture = newTextureIndex++;
-				MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, texture.newTexture, fileName, "NewPipeTexture", true);
+				MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, texture.newTexture, fileName, "NewPipeTexture", true);
 			}
 		}
 		return texture;
@@ -295,17 +295,17 @@ public class Textures {
 		texture.fileName = fileName;
 		boolean isClient = MainProxy.isClient();
 		if (isClient) {
-			MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, texture.normal, fileName, "", true);
+			MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, texture.normal, fileName, "", true);
 		}
 		texture.newTexture = newTextureIndex++;
-		MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, texture.newTexture, fileName, "NewPipeTexture", true);
+		MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, texture.newTexture, fileName, "NewPipeTexture", true);
 		return texture;
 	}
 
 	private int registerSingleTexture(Object par1IIconRegister, String fileName) {
 		int texture = index++;
 		if (FMLEnvironment.dist == Dist.CLIENT) {
-			MainProxy.proxy.addLogisticsPipesOverride(par1IIconRegister, texture, fileName, Textures.LOGISTICSPIPE_UN_OVERLAY_TEXTURE_FILE, true);
+			MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, texture, fileName, Textures.LOGISTICSPIPE_UN_OVERLAY_TEXTURE_FILE, true);
 		}
 		return texture;
 	}

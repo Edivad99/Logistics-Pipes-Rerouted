@@ -32,7 +32,7 @@ public class LPTickHandler {
 	public void clientTick(ClientTickEvent.Post event) {
 		FluidIdentifier.initFromForge(true);
 		SimpleServiceLocator.clientBufferHandler.clientTick();
-		MainProxy.proxy.tickClient();
+		MainProxy.getProxy(true).tickClient();
 		DebugGuiController.instance().execClient();
 	}
 
@@ -40,7 +40,7 @@ public class LPTickHandler {
 	public void serverTick(ServerTickEvent.Post event) {
 		HudUpdateTick.tick();
 		SimpleServiceLocator.serverBufferHandler.serverTick();
-		MainProxy.proxy.tickServer();
+		MainProxy.getProxy(false).tickServer();
 		LPTickHandler.adjChecksDone = 0;
 		DebugGuiController.instance().execServer();
 		ServerTickDispatcher.INSTANCE.tick();

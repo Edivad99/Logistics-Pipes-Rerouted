@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
+import logisticspipes.network.NewGuiHandler;
+import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -51,7 +53,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 	}
 
 	public void openGui(Player entityplayer) {
-		logisticspipes.network.guis.pipe.NormalOrdererGui gui = logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
+		NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
 		gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
 		gui.setDim(getWorld().dimension().location());
 		gui.open(entityplayer);

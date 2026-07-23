@@ -7,6 +7,8 @@ import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifier;
 import lombok.Getter;
 import lombok.Setter;
+
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
@@ -33,10 +35,10 @@ public class UpdateName extends ModernPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		if (MainProxy.isClient(player.level())) {
+		if (player instanceof LocalPlayer) {
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(UpdateName.class).setIdent(getIdent()).setName(getIdent().getFriendlyName()));
 		} else {
-			MainProxy.proxy.updateNames(getIdent(), getName());
+			MainProxy.getProxy(false).updateNames(getIdent(), getName());
 		}
 	}
 
