@@ -401,15 +401,15 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		return super.mouseClicked(par1, par2, par3);
 	}
 
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if (subGui != null) {
-			return subGui.mouseScrolled(mouseX, mouseY, delta);
-		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
-	}
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (subGui != null) {
+            return subGui.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
 
-	@Override
+    @Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		if (subGui != null) {
 			return subGui.mouseDragged(mouseX, mouseY, button, dragX, dragY);

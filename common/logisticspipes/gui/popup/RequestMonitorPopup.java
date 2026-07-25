@@ -208,7 +208,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int oldGuiLeft = guiLeft, oldGuiTop = guiTop, oldXSize = xSize, oldYSize = ySize;
 		GuiGraphics oldStored = getGuiGraphics();
 		com.mojang.blaze3d.pipeline.TextureTarget target = new com.mojang.blaze3d.pipeline.TextureTarget(imgWidth, imgHeight, true, Minecraft.ON_OSX);
-		com.mojang.blaze3d.vertex.PoseStack modelView = RenderSystem.getModelViewStack();
+		com.mojang.blaze3d.vertex.PoseStack modelView = oldStored.pose();
 		try {
 			target.setClearColor(0.15F, 0.15F, 0.15F, 1.0F);
 			target.clear(Minecraft.ON_OSX);
@@ -247,7 +247,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			com.mojang.blaze3d.platform.NativeImage image = net.minecraft.client.Screenshot.takeScreenshot(target);
 			saveImage(image);
 		} catch (Exception e) {
-			LogisticsPipes.log.error("Failed to render tree view PNG", e);
+			LogisticsPipes.LOG.error("Failed to render tree view PNG", e);
 		} finally {
 			guiLeft = oldGuiLeft;
 			guiTop = oldGuiTop;
@@ -287,7 +287,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 				++i;
 			}
 		} catch (IOException e) {
-			LogisticsPipes.log.error("Failed to save tree view PNG", e);
+			LogisticsPipes.LOG.error("Failed to save tree view PNG", e);
 		} finally {
 			image.close();
 		}

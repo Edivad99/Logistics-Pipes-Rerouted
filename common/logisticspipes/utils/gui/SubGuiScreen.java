@@ -27,7 +27,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	protected int yCenterOffset;
 	protected ISubGuiControler controler;
 	private SubGuiScreen subGui;
-	private GuiGraphics storedGuiGraphics;
+	protected GuiGraphics storedGuiGraphics;
 
 	public SubGuiScreen(int xSize, int ySize, int xOffset, int yOffset) {
 		super(net.minecraft.network.chat.Component.empty());
@@ -107,13 +107,13 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
 	}
 
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if (subGui != null) {
-			return subGui.mouseScrolled(mouseX, mouseY, delta);
-		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
-	}
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (subGui != null) {
+            return subGui.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
 
 	@Override
 	public net.minecraft.client.gui.GuiGraphics getGuiGraphics() {
