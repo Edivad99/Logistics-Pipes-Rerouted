@@ -73,8 +73,6 @@ class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, 
     override fun setItem(i: Int, itemstack: ItemIdentifierStack?) =
         inv.setItem(i, itemstack).alsoIChanged()
 
-    fun setField(id: Int, value: Int) = inv.setField(id, value).alsoIChanged()
-
     override fun handleItemIdentifierList(_allItems: Collection<ItemIdentifierStack>) =
         inv.handleItemIdentifierList(_allItems).alsoIChanged()
 

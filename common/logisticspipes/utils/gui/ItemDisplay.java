@@ -220,9 +220,9 @@ public class ItemDisplay {
 
 	public void renderAmount(int stackAmount) {
 		int requestCount = requestCountBar.getInt();
-		String StackrequestCount = "" + (requestCount / stackAmount) + "+" + (requestCount % stackAmount);
+		String StackrequestCount = (requestCount / stackAmount) + "+" + (requestCount % stackAmount);
 		//screen.guiGraphics.drawString(font, requestCount + "", x - font.width(requestCount + "") / 2, y, 0x404040, false);
-		screen.guiGraphics.drawString(font, StackrequestCount + "", this.amountPosLeft - font.width(StackrequestCount + "") / 2, this.amountPosTop + 11, 0x404040, false);
+		screen.guiGraphics.drawString(font, StackrequestCount, this.amountPosLeft - font.width(StackrequestCount) / 2, this.amountPosTop + 11, 0x404040, false);
 
 		requestCountBar.drawTextBox();
 	}

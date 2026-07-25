@@ -1,8 +1,10 @@
 package logisticspipes.asm.te;
 
+import javax.annotation.Nullable;
+
 public interface ILPTEInformation {
 
-	LPTileEntityObject getLPTileEntityObject();
+	@Nullable LPTileEntityObject getLPTileEntityObject();
 
 	void setLPTileEntityObject(LPTileEntityObject object);
 }

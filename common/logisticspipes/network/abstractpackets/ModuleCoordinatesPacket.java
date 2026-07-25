@@ -126,10 +126,10 @@ public abstract class ModuleCoordinatesPacket extends CoordinatesPacket {
 	}
 
 	@Override
-	public <T> T getTileAs(Level world, Class<T> clazz) {
+	public <T> T getTileAs(Level level, Class<T> clazz) {
 		if (LogisticsPipes.isDEBUG() && !moduleBased && type != null) {
 			new Exception("ModulePacket was asked for a pipe").printStackTrace();
 		}
-		return super.getTileAs(world, clazz);
+		return super.getTileAs(level, clazz);
 	}
 }

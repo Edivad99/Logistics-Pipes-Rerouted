@@ -50,9 +50,11 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -75,10 +77,10 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	private int startXSize;
 	private BitSet handledExtension = new BitSet();
 	private int orderIdForButton;
-	private net.minecraft.client.gui.components.AbstractButton[] cycleButtons = new net.minecraft.client.gui.components.AbstractButton[2];
-	private IChainAddList<net.minecraft.client.gui.components.AbstractButton> moveWhileSmall = new ChainAddArrayList<>();
-	private IChainAddList<net.minecraft.client.gui.components.AbstractButton> hideWhileSmall = new ChainAddArrayList<>();
-	private net.minecraft.client.gui.components.AbstractButton hideShowButton;
+	private AbstractButton[] cycleButtons = new AbstractButton[2];
+	private IChainAddList<AbstractButton> moveWhileSmall = new ChainAddArrayList<>();
+	private IChainAddList<AbstractButton> hideWhileSmall = new ChainAddArrayList<>();
+	private AbstractButton hideShowButton;
 	private GuiCheckBox popupCheck;
 
 	public GuiRequestTable(Player entityPlayer, PipeBlockRequestTable table) {
@@ -116,8 +118,6 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 	@Override
 	public void init() {
-		
-
 		boolean reHide = false;
 		if (!showRequest) {
 			leftPos = startLeft;
@@ -176,12 +176,12 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			showRequest = false;
 			imageWidth = startXSize - 210;
 			leftPos = startLeft + 105;
-			for (net.minecraft.client.gui.components.AbstractButton button : moveWhileSmall) {
+			for (AbstractButton button : moveWhileSmall) {
 				button.setX(button.getX() + 105);
 			}
 			hideShowButton.setX(hideShowButton.getX() + 90);
 			hideShowButton.setMessage(net.minecraft.network.chat.Component.literal("Show"));
-			for (net.minecraft.client.gui.components.AbstractButton button : hideWhileSmall) {
+			for (AbstractButton button : hideWhileSmall) {
 				button.visible = false;
 			}
 			macroButton.visible = false;
@@ -190,7 +190,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 	@Override
 	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-		for (net.minecraft.client.gui.components.AbstractButton cycleButton : cycleButtons) {
+		for (AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _table.targetType != null;
 		}
 		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right - (showRequest ? 0 : 105), bottom, 0.0f, true);
@@ -359,7 +359,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 								list.add(ChatColor.BLUE + "Request Type: " + ChatColor.YELLOW + order.getType().name());
 								list.add(ChatColor.BLUE + "Send to Router ID: " + ChatColor.YELLOW + order
 										.getRouterId());
-								guiGraphics.renderComponentTooltip(font, list.stream().map(net.minecraft.network.chat.Component::literal).collect(Collectors.toList()), xPos, yPos);
+								guiGraphics.renderComponentTooltip(font, list.stream().map(Component::literal).collect(Collectors.toList()), xPos, yPos);
 							});
 						} else if (entry.getValue() != null && entry.getValue().getValue1() != null && entry.getValue().getValue1().getDisplayItem() != null) {
 							guiGraphics.renderTooltip(font, entry.getValue().getValue1().getDisplayItem().makeNormalStack(), xPos, yPos);
@@ -394,7 +394,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		return btn;
 	}
 
-	private void handleBtn(int id, net.minecraft.client.gui.components.AbstractButton guibutton) {
+	private void handleBtn(int id, AbstractButton guibutton) {
 		if (id == 0 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitPacket.class).setStack(stack).setTilePos(_table.container).setDimension(dimension));
@@ -455,20 +455,20 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			if (showRequest) {
 				imageWidth = startXSize;
 				leftPos = startLeft;
-				for (net.minecraft.client.gui.components.AbstractButton button : moveWhileSmall) {
+				for (AbstractButton button : moveWhileSmall) {
 					button.setX(button.getX() - 105);
 				}
 				hideShowButton.setX(hideShowButton.getX() - 90);
 			} else {
 				imageWidth = startXSize - 210;
 				leftPos = startLeft + 105;
-				for (net.minecraft.client.gui.components.AbstractButton button : moveWhileSmall) {
+				for (AbstractButton button : moveWhileSmall) {
 					button.setX(button.getX() + 105);
 				}
 				hideShowButton.setX(hideShowButton.getX() + 90);
 			}
-			hideShowButton.setMessage(net.minecraft.network.chat.Component.literal(showRequest ? "Hide" : "Show"));
-			for (net.minecraft.client.gui.components.AbstractButton button : hideWhileSmall) {
+			hideShowButton.setMessage(Component.literal(showRequest ? "Hide" : "Show"));
+			for (AbstractButton button : hideWhileSmall) {
 				button.visible = showRequest;
 			}
 			macroButton.visible = showRequest;

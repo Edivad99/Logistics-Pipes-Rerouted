@@ -16,6 +16,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
@@ -23,6 +24,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+
+import network.rs485.logisticspipes.util.TextUtil;
 
 @Data
 @Accessors(chain = true)
@@ -117,27 +120,19 @@ public class ItemStackRenderer {
 	}
 
 	public void renderInGui() {
-		net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
+		GuiGraphics gg = SimpleGraphics.guiGraphics;
 		if (gg == null) return;
 
 		ItemStack stack = itemstack;
-		if ((stack == null || stack.isEmpty()) && itemIdentStack != null) {
+		if (stack.isEmpty() && itemIdentStack != null) {
 			stack = itemIdentStack.getItem().unsafeMakeNormalStack(1);
 		}
-		if (stack == null || stack.isEmpty()) return;
+		if (stack.isEmpty()) return;
 
 		gg.renderItem(stack, posX, posY);
 
-		String countLabel = null;
-		if (displayAmount == DisplayAmount.ALWAYS) {
-			long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
-			countLabel = String.valueOf(count);
-		} else if (displayAmount == DisplayAmount.HIDE_ONE) {
-			long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
-			if (count != 1) {
-				countLabel = String.valueOf(count);
-			}
-		}
+        long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
+        String countLabel = TextUtil.getThreeDigitFormattedNumber(count, displayAmount == DisplayAmount.ALWAYS);
 		gg.renderItemDecorations(font, stack, posX, posY, countLabel);
 	}
 

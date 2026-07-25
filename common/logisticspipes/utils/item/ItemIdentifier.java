@@ -535,7 +535,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	}
 
 	public ItemStack unsafeMakeNormalStack(int stackSize) {
-		ItemStack stack = new ItemStack(item, stackSize);
+		/*ItemStack stack = new ItemStack(item, stackSize);
 		if (itemDamage != 0) {
 			stack.setDamageValue(itemDamage);
 		}
@@ -544,13 +544,13 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 					DataComponents.CUSTOM_DATA,
 					CustomData.of(tag.copy())
 			);
-		}
-		return stack;
+		}*/
+		return makeNormalStack(stackSize);
 	}
 
 	public ItemStack makeNormalStack(int stackSize) {
 		ItemStack stack = new ItemStack(item, stackSize);
-		if (itemDamage != 0) {
+		/*if (itemDamage != 0) {
 			stack.setDamageValue(itemDamage);
 		}
 		if (tag != null) {
@@ -558,7 +558,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 					DataComponents.CUSTOM_DATA,
 					CustomData.of(tag.copy())
 			);
-		}
+		}*/
 		return stack;
 	}
 
@@ -731,11 +731,11 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 	}
 
 	public boolean equalsWithoutNBT(ItemStack stack) {
-		return item == stack.getItem() && itemDamage == stack.getDamageValue();
+		return item == stack.getItem();// && itemDamage == stack.getDamageValue();
 	}
 
 	public boolean equalsWithoutNBT(ItemIdentifier item) {
-		return this.item == item.item && itemDamage == item.itemDamage;
+		return this.item == item.item; // && itemDamage == item.itemDamage;
 	}
 
 	public boolean isDamageable() {

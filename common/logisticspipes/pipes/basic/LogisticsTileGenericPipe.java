@@ -16,6 +16,8 @@ import logisticspipes.api.ILPPipeTile;
 import logisticspipes.asm.ModDependentField;
 import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
+import logisticspipes.asm.te.ILPTEInformation;
+import logisticspipes.asm.te.LPTileEntityObject;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.routing.IFilter;
@@ -84,18 +86,19 @@ import network.rs485.logisticspipes.world.DoubleCoordinates;
 public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		implements ILPPipeTile, IPipeInformationProvider, /*IItemDuct,*/
 		// ManagedPeripheral, Environment, SidedEnvironment — added at runtime by @ModDependentInterface ASM when OC is present
-		ILogicControllerTile, logisticspipes.asm.te.ILPTEInformation, logisticspipes.interfaces.ITickable {
+		ILogicControllerTile, ILPTEInformation, logisticspipes.interfaces.ITickable {
 
 	// ILPTEInformation — previously injected by ASM, now implemented directly
-	private logisticspipes.asm.te.LPTileEntityObject lpTileEntityObject;
+    @Nullable
+	private LPTileEntityObject lpTileEntityObject;
 
 	@Override
-	public logisticspipes.asm.te.LPTileEntityObject getLPTileEntityObject() {
+	public @Nullable LPTileEntityObject getLPTileEntityObject() {
 		return lpTileEntityObject;
 	}
 
 	@Override
-	public void setLPTileEntityObject(logisticspipes.asm.te.LPTileEntityObject object) {
+	public void setLPTileEntityObject(LPTileEntityObject object) {
 		this.lpTileEntityObject = object;
 	}
 

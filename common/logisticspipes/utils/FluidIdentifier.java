@@ -10,6 +10,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.asm.addinfo.IAddInfo;
 import logisticspipes.asm.addinfo.IAddInfoProvider;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -197,14 +199,17 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return ident;
 	}
 
-	public static FluidIdentifier get(ItemIdentifier stack) {
+    @Nullable
+    public static FluidIdentifier get(ItemIdentifier stack) {
 		return FluidIdentifier.get(stack.makeStack(1));
 	}
 
-	public static FluidIdentifier get(ItemStack stack) {
+    @Nullable
+    public static FluidIdentifier get(ItemStack stack) {
 		return FluidIdentifier.get(ItemIdentifierStack.getFromStack(stack));
 	}
 
+    @Nullable
 	public static FluidIdentifier get(ItemIdentifierStack stack) {
 		FluidStack f = null;
 		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack, Minecraft.getInstance().level.registryAccess());

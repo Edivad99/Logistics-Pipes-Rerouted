@@ -2,6 +2,8 @@ package logisticspipes.network.abstractpackets;
 
 import java.util.function.Function;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import lombok.Getter;
@@ -44,15 +46,16 @@ public abstract class CoordinatesPacket extends ModernPacket {
 		}
 	}
 
-	private static BlockEntity getWorldTile(Object whosAsking, Level world, BlockPos blockPos) {
-		if (world == null) {
+    @Nullable
+	private static BlockEntity getWorldTile(Object whosAsking, Level level, BlockPos blockPos) {
+		if (level == null) {
 			throw new TargetNotFoundException("World was null", whosAsking);
 		}
-		if (world.isEmptyBlock(blockPos)) {
+		if (level.isEmptyBlock(blockPos)) {
 			throw new TargetNotFoundException("Only found air at: " + blockPos, whosAsking);
 		}
 
-		return world.getBlockEntity(blockPos);
+		return level.getBlockEntity(blockPos);
 	}
 
 	@Override
@@ -112,16 +115,16 @@ public abstract class CoordinatesPacket extends ModernPacket {
 	/**
 	 * Retrieves tileEntity at packet coordinates if any.
 	 */
-	public <T> T getTileAs(Level world, Class<T> clazz) {
-		return getTileAs(this, world, new BlockPos(getPosX(), getPosY(), getPosZ()), clazz);
+	public <T> T getTileAs(Level level, Class<T> clazz) {
+		return getTileAs(this, level, new BlockPos(getPosX(), getPosY(), getPosZ()), clazz);
 	}
 
 	/**
 	 * Retrieves tileEntity or CoreUnroutedPipe at packet coordinates if any.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getTileOrPipe(Level world, Class<T> clazz) {
-		final BlockEntity tile = getWorldTile(this, world, new BlockPos(getPosX(), getPosY(), getPosZ()));
+	public <T> T getTileOrPipe(Level level, Class<T> clazz) {
+		final BlockEntity tile = getWorldTile(this, level, new BlockPos(getPosX(), getPosY(), getPosZ()));
 		if (tile != null) {
 			if (clazz.isAssignableFrom(tile.getClass())) {
 				return (T) tile;

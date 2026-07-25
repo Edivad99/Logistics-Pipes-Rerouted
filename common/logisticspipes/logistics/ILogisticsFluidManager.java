@@ -19,7 +19,7 @@ public interface ILogisticsFluidManager {
 
 	ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack, HolderLookup.Provider provider);
 
-	FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack, HolderLookup.Provider provider);
+	@Nullable FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack, HolderLookup.Provider provider);
 
 	TreeSet<FluidIdentifierStack> getAvailableFluid(List<ExitRoute> list);
 }
