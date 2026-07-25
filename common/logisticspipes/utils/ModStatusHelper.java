@@ -35,9 +35,9 @@ public class ModStatusHelper {
 	}
 
 	public static boolean isModVersionEqualsOrHigher(String modId, String version) {
-		// Note: string compareTo is lexicographic — adequate for dotted version strings with same number of digits
+		// Numeric-aware maven version compare (lexicographic broke on e.g. 1.10 vs 1.9)
 		return ModList.get().getModContainerById(modId)
-				.map(mod -> mod.getModInfo().getVersion().toString().compareTo(version) >= 0)
+				.map(mod -> mod.getModInfo().getVersion().compareTo(new org.apache.maven.artifact.versioning.DefaultArtifactVersion(version)) >= 0)
 				.orElse(false);
 	}
 }

@@ -27,7 +27,8 @@ public class GuiCheckBox extends AbstractButton {
 
 	@Override
 	public void onPress() {
-		change();
+		// State is owned by the press listener (they call change()/setState themselves);
+		// toggling here too made every click a double flip, i.e. a no-op.
 		pressListener.accept(this);
 	}
 

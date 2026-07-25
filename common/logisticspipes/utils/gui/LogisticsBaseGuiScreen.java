@@ -349,6 +349,10 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 
 	@Override
 	public boolean mouseClicked(double par1, double par2, int par3) {
+		// Popups are modal: route all input to the innermost sub-GUI (LP1 parity)
+		if (subGui != null) {
+			return subGui.mouseClicked(par1, par2, par3);
+		}
 		for (IRenderSlot slot : slots) {
 			int mouseX = (int) par1 - leftPos;
 			int mouseY = (int) par2 - topPos;
@@ -398,7 +402,42 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		if (subGui != null) {
+			return subGui.mouseScrolled(mouseX, mouseY, delta);
+		}
+		return super.mouseScrolled(mouseX, mouseY, delta);
+	}
+
+	@Override
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		if (subGui != null) {
+			return subGui.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+		}
+		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+	}
+
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (subGui != null) {
+			return subGui.keyPressed(keyCode, scanCode, modifiers);
+		}
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
+
+	@Override
+	public boolean charTyped(char c, int modifiers) {
+		if (subGui != null) {
+			return subGui.charTyped(c, modifiers);
+		}
+		return super.charTyped(c, modifiers);
+	}
+
+	@Override
 	public boolean mouseReleased(double par1, double par2, int par3) {
+		if (subGui != null) {
+			return subGui.mouseReleased(par1, par2, par3);
+		}
 		if (selectedButton != null && par3 == 0) {
 			selectedButton.mouseReleased(par1, par2, 0);
 			selectedButton = null;
