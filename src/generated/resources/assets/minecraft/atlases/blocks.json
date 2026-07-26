@@ -54,51 +54,7 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "logisticspipes:items/broken_item"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/chip/advanced"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/chip/advanced_raw"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/chip/basic"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/chip/basic_raw"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/chip/fpga"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/chip/fpga_raw"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/disk"
-    },
-    {
-      "type": "minecraft:single",
       "resource": "logisticspipes:items/eastereggs/guipsp"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/guide_book"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/hud_glasses"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/item_card"
     },
     {
       "type": "minecraft:single",
@@ -107,114 +63,6 @@
     {
       "type": "minecraft:single",
       "resource": "logisticspipes:items/liquids/stencil"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/logistics_programmer"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/active_supplier"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/blank"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/crafter"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/crafter_mk2"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/crafter_mk3"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/enchantment_sink"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/enchantment_sink_mk2"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/extractor"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/extractor_advanced"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/extractor_advanced_mk2"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/extractor_advanced_mk3"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/extractor_mk2"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/extractor_mk3"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/item_sink"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/item_sink_cc"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/item_sink_creativetab"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/item_sink_mod"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/item_sink_oredict"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/item_sink_polymorphic"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/passive_supplier"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/provider"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/provider_mk2"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/quick_sort"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/quick_sort_cc"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/terminus"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/module/thaumic_aspect_sink"
     },
     {
       "type": "minecraft:single",
@@ -231,14 +79,6 @@
     {
       "type": "minecraft:single",
       "resource": "logisticspipes:items/parts/3"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/pipe_controller"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/pipe_manager"
     },
     {
       "type": "minecraft:single",
@@ -315,106 +155,6 @@
     {
       "type": "minecraft:single",
       "resource": "logisticspipes:items/sign_creator.1"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/action_speed"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/cc_remote_control"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/crafting_byproduct"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/crafting_cleanup"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/crafting_monitoring"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/disconnection"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/fluid_crafting"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/fuzzy"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/item_extraction"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/item_stack_extraction"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/module_upgrade"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/opaque"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/pattern"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/power_supplier_eu"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/power_supplier_eu_ev"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/power_supplier_eu_hv"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/power_supplier_eu_lv"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/power_supplier_eu_mv"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/power_supplier_mj"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/power_supplier_rf"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/power_transportation"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/satellite_advanced"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/sneaky"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/sneaky_combination"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/upgrade/speed"
     },
     {
       "type": "minecraft:single",

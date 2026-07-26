@@ -334,18 +334,18 @@ public class LPItems {
       registerUpgrade(FuzzyUpgrade.getName(), FuzzyUpgrade::new);
   public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_TRANSPORTATION =
       registerUpgrade(PowerTransportationUpgrade.getName(), PowerTransportationUpgrade::new);
-  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_MJ =
-      registerUpgrade(BCPowerSupplierUpgrade.getName(), BCPowerSupplierUpgrade::new);
+//  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_MJ =
+//      registerUpgrade(BCPowerSupplierUpgrade.getName(), BCPowerSupplierUpgrade::new);
   public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_RF =
       registerUpgrade(RFPowerSupplierUpgrade.getName(), RFPowerSupplierUpgrade::new);
-  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_EU_LV =
-      registerUpgrade(IC2LVPowerSupplierUpgrade.getName(), IC2LVPowerSupplierUpgrade::new);
-  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_EU_MV =
-      registerUpgrade(IC2MVPowerSupplierUpgrade.getName(), IC2MVPowerSupplierUpgrade::new);
-  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_EU_HV =
-      registerUpgrade(IC2HVPowerSupplierUpgrade.getName(), IC2HVPowerSupplierUpgrade::new);
-  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_EU_EV =
-      registerUpgrade(IC2EVPowerSupplierUpgrade.getName(), IC2EVPowerSupplierUpgrade::new);
+//  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_EU_LV =
+//      registerUpgrade(IC2LVPowerSupplierUpgrade.getName(), IC2LVPowerSupplierUpgrade::new);
+//  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_EU_MV =
+//      registerUpgrade(IC2MVPowerSupplierUpgrade.getName(), IC2MVPowerSupplierUpgrade::new);
+//  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_EU_HV =
+//      registerUpgrade(IC2HVPowerSupplierUpgrade.getName(), IC2HVPowerSupplierUpgrade::new);
+//  public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_EU_EV =
+//      registerUpgrade(IC2EVPowerSupplierUpgrade.getName(), IC2EVPowerSupplierUpgrade::new);
   public static final DeferredItem<ItemUpgrade> UPGRADE_CC_REMOTE_CONTROL =
       registerUpgrade(CCRemoteControlUpgrade.getName(), CCRemoteControlUpgrade::new);
   public static final DeferredItem<ItemUpgrade> UPGRADE_CRAFTING_MONITORING =
