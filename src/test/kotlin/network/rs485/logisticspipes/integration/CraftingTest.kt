@@ -46,7 +46,7 @@ import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.configurator
 import logisticspipes.blocks.LogisticsSolidBlock
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity
 import logisticspipes.pipes.PipeItemsBasicLogistics
 import logisticspipes.pipes.PipeItemsCraftingLogistics
 import logisticspipes.pipes.PipeItemsRequestLogistics
@@ -365,11 +365,11 @@ object CraftingTest {
     private suspend fun `setup fuzzy crafting chest`(
         selector: BlockPosSelector,
         providerStacks: Array<ItemStack>,
-        extraCraftingTableConfigurator: LogisticsCraftingTableTileEntity.() -> Unit = {},
+        extraCraftingTableConfigurator: LogisticsCraftingTableBlockEntity.() -> Unit = {},
     ): FuzzyCraftingSetup {
         val fuzzyCraftingTableHasRecipe = CompletableDeferred<Unit>()
         val fuzzyCraftingTablePlacer = BlockPlacer(block = LPBlocks.CRAFTER_FUZZY.get()) { placer ->
-            placer.getTileEntity<LogisticsCraftingTableTileEntity>().apply {
+            placer.getTileEntity<LogisticsCraftingTableBlockEntity>().apply {
                 (0 until 9).filter { it != 4 }.forEach {
                     matrix.setItem(it, ItemStack(Blocks.OAK_PLANKS))
                     FuzzyUtil.set(inputFuzzy(it), FuzzyFlag.USE_ORE_DICT, true)
@@ -431,8 +431,8 @@ object CraftingTest {
             get() = craftingPipePlacer.pipe
         val fuzzyCraftingTablePlacer: BlockPlacer<LogisticsSolidBlock>
         @Suppress("unused")
-        val fuzzyCraftingTable: LogisticsCraftingTableTileEntity
-            get() = fuzzyCraftingTablePlacer.getTileEntity<LogisticsCraftingTableTileEntity>()
+        val fuzzyCraftingTable: LogisticsCraftingTableBlockEntity
+            get() = fuzzyCraftingTablePlacer.getTileEntity<LogisticsCraftingTableBlockEntity>()
     }
 
 }

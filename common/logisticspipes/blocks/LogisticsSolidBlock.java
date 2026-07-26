@@ -27,7 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import lombok.Getter;
 
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
@@ -87,7 +87,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         BlockEntity be = level.getBlockEntity(pos);
-        if (level.getBlockEntity(pos) instanceof LogisticsCraftingTableTileEntity craftingTableBlockEntity) {
+        if (level.getBlockEntity(pos) instanceof LogisticsCraftingTableBlockEntity craftingTableBlockEntity) {
             craftingTableBlockEntity.placedBy(placer);
         }
         if (placer != null && be instanceof IRotationProvider rotationProvider) {
@@ -147,8 +147,8 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
     public enum Type {
         LOGISTICS_POWER_JUNCTION(LogisticsPowerJunctionTileEntity::new),
         LOGISTICS_SECURITY_STATION(LogisticsSecurityTileEntity::new),
-        LOGISTICS_AUTOCRAFTING_TABLE(LogisticsCraftingTableTileEntity::new),
-        LOGISTICS_FUZZYCRAFTING_TABLE(LogisticsCraftingTableTileEntity::new),
+        LOGISTICS_AUTOCRAFTING_TABLE(LogisticsCraftingTableBlockEntity::new),
+        LOGISTICS_FUZZYCRAFTING_TABLE(LogisticsCraftingTableBlockEntity::new),
         LOGISTICS_STATISTICS_TABLE(LogisticsStatisticsTileEntity::new),
 
         // Power Provider

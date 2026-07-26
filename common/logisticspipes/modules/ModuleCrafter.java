@@ -12,7 +12,7 @@ import java.util.concurrent.DelayQueue;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -1011,7 +1011,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	private ItemStack extract(NeighborTileEntity<BlockEntity> adjacent, IResource item, int amount) {
-		return LPNeighborTileEntityKt.optionalIs(adjacent, LogisticsCraftingTableTileEntity.class)
+		return LPNeighborTileEntityKt.optionalIs(adjacent, LogisticsCraftingTableBlockEntity.class)
 				.map(adjacentCraftingTable -> extractFromLogisticsCraftingTable(adjacentCraftingTable, item, amount))
 				.orElseGet(() -> {
 					final IInventoryUtil invUtil = LPNeighborTileEntityKt.getInventoryUtil(adjacent);
@@ -1101,7 +1101,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	private ItemStack extractFromLogisticsCraftingTable(
-			NeighborTileEntity<LogisticsCraftingTableTileEntity> adjacentCraftingTable, IResource wantedItem,
+			NeighborTileEntity<LogisticsCraftingTableBlockEntity> adjacentCraftingTable, IResource wantedItem,
 			int count) {
 		final IPipeServiceProvider service = _service;
 		if (service == null) return ItemStack.EMPTY;

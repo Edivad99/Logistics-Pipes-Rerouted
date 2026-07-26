@@ -1,7 +1,7 @@
 package logisticspipes.network.guis.block;
 
 import java.util.BitSet;
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.gui.GuiLogisticsCraftingTable;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -25,7 +25,7 @@ public class AutoCraftingGui extends CoordinatesGuiProvider {
 
 	@Override
 	public Object getClientGui(Player player) {
-		LogisticsCraftingTableTileEntity tile = getTileAs(player.level(), LogisticsCraftingTableTileEntity.class);
+		LogisticsCraftingTableBlockEntity tile = getTileAs(player.level(), LogisticsCraftingTableBlockEntity.class);
 		if (tile.isFuzzy()) {
 			tile.fuzzyFlags.replaceWith(fuzzyFlags);
 		}
@@ -35,7 +35,7 @@ public class AutoCraftingGui extends CoordinatesGuiProvider {
 
 	@Override
 	public DummyContainer getContainer(Player player) {
-		LogisticsCraftingTableTileEntity tile = getTileAs(player.level(), LogisticsCraftingTableTileEntity.class);
+		LogisticsCraftingTableBlockEntity tile = getTileAs(player.level(), LogisticsCraftingTableBlockEntity.class);
 		DummyContainer dummy = new DummyContainer(player, tile.matrix, tile);
 
 		for (int X = 0; X < 3; X++) {
@@ -72,7 +72,7 @@ public class AutoCraftingGui extends CoordinatesGuiProvider {
 		}
 	}
 
-	public AutoCraftingGui setCraftingTable(LogisticsCraftingTableTileEntity tile) {
+	public AutoCraftingGui setCraftingTable(LogisticsCraftingTableBlockEntity tile) {
 		setTilePos(tile);
 		if (tile.isFuzzy()) {
 			isFuzzy = true;

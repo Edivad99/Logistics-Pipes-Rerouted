@@ -3,7 +3,6 @@ package logisticspipes.world.level.block.entity;
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsFrameTileEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
@@ -40,9 +39,9 @@ public class LPBlockEntityTypes {
       deferredRegister.register("security_station",
           () -> BlockEntityType.Builder.of(LogisticsSecurityTileEntity::new,
               LPBlocks.SECURITY_STATION.get()).build(null));
-  public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsCraftingTableTileEntity>> CRAFTING_TABLE =
+  public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsCraftingTableBlockEntity>> CRAFTING_TABLE =
       deferredRegister.register("logistics_crafting_table",
-          () -> BlockEntityType.Builder.of(LogisticsCraftingTableTileEntity::new,
+          () -> BlockEntityType.Builder.of(LogisticsCraftingTableBlockEntity::new,
               LPBlocks.CRAFTER.get(), LPBlocks.CRAFTER_FUZZY.get()).build(null));
   public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsTileGenericPipe>> PIPE =
       deferredRegister.register("pipe",

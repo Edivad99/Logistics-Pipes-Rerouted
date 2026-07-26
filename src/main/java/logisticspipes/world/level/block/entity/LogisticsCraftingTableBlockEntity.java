@@ -1,4 +1,4 @@
-package logisticspipes.blocks.crafting;
+package logisticspipes.world.level.block.entity;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -6,25 +6,22 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
@@ -47,43 +44,51 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.level.block.LPBlocks;
-import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
-import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
-public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
+public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenControler {
 
     public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
+    private final InvWrapper invWrapper = new InvWrapper(this);
+    private final PlayerCollectionList guiWatcher = new PlayerCollectionList();
     public ItemIdentifierInventory inv = new ItemIdentifierInventory(18, "Crafting Resources", 64);
     public ItemIdentifierInventory matrix = new ItemIdentifierInventory(9, "Crafting Matrix", 1);
     public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
+    @Nullable
     public ItemIdentifier targetType = null;
-
-    private ResultContainer vanillaResult = new ResultContainer();
     @Nullable
     private RecipeHolder<CraftingRecipe> cache;
     @Nullable
     private ServerPlayer fake;
+    @Nullable
     private PlayerIdentifier placedBy = null;
 
-    private InvWrapper invWrapper = new InvWrapper(this);
-
-    private PlayerCollectionList guiWatcher = new PlayerCollectionList();
-
-    public LogisticsCraftingTableTileEntity(BlockPos pos, BlockState state) {
+    public LogisticsCraftingTableBlockEntity(BlockPos pos, BlockState state) {
         super(LPBlockEntityTypes.CRAFTING_TABLE.get(), pos, state);
         matrix.addListener(this);
+    }
+
+   @Nullable
+    private HolderLookup.Provider getProvider() {
+        if (getWorld() != null) {
+            return getWorld().registryAccess();
+        }
+        var level = Minecraft.getInstance().level;
+        if (level != null) {
+            return level.registryAccess();
+        }
+        return null;
     }
 
     public void cacheRecipe() {
         ItemIdentifier oldTargetType = targetType;
         cache = null;
         resultInv.setItem(0, ItemStack.EMPTY);
-        AutoCraftingInventory craftInv = new AutoCraftingInventory(placedBy);
+        AutoCraftingContainer craftInv = new AutoCraftingContainer(placedBy);
         for (int i = 0; i < 9; i++) {
             craftInv.setItem(i, matrix.getItem(i));
         }
@@ -97,18 +102,18 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
             }
         }
         if (list.size() == 1) {
-            cache = list.get(0);
-            resultInv.setItem(0, cache.value().assemble(craftingInput, getWorld().registryAccess()));
+            cache = list.getFirst();
+            resultInv.setItem(0, cache.value().assemble(craftingInput, getProvider()));
             targetType = null;
         } else if (list.size() > 1) {
             if (targetType != null) {
                 for (RecipeHolder<CraftingRecipe> recipe : list) {
-                    craftInv = new AutoCraftingInventory(placedBy);
+                    craftInv = new AutoCraftingContainer(placedBy);
                     for (int i = 0; i < 9; i++) {
                         craftInv.setItem(i, matrix.getItem(i));
                     }
                     craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
-                    ItemStack result = recipe.value().assemble(craftingInput, getWorld().registryAccess());
+                    ItemStack result = recipe.value().assemble(craftingInput, getProvider());
                     if (!result.isEmpty() && targetType.equals(ItemIdentifier.get(result))) {
                         resultInv.setItem(0, result);
                         cache = recipe;
@@ -118,7 +123,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
             }
             if (cache == null) {
                 for (RecipeHolder<CraftingRecipe> r : list) {
-                    ItemStack result = r.value().assemble(craftingInput, getWorld().registryAccess());
+                    ItemStack result = r.value().assemble(craftingInput, getProvider());
                     if (!result.isEmpty()) {
                         cache = r;
                         resultInv.setItem(0, result);
@@ -145,13 +150,12 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
         }
 
         cache = null;
-        AutoCraftingInventory craftInv = new AutoCraftingInventory(placedBy);
+        AutoCraftingContainer craftInv = new AutoCraftingContainer(placedBy);
 
         for (int i = 0; i < 9; i++) {
             craftInv.setItem(i, matrix.getItem(i));
         }
         CraftingInput craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
-
         List<RecipeHolder<CraftingRecipe>> list = new ArrayList<>();
         for (RecipeHolder<CraftingRecipe> r : CraftingUtil.getRecipeList()) {
             if (r.value().matches(craftingInput, getWorld())) {
@@ -167,18 +171,18 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
                     cache = recipe;
                     break;
                 }
-                craftInv = new AutoCraftingInventory(placedBy);
+                craftInv = new AutoCraftingContainer(placedBy);
                 for (int i = 0; i < 9; i++) {
                     craftInv.setItem(i, matrix.getItem(i));
                 }
                 craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
                 if (targetType != null && targetType.equals(
-                    ItemIdentifier.get(recipe.value().assemble(craftingInput, getWorld().registryAccess())))) {
+                    ItemIdentifier.get(recipe.value().assemble(craftingInput, getProvider())))) {
                     if (down) {
                         found = true;
                     } else {
                         if (prev == null) {
-                            cache = list.get(list.size() - 1);
+                            cache = list.getLast();
                         } else {
                             cache = prev;
                         }
@@ -189,16 +193,18 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
             }
 
             if (cache == null) {
-                cache = list.get(0);
+                cache = list.getFirst();
             }
 
-            craftInv = new AutoCraftingInventory(placedBy);
+            craftInv = new AutoCraftingContainer(placedBy);
             for (int i = 0; i < 9; i++) {
                 craftInv.setItem(i, matrix.getItem(i));
             }
             craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
 
-            targetType = ItemIdentifier.get(cache.value().assemble(craftingInput, getWorld().registryAccess()));
+            if (cache != null) {
+                targetType = ItemIdentifier.get(cache.value().assemble(craftingInput, getProvider()));
+            }
         }
 
         if (!guiWatcher.isEmpty() && MainProxy.isServer(getWorld())) {
@@ -258,7 +264,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
             //Not enough material
             return ItemStack.EMPTY;
         }
-        AutoCraftingInventory crafter = new AutoCraftingInventory(placedBy);
+        AutoCraftingContainer crafter = new AutoCraftingContainer(placedBy);
         for (int i = 0; i < 9; i++) {
             int j = toUse[i];
             if (j != -1) {
@@ -275,7 +281,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
 
                     if (r.value().matches(craftingInput, getWorld()) && FuzzyUtil.INSTANCE
                         .fuzzyMatches(FuzzyUtil.INSTANCE.getter(outputFuzzy()), outStack.getItem(),
-                            ItemIdentifier.get(r.value().getResultItem(getWorld().registryAccess())))) {
+                            ItemIdentifier.get(r.value().getResultItem(getProvider())))) {
                         recipe = r;
                         break;
                     }
@@ -287,7 +293,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
                 return ItemStack.EMPTY; //Fix MystCraft
             }
         }
-        ItemStack result = recipe.value().assemble(craftingInput, getWorld().registryAccess());
+        ItemStack result = recipe.value().assemble(craftingInput, getProvider());
         if (result.isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -311,7 +317,7 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
         if (!power.useEnergy(LPConfigs.COMMON.LOGISTICS_CRAFTING_TABLE_POWER_USAGE.getAsInt())) {
             return ItemStack.EMPTY;
         }
-        crafter = new AutoCraftingInventory(placedBy);
+        crafter = new AutoCraftingContainer(placedBy);
         for (int i = 0; i < 9; i++) {
             int j = toUse[i];
             if (j != -1) {
@@ -325,8 +331,9 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
         }
         result = result.copy();
         result.onCraftedBy(getWorld(), fake, result.getCount());
-        for (int i = 0; i < 9; i++) {
-            ItemStack left = crafter.getItem(i);
+        NonNullList<ItemStack> remaining = recipe.value().getRemainingItems(craftingInput);
+        for (int i = 0; i < remaining.size(); i++) {
+            ItemStack left = remaining.get(i);
             crafter.setItem(i, ItemStack.EMPTY);
             if (!left.isEmpty()) {
                 left.setCount(inv.addCompressed(left, false));
@@ -374,8 +381,8 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        inv.readFromNBT(tag, registries, "inv");
-        matrix.readFromNBT(tag, registries, "matrix");
+        inv.readFromNBT(tag, registries, "inv_");
+        matrix.readFromNBT(tag, registries, "matrix_");
         if (tag.contains("placedBy")) {
             String name = tag.getString("placedBy");
             placedBy = PlayerIdentifier.convertFromUsername(name);
@@ -393,8 +400,8 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        inv.writeToNBT(tag, registries, "inv");
-        matrix.writeToNBT(tag, registries, "matrix");
+        inv.writeToNBT(tag, registries, "inv_");
+        matrix.writeToNBT(tag, registries, "matrix_");
         if (placedBy != null) {
             placedBy.writeToNBT(tag, "placedBy");
         }
@@ -424,13 +431,11 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
 
     @Override
     public ItemStack getItem(int i) {
-        setChanged();
         return inv.getItem(i);
     }
 
     @Override
     public ItemStack removeItem(int i, int j) {
-        setChanged();
         return inv.removeItem(i, j);
     }
 
@@ -442,7 +447,6 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
     @Override
     public void setItem(int i, ItemStack itemstack) {
         inv.setItem(i, itemstack);
-        setChanged();
     }
 
     @Override
@@ -512,12 +516,9 @@ public class LogisticsCraftingTableTileEntity extends LogisticsSolidBlockEntity
         return "LogisticsCraftingTable";
     }
 
-
-
-    @SubscribeEvent
-    public void onWorldUnload(LevelEvent.Unload worldEvent) {
-        if (fake.level() == worldEvent.getLevel()) {
-            fake = null;
-        }
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        fake = null;
     }
 }

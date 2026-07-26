@@ -1,5 +1,7 @@
 package logisticspipes.world.level.block.entity;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -27,6 +29,7 @@ public class LogisticsSolidBlockEntity extends BlockEntity implements ITickable,
     /**
      * Returns the level this block entity is in. Replaces removed getWorld() from 1.12.2.
      */
+    @Nullable
     protected Level getWorld() {
         return this.level;
     }

@@ -1,6 +1,6 @@
 package logisticspipes.proxy.recipeproviders;
 
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.proxy.interfaces.IFuzzyRecipeProvider;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.world.item.ItemStack;
@@ -14,16 +14,16 @@ public class LogisticsCraftingTable implements IFuzzyRecipeProvider {
 
 	@Override
 	public boolean canOpenGui(BlockEntity tile) {
-		return (tile instanceof LogisticsCraftingTableTileEntity);
+		return (tile instanceof LogisticsCraftingTableBlockEntity);
 	}
 
 	@Override
 	public boolean importRecipe(BlockEntity tile, IItemIdentifierInventory inventory) {
-		if (!(tile instanceof LogisticsCraftingTableTileEntity)) {
+		if (!(tile instanceof LogisticsCraftingTableBlockEntity)) {
 			return false;
 		}
 
-		LogisticsCraftingTableTileEntity bench = (LogisticsCraftingTableTileEntity) tile;
+		LogisticsCraftingTableBlockEntity bench = (LogisticsCraftingTableBlockEntity) tile;
 		ItemIdentifierStack result = bench.resultInv.getIDStackInSlot(0);
 
 		if (result == null) {
@@ -54,11 +54,11 @@ public class LogisticsCraftingTable implements IFuzzyRecipeProvider {
 
 	@Override
 	public void importFuzzyFlags(BlockEntity tile, SlotAccess slotAccess, BitSetProperty fuzzyFlags) {
-		if (!(tile instanceof LogisticsCraftingTableTileEntity)) {
+		if (!(tile instanceof LogisticsCraftingTableBlockEntity)) {
 			return;
 		}
 
-		LogisticsCraftingTableTileEntity bench = (LogisticsCraftingTableTileEntity) tile;
+		LogisticsCraftingTableBlockEntity bench = (LogisticsCraftingTableBlockEntity) tile;
 
 		if (!bench.isFuzzy()) {
 			return;

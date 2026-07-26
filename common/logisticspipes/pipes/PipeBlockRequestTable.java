@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 
 import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.blocks.crafting.AutoCraftingInventory;
+import logisticspipes.world.level.block.entity.AutoCraftingContainer;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
@@ -265,7 +265,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		ItemIdentifier oldTargetType = targetType;
 		cache = null;
 		resultInv.clearInventorySlotContents(0);
-		AutoCraftingInventory craftInv = new AutoCraftingInventory(null);
+		AutoCraftingContainer craftInv = new AutoCraftingContainer(null);
 		for (int i = 0; i < 9; i++) {
 			craftInv.setItem(i, matrix.getItem(i));
 		}
@@ -283,7 +283,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		} else if (list.size() > 1) {
 			if (targetType != null) {
 				for (RecipeHolder<CraftingRecipe> recipe : list) {
-					craftInv = new AutoCraftingInventory(null);
+					craftInv = new AutoCraftingContainer(null);
 					for (int i = 0; i < 9; i++) {
 						craftInv.setItem(i, matrix.getItem(i));
 					}
@@ -316,7 +316,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			return;
 		}
 		cache = null;
-		AutoCraftingInventory craftInv = new AutoCraftingInventory(null);
+		AutoCraftingContainer craftInv = new AutoCraftingContainer(null);
 		for (int i = 0; i < 9; i++) {
 			craftInv.setItem(i, matrix.getItem(i));
 		}
@@ -335,7 +335,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 					cache = recipe;
 					break;
 				}
-				craftInv = new AutoCraftingInventory(null);
+				craftInv = new AutoCraftingContainer(null);
 				for (int i = 0; i < 9; i++) {
 					craftInv.setItem(i, matrix.getItem(i));
 				}
@@ -357,7 +357,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			if (cache == null) {
 				cache = list.get(0);
 			}
-			craftInv = new AutoCraftingInventory(null);
+			craftInv = new AutoCraftingContainer(null);
 			for (int i = 0; i < 9; i++) {
 				craftInv.setItem(i, matrix.getItem(i));
 			}
@@ -417,7 +417,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			//Not enough material
 			return ItemStack.EMPTY;
 		}
-		AutoCraftingInventory crafter = new AutoCraftingInventory(null);
+		AutoCraftingContainer crafter = new AutoCraftingContainer(null);
 		for (int i = 0; i < 9; i++) {
 			int j = toUse[i];
 			if (j != -1) {
@@ -435,7 +435,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		if (!resultInv.getIDStackInSlot(0).getItem().equalsWithoutNBT(ItemIdentifier.get(result))) {
 			return ItemStack.EMPTY;
 		}
-		crafter = new AutoCraftingInventory(null);
+		crafter = new AutoCraftingContainer(null);
 		for (int i = 0; i < 9; i++) {
 			int j = toUse[i];
 			if (j != -1) {

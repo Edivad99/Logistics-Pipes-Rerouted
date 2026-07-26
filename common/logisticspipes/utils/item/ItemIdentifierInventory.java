@@ -29,6 +29,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -39,6 +40,7 @@ import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.SlotAccess;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ItemIdentifierInventory
 		implements IStore, Iterable<Pair<ItemIdentifierStack, Integer>>, IItemIdentifierInventory {
@@ -130,7 +132,6 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	@Deprecated
     public ItemStack getItem(int i) {
 		if (_contents[i] == null) {
 			return ItemStack.EMPTY;
@@ -139,6 +140,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
+    @Nullable
 	public ItemIdentifierStack getIDStackInSlot(int i) {
 		return _contents[i];
 	}
@@ -177,7 +179,7 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void setItem(int i, ItemIdentifierStack itemstack) {
+	public void setItem(int i, @Nullable ItemIdentifierStack itemstack) {
 		if (itemstack == null) {
 			_contents[i] = null;
 		} else {
@@ -218,19 +220,19 @@ public class ItemIdentifierInventory
 	public void stopOpen(Player player) {}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
-		readFromNBT(nbttagcompound, provider, "");
+	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		readFromNBT(tag, provider, "");
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider, String prefix) {
-		ListTag nbttaglist = nbttagcompound.getList(prefix + "items", nbttagcompound.getId());
+	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider, String prefix) {
+		ListTag listtag = tag.getList(prefix + "items", Tag.TAG_COMPOUND);
 
 		Arrays.fill(_contents, null);
-		for (int j = 0; j < nbttaglist.size(); ++j) {
-			CompoundTag nbttagcompound2 = nbttaglist.getCompound(j);
-			int index = nbttagcompound2.getInt("index");
-			if (index < _contents.length) {
-				ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2, provider);
+		for (int j = 0; j < listtag.size(); ++j) {
+			CompoundTag compoundTag = listtag.getCompound(j);
+			int index = compoundTag.getInt("index");
+			if (index >= 0 && index < _contents.length) {
+				ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(compoundTag, provider);
 				ItemIdentifierStack itemstack = ItemIdentifierStack.getFromStack(stack);
 				if (isValidStack(itemstack)) {
 					_contents[index] = itemstack;
@@ -244,8 +246,8 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
-		writeToNBT(nbttagcompound, provider, "");
+	public void writeToNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+		writeToNBT(tag, provider, "");
 	}
 
 	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider, String prefix) {
@@ -446,17 +448,7 @@ public class ItemIdentifierInventory
 		return true;
 	}
 
-	public int getField(int id) {
-		return 0;
-	}
-
-	public void setField(int id, int value) {}
-
-	public int getFieldCount() {
-		return 0;
-	}
-
-	@Override
+    @Override
 	public void clearContent() {
 		clear();
 	}
@@ -488,8 +480,10 @@ public class ItemIdentifierInventory
 		return false;
 	}
 
-	private boolean isValidStack(ItemIdentifierStack stack) {
-		if (stack == null) return true;
+	private boolean isValidStack(@Nullable ItemIdentifierStack stack) {
+		if (stack == null) {
+            return true;
+        }
 		if (isLiquidInventory) {
 			return FluidIdentifier.get(stack.getItem()) != null;
 		}
@@ -499,21 +493,21 @@ public class ItemIdentifierInventory
 	@Override
     public Iterator<Pair<ItemIdentifierStack, Integer>> iterator() {
 		final Iterator<ItemIdentifierStack> iter = Arrays.asList(_contents).iterator();
-		return new Iterator<Pair<ItemIdentifierStack, Integer>>() {
+		return new Iterator<>() {
 
-			int pos = -1;
+            int pos = -1;
 
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
+            @Override
+            public boolean hasNext() {
+                return iter.hasNext();
+            }
 
-			@Override
-			public Pair<ItemIdentifierStack, Integer> next() {
-				pos++;
-				return new Pair<>(iter.next(), pos);
-			}
-		};
+            @Override
+            public Pair<ItemIdentifierStack, Integer> next() {
+                pos++;
+                return new Pair<>(iter.next(), pos);
+            }
+        };
 	}
 
 	public void clearGrid() {
@@ -527,20 +521,12 @@ public class ItemIdentifierInventory
 		return _name;
 	}
 
-	public boolean hasCustomName() {
-		return true;
-	}
-
-	public Component getDisplayName() {
-		return Component.literal(getName());
-	}
-
 	public NonNullList<ItemStack> toNonNullList() {
 		NonNullList<ItemStack> list = NonNullList.create();
 		list.addAll(0, Arrays.stream(_contents)
 				.filter(Objects::nonNull)
 				.map(ItemIdentifierStack::makeNormalStack)
-				.collect(Collectors.toList()));
+				.toList());
 		return list;
 	}
 

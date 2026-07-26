@@ -2,7 +2,7 @@ package logisticspipes.gui;
 
 import java.util.Arrays;
 
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.CraftingCycleRecipe;
 import logisticspipes.proxy.MainProxy;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
-	public LogisticsCraftingTableTileEntity _crafter;
+	public LogisticsCraftingTableBlockEntity _crafter;
 
 	private int fuzzyPanelSelection = -1;
 	private int fuzzyPanelHover = -1;
@@ -26,12 +26,12 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
 	private net.minecraft.client.gui.components.AbstractButton[] cycleButtons = new net.minecraft.client.gui.components.AbstractButton[2];
 
-	public GuiLogisticsCraftingTable(Player player, LogisticsCraftingTableTileEntity crafter) {
+	public GuiLogisticsCraftingTable(Player player, LogisticsCraftingTableBlockEntity crafter) {
 		super(buildDummy(player, crafter), 176, 218, 0, 0);
 		_crafter = crafter;
 		((DummyContainer) this.menu).guiHolderForJEI = this;
 	}
-	private static DummyContainer buildDummy(Player player, LogisticsCraftingTableTileEntity crafter) {
+	private static DummyContainer buildDummy(Player player, LogisticsCraftingTableBlockEntity crafter) {
 		DummyContainer dummy = new DummyContainer(player.getInventory(), crafter.matrix);
 
 		for (int x = 0; x < 3; x++) {

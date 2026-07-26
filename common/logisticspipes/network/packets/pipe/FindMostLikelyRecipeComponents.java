@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.gui.popup.GuiRecipeImport;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -41,9 +41,9 @@ public class FindMostLikelyRecipeComponents extends CoordinatesPacket {
 	public void processPacket(Player player) {
 		BlockEntity tile = this.getTileAs(player.level(), BlockEntity.class);
 		CoreRoutedPipe pipe = null;
-		if (tile instanceof LogisticsCraftingTableTileEntity) {
+		if (tile instanceof LogisticsCraftingTableBlockEntity) {
 			for (Direction dir : Direction.values()) {
-				BlockEntity conn = CoordinateUtils.add(((LogisticsCraftingTableTileEntity) tile).getLPPosition(), dir).getTileEntity(player.level());
+				BlockEntity conn = CoordinateUtils.add(((LogisticsCraftingTableBlockEntity) tile).getLPPosition(), dir).getTileEntity(player.level());
 				if (conn instanceof LogisticsTileGenericPipe) {
 					if (((LogisticsTileGenericPipe) conn).pipe instanceof PipeItemsCraftingLogistics) {
 						pipe = (CoreRoutedPipe) ((LogisticsTileGenericPipe) conn).pipe;

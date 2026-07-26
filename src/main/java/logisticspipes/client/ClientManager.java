@@ -19,6 +19,7 @@ import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
 import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
+import logisticspipes.renderer.newpipe.GLRenderListHandler;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
 import logisticspipes.renderer.newpipe.tube.CurveTubeRenderer;
@@ -53,6 +54,7 @@ public class ClientManager {
         NeoForge.EVENT_BUS.register(new RenderTickHandler());
         NeoForge.EVENT_BUS.register(WidgetScreenHudSuppressor.INSTANCE);
         SimpleServiceLocator.setClientPacketBufferHandlerThread(new ClientPacketBufferHandlerThread());
+        SimpleServiceLocator.setRenderListHandler(new GLRenderListHandler());
         LPFontRenderer.Factory.asyncPreload();
     }
 

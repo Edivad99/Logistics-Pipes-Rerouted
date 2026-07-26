@@ -1,5 +1,7 @@
 package logisticspipes.utils.gui;
 
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
@@ -26,6 +28,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	protected int xCenterOffset;
 	protected int yCenterOffset;
 	protected ISubGuiControler controler;
+    @Nullable
 	private SubGuiScreen subGui;
 	protected GuiGraphics storedGuiGraphics;
 

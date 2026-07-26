@@ -1,13 +1,12 @@
 package logisticspipes.network.packets;
 
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,8 +29,8 @@ public class NEISetCraftingRecipe extends CoordinatesPacket {
 	@Override
 	public void processPacket(Player player) {
 		BlockEntity tile = getTileAs(player.level(), BlockEntity.class);
-		if (tile instanceof LogisticsCraftingTableTileEntity) {
-			((LogisticsCraftingTableTileEntity) tile).handleNEIRecipePacket(getStackList());
+		if (tile instanceof LogisticsCraftingTableBlockEntity) {
+			((LogisticsCraftingTableBlockEntity) tile).handleNEIRecipePacket(getStackList());
 		} else if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe instanceof PipeBlockRequestTable) {
 			((PipeBlockRequestTable) ((LogisticsTileGenericPipe) tile).pipe).handleNEIRecipePacket(getStackList());
 		}

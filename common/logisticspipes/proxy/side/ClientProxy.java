@@ -14,6 +14,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.IProxy;
+import logisticspipes.renderer.newpipe.GLRenderListHandler;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -49,7 +50,6 @@ public class ClientProxy implements IProxy {
 	public void registerTileEntities() {
 		// BlockEntityRenderer registration is handled via EntityRenderersEvent.RegisterRenderers
 		// in LogisticsPipes.registerRenderers() — nothing to do here except initialise the render list.
-		SimpleServiceLocator.setRenderListHandler(new logisticspipes.renderer.newpipe.GLRenderListHandler());
 	}
 
 	@Override

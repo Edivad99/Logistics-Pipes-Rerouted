@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.block;
 
-import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeBlockRequestTable;
@@ -26,11 +26,12 @@ public class CraftingCycleRecipe extends CoordinatesPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		BlockEntity table = this.getTileAs(player.level(), BlockEntity.class);
-		if (table instanceof LogisticsCraftingTableTileEntity) {
-			((LogisticsCraftingTableTileEntity) table).cycleRecipe(down);
-		} else if (table instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) table).pipe instanceof PipeBlockRequestTable) {
-			((PipeBlockRequestTable) ((LogisticsTileGenericPipe) table).pipe).cycleRecipe(down);
+		BlockEntity be = this.getTileAs(player.level(), BlockEntity.class);
+		if (be instanceof LogisticsCraftingTableBlockEntity craftingTableBlockEntity) {
+            craftingTableBlockEntity.cycleRecipe(down);
+		} else if (be instanceof LogisticsTileGenericPipe genericPipeBlockEntity &&
+            genericPipeBlockEntity.pipe instanceof PipeBlockRequestTable requestTable) {
+			requestTable.cycleRecipe(down);
 		}
 	}
 
