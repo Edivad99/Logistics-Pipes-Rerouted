@@ -120,7 +120,7 @@ gradle-app.setting
 
 ### Minecraft Modding ###
 runs/
-!**/src/**/run/
+!**/src/**/runs/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/

@@ -25,6 +25,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import logisticspipes.data.LPSpriteSourceProvider;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.client.ClientManager;
@@ -237,6 +238,8 @@ public class LogisticsPipes {
             new LPRecipeProvider(packOutput, lookupProvider));
 
         generator.addProvider(event.includeClient(), new LPParticleProvider(packOutput, fileHelper));
+        generator.addProvider(event.includeClient(),
+            new LPSpriteSourceProvider(packOutput, lookupProvider, fileHelper));
     }
 
     // NeoForge Events

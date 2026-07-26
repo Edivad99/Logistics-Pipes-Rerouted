@@ -57,9 +57,8 @@ sourceSets {
         java { srcDirs += 'common' }
         resources {
             srcDir 'src/generated/resources'
-            srcDirs += 'resources'
             exclude '**/*.bbmodel'
-            exclude 'src/generated/**/.cache'
+            exclude '.cache'
         }
         test {
             compileClasspath += api.output
@@ -81,8 +80,6 @@ neoForge {
         mappingsVersion = project.parchment_mappings_version
         minecraftVersion = project.parchment_minecraft_version
     }
-
-    accessTransformers.from "./resources/META-INF/accesstransformer.cfg"
 
     validateAccessTransformers = true
 
@@ -114,7 +111,7 @@ neoForge {
             gameDirectory = project.file('runs/data')
             programArguments.addAll '--mod', project.mod_id, '--all',
                 '--output', file('src/generated/resources/').getAbsolutePath(),
-                '--existing', file('resources/').getAbsolutePath()
+                '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
         gameTestServer {
