@@ -464,7 +464,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
 		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) {
 			return false;
 		}

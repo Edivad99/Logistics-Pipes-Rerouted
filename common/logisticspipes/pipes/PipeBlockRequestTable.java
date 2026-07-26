@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.AutoCraftingContainer;
@@ -82,7 +84,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
 		//allow using upgrade manager
 		if (MainProxy.isPipeControllerEquipped(entityplayer) && !(entityplayer.isCrouching())) {
 			return false;

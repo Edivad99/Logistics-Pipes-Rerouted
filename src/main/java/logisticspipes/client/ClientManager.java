@@ -15,10 +15,10 @@ import net.neoforged.neoforge.common.NeoForge;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.client.particle.SparkParticle;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
+import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
-import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
 import logisticspipes.renderer.newpipe.GLRenderListHandler;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
@@ -102,11 +102,12 @@ public class ClientManager {
 
     private static void handleClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(new IClientItemExtensions() {
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return LogisticsSolidBlockItemRenderer.INSTANCE;
-            }
-        },
+
+                               @Override
+                               public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                                   return LogisticsSolidBlockItemRenderer.INSTANCE;
+                               }
+                           },
             LPItems.ITEM_FRAME,
             LPItems.ITEM_POWER_JUNCTION,
             LPItems.ITEM_SECURITY_STATION,

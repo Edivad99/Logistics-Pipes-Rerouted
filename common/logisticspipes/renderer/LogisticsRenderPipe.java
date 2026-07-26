@@ -3,6 +3,7 @@ package logisticspipes.renderer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.Nullable;
@@ -20,8 +21,11 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
+import logisticspipes.proxy.object3d.interfaces.IModel3D;
+import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
 import logisticspipes.renderer.newpipe.LogisticsNewPipeItemBoxRenderer;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
+import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.utils.LPPositionSet;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -125,7 +129,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		}
 	}
 
-	private static void emitBox(com.mojang.blaze3d.vertex.VertexConsumer vc, org.joml.Matrix4f m, org.joml.Matrix3f n,
+	private static void emitBox(VertexConsumer vc, Matrix4f m, Matrix3f n,
 			float x0, float y0, float z0, float x1, float y1, float z1,
 			int r, int g, int b, int packedLight, int packedOverlay) {
 		// -Y
@@ -152,7 +156,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		vc.addVertex(m, x4, y4, z4).setColor(r, g, b, 255).setUv(0, 1).setOverlay(packedOverlay).setLight(packedLight).setNormal(nx, ny, nz);
 	}
 
-	private static logisticspipes.proxy.object3d.interfaces.TextureTransformation requestTableIcon = null;
+    @Nullable
+	private static TextureTransformation requestTableIcon = null;
 
 	/**
 	 * Draws the Request Table's full block body. Port of the dead 1.12
@@ -164,14 +169,11 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 	 */
 	private void renderRequestTableBlock(PipeBlockRequestTable table, LogisticsTileGenericPipe pipeTile,
 			PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		if (!(SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl)) return;
-		if (logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.block == null
-				|| logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.block.isEmpty()) return;
+		if (!(SimpleServiceLocator.cclProxy.getRenderState() instanceof LPRenderStateImpl rs)) return;
+		if (LogisticsNewSolidBlockWorldRenderer.block == null
+				|| LogisticsNewSolidBlockWorldRenderer.block.isEmpty()) return;
 
-		logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
-				(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
-		com.mojang.blaze3d.vertex.VertexConsumer buffer =
-				bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.cutoutMipped());
+        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
 		rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
 		rs.reset();
 
@@ -183,27 +185,26 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		}
 		if (requestTableIcon == null) return;
 
-		logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation rotation =
-				logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation.getRotation(table.getRotation());
-		if (rotation == null) rotation = logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation.ZERO;
+		LogisticsNewSolidBlockWorldRenderer.BlockRotation rotation =
+				LogisticsNewSolidBlockWorldRenderer.BlockRotation.getRotation(table.getRotation());
+		if (rotation == null) rotation = LogisticsNewSolidBlockWorldRenderer.BlockRotation.ZERO;
 
-		logisticspipes.proxy.object3d.interfaces.IModel3D body =
-				logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.block.get(rotation);
+		IModel3D body = LogisticsNewSolidBlockWorldRenderer.block.get(rotation);
 		if (body != null) {
 			body.render(requestTableIcon);
 		}
 
-		for (logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.CoverSides side :
-				logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.CoverSides.values()) {
+		for (LogisticsNewSolidBlockWorldRenderer.CoverSides side :
+				LogisticsNewSolidBlockWorldRenderer.CoverSides.values()) {
 			// LP1 skipped the plates on sides with pipe connections so adjacent pipes visually
 			// enter the table.
 			if (pipeTile.renderState != null && pipeTile.renderState.pipeConnectionMatrix.isConnected(side.getDir(rotation))) {
 				continue;
 			}
-			java.util.Map<logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation, logisticspipes.proxy.object3d.interfaces.IModel3D> outer =
-					logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.texturePlate_Outer.get(side);
-			java.util.Map<logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.BlockRotation, logisticspipes.proxy.object3d.interfaces.IModel3D> inner =
-					logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer.texturePlate_Inner.get(side);
+			Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, IModel3D> outer =
+					LogisticsNewSolidBlockWorldRenderer.texturePlate_Outer.get(side);
+			Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, logisticspipes.proxy.object3d.interfaces.IModel3D> inner =
+					LogisticsNewSolidBlockWorldRenderer.texturePlate_Inner.get(side);
 			if (outer != null && outer.get(rotation) != null) {
 				outer.get(rotation).render(requestTableIcon);
 			}
@@ -241,10 +242,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 			if (SimpleServiceLocator.cclProxy.isActivated()) {
 				// Refresh the bound pose matrices to the current PoseStack top so that
 				// any pipe-geometry emission in LogisticsNewRenderPipe lands at the block.
-				if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
-					logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
-						(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
-					rs.pose = poseStack.last().pose();
+				if (SimpleServiceLocator.cclProxy.getRenderState() instanceof LPRenderStateImpl rs) {
+                    rs.pose = poseStack.last().pose();
 					rs.normal = poseStack.last().normal();
 				}
 				// The Request Table is an isPipeBlock() pipe: LogisticsNewRenderPipe skips it and

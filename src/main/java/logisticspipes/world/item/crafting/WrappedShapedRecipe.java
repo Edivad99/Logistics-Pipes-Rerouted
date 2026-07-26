@@ -9,57 +9,58 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 
 public abstract class WrappedShapedRecipe extends ShapedRecipe {
-  private final ShapedRecipe internal;
 
-  protected WrappedShapedRecipe(ShapedRecipe internal) {
-    super(internal.getGroup(), internal.category(), internal.pattern, internal.getResultItem(null),
-        internal.showNotification());
-    this.internal = internal;
-  }
+    private final ShapedRecipe internal;
 
-  public ShapedRecipe getInternal() {
-    return this.internal;
-  }
+    protected WrappedShapedRecipe(ShapedRecipe internal) {
+        super(internal.getGroup(), internal.category(), internal.pattern, internal.getResultItem(null),
+            internal.showNotification());
+        this.internal = internal;
+    }
 
-  public abstract ItemStack assemble(CraftingInput input, HolderLookup.Provider provider);
+    public ShapedRecipe getInternal() {
+        return this.internal;
+    }
 
-  public boolean matches(CraftingInput input, Level world) {
-    return this.internal.matches(input, world) && !this.assemble(input, world.registryAccess()).isEmpty();
-  }
+    public abstract ItemStack assemble(CraftingInput input, HolderLookup.Provider provider);
 
-  public boolean canCraftInDimensions(int width, int height) {
-    return this.internal.canCraftInDimensions(width, height);
-  }
+    public boolean matches(CraftingInput input, Level world) {
+        return this.internal.matches(input, world) && !this.assemble(input, world.registryAccess()).isEmpty();
+    }
 
-  public ItemStack getResultItem(HolderLookup.Provider provider) {
-    return this.internal.getResultItem(provider);
-  }
+    public boolean canCraftInDimensions(int width, int height) {
+        return this.internal.canCraftInDimensions(width, height);
+    }
 
-  public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
-    return this.internal.getRemainingItems(input);
-  }
+    public ItemStack getResultItem(HolderLookup.Provider provider) {
+        return this.internal.getResultItem(provider);
+    }
 
-  public NonNullList<Ingredient> getIngredients() {
-    return this.internal.getIngredients();
-  }
+    public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+        return this.internal.getRemainingItems(input);
+    }
 
-  public boolean isSpecial() {
-    return this.internal.isSpecial();
-  }
+    public NonNullList<Ingredient> getIngredients() {
+        return this.internal.getIngredients();
+    }
 
-  public ItemStack getToastSymbol() {
-    return this.internal.getToastSymbol();
-  }
+    public boolean isSpecial() {
+        return this.internal.isSpecial();
+    }
 
-  public int getWidth() {
-    return this.internal.getWidth();
-  }
+    public ItemStack getToastSymbol() {
+        return this.internal.getToastSymbol();
+    }
 
-  public int getHeight() {
-    return this.internal.getHeight();
-  }
+    public int getWidth() {
+        return this.internal.getWidth();
+    }
 
-  public boolean isIncomplete() {
-    return this.internal.isIncomplete();
-  }
+    public int getHeight() {
+        return this.internal.getHeight();
+    }
+
+    public boolean isIncomplete() {
+        return this.internal.isIncomplete();
+    }
 }

@@ -8,8 +8,8 @@ import net.minecraft.world.item.ItemStack;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import logisticspipes.world.item.LogisticsSolidBlockItem;
 import logisticspipes.client.renderer.blockentity.LogisticsSolidBlockRenderer;
+import logisticspipes.world.item.LogisticsSolidBlockItem;
 
 /**
  * BEWLR that draws an LP solid block item using the same OBJ geometry as

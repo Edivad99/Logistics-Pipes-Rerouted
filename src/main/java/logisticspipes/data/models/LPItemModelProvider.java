@@ -25,10 +25,10 @@ public class LPItemModelProvider extends ItemModelProvider {
         this.basicItem(LPItems.BROKEN_ITEM.get());
         this.basicItem(LPItems.GUIDE_BOOK.get());
 
-//        this.basicItem(LPItems.REMOTE_ORDERER.get());
-//        this.basicItem(LPItems.SIGN_CREATOR.get());
-//        this.basicItem(LPItems.PARTS.get());
-//        this.basicItem(LPItems.FLUID_CONTAINER.get());
+        //        this.basicItem(LPItems.REMOTE_ORDERER.get());
+        //        this.basicItem(LPItems.SIGN_CREATOR.get());
+        //        this.basicItem(LPItems.PARTS.get());
+        //        this.basicItem(LPItems.FLUID_CONTAINER.get());
 
         this.basicItem(LPItems.CHIP_ADVANCED.get());
         this.basicItem(LPItems.CHIP_ADVANCED_RAW.get());
@@ -39,7 +39,6 @@ public class LPItemModelProvider extends ItemModelProvider {
 
         this.basicItem(LPItems.MODULE_BLANK.get());
         LPItems.modules.forEach((name, rl) -> this.basicItem(rl));
-
         LPItems.upgrades.forEach((name, rl) -> this.basicItem(rl));
     }
 }

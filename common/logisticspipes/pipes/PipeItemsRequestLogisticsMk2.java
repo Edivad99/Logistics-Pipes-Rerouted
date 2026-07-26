@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.world.item.LPItems;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
@@ -24,7 +26,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 	}
 
 	@Override
-	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
 		//allow using upgrade manager
 		if (MainProxy.isPipeControllerEquipped(entityplayer) && !(entityplayer.isCrouching())) {
 			return false;

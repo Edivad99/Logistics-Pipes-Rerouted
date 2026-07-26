@@ -1,16 +1,18 @@
 package logisticspipes.particle;
 
-import com.mojang.serialization.MapCodec;
-
-import logisticspipes.LPConstants;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import com.mojang.serialization.MapCodec;
+
+import logisticspipes.LPConstants;
 
 public class LPParticleTypes {
 
@@ -28,6 +30,7 @@ public class LPParticleTypes {
     private static <T extends ParticleOptions> ParticleType<T> create(
         MapCodec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
         return new ParticleType<>(false) {
+
             @Override
             public MapCodec<T> codec() {
                 return codec;

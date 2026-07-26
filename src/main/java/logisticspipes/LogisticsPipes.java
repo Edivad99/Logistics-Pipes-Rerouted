@@ -25,14 +25,14 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import logisticspipes.data.LPSpriteSourceProvider;
-import logisticspipes.data.models.LPItemModelProvider;
-import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.client.ClientManager;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.chathelper.LPChatListener;
 import logisticspipes.data.LPParticleProvider;
+import logisticspipes.data.LPSpriteSourceProvider;
+import logisticspipes.data.models.LPBlockModelProvider;
+import logisticspipes.data.models.LPItemModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
@@ -72,6 +72,7 @@ import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.world.item.crafting.LPRecipeSerializers;
 import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import network.rs485.grow.ServerTickDispatcher;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.ServerConfigurationManager;
@@ -241,8 +242,8 @@ public class LogisticsPipes {
         generator.addProvider(event.includeClient(), new LPParticleProvider(packOutput, fileHelper));
         generator.addProvider(event.includeClient(),
             new LPSpriteSourceProvider(packOutput, lookupProvider, fileHelper));
-        generator.addProvider(event.includeClient(),
-            new LPItemModelProvider(packOutput, fileHelper));
+        generator.addProvider(event.includeClient(), new LPItemModelProvider(packOutput, fileHelper));
+        generator.addProvider(event.includeClient(), new LPBlockModelProvider(packOutput, fileHelper));
     }
 
     // NeoForge Events

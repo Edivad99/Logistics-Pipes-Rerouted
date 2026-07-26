@@ -60,7 +60,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 	}
 
 	@Override
-	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
 		if (MainProxy.isServer(getWorld())) {
 			if (settings == null || settings.openRequest) {
 				openGui(entityplayer);

@@ -25,6 +25,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import javax.annotation.Nullable;
 import kotlin.Unit;
 import logisticspipes.LPConstants;
+import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
@@ -926,7 +927,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openRequest) {
-					logisticspipes.network.guis.pipe.NormalOrdererGui gui = NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalOrdererGui.class);
+					NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
 					gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
 					gui.setDim(entityplayer.level().dimension().location());
 					gui.open(entityplayer);
@@ -961,7 +962,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		return super.blockActivated(entityplayer);
 	}
 
-	protected boolean handleClick(Player entityplayer, SecuritySettings settings) {
+	protected boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
 		return false;
 	}
 

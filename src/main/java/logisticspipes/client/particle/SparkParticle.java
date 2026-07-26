@@ -1,7 +1,5 @@
 package logisticspipes.client.particle;
 
-import logisticspipes.particle.SparkleParticleOptions;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -9,6 +7,8 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
+
+import logisticspipes.particle.SparkleParticleOptions;
 
 public class SparkParticle extends TextureSheetParticle {
 
@@ -21,7 +21,7 @@ public class SparkParticle extends TextureSheetParticle {
         this.gravity = 0.07F;
         this.xd = this.yd = this.zd = 0;
         this.scale(scale);
-        this.lifetime = 3 * multiplier -1;
+        this.lifetime = 3 * multiplier - 1;
         this.hasPhysics = false;
         this.setSpriteFromAge(sprites);
     }

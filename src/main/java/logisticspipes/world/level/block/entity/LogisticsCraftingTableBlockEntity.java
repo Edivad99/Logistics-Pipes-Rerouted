@@ -72,7 +72,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         matrix.addListener(this);
     }
 
-   @Nullable
+    @Nullable
     private HolderLookup.Provider getProvider() {
         if (getWorld() != null) {
             return getWorld().registryAccess();

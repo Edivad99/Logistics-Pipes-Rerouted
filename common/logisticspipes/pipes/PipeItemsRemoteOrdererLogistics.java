@@ -28,7 +28,7 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
 	}
 
 	@Override
-	public boolean handleClick(Player entityplayer, SecuritySettings settings) {
+	public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
 		if (!entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() &&
 				entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
 			if (MainProxy.isServer(getWorld())) {
