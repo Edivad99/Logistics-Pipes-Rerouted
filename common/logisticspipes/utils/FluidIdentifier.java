@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -178,7 +179,8 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return (unknownFluid);
 	}
 
-	public static FluidIdentifier get(FluidStack stack) {
+    @Nullable
+	public static FluidIdentifier get(@Nullable FluidStack stack) {
 		if (stack == null) {
 			return null;
 		}
@@ -192,7 +194,12 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 //				proposal = info.fluid;
 //			}
 //		}
-		FluidIdentifier ident = FluidIdentifier.get(stack.getFluid(), stack.get(DataComponents.CUSTOM_DATA).copyTag(), proposal);
+        FluidIdentifier ident;
+        if (stack.has(DataComponents.CUSTOM_DATA)) {
+            ident = FluidIdentifier.get(stack.getFluid(), Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag(), proposal);
+        } else {
+            ident = FluidIdentifier.get(stack.getFluid(), null, proposal);
+        }
 		if (proposal != ident && stack.getComponentsPatch().isEmpty() && prov != null) {
 			prov.setLogisticsPipesAddInfo(new FluidStackAddInfo(ident));
 		}

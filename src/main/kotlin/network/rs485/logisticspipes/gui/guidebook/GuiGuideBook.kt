@@ -39,7 +39,7 @@ package network.rs485.logisticspipes.gui.guidebook
 
 import logisticspipes.world.item.LPItems
 import logisticspipes.LogisticsPipes
-import logisticspipes.modplugins.jei.JEIPluginLoader
+import logisticspipes.integrations.jei.JEIPluginLoader
 import logisticspipes.utils.MinecraftColor
 import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft

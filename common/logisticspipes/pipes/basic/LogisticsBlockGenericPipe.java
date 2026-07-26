@@ -144,7 +144,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		// TODO: propertyRenderList / propertyCache were IExtendedBlockState properties — removed in 1.20.1; rendering rewrite needed
 	}
 
-	@Nullable
+    @Nullable
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new LogisticsTileGenericPipe(pos, state);
@@ -455,7 +455,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return getShape(state, world, pos, context);
 	}
 
-	/**
+    /**
 	 * Block-local VoxelShape of a multiblock tube for one block cell, built from the pipe's
 	 * world-space collision boxes (the same geometry LP1 fed to addCollisionBoxToList).
 	 * Returns {@link Shapes#empty()} when no box touches the cell.

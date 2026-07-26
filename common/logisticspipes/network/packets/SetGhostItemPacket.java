@@ -30,16 +30,14 @@ public class SetGhostItemPacket extends ModernPacket {
 	public void processPacket(Player player) {
 		AbstractContainerMenu container = player.containerMenu;
 
-		if (container != null) {
-			if (integer.getValue() >= 0 && integer.getValue() < container.slots.size()) {
-				Slot slot = container.getSlot(integer.getValue());
+        if (integer.getValue() >= 0 && integer.getValue() < container.slots.size()) {
+            Slot slot = container.getSlot(integer.getValue());
 
-				if (slot instanceof DummySlot || slot instanceof FluidSlot) {
-					slot.set(stack.getValue());
-				}
-			}
-		}
-	}
+            if (slot instanceof DummySlot || slot instanceof FluidSlot) {
+                slot.set(stack.getValue());
+            }
+        }
+    }
 
 	@Override
 	public ModernPacket template() {

@@ -1,13 +1,13 @@
-package logisticspipes.modplugins.jei;
+package logisticspipes.integrations.jei;
 
 import javax.annotation.Nullable;
+
+import net.minecraft.world.item.ItemStack;
+
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.recipe.IFocusFactory;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class JEIPluginLoader {
 
@@ -22,11 +22,12 @@ public class JEIPluginLoader {
         jeiRuntime = null;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void showRecipe(ItemStack stack) {
-        if (jeiRuntime == null || stack.isEmpty()) return;
+        if (jeiRuntime == null || stack.isEmpty()) {
+            return;
+        }
         IFocusFactory focusFactory = jeiRuntime.getJeiHelpers().getFocusFactory();
         jeiRuntime.getRecipesGui().show(
-                focusFactory.createFocus(RecipeIngredientRole.OUTPUT, VanillaTypes.ITEM_STACK, stack));
+            focusFactory.createFocus(RecipeIngredientRole.OUTPUT, VanillaTypes.ITEM_STACK, stack));
     }
 }
