@@ -2,6 +2,8 @@ package logisticspipes.routing.pathfinder;
 
 import java.util.List;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
+
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.transport.LPTravelingItem;
@@ -22,7 +24,7 @@ public interface IPipeInformationProvider {
 
 	int getZ();
 
-	Level getWorld();
+	@Nullable Level getWorld();
 
 	boolean isRouterInitialized();
 

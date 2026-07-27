@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import logisticspipes.LPConstants;
@@ -296,17 +298,25 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		private final double scale;
 	}
 
+    @Nullable
 	static IModel3D innerTransportBox;
+    @Nullable
 	public static IModel3D highlight;
 
 	private static final List<RenderEntry> pipeFrameRenderList = new ArrayList<>();
 
+    @Nullable
 	public static TextureTransformation basicPipeTexture;
-	public static TextureTransformation inactiveTexture;
-	public static TextureTransformation glassCenterTexture;
-	public static TextureTransformation innerBoxTexture;
-	public static TextureTransformation statusTexture;
-	public static TextureTransformation statusBCTexture;
+    @Nullable
+    public static TextureTransformation inactiveTexture;
+    @Nullable
+    public static TextureTransformation glassCenterTexture;
+    @Nullable
+    public static TextureTransformation innerBoxTexture;
+    @Nullable
+    public static TextureTransformation statusTexture;
+    @Nullable
+    public static TextureTransformation statusBCTexture;
 
 	public static void loadModels() {
 		if (!SimpleServiceLocator.cclProxy.isActivated()) return;
@@ -536,22 +546,14 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 	}
 
 	private static String getDirAsString_Type1(Direction dir) {
-		switch (dir) {
-			case NORTH:
-				return "N";
-			case SOUTH:
-				return "S";
-			case EAST:
-				return "E";
-			case WEST:
-				return "W";
-			case UP:
-				return "U";
-			case DOWN:
-				return "D";
-			default:
-				return "UNKNWON";
-		}
+        return switch (dir) {
+            case NORTH -> "N";
+            case SOUTH -> "S";
+            case EAST -> "E";
+            case WEST -> "W";
+            case UP -> "U";
+            case DOWN -> "D";
+        };
 	}
 
 	public static IModel3D compute(IModel3D m) {
@@ -565,7 +567,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 
 	private ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 
-	public void renderTileEntityAt(LogisticsTileGenericPipe pipeTile, double x, double y, double z, float partialTickTime, double distance) {
+	public void renderTileEntityAt(@Nullable LogisticsTileGenericPipe pipeTile, double x, double y, double z, float partialTickTime, double distance) {
 		boolean inHand = false;
 		if (pipeTile == null) return;
 		if (pipeTile.pipe == null) return;
@@ -621,7 +623,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		return false;
 	}
 
-	private static void renderList(double x, double y, double z, Map<ResourceLocation, GLRenderList> renderLists, List<RenderEntry> cachedRenderer, boolean recalculateList) {
+	private static void renderList(double x, double y, double z, Map<ResourceLocation, GLRenderList> renderLists, @Nullable List<RenderEntry> cachedRenderer, boolean recalculateList) {
 		// 1.20.1 rewrite: the old 1.12.2 code cached geometry into GL display lists
 		// (GLRenderList) keyed by texture. Display lists are removed in 1.20.1 and
 		// the modern pipeline already batches per-frame through MultiBufferSource,
@@ -669,7 +671,7 @@ public class LogisticsNewRenderPipe implements IHighlightPlacementRenderer {
 		fillObjectsToRenderList(objectsToRender, pipe, null, renderState);
 	}
 
-	private static void fillObjectsToRenderList(List<RenderEntry> objectsToRender, CoreUnroutedPipe pipe, LogisticsTileGenericPipe pipeTile, PipeRenderState renderState) {
+	private static void fillObjectsToRenderList(List<RenderEntry> objectsToRender, CoreUnroutedPipe pipe, @Nullable LogisticsTileGenericPipe pipeTile, PipeRenderState renderState) {
 		List<Edge> edgesToRender = new ArrayList<>(Arrays.asList(Edge.values()));
 		Map<Corner, Integer> connectionAtCorner = new HashMap<>();
 		List<PipeMount> mountCanidates = new ArrayList<>(Arrays.asList(PipeMount.values()));

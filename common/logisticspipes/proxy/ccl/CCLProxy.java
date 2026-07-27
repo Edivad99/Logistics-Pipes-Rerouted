@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+
 import logisticspipes.proxy.interfaces.ICCLProxy;
 import logisticspipes.proxy.object3d.impl.LPBoundsImpl;
 import logisticspipes.proxy.object3d.impl.LPModel3DImpl;
@@ -45,6 +47,7 @@ public class CCLProxy implements ICCLProxy {
 	// (static) init crashes a dedicated server when ProxyManager.load() does `new CCLProxy()`.
 	// getRenderState() is only ever called from client renderers/FX, so first-touch init keeps
 	// the single-shared-instance semantics while never loading client classes on the server.
+    @Nullable
 	private static LPRenderStateImpl RENDER_STATE;
 
 	@Override
@@ -63,7 +66,7 @@ public class CCLProxy implements ICCLProxy {
 	}
 
 	@Override
-	public Map<String, IModel3D> parseObjModels(InputStream stream, int ignoredCCLFormatFlag, LPScale scale) throws IOException {
+	public Map<String, IModel3D> parseObjModels(InputStream stream, int ignoredCCLFormatFlag, @Nullable LPScale scale) throws IOException {
 		Map<String, List<LPQuadData>> parsed = OBJParser.parse(stream);
 		Map<String, IModel3D> out = new LinkedHashMap<>(parsed.size());
 		LPTransformOp scaleOp = scale == null ? null : (LPTransformOp) scale.getOriginal();

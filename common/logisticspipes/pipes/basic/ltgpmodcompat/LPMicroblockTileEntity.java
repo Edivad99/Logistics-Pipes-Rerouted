@@ -1,6 +1,9 @@
 package logisticspipes.pipes.basic.ltgpmodcompat;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,8 +19,10 @@ public abstract class LPMicroblockTileEntity extends BlockEntity {
 		super(type, pos, state);
 	}
 
-	/** Returns the level this block entity is in. Replaces removed getWorld() from 1.12.2. */
-	public net.minecraft.world.level.Level getWorld() {
+	/**
+     * Returns the level this block entity is in. Replaces removed getWorld() from 1.12.2.
+     */
+	public @Nullable Level getWorld() {
 		return this.level;
 	}
 

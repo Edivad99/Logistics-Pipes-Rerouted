@@ -3,6 +3,8 @@ package logisticspipes.renderer.state;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import logisticspipes.interfaces.IClientState;
@@ -29,6 +31,7 @@ public class PipeRenderState implements IClientState {
 	public final ConnectionMatrix pipeConnectionMatrix = new ConnectionMatrix();
 	public final TextureMatrix textureMatrix = new TextureMatrix();
 
+    @Nullable
 	public List<RenderEntry> cachedRenderer = null;
 	public Cache<LocalCacheType, Object> objectCache = CacheBuilder.newBuilder().build();
 	public int cachedRenderIndex = -1;
@@ -36,7 +39,9 @@ public class PipeRenderState implements IClientState {
 	private boolean[] solidSidesCache = new boolean[6];
 	private boolean savedStateHasMCMultiParts = false;
 
+    @Nullable
 	public int[] buffer = null;
+    @Nullable
 	public Map<ResourceLocation, GLRenderList> renderLists;
 
 	private boolean dirty = true;

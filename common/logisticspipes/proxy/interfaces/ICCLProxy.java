@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
+import javax.annotation.Nullable;
+
 import logisticspipes.proxy.object3d.interfaces.I3DOperation;
 import logisticspipes.proxy.object3d.interfaces.IModel3D;
 import logisticspipes.proxy.object3d.interfaces.IRenderState;
@@ -24,7 +26,7 @@ public interface ICCLProxy {
 
 	IRenderState getRenderState();
 
-	Map<String, IModel3D> parseObjModels(InputStream resourceAsStream, int i, LPScale scale) throws IOException;
+	Map<String, IModel3D> parseObjModels(InputStream resourceAsStream, int i, @Nullable LPScale scale) throws IOException;
 
 	Object getRotation(int i, int j);
 
