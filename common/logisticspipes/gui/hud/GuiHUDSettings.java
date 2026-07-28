@@ -61,9 +61,9 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 		if (player.getInventory().getItem(slot).isEmpty() || player.getInventory().getItem(slot).getItem() != LPItems.HUD_GLASSES.get()) {
 			minecraft.player.closeContainer();
 		}
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawPlayerHotbarBackground(minecraft, leftPos + 10, topPos + 134);
-		LPGuiGraphics.drawPlayerArmorBackground(minecraft, leftPos + 10, topPos + 65);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerHotbarBackground(guiGraphics, leftPos + 10, topPos + 134);
+		LPGuiGraphics.drawPlayerArmorBackground(guiGraphics, leftPos + 10, topPos + 65);
 	}
 
 	@Override

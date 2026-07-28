@@ -5,8 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ListTag;
@@ -197,9 +195,9 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
-        LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 105);
-        LPGuiGraphics.drawSlotDiskBackground(minecraft, leftPos + 9, topPos + 9);
-        LPGuiGraphics.drawSlotProgrammerBackground(minecraft, leftPos + 153, topPos + 9);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics , leftPos + 10, topPos + 105);
+        LPGuiGraphics.drawSlotDiskBackground(guiGraphics , leftPos + 9, topPos + 9);
+        LPGuiGraphics.drawSlotProgrammerBackground(guiGraphics , leftPos + 153, topPos + 9);
 
         if (compiler.getCurrentTask() != null) {
             guiGraphics.fill(leftPos + 9, topPos + 50, leftPos + 171, topPos + 66, Color.getValue(Color.BLACK));

@@ -123,7 +123,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 
 	@Override
 	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 
 		itemDisplay.renderPageNumber(right - 47, topPos + 6);
 

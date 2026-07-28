@@ -8,6 +8,8 @@ import logisticspipes.request.resources.IResource.ColorCode;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
+
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -60,7 +62,7 @@ public class GuiRequestPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(int mouseX, int mouseY) {
+	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		if (mWidth == 0) {
 			int lWidth = 0;
 			for (String msg : text) {
@@ -72,7 +74,7 @@ public class GuiRequestPopup extends SubGuiScreen {
 			xSize = mWidth = Math.max(Math.min(lWidth + 20, 400), 120);
 			super.init();
 		}
-		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
 		for (int i = 0; i < text.length; i++) {
 			if (text[i] == null) {
 				continue;

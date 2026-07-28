@@ -95,24 +95,24 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
-		drawBG();
+		drawBG(guiGraphics);
 		getActiveTab().draw(mouseX, mouseY);
 
 		super.renderBg(guiGraphics, f, mouseX, mouseY);
 	}
 
-	private void drawBG() {
+	private void drawBG(GuiGraphics guiGraphics) {
 		// background
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos + 20, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawGuiBackGround(leftPos + (25 * currentTab) + 2, topPos - 2, leftPos + 27 + (25 * currentTab), topPos + 38, 0.0f, true, true, true, false, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 20, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * currentTab) + 2, topPos - 2, leftPos + 27 + (25 * currentTab), topPos + 38, 0.0f, true, true, true, false, true);
 
 		// tab selector panes
 		for (int i = 0; i < tabs.size(); i++) {
-			LPGuiGraphics.drawGuiBackGround(leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
+			LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
 		}
 
 		// First Tab
-		LPGuiGraphics.drawStatsBackground(minecraft, leftPos + 6, topPos + 3);
+		LPGuiGraphics.drawStatsBackground(guiGraphics, leftPos + 6, topPos + 3);
 
 		// Second tab background: item icons drawn lazily by TabCrafting.draw()
 	}
@@ -243,7 +243,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 				TrackingTask task = getSelectedTask();
 
 				if (task != null) {
-					LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 10, topPos + 99);
+					LPGuiGraphics.drawSlotBackground(leftPos + 10, topPos + 99);
 					guiGraphics.renderItem(task.item.unsafeMakeNormalStack(1), leftPos + 12, topPos + 101);
 					taskNameLabel = StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, font);
 

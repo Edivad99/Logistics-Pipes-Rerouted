@@ -83,8 +83,8 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
 	}
 
 	@Override
-	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
+	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
 		drawTitle(getGuiGraphics());
 
 		textList.renderGuiBackground(mouseX, mouseY);

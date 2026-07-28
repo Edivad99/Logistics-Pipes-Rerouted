@@ -133,7 +133,7 @@ abstract class BaseGuiContainer(
         val top = rect.y0.toInt()
         val right = left + rect.width.toInt()
         val bottom = top + rect.height.toInt()
-        LPGuiGraphics.drawGuiBackGround(left, top, right, bottom, 0f, true)
+        LPGuiGraphics.drawGuiBackGround(guiGraphics, left, top, right, bottom, 0f, true)
     }
 
     fun List<Drawable>.draw(mouseX: Float, mouseY: Float, partialTicks: Float, visibleArea: IRectangle) =

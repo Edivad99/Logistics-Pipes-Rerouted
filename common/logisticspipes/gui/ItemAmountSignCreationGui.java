@@ -26,8 +26,8 @@ public class ItemAmountSignCreationGui extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 40);
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 9, topPos + 12);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 40);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 9, topPos + 12);
 	}
 }

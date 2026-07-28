@@ -9,6 +9,8 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
+
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -57,7 +59,7 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(int x, int y) {
+		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 			// Deferred: tab icon requires an LP item texture selection; left blank for now.
 		}
 

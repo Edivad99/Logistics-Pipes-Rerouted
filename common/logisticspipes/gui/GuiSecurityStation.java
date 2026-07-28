@@ -159,9 +159,9 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 175);
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 81, topPos + 140);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 175);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 81, topPos + 140);
 
 		addition = (minecraft.font.width(searchBar.getText()) - 82);
 		if (addition < 0) addition = 0;

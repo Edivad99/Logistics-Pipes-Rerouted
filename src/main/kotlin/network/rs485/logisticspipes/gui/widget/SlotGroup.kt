@@ -90,7 +90,7 @@ class SlotGroup(
         val startY = absoluteBody.roundedY
         for (row in 0 until rows) {
             for (column in 0 until columns) {
-                LPGuiGraphics.drawSlotBackground(mc, startX + column * 18, startY + row * 18)
+                LPGuiGraphics.drawSlotBackground(startX + column * 18, startY + row * 18)
             }
         }
     }

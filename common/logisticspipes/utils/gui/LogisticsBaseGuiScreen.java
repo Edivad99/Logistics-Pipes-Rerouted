@@ -30,6 +30,8 @@ import logisticspipes.utils.ChainAddArrayList;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.extension.GuiExtensionController;
 import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -73,7 +75,8 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	private int currentDrawScreenMouseX;
 	private int currentDrawScreenMouseY;
 	/** Stored during rendering so non-render methods (drawPoint, fillRect, etc.) can use it. */
-	protected GuiGraphics guiGraphics;
+	@Deprecated(forRemoval = true)
+    protected GuiGraphics guiGraphics;
 
 	public int getCurrentMouseX() { return currentDrawScreenMouseX; }
 	public int getCurrentMouseY() { return currentDrawScreenMouseY; }
@@ -208,12 +211,12 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-		renderExtensions();
+		renderExtensions(guiGraphics);
 	}
 
-	protected void renderExtensions() {
-		extensionControllerLeft.render(leftPos, topPos);
-		extensionControllerRight.render(leftPos + imageWidth, topPos);
+	protected void renderExtensions(GuiGraphics guiGraphics) {
+		extensionControllerLeft.render(guiGraphics, leftPos, topPos);
+		extensionControllerRight.render(guiGraphics, leftPos + imageWidth, topPos);
 	}
 
 	// drawSlot removed in 1.20.1 — slot rendering handled via renderSlot or renderLabels
@@ -275,7 +278,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 				final int posX = slot.x + leftPos;
 				final int posY = slot.y + 17 + topPos;
 				renderAtTheEnd.add(() -> {
-					com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
+					RenderSystem.disableDepthTest();
 					LPGuiGraphics.drawGuiBackGround(posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
 					final String PREFIX = "gui.crafting.";
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
@@ -286,7 +289,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 							(ignoreNBT ? 0x4040FF : 0x404040), false);
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
 							(useOreCategory ? 0x7F7F40 : 0x404040), false);
-					com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
+					RenderSystem.enableDepthTest();
 				});
 			}
 		}
@@ -340,14 +343,14 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		for (IRenderSlot slot : slots) {
 			if (slot instanceof IItemTextureRenderSlot) {
 				if (slot.drawSlotBackground()) {
-					LPGuiGraphics.drawSlotBackground(minecraft, slot.getXPos(), slot.getYPos());
+					LPGuiGraphics.drawSlotBackground(slot.getXPos(), slot.getYPos());
 				}
 				if (((IItemTextureRenderSlot) slot).drawSlotIcon() && !((IItemTextureRenderSlot) slot).customRender(minecraft, 0.0f)) {
-					LPGuiGraphics.renderIconAt(minecraft, slot.getXPos() + 1, slot.getYPos() + 1, 0.0f, ((IItemTextureRenderSlot) slot).getTextureIcon());
+					LPGuiGraphics.renderIconAt(guiGraphics, slot.getXPos() + 1, slot.getYPos() + 1, 0.0f, ((IItemTextureRenderSlot) slot).getTextureIcon());
 				}
 			} else if (slot instanceof ISmallColorRenderSlot) {
 				if (slot.drawSlotBackground()) {
-					LPGuiGraphics.drawSmallSlotBackground(minecraft, slot.getXPos(), slot.getYPos());
+					LPGuiGraphics.drawSmallSlotBackground(guiGraphics, slot.getXPos(), slot.getYPos());
 				}
 				if (((ISmallColorRenderSlot) slot).drawColor()) {
 					guiGraphics.fill(slot.getXPos() + 1, slot.getYPos() + 1, slot.getXPos() + 7, slot.getYPos() + 7, ((ISmallColorRenderSlot) slot).getColor());

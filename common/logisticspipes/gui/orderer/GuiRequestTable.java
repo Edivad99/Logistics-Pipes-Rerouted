@@ -195,7 +195,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		for (AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _table.targetType != null;
 		}
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right - (showRequest ? 0 : 105), bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right - (showRequest ? 0 : 105), bottom, 0.0f, true);
 
 		guiGraphics.fill(leftPos + 162, topPos + 23, leftPos + 182, topPos + 43, Color.getValue(Color.BLACK));
 		guiGraphics.fill(leftPos + 164, topPos + 25, leftPos + 180, topPos + 41, Color.getValue(Color.DARKER_GREY));
@@ -213,16 +213,16 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 		for (int x = 0; x < 9; x++) {
 			for (int y = 0; y < 3; y++) {
-				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + (x * 18) + 19, topPos + (y * 18) + 79);
+				LPGuiGraphics.drawSlotBackground(leftPos + (x * 18) + 19, topPos + (y * 18) + 79);
 			}
 		}
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
-				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + (x * 18) + 19, topPos + (y * 18) + 14);
+				LPGuiGraphics.drawSlotBackground(leftPos + (x * 18) + 19, topPos + (y * 18) + 14);
 			}
 		}
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 100, topPos + 32);
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 163, topPos + 50);
+		LPGuiGraphics.drawSlotBackground(leftPos + 100, topPos + 32);
+		LPGuiGraphics.drawSlotBackground(leftPos + 163, topPos + 50);
 		guiGraphics.fill(leftPos + 75, topPos + 38, leftPos + 95, topPos + 43, Color.getValue(Color.DARKER_GREY));
 		for (int a = 0; a < 10; a++) {
 			guiGraphics.fill(leftPos + 97 - a, topPos + 40 - a, leftPos + 98 - a, topPos + 41 + a, Color.getValue(Color.DARKER_GREY));
@@ -231,7 +231,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			guiGraphics.fill(leftPos + 164 + a, topPos + 51 + a, leftPos + 166 + a, topPos + 53 + a, Color.getValue(Color.DARKER_GREY));
 			guiGraphics.fill(leftPos + 164 + a, topPos + 65 - a, leftPos + 166 + a, topPos + 67 - a, Color.getValue(Color.DARKER_GREY));
 		}
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 20, topPos + 150);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 20, topPos + 150);
 		for (final Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : _table.watchedRequests.entrySet()) {
 			if (!handledExtension.get(entry.getKey())) {
 				handledExtension.set(entry.getKey());
@@ -243,7 +243,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 					private net.minecraft.client.gui.components.AbstractButton localControlledButton;
 
 					@Override
-					public void renderForeground(int left, int top) {
+					public void renderForeground(GuiGraphics guiGraphics, int left, int top) {
 						if (!_table.watchedRequests.containsKey(entry.getKey())) {
 							extensionControllerLeft.removeExtension(this);
 							if (isFullyExtended() && localControlledButton != null) {
@@ -370,7 +370,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 				});
 			}
 		}
-		super.renderExtensions();
+		super.renderExtensions(guiGraphics);
 	}
 
 	public void refreshItems() {

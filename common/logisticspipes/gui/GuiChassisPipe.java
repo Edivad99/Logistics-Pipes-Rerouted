@@ -170,16 +170,16 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++)
-			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 17, topPos + 8 + 20 * i);
+			LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 17, topPos + 8 + 20 * i);
 
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 18, topPos + 9 + 20 * chassisPipe.getChassisSize());
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 18, topPos + 9 + 20 * chassisPipe.getChassisSize());
 
 		if (hasUpgradeModuleUpgrade) {
 			for (int i = 0; i < chassisPipe.getChassisSize(); i++) {
-				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 144, topPos + 8 + i * 20);
-				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 164, topPos + 8 + i * 20);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 144, topPos + 8 + i * 20);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 164, topPos + 8 + i * 20);
 			}
 		}
 	}

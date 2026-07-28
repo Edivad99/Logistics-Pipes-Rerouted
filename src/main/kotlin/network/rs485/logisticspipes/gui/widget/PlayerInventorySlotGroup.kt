@@ -98,12 +98,12 @@ class PlayerInventorySlotGroup(
         // 3 × 9 backpack
         for (row in 0 until 3) {
             for (column in 0 until 9) {
-                LPGuiGraphics.drawSlotBackground(mc, startX + column * 18, startY + row * 18)
+                LPGuiGraphics.drawSlotBackground(startX + column * 18, startY + row * 18)
             }
         }
         // Hotbar (4px gap)
         for (column in 0 until 9) {
-            LPGuiGraphics.drawSlotBackground(mc, startX + column * 18, startY + 3 * 18 + 4)
+            LPGuiGraphics.drawSlotBackground(startX + column * 18, startY + 3 * 18 + 4)
         }
     }
 }

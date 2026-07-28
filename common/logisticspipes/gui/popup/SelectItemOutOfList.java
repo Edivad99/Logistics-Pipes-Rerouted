@@ -89,8 +89,8 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
 
 	@Override
-	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
+	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
 		getGuiGraphics().drawString(font, TextUtil.translate("misc.selectType"), guiLeft + 8, guiTop + 6, 0x404040, false);
 
 		itemDisplay.renderPageNumber(right - 47, guiTop + 6);

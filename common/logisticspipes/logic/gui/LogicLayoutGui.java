@@ -119,7 +119,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		drawTransparentBack();
 		drawMap(i, j);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 180, right, bottom, 0.0f, true, false, true, true, true);
-		LPGuiGraphics.drawPlayerInventoryBackground(getMC(), leftPos + 50, topPos + 205);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 50, topPos + 205);
 	}
 
 	private void drawTransparentBack() {

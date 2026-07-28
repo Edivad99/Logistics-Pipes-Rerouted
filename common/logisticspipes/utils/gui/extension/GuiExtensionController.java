@@ -8,6 +8,7 @@ import java.util.Map;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import lombok.Setter;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.inventory.Slot;
 
 public class GuiExtensionController {
@@ -31,7 +32,7 @@ public class GuiExtensionController {
 		this.side = side;
 	}
 
-	public void render(int xPos, int yPos) {
+	public void render(GuiGraphics guiGraphics, int xPos, int yPos) {
 		yPos += 4;
 		if (currentlyExtended == null) {
 			for (GuiExtension extension : extensions) {
@@ -47,8 +48,8 @@ public class GuiExtensionController {
 				}
 				int bottom = yPos + extension.getCurrentHeight();
 				extension.update(left, yPos);
-				LPGuiGraphics.drawGuiBackGround(left, yPos, right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
-				extension.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), yPos);
+				LPGuiGraphics.drawGuiBackGround(guiGraphics, left, yPos, right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				extension.renderForeground(guiGraphics, left + (side == GuiSide.RIGHT ? 20 : 0), yPos);
 				yPos = bottom;
 			}
 		} else {
@@ -64,8 +65,8 @@ public class GuiExtensionController {
 				}
 				int bottom = currentlyExtended.getCurrentYPos() + currentlyExtended.getCurrentHeight();
 				currentlyExtended.update(left, yPos);
-				LPGuiGraphics.drawGuiBackGround(left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
-				currentlyExtended.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), currentlyExtended.getCurrentYPos());
+				LPGuiGraphics.drawGuiBackGround(guiGraphics, left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				currentlyExtended.renderForeground(guiGraphics, left + (side == GuiSide.RIGHT ? 20 : 0), currentlyExtended.getCurrentYPos());
 			} else {
 				for (GuiExtension extension : extensions) {
 					if (extension == currentlyExtended) {
@@ -86,8 +87,9 @@ public class GuiExtensionController {
 				}
 				int bottom = currentlyExtended.getCurrentYPos() + currentlyExtended.getCurrentHeight();
 				currentlyExtended.update(left, yPos);
-				LPGuiGraphics.drawGuiBackGround(left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
-				currentlyExtended.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), currentlyExtended.getCurrentYPos());
+				LPGuiGraphics.drawGuiBackGround(guiGraphics, left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				currentlyExtended.renderForeground(guiGraphics, left + (side == GuiSide.RIGHT ? 20 : 0),
+                    currentlyExtended.getCurrentYPos());
 				if (currentlyExtended.isFullyRetracted()) {
 					currentlyExtended = null;
 				}

@@ -74,20 +74,20 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 		for (net.minecraft.client.gui.components.AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _crafter.targetType != null;
 		}
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
-				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 34 + x * 18, topPos + 9 + y * 18);
+				LPGuiGraphics.drawSlotBackground(leftPos + 34 + x * 18, topPos + 9 + y * 18);
 			}
 		}
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 124, topPos + 27);
+		LPGuiGraphics.drawSlotBackground(leftPos + 124, topPos + 27);
 		for (int x = 0; x < 9; x++) {
 			for (int y = 0; y < 2; y++) {
-				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 7 + x * 18, topPos + 79 + y * 18);
+				LPGuiGraphics.drawSlotBackground(leftPos + 7 + x * 18, topPos + 79 + y * 18);
 			}
 		}
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 8, topPos + 135);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 8, topPos + 135);
 
 		ItemIdentifierStack[] items = new ItemIdentifierStack[9];
 		for (int i = 0; i < 9; i++) {

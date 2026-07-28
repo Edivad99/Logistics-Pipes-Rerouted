@@ -152,101 +152,107 @@ public final class LPGuiGraphics {
         //RenderSystem.enableDepthTest();
     }
 
-    public static void drawPlayerInventoryBackground(Minecraft mc, int xOffset, int yOffset) {
+    public static void drawPlayerInventoryBackground(GuiGraphics guiGraphics, int xOffset, int yOffset) {
         //Player "backpack"
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
-                LPGuiGraphics.drawSlotBackground(mc, xOffset + column * 18, yOffset + row * 18);
+                LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + column * 18, yOffset + row * 18);
             }
         }
         //Player "hotbar"
         for (int i1 = 0; i1 < 9; i1++) {
-            LPGuiGraphics.drawSlotBackground(mc, xOffset + i1 * 18, yOffset + 58);
+            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + i1 * 18, yOffset + 58);
         }
     }
 
-    public static void drawPlayerHotbarBackground(Minecraft mc, int xOffset, int yOffset) {
+    public static void drawPlayerHotbarBackground(GuiGraphics guiGraphics, int xOffset, int yOffset) {
         //Player "hotbar"
         for (int i1 = 0; i1 < 9; i1++) {
-            LPGuiGraphics.drawSlotBackground(mc, xOffset + i1 * 18, yOffset);
+            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + i1 * 18, yOffset);
         }
     }
 
-    public static void drawPlayerArmorBackground(Minecraft mc, int xOffset, int yOffset) {
+    public static void drawPlayerArmorBackground(GuiGraphics guiGraphics, int xOffset, int yOffset) {
         //Player "armor"
         for (int i1 = 0; i1 < 4; i1++) {
-            LPGuiGraphics.drawSlotBackground(mc, xOffset, yOffset - i1 * 18);
+            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset, yOffset - i1 * 18);
         }
     }
 
-    private static void doDrawSlotBackground(Minecraft mc, int x, int y, ResourceLocation slotDiskTexture) {
+    private static void doDrawSlotBackground(GuiGraphics guiGraphics, int x, int y, ResourceLocation slotDiskTexture) {
         LPGuiGraphics.zLevel = 0;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
-        gg.blit(slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
+        guiGraphics.blit(slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
         // 1-pixel darker inset border so the slot visually separates from the panel on light backgrounds.
         final int borderColor = 0x80373737;
-        gg.fill(x, y, x + 18, y + 1, borderColor);
-        gg.fill(x, y + 17, x + 18, y + 18, borderColor);
-        gg.fill(x, y, x + 1, y + 18, borderColor);
-        gg.fill(x + 17, y, x + 18, y + 18, borderColor);
+        guiGraphics.fill(x, y, x + 18, y + 1, borderColor);
+        guiGraphics.fill(x, y + 17, x + 18, y + 18, borderColor);
+        guiGraphics.fill(x, y, x + 1, y + 18, borderColor);
+        guiGraphics.fill(x + 17, y, x + 18, y + 18, borderColor);
     }
 
-    public static void drawSlotDiskBackground(Minecraft mc, int x, int y) {
-        doDrawSlotBackground(mc, x, y, LPGuiGraphics.SLOT_DISK_TEXTURE);
+    public static void drawSlotDiskBackground(GuiGraphics guiGraphics, int x, int y) {
+        doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_DISK_TEXTURE);
     }
 
-    public static void drawSlotProgrammerBackground(Minecraft mc, int x, int y) {
-        doDrawSlotBackground(mc, x, y, LPGuiGraphics.SLOT_PROGRAMMER_TEXTURE);
+    public static void drawSlotProgrammerBackground(GuiGraphics guiGraphics, int x, int y) {
+        doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_PROGRAMMER_TEXTURE);
     }
 
-    public static void drawSlotBackground(Minecraft mc, int x, int y) {
-        doDrawSlotBackground(mc, x, y, LPGuiGraphics.SLOT_TEXTURE);
+    @Deprecated
+    public static void drawSlotBackground(int x, int y) {
+        drawSlotBackground(SimpleGraphics.guiGraphics, x, y);
     }
 
-    public static void drawSlotBackground(Minecraft mc, int x, int y, int color) {
-        doDrawSlotBackground(mc, x, y, LPGuiGraphics.SLOT_TEXTURE);
+    public static void drawSlotBackground(GuiGraphics guiGraphics, int x, int y) {
+        doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_TEXTURE);
     }
 
-    public static void drawBigSlotBackground(Minecraft mc, int x, int y) {
+    public static void drawSlotBackground(GuiGraphics guiGraphics, int x, int y, int color) {
+        doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_TEXTURE);
+    }
+
+    @Deprecated
+    public static void drawBigSlotBackground(int x, int y) {
+        drawBigSlotBackground(SimpleGraphics.guiGraphics, x, y);
+    }
+
+    public static void drawBigSlotBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
-        SimpleGraphics.guiGraphics.blit(LPGuiGraphics.BIG_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 26, 26, 26, 26);
+        guiGraphics.blit(LPGuiGraphics.BIG_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 26, 26, 26, 26);
     }
 
-    public static void drawSmallSlotBackground(Minecraft mc, int x, int y) {
+    public static void drawSmallSlotBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
-        SimpleGraphics.guiGraphics.blit(LPGuiGraphics.SMALL_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 8, 8, 8, 8);
+        guiGraphics.blit(LPGuiGraphics.SMALL_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 8, 8, 8, 8);
     }
 
-    public static void renderIconAt(Minecraft mc, int x, int y, float zLevel, TextureAtlasSprite icon) {
-        if (icon == null) {
-            return;
-        }
-        SimpleGraphics.guiGraphics.blit(x, y, 0, 16, 16, icon);
+    public static void renderIconAt(GuiGraphics guiGraphics, int x, int y, float zLevel, TextureAtlasSprite icon) {
+        guiGraphics.blit(x, y, 0, 16, 16, icon);
     }
 
-    public static void drawLockBackground(Minecraft mc, int x, int y) {
+    public static void drawLockBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        SimpleGraphics.guiGraphics.blit(LPGuiGraphics.LOCK_ICON, x, y, 0.0f, 0.0f, 14, 15, 14, 15);
+        guiGraphics.blit(LPGuiGraphics.LOCK_ICON, x, y, 0.0f, 0.0f, 14, 15, 14, 15);
         RenderSystem.disableBlend();
     }
 
-    private static void drawTexture16by16(Minecraft mc, int x, int y, ResourceLocation tex) {
+    private static void drawTexture16by16(GuiGraphics guiGraphics, int x, int y, ResourceLocation tex) {
         LPGuiGraphics.zLevel = 0;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        SimpleGraphics.guiGraphics.blit(tex, x, y, 0.0f, 0.0f, 16, 16, 16, 16);
+        guiGraphics.blit(tex, x, y, 0.0f, 0.0f, 16, 16, 16, 16);
         RenderSystem.disableBlend();
     }
 
-    public static void drawLinesBackground(Minecraft mc, int x, int y) {
-        drawTexture16by16(mc, x, y, LPGuiGraphics.LINES_ICON);
+    public static void drawLinesBackground(GuiGraphics guiGraphics, int x, int y) {
+        drawTexture16by16(guiGraphics, x, y, LPGuiGraphics.LINES_ICON);
     }
 
-    public static void drawStatsBackground(Minecraft mc, int x, int y) {
-        drawTexture16by16(mc, x, y, LPGuiGraphics.STATS_ICON);
+    public static void drawStatsBackground(GuiGraphics guiGraphics, int x, int y) {
+        drawTexture16by16(guiGraphics, x, y, LPGuiGraphics.STATS_ICON);
     }
 
     @Deprecated(forRemoval = true)

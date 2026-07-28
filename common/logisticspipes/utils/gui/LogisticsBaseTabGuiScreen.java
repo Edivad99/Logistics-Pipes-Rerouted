@@ -55,11 +55,11 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 		}
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 20, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * current_Tab) + 2, topPos - 2, leftPos + 27 + (25 * current_Tab), topPos + 38, 0.0f, true, true, true, false, true);
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 135);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 135);
 
 		int x = 6;
 		for (TabSubGui aTabList : tabList) {
-			aTabList.renderIcon(leftPos + x, topPos + 3);
+			aTabList.renderIcon(guiGraphics, leftPos + x, topPos + 3);
 			x += 25;
 		}
 
@@ -178,7 +178,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 		private final List<Slot> TAB_SLOTS = new ArrayList<>();
 		private final List<AbstractButton> TAB_BUTTONS = new ArrayList<>();
 
-		public abstract void renderIcon(int x, int y);
+		public abstract void renderIcon(GuiGraphics guiGraphics, int x, int y);
 
 		public abstract void renderBackgroundContent();
 

@@ -50,8 +50,8 @@ public class GuiEditChannelPopup extends GuiAddChannelPopup {
 	}
 
 	@Override
-	protected void renderGuiBackground(int mouseX, int mouseY) {
-		super.renderGuiBackground(mouseX, mouseY);
+	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderGuiBackground(guiGraphics, mouseX, mouseY);
 		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "owner") + ": ", guiLeft + 10, guiTop + 115, 0x404040, false);
 		getGuiGraphics().drawString(minecraft.font, toInit.getOwner().getUsername(), guiLeft + 10, guiTop + 127, 0x404040, false);
 	}

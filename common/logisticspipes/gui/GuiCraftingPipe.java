@@ -389,16 +389,16 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		}
 
 		for (int i = 0; i < 9; i++) {
-			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 7 + (18 * i), topPos + 17);
+			LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 7 + (18 * i), topPos + 17);
 		}
 		if (!isAdvancedSat) {
-			LPGuiGraphics.drawBigSlotBackground(minecraft, leftPos + 80, topPos + 50);
+			LPGuiGraphics.drawBigSlotBackground(guiGraphics, leftPos + 80, topPos + 50);
 		} else {
-			LPGuiGraphics.drawBigSlotBackground(minecraft, leftPos + 80, topPos + 100);
+			LPGuiGraphics.drawBigSlotBackground(guiGraphics, leftPos + 80, topPos + 100);
 		}
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 8, topPos + imageHeight - 82);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 8, topPos + imageHeight - 82);
 
-		super.renderExtensions();
+		super.renderExtensions(guiGraphics);
 	}
 
 	private Unit updateCleanupModeButton(Property<Boolean> prop) {
@@ -430,7 +430,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		}
 
 		@Override
-		public void renderForeground(int left, int top) {
+		public void renderForeground(GuiGraphics guiGraphics, int left, int top) {
 			if (!isFullyExtended()) {
 				// Collapsed: visual icon omitted (placeholder drawing deferred — not gameplay-critical).
 			}
@@ -438,27 +438,27 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 				if (liquidCrafter > 1 && !isAdvancedSat) {
 					for (int i = 1; i < liquidCrafter; i++) {
 						int xLine = left + 2 + (i * 40);
-						guiGraphics.fill(xLine, top + 3, xLine + 1, top + 138, 0xff8B8B8B);
+                        guiGraphics.fill(xLine, top + 3, xLine + 1, top + 138, 0xff8B8B8B);
 					}
 				}
 				if (!isAdvancedSat) {
-					guiGraphics.fill(left + 3, top + 138, left + 2 + (liquidCrafter * 40), top + 139, 0xff8B8B8B);
+                    guiGraphics.fill(left + 3, top + 138, left + 2 + (liquidCrafter * 40), top + 139, 0xff8B8B8B);
 				}
 				if (!isAdvancedSat) {
 					for (int i = 0; i < liquidCrafter; i++) {
 						int liquidLeft = left + i * 40;
-						renderFluidText(liquidLeft, top, i);
+						renderFluidText(guiGraphics, liquidLeft, top, i);
 					}
 					if (craftingModule.clientSideSatelliteNames.liquidSatelliteName.isEmpty()) {
-						guiGraphics.fill(left + 3, top + 3, left + 3 + (liquidCrafter * 40), top + 138, 0xAA8B8B8B);
-						guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Off"), left + (liquidCrafter * 40) / 2 - 5, top + 145, 0x404040, false);
+                        guiGraphics.fill(left + 3, top + 3, left + 3 + (liquidCrafter * 40), top + 138, 0xAA8B8B8B);
+                        guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Off"), left + (liquidCrafter * 40) / 2 - 5, top + 145, 0x404040, false);
 						for (int i = 0; i < liquidCrafter; i++) {
 							for (int j = 0; j < 8; j++) {
 								liquidGuiParts[i][j].active = false;
 							}
 						}
 					} else {
-						guiGraphics.drawString(minecraft.font, craftingModule.clientSideSatelliteNames.liquidSatelliteName, left + (liquidCrafter * 40) / 2 + 3 - (font.width(craftingModule.clientSideSatelliteNames.liquidSatelliteName) / 2), top + 145, 0x404040, false);
+                        guiGraphics.drawString(minecraft.font, craftingModule.clientSideSatelliteNames.liquidSatelliteName, left + (liquidCrafter * 40) / 2 + 3 - (font.width(craftingModule.clientSideSatelliteNames.liquidSatelliteName) / 2), top + 145, 0x404040, false);
 						for (int i = 0; i < liquidCrafter; i++) {
 							for (int j = 0; j < 8; j++) {
 								liquidGuiParts[i][j].active = true;
@@ -466,13 +466,13 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 						}
 					}
 				} else {
-					renderFluidText(left, top, id);
+					renderFluidText(guiGraphics, left, top, id);
 				}
 			}
 		}
 
-		private void renderFluidText(int left, int top, int i) {
-			LPGuiGraphics.drawSlotBackground(minecraft, left + 12, top + 19);
+		private void renderFluidText(GuiGraphics guiGraphics, int left, int top, int i) {
+			LPGuiGraphics.drawSlotBackground(guiGraphics, left + 12, top + 19);
 			final String liquidAmount = liquidAmountsOverlay.read(intList -> intList.get(i).toString());
 			guiGraphics.drawString(minecraft.font, liquidAmount, left + 22 - (font.width(liquidAmount) / 2), top + 40, 0x404040, false);
 			guiGraphics.drawString(minecraft.font, "1", left + 19, top + 53, 0x404040, false);
@@ -496,7 +496,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 				}
 				guiGraphics.fill(left + 3, top + 138, left + 42, top + 139, 0xff8B8B8B);
 			}
-			if (((IItemIdentifierInventory) craftingModule.liquidInventory).getItem(i).isEmpty() && !((!isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteName.isEmpty()) || (isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteNameArray[i].isEmpty()))) {
+			if (craftingModule.liquidInventory.getItem(i).isEmpty() && !((!isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteName.isEmpty()) || (isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteNameArray[i].isEmpty()))) {
 				guiGraphics.fill(left + 3, top + 50, left + 42, top + 138, 0xAA8B8B8B);
 				for (int j = 0; j < 8; j++) {
 					liquidGuiParts[i][j].active = false;
@@ -526,9 +526,9 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		}
 
 		@Override
-		public void renderForeground(int left, int top) {
+		public void renderForeground(GuiGraphics guiGraphics, int left, int top) {
 			if (isFullyExtended()) {
-				LPGuiGraphics.drawBigSlotBackground(minecraft, left + 9, top + 20);
+				LPGuiGraphics.drawBigSlotBackground(guiGraphics, left + 9, top + 20);
 			}
 		}
 	}
@@ -546,11 +546,11 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		}
 
 		@Override
-		public void renderForeground(int left, int top) {
+		public void renderForeground(GuiGraphics guiGraphics, int left, int top) {
 			if (isFullyExtended()) {
 				for (int y = 0; y < cleanupSize; y++) {
 					for (int x = 0; x < 3; x++) {
-						LPGuiGraphics.drawSlotBackground(minecraft, left + 8 + x * 18, top + 8 + y * 18);
+						LPGuiGraphics.drawSlotBackground(guiGraphics, left + 8 + x * 18, top + 8 + y * 18);
 					}
 				}
 			}

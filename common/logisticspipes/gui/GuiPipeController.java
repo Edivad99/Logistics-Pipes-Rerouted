@@ -30,6 +30,8 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
+
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -133,7 +135,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(int x, int y) {
+		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 			// Deferred: tab icon requires an LP item texture selection; left blank for now.
 		}
 
@@ -149,11 +151,11 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		@Override
 		public void renderBackgroundContent() {
 			for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 9 + pipeSlot * 18, topPos + 41);
+				LPGuiGraphics.drawSlotBackground(leftPos + 9 + pipeSlot * 18, topPos + 41);
 			}
 			if (pipe.getOriginalUpgradeManager().hasCombinedSneakyUpgrade()) {
 				for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-					LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 9 + pipeSlot * 18, topPos + 87);
+					LPGuiGraphics.drawSlotBackground(leftPos + 9 + pipeSlot * 18, topPos + 87);
 				}
 			}
 		}
@@ -187,13 +189,13 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(int x, int y) {
-			LPGuiGraphics.drawLockBackground(minecraft, x + 1, y);
+		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+			LPGuiGraphics.drawLockBackground(guiGraphics, x + 1, y);
 		}
 
 		@Override
 		public void renderBackgroundContent() {
-			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 9, topPos + 41);
+			LPGuiGraphics.drawSlotBackground(leftPos + 9, topPos + 41);
 		}
 
 		@Override
@@ -212,8 +214,8 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 	private class Statistics extends TabSubGui {
 
 		@Override
-		public void renderIcon(int x, int y) {
-			LPGuiGraphics.drawStatsBackground(minecraft, x, y);
+		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+			LPGuiGraphics.drawStatsBackground(guiGraphics, x, y);
 		}
 
 		@Override
@@ -277,7 +279,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(int x, int y) {
+		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
 			// Deferred: tab icon requires an LP item texture selection; left blank for now.
 		}
 
@@ -330,8 +332,8 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(int x, int y) {
-			LPGuiGraphics.drawLinesBackground(minecraft, x, y);
+		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+			LPGuiGraphics.drawLinesBackground(guiGraphics, x, y);
 		}
 
 		@Override

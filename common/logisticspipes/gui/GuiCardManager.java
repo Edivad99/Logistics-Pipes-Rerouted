@@ -45,19 +45,19 @@ public class GuiCardManager extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int j, int k) {
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, bottom - 85);
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 20, topPos + 20);
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 60, topPos + 20);
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 40, topPos + 57);
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 120, topPos + 38);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, bottom - 85);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 20, topPos + 20);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 60, topPos + 20);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 40, topPos + 57);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 120, topPos + 38);
 		guiGraphics.fill(leftPos + 38, topPos + 27, leftPos + 60, topPos + 31, Color.getValue(Color.DARKER_GREY));
 		guiGraphics.fill(leftPos + 47, topPos + 31, leftPos + 51, topPos + 57, Color.getValue(Color.DARKER_GREY));
 		for (int i = 0; i < 3; i++) {
-			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 100, topPos + 20 + i * 18);
+			LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 100, topPos + 20 + i * 18);
 		}
 		for (int i = 0; i < 3; i++) {
-			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 140, topPos + 20 + i * 18);
+			LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 140, topPos + 20 + i * 18);
 		}
 	}
 }

@@ -83,7 +83,7 @@ object GuiDrawer {
         val (ox, oy) = topLeft
         for (slot in container.slots) {
             if (slot is Slot) {
-                LPGuiGraphics.drawSlotBackground(mc, ox + slot.x - 1, oy + slot.y - 1)
+                LPGuiGraphics.drawSlotBackground(ox + slot.x - 1, oy + slot.y - 1)
             }
         }
     }

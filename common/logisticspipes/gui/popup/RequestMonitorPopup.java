@@ -1,6 +1,5 @@
 package logisticspipes.gui.popup;
 
-import java.awt.image.BufferedImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.imageio.ImageIO;
+
 import logisticspipes.LPConstants;
 
 import net.minecraft.world.level.block.Block;
@@ -27,7 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
+
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class RequestMonitorPopup extends SubGuiScreen {
@@ -146,7 +145,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(int mouseX, int mouseY) {
+	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		if (!_table.watchedRequests.containsKey(orderId)) {
 			exitGui();
 			return;

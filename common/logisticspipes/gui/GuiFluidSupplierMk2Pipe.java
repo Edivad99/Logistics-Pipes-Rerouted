@@ -58,9 +58,9 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0.0f, true);
-		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 13, topPos + 92);
-		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 59, topPos + 17);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0.0f, true);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 13, topPos + 92);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 59, topPos + 17);
 		//RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		//minecraft.renderEngine.func_110577_a("/logisticspipes/gui/supplier.png");
 		//int j = leftPos;

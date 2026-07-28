@@ -132,7 +132,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		this.storedGuiGraphics = guiGraphics;
 		SimpleGraphics.guiGraphics = guiGraphics;
-		renderGuiBackground(mouseX, mouseY);
+		renderGuiBackground(guiGraphics, mouseX, mouseY);
 		RenderSystem.disableDepthTest();
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -151,7 +151,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
 
-	protected abstract void renderGuiBackground(int mouseX, int mouseY);
+	protected abstract void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY);
 
 	@Override
 	public void resize(Minecraft mc, int width, int height) {
