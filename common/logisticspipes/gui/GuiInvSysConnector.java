@@ -100,7 +100,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 135);
 		guiGraphics.fill(leftPos + 9, topPos + 78, leftPos + 170, topPos + 132, Color.getValue(Color.GREY));
 		resistanceCountBar.drawTextBox();

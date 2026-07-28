@@ -14,8 +14,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,13 +29,9 @@ import lombok.Getter;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
-import logisticspipes.interfaces.IGuiOpenControler;
-import logisticspipes.interfaces.IGuiTileEntity;
-import logisticspipes.network.NewGuiHandler;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
-import logisticspipes.network.guis.block.ProgramCompilerGui;
 import logisticspipes.network.packets.block.CompilerStatusPacket;
 import logisticspipes.pipes.PipeItemsBasicLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -39,12 +39,13 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.SimpleStackInventory;
+import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.component.LPDataComponents;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEntity
-    implements IGuiTileEntity, IGuiOpenControler {
+    implements IScreenOpenController, MenuProvider {
 
     public static class ProgramCategories {
 
@@ -91,11 +92,6 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
     @Getter
     private final SimpleStackInventory inventory = new SimpleStackInventory(2, "programcompilerinv", 64);
 
-    @Override
-    public CoordinatesGuiProvider getGuiProvider() {
-        return NewGuiHandler.getGui(ProgramCompilerGui.class);
-    }
-
     public ListTag getListTagForKey(String key) {
         ItemStack stack = this.getInventory().getItem(DISK_SLOT);
         if (stack.has(DataComponents.CUSTOM_DATA)) {
@@ -118,23 +114,12 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
     }
 
     @Override
-    public void guiOpenedByPlayer(Player player) {
+    public void screenOpenedByPlayer(Player player) {
         playerList.add(player);
-        MainProxy.sendPacketToPlayer(getClientUpdatePacket(), player);
-    }
-
-    private CoordinatesPacket getClientUpdatePacket() {
-        return PacketHandler.getPacket(CompilerStatusPacket.class)
-            .setCategory(currentTask)
-            .setProgress(taskProgress)
-            .setWasAbleToConsumePower(wasAbleToConsumePower)
-            .setDisk(getInventory().getItem(0))
-            .setProgrammer(getInventory().getItem(PROGRAMMER_SLOT))
-            .setTilePos(this);
     }
 
     @Override
-    public void guiClosedByPlayer(Player player) {
+    public void screenClosedByPlayer(Player player) {
         playerList.remove(player);
     }
 
@@ -213,6 +198,16 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
         updateClient();
     }
 
+    private CoordinatesPacket getClientUpdatePacket() {
+        return PacketHandler.getPacket(CompilerStatusPacket.class)
+            .setCategory(currentTask)
+            .setProgress(taskProgress)
+            .setWasAbleToConsumePower(wasAbleToConsumePower)
+            .setDisk(getInventory().getItem(0))
+            .setProgrammer(getInventory().getItem(PROGRAMMER_SLOT))
+            .setTilePos(this);
+    }
+
     public void updateClient() {
         MainProxy.sendToPlayerList(getClientUpdatePacket(), playerList);
     }
@@ -240,5 +235,15 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         inventory.writeToNBT(tag, registries, "programcompilerinv");
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.literal("FIXME");
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
+        return new ProgramCompilerMenu(i, inventory, this);
     }
 }

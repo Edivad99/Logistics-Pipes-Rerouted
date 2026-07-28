@@ -61,7 +61,7 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
 		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "Player") + ": " + activeSetting.name, guiLeft + 10, guiTop + 10, 0x404040, false);
 		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "ConfigureSettings") + ": ", guiLeft + 10, guiTop + 30, 0x404040, false);
 		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "ActiveRequesting") + ": ", guiLeft + 10, guiTop + 45, 0x404040, false);

@@ -20,7 +20,7 @@ public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer
 
 	@Override
 	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, -60, -40, 60, 40, 0, false);
+		LPGuiGraphics.drawGuiBackGround(-60, -40, 60, 40, 0, false);
 		super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 		GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
 		if (gg == null) return;

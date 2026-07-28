@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -50,19 +52,22 @@ public class DummyContainer extends AbstractContainerMenu {
 	public LogisticsBaseGuiScreen guiHolderForJEI; // This is not set for every GUI. Only for the one needed by JEI.
 
 	public List<BitSet> slotsFuzzyFlags = new ArrayList<>();
+    @Nullable
 	protected Container _playerInventory;
+    @Nullable
 	protected Container _dummyInventory;
+    @Nullable
 	protected IGuiOpenControler[] _controler;
 	boolean wasDummyLookup;
 	boolean overrideMCAntiSend;
-	private List<Slot> transferTop = new ArrayList<>();
-	private List<Slot> transferBottom = new ArrayList<>();
+	private final List<Slot> transferTop = new ArrayList<>();
+	private final List<Slot> transferBottom = new ArrayList<>();
 	private long lastClicked;
 	private long lastDragnDropLockup;
 	// LP-maintained listener list (containerListeners is private in 1.20.1 AbstractContainerMenu)
 	private final List<ContainerListener> lpListeners = new ArrayList<>();
 
-	public DummyContainer(Container playerInventory, Container dummyInventory) {
+	public DummyContainer(@Nullable Container playerInventory, @Nullable Container dummyInventory) {
 		super(null, 0);
 		_playerInventory = playerInventory;
 		_dummyInventory = dummyInventory;

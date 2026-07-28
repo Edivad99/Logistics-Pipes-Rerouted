@@ -159,7 +159,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 175);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 81, topPos + 140);
 

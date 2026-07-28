@@ -62,7 +62,7 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 45);
 		for (int i = 0; i < 9; i++) {
 			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 9 + i * 18, topPos + 18);

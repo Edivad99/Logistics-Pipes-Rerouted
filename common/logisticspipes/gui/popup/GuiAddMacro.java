@@ -331,7 +331,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, false);
+		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, false);
 		getGuiGraphics().drawString(minecraft.font, "Add Macro", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +6, 0x404040, false);
 
 		maxPageAll = (int) Math.floor((getSearchedItemNumber(diskProvider.getItemDisplay()._allItems) - 1) / 45F);

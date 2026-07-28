@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.inventory.Slot;
 
 
@@ -49,10 +51,10 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	protected void renderBg(GuiGraphics guiGraphics, float f, int mouse_x, int mouse_y) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int i = 0; i < tabList.size(); i++) {
-			LPGuiGraphics.drawGuiBackGround(minecraft, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
+			LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
 		}
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos + 20, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos + (25 * current_Tab) + 2, topPos - 2, leftPos + 27 + (25 * current_Tab), topPos + 38, 0.0f, true, true, true, false, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 20, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * current_Tab) + 2, topPos - 2, leftPos + 27 + (25 * current_Tab), topPos + 38, 0.0f, true, true, true, false, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, topPos + 135);
 
 		int x = 6;
@@ -150,10 +152,11 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	@Override
 	protected void checkButtons() {
 		super.checkButtons();
-		for (net.minecraft.client.gui.components.AbstractWidget widget : buttonList) {
-			if (!(widget instanceof net.minecraft.client.gui.components.AbstractButton)) continue;
-			net.minecraft.client.gui.components.AbstractButton button = (net.minecraft.client.gui.components.AbstractButton) widget;
-			for (int i = 0; i < tabList.size(); i++) {
+		for (AbstractWidget widget : buttonList) {
+			if (!(widget instanceof AbstractButton button)) {
+                continue;
+            }
+            for (int i = 0; i < tabList.size(); i++) {
 				if (tabList.get(i).isButtonFromGui(button)) {
 					tabList.get(i).checkButton(button, current_Tab == i);
 				}
@@ -173,7 +176,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	protected abstract class TabSubGui {
 
 		private final List<Slot> TAB_SLOTS = new ArrayList<>();
-		private final List<net.minecraft.client.gui.components.AbstractButton> TAB_BUTTONS = new ArrayList<>();
+		private final List<AbstractButton> TAB_BUTTONS = new ArrayList<>();
 
 		public abstract void renderIcon(int x, int y);
 
@@ -190,24 +193,24 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 			return slot;
 		}
 
-		public net.minecraft.client.gui.components.AbstractButton addRenderableWidget(net.minecraft.client.gui.components.AbstractButton button) {
+		public AbstractButton addRenderableWidget(AbstractButton button) {
 			TAB_BUTTONS.add(LogisticsBaseTabGuiScreen.this.addRenderableWidget(button));
 			return button;
 		}
 
-		public boolean isButtonFromGui(net.minecraft.client.gui.components.AbstractButton button) {
+		public boolean isButtonFromGui(AbstractButton button) {
 			return TAB_BUTTONS.contains(button);
 		}
 
 		public void initTab() {}
 
-		public void checkButton(net.minecraft.client.gui.components.AbstractButton button, boolean isTabActive) {
+		public void checkButton(AbstractButton button, boolean isTabActive) {
 			if (TAB_BUTTONS.contains(button)) {
 				button.visible = isTabActive;
 			}
 		}
 
-		public void buttonClicked(net.minecraft.client.gui.components.AbstractButton button) {}
+		public void buttonClicked(AbstractButton button) {}
 
 		public boolean handleClick(int x, int y, int type) {
 			return false;

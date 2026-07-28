@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import lombok.Setter;
-import net.minecraft.client.Minecraft;
+
 import net.minecraft.world.inventory.Slot;
 
 public class GuiExtensionController {
@@ -47,7 +47,7 @@ public class GuiExtensionController {
 				}
 				int bottom = yPos + extension.getCurrentHeight();
 				extension.update(left, yPos);
-				LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, yPos, right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				LPGuiGraphics.drawGuiBackGround(left, yPos, right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
 				extension.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), yPos);
 				yPos = bottom;
 			}
@@ -64,7 +64,7 @@ public class GuiExtensionController {
 				}
 				int bottom = currentlyExtended.getCurrentYPos() + currentlyExtended.getCurrentHeight();
 				currentlyExtended.update(left, yPos);
-				LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				LPGuiGraphics.drawGuiBackGround(left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
 				currentlyExtended.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), currentlyExtended.getCurrentYPos());
 			} else {
 				for (GuiExtension extension : extensions) {
@@ -86,7 +86,7 @@ public class GuiExtensionController {
 				}
 				int bottom = currentlyExtended.getCurrentYPos() + currentlyExtended.getCurrentHeight();
 				currentlyExtended.update(left, yPos);
-				LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
+				LPGuiGraphics.drawGuiBackGround(left, currentlyExtended.getCurrentYPos(), right, bottom, 0, true, true, side != GuiSide.RIGHT, true, side != GuiSide.LEFT);
 				currentlyExtended.renderForeground(left + (side == GuiSide.RIGHT ? 20 : 0), currentlyExtended.getCurrentYPos());
 				if (currentlyExtended.isFullyRetracted()) {
 					currentlyExtended = null;

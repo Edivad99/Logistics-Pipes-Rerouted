@@ -63,7 +63,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
 		getGuiGraphics().drawString(minecraft.font, "(" + (page + 1) + "/" + ((int) ((_tile.excludedCC.size() / 9D) + 1 - (_tile.excludedCC.size() % 9 == 0 && _tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0x4F4F4F, false);
 
 		boolean dark = true;

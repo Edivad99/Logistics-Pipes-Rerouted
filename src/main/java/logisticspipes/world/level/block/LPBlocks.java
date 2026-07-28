@@ -55,9 +55,8 @@ public class LPBlocks {
         deferredRegister.registerBlock("power_provider_rf",
             properties -> new LogisticsSolidBlock(LogisticsSolidBlock.Type.LOGISTICS_RF_POWERPROVIDER, properties));
 
-    public static final DeferredBlock<LogisticsSolidBlock> PROGRAM_COMPILER =
-        deferredRegister.registerBlock("program_compiler",
-            properties -> new LogisticsSolidBlock(LogisticsSolidBlock.Type.LOGISTICS_PROGRAM_COMPILER, properties));
+    public static final DeferredBlock<LogisticsProgramCompilerBlock> PROGRAM_COMPILER =
+        deferredRegister.registerBlock("program_compiler", LogisticsProgramCompilerBlock::new);
 
     public static final DeferredBlock<LogisticsBlockGenericPipe> PIPE =
         deferredRegister.registerBlock("pipe", LogisticsBlockGenericPipe::new);

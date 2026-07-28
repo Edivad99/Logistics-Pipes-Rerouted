@@ -96,7 +96,7 @@ public class HUDProvider extends BasicHUDGui {
 
 	@Override
 	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, -50, -55, 50, 55, 0, false);
+		LPGuiGraphics.drawGuiBackGround(-50, -55, 50, 55, 0, false);
 		super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 
 		float scaleX = 1.125F;

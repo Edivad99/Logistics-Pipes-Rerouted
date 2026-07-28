@@ -162,7 +162,7 @@ public class GuiRecipeImport extends SubGuiScreen {
 			int gx = i % 3;
 			int gy = i / 3;
 			ItemStack stack = c.order.get(c.pos % c.order.size()).makeNormalStack();
-			guiGraphics.renderItem(stack, guiLeft + 44 + gx * 18, guiTop + 19 + gy * 18);
+			guiGraphics.renderItem(stack, guiLeft + 45 + gx * 18, guiTop + 20 + gy * 18);
 		}
 		// Render current selection for each candidate group
 		int x = 0, y = 0;
@@ -178,7 +178,7 @@ public class GuiRecipeImport extends SubGuiScreen {
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
 		getGuiGraphics().drawString(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0x404040, false);
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {

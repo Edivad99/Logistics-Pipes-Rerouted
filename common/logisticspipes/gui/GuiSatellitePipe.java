@@ -71,7 +71,7 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		super.renderBg(guiGraphics, f, x, y);
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		input.drawTextBox();
 	}
 

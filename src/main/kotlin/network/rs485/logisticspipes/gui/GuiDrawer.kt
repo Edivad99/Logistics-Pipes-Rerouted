@@ -38,23 +38,11 @@
 package network.rs485.logisticspipes.gui
 
 import network.rs485.logisticspipes.gui.font.LPFontRenderer
-import network.rs485.logisticspipes.gui.guidebook.Screen
-import network.rs485.logisticspipes.gui.guidebook.x
-import network.rs485.logisticspipes.gui.guidebook.y
-import network.rs485.logisticspipes.gui.widget.FuzzyItemSlot
 import network.rs485.logisticspipes.util.FuzzyFlag
-import network.rs485.logisticspipes.util.FuzzyUtil
 import network.rs485.logisticspipes.util.IRectangle
-import network.rs485.logisticspipes.util.Rectangle
-import network.rs485.logisticspipes.util.math.BorderedRectangle
-import network.rs485.logisticspipes.util.math.MutableRectangle
-import network.rs485.markdown.defaultDrawableState
-import logisticspipes.LPConstants
 import logisticspipes.utils.Color
-import logisticspipes.utils.MinecraftColor
 import logisticspipes.utils.gui.LPGuiGraphics
 import logisticspipes.utils.gui.SimpleGraphics
-import net.minecraft.world.Container
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
 import net.minecraft.network.chat.Component
@@ -106,7 +94,7 @@ object GuiDrawer {
         val top = guiArea.roundedTop
         val right = guiArea.roundedRight
         val bottom = guiArea.roundedBottom
-        LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, top, right, bottom, 0f, true)
+        LPGuiGraphics.drawGuiBackGround(left, top, right, bottom, 0f, true)
     }
 
     fun drawGuiTexturedRect(rect: IRectangle, text: IRectangle, blend: Boolean, color: Int) {

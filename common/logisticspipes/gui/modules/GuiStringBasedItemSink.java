@@ -94,7 +94,7 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 7, topPos + 126);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 6, topPos + 7);
 		SimpleGraphics.drawRectNoBlend(leftPos + 26, topPos + 5, leftPos + 169, topPos + 17, Color.DARK_GREY, 0.0);

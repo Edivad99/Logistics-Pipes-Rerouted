@@ -92,7 +92,7 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 		} else {
 			line = -75;
 		}
-		LPGuiGraphics.drawGuiBackGround(mc, -70, -80, 70, 80, 0, false);
+		LPGuiGraphics.drawGuiBackGround(-70, -80, 70, 80, 0, false);
 		super.renderHeadUpDisplay(distance, day, shifted, mc, config);
 		write("Routing Update in: ", mc);
 		write(route.positions.toString(), mc);

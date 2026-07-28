@@ -130,7 +130,7 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 			int k = topPos;
 			guiGraphics.blit(GuiSupplierPipe.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 		} else {
-			LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+			LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 			for (int i = 0; i < 9; i++) {
 				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 17 + i * 18, topPos + 19);
 				Slot slot = getMenu().getSlot(36 + i);

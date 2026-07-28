@@ -25,6 +25,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 public final class SimpleGraphics {
 
     @Nullable
+    @Deprecated
 	public static GuiGraphics guiGraphics = null;
 
 	private SimpleGraphics() {}

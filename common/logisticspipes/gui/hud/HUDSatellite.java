@@ -60,7 +60,7 @@ public class HUDSatellite extends BasicHUDGui {
 		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
 		int textColor = day ? 0xff404040 : 0xff7f7f7f;
 		if (pipe.getItemList().size() > 0) {
-			LPGuiGraphics.drawGuiBackGround(minecraft, -50, -50, 50, 50, 0, false);
+			LPGuiGraphics.drawGuiBackGround(-50, -50, 50, 50, 0, false);
 			super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 
 			String message = pipe.getSatellitePipeName();
@@ -79,7 +79,7 @@ public class HUDSatellite extends BasicHUDGui {
 				gg.drawString(minecraft.font, String.format("(%d/%d)", page + 1, getMaxPage()), 9, -41, textColor, false);
 			}
 		} else {
-			LPGuiGraphics.drawGuiBackGround(minecraft, -50, -15, 50, 20, 0, false);
+			LPGuiGraphics.drawGuiBackGround(-50, -15, 50, 20, 0, false);
 			super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 			String message = pipe.getSatellitePipeName();
 			if (gg != null) {

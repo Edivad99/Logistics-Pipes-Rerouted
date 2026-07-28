@@ -2,8 +2,6 @@ package logisticspipes.gui.popup;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
@@ -24,7 +22,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -115,7 +112,7 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
 		//guiGraphics.drawString(minecraft.font, StringUtil.translate(PREFIX + "title"), guiLeft + 5, guiTop + 6, 0x404040, false);
 		itemDisplay.renderPageNumber(right - 47, guiTop + 6);
 

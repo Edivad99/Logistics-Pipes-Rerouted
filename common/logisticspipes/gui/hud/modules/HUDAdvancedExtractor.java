@@ -69,8 +69,8 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 		@Override
 		public void renderButton(boolean hover, boolean clicked, boolean shifted) {
 			Minecraft mc = Minecraft.getInstance();
-			LPGuiGraphics.drawGuiBackGround(mc,
-					posX * 2,
+			LPGuiGraphics.drawGuiBackGround(
+                    posX * 2,
 					posY * 2,
 					(posX + sizeX) * 2,
 					(posY + sizeY) * 2 + 15,

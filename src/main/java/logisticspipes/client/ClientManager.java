@@ -1,5 +1,7 @@
 package logisticspipes.client;
 
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -7,6 +9,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -16,6 +19,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.client.particle.SparkParticle;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
 import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
+import logisticspipes.client.gui.screen.ProgramCompilerScreen;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
@@ -30,6 +34,8 @@ import logisticspipes.renderer.newpipe.tube.SpeedupTubeRenderer;
 import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
+import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor;
@@ -45,6 +51,7 @@ public class ClientManager {
         modEventBus.addListener(ClientManager::handleRegisterRenderers);
         modEventBus.addListener(ClientManager::handleParticleRegistration);
         modEventBus.addListener(ClientManager::handleClientExtensions);
+        modEventBus.addListener(ClientManager::handleRegisterMenuScreens);
 
         modEventBus.register(TextureRegistrar.class);
         modEventBus.register(FluidContainerRenderer.class);
@@ -118,7 +125,11 @@ public class ClientManager {
             LPItems.ITEM_PROGRAM_COMPILER);
     }
 
-    private static void safeLoadModels(String name, Runnable loader) {
+    private static void handleRegisterMenuScreens(RegisterMenuScreensEvent event) {
+        event.register(LPMenuTypes.PROGRAM_COMPILER.get(), (MenuScreens.ScreenConstructor<ProgramCompilerMenu, AbstractContainerScreen<ProgramCompilerMenu>>) ProgramCompilerScreen::new);
+    }
+
+        private static void safeLoadModels(String name, Runnable loader) {
         try {
             loader.run();
         } catch (Throwable t) {

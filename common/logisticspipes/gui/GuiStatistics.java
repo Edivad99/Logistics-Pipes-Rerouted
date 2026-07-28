@@ -29,6 +29,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.math.Vec2;
 import logisticspipes.utils.string.StringUtils;
+
 import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -102,12 +103,12 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 	private void drawBG() {
 		// background
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos + 20, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos + (25 * currentTab) + 2, topPos - 2, leftPos + 27 + (25 * currentTab), topPos + 38, 0.0f, true, true, true, false, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos + 20, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos + (25 * currentTab) + 2, topPos - 2, leftPos + 27 + (25 * currentTab), topPos + 38, 0.0f, true, true, true, false, true);
 
 		// tab selector panes
 		for (int i = 0; i < tabs.size(); i++) {
-			LPGuiGraphics.drawGuiBackGround(minecraft, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
+			LPGuiGraphics.drawGuiBackGround(leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
 		}
 
 		// First Tab

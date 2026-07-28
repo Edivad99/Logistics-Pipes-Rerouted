@@ -34,6 +34,7 @@ import logisticspipes.data.LPSpriteSourceProvider;
 import logisticspipes.data.models.LPBlockModelProvider;
 import logisticspipes.data.models.LPItemModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
+import logisticspipes.items.ItemPipeSignCreator;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.NewGuiHandler;
@@ -51,7 +52,8 @@ import logisticspipes.proxy.recipeproviders.LogisticsCraftingTable;
 import logisticspipes.proxy.specialconnection.SpecialPipeConnection;
 import logisticspipes.proxy.specialconnection.SpecialTileConnection;
 import logisticspipes.proxy.specialtankhandler.SpecialTankHandler;
-import logisticspipes.recipes.ProgrammerRecipes;
+import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.item.crafting.RegisterProgrammerRecipes;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
@@ -120,7 +122,7 @@ public class LogisticsPipes {
         //    TrackTypes.register(modEventBus);
         //    RailcraftFluids.register(modEventBus);
         //    RailcraftFluidTypes.register(modEventBus);
-        //    RailcraftMenuTypes.register(modEventBus);
+        LPMenuTypes.register(modEventBus);
         //    RailcraftSoundEvents.register(modEventBus);
         LPParticleTypes.register(modEventBus);
         LPRecipeSerializers.register(modEventBus);
@@ -158,6 +160,7 @@ public class LogisticsPipes {
         NewGuiHandler.initialize();
 
         ProxyManager.load();
+        ItemPipeSignCreator.registerPipeSignTypes();
 
         SimpleServiceLocator.setPipeInformationManager(new PipeInformationManager());
         SimpleServiceLocator.setLogisticsFluidManager(new LogisticsFluidManager());
@@ -167,7 +170,7 @@ public class LogisticsPipes {
                 TheOneProbeIntegration.class::getName);
         }*/
 
-        ProgrammerRecipes.loadRecipes();
+        RegisterProgrammerRecipes.loadRecipes();
 
         RouterManager manager = new RouterManager();
         SimpleServiceLocator.setRouterManager(manager);

@@ -126,7 +126,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		// Use module.dummyInventory directly; propertyLayer is not yet available during static construction
 		DummyContainer dummy = new DummyContainer(player.getInventory(), module.dummyInventory);
 		int computedImageHeight = isAdvancedSat ? 217 : 187;
-		dummy.addNormalSlotsForPlayerInventory(8, computedImageHeight - 82);
+		dummy.addNormalSlotsForPlayerInventory(9, computedImageHeight - 81);
 
 		// Input slots
 		for (int l = 0; l < 9; l++) {
@@ -381,7 +381,8 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, leftPos + imageWidth - (hasByproductExtractor ? 40 : 0), topPos + imageHeight, 0.0f, true, true, true, true, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics,
+                leftPos, topPos, leftPos + imageWidth - (hasByproductExtractor ? 40 : 0), topPos + imageHeight, 0.0f, true, true, true, true, true);
 
 		if (!isAdvancedSat) {
 			guiGraphics.fill(leftPos + 115, topPos + 4, leftPos + 170, topPos + 70, 0xff8B8B8B);

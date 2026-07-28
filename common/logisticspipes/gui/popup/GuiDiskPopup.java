@@ -144,7 +144,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
 		getGuiGraphics().drawString(minecraft.font, "Disk", xCenter - (minecraft.font.width("Disk") / 2), guiTop + 10, 0xFFFFFF, true);
 
 		//NameInput

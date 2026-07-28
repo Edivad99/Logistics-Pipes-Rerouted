@@ -47,7 +47,7 @@ public class GuiMessagePopup extends SubGuiScreen {
 			xSize = mWidth = Math.max(Math.min(lWidth + 20, 400), 120);
 			super.init();
 		}
-		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
 		for (int i = 0; i < 9 && i < text.length; i++) {
 			if (text[i] == null) {
 				continue;

@@ -87,13 +87,15 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		super(buildDummy(entityPlayer, table), 410, 240, 0, 0);
 		_table = table;
 		_entityPlayer = entityPlayer;
-		if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
+        ((DummyContainer) this.menu).guiHolderForJEI = this;
+        if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
 			dimension = _table.getWorld().dimension().location();
 		} else {
 			dimension = GuiOrderer.dimensioncache;
 		}
 		refreshItems();
 	}
+
 	private static DummyContainer buildDummy(Player entityPlayer, PipeBlockRequestTable table) {
 		DummyContainer dummy = new DummyContainer(entityPlayer.getInventory(), table.matrix);
 		int i = 0;
@@ -111,7 +113,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		dummy.addCallableSlotHandler(0, table.resultInv, 101, 33, table::getResultForClick);
 		dummy.addNormalSlot(0, table.toSortInv, 164, 51);
 		dummy.addNormalSlot(0, table.diskInv, 164, 25);
-		dummy.addNormalSlotsForPlayerInventory(20, 150);
+		dummy.addNormalSlotsForPlayerInventory(21, 151);
 		return dummy;
 	}
 
@@ -193,7 +195,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		for (AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _table.targetType != null;
 		}
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right - (showRequest ? 0 : 105), bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right - (showRequest ? 0 : 105), bottom, 0.0f, true);
 
 		guiGraphics.fill(leftPos + 162, topPos + 23, leftPos + 182, topPos + 43, Color.getValue(Color.BLACK));
 		guiGraphics.fill(leftPos + 164, topPos + 25, leftPos + 180, topPos + 41, Color.getValue(Color.DARKER_GREY));

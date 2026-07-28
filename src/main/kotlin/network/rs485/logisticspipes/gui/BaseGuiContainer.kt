@@ -39,25 +39,18 @@ package network.rs485.logisticspipes.gui
 
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.gui.guidebook.MouseInteractable
-import network.rs485.logisticspipes.gui.guidebook.Screen
-import network.rs485.logisticspipes.gui.widget.FuzzyItemSlot
 import network.rs485.logisticspipes.gui.widget.FuzzySelectionWidget
-import network.rs485.logisticspipes.gui.widget.GhostSlot
-import network.rs485.logisticspipes.gui.widget.Tooltipped
 import network.rs485.logisticspipes.inventory.container.LPBaseContainer
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.modules.LogisticsModule
-import logisticspipes.utils.gui.DummySlot
 import logisticspipes.utils.gui.LPGuiGraphics
 import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
-import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import kotlin.math.roundToInt
 
 // TODO: Rendering deferred — full 1.20.1 rendering migration (PoseStack, AbstractContainerScreen API) pending.
 
@@ -140,7 +133,7 @@ abstract class BaseGuiContainer(
         val top = rect.y0.toInt()
         val right = left + rect.width.toInt()
         val bottom = top + rect.height.toInt()
-        LPGuiGraphics.drawGuiBackGround(Minecraft.getInstance(), left, top, right, bottom, 0f, true)
+        LPGuiGraphics.drawGuiBackGround(left, top, right, bottom, 0f, true)
     }
 
     fun List<Drawable>.draw(mouseX: Float, mouseY: Float, partialTicks: Float, visibleArea: IRectangle) =

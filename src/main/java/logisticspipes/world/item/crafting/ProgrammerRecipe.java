@@ -33,24 +33,11 @@ public class ProgrammerRecipe extends WrappedShapedRecipe {
             ItemStack stack = input.getItem(i);
             if (stack.is(LPItems.LOGISTICS_PROGRAMMER)) {
                 String program = stack.get(LPDataComponents.RECIPE_TARGET);
-                return program != null &&
-                    program.equals(getRequiredProgram());
+                return program != null && program.equals(getRequiredProgram());
             }
         }
         return false;
     }
-
-    //  @Override
-    //  public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
-    //    NonNullList<ItemStack> resultItems = super.getRemainingItems(input);
-    //    for (int i = 0; i < input.size(); i++) {
-    //      ItemStack stack = input.getItem(i);
-    //      if (stack.is(LPItems.LOGISTICS_PROGRAMMER)) {
-    //        resultItems.set(i, stack);
-    //      }
-    //    }
-    //    return resultItems;
-    //  }
 
     private String getRequiredProgram() {
         return BuiltInRegistries.ITEM.getKey(getResultItem(null).getItem()).toString();

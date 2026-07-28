@@ -97,7 +97,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
 		int pointerX = var2 - leftPos;
 		int pointerY = var3 - topPos;
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 7, topPos + 126);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 6, topPos + 7);
 

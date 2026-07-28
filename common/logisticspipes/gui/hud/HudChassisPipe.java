@@ -87,7 +87,7 @@ public class HudChassisPipe extends BasicHUDGui {
 
 	@Override
 	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, -50, -50, 50, 50, 0, false);
+		LPGuiGraphics.drawGuiBackGround(-50, -50, 50, 50, 0, false);
 		super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
 		int textColor = day ? 0xff404040 : 0xff7f7f7f;
@@ -97,7 +97,7 @@ public class HudChassisPipe extends BasicHUDGui {
 				return;
 			}
 
-			LPGuiGraphics.drawGuiBackGround(minecraft, -23, -35, 45, 45, 0, false);
+			LPGuiGraphics.drawGuiBackGround(-23, -35, 45, 45, 0, false);
 
 			if (selectedmodule instanceof IHUDModuleHandler && ((IHUDModuleHandler) selectedmodule).getHUDRenderer() != null) {
 				((IHUDModuleHandler) selectedmodule).getHUDRenderer().renderContent(shifted);
@@ -229,9 +229,9 @@ public class HudChassisPipe extends BasicHUDGui {
 				gg.pose().scale(0.5F, 0.5F, 1.0F);
 			}
 			if (isSlotSelected(position)) {
-				LPGuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2 + 19, (posY + sizeY) * 2, 0, false, true, true, true, false);
+				LPGuiGraphics.drawGuiBackGround(posX * 2, posY * 2, (posX + sizeX) * 2 + 19, (posY + sizeY) * 2, 0, false, true, true, true, false);
 			} else {
-				LPGuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
+				LPGuiGraphics.drawGuiBackGround(posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
 			}
 			if (gg != null) {
 				gg.pose().popPose();
@@ -263,7 +263,7 @@ public class HudChassisPipe extends BasicHUDGui {
 					gg2.pose().pushPose();
 					gg2.pose().scale(0.5F, 0.5F, 1.0F);
 				}
-				LPGuiGraphics.drawGuiBackGround(mc, posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
+				LPGuiGraphics.drawGuiBackGround(posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
 				if (gg2 != null) {
 					gg2.pose().popPose();
 				}

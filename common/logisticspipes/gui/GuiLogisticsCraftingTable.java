@@ -53,7 +53,7 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 				dummy.addNormalSlot(y * 9 + x, crafter.inv, 8 + x * 18, 80 + y * 18);
 			}
 		}
-		dummy.addNormalSlotsForPlayerInventory(8, 135);
+		dummy.addNormalSlotsForPlayerInventory(9, 136);
 		return dummy;
 	}
 
@@ -74,8 +74,8 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 		for (net.minecraft.client.gui.components.AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _crafter.targetType != null;
 		}
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
 				LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 34 + x * 18, topPos + 9 + y * 18);

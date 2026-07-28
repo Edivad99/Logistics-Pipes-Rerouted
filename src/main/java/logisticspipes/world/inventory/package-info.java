@@ -1,8 +1,9 @@
 @FieldsAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package logisticspipes.recipes;
+package logisticspipes.world.inventory;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;

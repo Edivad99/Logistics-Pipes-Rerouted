@@ -65,7 +65,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	private static DummyContainer buildDummy(Player player, PipeLogisticsChassis chassis, boolean hasUpgradeModuleUpgrade) {
 		Container moduleInventory = chassis.getModuleInventory(player.registryAccess());
 		DummyContainer dummy = new DummyContainer(player.getInventory(), moduleInventory);
-		dummy.addNormalSlotsForPlayerInventory(18, 9 + 20 * chassis.getChassisSize());
+		dummy.addNormalSlotsForPlayerInventory(19, 10 + 20 * chassis.getChassisSize());
 		for (int i = 0; i < chassis.getChassisSize(); i++)
 			dummy.addModuleSlot(i, moduleInventory, 18, 9 + 20 * i, chassis);
 
@@ -170,7 +170,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++)
 			LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 17, topPos + 8 + 20 * i);
 

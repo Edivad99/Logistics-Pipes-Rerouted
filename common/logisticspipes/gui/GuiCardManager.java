@@ -45,7 +45,7 @@ public class GuiCardManager extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int j, int k) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 10, bottom - 85);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 20, topPos + 20);
 		LPGuiGraphics.drawSlotBackground(minecraft, leftPos + 60, topPos + 20);

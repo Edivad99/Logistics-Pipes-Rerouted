@@ -16,8 +16,9 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.LPConstants;
-import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.interfaces.IChainAddList;
 import logisticspipes.interfaces.IFuzzySlot;
@@ -33,8 +34,11 @@ import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
@@ -44,12 +48,7 @@ import network.rs485.logisticspipes.util.FuzzyFlag;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 import network.rs485.logisticspipes.util.TextUtil;
 
-// NEI imports removed — NEI has no 1.20.1 port; interface added at runtime via @ModDependentInterface ASM
-
-@ModDependentInterface(modId = { LPConstants.neiModID }, interfacePath = { "codechicken.nei.api.INEIGuiHandler" })
-public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen implements ISubGuiControler,
-		// INEIGuiHandler — added at runtime by @ModDependentInterface ASM when NEI is present
-		IGuiAccess {
+public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen implements ISubGuiControler, IGuiAccess {
 
 	protected static final ResourceLocation ITEMSINK = LPConstants.rl("textures/gui/itemsink.png");
 
@@ -62,13 +61,14 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	protected final int xCenterOffset;
 	protected final int yCenterOffset;
 
+    @Nullable
 	private SubGuiScreen subGui;
 	protected List<IRenderSlot> slots = new ArrayList<>();
 	protected GuiExtensionController extensionControllerLeft = new GuiExtensionController(GuiSide.LEFT);
 	protected GuiExtensionController extensionControllerRight = new GuiExtensionController(GuiSide.RIGHT);
-	private net.minecraft.client.gui.components.AbstractWidget selectedButton;
+	private AbstractWidget selectedButton;
 	/** Compatibility bridge: mirrors widgets added via addRenderableWidget so old buttonList.get(i) still works. */
-	protected List<net.minecraft.client.gui.components.AbstractWidget> buttonList = new ArrayList<>();
+	protected List<AbstractWidget> buttonList = new ArrayList<>();
 
 	private int currentDrawScreenMouseX;
 	private int currentDrawScreenMouseY;
@@ -88,13 +88,22 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	public LogisticsBaseGuiScreen(AbstractContainerMenu container) {
-		super(container, Minecraft.getInstance().player.getInventory(), net.minecraft.network.chat.Component.empty());
+		super(container, Minecraft.getInstance().player.getInventory(), Component.empty());
 		xCenterOffset = 0;
 		yCenterOffset = 0;
 	}
 
+    public LogisticsBaseGuiScreen(AbstractContainerMenu container, Inventory inventory, Component title,
+        int imageWidth, int imageHeight, int xCenterOffset, int yCenterOffset) {
+        super(container, inventory, title);
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        this.xCenterOffset = xCenterOffset;
+        this.yCenterOffset = yCenterOffset;
+    }
+
 	public LogisticsBaseGuiScreen(AbstractContainerMenu container, int imageWidth, int imageHeight, int xCenterOffset, int yCenterOffset) {
-		super(container, Minecraft.getInstance().player.getInventory(), net.minecraft.network.chat.Component.empty());
+		super(container, Minecraft.getInstance().player.getInventory(), Component.empty());
 		this.imageWidth = imageWidth;
 		this.imageHeight = imageHeight;
 		this.xCenterOffset = xCenterOffset;
@@ -183,7 +192,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 						if (slot.getToolTipText() != null && !slot.getToolTipText().equals("")) {
 							ArrayList<String> list = new ArrayList<>();
 							list.add(slot.getToolTipText());
-							LPGuiGraphics.drawToolTip(mouseX, mouseY, list, ChatFormatting.WHITE);
+							LPGuiGraphics.drawToolTip(guiGraphics, mouseX, mouseY, list, ChatFormatting.WHITE);
 						}
 					}
 				}
@@ -267,7 +276,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 				final int posY = slot.y + 17 + topPos;
 				renderAtTheEnd.add(() -> {
 					com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
-					LPGuiGraphics.drawGuiBackGround(minecraft, posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
+					LPGuiGraphics.drawGuiBackGround(posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
 					final String PREFIX = "gui.crafting.";
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
 							(useOreDict ? 0xFF4040 : 0x404040), false);
@@ -301,7 +310,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	protected void checkButtons() {
-		for (net.minecraft.client.gui.components.AbstractWidget button : buttonList) {
+		for (AbstractWidget button : buttonList) {
 			if (extensionControllerLeft.renderButtonControlled(button)) {
 				button.visible = extensionControllerLeft.renderButton(button);
 			}
@@ -311,7 +320,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		}
 	}
 
-	public <T extends net.minecraft.client.gui.components.AbstractWidget> T addRenderableWidget(T button) {
+	public <T extends AbstractWidget> T addRenderableWidget(T button) {
 		buttonList.add(button);
 		return super.addRenderableWidget(button);
 	}
@@ -347,7 +356,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		}
 	}
 
-	@Override
+    @Override
 	public boolean mouseClicked(double par1, double par2, int par3) {
 		// Popups are modal: route all input to the innermost sub-GUI (LP1 parity)
 		if (subGui != null) {
@@ -450,7 +459,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	private boolean mouseCanPressButton(int par1, int par2) {
-		for (net.minecraft.client.gui.components.AbstractWidget b : buttonList) {
+		for (AbstractWidget b : buttonList) {
 			if (b.visible && b.isMouseOver(par1, par2)) {
 				return true;
 			}

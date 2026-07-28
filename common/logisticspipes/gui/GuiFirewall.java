@@ -46,7 +46,7 @@ public class GuiFirewall extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, leftPos, topPos, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(minecraft, leftPos + 33, topPos + 175);
 		for (int x = 0; x < 6; x++) {
 			for (int y = 0; y < 6; y++) {

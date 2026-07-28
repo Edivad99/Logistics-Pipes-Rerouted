@@ -21,9 +21,9 @@ public class HUDCrafting extends BasicHUDGui {
 	@Override
 	public void renderHeadUpDisplay(double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
 		if (pipe.displayList.size() > 0) {
-			LPGuiGraphics.drawGuiBackGround(minecraft, -50, -28, 50, 30, 0, false);
+			LPGuiGraphics.drawGuiBackGround(-50, -28, 50, 30, 0, false);
 		} else {
-			LPGuiGraphics.drawGuiBackGround(minecraft, -30, -22, 30, 25, 0, false);
+			LPGuiGraphics.drawGuiBackGround(-30, -22, 30, 25, 0, false);
 		}
 		super.renderHeadUpDisplay(d, day, shifted, minecraft, config);
 		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;

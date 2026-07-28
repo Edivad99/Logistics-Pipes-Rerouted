@@ -79,7 +79,7 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 
 	@Override
 	protected void renderGuiBackground(int mouseX, int mouseY) {
-		LPGuiGraphics.drawGuiBackGround(minecraft, guiLeft, guiTop, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiLeft, guiTop, right, bottom, 0.0f, true);
 		drawTitle(getGuiGraphics());
 
 		textList.renderGuiBackground(mouseX, mouseY);

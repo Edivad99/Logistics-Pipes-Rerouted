@@ -1,4 +1,4 @@
-package logisticspipes.recipes;
+package logisticspipes.world.item.crafting;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -45,7 +44,7 @@ import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.module.AsyncExtractorModule;
 import network.rs485.logisticspipes.module.AsyncQuicksortModule;
 
-public class ProgrammerRecipes {
+public class RegisterProgrammerRecipes {
 
     private static void registerUpgradeRecipe(ResourceLocation recipeCategory, String upgradeName) {
         ResourceLocation upgradeResource = LPItems.upgrades.get(upgradeName);
@@ -57,13 +56,12 @@ public class ProgrammerRecipes {
             return;
         }
 
-        final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerBlockEntity.programByCategory.computeIfAbsent(
-            recipeCategory, k -> new HashSet<>());
+        final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerBlockEntity.programByCategory
+            .computeIfAbsent(recipeCategory, k -> new HashSet<>());
         compilerPrograms.add(upgradeResource);
     }
 
-    private static void registerPipeRecipeCategory(ResourceLocation recipeCategory,
-        Item targetPipe) {
+    private static void registerPipeRecipeCategory(ResourceLocation recipeCategory, Item targetPipe) {
         if (!LogisticsProgramCompilerBlockEntity.programByCategory.containsKey(recipeCategory)) {
             LogisticsProgramCompilerBlockEntity.programByCategory.put(recipeCategory,
                 new HashSet<>());
@@ -72,8 +70,8 @@ public class ProgrammerRecipes {
             .add(BuiltInRegistries.ITEM.getKey(targetPipe));
     }
 
-    private static void registerModuleRecipe(ResourceLocation recipeCategory,
-        String moduleName, @Nullable String baseModuleName) {
+    private static void registerModuleRecipe(ResourceLocation recipeCategory, String moduleName,
+        @Nullable String baseModuleName) {
         final ResourceLocation moduleResource = LPItems.modules.get(moduleName);
         Item module = BuiltInRegistries.ITEM.get(moduleResource);
         if (module.equals(Items.AIR)) {
@@ -89,8 +87,8 @@ public class ProgrammerRecipes {
             return;
         }
 
-        final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerBlockEntity.programByCategory.computeIfAbsent(
-            recipeCategory, k -> new HashSet<>());
+        final Set<ResourceLocation> compilerPrograms = LogisticsProgramCompilerBlockEntity.programByCategory
+            .computeIfAbsent(recipeCategory, k -> new HashSet<>());
         compilerPrograms.add(moduleResource);
     }
 

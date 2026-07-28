@@ -5,6 +5,9 @@ import logisticspipes.utils.Color;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class TextListDisplay {
@@ -91,9 +94,19 @@ public class TextListDisplay {
 				gui.getGuiGraphics().fill(gui.getGuiLeft() + borderLeft + 2, gui.getGuiTop() + borderTop + 2 + ((i - scroll) * 10), gui.getRight() - borderRight - 2, gui.getGuiTop() + borderTop + 13 + ((i - scroll) * 10), Color.getValue(Color.DARKER_GREY));
 				flag = true;
 			}
-			String name = list.getTextAt(i);
-			name = TextUtil.getTrimmedString(name, gui.getXSize() - borderRight - borderLeft - 6, gui.getMC().font, "...");
-			gui.getGuiGraphics().drawString(gui.getMC().font, name, gui.getGuiLeft() + borderLeft + 4, gui.getGuiTop() + borderTop + 4 + ((i - scroll) * 10), list.getTextColor(i), false);
+            String name = list.getTextAt(i);
+
+            int minX = gui.getGuiLeft() + borderLeft + 4;
+            int maxX = gui.getGuiLeft() + gui.getXSize() - borderRight - 2;
+
+            gui.getGuiGraphics().drawScrollingString(
+                gui.getMC().font,
+                Component.literal(name),
+                minX,
+                maxX,
+                gui.getGuiTop() + borderTop + 4 + ((i - scroll) * 10),
+                list.getTextColor(i)
+            );
 		}
 
 		if (!flag) {
@@ -101,9 +114,9 @@ public class TextListDisplay {
 		}
 	}
 
-	public void renderGuiForeground() {
+	public void renderGuiForeground(GuiGraphics guiGraphics) {
 		if (hover != -1) {
-			LPGuiGraphics.drawToolTip(mousePosX - gui.getGuiLeft(), mousePosY - gui.getGuiTop(), Collections.singletonList(list.getTextAt(hover)), ChatFormatting.WHITE);
+			LPGuiGraphics.drawToolTip(guiGraphics, mousePosX - gui.getGuiLeft(), mousePosY - gui.getGuiTop(), Collections.singletonList(list.getTextAt(hover)), ChatFormatting.WHITE);
 		}
 	}
 
