@@ -132,7 +132,7 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 		} else {
 			LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 			for (int i = 0; i < 9; i++) {
-				LPGuiGraphics.drawSlotBackground(leftPos + 17 + i * 18, topPos + 19);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 17 + i * 18, topPos + 19);
 				Slot slot = getMenu().getSlot(36 + i);
 				if (slot.hasItem() && slot.getItem().getCount() > 64) {
 					guiGraphics.fill(leftPos + 18 + i * 18, topPos + 20, leftPos + 34 + i * 18, topPos + 36, Color.getValue(Color.RED));

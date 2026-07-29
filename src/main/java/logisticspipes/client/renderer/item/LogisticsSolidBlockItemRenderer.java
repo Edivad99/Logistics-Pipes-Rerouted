@@ -21,7 +21,7 @@ public class LogisticsSolidBlockItemRenderer extends BlockEntityWithoutLevelRend
 
     public static LogisticsSolidBlockItemRenderer INSTANCE = new LogisticsSolidBlockItemRenderer();
 
-    public LogisticsSolidBlockItemRenderer() {
+    private LogisticsSolidBlockItemRenderer() {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
     }
 

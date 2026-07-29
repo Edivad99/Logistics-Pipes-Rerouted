@@ -12,6 +12,8 @@ import logisticspipes.particle.SparkleParticleOptions;
 
 public class SparkParticle extends TextureSheetParticle {
 
+    private final SpriteSet sprites;
+
     protected SparkParticle(ClientLevel level, double x, double y, double z, float scale,
         float red, float green, float blue, int multiplier, SpriteSet sprites) {
         super(level, x, y, z, 0, 0, 0);
@@ -23,21 +25,26 @@ public class SparkParticle extends TextureSheetParticle {
         this.scale(scale);
         this.lifetime = 3 * multiplier - 1;
         this.hasPhysics = false;
+        this.sprites = sprites;
         this.setSpriteFromAge(sprites);
     }
 
     @Override
     public void tick() {
         var player = Minecraft.getInstance().player;
-        if (player.distanceToSqr(getPos()) > 50) {
+        if (player != null && player.distanceToSqr(getPos()) > 50 * 50) {
             this.remove();
+            return;
         }
 
         this.xo = x;
         this.yo = y;
         this.zo = z;
 
-        if (this.age++ >= this.lifetime) {
+        this.age++;
+        this.setSpriteFromAge(this.sprites);
+
+        if (this.age >= this.lifetime) {
             this.remove();
         } else {
             this.xd -= 0.05D * this.gravity - 0.1D * this.gravity * this.level.getRandom().nextDouble();

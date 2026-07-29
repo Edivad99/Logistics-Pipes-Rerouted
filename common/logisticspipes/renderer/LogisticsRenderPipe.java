@@ -68,7 +68,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
 	@Override
 	public void render(LogisticsTileGenericPipe tileentity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		if (tileentity == null || tileentity.pipe == null) return;
+		if (tileentity.pipe == null) return;
 
 		// Fallback placeholder cube — only draws when the OBJ model pipeline failed to load
 		// (empty sideNormal map), so broken-geometry states remain visible in-world. When
@@ -99,9 +99,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 	}
 
 	private void drawPlaceholderCube(LogisticsTileGenericPipe tileentity, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		com.mojang.blaze3d.vertex.VertexConsumer vc = bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.solid());
-		org.joml.Matrix4f m = poseStack.last().pose();
-		org.joml.Matrix3f n = poseStack.last().normal();
+		VertexConsumer vc = bufferSource.getBuffer(RenderType.solid());
+		Matrix4f m = poseStack.last().pose();
+		Matrix3f n = poseStack.last().normal();
 
 		// Core cube 6/16..10/16 — visual placeholder centered in the block.
 		float a = 0.375f, b = 0.625f;
@@ -112,21 +112,19 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 		emitBox(vc, m, n, a, a, a, b, b, b, r, g, bl, packedLight, packedOverlay);
 
 		// Connection stubs on each connected side.
-		if (tileentity.renderState != null && tileentity.renderState.pipeConnectionMatrix != null) {
-			for (Direction dir : Direction.values()) {
-				if (!tileentity.renderState.pipeConnectionMatrix.isConnected(dir)) continue;
-				float x0 = a, y0 = a, z0 = a, x1 = b, y1 = b, z1 = b;
-				switch (dir) {
-					case DOWN:  y0 = 0f; y1 = a; break;
-					case UP:    y0 = b; y1 = 1f; break;
-					case NORTH: z0 = 0f; z1 = a; break;
-					case SOUTH: z0 = b; z1 = 1f; break;
-					case WEST:  x0 = 0f; x1 = a; break;
-					case EAST:  x0 = b; x1 = 1f; break;
-				}
-				emitBox(vc, m, n, x0, y0, z0, x1, y1, z1, r, g, bl, packedLight, packedOverlay);
-			}
-		}
+        for (Direction dir : Direction.values()) {
+            if (!tileentity.renderState.pipeConnectionMatrix.isConnected(dir)) continue;
+            float x0 = a, y0 = a, z0 = a, x1 = b, y1 = b, z1 = b;
+            switch (dir) {
+                case DOWN:  y0 = 0f; y1 = a; break;
+                case UP:    y0 = b; y1 = 1f; break;
+                case NORTH: z0 = 0f; z1 = a; break;
+                case SOUTH: z0 = b; z1 = 1f; break;
+                case WEST:  x0 = 0f; x1 = a; break;
+                case EAST:  x0 = b; x1 = 1f; break;
+            }
+            emitBox(vc, m, n, x0, y0, z0, x1, y1, z1, r, g, bl, packedLight, packedOverlay);
+        }
 	}
 
 	private static void emitBox(VertexConsumer vc, Matrix4f m, Matrix3f n,
@@ -198,7 +196,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 				LogisticsNewSolidBlockWorldRenderer.CoverSides.values()) {
 			// LP1 skipped the plates on sides with pipe connections so adjacent pipes visually
 			// enter the table.
-			if (pipeTile.renderState != null && pipeTile.renderState.pipeConnectionMatrix.isConnected(side.getDir(rotation))) {
+			if (pipeTile.renderState.pipeConnectionMatrix.isConnected(side.getDir(rotation))) {
 				continue;
 			}
 			Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, IModel3D> outer =

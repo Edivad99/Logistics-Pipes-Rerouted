@@ -343,7 +343,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		for (IRenderSlot slot : slots) {
 			if (slot instanceof IItemTextureRenderSlot) {
 				if (slot.drawSlotBackground()) {
-					LPGuiGraphics.drawSlotBackground(slot.getXPos(), slot.getYPos());
+					LPGuiGraphics.drawSlotBackground(guiGraphics, slot.getXPos(), slot.getYPos());
 				}
 				if (((IItemTextureRenderSlot) slot).drawSlotIcon() && !((IItemTextureRenderSlot) slot).customRender(minecraft, 0.0f)) {
 					LPGuiGraphics.renderIconAt(guiGraphics, slot.getXPos() + 1, slot.getYPos() + 1, 0.0f, ((IItemTextureRenderSlot) slot).getTextureIcon());

@@ -14,6 +14,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.world.entity.player.Player;
 
 public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
@@ -24,7 +25,7 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 	private int fuzzyPanelHover = -1;
 	private int fuzzyPanelHoverTime = 0;
 
-	private net.minecraft.client.gui.components.AbstractButton[] cycleButtons = new net.minecraft.client.gui.components.AbstractButton[2];
+	private AbstractButton[] cycleButtons = new AbstractButton[2];
 
 	public GuiLogisticsCraftingTable(Player player, LogisticsCraftingTableBlockEntity crafter) {
 		super(buildDummy(player, crafter), 176, 218, 0, 0);
@@ -71,20 +72,20 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float fA, int iA, int jA) {
-		for (net.minecraft.client.gui.components.AbstractButton cycleButton : cycleButtons) {
+		for (AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = _crafter.targetType != null;
 		}
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
-				LPGuiGraphics.drawSlotBackground(leftPos + 34 + x * 18, topPos + 9 + y * 18);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 34 + x * 18, topPos + 9 + y * 18);
 			}
 		}
-		LPGuiGraphics.drawSlotBackground(leftPos + 124, topPos + 27);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 124, topPos + 27);
 		for (int x = 0; x < 9; x++) {
 			for (int y = 0; y < 2; y++) {
-				LPGuiGraphics.drawSlotBackground(leftPos + 7 + x * 18, topPos + 79 + y * 18);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 7 + x * 18, topPos + 79 + y * 18);
 			}
 		}
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 8, topPos + 135);

@@ -182,13 +182,13 @@ public class GuiRecipeImport extends SubGuiScreen {
 		getGuiGraphics().drawString(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0x404040, false);
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
-				LPGuiGraphics.drawSlotBackground(guiLeft + 44 + x * 18, guiTop + 19 + y * 18);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, guiLeft + 44 + x * 18, guiTop + 19 + y * 18);
 			}
 		}
 		int x = 0;
 		int y = 0;
 		for (Candidates candidate : list) {
-			LPGuiGraphics.drawSlotBackground(guiLeft + 19 + x * 40, guiTop + 89 + y * 40);
+			LPGuiGraphics.drawSlotBackground(guiGraphics, guiLeft + 19 + x * 40, guiTop + 89 + y * 40);
 			x++;
 			if (x > 2) {
 				x = 0;

@@ -70,19 +70,6 @@ import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
-// import dan200.computercraft.api.peripheral.IComputerAccess; // CC not ported to 1.20.1; @ModDependentField stubs
-// OpenComputers imports removed — OC not on classpath for 1.20.1; interfaces added at runtime via @ModDependentInterface ASM
-// import li.cil.oc.api.machine.Arguments;
-// import li.cil.oc.api.machine.Context;
-// import li.cil.oc.api.network.Environment;
-// import li.cil.oc.api.network.ManagedPeripheral;
-// import li.cil.oc.api.network.Message;
-// import li.cil.oc.api.network.Node;
-// import li.cil.oc.api.network.SidedEnvironment;
-
-@ModDependentInterface(modId = { LPConstants.cofhCoreModID, LPConstants.openComputersModID, LPConstants.openComputersModID, LPConstants.openComputersModID },
-		interfacePath = { "cofh.api.transport.IItemDuct", "li.cil.oc.api.network.ManagedPeripheral",
-				"li.cil.oc.api.network.Environment", "li.cil.oc.api.network.SidedEnvironment", })
 public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		implements ILPPipeTile, IPipeInformationProvider, /*IItemDuct,*/
 		// ManagedPeripheral, Environment, SidedEnvironment — added at runtime by @ModDependentInterface ASM when OC is present
@@ -129,6 +116,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	@Getter
 	private boolean initialized = false;
 	private boolean deletePipe = false;
+    @Nullable
 	private TileBuffer[] tileBuffer;
 	private boolean sendClientUpdate = false;
 	private boolean blockNeighborChange = false;
@@ -147,11 +135,11 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	@Override
 	public void setRemoved() {
 		if (pipe == null) {
-						initialized = false;
+            initialized = false;
 			tileBuffer = null;
 			super.setRemoved();
 		} else if (!pipe.preventRemove()) {
-						initialized = false;
+            initialized = false;
 			tileBuffer = null;
 			pipe.invalidate();
 			super.setRemoved();
@@ -336,7 +324,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		super.saveAdditional(nbt, registries);
 
 		if (pipe != null && pipe.item != null) {
-			ResourceLocation key = BuiltInRegistries.ITEM.getKey(pipe.item);
+			ResourceLocation key = BuiltInRegistries.ITEM.getKeyOrNull(pipe.item);
 			if (key != null) {
 				nbt.putString(NBT_PIPE_ID, key.toString());
 			}

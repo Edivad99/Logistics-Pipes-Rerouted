@@ -213,16 +213,16 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 		for (int x = 0; x < 9; x++) {
 			for (int y = 0; y < 3; y++) {
-				LPGuiGraphics.drawSlotBackground(leftPos + (x * 18) + 19, topPos + (y * 18) + 79);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + (x * 18) + 19, topPos + (y * 18) + 79);
 			}
 		}
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
-				LPGuiGraphics.drawSlotBackground(leftPos + (x * 18) + 19, topPos + (y * 18) + 14);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + (x * 18) + 19, topPos + (y * 18) + 14);
 			}
 		}
-		LPGuiGraphics.drawSlotBackground(leftPos + 100, topPos + 32);
-		LPGuiGraphics.drawSlotBackground(leftPos + 163, topPos + 50);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 100, topPos + 32);
+		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 163, topPos + 50);
 		guiGraphics.fill(leftPos + 75, topPos + 38, leftPos + 95, topPos + 43, Color.getValue(Color.DARKER_GREY));
 		for (int a = 0; a < 10; a++) {
 			guiGraphics.fill(leftPos + 97 - a, topPos + 40 - a, leftPos + 98 - a, topPos + 41 + a, Color.getValue(Color.DARKER_GREY));

@@ -23,6 +23,7 @@ import logisticspipes.client.gui.screen.ProgramCompilerScreen;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
+import logisticspipes.renderer.LogisticsPipeItemRenderer;
 import logisticspipes.renderer.newpipe.GLRenderListHandler;
 import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
@@ -123,6 +124,46 @@ public class ClientManager {
             LPItems.ITEM_STATISTICS_TABLE,
             LPItems.ITEM_POWER_PROVIDER_RF,
             LPItems.ITEM_PROGRAM_COMPILER);
+
+        event.registerItem(new IClientItemExtensions() {
+
+                               @Override
+                               public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                                   return LogisticsPipeItemRenderer.INSTANCE;
+                               }
+                           },
+            LPItems.PIPE_BASIC,
+            LPItems.PIPE_REQUEST,
+            LPItems.PIPE_REQUEST_MK2,
+            LPItems.PIPE_PROVIDER,
+            LPItems.PIPE_CRAFTING,
+            LPItems.PIPE_SATELLITE,
+            LPItems.PIPE_SUPPLIER,
+            LPItems.PIPE_CHASSIS_MK1,
+            LPItems.PIPE_CHASSIS_MK2,
+            LPItems.PIPE_CHASSIS_MK3,
+            LPItems.PIPE_CHASSIS_MK4,
+            LPItems.PIPE_CHASSIS_MK5,
+            LPItems.PIPE_REMOTE_ORDERER,
+            LPItems.PIPE_INV_SYS_CONNECTOR,
+            LPItems.PIPE_SYSTEM_ENTRANCE,
+            LPItems.PIPE_SYSTEM_DESTINATION,
+            LPItems.PIPE_FIREWALL,
+            LPItems.PIPE_REQUEST_TABLE,
+            LPItems.PIPE_UNROUTED,
+            LPItems.PIPE_FLUID_SUPPLIER,
+            LPItems.PIPE_FLUID_INSERTION,
+            LPItems.PIPE_FLUID_PROVIDER,
+            LPItems.PIPE_FLUID_REQUEST,
+            LPItems.PIPE_FLUID_EXTRACTOR,
+            LPItems.PIPE_FLUID_SATELLITE,
+            LPItems.PIPE_FLUID_SUPPLIER_MK2,
+            LPItems.PIPE_HS_CURVE,
+            LPItems.PIPE_HS_SPEEDUP,
+            LPItems.PIPE_HS_S_CURVE,
+            LPItems.PIPE_HS_LINE,
+            LPItems.PIPE_HS_GAIN
+            );
     }
 
     private static void handleRegisterMenuScreens(RegisterMenuScreensEvent event) {

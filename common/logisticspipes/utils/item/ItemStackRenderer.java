@@ -10,13 +10,21 @@ package logisticspipes.utils.item;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.SimpleGraphics;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
@@ -36,6 +44,7 @@ public class ItemStackRenderer {
 	private Font font;
 
 	private ItemStack itemstack = ItemStack.EMPTY;
+    @Nullable
 	private ItemIdentifierStack itemIdentStack;
 	private int posX;
 	private int posY;
@@ -48,6 +57,7 @@ public class ItemStackRenderer {
 	private boolean ignoreDepth;
 	private boolean renderInColor;
 	private ItemEntity entityitem;
+    @Nullable
 	private Level world;
 	private float partialTickTime;
 
@@ -65,17 +75,17 @@ public class ItemStackRenderer {
 		scaleZ = 1.0F;
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount) {
+	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount) {
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(_allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, zLevel, displayAmount, true, false);
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount, boolean renderEffect, boolean ignoreDepth) {
+	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount, boolean renderEffect, boolean ignoreDepth) {
 		ItemStackRenderer itemStackRenderer = new ItemStackRenderer(0, 0, zLevel, renderEffect, ignoreDepth);
 		itemStackRenderer.setDisplayAmount(displayAmount);
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(_allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, itemStackRenderer);
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, ItemStackRenderer itemStackRenderer) {
+	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, ItemStackRenderer itemStackRenderer) {
 		int ppi = 0;
 		int column = 0;
 		int row = 0;
@@ -129,11 +139,16 @@ public class ItemStackRenderer {
 		}
 		if (stack.isEmpty()) return;
 
-		gg.renderItem(stack, posX, posY);
+        gg.renderItem(stack, posX, posY);
 
-        long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
-        String countLabel = TextUtil.getThreeDigitFormattedNumber(count, displayAmount == DisplayAmount.ALWAYS);
-		gg.renderItemDecorations(font, stack, posX, posY, countLabel);
+        if (displayAmount != DisplayAmount.NEVER) {
+            long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
+            String countLabel = TextUtil.getThreeDigitFormattedNumber(count, displayAmount == DisplayAmount.ALWAYS);
+            gg.renderItemDecorations(font, stack, posX, posY, countLabel);
+        }
+        else {
+            gg.renderItemDecorations(font, stack, posX, posY, null);
+        }
 	}
 
 	private void setupGuiTransform(int xPosition, int yPosition, boolean isGui3d) {
@@ -145,19 +160,19 @@ public class ItemStackRenderer {
 		// context and only run under the CCL-activated branch (currently dormant).
 	}
 
-	public void renderInWorld(com.mojang.blaze3d.vertex.PoseStack poseStack, net.minecraft.client.renderer.MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		if (itemstack == null || itemstack.isEmpty()) return;
+	public void renderInWorld(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+		if (itemstack.isEmpty()) return;
 		Minecraft mc = Minecraft.getInstance();
-		net.minecraft.client.renderer.entity.ItemRenderer ir = mc.getItemRenderer();
+		ItemRenderer ir = mc.getItemRenderer();
 		ir.renderStatic(itemstack, net.minecraft.world.item.ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, mc.level, 0);
 	}
 
 	public void renderItemInGui(float x, float y, Item item, float zLevel, float scale) {
-		net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
+		GuiGraphics gg = SimpleGraphics.guiGraphics;
 		if (gg == null || item == null) return;
 		ItemStack stack = new ItemStack(item);
 		if (stack.isEmpty()) return;
-		com.mojang.blaze3d.vertex.PoseStack pose = gg.pose();
+		PoseStack pose = gg.pose();
 		pose.pushPose();
 		pose.translate(x, y, zLevel);
 		pose.scale(scale, scale, 1.0F);

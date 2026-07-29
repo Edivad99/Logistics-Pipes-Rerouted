@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.api.IRoutedPowerProvider;
@@ -50,6 +52,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 
 	public ItemIdentifierInventory inv = new ItemIdentifierInventory(1, "ID Slots", 64);
 	private PlayerCollectionList listener = new PlayerCollectionList();
+    @Nullable
 	private UUID secId = null;
 	private Map<String, SecuritySettings> settingsList = new HashMap<>();
 	public List<Integer> excludedCC = new ArrayList<>();
@@ -107,6 +110,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		listener.remove(player);
 	}
 
+    @Nullable
 	public UUID getSecId() {
 		if (MainProxy.isServer(getWorld())) {
 			if (secId == null) {
@@ -164,7 +168,10 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	@Override
 	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
 		super.saveAdditional(tag, registries);
-		tag.putString("UUID", getSecId().toString());
+        UUID secId = getSecId();
+        if (secId != null) {
+            tag.putString("UUID", secId.toString());
+        }
 		tag.putBoolean("allowCC", allowCC);
 		tag.putBoolean("allowAutoDestroy", allowAutoDestroy);
 		inv.writeToNBT(tag, registries);

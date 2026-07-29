@@ -7,7 +7,7 @@
 
 package logisticspipes.items;
 
-import java.util.function.Consumer;
+import javax.annotation.Nullable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -33,13 +33,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Setter;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
-
-// import org.apache.logging.log4j.Level; // conflicts with net.minecraft.world.level.Level — use fully qualified
 
 /**
  * A logistics pipe Item
@@ -48,7 +49,9 @@ public class ItemLogisticsPipe extends LogisticsItem {
 
 	private int newPipeIconIndex;
 	private int newPipeRenderList = -1;
-	@Getter
+	@Setter
+    @Getter
+    @Nullable
 	private CoreUnroutedPipe dummyPipe;
 
 	public ItemLogisticsPipe(Properties properties) {
@@ -193,26 +196,5 @@ public class ItemLogisticsPipe extends LogisticsItem {
 			throw new UnsupportedOperationException("Can't reset this");
 		}
 		newPipeRenderList = list;
-	}
-
-	public void setDummyPipe(CoreUnroutedPipe pipe) {
-		dummyPipe = pipe;
-	}
-
-	@Override
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(ClientExtensionsHolder.EXTENSIONS);
-	}
-
-	/** Holds client-only references; loaded lazily so dedicated servers never touch
-	 *  client-only classes like BlockEntityWithoutLevelRenderer. */
-	private static final class ClientExtensionsHolder {
-		static final IClientItemExtensions EXTENSIONS =
-			new IClientItemExtensions() {
-				@Override
-				public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
-					return logisticspipes.renderer.LogisticsPipeItemRenderer.instance();
-				}
-			};
 	}
 }
