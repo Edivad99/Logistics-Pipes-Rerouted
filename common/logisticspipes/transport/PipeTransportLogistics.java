@@ -66,6 +66,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 import network.rs485.logisticspipes.world.CoordinateUtils;
@@ -95,8 +96,13 @@ public class PipeTransportLogistics {
 
 	public void initialize() {
 		if (MainProxy.isServer(getWorld())) {
-			// cache chunk for marking dirty
-			chunk = getWorld().getChunkAt(container.getBlockPos());
+			// Cache the chunk for marking dirty, without forcing a load: initialize() runs while
+			// the chunk is still being loaded, and getChunkAt() would re-enter the chunk system
+			// asking for FULL status. getChunkNow returns null when it is not ready, which
+			// markChunkModified already tolerates.
+			chunk = getWorld().getChunkSource().getChunkNow(
+					SectionPos.blockToSectionCoord(container.getBlockPos().getX()),
+					SectionPos.blockToSectionCoord(container.getBlockPos().getZ()));
 			ItemBufferSyncPacket packet = PacketHandler.getPacket(ItemBufferSyncPacket.class);
 			packet.setTilePos(container);
 			_itemBuffer.setPacketType(packet, getWorld().dimension().location().hashCode(), container.getX(), container.getZ());
@@ -111,7 +117,14 @@ public class PipeTransportLogistics {
 				if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe != null && ((LogisticsTileGenericPipe) tile).pipe.transport != null && ((LogisticsTileGenericPipe) tile).pipe.transport.chunk != null) {
 					((LogisticsTileGenericPipe) tile).pipe.transport.chunk.setUnsaved(true);
 				} else {
-					getWorld().getChunkAt(tile.getBlockPos()).setUnsaved(true);
+					// Same reasoning as in initialize(): never force-load the neighbour's chunk
+					// just to flag it dirty. If it is not loaded there is nothing to flag.
+					LevelChunk neighbourChunk = getWorld().getChunkSource().getChunkNow(
+							SectionPos.blockToSectionCoord(tile.getBlockPos().getX()),
+							SectionPos.blockToSectionCoord(tile.getBlockPos().getZ()));
+					if (neighbourChunk != null) {
+						neighbourChunk.setUnsaved(true);
+					}
 				}
 			}
 		}

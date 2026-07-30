@@ -3,6 +3,8 @@ package logisticspipes.utils;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,7 +32,24 @@ public final class TileBuffer {
 
 	public void refresh() {
 		BlockPos pos = new BlockPos(x, y, z);
-		BlockState blockState = world.getBlockState(pos);
+		// Resolve through the resident chunk rather than through world.getBlockState() /
+		// world.getBlockEntity(): those route via getChunkAt(), which *loads* the chunk at FULL
+		// status when it is not in memory. A neighbour lookup must never do that. It is fatal
+		// during chunk unload: clearAllBlockEntities -> pipe.setRemoved -> CoreRoutedPipe
+		// .invalidate -> ServerRouter.destroy -> the adjacency rescan reaches this method and
+		// re-requests the chunk being unloaded, registering a TicketType.UNKNOWN ticket from
+		// inside ChunkMap.processUnloads — after that tick's purgeStaleTickets. The ticket can
+		// then never expire, the chunk never becomes isReadyForSaving(), and scheduleUnload
+		// busy-retries forever: the server hangs on "Saving world" at 100% CPU.
+		LevelChunk chunk = world.getChunkSource().getChunkNow(
+				SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
+		if (chunk == null) {
+			// Not resident: nothing can be observed about this neighbour right now. Leave the
+			// cached values untouched rather than reporting "no block", which is what the
+			// timer-based callers already expect between refreshes.
+			return;
+		}
+		BlockState blockState = chunk.getBlockState(pos);
 		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe != null && ((LogisticsTileGenericPipe) tile).pipe.preventRemove()) {
 			if (blockState.isAir()) {
 				return;
@@ -46,7 +65,7 @@ public final class TileBuffer {
 		block = blockState.getBlock();
 
 		if (blockState.hasBlockEntity()) {
-			tile = world.getBlockEntity(pos);
+			tile = chunk.getBlockEntity(pos);
 		}
 	}
 

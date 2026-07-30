@@ -197,10 +197,17 @@ public class MainProxy {
 		if (tile == null) return;
 		Level lvl = tile.getLevel();
 		if (lvl instanceof ServerLevel serverLevel) {
-			var chunk = serverLevel.getChunkAt(tile.getBlockPos());
+			// The chunk position is derived from the block position rather than by asking the
+			// level for the chunk: getChunkAt() is a *blocking full-status chunk load*, and this
+			// runs whenever a pipe notifies its watchers. During shutdown that re-requests the
+			// promotion of an already-unloading chunk, leaving ChunkHolder.fullChunkFuture — and
+			// therefore saveSync — permanently incomplete. ChunkMap.processUnloads then busy-
+			// retries scheduleUnload forever, because only the server thread could complete that
+			// future and it is the thread stuck in the retry loop. The game hangs on
+			// "Saving world" at 100% CPU, and only for worlds containing pipes.
 			PacketDistributor.sendToPlayersTrackingChunk(
 					serverLevel,
-					chunk.getPos(),
+					new ChunkPos(tile.getBlockPos()),
 					PacketHandler.buildPayloadPublic(packet)
 			);
 			return;

@@ -67,6 +67,8 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Quartet;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -175,19 +177,22 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		_myLsa.neighboursWithMetric = new HashMap<>();
 		_myLsa.power = new ArrayList<>();
 		ServerRouter.SharedLSADatabasewriteLock.lock(); // any time after we claim the SimpleID, the database could be accessed at that index
-		simpleID = ServerRouter.claimSimpleID();
-		if (ServerRouter.SharedLSADatabase.length <= simpleID) {
-			int newlength = ((int) (simpleID * 1.5)) + 1;
-			LSA[] new_SharedLSADatabase = new LSA[newlength];
-			System.arraycopy(ServerRouter.SharedLSADatabase, 0, new_SharedLSADatabase, 0, ServerRouter.SharedLSADatabase.length);
-			ServerRouter.SharedLSADatabase = new_SharedLSADatabase;
-			int[] new_lastLSAVersion = new int[newlength];
-			System.arraycopy(ServerRouter._lastLSAVersion, 0, new_lastLSAVersion, 0, ServerRouter._lastLSAVersion.length);
-			ServerRouter._lastLSAVersion = new_lastLSAVersion;
+		try {
+			simpleID = ServerRouter.claimSimpleID();
+			if (ServerRouter.SharedLSADatabase.length <= simpleID) {
+				int newlength = ((int) (simpleID * 1.5)) + 1;
+				LSA[] new_SharedLSADatabase = new LSA[newlength];
+				System.arraycopy(ServerRouter.SharedLSADatabase, 0, new_SharedLSADatabase, 0, ServerRouter.SharedLSADatabase.length);
+				ServerRouter.SharedLSADatabase = new_SharedLSADatabase;
+				int[] new_lastLSAVersion = new int[newlength];
+				System.arraycopy(ServerRouter._lastLSAVersion, 0, new_lastLSAVersion, 0, ServerRouter._lastLSAVersion.length);
+				ServerRouter._lastLSAVersion = new_lastLSAVersion;
+			}
+			ServerRouter._lastLSAVersion[simpleID] = 0;
+			ServerRouter.SharedLSADatabase[simpleID] = _myLsa; // make non-structural change (threadsafe)
+		} finally {
+			ServerRouter.SharedLSADatabasewriteLock.unlock();
 		}
-		ServerRouter._lastLSAVersion[simpleID] = 0;
-		ServerRouter.SharedLSADatabase[simpleID] = _myLsa; // make non-structural change (threadsafe)
-		ServerRouter.SharedLSADatabasewriteLock.unlock();
 	}
 
 	// called on server shutdown only
@@ -195,9 +200,12 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		ServerRouter.globalSpecificInterests.clear();
 		ServerRouter.genericInterests.clear();
 		ServerRouter.SharedLSADatabasewriteLock.lock();
-		ServerRouter.SharedLSADatabase = new LSA[0];
-		ServerRouter._lastLSAVersion = new int[0];
-		ServerRouter.SharedLSADatabasewriteLock.unlock();
+		try {
+			ServerRouter.SharedLSADatabase = new LSA[0];
+			ServerRouter._lastLSAVersion = new int[0];
+		} finally {
+			ServerRouter.SharedLSADatabasewriteLock.unlock();
+		}
 		ServerRouter.simpleIdUsedSet.clear();
 		ServerRouter.firstFreeId = 1;
 	}
@@ -314,7 +322,23 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		if (world == null) {
 			return null;
 		}
-		BlockEntity tile = world.getBlockEntity(new BlockPos(_xCoord, _yCoord, _zCoord));
+		BlockPos pos = new BlockPos(_xCoord, _yCoord, _zCoord);
+		// Deliberately not world.getBlockEntity(pos): that goes through getChunkAt(), which
+		// *loads* the chunk at FULL status if it is not resident. A router must never resurrect
+		// a chunk just to look at its own pipe, and the case that made this fatal is chunk
+		// unload itself: LevelChunk.clearAllBlockEntities -> LogisticsTileGenericPipe.setRemoved
+		// -> CoreRoutedPipe.invalidate -> ServerRouter.destroy -> the adjacency rescan lands
+		// back here and re-requests the very chunk being unloaded. That registers a
+		// TicketType.UNKNOWN ticket from inside ChunkMap.processUnloads — after the tick's
+		// purgeStaleTickets — so the ticket can never expire, the chunk never becomes
+		// isReadyForSaving(), and scheduleUnload busy-retries forever: the game hangs on
+		// "Saving world" burning a core. A chunk that is not loaded has no pipe to return.
+		LevelChunk chunk = world.getChunkSource().getChunkNow(
+				SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
+		if (chunk == null) {
+			return null;
+		}
+		BlockEntity tile = chunk.getBlockEntity(pos);
 
 		if (!(tile instanceof LogisticsTileGenericPipe)) {
 			return null;
@@ -624,10 +648,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	private void lockAndUpdateLSA(HashMap<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> neighboursWithMetric, ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power, ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower) {
 		ServerRouter.SharedLSADatabasewriteLock.lock();
-		_myLsa.neighboursWithMetric = neighboursWithMetric;
-		_myLsa.power = power;
-		_myLsa.subSystemPower = subSystemPower;
-		ServerRouter.SharedLSADatabasewriteLock.unlock();
+		try {
+			_myLsa.neighboursWithMetric = neighboursWithMetric;
+			_myLsa.power = power;
+			_myLsa.subSystemPower = subSystemPower;
+		} finally {
+			ServerRouter.SharedLSADatabasewriteLock.unlock();
+		}
 	}
 
 	public void CreateRouteTable(int version_to_update_to) {
@@ -704,158 +731,165 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		debug.start(candidatesCost, closedSet, filterList);
 
 		ServerRouter.SharedLSADatabasereadLock.lock(); // readlock, not inside the while - too costly to aquire, then release.
-		ExitRoute lowestCostNode;
-		while ((lowestCostNode = candidatesCost.poll()) != null) {
-			if (!lowestCostNode.hasActivePipe()) {
-				continue;
-			}
+		try {
+			ExitRoute lowestCostNode;
+			while ((lowestCostNode = candidatesCost.poll()) != null) {
+				if (!lowestCostNode.hasActivePipe()) {
+					continue;
+				}
 
-			if (debug.isDebug()) {
-				ServerRouter.SharedLSADatabasereadLock.unlock();
-			}
-			debug.nextPipe(lowestCostNode);
-			if (debug.isDebug()) {
-				ServerRouter.SharedLSADatabasereadLock.lock();
-			}
+				if (debug.isDebug()) {
+					ServerRouter.SharedLSADatabasereadLock.unlock();
+				}
+				debug.nextPipe(lowestCostNode);
+				if (debug.isDebug()) {
+					ServerRouter.SharedLSADatabasereadLock.lock();
+				}
 
-			for (ExitRoute e : candidatesCost) {
-				e.debug.isNewlyAddedCanidate = false;
-			}
+				for (ExitRoute e : candidatesCost) {
+					e.debug.isNewlyAddedCanidate = false;
+				}
 
-			//if the node does not have any flags not in the closed set, check it
-			EnumSet<PipeRoutingConnectionType> lowestCostClosedFlags = closedSet.get(lowestCostNode.destination.getSimpleID());
-			if (lowestCostClosedFlags == null) {
-				lowestCostClosedFlags = EnumSet.noneOf(PipeRoutingConnectionType.class);
-			}
-			if (lowestCostClosedFlags.containsAll(lowestCostNode.getFlagsNoCopy())) {
-				continue;
-			}
+				//if the node does not have any flags not in the closed set, check it
+				EnumSet<PipeRoutingConnectionType> lowestCostClosedFlags = closedSet.get(lowestCostNode.destination.getSimpleID());
+				if (lowestCostClosedFlags == null) {
+					lowestCostClosedFlags = EnumSet.noneOf(PipeRoutingConnectionType.class);
+				}
+				if (lowestCostClosedFlags.containsAll(lowestCostNode.getFlagsNoCopy())) {
+					continue;
+				}
 
-			if (debug.isDebug()) {
-				EnumSet<PipeRoutingConnectionType> newFlags = lowestCostNode.getFlags();
-				newFlags.removeAll(lowestCostClosedFlags);
+				if (debug.isDebug()) {
+					EnumSet<PipeRoutingConnectionType> newFlags = lowestCostNode.getFlags();
+					newFlags.removeAll(lowestCostClosedFlags);
 
-				debug.newFlagsForPipe(newFlags);
-			}
+					debug.newFlagsForPipe(newFlags);
+				}
 
-			EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters = filterList.get(lowestCostNode.destination.getSimpleID());
+				EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters = filterList.get(lowestCostNode.destination.getSimpleID());
 
-			debug.filterList(filters);
+				debug.filterList(filters);
 
-			if (filters != null) {
-				boolean containsNewInfo = false;
-				for (PipeRoutingConnectionType type : lowestCostNode.getFlagsNoCopy()) {
-					if (lowestCostClosedFlags.contains(type)) {
-						continue;
-					}
-					if (!filters.containsKey(type)) {
-						containsNewInfo = true;
-						break;
-					}
-					boolean matches = false;
-					List<List<IFilter>> list = filters.get(type);
-					for (List<IFilter> filter : list) {
-						if (lowestCostNode.filters.containsAll(filter)) {
-							matches = true;
+				if (filters != null) {
+					boolean containsNewInfo = false;
+					for (PipeRoutingConnectionType type : lowestCostNode.getFlagsNoCopy()) {
+						if (lowestCostClosedFlags.contains(type)) {
+							continue;
+						}
+						if (!filters.containsKey(type)) {
+							containsNewInfo = true;
+							break;
+						}
+						boolean matches = false;
+						List<List<IFilter>> list = filters.get(type);
+						for (List<IFilter> filter : list) {
+							if (lowestCostNode.filters.containsAll(filter)) {
+								matches = true;
+								break;
+							}
+						}
+						if (!matches) {
+							containsNewInfo = true;
 							break;
 						}
 					}
-					if (!matches) {
-						containsNewInfo = true;
-						break;
+					if (!containsNewInfo) {
+						continue;
 					}
 				}
-				if (!containsNewInfo) {
+
+				//Add new candidates from the newly approved route
+				LSA lsa = null;
+				if (lowestCostNode.destination.getSimpleID() < ServerRouter.SharedLSADatabase.length) {
+					lsa = ServerRouter.SharedLSADatabase[lowestCostNode.destination.getSimpleID()];
+				}
+				if (lsa == null) {
+					lowestCostNode.removeFlags(lowestCostClosedFlags);
+					lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
+					if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canRouteTo) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+						routeCosts.add(lowestCostNode);
+					}
+					closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
 					continue;
 				}
-			}
+				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerFrom)) {
+					if (lsa.power != null && !lsa.power.isEmpty()) {
+						for (Pair<ILogisticsPowerProvider, List<IFilter>> p : lsa.power) {
+							Pair<ILogisticsPowerProvider, List<IFilter>> entry = p.copy();
+							List<IFilter> list = new ArrayList<>();
+							list.addAll(p.getValue2());
+							list.addAll(lowestCostNode.filters);
+							entry.setValue2(Collections.unmodifiableList(list));
+							if (!powerTable.contains(entry)) {
+								powerTable.add(entry);
+							}
+						}
+					}
+				}
+				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom)) {
+					if (lsa.subSystemPower != null && !lsa.subSystemPower.isEmpty()) {
+						for (Pair<ISubSystemPowerProvider, List<IFilter>> p : lsa.subSystemPower) {
+							Pair<ISubSystemPowerProvider, List<IFilter>> entry = p.copy();
+							List<IFilter> list = new ArrayList<>();
+							list.addAll(p.getValue2());
+							list.addAll(lowestCostNode.filters);
+							entry.setValue2(Collections.unmodifiableList(list));
+							if (!subSystemPower.contains(entry)) {
+								subSystemPower.add(entry);
+							}
+						}
+					}
+				}
+				for (Entry<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> newCandidate : lsa.neighboursWithMetric.entrySet()) {
+					double candidateCost = lowestCostNode.distanceToDestination + newCandidate.getValue().getValue1();
+					int blockDistance = lowestCostNode.blockDistance + newCandidate.getValue().getValue4();
+					EnumSet<PipeRoutingConnectionType> newCT = lowestCostNode.getFlags();
+					newCT.retainAll(newCandidate.getValue().getValue2());
+					if (!newCT.isEmpty()) {
+						ExitRoute next = new ExitRoute(lowestCostNode.root, newCandidate.getKey(), candidateCost, newCT, lowestCostNode.filters, newCandidate.getValue().getValue3(), blockDistance);
+						next.debug.isTraced = lowestCostNode.debug.isTraced;
+						candidatesCost.add(next);
+						debug.newCanidate(next);
+					}
+				}
 
-			//Add new candidates from the newly approved route
-			LSA lsa = null;
-			if (lowestCostNode.destination.getSimpleID() < ServerRouter.SharedLSADatabase.length) {
-				lsa = ServerRouter.SharedLSADatabase[lowestCostNode.destination.getSimpleID()];
-			}
-			if (lsa == null) {
+				lowestCostClosedFlags = lowestCostClosedFlags.clone();
+
 				lowestCostNode.removeFlags(lowestCostClosedFlags);
 				lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
-				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canRouteTo) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canRouteTo) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canRequestFrom) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom)) {
 					routeCosts.add(lowestCostNode);
 				}
-				closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
-				continue;
-			}
-			if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerFrom)) {
-				if (lsa.power != null && !lsa.power.isEmpty()) {
-					for (Pair<ILogisticsPowerProvider, List<IFilter>> p : lsa.power) {
-						Pair<ILogisticsPowerProvider, List<IFilter>> entry = p.copy();
-						List<IFilter> list = new ArrayList<>();
-						list.addAll(p.getValue2());
-						list.addAll(lowestCostNode.filters);
-						entry.setValue2(Collections.unmodifiableList(list));
-						if (!powerTable.contains(entry)) {
-							powerTable.add(entry);
-						}
+				EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> map = filterList.get(lowestCostNode.destination.getSimpleID());
+				if (map == null) {
+					map = new EnumMap<>(PipeRoutingConnectionType.class);
+					filterList.set(lowestCostNode.destination.getSimpleID(), map);
+				}
+				for (PipeRoutingConnectionType type : lowestCostNode.getFlagsNoCopy()) {
+					if (!map.containsKey(type)) {
+						map.put(type, new ArrayList<>());
 					}
+					map.get(type).add(Collections.unmodifiableList(new ArrayList<>(lowestCostNode.filters)));
 				}
-			}
-			if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom)) {
-				if (lsa.subSystemPower != null && !lsa.subSystemPower.isEmpty()) {
-					for (Pair<ISubSystemPowerProvider, List<IFilter>> p : lsa.subSystemPower) {
-						Pair<ISubSystemPowerProvider, List<IFilter>> entry = p.copy();
-						List<IFilter> list = new ArrayList<>();
-						list.addAll(p.getValue2());
-						list.addAll(lowestCostNode.filters);
-						entry.setValue2(Collections.unmodifiableList(list));
-						if (!subSystemPower.contains(entry)) {
-							subSystemPower.add(entry);
-						}
-					}
+				if (lowestCostNode.filters.isEmpty()) {
+					closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
 				}
-			}
-			for (Entry<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> newCandidate : lsa.neighboursWithMetric.entrySet()) {
-				double candidateCost = lowestCostNode.distanceToDestination + newCandidate.getValue().getValue1();
-				int blockDistance = lowestCostNode.blockDistance + newCandidate.getValue().getValue4();
-				EnumSet<PipeRoutingConnectionType> newCT = lowestCostNode.getFlags();
-				newCT.retainAll(newCandidate.getValue().getValue2());
-				if (!newCT.isEmpty()) {
-					ExitRoute next = new ExitRoute(lowestCostNode.root, newCandidate.getKey(), candidateCost, newCT, lowestCostNode.filters, newCandidate.getValue().getValue3(), blockDistance);
-					next.debug.isTraced = lowestCostNode.debug.isTraced;
-					candidatesCost.add(next);
-					debug.newCanidate(next);
-				}
-			}
 
-			lowestCostClosedFlags = lowestCostClosedFlags.clone();
-
-			lowestCostNode.removeFlags(lowestCostClosedFlags);
-			lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
-			if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canRouteTo) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canRequestFrom) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom)) {
-				routeCosts.add(lowestCostNode);
-			}
-			EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> map = filterList.get(lowestCostNode.destination.getSimpleID());
-			if (map == null) {
-				map = new EnumMap<>(PipeRoutingConnectionType.class);
-				filterList.set(lowestCostNode.destination.getSimpleID(), map);
-			}
-			for (PipeRoutingConnectionType type : lowestCostNode.getFlagsNoCopy()) {
-				if (!map.containsKey(type)) {
-					map.put(type, new ArrayList<>());
+				if (debug.isDebug()) {
+					ServerRouter.SharedLSADatabasereadLock.unlock();
 				}
-				map.get(type).add(Collections.unmodifiableList(new ArrayList<>(lowestCostNode.filters)));
+				debug.handledPipe();
+				if (debug.isDebug()) {
+					ServerRouter.SharedLSADatabasereadLock.lock();
+				}
 			}
-			if (lowestCostNode.filters.isEmpty()) {
-				closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
-			}
-
-			if (debug.isDebug()) {
+		} finally {
+			// The debug adapter drops and retakes the read lock inside the loop, so the hold
+			// count is the only reliable measure of what is still ours to release on the way out.
+			while (ServerRouter.SharedLSADatabaseLock.getReadHoldCount() > 0) {
 				ServerRouter.SharedLSADatabasereadLock.unlock();
 			}
-			debug.handledPipe();
-			if (debug.isDebug()) {
-				ServerRouter.SharedLSADatabasereadLock.lock();
-			}
 		}
-		ServerRouter.SharedLSADatabasereadLock.unlock();
 
 		debug.stepOneDone();
 
@@ -892,19 +926,28 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		debug.stepTwoDone();
 		if (!debug.independent()) {
 			routingTableUpdateWriteLock.lock();
-			if (version_to_update_to == _LSAVersion) {
-				ServerRouter.SharedLSADatabasereadLock.lock();
-
-				if (ServerRouter._lastLSAVersion[simpleID] < version_to_update_to) {
-					ServerRouter._lastLSAVersion[simpleID] = version_to_update_to;
-					_LPPowerTable = Collections.unmodifiableList(powerTable);
-					_SubSystemPowerTable = Collections.unmodifiableList(subSystemPower);
-					_routeTable = Collections.unmodifiableList(routeTable);
-					_routeCosts = Collections.unmodifiableList(routeCosts);
+			try {
+				if (version_to_update_to == _LSAVersion) {
+					ServerRouter.SharedLSADatabasereadLock.lock();
+					try {
+						// Bounds-checked: cleanup() resets _lastLSAVersion to a zero-length array
+						// on server stop, and this runs on the routing thread, which can still be
+						// mid-update at that point.
+						if (simpleID < ServerRouter._lastLSAVersion.length
+								&& ServerRouter._lastLSAVersion[simpleID] < version_to_update_to) {
+							ServerRouter._lastLSAVersion[simpleID] = version_to_update_to;
+							_LPPowerTable = Collections.unmodifiableList(powerTable);
+							_SubSystemPowerTable = Collections.unmodifiableList(subSystemPower);
+							_routeTable = Collections.unmodifiableList(routeTable);
+							_routeCosts = Collections.unmodifiableList(routeCosts);
+						}
+					} finally {
+						ServerRouter.SharedLSADatabasereadLock.unlock();
+					}
 				}
-				ServerRouter.SharedLSADatabasereadLock.unlock();
+			} finally {
+				routingTableUpdateWriteLock.unlock();
 			}
-			routingTableUpdateWriteLock.unlock();
 		}
 		if (getCachedPipe() != null) {
 			getCachedPipe().spawnParticle(Particles.LIGHT_GREEN_SPARKLE, 5);
@@ -938,10 +981,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	@Override
 	public void destroy() {
 		ServerRouter.SharedLSADatabasewriteLock.lock(); // take a write lock so that we don't overlap with any ongoing route updates
-		if (simpleID < ServerRouter.SharedLSADatabase.length) {
-			ServerRouter.SharedLSADatabase[simpleID] = null;
+		try {
+			if (simpleID < ServerRouter.SharedLSADatabase.length) {
+				ServerRouter.SharedLSADatabase[simpleID] = null;
+			}
+		} finally {
+			ServerRouter.SharedLSADatabasewriteLock.unlock();
 		}
-		ServerRouter.SharedLSADatabasewriteLock.unlock();
 		removeAllInterests();
 
 		clearPipeCache();
