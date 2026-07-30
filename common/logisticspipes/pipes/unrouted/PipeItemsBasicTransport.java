@@ -3,8 +3,6 @@ package logisticspipes.pipes.unrouted;
 import javax.annotation.Nullable;
 
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.renderer.LogisticsRenderPipe;
-import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
 import logisticspipes.textures.Textures;
 import logisticspipes.transport.PipeTransportLogistics;
 import net.minecraft.core.Direction;
@@ -32,11 +30,6 @@ public class PipeItemsBasicTransport extends CoreUnroutedPipe {
 	@Override
 	public int getTextureIndex() {
 		return Textures.LOGISTICSPIPE_BASIC_TRANSPORT_TEXTURE.newTexture;
-	}
-
-	@Override
-	public IHighlightPlacementRenderer getHighlightRenderer() {
-		return LogisticsRenderPipe.secondRenderer;
 	}
 
 }

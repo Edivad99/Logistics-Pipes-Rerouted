@@ -5,13 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
+import logisticspipes.client.model.tube.TubeCollision;
+import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
-import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
-import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
-import logisticspipes.renderer.newpipe.tube.GainTubeRenderer;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.IPositionRotateble;
@@ -127,8 +126,9 @@ public class HSTubeGain extends CoreMultiBlockPipe {
 					zOne -= 1;
 					zTwo += 2;
 				}
-				AABB box = GainTubeRenderer.getObjectBoundsAt(new AABB(Math.min(xOne, xTwo), Math.min(yOne, yTwo), Math.min(zOne, zTwo), Math.max(xOne, xTwo), Math.max(yOne, yTwo),
-						Math.max(zOne, zTwo)).move(-x, -y, -z), orientation);
+				AABB box = TubeCollision.boundsAt(TubeModels.Kind.GAIN, orientation,
+                    new AABB(Math.min(xOne, xTwo), Math.min(yOne, yTwo), Math.min(zOne, zTwo), Math.max(xOne, xTwo), Math.max(yOne, yTwo),
+						Math.max(zOne, zTwo)).move(-x, -y, -z));
 				if (box != null) {
 					LPPositionSet<DoubleCoordinates> lpBox = new LPPositionSet<>(DoubleCoordinates.class);
 					lpBox.addFrom(box);
@@ -153,7 +153,7 @@ public class HSTubeGain extends CoreMultiBlockPipe {
 
 	@Override
 	public AABB getCompleteBox() {
-		return GainTubeRenderer.tubeGain.get(orientation.getRenderOrientation()).bounds().toAABB();
+		return TubeCollision.completeBox(TubeModels.Kind.GAIN, orientation);
 	}
 
 	@Override
@@ -231,16 +231,6 @@ public class HSTubeGain extends CoreMultiBlockPipe {
 	@Override
 	public boolean actAsNormalPipe() {
 		return false;
-	}
-
-	@Override
-	public ISpecialPipeRenderer getSpecialRenderer() {
-		return GainTubeRenderer.instance;
-	}
-
-	@Override
-	public IHighlightPlacementRenderer getHighlightRenderer() {
-		return GainTubeRenderer.instance;
 	}
 
 	@Override

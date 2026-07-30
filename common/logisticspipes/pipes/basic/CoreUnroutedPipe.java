@@ -11,8 +11,6 @@ import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.renderer.IIconProvider;
-import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
-import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.textures.Textures;
 import logisticspipes.transport.LPTravelingItem;
@@ -338,11 +336,6 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		return false;
 	}
 
-	@OnlyIn(Dist.CLIENT)
-	public ISpecialPipeRenderer getSpecialRenderer() {
-		return null;
-	}
-
 	public boolean hasSpecialPipeEndAt(Direction dir) {
 		return false;
 	}
@@ -395,8 +388,6 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	public boolean isInitialized() {
 		return container != null;
 	}
-
-	public abstract IHighlightPlacementRenderer getHighlightRenderer();
 
 	@Nullable
 	public Level getLevelForHUD() {

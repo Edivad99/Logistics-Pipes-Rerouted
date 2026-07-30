@@ -14,14 +14,12 @@ import logisticspipes.interfaces.routing.IChannelConnectionManager;
 import logisticspipes.interfaces.routing.IChannelManagerProvider;
 import logisticspipes.logistics.ILogisticsFluidManager;
 import logisticspipes.logistics.ILogisticsManager;
-import logisticspipes.proxy.interfaces.ICCLProxy;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.proxy.interfaces.IPowerProxy;
 import logisticspipes.proxy.progressprovider.MachineProgressProvider;
 import logisticspipes.proxy.specialconnection.SpecialPipeConnection;
 import logisticspipes.proxy.specialconnection.SpecialTileConnection;
 import logisticspipes.proxy.specialtankhandler.SpecialTankHandler;
-import logisticspipes.renderer.newpipe.GLRenderListHandler;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
@@ -123,22 +121,10 @@ public final class SimpleServiceLocator {
 		SimpleServiceLocator.routedItemHelper = helper;
 	}
 
-	public static GLRenderListHandler renderListHandler;
-
-	public static void setRenderListHandler(GLRenderListHandler handler) {
-		SimpleServiceLocator.renderListHandler = handler;
-	}
-
 	public static IPowerProxy powerProxy;
 
 	public static void setPowerProxy(IPowerProxy proxy) {
 		SimpleServiceLocator.powerProxy = proxy;
-	}
-
-	public static ICCLProxy cclProxy;
-
-	public static void setCCLProxy(ICCLProxy proxy) {
-		SimpleServiceLocator.cclProxy = proxy;
 	}
 
 	public static ConfigToolHandler configToolHandler;

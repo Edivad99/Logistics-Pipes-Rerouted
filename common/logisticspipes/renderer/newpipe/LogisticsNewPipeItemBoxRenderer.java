@@ -5,6 +5,9 @@ import java.util.Map;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import logisticspipes.client.model.mesh.MeshRenderer;
+import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.items.LogisticsFluidContainer;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
@@ -18,6 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+import org.joml.Quaternionf;
+
 public class LogisticsNewPipeItemBoxRenderer {
 
 	private static final int RENDER_SIZE = 40;
@@ -28,35 +33,23 @@ public class LogisticsNewPipeItemBoxRenderer {
 
 	@OnlyIn(Dist.CLIENT)
 	public void doRenderItem(ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		if (LogisticsNewRenderPipe.innerTransportBox == null) return;
 		poseStack.pushPose();
 
-		// 1.20.1: display-list caching is gone — the transport box is emitted directly
-		// through the currently-bound VertexConsumer each frame (same pattern as
-		// LogisticsNewRenderPipe.renderList). The old renderList sentinel is kept only
-		// to preserve the one-time reset semantics.
 		poseStack.translate(x, y, z);
 		poseStack.scale((float) boxScale, (float) boxScale, (float) boxScale);
-		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(yaw)));
-		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(yawForPitch)));
-		poseStack.mulPose(new org.joml.Quaternionf().rotationX((float) Math.toRadians(pitch)));
-		poseStack.mulPose(new org.joml.Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
+		poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(yaw)));
+		poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(yawForPitch)));
+		poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(pitch)));
+		poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
 		poseStack.translate(-0.5, -0.5, -0.5);
 
-		// Re-bind a fresh buffer on the RenderState. Any earlier MultiBufferSource.getBuffer()
-		// call (e.g. from LogisticsRenderPipe.render for the main pipe geometry) may have been
-		// drained when a different RenderType was requested further down the render path, so
-		// the cached rs.buffer reference would point at an un-started BufferBuilder. Fetching
-		// it again here returns a valid VertexConsumer for the current RenderType batch.
-		if (SimpleServiceLocator.cclProxy.getRenderState() instanceof logisticspipes.proxy.object3d.impl.LPRenderStateImpl) {
-			logisticspipes.proxy.object3d.impl.LPRenderStateImpl rs =
-				(logisticspipes.proxy.object3d.impl.LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
-			VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
-			rs.bind(buffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, packedOverlay);
-		}
-		SimpleServiceLocator.cclProxy.getRenderState().reset();
-		LogisticsNewRenderPipe.innerTransportBox.render(LogisticsNewRenderPipe.innerBoxTexture);
-		SimpleServiceLocator.cclProxy.getRenderState().draw();
+		VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
+		// Everything the emitter needs is passed in, so there is no bound render state to go stale.
+		MeshRenderer.emit(
+			buffer, poseStack.last(),
+			PipeModelStore.parts().innerTransportBox(),
+			PipeModelStore.sprites().innerBox(),
+			packedLight, packedOverlay);
 
 		if (!itemstack.isEmpty() && itemstack.getItem() instanceof LogisticsFluidContainer) {
 			FluidIdentifierStack f = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(itemstack), Minecraft.getInstance().level.registryAccess());

@@ -4,14 +4,13 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import logisticspipes.LPConstants;
+import logisticspipes.client.model.tube.TubeCollision;
+import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
-import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
-import logisticspipes.renderer.newpipe.tube.SpeedupTubeRenderer;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
@@ -127,7 +126,7 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 
 	@Override
 	public AABB getCompleteBox() {
-		return SpeedupTubeRenderer.tubeSpeedup.get(orientation).bounds().toAABB();
+		return TubeCollision.completeBox(TubeModels.Kind.SPEEDUP, orientation);
 	}
 
 	@Override
@@ -201,16 +200,6 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 	@Override
 	public boolean actAsNormalPipe() {
 		return true;
-	}
-
-	@Override
-	public ISpecialPipeRenderer getSpecialRenderer() {
-		return SpeedupTubeRenderer.instance;
-	}
-
-	@Override
-	public IHighlightPlacementRenderer getHighlightRenderer() {
-		return SpeedupTubeRenderer.instance;
 	}
 
 	@Override

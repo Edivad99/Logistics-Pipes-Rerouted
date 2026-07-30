@@ -23,8 +23,6 @@ import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockBlock;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.renderer.newpipe.PropertyCache;
-import logisticspipes.renderer.newpipe.PropertyRenderList;
 import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.utils.LPPositionSet;
 import lombok.AllArgsConstructor;
@@ -88,8 +86,6 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	public static final Map<Direction, BooleanProperty> connectionPropertys = Arrays.stream(Direction.values()).collect(Collectors
 			.toMap(key -> key, key -> BooleanProperty.create("connection_" + key.ordinal())));
 
-	public static final PropertyRenderList propertyRenderList = new PropertyRenderList();
-	public static final PropertyCache propertyCache = new PropertyCache();
 
 	public static final AABB PIPE_CENTER_BB = new AABB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS);
 	public static final List<AABB> PIPE_CONN_BB = Arrays.asList(
@@ -166,9 +162,9 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 	@Override
     public RenderShape getRenderShape(BlockState state) {
-		// Pipe geometry is emitted by LogisticsRenderPipe (BlockEntityRenderer) via the
-		// CCL-replacement pipeline in logisticspipes.proxy.object3d.impl — not a JSON model.
-		return RenderShape.ENTITYBLOCK_ANIMATED;
+		// MODEL puts the pipe in the chunk mesh, where PipeBakedModel supplies the geometry
+		// from the ModelData the block entity snapshots.
+		return RenderShape.MODEL;
 	}
 
 	public static void removePipe(CoreUnroutedPipe pipe) {
@@ -453,6 +449,31 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	@Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return getShape(state, world, pos, context);
+	}
+
+	/**
+	 * Pipes never attenuate light.
+	 *
+	 * <p>Both of these have to be overridden because the default implementations derive the
+	 * answer from {@link #getShape}, and the light engine does not ask per position: the value
+	 * is computed once per {@link BlockState} in {@code BlockBehaviour.BlockStateBase.initCache},
+	 * with an {@code EmptyBlockGetter} and {@code BlockPos.ZERO}. There is no block entity in
+	 * that context, so {@code getShape} takes its no-tile fallback and returns
+	 * {@link Shapes#block()} — a full cube. The default {@code propagatesSkylightDown} then
+	 * reports false and {@code getLightBlock} caches 1, so every pipe dimmed the light passing
+	 * through it and a block enclosed by pipes went dark from all sides.</p>
+	 *
+	 * <p>Fixing {@code getShape}'s fallback instead would be wrong: it is a full cube on
+	 * purpose, so an unloaded or pipe-block tile stays targetable and collidable.</p>
+	 */
+	@Override
+	protected int getLightBlock(BlockState state, BlockGetter world, BlockPos pos) {
+		return 0;
+	}
+
+	@Override
+	protected boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+		return true;
 	}
 
     /**

@@ -11,7 +11,6 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.multiblock.MultiBlockCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.renderer.state.PipeSubRenderState;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.ISubMultiBlockPipeInformationProvider;
 import logisticspipes.utils.TileBuffer;
@@ -36,12 +35,10 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	private List<LogisticsTileGenericPipe> mainPipe;
 	private List<CoreMultiBlockPipe.SubBlockTypeForShare> subTypes = new ArrayList<>();
 	private TileBuffer[] tileBuffer;
-	public final PipeSubRenderState renderState;
 
 	@Deprecated
 	public LogisticsTileGenericSubMultiBlock(BlockPos blockPos, BlockState blockState) {
 		super(LPBlockEntityTypes.SUB_PIPE.get(), blockPos, blockState);
-		renderState = new PipeSubRenderState();
 	}
 
 	public LogisticsTileGenericSubMultiBlock(BlockPos blockPos, BlockState blockState, DoubleCoordinates pos) {
@@ -50,7 +47,6 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 			mainPipePos.add(pos);
 		}
 		mainPipe = null;
-		renderState = new PipeSubRenderState();
 	}
 
 	public List<LogisticsTileGenericPipe> getMainPipe() {

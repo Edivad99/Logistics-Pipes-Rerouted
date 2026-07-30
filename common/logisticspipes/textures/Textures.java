@@ -5,7 +5,6 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.renderer.IIconProvider;
 import logisticspipes.textures.provider.LPActionTriggerIconProvider;
 import logisticspipes.textures.provider.LPPipeIconProvider;
-import logisticspipes.textures.provider.LPPipeIconTransformerProvider;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 
@@ -142,7 +141,6 @@ public class Textures {
 	public static String LOGISTICS_SOLID_BLOCK = Textures.LOGISTICSPIPE_TEXTURE_FILE;
 	public static IIconProvider LPactionIconProvider;
 	public static LPPipeIconProvider LPpipeIconProvider;
-	public static LPPipeIconTransformerProvider LPnewPipeIconProvider;
 
 	static {
 		Textures.empty.normal = 0;
@@ -173,7 +171,6 @@ public class Textures {
 	public Textures() {
 		Textures.LPactionIconProvider = new LPActionTriggerIconProvider();
 		Textures.LPpipeIconProvider = new LPPipeIconProvider();
-		Textures.LPnewPipeIconProvider = new LPPipeIconTransformerProvider();
 	}
 
 	//this gets called with null par1IIconRegister from preinit, and later with non-null from textureprestitch

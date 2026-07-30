@@ -78,7 +78,6 @@ import logisticspipes.proxy.computers.interfaces.CCDirectCall;
 import logisticspipes.proxy.computers.interfaces.CCSecurtiyCheck;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.renderer.LogisticsRenderPipe;
-import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
@@ -1714,11 +1713,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			}
 		}
 		return cacheHolder;
-	}
-
-	@Override
-	public IHighlightPlacementRenderer getHighlightRenderer() {
-		return LogisticsRenderPipe.secondRenderer;
 	}
 
 	public enum ItemSendMode {

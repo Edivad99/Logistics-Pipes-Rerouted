@@ -1,20 +1,15 @@
 package logisticspipes.renderer.state;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.renderer.newpipe.GLRenderList;
-import logisticspipes.renderer.newpipe.RenderEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter; // was BlockGetter
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -31,18 +26,9 @@ public class PipeRenderState implements IClientState {
 	public final ConnectionMatrix pipeConnectionMatrix = new ConnectionMatrix();
 	public final TextureMatrix textureMatrix = new TextureMatrix();
 
-    @Nullable
-	public List<RenderEntry> cachedRenderer = null;
 	public Cache<LocalCacheType, Object> objectCache = CacheBuilder.newBuilder().build();
-	public int cachedRenderIndex = -1;
-	public boolean forceRenderOldPipe = false;
 	private boolean[] solidSidesCache = new boolean[6];
 	private boolean savedStateHasMCMultiParts = false;
-
-    @Nullable
-	public int[] buffer = null;
-    @Nullable
-	public Map<ResourceLocation, GLRenderList> renderLists;
 
 	private boolean dirty = true;
 
@@ -73,9 +59,11 @@ public class PipeRenderState implements IClientState {
 				solidSides[dir.ordinal()] = true;
 			}
 		}
+		boolean changed = false;
 		if (!Arrays.equals(solidSides, solidSidesCache)) {
 			solidSidesCache = solidSides.clone();
 			clearRenderCaches();
+			changed = true;
 		}
 		DoubleCoordinates pos = new DoubleCoordinates(blockPos);
 		BlockEntity tile = pos.getTileEntity(worldIn);
@@ -85,12 +73,27 @@ public class PipeRenderState implements IClientState {
 			if (savedStateHasMCMultiParts != hasParts) {
 				savedStateHasMCMultiParts = hasParts;
 				clearRenderCaches();
+				changed = true;
+			}
+		}
+		if (changed && tile != null) {
+			// Which mount brackets a pipe grows depends only on which neighbouring faces are
+			// solid and unconnected, and that changes without any pipe state changing — placing
+			// a stone block beside a pipe touches neither the connection nor the texture matrix.
+			// So afterStateUpdated() never fires and never refreshes the ModelData the baked
+			// model reads its PipeGeometryKey from: without the refresh below the cached key
+			// keeps its old solid-side mask, and the mount appears only when something
+			// unrelated happens to dirty the pipe. sendBlockUpdated re-meshes the section,
+			// which matters when the pipe and the changed neighbour are in different sections.
+			tile.requestModelDataUpdate();
+			if (worldIn instanceof Level level) {
+				BlockState state = level.getBlockState(blockPos);
+				level.sendBlockUpdated(blockPos, state, state, 3);
 			}
 		}
 	}
 
 	public void clearRenderCaches() {
-		cachedRenderer = null;
 		objectCache.invalidateAll();
 		objectCache.cleanUp();
 	}

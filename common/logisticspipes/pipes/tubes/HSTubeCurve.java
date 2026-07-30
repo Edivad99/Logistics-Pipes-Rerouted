@@ -4,13 +4,12 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import logisticspipes.LPConstants;
+import logisticspipes.client.model.tube.TubeCollision;
+import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
-import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
-import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
-import logisticspipes.renderer.newpipe.tube.CurveTubeRenderer;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.IPositionRotateble;
@@ -137,7 +136,7 @@ public class HSTubeCurve extends CoreMultiBlockPipe {
 
 	@Override
 	public AABB getCompleteBox() {
-		return CurveTubeRenderer.tubeCurve.get(orientation.getRenderOrientation()).bounds().toAABB();
+		return TubeCollision.completeBox(TubeModels.Kind.CURVE, orientation);
 	}
 
 	@Override
@@ -246,17 +245,6 @@ public class HSTubeCurve extends CoreMultiBlockPipe {
 	@Override
 	public boolean actAsNormalPipe() {
 		return false;
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public ISpecialPipeRenderer getSpecialRenderer() {
-		return CurveTubeRenderer.instance;
-	}
-
-	@Override
-	public IHighlightPlacementRenderer getHighlightRenderer() {
-		return CurveTubeRenderer.instance;
 	}
 
 	@Override

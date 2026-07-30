@@ -5,13 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
+import logisticspipes.client.model.tube.TubeCollision;
+import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
-import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
-import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
-import logisticspipes.renderer.newpipe.tube.SCurveTubeRenderer;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.IPositionRotateble;
@@ -116,8 +115,9 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 					zOne -= 1;
 					zTwo += 2;
 				}
-				AABB box = SCurveTubeRenderer.getObjectBoundsAt(new AABB(Math.min(xOne, xTwo), Math.min(yOne, yTwo), Math.min(zOne, zTwo), Math.max(xOne, xTwo), Math.max(yOne, yTwo),
-						Math.max(zOne, zTwo)).move(-x, -y, -z), orientation);
+				AABB box = TubeCollision.boundsAt(TubeModels.Kind.SCURVE, orientation,
+                    new AABB(Math.min(xOne, xTwo), Math.min(yOne, yTwo), Math.min(zOne, zTwo), Math.max(xOne, xTwo), Math.max(yOne, yTwo),
+						Math.max(zOne, zTwo)).move(-x, -y, -z));
 				if (box != null) {
 					LPPositionSet<DoubleCoordinates> lpBox = new LPPositionSet<>(DoubleCoordinates.class);
 					lpBox.addFrom(box);
@@ -142,7 +142,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 
 	@Override
 	public AABB getCompleteBox() {
-		return SCurveTubeRenderer.tubeSCurve.get(orientation.getRenderOrientation()).bounds().toAABB();
+		return TubeCollision.completeBox(TubeModels.Kind.SCURVE, orientation);
 	}
 
 	@Override
@@ -266,17 +266,6 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	@Override
 	public boolean actAsNormalPipe() {
 		return false;
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public ISpecialPipeRenderer getSpecialRenderer() {
-		return SCurveTubeRenderer.instance;
-	}
-
-	@Override
-	public IHighlightPlacementRenderer getHighlightRenderer() {
-		return SCurveTubeRenderer.instance;
 	}
 
 	@Override

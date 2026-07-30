@@ -17,30 +17,28 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import logisticspipes.LPConstants;
+import logisticspipes.client.model.mesh.MeshRenderer;
+import logisticspipes.client.model.pipe.PipeModelStore;
+import logisticspipes.client.model.solid.SolidBlockModelParts;
 import logisticspipes.blocks.LogisticsSolidBlock;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
-import logisticspipes.proxy.object3d.interfaces.IModel3D;
-import logisticspipes.proxy.object3d.interfaces.TextureTransformation;
-import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 /**
  * Shared BlockEntityRenderer for all LP solid blocks. Reuses the OBJ-parsed 3D body
- * and 5 cover plates loaded by {@link LogisticsNewSolidBlockWorldRenderer} and renders
- * them to the cutoutMipped buffer via {@link LPRenderStateImpl}.
+ * and 5 cover plates held by {@link SolidBlockModelParts} and renders them to the
+ * cutoutMipped buffer via {@link MeshRenderer}.
  *
  * <p>Each {@link LogisticsSolidBlock.Type} maps to a sprite at
  * {@code logisticspipes:solid_block/<name>} which is used as the plate texture.</p>
  */
 public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
 
-    private static final Map<LogisticsSolidBlock.Type, TextureTransformation> SPRITE_CACHE =
+    private static final Map<LogisticsSolidBlock.Type, TextureAtlasSprite> SPRITE_CACHE =
         new EnumMap<>(LogisticsSolidBlock.Type.class);
-    private static final Map<LogisticsSolidBlock.Type, TextureTransformation> SPRITE_CACHE_ACTIVE =
+    private static final Map<LogisticsSolidBlock.Type, TextureAtlasSprite> SPRITE_CACHE_ACTIVE =
         new EnumMap<>(LogisticsSolidBlock.Type.class);
 
     public LogisticsSolidBlockRenderer(BlockEntityRendererProvider.Context context) {
@@ -59,17 +57,17 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
         };
     }
 
-    public static TextureTransformation getIcon(LogisticsSolidBlock.Type type) {
+    public static TextureAtlasSprite getIcon(LogisticsSolidBlock.Type type) {
         return getIcon(type, false);
     }
 
     /**
      * LP1: types with an active texture switch to {@code <name>_active} while the tile is active.
      */
-    public static TextureTransformation getIcon(LogisticsSolidBlock.Type type, boolean active) {
+    public static TextureAtlasSprite getIcon(LogisticsSolidBlock.Type type, boolean active) {
         boolean useActive = active && type.isHasActiveTexture();
-        Map<LogisticsSolidBlock.Type, TextureTransformation> cache = useActive ? SPRITE_CACHE_ACTIVE : SPRITE_CACHE;
-        TextureTransformation cached = cache.get(type);
+        Map<LogisticsSolidBlock.Type, TextureAtlasSprite> cache = useActive ? SPRITE_CACHE_ACTIVE : SPRITE_CACHE;
+        TextureAtlasSprite cached = cache.get(type);
         if (cached != null) {
             return cached;
         }
@@ -77,9 +75,8 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
         TextureAtlasSprite sprite = Minecraft.getInstance()
             .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
             .apply(LPConstants.rl("solid_block/" + name));
-        TextureTransformation tx = SimpleServiceLocator.cclProxy.createIconTransformer(sprite);
-        cache.put(type, tx);
-        return tx;
+        cache.put(type, sprite);
+        return sprite;
     }
 
     public static void clearCache() {
@@ -92,50 +89,22 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
      */
     public static void renderSolid(LogisticsSolidBlock.Type type, PoseStack pose,
         MultiBufferSource buffers, int light, int overlay) {
-        if (!SimpleServiceLocator.cclProxy.isActivated()) {
-            return;
-        }
-        if (!(SimpleServiceLocator.cclProxy.getRenderState() instanceof LPRenderStateImpl rs)) {
-            return;
-        }
-        if (LogisticsNewSolidBlockWorldRenderer.block == null
-            || LogisticsNewSolidBlockWorldRenderer.block.isEmpty()) {
+        SolidBlockModelParts parts = PipeModelStore.solidBlock();
+        TextureAtlasSprite icon = getIcon(type);
+        if (parts.isEmpty() || icon == null) {
             return;
         }
 
         VertexConsumer buffer = buffers.getBuffer(RenderType.cutoutMipped());
-        rs.bind(buffer, pose.last().pose(), pose.last().normal(), light, overlay);
-        rs.reset();
+        MeshRenderer.emit(buffer, pose.last(), parts.body(0), icon, light, overlay);
 
-        TextureTransformation icon = getIcon(type);
-        if (icon == null) {
-            return;
-        }
-
-        LogisticsNewSolidBlockWorldRenderer.BlockRotation rotation =
-            LogisticsNewSolidBlockWorldRenderer.BlockRotation.ZERO;
-
-        IModel3D body = LogisticsNewSolidBlockWorldRenderer.block.get(rotation);
-        if (body != null) {
-            body.render(icon);
-        }
-        // Frame has no outer/inner cover plates in the legacy inventory render; mirror that.
+        // The frame draws no cover plates in the inventory render; mirror that.
         if (type != LogisticsSolidBlock.Type.LOGISTICS_BLOCK_FRAME) {
-            for (LogisticsNewSolidBlockWorldRenderer.CoverSides side :
-                LogisticsNewSolidBlockWorldRenderer.CoverSides.values()) {
-                Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, IModel3D> outer =
-                    LogisticsNewSolidBlockWorldRenderer.texturePlate_Outer.get(side);
-                Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, IModel3D> inner =
-                    LogisticsNewSolidBlockWorldRenderer.texturePlate_Inner.get(side);
-                if (outer != null && outer.get(rotation) != null) {
-                    outer.get(rotation).render(icon);
-                }
-                if (inner != null && inner.get(rotation) != null) {
-                    inner.get(rotation).render(icon);
-                }
+            for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
+                MeshRenderer.emit(buffer, pose.last(), parts.outerPlate(side, 0), icon, light, overlay);
+                MeshRenderer.emit(buffer, pose.last(), parts.innerPlate(side, 0), icon, light, overlay);
             }
         }
-        rs.draw();
     }
 
     @Override
@@ -151,64 +120,33 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
             return;
         }
 
-        if (!SimpleServiceLocator.cclProxy.isActivated()) {
+        SolidBlockModelParts parts = PipeModelStore.solidBlock();
+        TextureAtlasSprite icon = getIcon(type, tile.isActive());
+        if (parts.isEmpty() || icon == null) {
             return;
         }
-        if (!(SimpleServiceLocator.cclProxy.getRenderState() instanceof LPRenderStateImpl rs)) {
-            return;
-        }
-        if (LogisticsNewSolidBlockWorldRenderer.block == null
-            || LogisticsNewSolidBlockWorldRenderer.block.isEmpty()) {
-            return;
+
+        int rotation = tile.getRotation();
+        if (rotation < 0 || rotation > 3) {
+            rotation = 0;
         }
 
         VertexConsumer buffer = buffers.getBuffer(RenderType.cutoutMipped());
-        rs.bind(buffer, pose.last().pose(), pose.last().normal(), light, overlay);
-        rs.reset();
-
-        TextureTransformation icon = getIcon(type, tile.isActive());
-        if (icon == null) {
-            return;
-        }
-
-        LogisticsNewSolidBlockWorldRenderer.BlockRotation rotation =
-            LogisticsNewSolidBlockWorldRenderer.BlockRotation.getRotation(tile.getRotation());
-        if (rotation == null) {
-            rotation = LogisticsNewSolidBlockWorldRenderer.BlockRotation.ZERO;
-        }
-
-        IModel3D body = LogisticsNewSolidBlockWorldRenderer.block.get(rotation);
-        if (body != null) {
-            body.render(icon);
-        }
+        MeshRenderer.emit(buffer, pose.last(), parts.body(rotation), icon, light, overlay);
 
         // LP1 hid the cover plates on sides where an adjacent LP pipe connects into this
         // block, so the pipe visually enters the machine.
         DoubleCoordinates pos = new DoubleCoordinates(tile);
-        for (LogisticsNewSolidBlockWorldRenderer.CoverSides side :
-            LogisticsNewSolidBlockWorldRenderer.CoverSides.values()) {
-            boolean renderPlate = true;
-            DoubleCoordinates newPos = CoordinateUtils.sum(pos, side.getDir(rotation));
+        for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
+            DoubleCoordinates newPos = CoordinateUtils.sum(pos, side.facing(rotation));
             BlockEntity sideTile = newPos.getTileEntity(tile.getLevel());
-            if (sideTile instanceof LogisticsTileGenericPipe tilePipe) {
-                if (tilePipe.renderState != null
-                    && tilePipe.renderState.pipeConnectionMatrix.isConnected(side.getDir(rotation).getOpposite())) {
-                    renderPlate = false;
-                }
+            if (sideTile instanceof LogisticsTileGenericPipe tilePipe
+                && tilePipe.renderState != null
+                && tilePipe.renderState.pipeConnectionMatrix.isConnected(side.facing(rotation).getOpposite())) {
+                continue;
             }
-            if (renderPlate) {
-                Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, IModel3D> outer =
-                    LogisticsNewSolidBlockWorldRenderer.texturePlate_Outer.get(side);
-                Map<LogisticsNewSolidBlockWorldRenderer.BlockRotation, IModel3D> inner =
-                    LogisticsNewSolidBlockWorldRenderer.texturePlate_Inner.get(side);
-                if (outer != null && outer.get(rotation) != null) {
-                    outer.get(rotation).render(icon);
-                }
-                if (inner != null && inner.get(rotation) != null) {
-                    inner.get(rotation).render(icon);
-                }
-            }
+            MeshRenderer.emit(buffer, pose.last(), parts.outerPlate(side, rotation), icon, light, overlay);
+            MeshRenderer.emit(buffer, pose.last(), parts.innerPlate(side, rotation), icon, light, overlay);
         }
-        rs.draw();
     }
 }

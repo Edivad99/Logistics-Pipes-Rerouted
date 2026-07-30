@@ -2,8 +2,8 @@ package logisticspipes.textures;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import logisticspipes.LPConstants;
-import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +21,8 @@ public class TextureRegistrar {
 
 	private static final List<Entry> ENTRIES = new ArrayList<>();
 	private static final List<Entry> NEW_ENTRIES = new ArrayList<>();
+	private static final java.util.Map<Integer, TextureAtlasSprite> NEW_PIPE_SPRITES =
+		new java.util.concurrent.ConcurrentHashMap<>();
 	private static boolean collected = false;
 
 	public static void record(int index, String fileName) {
@@ -88,39 +90,18 @@ public class TextureRegistrar {
 		if (!event.getAtlas().location().equals(TextureAtlas.LOCATION_BLOCKS)) return;
 		collectOnce();
 
-		// Bind the three static pipe-model textures consumed directly by
-		// LogisticsNewRenderPipe (basicPipeTexture / statusTexture / statusBCTexture).
-		// These are looked up by ResourceLocation rather than by Textures.java index.
+		// The pipe-model sprites are looked up by ResourceLocation rather than by
+		// Textures.java index, and handed to the baked-model pipeline below.
 		TextureAtlasSprite base = event.getAtlas().getSprite(LPConstants.rl("blocks/pipes/pipemodel"));
 		TextureAtlasSprite status = event.getAtlas().getSprite(LPConstants.rl("blocks/pipes/pipemodel-status"));
 		TextureAtlasSprite statusBC = event.getAtlas().getSprite(LPConstants.rl("blocks/pipes/pipemodel-status-bc"));
 		TextureAtlasSprite inactive = event.getAtlas().getSprite(LPConstants.rl("blocks/pipes/pipemodel-inactive"));
 		TextureAtlasSprite innerBox = event.getAtlas().getSprite(LPConstants.rl("blocks/pipes/innerbox"));
 		TextureAtlasSprite glassCenter = event.getAtlas().getSprite(LPConstants.rl("blocks/pipes/glass_texture_center"));
-		if (base != null) {
-			LogisticsNewRenderPipe.basicPipeTexture =
-				logisticspipes.proxy.SimpleServiceLocator.cclProxy.createIconTransformer(base);
-		}
-		if (status != null) {
-			LogisticsNewRenderPipe.statusTexture =
-				logisticspipes.proxy.SimpleServiceLocator.cclProxy.createIconTransformer(status);
-		}
-		if (statusBC != null) {
-			LogisticsNewRenderPipe.statusBCTexture =
-				logisticspipes.proxy.SimpleServiceLocator.cclProxy.createIconTransformer(statusBC);
-		}
-		if (inactive != null) {
-			LogisticsNewRenderPipe.inactiveTexture =
-				logisticspipes.proxy.SimpleServiceLocator.cclProxy.createIconTransformer(inactive);
-		}
-		if (innerBox != null) {
-			LogisticsNewRenderPipe.innerBoxTexture =
-				logisticspipes.proxy.SimpleServiceLocator.cclProxy.createIconTransformer(innerBox);
-		}
-		if (glassCenter != null) {
-			LogisticsNewRenderPipe.glassCenterTexture =
-				logisticspipes.proxy.SimpleServiceLocator.cclProxy.createIconTransformer(glassCenter);
-		}
+		logisticspipes.client.model.pipe.PipeModelStore.setSprites(
+			new logisticspipes.client.model.pipe.PipeSprites(
+				base, inactive, status, statusBC, glassCenter, innerBox,
+				TextureRegistrar::newPipeIcon));
 		for (Entry e : ENTRIES) {
 			TextureAtlasSprite sprite = event.getAtlas().getSprite(e.rl);
 			if (sprite == null) continue;
@@ -128,13 +109,21 @@ public class TextureRegistrar {
 				Textures.LPpipeIconProvider.setIcon(e.index, sprite);
 			}
 		}
+		NEW_PIPE_SPRITES.clear();
 		for (Entry e : NEW_ENTRIES) {
 			TextureAtlasSprite sprite = event.getAtlas().getSprite(e.rl);
 			if (sprite == null) continue;
-			if (Textures.LPnewPipeIconProvider != null) {
-				Textures.LPnewPipeIconProvider.setIcon(e.index, sprite);
-			}
+			NEW_PIPE_SPRITES.put(e.index, sprite);
 		}
+	}
+
+	/**
+	 * The per-pipe-type body sprite for a {@code TextureMatrix.getTextureIndex()},
+	 * recorded during the stitch so the baked pipeline can resolve it without a lookup.
+	 */
+	@Nullable
+	public static TextureAtlasSprite newPipeIcon(int index) {
+		return NEW_PIPE_SPRITES.get(index);
 	}
 
 	private record Entry(int index, ResourceLocation rl) {}

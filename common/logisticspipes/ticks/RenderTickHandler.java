@@ -9,7 +9,6 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
 import logisticspipes.renderer.GuiOverlay;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.debug.ClientViewController;
@@ -174,14 +173,20 @@ public class RenderTickHandler {
 		poseStack.translate(gx - cam.x + 0.001, gy - cam.y + 0.001, gz - cam.z + 0.001);
 
 		VertexConsumer ghostBuffer = bufferSource.getBuffer(RenderType.entityTranslucentCull(GHOST_PIPE_TEXTURE));
-		LPRenderStateImpl renderState = (LPRenderStateImpl) SimpleServiceLocator.cclProxy.getRenderState();
-		renderState.reset();
-		renderState.bind(ghostBuffer, poseStack.last().pose(), poseStack.last().normal(), packedLight, OverlayTexture.NO_OVERLAY);
-		renderState.setAlphaOverride(0x50);
-		pipe.getHighlightRenderer().renderHighlight(orientation);
+		// The tube preview tracks the player's facing. The removed legacy branch reached the
+		// same geometry through rotations that CCLProxy converted from radians a second time, so
+		// every orientation of a tube came out nearly identical — a curve did not appear to swing
+		// left or right, and the S-curve, which is the gain model rolled a quarter turn about Z,
+		// looked exactly like a gain.
+		logisticspipes.client.model.mesh.ObjMesh ghost =
+			logisticspipes.client.model.tube.TubeMeshes.forPipe(pipe, orientation).mesh();
+		if (ghost.isEmpty()) {
+			ghost = logisticspipes.client.model.pipe.PipeModelStore.parts().highlight();
+		}
+		// 0x50 alpha, matching the alpha override the shared render state used to apply.
+		logisticspipes.client.model.mesh.MeshRenderer.emitRaw(ghostBuffer, poseStack.last(),
+			ghost, 0x50FFFFFF, packedLight, OverlayTexture.NO_OVERLAY);
 		bufferSource.endBatch();
-		// Clear the alpha override so the next bound model (pipe BERs share this state) renders opaque.
-		renderState.reset();
 		poseStack.popPose();
 	}
 

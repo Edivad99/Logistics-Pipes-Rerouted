@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
@@ -20,18 +21,12 @@ import logisticspipes.client.particle.SparkParticle;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
 import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
 import logisticspipes.client.gui.screen.ProgramCompilerScreen;
+import logisticspipes.client.model.ObjModelManager;
+import logisticspipes.client.model.pipe.PipeModelRegistration;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
 import logisticspipes.renderer.LogisticsPipeItemRenderer;
-import logisticspipes.renderer.newpipe.GLRenderListHandler;
-import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
-import logisticspipes.renderer.newpipe.LogisticsNewSolidBlockWorldRenderer;
-import logisticspipes.renderer.newpipe.tube.CurveTubeRenderer;
-import logisticspipes.renderer.newpipe.tube.GainTubeRenderer;
-import logisticspipes.renderer.newpipe.tube.LineTubeRenderer;
-import logisticspipes.renderer.newpipe.tube.SCurveTubeRenderer;
-import logisticspipes.renderer.newpipe.tube.SpeedupTubeRenderer;
 import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
@@ -53,8 +48,10 @@ public class ClientManager {
         modEventBus.addListener(ClientManager::handleParticleRegistration);
         modEventBus.addListener(ClientManager::handleClientExtensions);
         modEventBus.addListener(ClientManager::handleRegisterMenuScreens);
+        modEventBus.addListener(ClientManager::handleRegisterReloadListeners);
 
         modEventBus.register(TextureRegistrar.class);
+        modEventBus.register(PipeModelRegistration.class);
         modEventBus.register(FluidContainerRenderer.class);
 
         //NeoForge.EVENT_BUS.register(ClientManager.class);
@@ -62,7 +59,6 @@ public class ClientManager {
         NeoForge.EVENT_BUS.register(new RenderTickHandler());
         NeoForge.EVENT_BUS.register(WidgetScreenHudSuppressor.INSTANCE);
         SimpleServiceLocator.setClientPacketBufferHandlerThread(new ClientPacketBufferHandlerThread());
-        SimpleServiceLocator.setRenderListHandler(new GLRenderListHandler());
         LPFontRenderer.Factory.asyncPreload();
     }
 
@@ -70,9 +66,6 @@ public class ClientManager {
     private static void handleClientSetup(FMLClientSetupEvent event) {
         // Texture atlas sprites and item/block models are supplied declaratively via
         // JSON in assets/logisticspipes/models/** in 1.20.1 — no code registration.
-        // The legacy MainProxy.proxy.registerTextures() / registerModels() and
-        // LogisticsPipes.textures.registerBlockIcons(...) paths are deferred to the
-        // renderer rewrite; they are intentionally not called here.
         // BlockEntityRenderer for the pipe BE is registered via
         // EntityRenderersEvent.RegisterRenderers (see registerRenderers below).
         event.enqueueWork(() -> {
@@ -84,20 +77,17 @@ public class ClientManager {
         // Fluid container "filled" model predicate (client-only class, stays in the guard).
         FluidContainerRenderer.registerItemProperties();
 
-        // Preload all render models so they don't get loaded (and crash) on concurrent
-        // render-thread class loading. Each loader is wrapped in its own try/catch so a
-        // failure in one OBJ file / group lookup doesn't halt init. These reference
-        // client-only renderer classes, so they MUST stay inside this Dist.CLIENT guard —
-        // the method-reference bootstraps below would otherwise link client classes on a
-        // dedicated server.
-        safeLoadModels("LogisticsNewRenderPipe", LogisticsNewRenderPipe::loadModels);
-        safeLoadModels("LogisticsNewSolidBlockWorldRenderer",
-            LogisticsNewSolidBlockWorldRenderer::loadModels);
-        safeLoadModels("CurveTubeRenderer", CurveTubeRenderer::loadModels);
-        safeLoadModels("GainTubeRenderer", GainTubeRenderer::loadModels);
-        safeLoadModels("LineTubeRenderer", LineTubeRenderer::loadModels);
-        safeLoadModels("SpeedupTubeRenderer", SpeedupTubeRenderer::loadModels);
-        safeLoadModels("SCurveTubeRenderer", SCurveTubeRenderer::loadModels);
+        // OBJ geometry is no longer preloaded here: ObjModelManager parses it as a resource
+        // reload listener (see handleRegisterReloadListeners), off the render thread and
+        // after the texture atlases exist.
+    }
+
+    private static void handleRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
+        // Parses the OBJ geometry on every resource reload, off the render thread. Replaces
+        // the safeLoadModels(...) block in handleClientSetup, which read the files straight
+        // off the classpath at mod init — before the texture atlases existed and beyond the
+        // reach of resource packs.
+        event.registerReloadListener(new ObjModelManager());
     }
 
     private static void handleRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -168,15 +158,5 @@ public class ClientManager {
 
     private static void handleRegisterMenuScreens(RegisterMenuScreensEvent event) {
         event.register(LPMenuTypes.PROGRAM_COMPILER.get(), (MenuScreens.ScreenConstructor<ProgramCompilerMenu, AbstractContainerScreen<ProgramCompilerMenu>>) ProgramCompilerScreen::new);
-    }
-
-        private static void safeLoadModels(String name, Runnable loader) {
-        try {
-            loader.run();
-        } catch (Throwable t) {
-            LogisticsPipes.LOG.warn(
-                "[CCL-replacement] {} failed to load models — pipe visuals will be incomplete: {}", name,
-                t.toString());
-        }
     }
 }

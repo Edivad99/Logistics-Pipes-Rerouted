@@ -3,7 +3,6 @@ package logisticspipes.pipes.basic;
 import java.util.ArrayList;
 import java.util.List;
 import logisticspipes.interfaces.ITubeOrientation;
-import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.LPPositionSet;
@@ -107,10 +106,6 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 
 	@Override
 	public abstract boolean actAsNormalPipe();
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public abstract ISpecialPipeRenderer getSpecialRenderer();
 
 	@Override
 	public boolean canPipeConnect(BlockEntity tile, Direction side) {

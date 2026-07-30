@@ -14,7 +14,6 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.IProxy;
-import logisticspipes.renderer.newpipe.GLRenderListHandler;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -98,8 +97,8 @@ public class ClientProxy implements IProxy {
 
 	@Override
 	public void addLogisticsPipesOverride(Object par1IIconRegister, int index, String override1, String override2, boolean flag) {
-		// override2 == "NewPipeTexture" means this call targets LPnewPipeIconProvider's index
-		// space (newTextureIndex, separate from LPpipeIconProvider's normal index).
+		// override2 == "NewPipeTexture" means this call targets the new-pipe index space
+		// (newTextureIndex, separate from LPpipeIconProvider's normal index).
 		// flag == false selects the pre-generated base+overlay composite from overlay_gen/
 		// (powered / unpowered / un-overlayed variants), exactly as LP1 did.
 		if ("NewPipeTexture".equals(override2)) {
@@ -125,7 +124,6 @@ public class ClientProxy implements IProxy {
 	@Override
 	public void tickClient() {
 		MainProxy.addTick();
-		SimpleServiceLocator.renderListHandler.tick();
 	}
 
 	@Override

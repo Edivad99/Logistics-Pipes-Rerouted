@@ -1,24 +1,23 @@
 package logisticspipes.renderer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import logisticspipes.client.model.pipe.PipeGeometryKey;
+import logisticspipes.client.model.pipe.PipeModelStore;
+import logisticspipes.client.model.pipe.PipeQuadBaker;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.object3d.impl.LPRenderStateImpl;
-import logisticspipes.renderer.newpipe.LogisticsNewRenderPipe;
-import logisticspipes.renderer.newpipe.RenderEntry;
 import logisticspipes.renderer.state.PipeRenderState;
 
 /**
@@ -44,41 +43,41 @@ public class LogisticsPipeItemRenderer extends BlockEntityWithoutLevelRenderer {
         if (dummyPipe == null) {
             return;
         }
-        if (!SimpleServiceLocator.cclProxy.isActivated()) {
+        renderBaked(dummyPipe, pose, buffers, light, overlay);
+    }
+
+    /**
+     * Draws the item form from the same quads the in-world block model uses.
+     *
+     * <p>Going through {@code PipeQuadBaker} rather than re-deriving the geometry is the point:
+     * the item and the placed pipe cannot drift apart, because there is only one description of
+     * what a pipe looks like. The quads are emitted here rather than baked into an item model
+     * because {@code getDummyPipe()} state is per item type, not per block state.</p>
+     */
+    private void renderBaked(CoreUnroutedPipe dummyPipe, PoseStack pose, MultiBufferSource buffers,
+        int light, int overlay) {
+        if (!PipeModelStore.isReady()) {
             return;
         }
-        if (!(SimpleServiceLocator.cclProxy.getRenderState() instanceof LPRenderStateImpl rs)) {
+
+        PipeRenderState renderState = new PipeRenderState();
+        // A fresh ConnectionMatrix has every side disconnected, which is the inventory look.
+        renderState.textureMatrix.refreshStatesForItem(dummyPipe);
+
+        List<BakedQuad> quads = PipeQuadBaker.bake(PipeModelStore.parts(), PipeModelStore.sprites(),
+            PipeGeometryKey.ofItem(dummyPipe, renderState));
+        if (quads.isEmpty()) {
             return;
         }
 
         pose.pushPose();
         try {
-            // Vanilla ItemRenderer.render already applies pose.translate(-0.5,-0.5,-0.5)
-            // before calling renderByItem, which centres the [0,1] LP pipe geometry. We
-            // don't translate further; the model's display transform handles rotation/scale.
-
+            // Vanilla ItemRenderer.render already applied translate(-0.5, -0.5, -0.5), which
+            // centres the [0,1] pipe geometry; the display transform handles rotation and scale.
             VertexConsumer buffer = buffers.getBuffer(RenderType.cutoutMipped());
-            rs.bind(buffer, pose.last().pose(), pose.last().normal(), light, overlay);
-            rs.colourARGB = 0xFFFFFFFF;
-
-            PipeRenderState renderState = new PipeRenderState();
-            // Fresh ConnectionMatrix has all sides false, matching the dev-branch inventory look.
-            renderState.textureMatrix.refreshStatesForItem(dummyPipe);
-
-            List<RenderEntry> entries = new ArrayList<>();
-            try {
-                LogisticsNewRenderPipe.fillObjectsToRenderList(entries, dummyPipe, renderState);
-            } catch (Exception e) {
-                // Some pipe types (HS tubes) need orientation state that a dummy pipe lacks.
-                // Skip the 3D render — the inventory will show an empty slot for now.
-                return;
+            for (BakedQuad quad : quads) {
+                buffer.putBulkData(pose.last(), quad, 1.0f, 1.0f, 1.0f, 1.0f, light, overlay);
             }
-
-            rs.reset();
-            for (RenderEntry entry : entries) {
-                entry.getModel().render(entry.getOperations());
-            }
-            rs.draw();
         } finally {
             pose.popPose();
         }

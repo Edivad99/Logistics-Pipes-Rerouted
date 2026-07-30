@@ -196,34 +196,53 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 		public ItemIdentifierCleanupThread() {
 			setName("LogisticsPipes ItemIdentifier Cleanup Thread");
 			setDaemon(true);
-			start();
 		}
 
 		@Override
 		public void run() {
-			while (true) {
+			// Runs until interrupted rather than forever. The loop used to swallow
+			// InterruptedException and continue, which left the thread unstoppable and dropped
+			// the interrupt flag on the floor; restoring the flag and returning lets whoever
+			// interrupted us observe that it worked.
+			while (!Thread.currentThread().isInterrupted()) {
 				IDReference r;
 				try {
 					r = (IDReference) (ItemIdentifier.keyRefQueue.remove());
 				} catch (InterruptedException e) {
-					continue;
+					Thread.currentThread().interrupt();
+					return;
 				}
+				// The unlock has to be in a finally: this is the write lock every ItemIdentifier
+				// creation needs, so any exception escaping the loop below would hold it forever
+				// and wedge the whole subsystem instead of just killing this thread.
 				ItemIdentifier.keyRefWlock.lock();
-				do {
-					//value in the map might have been replaced in the meantime
-					IDReference current = ItemIdentifier.keyRefMap.get(r.key);
-					if (r == current) {
-						ItemIdentifier.keyRefMap.remove(r.key);
-						ItemIdentifier.tagIDsets.get(r.key.item).clear(r.uniqueID);
-					}
-					r = (IDReference) (ItemIdentifier.keyRefQueue.poll());
-				} while (r != null);
-				ItemIdentifier.keyRefWlock.unlock();
+				try {
+					do {
+						//value in the map might have been replaced in the meantime
+						IDReference current = ItemIdentifier.keyRefMap.get(r.key);
+						if (r == current) {
+							ItemIdentifier.keyRefMap.remove(r.key);
+							BitSet tagIDs = ItemIdentifier.tagIDsets.get(r.key.item);
+							if (tagIDs != null) {
+								tagIDs.clear(r.uniqueID);
+							}
+						}
+						r = (IDReference) (ItemIdentifier.keyRefQueue.poll());
+					} while (r != null);
+				} finally {
+					ItemIdentifier.keyRefWlock.unlock();
+				}
 			}
 		}
 	}
 
 	private static final ItemIdentifierCleanupThread cleanupThread = new ItemIdentifierCleanupThread();
+
+	static {
+		// Started here rather than from the constructor: a Thread that calls start() on itself
+		// publishes a not-yet-fully-constructed object to the thread it just spawned.
+		ItemIdentifier.cleanupThread.start();
+	}
 
 	//Hide default constructor
 	private ItemIdentifier(Item item, int itemDamage, FinalCompoundTag tag, int uniqueID) {

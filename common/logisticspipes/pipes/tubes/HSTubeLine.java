@@ -3,12 +3,11 @@ package logisticspipes.pipes.tubes;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import logisticspipes.client.model.tube.TubeCollision;
+import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
-import logisticspipes.renderer.newpipe.IHighlightPlacementRenderer;
-import logisticspipes.renderer.newpipe.ISpecialPipeRenderer;
-import logisticspipes.renderer.newpipe.tube.LineTubeRenderer;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.IPositionRotateble;
 import logisticspipes.utils.LPPositionSet;
@@ -79,7 +78,7 @@ public class HSTubeLine extends CoreMultiBlockPipe {
 	public void addCollisionBoxesToList(List<AABB> arraylist, AABB axisalignedbb) {
 		DoubleCoordinates pos = getLPPosition();
 		LPPositionSet<DoubleCoordinates> set = new LPPositionSet<>(DoubleCoordinates.class);
-		set.addFrom(LineTubeRenderer.tubeLine.get(orientation.getRenderOrientation()).bounds().toAABB());
+		set.addFrom(TubeCollision.completeBox(TubeModels.Kind.LINE, orientation));
 		set.forEach(o -> o.add(pos));
 		AABB box = set.toABB();
 		if (box != null && (axisalignedbb == null || axisalignedbb.intersects(box))) {
@@ -89,7 +88,7 @@ public class HSTubeLine extends CoreMultiBlockPipe {
 
 	@Override
 	public AABB getCompleteBox() {
-		return LineTubeRenderer.tubeLine.get(orientation.getRenderOrientation()).bounds().toAABB();
+		return TubeCollision.completeBox(TubeModels.Kind.LINE, orientation);
 	}
 
 	@Override
@@ -152,16 +151,6 @@ public class HSTubeLine extends CoreMultiBlockPipe {
 	@Override
 	public boolean actAsNormalPipe() {
 		return false;
-	}
-
-	@Override
-	public ISpecialPipeRenderer getSpecialRenderer() {
-		return LineTubeRenderer.instance;
-	}
-
-	@Override
-	public IHighlightPlacementRenderer getHighlightRenderer() {
-		return LineTubeRenderer.instance;
 	}
 
 	@Override

@@ -719,9 +719,41 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		level.sendBlockUpdated(worldPosition, level.getBlockState(worldPosition), level.getBlockState(worldPosition), 3);
 
 		if (renderState.needsRenderUpdate()) {
+			// The baked model reads its geometry from the ModelData below, so the chunk has to
+			// be told the data changed as well as the block state — sendBlockUpdated alone
+			// would leave the mesh showing the previous connections.
+			requestModelDataUpdate();
 			level.sendBlockUpdated(worldPosition, level.getBlockState(worldPosition), level.getBlockState(worldPosition), 3);
 			renderState.clean();
 		}
+	}
+
+	/**
+	 * Snapshots everything {@code PipeBakedModel} needs. Runs on the main thread, which is
+	 * what makes it safe to read the neighbouring block states here rather than during the
+	 * off-thread chunk bake.
+	 */
+	@Override
+	public net.neoforged.neoforge.client.model.data.ModelData getModelData() {
+		if (pipe == null || level == null) {
+			return net.neoforged.neoforge.client.model.data.ModelData.EMPTY;
+		}
+		// Not every pipe draws the pipe frame, and handing out a geometry key for one that
+		// does not makes the baked model draw a frame on top of whatever it does draw:
+		//
+		//  - a pipe-block (the request table) draws a solid block body from its block entity
+		//    renderer, and the two coplanar surfaces z-fight;
+		//  - a pipe that does not act as a normal pipe (the high-speed tubes) draws only its
+		//    tube body, and a frame inside it shows through as stray geometry.
+		//
+		// These are the two conditions the removed immediate-mode path already gated on:
+		// its early return for pipe blocks, and its actAsNormalPipe() check.
+		if (pipe.isPipeBlock() || !pipe.actAsNormalPipe()) {
+			return net.neoforged.neoforge.client.model.data.ModelData.EMPTY;
+		}
+		return net.neoforged.neoforge.client.model.data.ModelData.of(
+			logisticspipes.client.model.pipe.PipeModelProperties.GEOMETRY,
+			logisticspipes.client.model.pipe.PipeGeometryKey.of(this, pipe, renderState));
 	}
 
 	public void sendUpdateToClient() {
