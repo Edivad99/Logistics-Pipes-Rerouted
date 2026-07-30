@@ -127,7 +127,10 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	public LogisticsBlockGenericPipe(Properties properties) {
-		super(properties.strength(1.5F).noOcclusion());
+		super(properties.strength(1.5F).noOcclusion()
+				.isViewBlocking((state, world, pos) -> false)
+				.isSuffocating((state, world, pos) -> false)
+				.isRedstoneConductor((state, world, pos) -> false));
 		registerDefaultState(this.stateDefinition.any()
 				.setValue(rotationProperty, 0)
 				.setValue(modelTypeProperty, PipeRenderModel.NONE));
