@@ -6,6 +6,8 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.joml.Quaternionf;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -42,9 +44,10 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 public class LogisticsHUDRenderer {
 
+    @Nullable
 	public IDebugHUDProvider debugHUD = null;
 
-	private LinkedList<IHeadUpDisplayRendererProvider> list = new LinkedList<>();
+	private final LinkedList<IHeadUpDisplayRendererProvider> list = new LinkedList<>();
 	private double lastXPos = 0;
 	private double lastYPos = 0;
 	private double lastZPos = 0;
@@ -52,10 +55,11 @@ public class LogisticsHUDRenderer {
 	private int progress = 0;
 	private long last = 0;
 
-	private ArrayList<IHeadUpDisplayBlockRendererProvider> providers = new ArrayList<>();
+	private final ArrayList<IHeadUpDisplayBlockRendererProvider> providers = new ArrayList<>();
 
-	private List<LaserData> lasers = new ArrayList<>();
+	private final List<LaserData> lasers = new ArrayList<>();
 
+    @Nullable
 	private static LogisticsHUDRenderer renderer = null;
 
 	public void add(IHeadUpDisplayBlockRendererProvider provider) {

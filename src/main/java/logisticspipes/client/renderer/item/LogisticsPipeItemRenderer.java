@@ -1,4 +1,4 @@
-package logisticspipes.renderer;
+package logisticspipes.client.renderer.item;
 
 import java.util.List;
 
@@ -9,16 +9,20 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.pipe.PipeQuadBaker;
+import logisticspipes.client.model.tube.TubeMeshes;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
+import logisticspipes.renderer.LogisticsRenderPipe;
 import logisticspipes.renderer.state.PipeRenderState;
 
 /**
@@ -56,7 +60,47 @@ public class LogisticsPipeItemRenderer extends BlockEntityWithoutLevelRenderer {
             }
             return;
         }
+        // High-speed tubes draw no pipe frame either: they are multi-block geometry with a
+        // standalone texture, so they get their own path rather than the frame quads below.
+        TubeMeshes.TubeGeometry tube = TubeMeshes.forItem(dummyPipe);
+        if (!tube.isEmpty()) {
+            renderTube(tube, pose, buffers, light, overlay);
+            return;
+        }
         renderBaked(dummyPipe, pose, buffers, light, overlay);
+    }
+
+    /**
+     * Draws a tube's item form, scaled down to fit the block the item icon stands for.
+     *
+     * <p>The in-world tubes are multi-block: a curve spans three blocks each way, so its mesh
+     * is far outside the unit cube every other item is drawn in. Fitting the mesh's bounds
+     * into that cube is what keeps the icon inside its slot and the held item at a sane size,
+     * and it is the whole difference between this and {@code renderTubeGeometry} in
+     * {@link LogisticsRenderPipe}.</p>
+     */
+    private void renderTube(TubeMeshes.TubeGeometry tube, PoseStack pose, MultiBufferSource buffers,
+        int light, int overlay) {
+        AABB bounds = tube.mesh().bounds();
+        double extent = Math.max(bounds.getXsize(), Math.max(bounds.getYsize(), bounds.getZsize()));
+        if (extent <= 0) {
+            return;
+        }
+        float scale = (float) (1.0 / extent);
+
+        pose.pushPose();
+        try {
+            // Vanilla ItemRenderer.render pre-applied translate(-0.5, -0.5, -0.5), so the target
+            // is the unit cube at the origin: centre the mesh, shrink it to fit, put it back.
+            pose.translate(0.5f, 0.5f, 0.5f);
+            pose.scale(scale, scale, scale);
+            pose.translate(-bounds.getCenter().x, -bounds.getCenter().y, -bounds.getCenter().z);
+
+            VertexConsumer buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(tube.texture()));
+            MeshRenderer.emitRaw(buffer, pose.last(), tube.mesh(), 0xFFFFFFFF, light, overlay);
+        } finally {
+            pose.popPose();
+        }
     }
 
     /**

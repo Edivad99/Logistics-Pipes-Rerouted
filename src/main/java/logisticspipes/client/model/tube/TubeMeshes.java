@@ -70,6 +70,20 @@ public final class TubeMeshes {
     }
 
     /**
+     * The tube's item form: its geometry at a fixed orientation, since a dummy pipe has none.
+     * The mesh is in world units and can span several blocks, so the caller has to fit it into
+     * the item's unit cube itself.
+     */
+    public static TubeGeometry forItem(@Nullable CoreUnroutedPipe pipe) {
+        TubeModels.Kind kind = kindOf(pipe);
+        if (kind == null) {
+            return NONE;
+        }
+        ObjMesh mesh = TubeModels.mesh(kind, kind.orientationWithoutPipe);
+        return mesh.isEmpty() ? NONE : new TubeGeometry(mesh, kind.texture);
+    }
+
+    /**
      * The tube type a pipe is, or null when it is not a high-speed tube.
      */
     @Nullable

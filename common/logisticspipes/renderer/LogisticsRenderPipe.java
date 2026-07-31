@@ -36,6 +36,7 @@ import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.solid.SolidBlockModelParts;
 import logisticspipes.client.model.tube.TubeMeshes;
 import logisticspipes.client.renderer.blockentity.LogisticsSolidBlockRenderer;
+import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -55,7 +56,6 @@ import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGenericPipe> {
 
-    private static final ExecutorService pool = Executors.newFixedThreadPool(1);
     private static final int LIQUID_STAGES = 40;
     private static final int MAX_ITEMS_TO_RENDER = 10;
     private static final ResourceLocation SIGN = ResourceLocation.withDefaultNamespace("textures/entity/sign.png");
@@ -67,9 +67,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     }
 
     @Override
-    public void render(LogisticsTileGenericPipe tileentity, float partialTicks, PoseStack poseStack,
+    public void render(LogisticsTileGenericPipe blockEntity, float partialTicks, PoseStack poseStack,
         MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        if (tileentity.pipe == null) {
+        if (blockEntity.pipe == null) {
             return;
         }
 
@@ -78,7 +78,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         // itself now lives in the chunk mesh, supplied by PipeBakedModel.
         poseStack.pushPose();
         try {
-            renderInternal(tileentity, 0, 0, 0, partialTicks, -1, 1.0f, poseStack, bufferSource, packedLight,
+            renderInternal(blockEntity, 0, 0, 0, partialTicks, -1, 1.0f, poseStack, bufferSource, packedLight,
                 packedOverlay);
         } finally {
             poseStack.popPose();
@@ -145,9 +145,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * {@code BakedQuad} can only reference an atlas sprite. So tubes keep immediate-mode
      * rendering — but on the mesh engine, with no shared render state.</p>
      */
-    private void renderTubeGeometry(LogisticsTileGenericPipe tileentity, PoseStack poseStack,
+    private void renderTubeGeometry(LogisticsTileGenericPipe blockEntity, PoseStack poseStack,
         MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        TubeMeshes.TubeGeometry tube = TubeMeshes.forPipe(tileentity.pipe);
+        TubeMeshes.TubeGeometry tube = TubeMeshes.forPipe(blockEntity.pipe);
         if (tube.isEmpty()) {
             return;
         }
@@ -198,13 +198,13 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         }
     }
 
-    private void renderInternal(@Nullable LogisticsTileGenericPipe tileentity, double x, double y, double z,
+    private void renderInternal(@Nullable LogisticsTileGenericPipe blockEntity, double x, double y, double z,
         float partialTicks, int destroyStage, float alpha,
         PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         // In 1.20.1 the BER PoseStack is pre-translated, so we always pass (0,0,0).
-        // Use tileentity==null as the sole in-hand signal instead.
-        boolean inHand = (tileentity == null);
-        if (!inHand && tileentity.pipe == null) {
+        // Use blockEntity==null as the sole in-hand signal instead.
+        boolean inHand = (blockEntity == null);
+        if (!inHand && blockEntity.pipe == null) {
             return;
         }
 
@@ -215,33 +215,33 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
         poseStack.pushPose();
         try {
-            if (!inHand && tileentity.pipe instanceof CoreRoutedPipe) {
-                renderPipeSigns((CoreRoutedPipe) tileentity.pipe, x, y, z, partialTicks, poseStack, bufferSource,
+            if (!inHand && blockEntity.pipe instanceof CoreRoutedPipe) {
+                renderPipeSigns((CoreRoutedPipe) blockEntity.pipe, x, y, z, partialTicks, poseStack, bufferSource,
                     packedLight, packedOverlay);
             }
 
             double distance = !inHand ?
-                new DoubleCoordinates((BlockEntity) tileentity).distanceTo(
+                new DoubleCoordinates((BlockEntity) blockEntity).distanceTo(
                     new DoubleCoordinates(Minecraft.getInstance().player)) :
                 0;
 
             // The Request Table is an isPipeBlock() pipe, so the pipe baked model holds no
             // geometry for it and the 1.12 ISimpleBlockRenderingHandler that drew its block
             // body was never ported: without this branch the table is invisible.
-            if (!inHand && tileentity.pipe instanceof PipeBlockRequestTable) {
-                renderRequestTableBlock((PipeBlockRequestTable) tileentity.pipe, tileentity, poseStack, bufferSource,
+            if (!inHand && blockEntity.pipe instanceof PipeBlockRequestTable) {
+                renderRequestTableBlock((PipeBlockRequestTable) blockEntity.pipe, blockEntity, poseStack, bufferSource,
                     packedLight, packedOverlay);
             }
             // The pipe frame comes from PipeBakedModel via the chunk mesh; only the tube
             // bodies still need emitting here, because their textures are standalone PNGs
             // rather than atlas sprites and so cannot be baked.
             if (!inHand) {
-                renderTubeGeometry(tileentity, poseStack, bufferSource, packedLight, packedOverlay);
+                renderTubeGeometry(blockEntity, poseStack, bufferSource, packedLight, packedOverlay);
             }
 
-            if (!inHand && !tileentity.isOpaque()) {
-                if (tileentity.pipe.transport != null) {
-                    renderSolids(tileentity.pipe, x, y, z, partialTicks, poseStack, bufferSource, packedLight,
+            if (!inHand && !blockEntity.isOpaque()) {
+                if (blockEntity.pipe.transport != null) {
+                    renderSolids(blockEntity.pipe, x, y, z, partialTicks, poseStack, bufferSource, packedLight,
                         packedOverlay);
                 }
             }
