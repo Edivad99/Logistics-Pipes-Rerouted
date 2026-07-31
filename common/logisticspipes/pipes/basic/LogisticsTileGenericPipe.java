@@ -18,6 +18,8 @@ import logisticspipes.asm.ModDependentInterface;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.asm.te.LPTileEntityObject;
+import logisticspipes.client.model.pipe.PipeGeometryKey;
+import logisticspipes.client.model.pipe.PipeModelProperties;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.routing.IFilter;
@@ -62,6 +64,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import network.rs485.logisticspipes.connection.ConnectionType;
@@ -734,12 +737,12 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	 * off-thread chunk bake.
 	 */
 	@Override
-	public net.neoforged.neoforge.client.model.data.ModelData getModelData() {
+	public ModelData getModelData() {
 		if (pipe == null || level == null) {
-			return net.neoforged.neoforge.client.model.data.ModelData.EMPTY;
+			return ModelData.EMPTY;
 		}
 		// Not every pipe draws the pipe frame, and handing out a geometry key for one that
-		// does not makes the baked model draw a frame on top of whatever it does draw:
+		// does not make the baked model draw a frame on top of whatever it does draw:
 		//
 		//  - a pipe-block (the request table) draws a solid block body from its block entity
 		//    renderer, and the two coplanar surfaces z-fight;
@@ -749,11 +752,15 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		// These are the two conditions the removed immediate-mode path already gated on:
 		// its early return for pipe blocks, and its actAsNormalPipe() check.
 		if (pipe.isPipeBlock() || !pipe.actAsNormalPipe()) {
-			return net.neoforged.neoforge.client.model.data.ModelData.EMPTY;
+			// No geometry, but the model is still asked for the break/hit particle sprite, and
+			// the frame's would be wrong for a pipe that never draws the frame.
+			ResourceLocation particle = pipe.getParticleSprite();
+			if (particle == null) {
+				return ModelData.EMPTY;
+			}
+			return ModelData.of(PipeModelProperties.PARTICLE_SPRITE, particle);
 		}
-		return net.neoforged.neoforge.client.model.data.ModelData.of(
-			logisticspipes.client.model.pipe.PipeModelProperties.GEOMETRY,
-			logisticspipes.client.model.pipe.PipeGeometryKey.of(this, pipe, renderState));
+		return ModelData.of(PipeModelProperties.GEOMETRY, PipeGeometryKey.of(this, pipe, renderState));
 	}
 
 	public void sendUpdateToClient() {

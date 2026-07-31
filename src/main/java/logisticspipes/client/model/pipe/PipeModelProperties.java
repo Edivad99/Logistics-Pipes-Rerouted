@@ -1,5 +1,7 @@
 package logisticspipes.client.model.pipe;
 
+import net.minecraft.resources.ResourceLocation;
+
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 
 /**
@@ -18,4 +20,12 @@ public final class PipeModelProperties {
      * Snapshot of everything that decides the pipe's geometry.
      */
     public static final ModelProperty<PipeGeometryKey> GEOMETRY = new ModelProperty<>();
+
+    /**
+     * Block-atlas sprite name for break and hit particles, for pipes whose visible surface is
+     * not the pipe frame — the request table draws a solid block body, so the frame sprite the
+     * model would otherwise hand out has nothing to do with what the player is breaking.
+     * Absent means "use the pipe frame sprite".
+     */
+    public static final ModelProperty<ResourceLocation> PARTICLE_SPRITE = new ModelProperty<>();
 }

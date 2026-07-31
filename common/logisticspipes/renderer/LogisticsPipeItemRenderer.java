@@ -17,6 +17,7 @@ import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.pipe.PipeQuadBaker;
 import logisticspipes.items.ItemLogisticsPipe;
+import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.renderer.state.PipeRenderState;
 
@@ -41,6 +42,18 @@ public class LogisticsPipeItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
         CoreUnroutedPipe dummyPipe = item.getDummyPipe();
         if (dummyPipe == null) {
+            return;
+        }
+        // The Request Table has no pipe-frame geometry at all: its placed form is a full solid
+        // block, so the item has to be drawn the same way instead of falling back to the pipe
+        // body below, which is what made it look like an ordinary pipe in the inventory.
+        if (dummyPipe instanceof PipeBlockRequestTable) {
+            pose.pushPose();
+            try {
+                LogisticsRenderPipe.renderRequestTableItem(pose, buffers, light, overlay);
+            } finally {
+                pose.popPose();
+            }
             return;
         }
         renderBaked(dummyPipe, pose, buffers, light, overlay);

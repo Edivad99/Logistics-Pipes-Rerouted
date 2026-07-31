@@ -18,6 +18,7 @@ import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -417,5 +418,14 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 
 	public boolean isPipeBlock() {
 		return false;
+	}
+
+	/**
+	 * Block-atlas sprite used for this pipe's break and hit particles, or null to use the
+	 * pipe frame's. Only pipes that do not draw the frame need to override this.
+	 */
+	@Nullable
+	public ResourceLocation getParticleSprite() {
+		return null;
 	}
 }

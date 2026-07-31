@@ -3,8 +3,13 @@ package logisticspipes.ticks;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import logisticspipes.LPConstants;
+import logisticspipes.client.model.mesh.MeshRenderer;
+import logisticspipes.client.model.mesh.ObjMesh;
+import logisticspipes.client.model.pipe.PipeModelStore;
+import logisticspipes.client.model.tube.TubeMeshes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.items.ItemLogisticsPipe;
+import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
@@ -86,7 +91,9 @@ public class RenderTickHandler {
 	@OnlyIn(Dist.CLIENT)
 	public void renderWorldLast(RenderLevelStageEvent worldEvent) {
 		// Only render once per frame, at the AFTER_PARTICLES stage.
-		if (worldEvent.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
+		if (worldEvent.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+            return;
+        }
 
 		PoseStack poseStack = worldEvent.getPoseStack();
 		float partialTick = worldEvent.getPartialTick().getGameTimeDeltaPartialTick(false);
@@ -98,7 +105,9 @@ public class RenderTickHandler {
 		bufferSource.endBatch();
 
 		// We are not holding an Item that needs to render a ghost pipe!
-		if (!displayPipeGhost()) return;
+		if (!displayPipeGhost()) {
+            return;
+        }
 
 		Minecraft mc = Minecraft.getInstance();
 		Player player = mc.player;
@@ -125,9 +134,8 @@ public class RenderTickHandler {
 		boolean isFreeSpace = true;
 		ITubeOrientation orientation = null;
 
-		if (pipe instanceof CoreMultiBlockPipe) {
-			CoreMultiBlockPipe multiPipe = (CoreMultiBlockPipe) pipe;
-			DoubleCoordinates placeAt = new DoubleCoordinates(pos);
+		if (pipe instanceof CoreMultiBlockPipe multiPipe) {
+            DoubleCoordinates placeAt = new DoubleCoordinates(pos);
 			LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> globalPos = new LPPositionSet<>(DoubleCoordinatesType.class);
 			globalPos.add(new DoubleCoordinatesType<>(placeAt, CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
 			LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> positions = multiPipe.getSubBlocks();
@@ -178,29 +186,34 @@ public class RenderTickHandler {
 		// every orientation of a tube came out nearly identical — a curve did not appear to swing
 		// left or right, and the S-curve, which is the gain model rolled a quarter turn about Z,
 		// looked exactly like a gain.
-		logisticspipes.client.model.mesh.ObjMesh ghost =
-			logisticspipes.client.model.tube.TubeMeshes.forPipe(pipe, orientation).mesh();
+		ObjMesh ghost = TubeMeshes.forPipe(pipe, orientation).mesh();
 		if (ghost.isEmpty()) {
-			ghost = logisticspipes.client.model.pipe.PipeModelStore.parts().highlight();
+			ghost = PipeModelStore.parts().highlight();
 		}
 		// 0x50 alpha, matching the alpha override the shared render state used to apply.
-		logisticspipes.client.model.mesh.MeshRenderer.emitRaw(ghostBuffer, poseStack.last(),
-			ghost, 0x50FFFFFF, packedLight, OverlayTexture.NO_OVERLAY);
+		MeshRenderer.emitRaw(ghostBuffer, poseStack.last(),
+            ghost, 0x50FFFFFF, packedLight, OverlayTexture.NO_OVERLAY);
 		bufferSource.endBatch();
 		poseStack.popPose();
 	}
 
 	private boolean displayPipeGhost() {
 		Player player = Minecraft.getInstance().player;
-		if (player == null) return false;
+		if (player == null) {
+            return false;
+        }
 
 		Inventory pInventory = player.getInventory();
-		if (pInventory == null) return false;
 
-		NonNullList<ItemStack> inv = pInventory.items;
-		if (inv == null) return false;
+        NonNullList<ItemStack> inv = pInventory.items;
 
-		return inv.size() > pInventory.selected
-				&& inv.get(pInventory.selected).getItem() instanceof ItemLogisticsPipe;
+        if (inv.size() <= pInventory.selected
+				|| !(inv.get(pInventory.selected).getItem() instanceof ItemLogisticsPipe pipeItem)) {
+			return false;
+		}
+
+		// The Request Table places as a full solid block, not as a pipe frame, so the pipe ghost
+		// would preview geometry that has nothing to do with what gets placed.
+		return !(pipeItem.getDummyPipe() instanceof PipeBlockRequestTable);
 	}
 }

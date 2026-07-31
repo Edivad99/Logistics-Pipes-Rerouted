@@ -89,6 +89,42 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     private static TextureAtlasSprite requestTableSprite = null;
 
     /**
+     * LP1's {@code blocks/requesttable/requesttexture}, stitched into the block atlas by the
+     * {@code blocks/} directory source. Looked up lazily because the atlas does not exist yet
+     * when this class is loaded.
+     */
+    @Nullable
+    private static TextureAtlasSprite requestTableSprite() {
+        if (requestTableSprite == null) {
+            requestTableSprite = Minecraft.getInstance()
+                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
+                .apply(LPConstants.rl("blocks/requesttable/requesttexture"));
+        }
+        return requestTableSprite;
+    }
+
+    /**
+     * Draws the Request Table's inventory form: the same solid-block body the placed table uses,
+     * unrotated and with every cover plate present. Without this the item falls back to the pipe
+     * geometry of {@link LogisticsPipeItemRenderer} and shows up as an ordinary pipe.
+     */
+    public static void renderRequestTableItem(PoseStack poseStack, MultiBufferSource bufferSource,
+        int packedLight, int packedOverlay) {
+        SolidBlockModelParts parts = PipeModelStore.solidBlock();
+        TextureAtlasSprite sprite = requestTableSprite();
+        if (parts.isEmpty() || sprite == null) {
+            return;
+        }
+
+        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
+        MeshRenderer.emit(buffer, poseStack.last(), parts.body(0), sprite, packedLight, packedOverlay);
+        for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
+            MeshRenderer.emit(buffer, poseStack.last(), parts.outerPlate(side, 0), sprite, packedLight, packedOverlay);
+            MeshRenderer.emit(buffer, poseStack.last(), parts.innerPlate(side, 0), sprite, packedLight, packedOverlay);
+        }
+    }
+
+    /**
      * Draws the Request Table's full block body. Port of the dead 1.12
      * LogisticsNewPipeWorldRenderer request-table branch onto the
      * {@link LogisticsSolidBlockRenderer#renderSolid} draw path: the shared solid-block OBJ
@@ -135,12 +171,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             return;
         }
 
-        if (requestTableSprite == null) {
-            requestTableSprite = Minecraft.getInstance()
-                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .apply(LPConstants.rl("blocks/requesttable/requesttexture"));
-        }
-        if (requestTableSprite == null) {
+        TextureAtlasSprite sprite = requestTableSprite();
+        if (sprite == null) {
             return;
         }
 
@@ -151,7 +183,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
         MeshRenderer.emit(buffer, poseStack.last(),
-            parts.body(rotation), requestTableSprite, packedLight, packedOverlay);
+            parts.body(rotation), sprite, packedLight, packedOverlay);
 
         for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
             // Plates are skipped where a pipe connects, so adjacent pipes visually enter the
@@ -160,9 +192,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
                 continue;
             }
             MeshRenderer.emit(buffer, poseStack.last(),
-                parts.outerPlate(side, rotation), requestTableSprite, packedLight, packedOverlay);
+                parts.outerPlate(side, rotation), sprite, packedLight, packedOverlay);
             MeshRenderer.emit(buffer, poseStack.last(),
-                parts.innerPlate(side, rotation), requestTableSprite, packedLight, packedOverlay);
+                parts.innerPlate(side, rotation), sprite, packedLight, packedOverlay);
         }
     }
 

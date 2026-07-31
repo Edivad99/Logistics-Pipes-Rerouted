@@ -4,13 +4,16 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -137,6 +140,25 @@ public class PipeBakedModel implements IDynamicBakedModel {
     public TextureAtlasSprite getParticleIcon() {
         TextureAtlasSprite sprite = PipeModelStore.sprites().basicPipe();
         return sprite != null ? sprite : fallback.getParticleIcon();
+    }
+
+    /**
+     * Break and hit particles go through this overload, which is where a pipe that does not
+     * draw the frame — the request table — gets to name its own sprite through
+     * {@link PipeModelProperties#PARTICLE_SPRITE}.
+     */
+    @Override
+    public TextureAtlasSprite getParticleIcon(ModelData modelData) {
+        ResourceLocation name = modelData.get(PipeModelProperties.PARTICLE_SPRITE);
+        if (name != null) {
+            TextureAtlasSprite sprite = Minecraft.getInstance()
+                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
+                .apply(name);
+            if (sprite != null) {
+                return sprite;
+            }
+        }
+        return getParticleIcon();
     }
 
     @Override

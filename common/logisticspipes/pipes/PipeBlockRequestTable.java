@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
+import logisticspipes.LPConstants;
 import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.AutoCraftingContainer;
@@ -40,6 +41,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -636,5 +638,14 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	@Override
 	public boolean isPipeBlock() {
 		return true;
+	}
+
+	/**
+	 * Break and hit particles come from the block body's texture, not the pipe frame's, since
+	 * the frame is never drawn for this pipe.
+	 */
+	@Override
+	public ResourceLocation getParticleSprite() {
+		return LPConstants.rl("blocks/requesttable/requesttexture");
 	}
 }
