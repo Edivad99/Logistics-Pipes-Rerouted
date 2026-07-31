@@ -16,7 +16,6 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-import logisticspipes.LogisticsPipes;
 import logisticspipes.client.particle.SparkParticle;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
 import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
@@ -26,7 +25,7 @@ import logisticspipes.client.model.pipe.PipeModelRegistration;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
-import logisticspipes.renderer.LogisticsPipeItemRenderer;
+import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
 import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
