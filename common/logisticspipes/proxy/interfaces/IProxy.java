@@ -2,9 +2,7 @@ package logisticspipes.proxy.interfaces;
 
 import javax.annotation.Nullable;
 
-import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.resources.ResourceLocation;
@@ -20,9 +18,7 @@ public interface IProxy {
      */
 	@Nullable Level getWorld();
 
-	void registerTileEntities();
-
-	Player getClientPlayer();
+    Player getClientPlayer();
 
 	void addLogisticsPipesOverride(Object par1IIconRegister, int index, String override1, String override2, boolean flag);
 
@@ -30,9 +26,7 @@ public interface IProxy {
 
 	void updateNames(ItemIdentifier item, String name);
 
-	void tick();
-
-	void sendNameUpdateRequest(Player player);
+    void sendNameUpdateRequest(Player player);
 
 	@Nullable LogisticsTileGenericPipe getPipeInDimensionAt(ResourceLocation dimension, int x, int y, int z, Player player);
 
@@ -42,19 +36,9 @@ public interface IProxy {
 
 	void tickClient();
 
-	void setIconProviderFromPipe(ItemLogisticsPipe item, CoreUnroutedPipe dummyPipe);
-
-	LogisticsModule getModuleFromGui();
+    LogisticsModule getModuleFromGui();
 
 	boolean checkSinglePlayerOwner(String commandSenderName);
 
 	void openFluidSelectGui(int slotId);
-
-	default void registerModels() {}
-
-	void registerTextures();
-
-	void initModelLoader();
-
-	int getRenderIndex();
 }

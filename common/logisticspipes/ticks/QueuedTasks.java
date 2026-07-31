@@ -13,7 +13,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public class QueuedTasks {
 
 	@SuppressWarnings("rawtypes")
-	private static LinkedList<Callable> queue = new LinkedList<>();
+	private static final LinkedList<Callable> queue = new LinkedList<>();
 
 	// called on server shutdown only.
 	public static void clearAllTasks() {
@@ -43,7 +43,6 @@ public class QueuedTasks {
 				}
 			}
 		}
-		MainProxy.getProxy(false).tick();
 		synchronized (LPTravelingItem.forceKeep) {
 			Iterator<Pair<Integer, Object>> iter = LPTravelingItem.forceKeep.iterator();
 			while (iter.hasNext()) {

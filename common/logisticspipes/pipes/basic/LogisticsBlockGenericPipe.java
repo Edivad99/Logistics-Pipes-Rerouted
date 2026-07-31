@@ -53,7 +53,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -79,9 +78,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	public static Map<DoubleCoordinates, CoreUnroutedPipe> pipeRemoved = new HashMap<>();
 	public static Map<DoubleCoordinates, BlockPos> pipeSubMultiRemoved = new HashMap<>();
 	private static long lastRemovedDate = -1;
-	protected final Random rand = new Random();
 
-	public static final IntegerProperty rotationProperty = IntegerProperty.create("rotation", 0, 3);
+    public static final IntegerProperty rotationProperty = IntegerProperty.create("rotation", 0, 3);
 	public static final EnumProperty<PipeRenderModel> modelTypeProperty = EnumProperty.create("model_type", PipeRenderModel.class);
 	public static final Map<Direction, BooleanProperty> connectionPropertys = Arrays.stream(Direction.values()).collect(Collectors
 			.toMap(key -> key, key -> BooleanProperty.create("connection_" + key.ordinal())));
@@ -313,6 +311,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return placed;
 	}
 
+    @Nullable
 	public static CoreUnroutedPipe getPipe(BlockGetter blockAccess, BlockPos pos) {
 		BlockEntity tile = blockAccess.getBlockEntity(pos);
 
@@ -323,7 +322,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		}
 	}
 
-	public static boolean isFullyDefined(CoreUnroutedPipe pipe) {
+	public static boolean isFullyDefined(@Nullable CoreUnroutedPipe pipe) {
 		return pipe != null && pipe.transport != null && pipe.container != null;
 	}
 
@@ -533,6 +532,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return doRayTrace(world, pos, start, end);
 	}
 
+    @Nullable
 	public InternalRayTraceResult doRayTrace(Level world, BlockPos pos, Vec3 start, Vec3 end) {
 		BlockEntity te = world.getBlockEntity(pos);
 

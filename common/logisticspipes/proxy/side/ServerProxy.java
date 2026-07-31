@@ -2,9 +2,7 @@ package logisticspipes.proxy.side;
 
 import javax.annotation.Nullable;
 
-import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.interfaces.IProxy;
@@ -17,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class ServerProxy implements IProxy {
@@ -38,10 +36,7 @@ public class ServerProxy implements IProxy {
 		return null;
 	}
 
-	@Override
-	public void registerTileEntities() {}
-
-	@Override
+    @Override
 	public Player getClientPlayer() {
 		return null;
 	}
@@ -54,10 +49,7 @@ public class ServerProxy implements IProxy {
 	@Override
 	public void updateNames(ItemIdentifier item, String name) {}
 
-	@Override
-	public void tick() {}
-
-	@Override
+    @Override
 	public void sendNameUpdateRequest(Player player) {}
 
 	@Override
@@ -89,7 +81,7 @@ public class ServerProxy implements IProxy {
 	@Override
 	public void sendBroadCast(String message) {
 		var server = ServerLifecycleHooks.getCurrentServer();
-		if (server != null && server.getPlayerList() != null) {
+		if (server != null) {
 			for (ServerPlayer p : server.getPlayerList().getPlayers()) {
 				p.sendSystemMessage(Component.literal("[LP] Server: " + message));
 			}
@@ -104,10 +96,7 @@ public class ServerProxy implements IProxy {
 	@Override
 	public void tickClient() {}
 
-	@Override
-	public void setIconProviderFromPipe(ItemLogisticsPipe item, CoreUnroutedPipe dummyPipe) {}
-
-	@Override
+    @Override
 	public LogisticsModule getModuleFromGui() {
 		return null;
 	}
@@ -120,14 +109,4 @@ public class ServerProxy implements IProxy {
 	@Override
 	public void openFluidSelectGui(int slotId) {}
 
-	@Override
-	public void registerTextures() {}
-
-	@Override
-	public void initModelLoader() {}
-
-	@Override
-	public int getRenderIndex() {
-		return 0;
-	}
 }

@@ -5,14 +5,11 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import logisticspipes.gui.popup.SelectItemOutOfList;
-import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.DummyContainerSlotClick;
-import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.IProxy;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
@@ -45,13 +42,7 @@ public class ClientProxy implements IProxy {
 		return Minecraft.getInstance().level;
 	}
 
-	@Override
-	public void registerTileEntities() {
-		// BlockEntityRenderer registration is handled via EntityRenderersEvent.RegisterRenderers
-		// in LogisticsPipes.registerRenderers() — nothing to do here except initialise the render list.
-	}
-
-	@Override
+    @Override
 	public Player getClientPlayer() {
 		return Minecraft.getInstance().player;
 	}
@@ -64,10 +55,7 @@ public class ClientProxy implements IProxy {
 	@Override
 	public void updateNames(ItemIdentifier item, String name) {}
 
-	@Override
-	public void tick() {}
-
-	@Override
+    @Override
 	public void sendNameUpdateRequest(Player player) {}
 
 	@Override
@@ -126,12 +114,7 @@ public class ClientProxy implements IProxy {
 		MainProxy.addTick();
 	}
 
-	@Override
-	public void setIconProviderFromPipe(ItemLogisticsPipe item, CoreUnroutedPipe dummyPipe) {
-		// TODO: IIconProvider → deferred to renderer migration
-	}
-
-	@Override
+    @Override
 	public LogisticsModule getModuleFromGui() {
 		var screen = Minecraft.getInstance().screen;
 		if (screen instanceof logisticspipes.gui.modules.ModuleBaseGui g) return g.getModule();
@@ -176,24 +159,4 @@ public class ClientProxy implements IProxy {
 		}
 	}
 
-	@Override
-	public void registerModels() {
-		// Model registration migrated to ModelEvent.RegisterAdditional / baked-model system
-	}
-
-	@Override
-	public void registerTextures() {
-		// TextureAtlas sprite registration migrated to RegisterAtlasSpritesEvent
-		renderIndex++;
-	}
-
-	@Override
-	public void initModelLoader() {
-		// TODO: IModelLoader → IUnbakedModel system in 1.20.1; deferred to renderer migration
-	}
-
-	@Override
-	public int getRenderIndex() {
-		return renderIndex;
-	}
 }
