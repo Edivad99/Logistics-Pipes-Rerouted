@@ -1,30 +1,28 @@
-package logisticspipes.renderer;
+package logisticspipes.client.renderer.blockentity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.phys.AABB;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Quaternionf;
@@ -35,7 +33,6 @@ import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.solid.SolidBlockModelParts;
 import logisticspipes.client.model.tube.TubeMeshes;
-import logisticspipes.client.renderer.blockentity.LogisticsSolidBlockRenderer;
 import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
@@ -58,12 +55,24 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
     private static final int LIQUID_STAGES = 40;
     private static final int MAX_ITEMS_TO_RENDER = 10;
-    private static final ResourceLocation SIGN = ResourceLocation.withDefaultNamespace("textures/entity/sign.png");
+    /**
+     * Depth left to an item drawn on a sign, as a fraction of its width. See {@link #renderItemStackOnSign}.
+     */
+    private static final float FLAT_ITEM_DEPTH = 0.02F;
+    private static final WoodType TYPE = WoodType.OAK;
     public static LogisticsNewPipeItemBoxRenderer boxRenderer = new LogisticsNewPipeItemBoxRenderer();
     public static ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
     private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
 
+    @Nullable
+    private static TextureAtlasSprite requestTableSprite = null;
+
+    private final SignRenderer.SignModel signModel;
+
     public LogisticsRenderPipe(BlockEntityRendererProvider.Context context) {
+        signModel = SignRenderer.createSignModel(context.getModelSet(), TYPE);
+        // A pipe sign hangs on the pipe, so it never has the standing sign's post.
+        signModel.stick.visible = false;
     }
 
     @Override
@@ -78,15 +87,12 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         // itself now lives in the chunk mesh, supplied by PipeBakedModel.
         poseStack.pushPose();
         try {
-            renderInternal(blockEntity, 0, 0, 0, partialTicks, -1, 1.0f, poseStack, bufferSource, packedLight,
+            renderInternal(blockEntity, 0, 0, 0, partialTicks, poseStack, bufferSource, packedLight,
                 packedOverlay);
         } finally {
             poseStack.popPose();
         }
     }
-
-    @Nullable
-    private static TextureAtlasSprite requestTableSprite = null;
 
     /**
      * LP1's {@code blocks/requesttable/requesttexture}, stitched into the block atlas by the
@@ -199,8 +205,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     }
 
     private void renderInternal(@Nullable LogisticsTileGenericPipe blockEntity, double x, double y, double z,
-        float partialTicks, int destroyStage, float alpha,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+        float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         // In 1.20.1 the BER PoseStack is pre-translated, so we always pass (0,0,0).
         // Use blockEntity==null as the sole in-hand signal instead.
         boolean inHand = (blockEntity == null);
@@ -216,14 +221,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.pushPose();
         try {
             if (!inHand && blockEntity.pipe instanceof CoreRoutedPipe) {
-                renderPipeSigns((CoreRoutedPipe) blockEntity.pipe, x, y, z, partialTicks, poseStack, bufferSource,
-                    packedLight, packedOverlay);
+                renderPipeSigns((CoreRoutedPipe) blockEntity.pipe, x, y, z, poseStack, bufferSource,
+                    packedLight);
             }
-
-            double distance = !inHand ?
-                new DoubleCoordinates((BlockEntity) blockEntity).distanceTo(
-                    new DoubleCoordinates(Minecraft.getInstance().player)) :
-                0;
 
             // The Request Table is an isPipeBlock() pipe, so the pipe baked model holds no
             // geometry for it and the 1.12 ISimpleBlockRenderingHandler that drew its block
@@ -401,8 +401,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         return result;
     }
 
-    private void renderPipeSigns(CoreRoutedPipe pipe, double x, double y, double z, float partialTickTime,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    private void renderPipeSigns(CoreRoutedPipe pipe, double x, double y, double z,
+        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         List<Pair<Direction, IPipeSign>> pipeSigns = pipe.getPipeSigns();
         if (pipe.container != null && !pipeSigns.isEmpty()) {
             for (Pair<Direction, IPipeSign> pair : pipeSigns) {
@@ -444,26 +444,32 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
                         break;
                     default:
                 }
-                renderSign(pipe, pair.getValue2(), partialTickTime, poseStack, bufferSource, packedLight);
+                renderSign(pipe, pair.getValue2(), poseStack, bufferSource, packedLight);
                 poseStack.popPose();
             }
         }
     }
 
-    private void renderSign(CoreRoutedPipe pipe, IPipeSign type, float partialTickTime, PoseStack poseStack,
-        MultiBufferSource bufferSource, int packedLight) {
-        // ModelSign background rendering deferred; delegate text/item rendering to the sign.
+    private void renderSign(CoreRoutedPipe pipe, IPipeSign type, PoseStack poseStack, MultiBufferSource bufferSource,
+        int packedLight) {
+        final float signScale = 2 / 3.0F;
+
+        poseStack.translate(0.0F, -0.3125F, -0.36F);
+        poseStack.mulPose(new Quaternionf().rotationY((float) Math.PI));
+
+        poseStack.pushPose();
+        try {
+            poseStack.scale(signScale, -signScale, -signScale);
+            VertexConsumer buffer = Sheets.getSignMaterial(TYPE).buffer(bufferSource, signModel::renderType);
+            signModel.root.render(poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY);
+        } finally {
+            poseStack.popPose();
+        }
+
+        // Onto the front face of the board just drawn; the sign type positions its own text and
+        // items from there.
+        poseStack.translate(-0.32F, 0.5F * signScale + 0.08F, 0.07F * signScale);
         type.render(pipe, this, poseStack, bufferSource, packedLight);
-    }
-
-    private void resetStateManager() {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-    }
-
-    public void renderItemStackOnSign(ItemStack itemstack) {
-        // Legacy no-arg stub — rendering deferred. Use the PoseStack overload instead.
     }
 
     public void renderItemStackOnSign(ItemStack itemstack, PoseStack poseStack, MultiBufferSource bufferSource,
@@ -473,12 +479,18 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         }
         poseStack.pushPose();
         // Position the item onto the front face of the sign and scale it down to fit.
-        poseStack.translate(0.0F, 0.08F, 0.0F);
-        poseStack.scale(0.45F, 0.45F, 0.45F);
+        poseStack.translate(0.0F, 0.0F, 0.0F);
+        // Flattened along the sign's normal, which is what makes a block item read as a picture
+        // on the plank rather than a cube sticking out of it. The GUI display context has
+        // already put the model in its inventory pose by the time this scale applies, so
+        // collapsing depth here leaves exactly the inventory icon's silhouette, drawn in the
+        // plane of the sign. Not zero: the faces still need distinct depths to sort against
+        // each other, they just need a thickness nobody can see.
+        poseStack.scale(0.25F, 0.25F, 0.25F * FLAT_ITEM_DEPTH);
         Level level = Minecraft.getInstance().level;
         Minecraft.getInstance().getItemRenderer().renderStatic(
             itemstack,
-            ItemDisplayContext.FIXED,
+            ItemDisplayContext.GUI,
             packedLight,
             OverlayTexture.NO_OVERLAY,
             poseStack,

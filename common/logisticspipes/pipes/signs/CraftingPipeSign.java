@@ -14,7 +14,7 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.cpipe.CPipeSatelliteImportBack;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.renderer.LogisticsRenderPipe;
+import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;

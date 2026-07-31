@@ -719,6 +719,17 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			return;
 		}
 
+		// The client never reaches the initialize() call in update() — that whole branch is
+		// server-only — and when the tile arrives with its NBT, loadAdditional() has already
+		// filled the pipe field, so the branch above does not fire either. The client tile
+		// would stay "uninitialised" for as long as it lives, and every packet gated on
+		// isInitialized() (pipe sign types, sign amounts) was dropped without a trace: signs
+		// placed on a pipe never appeared client-side, and opening their GUI NPE'd on a sign
+		// the client had never been told about.
+		if (!initialized) {
+			initialize(pipe);
+		}
+
 		level.sendBlockUpdated(worldPosition, level.getBlockState(worldPosition), level.getBlockState(worldPosition), 3);
 
 		if (renderState.needsRenderUpdate()) {

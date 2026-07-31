@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -65,19 +66,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
 			return InteractionResult.FAIL;
 		}
 
-        itemStack.update(
-            DataComponents.CUSTOM_DATA,
-            CustomData.EMPTY,
-            customData -> {
-                CompoundTag tag = customData.copyTag();
-                tag.putInt("PipeClicked", 0);
-                return CustomData.of(tag);
-            }
-        );
-
-		var tag = Objects.requireNonNull(itemStack.get(DataComponents.CUSTOM_DATA)).copyTag();
-
-		int mode = tag.getInt("CreatorMode");
+		int mode = getMode(itemStack);
 
         if (!(genericPipe.pipe instanceof CoreRoutedPipe pipe)) {
 			return InteractionResult.FAIL;
@@ -96,6 +85,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
 						sign.addSignTo(pipe, facing, player);
 						return InteractionResult.SUCCESS;
 					} else {
+						player.displayClientMessage(Component.literal("This sign type can't be placed on this pipe."), true);
 						return InteractionResult.FAIL;
 					}
 				} catch (InstantiationException | IllegalAccessException e) {
@@ -114,8 +104,12 @@ public class ItemPipeSignCreator extends LogisticsItem {
 		}
 	}
 
-	// getMetadata removed in 1.20.1 — item variants handled differently
-	public int getMetadata(ItemStack stack) {
+	/**
+	 * Index into {@link #signTypes} of the sign this creator currently places. Also what the
+	 * {@code logisticspipes:creator_mode} model predicate reads, so the item shows which type
+	 * is selected — LP1 showed that through the stack's metadata.
+	 */
+	public static int getMode(ItemStack stack) {
 		if (stack.isEmpty() || !stack.has(DataComponents.CUSTOM_DATA)) {
 			return 0;
 		}
@@ -141,22 +135,15 @@ public class ItemPipeSignCreator extends LogisticsItem {
                 CustomData.EMPTY,
                 customData -> {
                     CompoundTag tag = customData.copyTag();
-                    if (!tag.contains("PipeClicked")) {
-                        int mode = tag.getInt("CreatorMode");
-                        mode++;
-                        if (mode >= ItemPipeSignCreator.signTypes.size()) {
-                            mode = 0;
-                        }
-                        tag.putInt("CreatorMode", mode);
+                    int mode = tag.getInt("CreatorMode");
+                    mode++;
+                    if (mode >= ItemPipeSignCreator.signTypes.size()) {
+                        mode = 0;
                     }
+                    tag.putInt("CreatorMode", mode);
                     return CustomData.of(tag);
                 }
             );
-		}
-		if (stack.has(DataComponents.CUSTOM_DATA)) {
-			var tag = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
-			tag.remove("PipeClicked");
-			stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 		}
 		return InteractionResultHolder.success(stack);
 	}

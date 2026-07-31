@@ -150,14 +150,6 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "logisticspipes:items/sign_creator.0"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:items/sign_creator.1"
-    },
-    {
-      "type": "minecraft:single",
       "resource": "logisticspipes:solid_block/crafting_table"
     },
     {

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget; // was net.minecraft.client.sha
 import com.mojang.blaze3d.vertex.PoseStack;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.renderer.LogisticsRenderPipe;
+import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;

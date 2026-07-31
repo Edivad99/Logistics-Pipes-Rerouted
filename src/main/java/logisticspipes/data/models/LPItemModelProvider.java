@@ -2,6 +2,7 @@ package logisticspipes.data.models;
 
 import net.minecraft.data.PackOutput;
 
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
@@ -25,8 +26,9 @@ public class LPItemModelProvider extends ItemModelProvider {
         this.basicItem(LPItems.BROKEN_ITEM.get());
         this.basicItem(LPItems.GUIDE_BOOK.get());
 
+        this.signCreator();
+
         //        this.basicItem(LPItems.REMOTE_ORDERER.get());
-        //        this.basicItem(LPItems.SIGN_CREATOR.get());
         //        this.basicItem(LPItems.PARTS.get());
         //        this.basicItem(LPItems.FLUID_CONTAINER.get());
 
@@ -40,5 +42,24 @@ public class LPItemModelProvider extends ItemModelProvider {
         this.basicItem(LPItems.MODULE_BLANK.get());
         LPItems.modules.forEach((name, rl) -> this.basicItem(rl));
         LPItems.upgrades.forEach((name, rl) -> this.basicItem(rl));
+    }
+
+    private void signCreator() {
+        final String[] SIGN_CREATOR_MODES = { "crafting", "item_amount" };
+        String name = LPItems.SIGN_CREATOR.getId().getPath();
+
+        ItemModelBuilder base =
+            withExistingParent(name, mcLoc("item/generated"))
+            .texture("layer0", LPConstants.rl("item/" + name + "_" + SIGN_CREATOR_MODES[0]));
+
+        for (int mode = 0; mode < SIGN_CREATOR_MODES.length; mode++) {
+            ItemModelBuilder variant =
+                withExistingParent(name + "_" + SIGN_CREATOR_MODES[mode], mcLoc("item/generated"))
+                .texture("layer0", LPConstants.rl("item/" + name + "_" + SIGN_CREATOR_MODES[mode]));
+
+            if (mode > 0) {
+                base.override().predicate(LPConstants.rl("creator_mode"), mode).model(variant).end();
+            }
+        }
     }
 }

@@ -52,9 +52,6 @@ public class LPSpriteSourceProvider extends SpriteSourceProvider {
         }
 
         atlas(SpriteSourceProvider.BLOCKS_ATLAS)
-            .addSource(singleFile("items/sign_creator.0"))
-            .addSource(singleFile("items/sign_creator.1"))
-
             .addSource(singleFile("solid_block/crafting_table"))
             .addSource(singleFile("solid_block/crafting_table_fuzzy"))
             .addSource(singleFile("solid_block/frame"))

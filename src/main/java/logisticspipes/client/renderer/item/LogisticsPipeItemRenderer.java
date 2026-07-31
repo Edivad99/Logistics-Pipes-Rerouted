@@ -22,7 +22,7 @@ import logisticspipes.client.model.tube.TubeMeshes;
 import logisticspipes.items.ItemLogisticsPipe;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.renderer.LogisticsRenderPipe;
+import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.renderer.state.PipeRenderState;
 
 /**

@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.item.ItemProperties;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -16,6 +17,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
+import logisticspipes.LPConstants;
 import logisticspipes.client.particle.SparkParticle;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
 import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
@@ -23,6 +25,7 @@ import logisticspipes.client.gui.screen.ProgramCompilerScreen;
 import logisticspipes.client.model.ObjModelManager;
 import logisticspipes.client.model.pipe.PipeModelRegistration;
 import logisticspipes.particle.LPParticleTypes;
+import logisticspipes.items.ItemPipeSignCreator;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
 import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
@@ -75,6 +78,14 @@ public class ClientManager {
 
         // Fluid container "filled" model predicate (client-only class, stays in the guard).
         FluidContainerRenderer.registerItemProperties();
+
+        // Which sign the creator will place. LP1 carried this on the stack's metadata, which
+        // picked the item model on its own; a predicate is how that is expressed now, and
+        // without it the tool looks identical whatever type is selected.
+        ItemProperties.register(
+            LPItems.SIGN_CREATOR.get(),
+            LPConstants.rl("creator_mode"),
+            (stack, level, entity, seed) -> ItemPipeSignCreator.getMode(stack));
 
         // OBJ geometry is no longer preloaded here: ObjModelManager parses it as a resource
         // reload listener (see handleRegisterReloadListeners), off the render thread and

@@ -3,6 +3,7 @@ package logisticspipes.network.guis.item;
 import java.util.Objects;
 import logisticspipes.gui.ItemAmountSignCreationGui;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
+import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -30,10 +31,16 @@ public class ItemAmountSignGui extends CoordinatesGuiProvider {
 	@Override
 	public Object getClientGui(Player player) {
 		LogisticsTileGenericPipe pipe = getTileAs(player.level(), LogisticsTileGenericPipe.class);
-		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
+		if (!(pipe.pipe instanceof CoreRoutedPipe routedPipe)) {
 			return null;
 		}
-		return new ItemAmountSignCreationGui(player, (CoreRoutedPipe) pipe.pipe, dir);
+		// The sign itself is what the GUI is built around, and it reaches the client in its own
+		// packet. Asking for a retry beats dereferencing null: TargetNotFoundException is a
+		// DelayPacketException, so the handler re-queues this packet instead of crashing.
+		if (!(routedPipe.getPipeSign(dir) instanceof ItemAmountPipeSign)) {
+			throw new TargetNotFoundException("No item amount sign on side " + dir + " yet", this);
+		}
+		return new ItemAmountSignCreationGui(player, routedPipe, dir);
 	}
 
 	@Override

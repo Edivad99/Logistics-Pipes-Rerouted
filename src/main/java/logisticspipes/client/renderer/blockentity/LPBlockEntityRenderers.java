@@ -2,7 +2,6 @@ package logisticspipes.client.renderer.blockentity;
 
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
-import logisticspipes.renderer.LogisticsRenderPipe;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
 public class LPBlockEntityRenderers {

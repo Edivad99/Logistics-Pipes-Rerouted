@@ -14,7 +14,7 @@ import logisticspipes.network.packets.pipe.ItemAmountSignUpdatePacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.renderer.LogisticsRenderPipe;
+import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;

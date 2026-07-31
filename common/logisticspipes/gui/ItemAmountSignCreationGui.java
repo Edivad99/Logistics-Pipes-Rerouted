@@ -19,7 +19,7 @@ public class ItemAmountSignCreationGui extends LogisticsBaseGuiScreen {
 		ItemAmountPipeSign sign = ((ItemAmountPipeSign) pipe.getPipeSign(dir));
 		DummyContainer dummy = new DummyContainer(player.getInventory(), sign.itemTypeInv);
 		dummy.addDummySlot(0, 10, 13);
-		dummy.addNormalSlotsForPlayerInventory(10, 40);
+		dummy.addNormalSlotsForPlayerInventory(11, 41);
 		return dummy;
 	}
 
