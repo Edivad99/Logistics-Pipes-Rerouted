@@ -56,6 +56,8 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -787,6 +789,7 @@ public class PipeTransportLogistics {
 		this.injectItem((LPTravelingItem) SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend), Direction.UP);
 	}
 
+    @Nullable
 	public Level getWorld() {
 		return container.getLevel();
 	}
@@ -799,6 +802,7 @@ public class PipeTransportLogistics {
 		container = tile;
 	}
 
+    @Nullable
 	public CoreUnroutedPipe getNextPipe(Direction output) {
 		BlockEntity tile = container.getTile(output);
 		if (tile instanceof LogisticsTileGenericPipe) {

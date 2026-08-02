@@ -345,7 +345,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.popPose();
     }
 
-    public void doRenderItem(ItemStack itemstack, Level world, double x, double y, double z, float light,
+    public void doRenderItem(ItemStack itemstack, @Nullable Level level, double x, double y, double z, float light,
         float renderScale, double boxScale, double yaw, double pitch, double yawForPitch, float partialTickTime,
         PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         LogisticsRenderPipe.boxRenderer.doRenderItem(itemstack, light, x, y, z, boxScale, yaw, pitch, yawForPitch,
@@ -362,7 +362,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
         // In 1.12.2 the -0.35 offset compensated for EntityItem's foot-to-center gap; in 1.20.1
         // ir.renderStatic(GROUND) has no such offset, so we leave the item centred in the pipe.
-        itemRenderer.setItemstack(itemstack).setWorld(world).setPartialTickTime(partialTickTime);
+        itemRenderer.setItemstack(itemstack).setWorld(level).setPartialTickTime(partialTickTime);
         itemRenderer.renderInWorld(poseStack, bufferSource, packedLight, packedOverlay);
         poseStack.popPose();
     }

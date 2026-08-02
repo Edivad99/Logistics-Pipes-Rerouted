@@ -51,10 +51,12 @@ import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -68,18 +70,18 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	public final Player _entityPlayer;
 	protected final String _title = "Request items";
 	public ItemDisplay itemDisplay;
-	public net.minecraft.resources.ResourceLocation dimension;
+	public ResourceLocation dimension;
 	protected DisplayOptions displayOptions = DisplayOptions.Both;
 	private SmallGuiButton macroButton;
 	private InputBar search;
 	private boolean showRequest = true;
 	private int startLeft;
 	private int startXSize;
-	private BitSet handledExtension = new BitSet();
+	private final BitSet handledExtension = new BitSet();
 	private int orderIdForButton;
-	private AbstractButton[] cycleButtons = new AbstractButton[2];
-	private IChainAddList<AbstractButton> moveWhileSmall = new ChainAddArrayList<>();
-	private IChainAddList<AbstractButton> hideWhileSmall = new ChainAddArrayList<>();
+	private final AbstractButton[] cycleButtons = new AbstractButton[2];
+	private final IChainAddList<AbstractWidget> moveWhileSmall = new ChainAddArrayList<>();
+	private final IChainAddList<AbstractWidget> hideWhileSmall = new ChainAddArrayList<>();
 	private AbstractButton hideShowButton;
 	private GuiCheckBox popupCheck;
 
@@ -129,7 +131,9 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		}
 		super.init();
 
-		// super.init() → rebuildWidgets() already cleared prior widgets
+        moveWhileSmall.clear();
+		hideWhileSmall.clear();
+
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(0, right - 55, bottom - 25, 50, 20, "Request"), 0))); // Request
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(1, right - 15, topPos + 5, 10, 10, ">"), 1))); // Next page
 		addRenderableWidget(hideWhileSmall.addChain(wire(new SmallGuiButton(2, right - 90, topPos + 5, 10, 10, "<"), 2))); // Prev page
@@ -166,6 +170,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			search = new InputBar(font, this, leftPos + 205, bottom - 78, 200, 15);
 		}
 		search.reposition(leftPos + 205, bottom - 78, 200, 15);
+		addRenderableWidget(hideWhileSmall.addChain(search));
 
 		if (itemDisplay == null) {
 			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 205, topPos + 18, 200, imageHeight - 100, right - 104, bottom - 24, 36, new int[] { 1, 10, 64, 64 }, true);
@@ -178,13 +183,13 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			showRequest = false;
 			imageWidth = startXSize - 210;
 			leftPos = startLeft + 105;
-			for (AbstractButton button : moveWhileSmall) {
-				button.setX(button.getX() + 105);
+			for (AbstractWidget widget : moveWhileSmall) {
+                widget.setX(widget.getX() + 105);
 			}
 			hideShowButton.setX(hideShowButton.getX() + 90);
 			hideShowButton.setMessage(net.minecraft.network.chat.Component.literal("Show"));
-			for (AbstractButton button : hideWhileSmall) {
-				button.visible = false;
+			for (AbstractWidget widget : hideWhileSmall) {
+                widget.visible = false;
 			}
 			macroButton.visible = false;
 		}
@@ -204,8 +209,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			itemDisplay.renderPageNumber(right - 47, topPos + 6);
 
 			itemDisplay.renderAmount(getStackAmount());
-			//SearchInput
-			search.drawTextBox();
+			// The search bar draws itself, as a registered widget.
 
 			itemDisplay.renderSortMode(right - 103, bottom - 52);
 			itemDisplay.renderItemArea(0.0f);
@@ -374,21 +378,12 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	public void refreshItems() {
-		int integer;
-		switch (displayOptions) {
-			case Both:
-				integer = 0;
-				break;
-			case SupplyOnly:
-				integer = 1;
-				break;
-			case CraftOnly:
-				integer = 2;
-				break;
-			default:
-				integer = 3;
-		}
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setTilePos(_table.container).setDimension(dimension));
+		int integer = switch (displayOptions) {
+            case Both -> 0;
+            case SupplyOnly -> 1;
+            case CraftOnly -> 2;
+        };
+        MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setTilePos(_table.container).setDimension(dimension));
 	}
 
 	private SmallGuiButton wire(SmallGuiButton btn, int id) {
@@ -442,7 +437,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 					displayString = "Both";
 					break;
 			}
-			guibutton.setMessage(net.minecraft.network.chat.Component.literal(displayString));
+			guibutton.setMessage(Component.literal(displayString));
 			refreshItems();
 		} else if (id == 14) {
 			requestMatrix(1);
@@ -457,21 +452,21 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			if (showRequest) {
 				imageWidth = startXSize;
 				leftPos = startLeft;
-				for (AbstractButton button : moveWhileSmall) {
-					button.setX(button.getX() - 105);
+				for (AbstractWidget widget : moveWhileSmall) {
+					widget.setX(widget.getX() - 105);
 				}
 				hideShowButton.setX(hideShowButton.getX() - 90);
 			} else {
 				imageWidth = startXSize - 210;
 				leftPos = startLeft + 105;
-				for (AbstractButton button : moveWhileSmall) {
-					button.setX(button.getX() + 105);
+				for (AbstractWidget widget : moveWhileSmall) {
+                    widget.setX(widget.getX() + 105);
 				}
 				hideShowButton.setX(hideShowButton.getX() + 90);
 			}
 			hideShowButton.setMessage(Component.literal(showRequest ? "Hide" : "Show"));
-			for (AbstractButton button : hideWhileSmall) {
-				button.visible = showRequest;
+			for (AbstractWidget widget : hideWhileSmall) {
+                widget.visible = showRequest;
 			}
 			macroButton.visible = showRequest;
 			orderIdForButton = -1;

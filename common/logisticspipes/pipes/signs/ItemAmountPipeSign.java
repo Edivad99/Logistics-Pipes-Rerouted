@@ -23,6 +23,8 @@ import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.tuples.Pair;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
@@ -155,16 +157,10 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 		this.dir = dir;
 	}
 
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer) {
-		// Legacy no-arg entrypoint — handled via the PoseStack overload below.
-	}
-
-	@Override
+    @Override
 	@OnlyIn(Dist.CLIENT)
 	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-		Font var17 = net.minecraft.client.Minecraft.getInstance().font;
+		Font font = Minecraft.getInstance().font;
 		if (pipe != null) {
 			String name = "";
 			String idStr = "";
@@ -199,19 +195,19 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 			}
 
 			if (!idStr.isEmpty()) {
-				var17.drawInBatch(Component.literal(idStr), -var17.width(idStr) / 2.0F, 0 * 10 - 4 * 5, 0,
+				font.drawInBatch(Component.literal(idStr), -font.width(idStr) / 2.0F, 0 * 10 - 4 * 5, 0,
 						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 			}
 			if (displayAmount != null) {
-				var17.drawInBatch(Component.literal("Amount:"), -var17.width("Amount:") / 2.0F, 1 * 10 - 4 * 5, 0,
+				font.drawInBatch(Component.literal("Amount:"), -font.width("Amount:") / 2.0F, 1 * 10 - 4 * 5, 0,
 						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
-				var17.drawInBatch(Component.literal(displayAmount), -var17.width(displayAmount) / 2.0F, 2 * 10 - 4 * 5, 0,
+				font.drawInBatch(Component.literal(displayAmount), -font.width(displayAmount) / 2.0F, 2 * 10 - 4 * 5, 0,
 						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 			}
 
-			name = renderer.cut(name, var17);
+			name = renderer.cut(name, font);
 
-			var17.drawInBatch(Component.literal(name), -var17.width(name) / 2.0F - 15, 3 * 10 - 4 * 5, 0,
+			font.drawInBatch(Component.literal(name), -font.width(name) / 2.0F - 15, 3 * 10 - 4 * 5, 0,
 					false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 
 			poseStack.popPose();

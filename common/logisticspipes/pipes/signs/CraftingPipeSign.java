@@ -2,6 +2,7 @@ package logisticspipes.pipes.signs;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.Nullable;
 import com.mojang.blaze3d.pipeline.MainTarget;
@@ -33,6 +34,7 @@ public class CraftingPipeSign implements IPipeSign {
 	public Direction dir;
 
 	private Object fbo;
+    @Nullable
 	private ItemIdentifierStack oldRenderedStack = null;
 	private String oldSatelliteName = "";
 
@@ -75,17 +77,11 @@ public class CraftingPipeSign implements IPipeSign {
 	@Override
 	public void activate(Player player) {}
 
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer) {
-		// Legacy no-arg entrypoint — handled via the PoseStack overload below.
-	}
-
-	@Override
+    @Override
 	@OnlyIn(Dist.CLIENT)
 	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		PipeItemsCraftingLogistics cpipe = (PipeItemsCraftingLogistics) pipe;
-		Font var17 = net.minecraft.client.Minecraft.getInstance().font;
+		Font font = Minecraft.getInstance().font;
 		oldRenderedStack = null;
 		if (cpipe != null) {
 			List<ItemIdentifierStack> craftables = cpipe.getCraftedItems();
@@ -112,13 +108,13 @@ public class CraftingPipeSign implements IPipeSign {
 				}
 
 				String idStr = String.format("ID: %d", BuiltInRegistries.ITEM.getId(item));
-				var17.drawInBatch(Component.literal(idStr), -var17.width(idStr) / 2.0F, 0 * 10 - 4 * 5, 0,
+				font.drawInBatch(Component.literal(idStr), -font.width(idStr) / 2.0F, 0 * 10 - 4 * 5, 0,
 						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 				ModuleCrafter logisticsMod = cpipe.getLogisticsModule();
 				oldSatelliteName = logisticsMod.clientSideSatelliteNames.satelliteName;
 				if (!oldSatelliteName.isEmpty()) {
 					String sat = "Sat: " + oldSatelliteName;
-					var17.drawInBatch(Component.literal(sat), -var17.width(sat) / 2.0F, 1 * 10 - 4 * 5, 0,
+					font.drawInBatch(Component.literal(sat), -font.width(sat) / 2.0F, 1 * 10 - 4 * 5, 0,
 							false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 				}
 			} else {
@@ -129,9 +125,9 @@ public class CraftingPipeSign implements IPipeSign {
 				name = "Empty";
 			}
 
-			name = renderer.cut(name, var17);
+			name = renderer.cut(name, font);
 
-			var17.drawInBatch(Component.literal(name), -var17.width(name) / 2.0F - 15, 3 * 10 - 4 * 5, 0,
+			font.drawInBatch(Component.literal(name), -font.width(name) / 2.0F - 15, 3 * 10 - 4 * 5, 0,
 					false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 
 			poseStack.popPose();

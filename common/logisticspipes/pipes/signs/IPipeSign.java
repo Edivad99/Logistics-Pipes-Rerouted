@@ -33,13 +33,8 @@ public interface IPipeSign {
 
 	void updateServerSide();
 
-	@OnlyIn(Dist.CLIENT)
-	void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer);
-
-	@OnlyIn(Dist.CLIENT)
-	default void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-		render(pipe, renderer);
-	}
+    @OnlyIn(Dist.CLIENT)
+	void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight);
 
 	@OnlyIn(Dist.CLIENT)
 	RenderTarget getMCFrameBufferForSign(); // was Framebuffer

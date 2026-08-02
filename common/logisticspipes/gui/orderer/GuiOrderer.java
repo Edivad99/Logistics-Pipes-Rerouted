@@ -109,6 +109,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 			search = new InputBar(font, this, leftPos + 10, bottom - 78, imageWidth - 20, 15);
 		}
 		search.reposition(leftPos + 10, bottom - 78, imageWidth - 20, 15);
+		addRenderableWidget(search);
 
 		if (itemDisplay == null) {
 			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24, 49, new int[] { 1, 10, 64, 64 }, true);
@@ -128,8 +129,6 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		itemDisplay.renderPageNumber(right - 47, topPos + 6);
 
 		itemDisplay.renderAmount(getStackAmount());
-		//SearchInput
-		search.drawTextBox();
 
 		itemDisplay.renderSortMode(xCenter, bottom - 52);
 		itemDisplay.renderItemArea(0.0f);
