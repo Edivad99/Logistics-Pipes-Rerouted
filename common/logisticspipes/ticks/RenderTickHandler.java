@@ -42,6 +42,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
@@ -66,8 +67,16 @@ public class RenderTickHandler {
 		// TODO: migrate HUD rendering to 1.20 PoseStack / GameRenderer approach.
 		// mc.entityRenderer.setupCameraTransform() and ActiveRenderInfo.updateRenderInfo() were removed.
 		// See Task #7 (GameRenderer.setupCamera AT entry).
+	}
+
+	/** The slot-finder overlay draws on top of an open container screen, so it runs on the screen's own
+	 *  render event: that is the one that carries the {@link net.minecraft.client.gui.GuiGraphics} to draw
+	 *  into. RenderFrameEvent.Post, where this used to live, provides none. */
+	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
+	public void screenRender(ScreenEvent.Render.Post event) {
 		if (GuiOverlay.getInstance().isCompatibleGui()) {
-			GuiOverlay.getInstance().renderOverGui();
+			GuiOverlay.getInstance().renderOverGui(event.getGuiGraphics());
 		}
 	}
 

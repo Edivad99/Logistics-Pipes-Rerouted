@@ -97,6 +97,7 @@ class TabButton(
         }
         if (visible && isHovered(mouseX, mouseY)) {
             drawTooltip(
+                guiGraphics = guiGraphics,
                 x = body.roundedRight,
                 y = body.roundedTop,
                 horizontalAlign = HorizontalAlignment.RIGHT,

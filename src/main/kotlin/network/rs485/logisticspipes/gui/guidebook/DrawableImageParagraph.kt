@@ -43,7 +43,6 @@ import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.MinecraftColor
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.resources.ResourceLocation
@@ -82,7 +81,7 @@ class DrawableImageParagraph(private val alternativeText: List<DrawableWord>, va
             super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
             for (drawableWord in alternativeText.filter { it.visible(visibleArea) }) {
                 drawableWord.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
-                GuiDrawer.drawOutlineRect(absoluteBody, MinecraftColor.WHITE.colorCode)
+                GuiDrawer.drawOutlineRect(guiGraphics, absoluteBody, MinecraftColor.WHITE.colorCode)
             }
         } else {
             image.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
@@ -161,7 +160,7 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
             RenderSystem.disableBlend()
             guiGraphics.disableScissor()
         } else {
-            GuiDrawer.drawOutlineRect(absoluteBody, MinecraftColor.WHITE.colorCode)
+            GuiDrawer.drawOutlineRect(guiGraphics, absoluteBody, MinecraftColor.WHITE.colorCode)
         }
     }
 

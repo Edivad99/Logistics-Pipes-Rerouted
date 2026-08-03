@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle

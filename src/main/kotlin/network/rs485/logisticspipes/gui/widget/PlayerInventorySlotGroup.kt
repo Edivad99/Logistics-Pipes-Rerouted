@@ -43,7 +43,6 @@ import net.minecraft.world.inventory.Slot
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.util.IRectangle
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.gui.GuiGraphics
 
 class PlayerInventorySlotGroup(

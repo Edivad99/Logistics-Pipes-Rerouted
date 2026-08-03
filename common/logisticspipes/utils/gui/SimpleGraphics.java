@@ -8,7 +8,6 @@
 
 package logisticspipes.utils.gui;
 
-import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,10 +22,6 @@ import logisticspipes.utils.Color;
  */
 @OnlyIn(Dist.CLIENT)
 public final class SimpleGraphics {
-
-    @Nullable
-    @Deprecated
-    public static GuiGraphics guiGraphics = null;
 
     private SimpleGraphics() {
     }

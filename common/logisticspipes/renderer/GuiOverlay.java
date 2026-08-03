@@ -9,6 +9,7 @@ import logisticspipes.utils.gui.SimpleGraphics;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
 
@@ -48,10 +49,7 @@ public class GuiOverlay {
 	}
 
 	public boolean isCompatibleGui() {
-		Minecraft client = Minecraft.getInstance();
-		if (client == null) return false;
-
-		return client.screen instanceof AbstractContainerScreen;
+        return Minecraft.getInstance().screen instanceof AbstractContainerScreen;
 	}
 
 	public void preRender() {
@@ -63,7 +61,13 @@ public class GuiOverlay {
 		}
 	}
 
-	public void renderOverGui() {
+	/**
+	 * Draws the slot highlight over the open container screen. Called from {@code ScreenEvent.Render.Post},
+	 * which is the event that hands us the screen's own {@link GuiGraphics} -- the overlay used to run on
+	 * {@code RenderFrameEvent.Post} and reach for whichever GuiGraphics the last screen render had left on a
+	 * static field, which meant it drew against stale state whenever that ordering did not hold.
+	 */
+	public void renderOverGui(GuiGraphics guiGraphics) {
 		if (hasBeenSaved) {
 			hasBeenSaved = false;
 			// Mouse restore removed — GLFW mouse position is not directly settable in 1.20.1
@@ -80,13 +84,11 @@ public class GuiOverlay {
 
 			for (Slot slot : gui.getMenu().slots) {
 				if (isMouseOverSlot(gui, slot, x, y)) {
-					if (SimpleGraphics.guiGraphics != null) {
-						RenderSystem.disableDepthTest();
-						int k1 = slot.x + guiLeft;
-						int i1 = slot.y + guiTop;
-						SimpleGraphics.drawGradientRect(SimpleGraphics.guiGraphics, k1, i1, k1 + 16, i1 + 16, 0xa0ff0000, 0xa0ff0000, 0.0);
-						RenderSystem.enableDepthTest();
-					}
+					RenderSystem.disableDepthTest();
+					int k1 = slot.x + guiLeft;
+					int i1 = slot.y + guiTop;
+					SimpleGraphics.drawGradientRect(guiGraphics, k1, i1, k1 + 16, i1 + 16, 0xa0ff0000, 0xa0ff0000, 0.0);
+					RenderSystem.enableDepthTest();
 					if (clicked) {
 						MainProxy.sendPacketToServer(PacketHandler.getPacket(SlotFinderNumberPacket.class)
 								.setInventorySlot(slot.index)

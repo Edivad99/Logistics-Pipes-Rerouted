@@ -44,7 +44,6 @@ import network.rs485.logisticspipes.inventory.container.LPBaseContainer
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.LPGuiGraphics
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
@@ -93,7 +92,6 @@ abstract class BaseGuiContainer(
     private var lastPartialTick: Float = 0f
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        SimpleGraphics.guiGraphics = guiGraphics
         lastPartialTick = partialTick
         renderBackground(guiGraphics, mouseX, mouseY, partialTick)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
@@ -127,7 +125,6 @@ abstract class BaseGuiContainer(
         mouseX: Int,
         mouseY: Int,
     ) {
-        SimpleGraphics.guiGraphics = guiGraphics
         val rect = widgetScreen.relativeBody
         val left = rect.x0.toInt()
         val top = rect.y0.toInt()

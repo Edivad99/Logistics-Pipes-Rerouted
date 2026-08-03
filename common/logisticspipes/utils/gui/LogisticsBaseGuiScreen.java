@@ -175,7 +175,6 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		this.guiGraphics = guiGraphics;
-		SimpleGraphics.guiGraphics = guiGraphics;
 		currentDrawScreenMouseX = mouseX;
 		currentDrawScreenMouseY = mouseY;
 		checkButtons();

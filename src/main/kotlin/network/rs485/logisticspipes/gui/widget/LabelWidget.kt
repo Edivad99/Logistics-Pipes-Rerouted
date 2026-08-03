@@ -43,7 +43,6 @@ import network.rs485.logisticspipes.gui.guidebook.MouseHoverable
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.gui.GuiGraphics
 
 class LabelWidget(

@@ -124,7 +124,6 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 
 	@Override
 	public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		SimpleGraphics.guiGraphics = guiGraphics;
 		renderGuiBackground(guiGraphics, mouseX, mouseY);
 		RenderSystem.disableDepthTest();
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);

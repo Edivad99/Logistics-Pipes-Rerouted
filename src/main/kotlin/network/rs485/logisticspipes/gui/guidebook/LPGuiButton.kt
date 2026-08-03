@@ -81,8 +81,8 @@ open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) :
 
     open fun getTooltipText(): String = ""
 
-    open fun drawTooltip(x: Int, y: Int, horizontalAlign: HorizontalAlignment, verticalAlign: VerticalAlignment) {
-        GuiDrawer.drawTextTooltip(listOf(getTooltipText()), x, y, GuideBookConstants.Z_TOOLTIP, horizontalAlign, verticalAlign)
+    open fun drawTooltip(guiGraphics: GuiGraphics, x: Int, y: Int, horizontalAlign: HorizontalAlignment, verticalAlign: VerticalAlignment) {
+        GuiDrawer.drawTextTooltip(guiGraphics, listOf(getTooltipText()), x, y, GuideBookConstants.Z_TOOLTIP, horizontalAlign, verticalAlign)
     }
 
     fun getHoverState(mouseOver: Boolean): Int = if (!isActive) 2 else if (mouseOver) 1 else 0

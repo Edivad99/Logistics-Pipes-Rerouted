@@ -38,7 +38,6 @@
 package network.rs485.logisticspipes.gui.widget
 
 import com.mojang.math.Axis
-import logisticspipes.utils.gui.SimpleGraphics
 import network.rs485.logisticspipes.util.TextUtil
 import net.minecraft.client.gui.GuiGraphics
 

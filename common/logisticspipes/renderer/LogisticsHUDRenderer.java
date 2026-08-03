@@ -450,7 +450,7 @@ public class LogisticsHUDRenderer {
 		double y = renderer.getY() + 0.5 - cam.y;
 		double z = renderer.getZ() + 0.5 - cam.z;
 		// The GuiGraphics is handed down through IHeadUpDisplayRenderer/IHUDButton/IHUDModuleRenderer,
-		// so the HUD render path never touches SimpleGraphics.guiGraphics (still used by the GUI path).
+		// so nothing in the HUD render path depends on ambient state.
 		// The public 2-arg GuiGraphics ctor creates its own internal PoseStack, so we apply the
 		// HUD billboard transforms to guiGraphics.pose() rather than the external poseStack.
 		GuiGraphics guiGraphics = new GuiGraphics(mc, hudBufferSource);

@@ -39,7 +39,6 @@ package network.rs485.logisticspipes.gui.guidebook
 
 import logisticspipes.world.item.LPItems
 import logisticspipes.utils.MinecraftColor
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
@@ -194,6 +193,7 @@ class DrawableMenuTile(private val linkedPage: String, private val pageName: Str
     override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         val hovered = isMouseHovering(mouseX, mouseY)
         GuiDrawer.drawBorderedTile(
+            guiGraphics = guiGraphics,
             rect = absoluteBody,
             hovered = hovered,
             enabled = true,
@@ -243,6 +243,7 @@ class DrawableMenuListEntry(private val linkedPage: String, private val pageName
     override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         val hovered = visibleArea.contains(mouseX, mouseY) && isMouseHovering(mouseX, mouseY)
         GuiDrawer.drawBorderedTile(
+            guiGraphics = guiGraphics,
             rect = absoluteBody,
             hovered = hovered,
             enabled = true,

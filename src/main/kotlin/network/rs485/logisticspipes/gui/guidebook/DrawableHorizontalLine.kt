@@ -63,6 +63,6 @@ class DrawableHorizontalLine(private val thickness: Int, private val padding: In
 
     override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
-        GuiDrawer.drawLine(absoluteBody.topLeft, absoluteBody.topRight, color, thickness.toFloat())
+        GuiDrawer.drawLine(guiGraphics, absoluteBody.topLeft, absoluteBody.topRight, color, thickness.toFloat())
     }
 }    

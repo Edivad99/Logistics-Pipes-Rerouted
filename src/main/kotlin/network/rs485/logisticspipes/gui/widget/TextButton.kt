@@ -38,7 +38,6 @@
 package network.rs485.logisticspipes.gui.widget
 
 import logisticspipes.utils.Color
-import logisticspipes.utils.gui.SimpleGraphics
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.Margin
 import network.rs485.logisticspipes.gui.Size

@@ -41,7 +41,6 @@ import logisticspipes.world.item.LPItems
 import logisticspipes.LogisticsPipes
 import logisticspipes.integrations.jei.JEIPluginLoader
 import logisticspipes.utils.MinecraftColor
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
@@ -249,10 +248,6 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
     }
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        // Publish the current GuiGraphics so the guide book drawables (DrawablePage/DrawableWord/
-        // LPFontRenderer) and GuiDrawer helpers can draw against it; mirrors how BaseGuiContainer
-        // exposes it for the rest of LP2's GUI code.
-        SimpleGraphics.guiGraphics = guiGraphics
         // Darken the world behind the book (equivalent of LP1's drawDefaultBackground).
         renderBackground(guiGraphics, mouseX, mouseY, partialTick)
 
@@ -288,6 +283,7 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
             val hovered = state.currentPage.getHovered(mouseX.toFloat(), mouseY.toFloat())
             if (hovered is Tooltipped) {
                 GuiDrawer.drawTextTooltip(
+                    guiGraphics = guiGraphics,
                     text = hovered.getTooltipText(),
                     x = mouseX,
                     y = min(mouseY - 5f, visibleArea.bottom).roundToInt(),

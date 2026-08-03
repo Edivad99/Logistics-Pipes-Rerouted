@@ -70,6 +70,7 @@ class HomeButton(x: Int, y: Int, onClickAction: (Int) -> Boolean) :
         )
         if (hovered) {
             drawTooltip(
+                guiGraphics = guiGraphics,
                 x = body.roundedRight,
                 y = body.roundedTop,
                 horizontalAlign = HorizontalAlignment.RIGHT,

@@ -79,6 +79,7 @@ abstract class LPGuiButton(
         super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
         if (visible) {
             helper.drawBorderedTile(
+                guiGraphics = guiGraphics,
                 rect = absoluteBody,
                 hovered = isMouseHovering(mouseX, mouseY),
                 enabled = enabled,

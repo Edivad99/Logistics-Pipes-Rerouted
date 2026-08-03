@@ -42,16 +42,14 @@ import network.rs485.logisticspipes.util.FuzzyFlag
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.utils.Color
 import logisticspipes.utils.gui.LPGuiGraphics
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
-import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.inventory.Slot
 import net.minecraft.resources.ResourceLocation
 import java.lang.Float.min
 
-// Rendering ported to 1.20.1 GuiGraphics via SimpleGraphics.guiGraphics (set by BaseGuiContainer.render()).
+// Every drawing method takes the GuiGraphics to draw into, so nothing here depends on ambient state.
 // BDF custom-font paths remain deferred — those live on LPFontRenderer.
 
 /**
@@ -76,25 +74,12 @@ object GuiDrawer {
         FuzzyFlag.USE_ORE_CATEGORY -> Color.FUZZY_ORE_CATEGORY_COLOR.value
     }
 
-    fun drawGuiContainerBackground(guiArea: IRectangle, topLeft: Pair<Int, Int>, container: AbstractContainerMenu) {
-        drawGuiBackground(guiArea)
-        if (SimpleGraphics.guiGraphics == null) return
-        val mc = Minecraft.getInstance()
-        val (ox, oy) = topLeft
-        for (slot in container.slots) {
-            if (slot is Slot) {
-                LPGuiGraphics.drawSlotBackground(SimpleGraphics.guiGraphics, ox + slot.x - 1, oy + slot.y - 1)
-            }
-        }
-    }
-
-    fun drawGuiBackground(guiArea: IRectangle) {
-        if (SimpleGraphics.guiGraphics == null) return
+    fun drawGuiBackground(guiGraphics: GuiGraphics, guiArea: IRectangle) {
         val left = guiArea.roundedLeft
         val top = guiArea.roundedTop
         val right = guiArea.roundedRight
         val bottom = guiArea.roundedBottom
-        LPGuiGraphics.drawGuiBackGround(SimpleGraphics.guiGraphics, left, top, right, bottom, 0f, true)
+        LPGuiGraphics.drawGuiBackGround(guiGraphics, left, top, right, bottom, 0f, true)
     }
 
     fun drawGuiTexturedRect(rect: IRectangle, text: IRectangle, blend: Boolean, color: Int) {
@@ -104,13 +89,13 @@ object GuiDrawer {
     private val VANILLA_WIDGETS = ResourceLocation.withDefaultNamespace("textures/gui/widgets.png")
 
     fun drawBorderedTile(
+        guiGraphics: GuiGraphics,
         rect: IRectangle,
         hovered: Boolean,
         enabled: Boolean,
         light: Boolean,
         thickerBottomBorder: Boolean,
     ) {
-        val gg = SimpleGraphics.guiGraphics ?: return
         val textureY = 46 + when {
             !enabled -> 0
             hovered -> 2
@@ -135,6 +120,7 @@ object GuiDrawer {
     }
 
     fun drawTextTooltip(
+        guiGraphics: GuiGraphics,
         text: List<String>,
         x: Int,
         y: Int,
@@ -143,9 +129,8 @@ object GuiDrawer {
         verticalAlign: VerticalAlignment,
     ) {
         if (text.isEmpty()) return
-        val gg = SimpleGraphics.guiGraphics ?: return
         val components = text.map { Component.literal(it) }
-        gg.renderComponentTooltip(mcFontRenderer, components, x, y)
+        guiGraphics.renderComponentTooltip(mcFontRenderer, components, x, y)
     }
 
     fun drawGuideBookBackground(rect: IRectangle) {
@@ -156,55 +141,12 @@ object GuiDrawer {
         // TODO: guide book slider — deferred with guide book rendering port.
     }
 
-    fun drawCenteredString(text: String, x: Int, y: Int, color: Int, shadow: Boolean) {
-        val gg = SimpleGraphics.guiGraphics ?: return
-        val textWidth = mcFontRenderer.width(text)
-        gg.drawString(mcFontRenderer, text, x - textWidth / 2, y, color, shadow)
-    }
-
     fun drawInteractionIndicator(mouseX: Float, mouseY: Float) {
         // TODO: guide book hover indicator — deferred.
     }
 
-    fun drawRect(area: IRectangle, color: Int) {
-        val gg = SimpleGraphics.guiGraphics ?: return
-        gg.fill(area.roundedLeft, area.roundedTop, area.roundedRight, area.roundedBottom, color)
-    }
-
-    fun drawHorizontalGradientRect(area: IRectangle, colorLeft: Int, colorRight: Int) {
-        val gg = SimpleGraphics.guiGraphics ?: return
-        // GuiGraphics.fillGradient is vertical-only; approximate horizontal via per-column fills.
-        val left = area.roundedLeft
-        val right = area.roundedRight
-        val top = area.roundedTop
-        val bottom = area.roundedBottom
-        val span = (right - left).coerceAtLeast(1)
-        val al = (colorLeft ushr 24) and 0xFF
-        val rl = (colorLeft ushr 16) and 0xFF
-        val gl = (colorLeft ushr 8) and 0xFF
-        val bl = colorLeft and 0xFF
-        val ar = (colorRight ushr 24) and 0xFF
-        val rr = (colorRight ushr 16) and 0xFF
-        val gr = (colorRight ushr 8) and 0xFF
-        val br = colorRight and 0xFF
-        for (i in 0 until span) {
-            val t = i.toFloat() / span.toFloat()
-            val a = (al + (ar - al) * t).toInt() and 0xFF
-            val r = (rl + (rr - rl) * t).toInt() and 0xFF
-            val g = (gl + (gr - gl) * t).toInt() and 0xFF
-            val b = (bl + (br - bl) * t).toInt() and 0xFF
-            val c = (a shl 24) or (r shl 16) or (g shl 8) or b
-            gg.fill(left + i, top, left + i + 1, bottom, c)
-        }
-    }
-
-    fun drawVerticalGradientRect(area: IRectangle, colorTop: Int, colorBottom: Int) {
-        val gg = SimpleGraphics.guiGraphics ?: return
-        gg.fillGradient(area.roundedLeft, area.roundedTop, area.roundedRight, area.roundedBottom, colorTop, colorBottom)
-    }
-
-    fun drawLine(start: Pair<Float, Float>, finish: Pair<Float, Float>, color: Int, thickness: Float) {
-        val gg = SimpleGraphics.guiGraphics ?: return
+    fun drawLine(guiGraphics: GuiGraphics, start: Pair<Float, Float>, finish: Pair<Float, Float>, color: Int, thickness: Float) {
+        val gg = guiGraphics
         val (x1, y1) = start
         val (x2, y2) = finish
         val t = thickness.coerceAtLeast(1f).toInt()
@@ -221,8 +163,8 @@ object GuiDrawer {
         }
     }
 
-    fun drawOutlineRect(rect: IRectangle, color: Int) {
-        val gg = SimpleGraphics.guiGraphics ?: return
+    fun drawOutlineRect(guiGraphics: GuiGraphics, rect: IRectangle, color: Int) {
+        val gg = guiGraphics
         val left = rect.roundedLeft
         val top = rect.roundedTop
         val right = rect.roundedRight

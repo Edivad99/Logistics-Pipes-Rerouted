@@ -47,7 +47,6 @@ import network.rs485.logisticspipes.util.FuzzyUtil
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import logisticspipes.utils.Color
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import java.util.*
@@ -103,7 +102,7 @@ class FuzzySelectionWidget(
                 ) || (Minecraft.getInstance().screen as? BaseGuiContainer)?.currentHoveredSlot == currentSlot) && currentSlot != null
             ) {
                 currentSlot?.let { slot ->
-                    GuiDrawer.drawGuiBackground(relativeBody)
+                    GuiDrawer.drawGuiBackground(guiGraphics, relativeBody)
                     var yOffset = border
                     val flags = slot.flagGetter.invoke()
                     slot.usedFlags.forEach { flag: FuzzyFlag ->

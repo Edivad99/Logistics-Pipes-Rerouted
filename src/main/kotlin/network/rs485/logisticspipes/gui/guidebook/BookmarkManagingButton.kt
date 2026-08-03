@@ -80,6 +80,7 @@ class BookmarkManagingButton(
         )
         if (hovered) {
             drawTooltip(
+                guiGraphics = guiGraphics,
                 x = body.roundedLeft + body.roundedHeight / 2,
                 y = body.roundedTop - 6,
                 horizontalAlign = HorizontalAlignment.CENTER,

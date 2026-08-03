@@ -41,7 +41,6 @@ import network.rs485.grow.Coroutines
 import network.rs485.markdown.*
 import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
-import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import java.io.IOException

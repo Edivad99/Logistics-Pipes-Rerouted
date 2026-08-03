@@ -229,7 +229,6 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			modelView.translate(0.0D, 0.0D, -11000.0D);
 			RenderSystem.applyModelViewMatrix();
 
-			SimpleGraphics.guiGraphics = gg;
 			// Widen the clip rect so renderItemAt draws the full tree instead of the popup viewport
 			guiLeft = -1;
 			guiTop = -1;
@@ -261,7 +260,6 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			xSize = oldXSize;
 			ySize = oldYSize;
 			//storedGuiGraphics = oldStored;
-			//SimpleGraphics.guiGraphics = oldStored;
 			modelView.popPose();
 			RenderSystem.applyModelViewMatrix();
 			target.destroyBuffers();

@@ -153,7 +153,7 @@ interface Drawable {
                 .translate(0, -5)
                 .grow(0, 10)
                 .overlap(absoluteBody)
-            GuiDrawer.drawOutlineRect(visibleAbsoluteBody, MinecraftColor.WHITE.colorCode)
+            GuiDrawer.drawOutlineRect(guiGraphics, visibleAbsoluteBody, MinecraftColor.WHITE.colorCode)
         }
     }
 
