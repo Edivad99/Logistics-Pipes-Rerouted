@@ -108,7 +108,7 @@ abstract class BaseGuiContainer(
         pose.translate(-leftPos.toFloat(), -topPos.toFloat(), 0f)
         val rect = widgetScreen.relativeBody
         drawBackgroundLayer(mouseX, mouseY, lastPartialTick)
-        widgetScreen.widgetContainer.draw(mouseX.toFloat(), mouseY.toFloat(), lastPartialTick, rect)
+        widgetScreen.widgetContainer.draw(guiGraphics, mouseX.toFloat(), mouseY.toFloat(), lastPartialTick, rect)
         drawForegroundLayer(mouseX.toFloat(), mouseY.toFloat(), lastPartialTick)
         pose.popPose()
     }
@@ -136,9 +136,9 @@ abstract class BaseGuiContainer(
         LPGuiGraphics.drawGuiBackGround(guiGraphics, left, top, right, bottom, 0f, true)
     }
 
-    fun List<Drawable>.draw(mouseX: Float, mouseY: Float, partialTicks: Float, visibleArea: IRectangle) =
+    fun List<Drawable>.draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, partialTicks: Float, visibleArea: IRectangle) =
         forEach {
-            it.draw(mouseX, mouseY, partialTicks, visibleArea)
+            it.draw(guiGraphics, mouseX, mouseY, partialTicks, visibleArea)
         }
 
     /**

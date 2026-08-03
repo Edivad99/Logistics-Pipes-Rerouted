@@ -46,7 +46,7 @@ import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
-import kotlin.math.roundToInt
+import net.minecraft.client.gui.GuiGraphics
 
 open class TextButton(
     parent: Drawable,
@@ -93,15 +93,14 @@ open class TextButton(
         return TextUtil.getTrimmedString(text, relativeBody.roundedWidth - 4, helper.mcFontRenderer)
     }
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        super.draw(mouseX, mouseY, delta, visibleArea)
-        val gg = SimpleGraphics.guiGraphics ?: return
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
         if (!visible) return
         val color = if (enabled) Color.WHITE.value else 0xFFA0A0A0.toInt()
         val textWidth = helper.mcFontRenderer.width(trimmedText)
         val cx = absoluteBody.roundedLeft + absoluteBody.roundedWidth / 2 - textWidth / 2
         val cy = absoluteBody.roundedTop + yOffset
-        gg.drawString(helper.mcFontRenderer, trimmedText, cx, cy, color, true)
+        guiGraphics.drawString(helper.mcFontRenderer, trimmedText, cx, cy, color, true)
     }
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int): Boolean = if (enabled) {

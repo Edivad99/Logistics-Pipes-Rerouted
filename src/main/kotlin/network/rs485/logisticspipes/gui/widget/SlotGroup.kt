@@ -38,11 +38,12 @@
 package network.rs485.logisticspipes.gui.widget
 
 import logisticspipes.utils.gui.LPGuiGraphics
-import net.minecraft.client.Minecraft
 import net.minecraft.world.inventory.Slot
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.util.IRectangle
+import logisticspipes.utils.gui.SimpleGraphics
+import net.minecraft.client.gui.GuiGraphics
 
 class SlotGroup(
     parent: Drawable,
@@ -83,14 +84,13 @@ class SlotGroup(
         return width to height
     }
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        super.draw(mouseX, mouseY, delta, visibleArea)
-        val mc = Minecraft.getInstance()
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
         val startX = absoluteBody.roundedX
         val startY = absoluteBody.roundedY
         for (row in 0 until rows) {
             for (column in 0 until columns) {
-                LPGuiGraphics.drawSlotBackground(startX + column * 18, startY + row * 18)
+                LPGuiGraphics.drawSlotBackground(guiGraphics, startX + column * 18, startY + row * 18)
             }
         }
     }

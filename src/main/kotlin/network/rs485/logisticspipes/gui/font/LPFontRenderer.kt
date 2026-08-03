@@ -43,6 +43,7 @@ import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.gui.SimpleGraphics
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -104,40 +105,38 @@ class LPFontRenderer(private val fontName: String) {
      * Draws the given string via vanilla `Font` (fallback until the BDF atlas pipeline is reimplemented).
      * Width returned is BDF-derived so callers measuring our layout stay consistent.
      */
-    fun drawString(string: String, x: Float, y: Float, color: Int, format: Set<TextFormat>, scale: Float): Int {
-        val gg = SimpleGraphics.guiGraphics ?: return getStringWidth(string, format, scale)
+    fun drawString(guiGraphics: GuiGraphics, string: String, x: Float, y: Float, color: Int, format: Set<TextFormat>, scale: Float): Int {
         val font = Minecraft.getInstance().font
         val formatted = applyFormatCodes(string, format)
         val shadow = format.shadow()
         if (scale == 1f) {
-            gg.drawString(font, formatted, x.toInt(), y.toInt(), color, shadow)
+            guiGraphics.drawString(font, formatted, x.toInt(), y.toInt(), color, shadow)
         } else {
-            val pose = gg.pose()
+            val pose = guiGraphics.pose()
             pose.pushPose()
             pose.translate(x, y, 0f)
             pose.scale(scale, scale, 1f)
-            gg.drawString(font, formatted, 0, 0, color, shadow)
+            guiGraphics.drawString(font, formatted, 0, 0, color, shadow)
             pose.popPose()
         }
         return getStringWidth(string, format, scale)
     }
 
-    fun drawSpace(x: Float, y: Float, width: Int, color: Int, italic: Boolean, underline: Boolean, strikethrough: Boolean, shadow: Boolean, scale: Float): Int {
+    fun drawSpace(guiGraphics: GuiGraphics, x: Float, y: Float, width: Int, color: Int, italic: Boolean, underline: Boolean, strikethrough: Boolean, shadow: Boolean, scale: Float): Int {
         if (!underline && !strikethrough) return width
-        val gg = SimpleGraphics.guiGraphics ?: return width
         val h = (wrapperPlain.fontHeight * scale).toInt()
         if (underline) {
-            gg.fill(x.toInt(), (y + h - 1).toInt(), (x + width).toInt(), (y + h).toInt(), color)
+            guiGraphics.fill(x.toInt(), (y + h - 1).toInt(), (x + width).toInt(), (y + h).toInt(), color)
         }
         if (strikethrough) {
-            gg.fill(x.toInt(), (y + h / 2).toInt(), (x + width).toInt(), (y + h / 2 + 1).toInt(), color)
+            guiGraphics.fill(x.toInt(), (y + h / 2).toInt(), (x + width).toInt(), (y + h / 2 + 1).toInt(), color)
         }
         return width
     }
 
-    fun drawCenteredString(string: String, x: Float, y: Float, color: Int, tags: Set<TextFormat>, scale: Float): Int {
+    fun drawCenteredString(guiGraphics: GuiGraphics, string: String, x: Float, y: Float, color: Int, tags: Set<TextFormat>, scale: Float): Int {
         val width = getStringWidth(string, tags, scale)
-        return drawString(string, x - width / 2f, y, color, tags, scale)
+        return drawString(guiGraphics, string, x - width / 2f, y, color, tags, scale)
     }
 
     private fun applyFormatCodes(text: String, format: Set<TextFormat>): String {

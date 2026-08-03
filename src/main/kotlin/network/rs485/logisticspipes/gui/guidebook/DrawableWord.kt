@@ -41,6 +41,7 @@ import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import network.rs485.markdown.*
+import net.minecraft.client.gui.GuiGraphics
 import kotlin.math.floor
 
 /**
@@ -79,14 +80,14 @@ open class DrawableWord(
     override fun isMouseHovering(mouseX: Float, mouseY: Float): Boolean =
         absoluteBody.contains(mouseX, mouseY)
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         val hovering = linkInteractable?.isMouseHovering(mouseX, mouseY) ?: false
         val updatedColor = linkInteractable?.updateColor(color) ?: color
         val updatedFormat = linkInteractable?.updateFormat(format) ?: format
         if (hovering) {
             GuiDrawer.drawInteractionIndicator(mouseX, mouseY)
         }
-        GuiDrawer.lpFontRenderer.drawString(string = str, x = left, y = top, color = updatedColor, format = updatedFormat, scale = scale)
+        GuiDrawer.lpFontRenderer.drawString(guiGraphics, string = str, x = left, y = top, color = updatedColor, format = updatedFormat, scale = scale)
     }
 
     override fun setPos(x: Int, y: Int): Pair<Int, Int> {
@@ -108,12 +109,13 @@ class DrawableSpace(
     linkInteractable: LinkInteractable?,
 ) : DrawableWord(" ", scale, state, linkInteractable) {
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (width > 0) {
             linkInteractable?.isMouseHovering(mouseX, mouseY)
             val updatedColor = linkInteractable?.updateColor(color) ?: color
             val updatedFormat = linkInteractable?.updateFormat(format) ?: format
             GuiDrawer.lpFontRenderer.drawSpace(
+                guiGraphics = guiGraphics,
                 x = left,
                 y = top,
                 width = width,

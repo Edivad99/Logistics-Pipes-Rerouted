@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 
@@ -53,13 +54,19 @@ class DrawableHeaderParagraph(private val words: List<DrawableWord>) : DrawableP
         words.find { it.isMouseHovering(mouseX, mouseY) }?.inBookMouseClicked(mouseX, mouseY, mouseButton, guideActionListener)
             ?: false
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        super.draw(mouseX, mouseY, delta, visibleArea)
-        drawChildren(mouseX, mouseY, delta, visibleArea)
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
+        drawChildren(guiGraphics, mouseX, mouseY, delta, visibleArea)
     }
 
-    override fun drawChildren(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        (this.words + horizontalLine).filter { it.visible(visibleArea) }.forEach { it.draw(mouseX, mouseY, delta, visibleArea) }
+    override fun drawChildren(
+        guiGraphics: GuiGraphics,
+        mouseX: Float,
+        mouseY: Float,
+        delta: Float,
+        visibleArea: IRectangle
+    ) {
+        (this.words + horizontalLine).filter { it.visible(visibleArea) }.forEach { it.draw(guiGraphics, mouseX, mouseY, delta, visibleArea) }
     }
 
     override fun getHovered(mouseX: Float, mouseY: Float): Drawable? =

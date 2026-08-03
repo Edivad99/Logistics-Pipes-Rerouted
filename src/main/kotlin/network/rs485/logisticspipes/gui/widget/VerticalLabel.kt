@@ -40,24 +40,24 @@ package network.rs485.logisticspipes.gui.widget
 import com.mojang.math.Axis
 import logisticspipes.utils.gui.SimpleGraphics
 import network.rs485.logisticspipes.util.TextUtil
+import net.minecraft.client.gui.GuiGraphics
 
 class VerticalLabel(fullText: String, x: Int, y: Int, maxLength: Int, textColor: Int, backgroundColor: Int) : Label(fullText, x, y, maxLength, textColor, backgroundColor) {
 
     override val overflows: Boolean get() = fullRect.height > maxLength
 
-    override fun draw(mouseX: Int, mouseY: Int) {
-        val gg = SimpleGraphics.guiGraphics ?: return
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
         hovered = hovered(mouseX, mouseY)
         val rect = if (hovered) fullRect else trimmedRect
         val text = if (hovered) fullText else trimmedText
-        val pose = gg.pose()
+        val pose = guiGraphics.pose()
         pose.pushPose()
         pose.translate(rect.x0, rect.y0 + rect.height, 0f)
         pose.mulPose(Axis.ZP.rotationDegrees(-90f))
         if (backgroundColor != 0) {
-            gg.fill(-1, -1, fontRenderer.width(text) + 1, fontRenderer.lineHeight + 1, backgroundColor)
+            guiGraphics.fill(-1, -1, fontRenderer.width(text) + 1, fontRenderer.lineHeight + 1, backgroundColor)
         }
-        gg.drawString(fontRenderer, text, 0, 0, textColor, false)
+        guiGraphics.drawString(fontRenderer, text, 0, 0, textColor, false)
         pose.popPose()
     }
 

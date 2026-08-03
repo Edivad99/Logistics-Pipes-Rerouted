@@ -128,11 +128,6 @@ public final class LPGuiGraphics {
         doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_PROGRAMMER_TEXTURE);
     }
 
-    @Deprecated
-    public static void drawSlotBackground(int x, int y) {
-        drawSlotBackground(SimpleGraphics.guiGraphics, x, y);
-    }
-
     public static void drawSlotBackground(GuiGraphics guiGraphics, int x, int y) {
         doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_TEXTURE);
     }
@@ -183,13 +178,6 @@ public final class LPGuiGraphics {
         float zLevel, boolean resetColor) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, zLevel, resetColor, true, true,
             true, true);
-    }
-
-    @Deprecated(forRemoval = true)
-    public static void drawGuiBackGround(int guiLeft, int guiTop, int right,
-        int bottom, float zLevel, boolean resetColor, boolean displayTop, boolean displayLeft, boolean displayBottom,
-        boolean displayRight) {
-        drawGuiBackGround(SimpleGraphics.guiGraphics, guiLeft, guiTop, right, bottom, zLevel, resetColor, displayTop, displayLeft, displayBottom, displayRight);
     }
 
     public static void drawGuiBackGround(@Nullable GuiGraphics guiGraphics, int guiLeft, int guiTop, int right,

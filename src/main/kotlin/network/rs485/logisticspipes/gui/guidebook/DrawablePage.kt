@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 
@@ -66,16 +67,22 @@ class DrawablePage(private val drawableParagraphs: List<DrawableParagraph>) : Dr
         return currentY
     }
 
-    override fun preRender(mouseX: Float, mouseY: Float, visibleArea: IRectangle) =
+    override fun preRender(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, visibleArea: IRectangle) =
         getVisibleParagraphs(visibleArea).forEach {
-            it.preRender(mouseX, mouseY, visibleArea)
+            it.preRender(guiGraphics, mouseX, mouseY, visibleArea)
         }
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) =
-        drawChildren(mouseX, mouseY, delta, visibleArea)
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) =
+        drawChildren(guiGraphics, mouseX, mouseY, delta, visibleArea)
 
-    override fun drawChildren(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) =
-        getVisibleParagraphs(visibleArea).forEach { it.draw(mouseX, mouseY, delta, visibleArea) }
+    override fun drawChildren(
+        guiGraphics: GuiGraphics,
+        mouseX: Float,
+        mouseY: Float,
+        delta: Float,
+        visibleArea: IRectangle
+    ) =
+        getVisibleParagraphs(visibleArea).forEach { it.draw(guiGraphics, mouseX, mouseY, delta, visibleArea) }
 
     fun getVisibleParagraphs(visibleArea: IRectangle) =
         drawableParagraphs.filter { it.visible(visibleArea) }

@@ -49,6 +49,7 @@ import network.rs485.logisticspipes.gui.widget.Tooltipped
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import network.rs485.markdown.TextFormat
+import net.minecraft.client.gui.GuiGraphics
 import java.util.*
 
 /**
@@ -79,9 +80,9 @@ class DrawableMenuParagraph<T>(private val menuTitle: List<DrawableWord>, privat
 
     private val horizontalLine = createChild { DrawableHorizontalLine(1) }
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        super.draw(mouseX, mouseY, delta, visibleArea)
-        drawChildren(mouseX, mouseY, delta, visibleArea)
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
+        drawChildren(guiGraphics, mouseX, mouseY, delta, visibleArea)
     }
 
     override fun inBookMouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int, guideActionListener: GuiGuideBook.ActionListener?): Boolean =
@@ -97,8 +98,19 @@ class DrawableMenuParagraph<T>(private val menuTitle: List<DrawableWord>, privat
         return currentY
     }
 
-    override fun drawChildren(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        (menuTitle + horizontalLine + menuGroups).filter { it.visible(visibleArea) }.forEach { it.draw(mouseX, mouseY, delta, visibleArea) }
+    override fun drawChildren(
+        guiGraphics: GuiGraphics,
+        mouseX: Float,
+        mouseY: Float,
+        delta: Float,
+        visibleArea: IRectangle
+    ) {
+        (menuTitle + horizontalLine + menuGroups).filter { it.visible(visibleArea) }.forEach { it.draw(
+            guiGraphics, mouseX,
+            mouseY,
+            delta,
+            visibleArea
+        ) }
     }
 
     override fun getHovered(mouseX: Float, mouseY: Float): Drawable? =
@@ -116,8 +128,8 @@ class DrawableMenuGroup<T>(private val groupTitle: List<DrawableWord>, private v
     override val relativeBody = MutableRectangle()
     override var parent: Drawable? = null
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        drawChildren(mouseX, mouseY, delta, visibleArea)
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        drawChildren(guiGraphics, mouseX, mouseY, delta, visibleArea)
     }
 
     override fun inBookMouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int, guideActionListener: GuiGuideBook.ActionListener?): Boolean =
@@ -140,8 +152,19 @@ class DrawableMenuGroup<T>(private val groupTitle: List<DrawableWord>, private v
         return currentY
     }
 
-    override fun drawChildren(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        (groupTitle + groupTiles).filter { it.visible(visibleArea) }.forEach { it.draw(mouseX, mouseY, delta, visibleArea) }
+    override fun drawChildren(
+        guiGraphics: GuiGraphics,
+        mouseX: Float,
+        mouseY: Float,
+        delta: Float,
+        visibleArea: IRectangle
+    ) {
+        (groupTitle + groupTiles).filter { it.visible(visibleArea) }.forEach { it.draw(
+            guiGraphics, mouseX,
+            mouseY,
+            delta,
+            visibleArea
+        ) }
     }
 
     override fun getHovered(mouseX: Float, mouseY: Float): Drawable? =
@@ -168,7 +191,7 @@ class DrawableMenuTile(private val linkedPage: String, private val pageName: Str
     override fun inBookMouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int, guideActionListener: GuiGuideBook.ActionListener?): Boolean =
         guideActionListener?.onMenuButtonClick(linkedPage) != null
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         val hovered = isMouseHovering(mouseX, mouseY)
         GuiDrawer.drawBorderedTile(
             rect = absoluteBody,
@@ -182,7 +205,6 @@ class DrawableMenuTile(private val linkedPage: String, private val pageName: Str
         }
         val itemRect = iconBody.translated(absoluteBody)
         if (visibleArea.intersects(itemRect)) {
-            val guiGraphics = SimpleGraphics.guiGraphics ?: return
             // renderItem draws at native 16x16; scale the pose by iconScale around the icon origin.
             val pose = guiGraphics.pose()
             pose.pushPose()
@@ -218,7 +240,7 @@ class DrawableMenuListEntry(private val linkedPage: String, private val pageName
     override fun inBookMouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int, guideActionListener: GuiGuideBook.ActionListener?): Boolean =
         guideActionListener?.onMenuButtonClick(linkedPage) != null
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         val hovered = visibleArea.contains(mouseX, mouseY) && isMouseHovering(mouseX, mouseY)
         GuiDrawer.drawBorderedTile(
             rect = absoluteBody,
@@ -232,6 +254,7 @@ class DrawableMenuListEntry(private val linkedPage: String, private val pageName
             val textColor: Int = if (!hovered) MinecraftColor.WHITE.colorCode else 0xffffffa0.toInt()
             val textVerticalOffset = (height - GuiDrawer.lpFontRenderer.getFontHeight(1.0f)) / 2
             GuiDrawer.lpFontRenderer.drawString(
+                guiGraphics = guiGraphics,
                 string = pageName,
                 x = itemRect.right + itemOffset,
                 y = top + textVerticalOffset,
@@ -239,7 +262,7 @@ class DrawableMenuListEntry(private val linkedPage: String, private val pageName
                 format = EnumSet.of(TextFormat.Shadow),
                 scale = 1.0f
             )
-            SimpleGraphics.guiGraphics?.renderItem(iconStack(icon), itemRect.roundedLeft, itemRect.roundedTop)
+            guiGraphics.renderItem(iconStack(icon), itemRect.roundedLeft, itemRect.roundedTop)
         }
         if (hovered) {
             GuiDrawer.drawInteractionIndicator(mouseX, mouseY)

@@ -358,7 +358,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 				if (!satellitePipeLabel.isTextEqual(craftingModule.clientSideSatelliteNames.satelliteName)) {
 					satellitePipeLabel.setText(craftingModule.clientSideSatelliteNames.satelliteName);
 				}
-				satellitePipeLabel.draw(mouseX - leftPos, mouseY - topPos);
+				satellitePipeLabel.draw(guiGraphics, mouseX - leftPos, mouseY - topPos);
 			}
 			guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Priority") + ":", 123, 75, 0x404040, false);
 			guiGraphics.drawString(minecraft.font, String.valueOf(craftingPriorityOverlay.get()), 143 - (minecraft.font.width(String.valueOf(craftingPriorityOverlay.get())) / 2), 87, 0x404040, false);
@@ -370,7 +370,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 					if (!satellitePipeLabels[i].isTextEqual(craftingModule.clientSideSatelliteNames.advancedSatelliteNameArray[i])) {
 						satellitePipeLabels[i].setText(craftingModule.clientSideSatelliteNames.advancedSatelliteNameArray[i]);
 					}
-					satellitePipeLabels[i].draw(mouseX - leftPos, mouseY - topPos);
+					satellitePipeLabels[i].draw(guiGraphics, mouseX - leftPos, mouseY - topPos);
 				}
 			}
 			guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Output"), 77, 90, 0x404040, false);

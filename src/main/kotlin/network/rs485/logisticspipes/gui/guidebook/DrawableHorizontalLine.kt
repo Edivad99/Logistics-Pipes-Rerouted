@@ -38,6 +38,7 @@
 package network.rs485.logisticspipes.gui.guidebook
 
 import logisticspipes.utils.MinecraftColor
+import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
@@ -60,8 +61,8 @@ class DrawableHorizontalLine(private val thickness: Int, private val padding: In
 
     override fun getHovered(mouseX: Float, mouseY: Float): Drawable? = null
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        super.draw(mouseX, mouseY, delta, visibleArea)
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
         GuiDrawer.drawLine(absoluteBody.topLeft, absoluteBody.topRight, color, thickness.toFloat())
     }
 }    

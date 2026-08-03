@@ -37,10 +37,11 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.IRectangle
 
 abstract class DrawableParagraph : Drawable, GuideBookMouseInteractable {
-    private val preRenderCallbacks = mutableSetOf<(mouseX: Float, mouseY: Float, visibleArea: IRectangle) -> Unit>()
+    private val preRenderCallbacks = mutableSetOf<(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, visibleArea: IRectangle) -> Unit>()
 
     override fun setPos(x: Int, y: Int): Pair<Int, Int> {
         relativeBody.setPos(x, y)
@@ -68,18 +69,18 @@ abstract class DrawableParagraph : Drawable, GuideBookMouseInteractable {
     override fun isMouseHovering(mouseX: Float, mouseY: Float): Boolean =
         absoluteBody.contains(mouseX, mouseY)
 
-    open fun drawChildren(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {}
+    open fun drawChildren(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {}
 
     /**
      * Registers a preRender callback to call on preRender.
      */
-    fun registerPreRenderCallback(callable: (mouseX: Float, mouseY: Float, visibleArea: IRectangle) -> Unit) {
+    fun registerPreRenderCallback(callable: (guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, visibleArea: IRectangle) -> Unit) {
         preRenderCallbacks.add(callable)
     }
 
-    open fun preRender(mouseX: Float, mouseY: Float, visibleArea: IRectangle) =
+    open fun preRender(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, visibleArea: IRectangle) =
         preRenderCallbacks.forEach { function ->
-            function.invoke(mouseX, mouseY, visibleArea)
+            function.invoke(guiGraphics, mouseX, mouseY, visibleArea)
         }
 
     abstract fun getHovered(mouseX: Float, mouseY: Float): Drawable?

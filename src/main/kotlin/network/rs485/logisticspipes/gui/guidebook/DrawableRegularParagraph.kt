@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 
@@ -61,19 +62,25 @@ class DrawableRegularParagraph(private val words: List<DrawableWord>) : Drawable
         words.find { it.isMouseHovering(mouseX, mouseY) }?.inBookMouseClicked(mouseX, mouseY, mouseButton, guideActionListener)
             ?: false
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        super.draw(mouseX, mouseY, delta, visibleArea)
-        drawChildren(mouseX, mouseY, delta, visibleArea)
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+        super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
+        drawChildren(guiGraphics, mouseX, mouseY, delta, visibleArea)
     }
 
-    override fun drawChildren(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun drawChildren(
+        guiGraphics: GuiGraphics,
+        mouseX: Float,
+        mouseY: Float,
+        delta: Float,
+        visibleArea: IRectangle
+    ) {
         val lines = words.groupBy { it.top }.values
         // Split by lines
         for (line in lines) {
             // Check if first (representative of the whole line) is visible, aka contained within the visible area.
             if (line.first().visible(visibleArea)) {
                 for (drawable in line) {
-                    drawable.draw(mouseX, mouseY, delta, visibleArea)
+                    drawable.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
                 }
             }
         }

@@ -44,6 +44,7 @@ import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import logisticspipes.utils.gui.SimpleGraphics
+import net.minecraft.client.gui.GuiGraphics
 
 class LabelWidget(
     parent: Drawable,
@@ -107,10 +108,9 @@ class LabelWidget(
         overflowing = text != trimmedText
     }
 
-    override fun draw(mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        val gg = SimpleGraphics.guiGraphics ?: return
+    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (backgroundColor != 0) {
-            gg.fill(absoluteBody.roundedLeft, absoluteBody.roundedTop, absoluteBody.roundedRight, absoluteBody.roundedBottom, backgroundColor)
+            guiGraphics.fill(absoluteBody.roundedLeft, absoluteBody.roundedTop, absoluteBody.roundedRight, absoluteBody.roundedBottom, backgroundColor)
         }
         val drawText = if (extendable) text else trimmedText
         val textWidth = GuiDrawer.mcFontRenderer.width(drawText)
@@ -120,7 +120,7 @@ class LabelWidget(
             HorizontalAlignment.CENTER -> absoluteBody.roundedLeft + (absoluteBody.roundedWidth - textWidth) / 2
             HorizontalAlignment.RIGHT -> absoluteBody.roundedRight - textWidth - 2
         }
-        gg.drawString(GuiDrawer.mcFontRenderer, drawText, textX, textY, textColor, false)
+        guiGraphics.drawString(GuiDrawer.mcFontRenderer, drawText, textX, textY, textColor, false)
     }
 
     private fun trimText(text: String): String {

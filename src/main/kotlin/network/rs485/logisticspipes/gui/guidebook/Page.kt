@@ -40,6 +40,7 @@ package network.rs485.logisticspipes.gui.guidebook
 import net.minecraft.nbt.CompoundTag
 import network.rs485.logisticspipes.guidebook.BookContents
 import network.rs485.logisticspipes.util.*
+import net.minecraft.client.gui.GuiGraphics
 
 
 interface IPageData : LPSerializable {
@@ -139,9 +140,9 @@ class Page(data: PageData) : IPageData by data {
     fun cycleColor(inverted: Boolean = false) =
         cycleMinecraftColorId((color ?: 0), inverted).also { color = it }
 
-    fun draw(visibleArea: IRectangle, mouseX: Float, mouseY: Float, partialTicks: Float) {
-        drawable.preRender(mouseX, mouseY, visibleArea)
-        drawable.draw(mouseX, mouseY, partialTicks, visibleArea)
+    fun draw(guiGraphics: GuiGraphics, visibleArea: IRectangle, mouseX: Float, mouseY: Float, partialTicks: Float) {
+        drawable.preRender(guiGraphics, mouseX, mouseY, visibleArea)
+        drawable.draw(guiGraphics, mouseX, mouseY, partialTicks, visibleArea)
     }
 
     fun getHovered(mouseX: Float, mouseY: Float) = drawable.getHovered(mouseX, mouseY)
