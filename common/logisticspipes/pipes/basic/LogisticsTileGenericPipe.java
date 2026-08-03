@@ -125,6 +125,8 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	private boolean blockNeighborChange = false;
 	private boolean refreshRenderState = false;
 	private boolean pipeBound = false;
+	/** Set by {@link #onChunkUnloaded()}, which NeoForge calls right before setRemoved() when a chunk unloads. */
+	private boolean chunkUnloading = false;
 	private EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers;
 
 	public LogisticsTileGenericPipe(BlockPos pos, BlockState state) {
@@ -137,6 +139,15 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	@Override
 	public void setRemoved() {
+		// A chunk unload also reaches setRemoved(), but the pipe is not gone: tearing the router down
+		// here would discard the routing state of every chunk that leaves the view distance, and the
+		// adjacency rescan it triggers loads neighbor chunks — during shutdown that deadlocks the save.
+		if (chunkUnloading) {
+			initialized = false;
+			tileBuffer = null;
+			super.setRemoved();
+			return;
+		}
 		if (pipe == null) {
             initialized = false;
 			tileBuffer = null;
@@ -153,6 +164,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	@Override
 	public void onLoad() {
 		super.onLoad();
+		chunkUnloading = false;
 		initialized = false;
 		tileBuffer = null;
 		bindPipe();
@@ -162,8 +174,10 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		TEControl.validate(this);
 	}
 
-	// onChunkUnload() removed in 1.20.1 — call manually if needed, or hook level unload events
-	public void onChunkUnload() {
+	/** NeoForge callback, fired by LevelChunk#clearAllBlockEntities just before setRemoved(). */
+	@Override
+	public void onChunkUnloaded() {
+		chunkUnloading = true;
 		if (pipe != null) {
 			pipe.onChunkUnload();
 		}

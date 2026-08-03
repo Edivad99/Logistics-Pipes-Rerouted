@@ -60,8 +60,12 @@ public class InventoryUtilFactory {
 			if (util != null) {
 				return util;
 			}
-			// NeoForge 1.20.1 (47.1.x): old Capability<T> API via BlockEntity.getCapability
-			IItemHandler handler = tile.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), direction);
+			// Pass the known block entity: the short getCapability() overload looks the state and the
+			// block entity up on the level, and that goes through getChunk() — a *blocking chunk load*.
+			// Called from the pipe adjacency scan, which also runs while a chunk is being unloaded, it
+			// would start a chunk generation task the server can no longer finish and hang the save.
+			IItemHandler handler = tile.getLevel().getCapability(
+					Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), tile.getBlockState(), tile, direction);
 			if (handler != null) {
 				return new InventoryUtil(handler, mode);
 			}
