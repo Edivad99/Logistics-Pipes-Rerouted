@@ -5,6 +5,8 @@ import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IPowerLevelDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.SimpleGraphics;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -20,17 +22,17 @@ public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer
 
 	@Override
 	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-		LPGuiGraphics.drawGuiBackGround(-60, -40, 60, 40, 0, false);
+        GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
+        LPGuiGraphics.drawGuiBackGround(guiGraphics, -60, -40, 60, 40, 0, false);
 		super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
-		GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
-		if (gg == null) return;
+		if (guiGraphics == null) return;
 		// Frame (uv 9,10 size 7x61 on 256x256 texture)
-		gg.blit(TEXTURE, -50, -30, 9.0f, 10.0f, 7, 61, 256, 256);
+		guiGraphics.blit(TEXTURE, -50, -30, 9.0f, 10.0f, 7, 61, 256, 256);
 		int level = 100 - junction.getChargeState();
 		int filled = 59 - (level * 59 / 100);
 		if (filled > 0) {
 			// Fill bar (uv 176, level*59/100 size 5 x filled)
-			gg.blit(TEXTURE, -49, -29 + (level * 59 / 100), 176.0f, (float)(level * 59 / 100), 5, filled, 256, 256);
+			guiGraphics.blit(TEXTURE, -49, -29 + (level * 59 / 100), 176.0f, (float)(level * 59 / 100), 5, filled, 256, 256);
 		}
 	}
 

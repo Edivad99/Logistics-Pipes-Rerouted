@@ -1,6 +1,12 @@
 package logisticspipes.gui.popup;
 
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
+import org.joml.Matrix4f;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -11,6 +17,7 @@ import java.util.List;
 
 import logisticspipes.LPConstants;
 
+import net.minecraft.client.Screenshot;
 import net.minecraft.world.level.block.Block;
 
 import logisticspipes.LogisticsPipes;
@@ -19,6 +26,7 @@ import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.SimpleGraphics;
+import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
@@ -120,20 +128,20 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	@Override
 	public void init() {
 		super.init();
-		logisticspipes.utils.gui.SmallGuiButton closeBtn = new logisticspipes.utils.gui.SmallGuiButton(0, width / 2 - 90, height / 2 + 74, 80, 20, "Close");
+		SmallGuiButton closeBtn = new SmallGuiButton(0, width / 2 - 90, height / 2 + 74, 80, 20, "Close");
 		closeBtn.setPressListener(b -> exitGui());
 		addRenderableWidget(closeBtn);
-		logisticspipes.utils.gui.SmallGuiButton saveBtn = new logisticspipes.utils.gui.SmallGuiButton(1, width / 2 + 10, height / 2 + 74, 80, 20, "Save as Image");
+		SmallGuiButton saveBtn = new SmallGuiButton(1, width / 2 + 10, height / 2 + 74, 80, 20, "Save as Image");
 		saveBtn.setPressListener(b -> saveTreeToImage());
 		addRenderableWidget(saveBtn);
 	}
 
 	@Override
-	protected void renderToolTips(int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
 		if (tooltip != null && tooltip.length >= 5) {
 			@SuppressWarnings("unchecked")
 			List<String> lines = (List<String>) tooltip[4];
-			getGuiGraphics().renderComponentTooltip(minecraft.font,
+            guiGraphics.renderComponentTooltip(minecraft.font,
 					lines.stream().map(net.minecraft.network.chat.Component::literal).collect(java.util.stream.Collectors.toList()),
 					(int) tooltip[0], (int) tooltip[1]);
 		}
@@ -166,8 +174,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 
 		createBoundary();
-		drawTransparentBack();
-		drawMap(mouseX, mouseY);
+		drawTransparentBack(guiGraphics);
+		drawMap(guiGraphics, mouseX, mouseY);
 	}
 
 	private void createBoundary() {
@@ -178,8 +186,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		findLowest(_table.watchedRequests.get(orderId).getValue2(), -200);
 	}
 
-	private void drawTransparentBack() {
-		SimpleGraphics.drawGradientRect(0, 0, width, height, Color.BLANK, Color.BLANK, 0.0);
+	private void drawTransparentBack(GuiGraphics guiGraphics) {
+		SimpleGraphics.drawGradientRect(guiGraphics, 0, 0, width, height, Color.BLANK, Color.BLANK, 0.0);
 	}
 
 	private void findLowest(LinkedLogisticsOrderList list, int lowerLimit) {
@@ -205,22 +213,22 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int anchorY = 60;
 
 		int oldGuiLeft = guiLeft, oldGuiTop = guiTop, oldXSize = xSize, oldYSize = ySize;
-		GuiGraphics oldStored = getGuiGraphics();
-		com.mojang.blaze3d.pipeline.TextureTarget target = new com.mojang.blaze3d.pipeline.TextureTarget(imgWidth, imgHeight, true, Minecraft.ON_OSX);
-		com.mojang.blaze3d.vertex.PoseStack modelView = oldStored.pose();
+		//GuiGraphics oldStored = getGuiGraphics();
+        GuiGraphics gg = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
+        PoseStack modelView = gg.pose();
+		TextureTarget target = new TextureTarget(imgWidth, imgHeight, true, Minecraft.ON_OSX);
 		try {
-			target.setClearColor(0.15F, 0.15F, 0.15F, 1.0F);
+
+            target.setClearColor(0.15F, 0.15F, 0.15F, 1.0F);
 			target.clear(Minecraft.ON_OSX);
 			target.bindWrite(true);
-			RenderSystem.setProjectionMatrix(new org.joml.Matrix4f().setOrtho(0.0F, imgWidth, imgHeight, 0.0F, 1000.0F, 21000.0F),
-					com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z);
+			RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, imgWidth, imgHeight, 0.0F, 1000.0F, 21000.0F),
+					VertexSorting.ORTHOGRAPHIC_Z);
 			modelView.pushPose();
 			modelView.setIdentity();
 			modelView.translate(0.0D, 0.0D, -11000.0D);
 			RenderSystem.applyModelViewMatrix();
 
-			GuiGraphics gg = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
-			storedGuiGraphics = gg;
 			SimpleGraphics.guiGraphics = gg;
 			// Widen the clip rect so renderItemAt draws the full tree instead of the popup viewport
 			guiLeft = -1;
@@ -230,20 +238,20 @@ public class RequestMonitorPopup extends SubGuiScreen {
 
 			RenderSystem.disableBlend();
 			if (!list.isEmpty()) {
-				SimpleGraphics.drawVerticalLine(anchorX + 8, anchorY - 17, anchorY, Color.GREEN, 1);
+				SimpleGraphics.drawVerticalLine(gg, anchorX + 8, anchorY - 17, anchorY, Color.GREEN, 1);
 			}
-			renderLinkedOrderListLines(list, anchorX, anchorY);
+			renderLinkedOrderListLines(gg, list, anchorX, anchorY);
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			String s = Integer.toString(orderId);
 			int badgeY = list.isEmpty() ? anchorY + 18 : anchorY - 40;
 			gg.blit(RequestMonitorPopup.achievementTextures, anchorX - 5, badgeY, 0.0f, 202.0f, 26, 26, 256, 256);
 			gg.drawString(minecraft.font, s, anchorX + 9 - minecraft.font.width(s) / 2, badgeY + 10, 16777215, true);
-			renderLinkedOrderListItems(list, anchorX, anchorY, Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2);
+			renderLinkedOrderListItems(gg, list, anchorX, anchorY, Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			RenderSystem.enableBlend();
 			gg.flush();
 
-			com.mojang.blaze3d.platform.NativeImage image = net.minecraft.client.Screenshot.takeScreenshot(target);
+			NativeImage image = Screenshot.takeScreenshot(target);
 			saveImage(image);
 		} catch (Exception e) {
 			LogisticsPipes.LOG.error("Failed to render tree view PNG", e);
@@ -252,8 +260,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			guiTop = oldGuiTop;
 			xSize = oldXSize;
 			ySize = oldYSize;
-			storedGuiGraphics = oldStored;
-			SimpleGraphics.guiGraphics = oldStored;
+			//storedGuiGraphics = oldStored;
+			//SimpleGraphics.guiGraphics = oldStored;
 			modelView.popPose();
 			RenderSystem.applyModelViewMatrix();
 			target.destroyBuffers();
@@ -292,7 +300,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 	}
 
-	private void drawMap(int par1, int par2) {
+	private void drawMap(GuiGraphics guiGraphics, int par1, int par2) {
 		tooltip = null;
 		int mapX = (int) Math.floor(guiMapX);
 		int mapY = (int) Math.floor(guiMapY - zoom.moveY);
@@ -300,7 +308,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int topSide = ((height - ySize) / 2);
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
+        guiGraphics.blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 
 		guiTop *= 1 / zoom.zoom;
 		guiLeft *= 1 / zoom.zoom;
@@ -317,24 +325,24 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		RenderSystem.disableBlend();
 		LinkedLogisticsOrderList list = _table.watchedRequests.get(orderId).getValue2();
 		if (!list.isEmpty()) {
-			SimpleGraphics.drawVerticalLine(innerLeftSide - mapX + 110, innerTopSide - mapY - 197, innerTopSide - mapY - 180, Color.GREEN, zoom.line);
+			SimpleGraphics.drawVerticalLine(guiGraphics, innerLeftSide - mapX + 110, innerTopSide - mapY - 197, innerTopSide - mapY - 180, Color.GREEN, zoom.line);
 		}
-		renderLinkedOrderListLines(list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180);
+		renderLinkedOrderListLines(guiGraphics, list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180);
 		for (Float progress : list.getProgresses()) {
 			int pos = (int) (29.0F * progress);
-			drawProgressPoint(innerLeftSide - mapX + 110, innerTopSide - mapY - 197 + pos, 0xff00ff00);
+			drawProgressPoint(guiGraphics, innerLeftSide - mapX + 110, innerTopSide - mapY - 197 + pos, 0xff00ff00);
 		}
 
 		RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 		String s = Integer.toString(orderId);
 		if (!list.isEmpty()) {
-			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0.0f, 202.0f, 26, 26, 256, 256);
-			getGuiGraphics().drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 210, 16777215, true);
+			guiGraphics.blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0.0f, 202.0f, 26, 26, 256, 256);
+			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 210, 16777215, true);
 		} else {
-			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0.0f, 202.0f, 26, 26, 256, 256);
-			getGuiGraphics().drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 16777215, true);
+			guiGraphics.blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0.0f, 202.0f, 26, 26, 256, 256);
+			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 16777215, true);
 		}
-		renderLinkedOrderListItems(list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180, par1, par2);
+		renderLinkedOrderListItems(guiGraphics, list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180, par1, par2);
 		RenderSystem.enableBlend();
 
 		guiTop *= zoom.zoom;
@@ -345,10 +353,10 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		topSide *= zoom.zoom;
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
+        guiGraphics.blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 	}
 
-	private void renderLinkedOrderListItems(LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
+	private void renderLinkedOrderListItems(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
 		int size = list.size();
 		int startLeft = -(size - 1) * (30 / 2) + xPos;
 		yPos += 13;
@@ -360,13 +368,13 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			}
 			// GL_LIGHTING removed — use shaders
 			RenderSystem.setShaderTexture(0, RequestMonitorPopup.achievementTextures);
-			getGuiGraphics().blit(RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
+            guiGraphics.blit(RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
-			renderItemAt(aList.getAsDisplayItem(), startLeft, yPos);
+			renderItemAt(guiGraphics, aList.getAsDisplayItem(), startLeft, yPos);
 			if (aList.isInProgress() && aList.getMachineProgress() != 0) {
-				getGuiGraphics().fill(startLeft - 4, yPos + 20, startLeft + 20, yPos + 24, 0xff000000);
-				getGuiGraphics().fill(startLeft - 3, yPos + 21, startLeft + 19, yPos + 23, 0xffffffff);
-				getGuiGraphics().fill(startLeft - 3, yPos + 21, startLeft - 3 + (22 * aList.getMachineProgress() / 100), yPos + 23, 0xffff0000);
+				guiGraphics.fill(startLeft - 4, yPos + 20, startLeft + 20, yPos + 24, 0xff000000);
+				guiGraphics.fill(startLeft - 3, yPos + 21, startLeft + 19, yPos + 23, 0xffffffff);
+				guiGraphics.fill(startLeft - 3, yPos + 21, startLeft - 3 + (22 * aList.getMachineProgress() / 100), yPos + 23, 0xffff0000);
 			}
 			if (startLeft - 10 < par1 && par1 < startLeft + 20 && yPos - 6 < par2 && par2 < yPos + 20) {
 				if (guiLeft < par1 && par1 < guiLeft + xSize - 16 && guiTop < par2 && par2 < guiTop + ySize - 16) {
@@ -384,13 +392,13 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		if (!list.getSubOrders().isEmpty()) {
 			for (int i = 0; i < list.getSubOrders().size(); i++) {
 				startLeft += list.getSubOrders().get(i).getTreeRootSize() * (40 / 2);
-				renderLinkedOrderListItems(list.getSubOrders().get(i), startLeft - 20, yPos + 48, par1, par2);
+				renderLinkedOrderListItems(guiGraphics, list.getSubOrders().get(i), startLeft - 20, yPos + 48, par1, par2);
 				startLeft += list.getSubOrders().get(i).getTreeRootSize() * (40 / 2);
 			}
 		}
 	}
 
-	private void renderLinkedOrderListLines(LinkedLogisticsOrderList list, int xPos, int yPos) {
+	private void renderLinkedOrderListLines(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos) {
 		int size = list.size();
 		if (list.isEmpty()) {
 			size = 1;
@@ -399,39 +407,39 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		yPos += 13;
 		int left = startLeft;
 		for (int i = 0; i < list.size(); i++) {
-			SimpleGraphics.drawVerticalLine(startLeft + 8, yPos - 13, yPos - 3, Color.GREEN, zoom.line);
+			SimpleGraphics.drawVerticalLine(guiGraphics, startLeft + 8, yPos - 13, yPos - 3, Color.GREEN, zoom.line);
 			if (!list.getSubOrders().isEmpty()) {
-				SimpleGraphics.drawVerticalLine(startLeft + 8, yPos + 18, yPos + 28, Color.GREEN, zoom.line);
+				SimpleGraphics.drawVerticalLine(guiGraphics, startLeft + 8, yPos + 18, yPos + 28, Color.GREEN, zoom.line);
 			}
 			startLeft += 30;
 		}
 		if (!list.isEmpty()) {
-			SimpleGraphics.drawHorizontalLine(left + 8, startLeft - 22, yPos - 13, Color.GREEN, zoom.line);
+			SimpleGraphics.drawHorizontalLine(guiGraphics, left + 8, startLeft - 22, yPos - 13, Color.GREEN, zoom.line);
 		}
 		if (!list.getSubOrders().isEmpty()) {
 			if (!list.isEmpty()) {
-				SimpleGraphics.drawHorizontalLine(left + 8, startLeft - 22, yPos + 28, Color.GREEN, zoom.line);
+				SimpleGraphics.drawHorizontalLine(guiGraphics, left + 8, startLeft - 22, yPos + 28, Color.GREEN, zoom.line);
 				startLeft -= 30;
 			}
-			SimpleGraphics.drawVerticalLine(left + ((startLeft - left) / 2) + 8, yPos + 28, yPos + 38, Color.GREEN, zoom.line);
+			SimpleGraphics.drawVerticalLine(guiGraphics, left + ((startLeft - left) / 2) + 8, yPos + 28, yPos + 38, Color.GREEN, zoom.line);
 			startLeft = xPos + 20 - list.getSubTreeRootSize() * (40 / 2);
 			left = startLeft;
 			for (int i = 0; i < list.getSubOrders().size(); i++) {
 				startLeft += list.getSubOrders().get(i).getTreeRootSize() * (40 / 2);
-				SimpleGraphics.drawVerticalLine(startLeft - 12, yPos + 38, yPos + 48, Color.GREEN, zoom.line);
-				drawPointFor(list, xPos, yPos, i, startLeft);
-				renderLinkedOrderListLines(list.getSubOrders().get(i), startLeft - 20, yPos + 48);
+				SimpleGraphics.drawVerticalLine(guiGraphics, startLeft - 12, yPos + 38, yPos + 48, Color.GREEN, zoom.line);
+				drawPointFor(guiGraphics, list, xPos, yPos, i, startLeft);
+				renderLinkedOrderListLines(guiGraphics, list.getSubOrders().get(i), startLeft - 20, yPos + 48);
 				startLeft += list.getSubOrders().get(i).getTreeRootSize() * (40 / 2);
 			}
 			if (!list.getSubOrders().isEmpty()) {
 				left += list.getSubOrders().get(0).getTreeRootSize() * (40 / 2);
 				startLeft -= list.getSubOrders().get(list.getSubOrders().size() - 1).getTreeRootSize() * (40 / 2);
 			}
-			SimpleGraphics.drawHorizontalLine(left - 12, startLeft - 12, yPos + 38, Color.GREEN, zoom.line);
+			SimpleGraphics.drawHorizontalLine(guiGraphics, left - 12, startLeft - 12, yPos + 38, Color.GREEN, zoom.line);
 		}
 	}
 
-	private void drawPointFor(LinkedLogisticsOrderList list, int xPos, int yPos, int i, int startLeft) {
+	private void drawPointFor(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int i, int startLeft) {
 		float totalLine = 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10;
 		for (Float point : list.getSubOrders().get(i).getProgresses()) {
 			int pos = (int) (totalLine * (1.0F - point));
@@ -439,47 +447,47 @@ public class RequestMonitorPopup extends SubGuiScreen {
 				int newSize = list.getSubOrders().get(i).size();
 				int newStartLeft = -(newSize - 1) * (30 / 2) + startLeft - 20;
 				for (int j = 0; j < newSize; j++) {
-					drawProgressPoint(newStartLeft + 8, yPos + 48 + 12 - pos, 0xff00ff00);
+					drawProgressPoint(guiGraphics, newStartLeft + 8, yPos + 48 + 12 - pos, 0xff00ff00);
 					newStartLeft += 30;
 				}
 			} else if (pos < 10 + 1 + 10 + 1) {
 				pos -= 10;
-				drawProgressPoint(startLeft - 20 + 8, yPos + 38 + 12 - pos, 0xff00ff00);
+				drawProgressPoint(guiGraphics, startLeft - 20 + 8, yPos + 38 + 12 - pos, 0xff00ff00);
 			} else if (pos < Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10 + 1) {
 				pos -= 10 + 1 + 10 + 1;
 				if (startLeft < xPos + 20) {
 					pos *= -1;
 				}
-				drawProgressPoint(startLeft - 12 - pos, yPos + 38, 0xff00ff00);
+				drawProgressPoint(guiGraphics, startLeft - 12 - pos, yPos + 38, 0xff00ff00);
 			} else if (pos < Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10 + 1 + 10 + 1) {
 				pos -= 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1;
-				drawProgressPoint(xPos + 8, yPos + 27 - pos, 0xff00ff00);
+				drawProgressPoint(guiGraphics, xPos + 8, yPos + 27 - pos, 0xff00ff00);
 			} else if (pos < Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10 + 1 + 10 + 1 + 10 + 1) {
 				pos -= 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10 + 1;
 				int newSize = list.size();
 				int newStartLeft = -(newSize - 1) * (30 / 2) + xPos;
 				for (int j = 0; j < newSize; j++) {
-					drawProgressPoint(newStartLeft + 8, yPos + 16 - pos, 0xff00ff00);
+					drawProgressPoint(guiGraphics, newStartLeft + 8, yPos + 16 - pos, 0xff00ff00);
 					newStartLeft += 30;
 				}
 			}
 		}
 	}
 
-	private void renderItemAt(ItemIdentifierStack item, int x, int y) {
+	private void renderItemAt(GuiGraphics guiGraphics, ItemIdentifierStack item, int x, int y) {
 		if (guiLeft < x && x < guiLeft + xSize - 16 && guiTop < y && y < guiTop + ySize - 16) {
 			net.minecraft.world.item.ItemStack stack = item.getItem().unsafeMakeNormalStack(1);
 			if (!stack.isEmpty()) {
-				getGuiGraphics().renderItem(stack, x, y);
+                guiGraphics.renderItem(stack, x, y);
 			}
 			String s = TextUtil.getThreeDigitFormattedNumber(item.getStackSize(), false);
-			getGuiGraphics().drawString(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 16777215, true);
+            guiGraphics.drawString(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 16777215, true);
 		}
 	}
 
-	protected void drawProgressPoint(int x, int y, int color) {
+	protected void drawProgressPoint(GuiGraphics guiGraphics, int x, int y, int color) {
 		int line = zoom.line + 1;
-		getGuiGraphics().fill(x - line + 1, y - line + 1, x + line, y + line, color);
+		guiGraphics.fill(x - line + 1, y - line + 1, x + line, y + line, color);
 	}
 
 	private TextureAtlasSprite getTexture(Block blockIn) {

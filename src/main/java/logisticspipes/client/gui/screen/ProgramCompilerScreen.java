@@ -128,76 +128,83 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
         programListLarge = new TextListDisplay(this, 8, 30, 8, 104, 5, programTextList);
     }
 
-	@Override
-	public void init() {
-		super.init();
-		catUp = new SmallGuiButton(0, leftPos + 8, topPos + 90, 15, 10, "/\\");
-		catUp.setPressListener(b -> categoryList.scrollDown());
-		addRenderableWidget(catUp);
-		catDn = new SmallGuiButton(1, leftPos + 24, topPos + 90, 15, 10, "\\/");
-		catDn.setPressListener(b -> categoryList.scrollUp());
-		addRenderableWidget(catDn);
-		unlock = new SmallGuiButton(2, leftPos + 40, topPos + 90, 40, 10, "Unlock");
-		unlock.setPressListener(b -> {
-			if (categoryList.getSelected() != -1) {
-				ListTag list = compiler.getListTagForKey("compilerCategories");
-				LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-						.filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.getAsString().equals(it.toString())))
-						.skip(categoryList.getSelected())
-						.findFirst()
-						.ifPresent(it -> MainProxy.sendPacketToServer(
-								PacketHandler.getPacket(CompilerTriggerTaskPacket.class)
-								.setCategory(it)
-								.setType("category")
-								.setTilePos(compiler))
-						);
-			}
-		});
-		addRenderableWidget(unlock);
-		progUp = new SmallGuiButton(3, leftPos + 100, topPos + 90, 15, 10, "/\\");
-		progUp.setPressListener(b -> {
-			if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) programListLarge.scrollDown();
-			else programList.scrollDown();
-		});
-		addRenderableWidget(progUp);
-		progDn = new SmallGuiButton(4, leftPos + 116, topPos + 90, 15, 10, "\\/");
-		progDn.setPressListener(b -> {
-			if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) programListLarge.scrollUp();
-			else programList.scrollUp();
-		});
-		addRenderableWidget(progDn);
-		programmerButton = new SmallGuiButton(5, leftPos + 132, topPos + 90, 40, 10, "Compile");
-		programmerButton.setPressListener(b -> {
-			int selIndex = programList.getSelected();
-			if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {
-				selIndex = programListLarge.getSelected();
-			}
-			if (selIndex != -1) {
-				ListTag list = compiler.getListTagForKey("compilerCategories");
-				ResourceLocation sel = getProgramListForSelectionIndex(list).get(selIndex);
-				ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
-				boolean flag = listPrograms.stream()
-						.anyMatch(it ->ResourceLocation.parse(it.getAsString()).equals(sel));
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(CompilerTriggerTaskPacket.class).setCategory(sel).setType(flag ? "flash" : "program").setTilePos(compiler));
-			}
-		});
-		addRenderableWidget(programmerButton);
+    @Override
+    public void init() {
+        super.init();
+        catUp = new SmallGuiButton(0, leftPos + 8, topPos + 90, 15, 10, "/\\");
+        catUp.setPressListener(b -> categoryList.scrollDown());
+        addRenderableWidget(catUp);
+        catDn = new SmallGuiButton(1, leftPos + 24, topPos + 90, 15, 10, "\\/");
+        catDn.setPressListener(b -> categoryList.scrollUp());
+        addRenderableWidget(catDn);
+        unlock = new SmallGuiButton(2, leftPos + 40, topPos + 90, 40, 10, "Unlock");
+        unlock.setPressListener(b -> {
+            if (categoryList.getSelected() != -1) {
+                ListTag list = compiler.getListTagForKey("compilerCategories");
+                LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
+                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.getAsString().equals(it.toString())))
+                    .skip(categoryList.getSelected())
+                    .findFirst()
+                    .ifPresent(it -> MainProxy.sendPacketToServer(
+                        PacketHandler.getPacket(CompilerTriggerTaskPacket.class)
+                            .setCategory(it)
+                            .setType("category")
+                            .setTilePos(compiler))
+                    );
+            }
+        });
+        addRenderableWidget(unlock);
+        progUp = new SmallGuiButton(3, leftPos + 100, topPos + 90, 15, 10, "/\\");
+        progUp.setPressListener(b -> {
+            if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {
+                programListLarge.scrollDown();
+            } else {
+                programList.scrollDown();
+            }
+        });
+        addRenderableWidget(progUp);
+        progDn = new SmallGuiButton(4, leftPos + 116, topPos + 90, 15, 10, "\\/");
+        progDn.setPressListener(b -> {
+            if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {
+                programListLarge.scrollUp();
+            } else {
+                programList.scrollUp();
+            }
+        });
+        addRenderableWidget(progDn);
+        programmerButton = new SmallGuiButton(5, leftPos + 132, topPos + 90, 40, 10, "Compile");
+        programmerButton.setPressListener(b -> {
+            int selIndex = programList.getSelected();
+            if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {
+                selIndex = programListLarge.getSelected();
+            }
+            if (selIndex != -1) {
+                ListTag list = compiler.getListTagForKey("compilerCategories");
+                ResourceLocation sel = getProgramListForSelectionIndex(list).get(selIndex);
+                ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
+                boolean flag = listPrograms.stream()
+                    .anyMatch(it -> ResourceLocation.parse(it.getAsString()).equals(sel));
+                MainProxy.sendPacketToServer(PacketHandler.getPacket(CompilerTriggerTaskPacket.class).setCategory(sel)
+                    .setType(flag ? "flash" : "program").setTilePos(compiler));
+            }
+        });
+        addRenderableWidget(programmerButton);
 
-		search = new InputBar(font, this, leftPos + 30, topPos + 11, 120, 16);
-	}
+        search = new InputBar(font, this, leftPos + 30, topPos + 11, 120, 16);
+        addRenderableWidget(search);
+    }
 
     @Override
     public void closeGui() throws IOException {
         super.closeGui();
-
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics , leftPos + 10, topPos + 105);
-        LPGuiGraphics.drawSlotDiskBackground(guiGraphics , leftPos + 9, topPos + 9);
-        LPGuiGraphics.drawSlotProgrammerBackground(guiGraphics , leftPos + 153, topPos + 9);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 105);
+        LPGuiGraphics.drawSlotDiskBackground(guiGraphics, leftPos + 9, topPos + 9);
+        LPGuiGraphics.drawSlotProgrammerBackground(guiGraphics, leftPos + 153, topPos + 9);
 
         if (compiler.getCurrentTask() != null) {
             guiGraphics.fill(leftPos + 9, topPos + 50, leftPos + 171, topPos + 66, Color.getValue(Color.BLACK));
@@ -222,16 +229,14 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 catUp.visible = false;
                 catDn.visible = false;
                 unlock.visible = false;
-                programListLarge.renderGuiBackground(var2, var3);
+                programListLarge.renderGuiBackground(guiGraphics, var2, var3);
             } else {
                 catUp.visible = true;
                 catDn.visible = true;
                 unlock.visible = true;
-                categoryList.renderGuiBackground(var2, var3);
-                programList.renderGuiBackground(var2, var3);
+                categoryList.renderGuiBackground(guiGraphics, var2, var3);
+                programList.renderGuiBackground(guiGraphics, var2, var3);
             }
-
-            search.drawTextBox();
 
             int selIndex = programList.getSelected();
             if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {
@@ -261,7 +266,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                         ResourceLocation.parse(nbtBase.getAsString()))
                     .stream())
             .filter(it -> TextUtil.translate(BuiltInRegistries.ITEM.get(it).getDescriptionId()).toLowerCase()
-                .contains(search.getText().toLowerCase()))
+                .contains(search.getValue().toLowerCase()))
             .sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(BuiltInRegistries.ITEM.get(o)))
                 .thenComparing(o -> TextUtil.translate(BuiltInRegistries.ITEM.get(o).getDescriptionId()).toLowerCase())
             )

@@ -61,7 +61,7 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 			} else if (checkPrivate.getState()) {
 				rights = ChannelInformation.AccessRights.PRIVATE;
 			}
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(AddNewChannelPacket.class).setName(this.textInput.getText()).setRights(rights).setSecurityStationID(security));
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(AddNewChannelPacket.class).setName(this.textInput.getValue()).setRights(rights).setSecurityStationID(security));
 			exitGui();
 		});
 		addRenderableWidget(saveBtn);
@@ -70,6 +70,7 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 			this.textInput = new InputBar(Minecraft.getInstance().font, this.getBaseScreen(), guiLeft + 30, guiTop + 32, right - guiLeft - 20, 15);
 		}
 		this.textInput.reposition(guiLeft + 10, guiTop + 34, right - guiLeft - 20, 15);
+        addRenderableWidget(this.textInput);
 
 		checkSecurity.active = responsibleSecurityID != null;
 	}
@@ -84,22 +85,16 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-		drawTitle(getGuiGraphics());
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "name"), guiLeft + 10, guiTop + 20, 0x404040, false);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "access") + ":", guiLeft + 10, guiTop + 55, 0x404040, false);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "public"), guiLeft + 10, guiTop + 70, 0x404040, false);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "security"), guiLeft + 10, guiTop + 85, responsibleSecurityID != null ? 0x404040 : 0x808080, false);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "private"), guiLeft + 10, guiTop + 100, 0x404040, false);
+		drawTitle(guiGraphics);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "name"), guiLeft + 10, guiTop + 20, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "access") + ":", guiLeft + 10, guiTop + 55, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "public"), guiLeft + 10, guiTop + 70, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "security"), guiLeft + 10, guiTop + 85, responsibleSecurityID != null ? 0x404040 : 0x808080, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "private"), guiLeft + 10, guiTop + 100, 0x404040, false);
 	}
 
 	protected void drawTitle(GuiGraphics guiGraphics) {
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2, guiTop + 6, 0xFFFFFF, true);
-	}
-
-	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
-		textInput.drawTextBox();
 	}
 
 	@Override

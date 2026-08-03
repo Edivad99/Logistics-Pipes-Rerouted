@@ -80,9 +80,9 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-		drawTitle(getGuiGraphics());
+		drawTitle(guiGraphics);
 
-		textList.renderGuiBackground(mouseX, mouseY);
+		textList.renderGuiBackground(guiGraphics, mouseX, mouseY);
 	}
 
 	@Override

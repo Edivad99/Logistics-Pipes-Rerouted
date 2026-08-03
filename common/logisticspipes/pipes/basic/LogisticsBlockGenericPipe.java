@@ -326,7 +326,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return pipe != null && pipe.transport != null && pipe.container != null;
 	}
 
-	public static boolean isValid(CoreUnroutedPipe pipe) {
+	public static boolean isValid(@Nullable CoreUnroutedPipe pipe) {
 		return LogisticsBlockGenericPipe.isFullyDefined(pipe);
 	}
 

@@ -5,6 +5,7 @@ import logisticspipes.utils.Color;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
@@ -56,11 +57,11 @@ public class TextListDisplay {
 		return false;
 	}
 
-	public void renderGuiBackground(int mouseX, int mouseY) {
+	public void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		mousePosX = mouseX;
 		mousePosY = mouseY;
 
-		gui.getGuiGraphics().fill(gui.getGuiLeft() + borderLeft, gui.getGuiTop() + borderTop, gui.getRight() - borderRight, gui.getBottom() - borderBottom, Color.getValue(Color.GREY));
+        guiGraphics.fill(gui.getGuiLeft() + borderLeft, gui.getGuiTop() + borderTop, gui.getRight() - borderRight, gui.getBottom() - borderBottom, Color.getValue(Color.GREY));
 
 		if (scroll + elementPerPage > list.getSize()) {
 			scroll = list.getSize() - elementPerPage;
@@ -91,7 +92,7 @@ public class TextListDisplay {
 
 		for (int i = scroll; i < list.getSize() && (i - scroll) < elementPerPage; i++) {
 			if (i == selected) {
-				gui.getGuiGraphics().fill(gui.getGuiLeft() + borderLeft + 2, gui.getGuiTop() + borderTop + 2 + ((i - scroll) * 10), gui.getRight() - borderRight - 2, gui.getGuiTop() + borderTop + 13 + ((i - scroll) * 10), Color.getValue(Color.DARKER_GREY));
+                guiGraphics.fill(gui.getGuiLeft() + borderLeft + 2, gui.getGuiTop() + borderTop + 2 + ((i - scroll) * 10), gui.getRight() - borderRight - 2, gui.getGuiTop() + borderTop + 13 + ((i - scroll) * 10), Color.getValue(Color.DARKER_GREY));
 				flag = true;
 			}
             String name = list.getTextAt(i);
@@ -99,8 +100,8 @@ public class TextListDisplay {
             int minX = gui.getGuiLeft() + borderLeft + 4;
             int maxX = gui.getGuiLeft() + gui.getXSize() - borderRight - 2;
 
-            gui.getGuiGraphics().drawScrollingString(
-                gui.getMC().font,
+            guiGraphics.drawScrollingString(
+                Minecraft.getInstance().font,
                 Component.literal(name),
                 minX,
                 maxX,

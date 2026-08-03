@@ -80,7 +80,7 @@ public class ChassisModule extends LogisticsModule implements Gui {
 	}
 
 	@Override
-	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		SinkReply bestresult = null;
 		for (SlottedModule slottedModule : modules) {

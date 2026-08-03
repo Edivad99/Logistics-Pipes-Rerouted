@@ -65,7 +65,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 
 		for (int i = 0; i < tabList.size(); i++) {
 			if (current_Tab == i) {
-				tabList.get(i).renderBackgroundContent();
+				tabList.get(i).renderBackgroundContent(guiGraphics);
 			}
 		}
 
@@ -115,7 +115,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 		super.renderLabels(guiGraphics, par1, par2);
 		for (int i = 0; i < tabList.size(); i++) {
 			if (current_Tab == i) {
-				tabList.get(i).renderForegroundContent();
+				tabList.get(i).renderForegroundContent(guiGraphics);
 			}
 		}
 	}
@@ -180,9 +180,9 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 
 		public abstract void renderIcon(GuiGraphics guiGraphics, int x, int y);
 
-		public abstract void renderBackgroundContent();
+		public abstract void renderBackgroundContent(GuiGraphics guiGraphics);
 
-		public abstract void renderForegroundContent();
+		public abstract void renderForegroundContent(GuiGraphics guiGraphics);
 
 		public boolean isSlotForTab(Slot slot) {
 			return TAB_SLOTS.contains(slot);

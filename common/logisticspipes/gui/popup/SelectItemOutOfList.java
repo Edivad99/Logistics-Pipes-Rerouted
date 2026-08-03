@@ -62,6 +62,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 			search = new InputBar(font, this.getBaseScreen(), guiLeft + 7, bottom - 23, right - guiLeft - 64, 15, false);
 		}
 		search.reposition(guiLeft + 7, bottom - 23, right - guiLeft - 64, 15);
+        addRenderableWidget(search);
 
 		if (itemDisplay == null) {
 			itemDisplay = new ItemDisplay(this, font, this.getBaseScreen(), null, guiLeft + 10, guiTop + 18, xSize - 20, ySize - 48, 0, 0, 0, new int[] { 1, 10, 64, 64 }, true);
@@ -78,10 +79,10 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	protected void renderToolTips(int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
 		Object[] tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
 		if (tip != null && tip.length >= 3) {
-			getGuiGraphics().renderTooltip(minecraft.font, (net.minecraft.world.item.ItemStack) tip[2], (int) tip[0], (int) tip[1]);
+			guiGraphics.renderTooltip(minecraft.font, (net.minecraft.world.item.ItemStack) tip[2], (int) tip[0], (int) tip[1]);
 		}
 	}
 
@@ -91,15 +92,12 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-		getGuiGraphics().drawString(font, TextUtil.translate("misc.selectType"), guiLeft + 8, guiTop + 6, 0x404040, false);
+        guiGraphics.drawString(font, TextUtil.translate("misc.selectType"), guiLeft + 8, guiTop + 6, 0x404040, false);
 
-		itemDisplay.renderPageNumber(right - 47, guiTop + 6);
-
-		//SearchInput
-		search.drawTextBox();
+		itemDisplay.renderPageNumber(guiGraphics, right - 47, guiTop + 6);
 
 		//itemDisplay.renderSortMode(xCenter, bottom - 52);
-		itemDisplay.renderItemArea(0.0f);
+		itemDisplay.renderItemArea(guiGraphics, 0.0f);
 	}
 
 	// Deferred: scroll wheel handling not wired
@@ -126,7 +124,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 		if (search.isEmpty()) {
 			return true;
 		}
-		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getText().toLowerCase(Locale.US))) {
+		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getValue().toLowerCase(Locale.US))) {
 			return true;
 		}
 		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
@@ -139,7 +137,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 
 			if (isSearched(
 					enchantName.toLowerCase(Locale.US),
-					search.getText().toLowerCase(Locale.US))) {
+					search.getValue().toLowerCase(Locale.US))) {
 				return true;
 			}
 		}

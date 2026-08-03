@@ -30,7 +30,7 @@ public class DiskSetNamePacket extends StringCoordinatesPacket {
 			return;
 		}
 		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2 pipeItemsRequestLogisticsMk2) {
-			if (pipeItemsRequestLogisticsMk2.getDisk() == null) {
+			if (pipeItemsRequestLogisticsMk2.getDisk().isEmpty()) {
 				return;
 			}
 			if (!pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.DISK.get())) {

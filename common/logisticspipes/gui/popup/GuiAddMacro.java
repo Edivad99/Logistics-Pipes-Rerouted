@@ -183,9 +183,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	// Deferred: scroll wheel handling not wired
 
 	@Override
-	protected void renderToolTips(int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
 		if (tooltip != null && tooltip.length >= 3) {
-			getGuiGraphics().renderTooltip(minecraft.font, (ItemStack) tooltip[2], (int) tooltip[0], (int) tooltip[1]);
+			guiGraphics.renderTooltip(minecraft.font, (ItemStack) tooltip[2], (int) tooltip[0], (int) tooltip[1]);
 		}
 	}
 
@@ -225,8 +225,8 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
 			if (!super.hasSubGui()) {
 				if (mouseX >= x && mouseX < x + panelXSize && mouseY >= y && mouseY < y + panelYSize) {
-					getGuiGraphics().fill(x - 3, y - 1, x + panelXSize - 3, y + panelYSize - 3, Color.getValue(Color.BLACK));
-					getGuiGraphics().fill(x - 2, y - 0, x + panelXSize - 4, y + panelYSize - 4, Color.getValue(Color.DARKER_GREY));
+					guiGraphics.fill(x - 3, y - 1, x + panelXSize - 3, y + panelYSize - 3, Color.getValue(Color.BLACK));
+					guiGraphics.fill(x - 2, y - 0, x + panelXSize - 4, y + panelYSize - 4, Color.getValue(Color.DARKER_GREY));
 					tooltip = new Object[] { mouseX, mouseY, st };
 				}
 
@@ -292,7 +292,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			}
 		}
 
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(diskProvider.getItemDisplay()._allItems, this, pageAll, guiLeft +9, guiTop +17, 9, 45, panelXSize, panelYSize, 100.0F, DisplayAmount.NEVER);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, diskProvider.getItemDisplay()._allItems, this, pageAll, guiLeft +9, guiTop +17, 9, 45, panelXSize, panelYSize, 100.0F, DisplayAmount.NEVER);
 
 		ppi = 0;
 		column = 0;
@@ -326,13 +326,13 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 				column = 0;
 			}
 		}
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(macroItems, this, pageMacro, guiLeft +10, guiTop +150, 9, 9, panelXSize, panelYSize, 100.0F, DisplayAmount.ALWAYS);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, macroItems, this, pageMacro, guiLeft +10, guiTop +150, 9, 9, panelXSize, panelYSize, 100.0F, DisplayAmount.ALWAYS);
 	}
 
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, false);
-		getGuiGraphics().drawString(minecraft.font, "Add Macro", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +6, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "Add Macro", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +6, 0x404040, false);
 
 		maxPageAll = (int) Math.floor((getSearchedItemNumber(diskProvider.getItemDisplay()._allItems) - 1) / 45F);
 		if (maxPageAll == -1) {
@@ -343,9 +343,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 		}
 
 		String pageString1 = "Page " + (pageAll + 1) + " / " + (maxPageAll + 1);
-		getGuiGraphics().drawString(minecraft.font, pageString1, right - 47 - minecraft.font.width(pageString1) / 2, guiTop +6, 0x404040, false);
+        guiGraphics.drawString(minecraft.font, pageString1, right - 47 - minecraft.font.width(pageString1) / 2, guiTop +6, 0x404040, false);
 
-		getGuiGraphics().drawString(minecraft.font, "Macro Items", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +136, 0x404040, false);
+        guiGraphics.drawString(minecraft.font, "Macro Items", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +136, 0x404040, false);
 
 		maxPageMacro = (int) Math.floor((getSearchedItemNumber(macroItems) - 1) / 9F);
 		if (maxPageMacro == -1) {
@@ -356,19 +356,19 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 		}
 
 		String pageString2 = "Page " + (pageMacro + 1) + " / " + (maxPageMacro + 1);
-		getGuiGraphics().drawString(minecraft.font, pageString2, right - 47 - minecraft.font.width(pageString2) / 2, guiTop +136, 0x404040, false);
+        guiGraphics.drawString(minecraft.font, pageString2, right - 47 - minecraft.font.width(pageString2) / 2, guiTop +136, 0x404040, false);
 
-		getGuiGraphics().drawString(minecraft.font, "Search:", guiLeft +8, guiTop +122, 0x404040, false);
+        guiGraphics.drawString(minecraft.font, "Search:", guiLeft +8, guiTop +122, 0x404040, false);
 
 		if (editSearch) {
-			getGuiGraphics().fill(guiLeft +50, bottom - 66, right - 10, bottom - 83, Color.getValue(Color.BLACK));
-			getGuiGraphics().fill(guiLeft +51, bottom - 67, right - 11, bottom - 82, Color.getValue(Color.WHITE));
+            guiGraphics.fill(guiLeft +50, bottom - 66, right - 10, bottom - 83, Color.getValue(Color.BLACK));
+            guiGraphics.fill(guiLeft +51, bottom - 67, right - 11, bottom - 82, Color.getValue(Color.WHITE));
 		} else {
-			getGuiGraphics().fill(guiLeft +51, bottom - 67, right - 11, bottom - 82, Color.getValue(Color.BLACK));
+            guiGraphics.fill(guiLeft +51, bottom - 67, right - 11, bottom - 82, Color.getValue(Color.BLACK));
 		}
-		getGuiGraphics().fill(guiLeft +52, bottom - 68, right - 12, bottom - 81, Color.getValue(Color.DARKER_GREY));
+        guiGraphics.fill(guiLeft +52, bottom - 68, right - 12, bottom - 81, Color.getValue(Color.DARKER_GREY));
 
-		getGuiGraphics().drawString(minecraft.font, Search1 + Search2, guiLeft +55, guiTop +122, 0xFFFFFF, false);
+        guiGraphics.drawString(minecraft.font, Search1 + Search2, guiLeft +55, guiTop +122, 0xFFFFFF, false);
 
 		if (editSearch) {
 			int lineX = guiLeft +55 + minecraft.font.width(Search1);
@@ -377,21 +377,21 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 				oldSystemTime = System.currentTimeMillis();
 			}
 			if (displayCursor) {
-				getGuiGraphics().fill(lineX, guiTop +120, lineX + 1, guiTop +131, Color.getValue(Color.WHITE));
+                guiGraphics.fill(lineX, guiTop +120, lineX + 1, guiTop +131, Color.getValue(Color.WHITE));
 			}
 		}
 
-		getGuiGraphics().drawString(minecraft.font, "Name:", guiLeft +8, bottom - 20, 0x404040, false);
+        guiGraphics.drawString(minecraft.font, "Name:", guiLeft +8, bottom - 20, 0x404040, false);
 
 		if (editName) {
-			getGuiGraphics().fill(guiLeft +36, bottom - 8, right - 40, bottom - 25, Color.getValue(Color.BLACK));
-			getGuiGraphics().fill(guiLeft +37, bottom - 9, right - 41, bottom - 24, Color.getValue(Color.WHITE));
+			guiGraphics.fill(guiLeft +36, bottom - 8, right - 40, bottom - 25, Color.getValue(Color.BLACK));
+			guiGraphics.fill(guiLeft +37, bottom - 9, right - 41, bottom - 24, Color.getValue(Color.WHITE));
 		} else {
-			getGuiGraphics().fill(guiLeft +37, bottom - 9, right - 41, bottom - 24, Color.getValue(Color.BLACK));
+            guiGraphics.fill(guiLeft +37, bottom - 9, right - 41, bottom - 24, Color.getValue(Color.BLACK));
 		}
-		getGuiGraphics().fill(guiLeft +38, bottom - 10, right - 42, bottom - 23, Color.getValue(Color.DARKER_GREY));
+        guiGraphics.fill(guiLeft +38, bottom - 10, right - 42, bottom - 23, Color.getValue(Color.DARKER_GREY));
 
-		getGuiGraphics().drawString(minecraft.font, name1 + name2, guiLeft +41, bottom - 20, 0xFFFFFF, false);
+        guiGraphics.drawString(minecraft.font, name1 + name2, guiLeft +41, bottom - 20, 0xFFFFFF, false);
 
 		if (editName) {
 			int lineX = guiLeft +41 + minecraft.font.width(name1);
@@ -400,12 +400,12 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 				oldSystemTime = System.currentTimeMillis();
 			}
 			if (displayCursor) {
-				getGuiGraphics().fill(lineX, bottom - 11, lineX + 1, bottom - 22, Color.getValue(Color.WHITE));
+                guiGraphics.fill(lineX, bottom - 11, lineX + 1, bottom - 22, Color.getValue(Color.WHITE));
 			}
 		}
 
-		getGuiGraphics().fill(guiLeft +6, guiTop +16, right - 12, bottom - 84, Color.getValue(Color.GREY));
-		getGuiGraphics().fill(guiLeft +6, bottom - 52, right - 12, bottom - 32, Color.getValue(Color.DARKER_GREY));
+		guiGraphics.fill(guiLeft +6, guiTop +16, right - 12, bottom - 84, Color.getValue(Color.GREY));
+		guiGraphics.fill(guiLeft +6, bottom - 52, right - 12, bottom - 32, Color.getValue(Color.DARKER_GREY));
 	}
 
 	private int getSearchedItemNumber(List<ItemIdentifierStack> list) {

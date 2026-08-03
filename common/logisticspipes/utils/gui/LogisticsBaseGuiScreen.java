@@ -33,10 +33,13 @@ import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
+import org.lwjgl.glfw.GLFW;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -50,7 +53,7 @@ import network.rs485.logisticspipes.util.FuzzyFlag;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 import network.rs485.logisticspipes.util.TextUtil;
 
-public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen implements ISubGuiControler, IGuiAccess {
+public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen implements ISubGuiController, IGuiAccess {
 
 	protected static final ResourceLocation ITEMSINK = LPConstants.rl("textures/gui/itemsink.png");
 
@@ -68,6 +71,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	protected List<IRenderSlot> slots = new ArrayList<>();
 	protected GuiExtensionController extensionControllerLeft = new GuiExtensionController(GuiSide.LEFT);
 	protected GuiExtensionController extensionControllerRight = new GuiExtensionController(GuiSide.RIGHT);
+    @Nullable
 	private AbstractWidget selectedButton;
 	/** Compatibility bridge: mirrors widgets added via addRenderableWidget so old buttonList.get(i) still works. */
 	protected List<AbstractWidget> buttonList = new ArrayList<>();
@@ -76,7 +80,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	private int currentDrawScreenMouseY;
 	/** Stored during rendering so non-render methods (drawPoint, fillRect, etc.) can use it. */
 	@Deprecated(forRemoval = true)
-    protected GuiGraphics guiGraphics;
+    private GuiGraphics guiGraphics;
 
 	public int getCurrentMouseX() { return currentDrawScreenMouseX; }
 	public int getCurrentMouseY() { return currentDrawScreenMouseY; }
@@ -135,7 +139,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	@Override
-	public SubGuiScreen getSubGui() {
+	public @Nullable SubGuiScreen getSubGui() {
 		return subGui;
 	}
 
@@ -279,7 +283,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 				final int posY = slot.y + 17 + topPos;
 				renderAtTheEnd.add(() -> {
 					RenderSystem.disableDepthTest();
-					LPGuiGraphics.drawGuiBackGround(posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
+					LPGuiGraphics.drawGuiBackGround(guiGraphics, posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
 					final String PREFIX = "gui.crafting.";
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
 							(useOreDict ? 0xFF4040 : 0x404040), false);
@@ -434,7 +438,30 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		if (subGui != null) {
 			return subGui.keyPressed(keyCode, scanCode, modifiers);
 		}
+		// While a text field has the focus, swallow the key so the inventory hotkey ('e' by default)
+		// types into the field instead of closing the GUI. ESC still closes, like vanilla does.
+		if (keyCode != GLFW.GLFW_KEY_ESCAPE) {
+			EditBox editing = getEditingTextField();
+			if (editing != null) {
+				editing.keyPressed(keyCode, scanCode, modifiers);
+				return true;
+			}
+		}
 		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
+
+	@Nullable
+	private EditBox getEditingTextField() {
+		if (getFocused() instanceof EditBox focused && focused.canConsumeInput()) {
+			return focused;
+		}
+		// Text fields that are not registered as screen children still track their own focus state.
+		for (EventListener listener : onGuiEvents) {
+			if (listener instanceof EditBox editBox && editBox.canConsumeInput()) {
+				return editBox;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -522,16 +549,6 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	@Override
-	public Minecraft getMC() {
-		return minecraft;
-	}
-
-	@Override
-	public GuiGraphics getGuiGraphics() {
-		return guiGraphics;
-	}
-
-	@Override
 	public LogisticsBaseGuiScreen getBaseScreen() {
 		return this;
 	}
@@ -602,9 +619,8 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 			el.onUpdateScreen();
 	}
 
-	public void drawCenteredString(String text, int x, int y, int color) {
+    public void drawCenteredString(GuiGraphics guiGraphics, String text, int x, int y, int color) {
 		int actualX = x - minecraft.font.width(text) / 2;
 		guiGraphics.drawString(minecraft.font, text, actualX, y, color, false);
 	}
-
 }

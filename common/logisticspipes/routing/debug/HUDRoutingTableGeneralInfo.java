@@ -13,6 +13,7 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDisplayRenderer {
 
@@ -92,7 +93,8 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 		} else {
 			line = -75;
 		}
-		LPGuiGraphics.drawGuiBackGround(-70, -80, 70, 80, 0, false);
+        GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, -70, -80, 70, 80, 0, false);
 		super.renderHeadUpDisplay(distance, day, shifted, mc, config);
 		write("Routing Update in: ", mc);
 		write(route.positions.toString(), mc);
@@ -100,10 +102,10 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 			int left = -55;
 			for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
 				if (route.closedSet.contains(flag)) {
-					if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
+					if (guiGraphics != null) guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
 					left += mc.font.width("+");
 				} else {
-					if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
+					if (guiGraphics != null) guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
 					left += mc.font.width("-");
 				}
 			}
@@ -111,14 +113,14 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 		}
 		if (route.routes != null) {
 			for (ExitRoute exit : route.routes) {
-				if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "Possible: ", -55, line, 0xffffff);
+				if (guiGraphics != null) guiGraphics.drawString(mc.font, "Possible: ", -55, line, 0xffffff);
 				int left = -55 + mc.font.width("Possible: ");
 				for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
 					if (exit.containsFlag(flag)) {
-						if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
+						if (guiGraphics != null) guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
 						left += mc.font.width("+");
 					} else {
-						if (SimpleGraphics.guiGraphics != null) SimpleGraphics.guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
+						if (guiGraphics != null) guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
 						left += mc.font.width("-");
 					}
 				}

@@ -81,7 +81,7 @@ public class GuiRequestPopup extends SubGuiScreen {
 			}
 			String msg = TextUtil.getTrimmedString(text[i], mWidth - 10, font, "...");
 			int stringWidth = minecraft.font.width(msg);
-			getGuiGraphics().drawString(minecraft.font, msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0x404040, false);
+            guiGraphics.drawString(minecraft.font, msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0x404040, false);
 		}
 	}
 

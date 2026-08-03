@@ -32,6 +32,7 @@ import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -83,7 +84,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 		private final List<Slot> TAB_SLOTS_SNEAKY_INV = new ArrayList<>();
 		private final Slot[] upgradeSlot = new Slot[18];
-		private net.minecraft.client.gui.components.AbstractButton[] upgradeConfig = new net.minecraft.client.gui.components.AbstractButton[18];
+		private AbstractButton[] upgradeConfig = new AbstractButton[18];
 
 		private Upgrades(DummyContainer dummy) {
 			for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
@@ -122,7 +123,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void checkButton(net.minecraft.client.gui.components.AbstractButton button, boolean isTabActive) {
+		public void checkButton(AbstractButton button, boolean isTabActive) {
 			super.checkButton(button, isTabActive);
 			for (int i = 0; i < upgradeConfig.length; i++) {
 				upgradeConfig[i].visible &= pipe.getOriginalUpgradeManager().hasGuiUpgrade(i);
@@ -140,7 +141,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void buttonClicked(net.minecraft.client.gui.components.AbstractButton button) {
+		public void buttonClicked(AbstractButton button) {
 			for (int i = 0; i < upgradeConfig.length; i++) {
 				if (upgradeConfig[i] == button) {
 					MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenUpgradePacket.class).setSlot(upgradeSlot[i]));
@@ -149,19 +150,19 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderBackgroundContent() {
+		public void renderBackgroundContent(GuiGraphics guiGraphics) {
 			for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-				LPGuiGraphics.drawSlotBackground(leftPos + 9 + pipeSlot * 18, topPos + 41);
+				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 9 + pipeSlot * 18, topPos + 41);
 			}
 			if (pipe.getOriginalUpgradeManager().hasCombinedSneakyUpgrade()) {
 				for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-					LPGuiGraphics.drawSlotBackground(leftPos + 9 + pipeSlot * 18, topPos + 87);
+					LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 9 + pipeSlot * 18, topPos + 87);
 				}
 			}
 		}
 
 		@Override
-		public void renderForegroundContent() {
+		public void renderForegroundContent(GuiGraphics guiGraphics) {
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "upgrade"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 			if (pipe.getOriginalUpgradeManager().hasCombinedSneakyUpgrade()) {
 				guiGraphics.drawString(font, TextUtil.translate(PREFIX + "sneakyUpgrades"), 10, 74, Color.getValue(Color.DARKER_GREY), false);
@@ -194,18 +195,18 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderBackgroundContent() {
-			LPGuiGraphics.drawSlotBackground(leftPos + 9, topPos + 41);
+		public void renderBackgroundContent(GuiGraphics guiGraphics) {
+			LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 9, topPos + 41);
 		}
 
 		@Override
-		public void renderForegroundContent() {
+		public void renderForegroundContent(GuiGraphics guiGraphics) {
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "security"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 			ItemStack itemStack = pipe.getOriginalUpgradeManager().secInv.getItem(0);
 			if (!itemStack.isEmpty()) {
 				UUID id = itemStack.get(LPDataComponents.UUID);
 				guiGraphics.drawString(font, "Id: ", 10, 68, Color.getValue(Color.DARKER_GREY), false);
-				guiGraphics.drawString(font, ChatColor.BLUE.toString() + id.toString(), 10, 80, Color.getValue(Color.DARKER_GREY), false);
+				guiGraphics.drawString(font, ChatColor.BLUE + id.toString(), 10, 80, Color.getValue(Color.DARKER_GREY), false);
 				guiGraphics.drawString(font, "Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? ChatColor.GREEN + "Authorized" : ChatColor.RED + "Unauthorized"), 10, 94, Color.getValue(Color.DARKER_GREY), false);
 			}
 		}
@@ -219,12 +220,12 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderBackgroundContent() {
+		public void renderBackgroundContent(GuiGraphics guiGraphics) {
 
 		}
 
 		@Override
-		public void renderForegroundContent() {
+		public void renderForegroundContent(GuiGraphics guiGraphics) {
 			String pipeName = ItemIdentifier.get(pipe.item, 0, null).getFriendlyName();
 			guiGraphics.drawString(font, pipeName, (170 - font.width(pipeName)) / 2, 28, 0x83601c, false);
 
@@ -271,7 +272,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 	private class Logic extends TabSubGui {
 
-		private net.minecraft.client.gui.components.AbstractButton editButton;
+		private AbstractButton editButton;
 
 		@Override
 		public void initTab() {
@@ -284,7 +285,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void buttonClicked(net.minecraft.client.gui.components.AbstractButton button) {
+		public void buttonClicked(AbstractButton button) {
 			if (button == editButton) {
 				MainProxy.sendPacketToServer(PacketHandler.getPacket(LogicControllerPacket.class)
 						.setTilePos(pipe.container));
@@ -292,14 +293,13 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderBackgroundContent() {
-
+		public void renderBackgroundContent(GuiGraphics guiGraphics) {
 			guiGraphics.fill(leftPos + 12, topPos + 34, leftPos + 32, topPos + 54, Color.getValue(Color.BLACK));
 			guiGraphics.fill(leftPos + 14, topPos + 36, leftPos + 30, topPos + 52, Color.getValue(Color.DARKER_GREY));
 		}
 
 		@Override
-		public void checkButton(net.minecraft.client.gui.components.AbstractButton button, boolean isTabActive) {
+		public void checkButton(AbstractButton button, boolean isTabActive) {
 			if (isTabActive) {
 				button.active = pipe.container.logicController.diskInv.getItem(0) != null;
 			}
@@ -307,15 +307,15 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderForegroundContent() {
+		public void renderForegroundContent(GuiGraphics guiGraphics) {
 
 		}
 	}
 
 	private class Tasks extends TabSubGui {
 
-		private net.minecraft.client.gui.components.AbstractButton leftButton;
-		private net.minecraft.client.gui.components.AbstractButton rightButton;
+		private AbstractButton leftButton;
+		private AbstractButton rightButton;
 		private ItemDisplay _itemDisplay_5;
 		private boolean managerWatching;
 
@@ -337,7 +337,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderBackgroundContent() {
+		public void renderBackgroundContent(GuiGraphics guiGraphics) {
 
 		}
 
@@ -358,7 +358,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void buttonClicked(net.minecraft.client.gui.components.AbstractButton button) {
+		public void buttonClicked(AbstractButton button) {
 			if (button == leftButton) {
 				_itemDisplay_5.prevPage();
 			} else if (button == rightButton) {
@@ -367,12 +367,12 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderForegroundContent() {
+		public void renderForegroundContent(GuiGraphics guiGraphics) {
 			List<ItemIdentifierStack> _allItems = pipe.getClientSideOrderManager().stream()
 					.map(IOrderInfoProvider::getAsDisplayItem).collect(Collectors.toCollection(LinkedList::new));
 			_itemDisplay_5.setItemList(_allItems);
-			_itemDisplay_5.renderItemArea(0.0f);
-			_itemDisplay_5.renderPageNumber(right - leftPos - 45, 28);
+			_itemDisplay_5.renderItemArea(guiGraphics, 0.0f);
+			_itemDisplay_5.renderPageNumber(guiGraphics, right - leftPos - 45, 28);
 			int start = _itemDisplay_5.getPage() * 3;
 			int stringPos = 40;
 			for (int i = start; i < start + 3 && i < pipe.getClientSideOrderManager().size(); i++) {

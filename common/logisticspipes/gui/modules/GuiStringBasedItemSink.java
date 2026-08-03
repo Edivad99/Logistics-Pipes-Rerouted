@@ -97,7 +97,7 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 7, topPos + 126);
 		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 6, topPos + 7);
-		SimpleGraphics.drawRectNoBlend(leftPos + 26, topPos + 5, leftPos + 169, topPos + 17, Color.DARK_GREY, 0.0);
+		SimpleGraphics.drawRectNoBlend(guiGraphics, leftPos + 26, topPos + 5, leftPos + 169, topPos + 17, Color.DARK_GREY, 0.0);
 
 		labelTexts.clear();
 		labelPositions.clear();

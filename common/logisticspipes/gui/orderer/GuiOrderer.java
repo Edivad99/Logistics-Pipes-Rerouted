@@ -25,7 +25,7 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.IItemSearch;
-import logisticspipes.utils.gui.ISubGuiControler;
+import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -126,12 +126,12 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 
-		itemDisplay.renderPageNumber(right - 47, topPos + 6);
+		itemDisplay.renderPageNumber(guiGraphics, right - 47, topPos + 6);
 
-		itemDisplay.renderAmount(getStackAmount());
+		itemDisplay.renderAmount(guiGraphics, getStackAmount());
 
-		itemDisplay.renderSortMode(xCenter, bottom - 52);
-		itemDisplay.renderItemArea(0.0f);
+		itemDisplay.renderSortMode(guiGraphics, xCenter, bottom - 52);
+		itemDisplay.renderItemArea(guiGraphics, 0.0f);
 	}
 
 	@Override
@@ -157,7 +157,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		if (search.isEmpty()) {
 			return true;
 		}
-		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getText().toLowerCase(Locale.US))) {
+		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getValue().toLowerCase(Locale.US))) {
 			return true;
 		}
 		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
@@ -170,7 +170,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 
 			if (isSearched(
 					enchantName.toLowerCase(Locale.US),
-					search.getText().toLowerCase(Locale.US))) {
+					search.getValue().toLowerCase(Locale.US))) {
 				return true;
 			}
 		}
@@ -201,7 +201,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
-	public void handleRequestAnswer(Collection<IResource> items, boolean error, ISubGuiControler control, Player player) {
+	public void handleRequestAnswer(Collection<IResource> items, boolean error, ISubGuiController control, Player player) {
 		while (control.hasSubGui()) {
 			control = control.getSubGui();
 		}
@@ -212,7 +212,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		}
 	}
 
-	public void handleSimulateAnswer(Collection<IResource> used, Collection<IResource> missing, ISubGuiControler control, Player player) {
+	public void handleSimulateAnswer(Collection<IResource> used, Collection<IResource> missing, ISubGuiController control, Player player) {
 		while (control.hasSubGui()) {
 			control = control.getSubGui();
 		}
@@ -276,7 +276,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		} else if (Screen.hasAltDown() && StringUtil.isAllowedChatCharacter(c)) {
 			itemDisplay.setFocused(false);
 			search.setFocused(true);
-			search.setText("");
+			search.setValue("");
 			search.handleKey(c, i);
 			return true;
 		}

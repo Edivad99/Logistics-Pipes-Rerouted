@@ -7,9 +7,9 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
-
-public abstract class SubGuiScreen extends Screen implements ISubGuiControler, IGuiAccess {
+public abstract class SubGuiScreen extends Screen implements ISubGuiController, IGuiAccess {
 
 	@Getter
 	protected int guiLeft;
@@ -27,13 +27,12 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	protected int ySize;
 	protected int xCenterOffset;
 	protected int yCenterOffset;
-	protected ISubGuiControler controler;
+	protected ISubGuiController controller;
     @Nullable
 	private SubGuiScreen subGui;
-	protected GuiGraphics storedGuiGraphics;
 
 	public SubGuiScreen(int xSize, int ySize, int xOffset, int yOffset) {
-		super(net.minecraft.network.chat.Component.empty());
+		super(Component.empty());
 		this.xSize = xSize;
 		this.ySize = ySize;
 		xCenterOffset = xOffset;
@@ -54,12 +53,12 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	}
 
 
-	public void register(ISubGuiControler gui) {
-		controler = gui;
+	public void register(ISubGuiController gui) {
+		controller = gui;
 	}
 
 	public void exitGui() {
-		controler.resetSubGui();
+		controller.resetSubGui();
 	}
 
 	@Override
@@ -119,18 +118,12 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
     }
 
 	@Override
-	public net.minecraft.client.gui.GuiGraphics getGuiGraphics() {
-		return storedGuiGraphics;
-	}
-
-	@Override
 	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		// Background is drawn by renderGuiBackground() — suppress Screen's renderMenuBackground overlay
 	}
 
 	@Override
 	public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		this.storedGuiGraphics = guiGraphics;
 		SimpleGraphics.guiGraphics = guiGraphics;
 		renderGuiBackground(guiGraphics, mouseX, mouseY);
 		RenderSystem.disableDepthTest();
@@ -144,10 +137,10 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 			}
 			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
 		}
-		renderToolTips(mouseX, mouseY, partialTicks);
+		renderToolTips(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
-	protected void renderToolTips(int mouseX, int mouseY, float par3) {}
+	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {}
 
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
 
@@ -172,7 +165,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 	}
 
 	@Override
-	public SubGuiScreen getSubGui() {
+	public @Nullable SubGuiScreen getSubGui() {
 		return subGui;
 	}
 
@@ -187,11 +180,6 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiControler, I
 
 	@Override
 	public LogisticsBaseGuiScreen getBaseScreen() {
-		return controler.getBaseScreen();
-	}
-
-	@Override
-	public Minecraft getMC() {
-		return minecraft;
+		return controller.getBaseScreen();
 	}
 }

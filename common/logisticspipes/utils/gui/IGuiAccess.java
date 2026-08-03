@@ -16,8 +16,4 @@ public interface IGuiAccess {
 	int getRight();
 
 	int getBottom();
-
-	Minecraft getMC();
-
-	GuiGraphics getGuiGraphics();
 }

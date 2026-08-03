@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.InvSysConContentRequest;
@@ -37,6 +39,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	private final PipeItemsInvSysConnector pipe;
 	private InputBar resistanceCountBar;
 
+    @Nullable
 	private ChannelInformation connectedChannel = null;
 
 	public GuiInvSysConnector(Player player, PipeItemsInvSysConnector pipe) {
@@ -47,7 +50,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	private static DummyContainer buildDummy(Player player, PipeItemsInvSysConnector pipe) {
 		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
 
-		dummy.addNormalSlotsForPlayerInventory(10, 135);
+		dummy.addNormalSlotsForPlayerInventory(11, 136);
 		return dummy;
 	}
 
@@ -67,14 +70,14 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 		b2.setPressListener(b -> refreshPacket());
 		addRenderableWidget(b2);
 		SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 80, topPos + 55, 10, 10, "<");
-		b3.setPressListener(b -> resistanceCountBar.putInt(resistanceCountBar.getInt() - (Screen.hasControlDown() ? 10 : 1)));
+		b3.setPressListener(b -> resistanceCountBar.setInteger(resistanceCountBar.getInteger() - (Screen.hasControlDown() ? 10 : 1)));
 		addRenderableWidget(b3);
 		SmallGuiButton b4 = new SmallGuiButton(4, leftPos + 120, topPos + 55, 10, 10, ">");
-		b4.setPressListener(b -> resistanceCountBar.putInt(resistanceCountBar.getInt() + 1));
+		b4.setPressListener(b -> resistanceCountBar.setInteger(resistanceCountBar.getInteger() + 1));
 		addRenderableWidget(b4);
 		SmallGuiButton b5 = new SmallGuiButton(5, leftPos + 140, topPos + 55, 30, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Save"));
 		b5.setPressListener(b -> {
-			pipe.resistance = resistanceCountBar.getInt();
+			pipe.resistance = resistanceCountBar.getInteger();
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConResistance.class).putInt(pipe.resistance).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
 		});
 		addRenderableWidget(b5);
@@ -85,9 +88,10 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 		if (this.resistanceCountBar == null) {
 			this.resistanceCountBar = new InputBar(this.font, this, leftPos + 90, topPos + 55, 30, 12, false, true, InputBar.Align.CENTER);
 			this.resistanceCountBar.minNumber = 0;
-			this.resistanceCountBar.putInt(pipe.resistance);
+			this.resistanceCountBar.setInteger(pipe.resistance);
 		}
 		this.resistanceCountBar.reposition(leftPos + 90, topPos + 55, 30, 12);
+        addRenderableWidget(this.resistanceCountBar);
 
 		refreshPacket();
 	}
@@ -103,7 +107,6 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 135);
 		guiGraphics.fill(leftPos + 9, topPos + 78, leftPos + 170, topPos + 132, Color.getValue(Color.GREY));
-		resistanceCountBar.drawTextBox();
 	}
 
 	@Override
@@ -115,7 +118,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Resistance") + ":", 10, 55, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Waitingfor") + ":", 10, 68, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, (page + 1) + "/" + maxPage(), 136, 69, 0x404040, false);
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(_allItems, null, page, 9, 79, 9, 27, 18, 18, 100.0F, DisplayAmount.ALWAYS);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, _allItems, null, page, 9, 79, 9, 27, 18, 18, 100.0F, DisplayAmount.ALWAYS);
 
 		int ppi = 0;
 		int column = 0;
@@ -188,7 +191,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	public void handleResistanceAnswer(int resistance) {
-		resistanceCountBar.putInt(resistance);
+		resistanceCountBar.setInteger(resistance);
 	}
 
 	@Override

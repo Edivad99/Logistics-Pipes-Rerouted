@@ -46,7 +46,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 		guiGraphics.fill(right - 39, bottom - 47, right - 19, bottom - 27, Color.getValue(Color.BLACK));
 		guiGraphics.fill(right - 37, bottom - 45, right - 21, bottom - 29, Color.getValue(Color.DARKER_GREY));
 
-		if (pipe.getDisk() != null) {
+		if (!pipe.getDisk().isEmpty()) {
 			guiGraphics.renderItem(pipe.getDisk(), right - 36, bottom - 44);
 			macroButton.active = true;
 		} else {

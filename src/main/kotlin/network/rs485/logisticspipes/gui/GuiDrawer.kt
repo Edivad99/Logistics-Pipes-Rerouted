@@ -83,7 +83,7 @@ object GuiDrawer {
         val (ox, oy) = topLeft
         for (slot in container.slots) {
             if (slot is Slot) {
-                LPGuiGraphics.drawSlotBackground(ox + slot.x - 1, oy + slot.y - 1)
+                LPGuiGraphics.drawSlotBackground(SimpleGraphics.guiGraphics, ox + slot.x - 1, oy + slot.y - 1)
             }
         }
     }
@@ -94,7 +94,7 @@ object GuiDrawer {
         val top = guiArea.roundedTop
         val right = guiArea.roundedRight
         val bottom = guiArea.roundedBottom
-        LPGuiGraphics.drawGuiBackGround(left, top, right, bottom, 0f, true)
+        LPGuiGraphics.drawGuiBackGround(SimpleGraphics.guiGraphics, left, top, right, bottom, 0f, true)
     }
 
     fun drawGuiTexturedRect(rect: IRectangle, text: IRectangle, blend: Boolean, color: Int) {

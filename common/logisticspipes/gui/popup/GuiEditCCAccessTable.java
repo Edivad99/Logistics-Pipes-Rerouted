@@ -64,17 +64,17 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-		getGuiGraphics().drawString(minecraft.font, "(" + (page + 1) + "/" + ((int) ((_tile.excludedCC.size() / 9D) + 1 - (_tile.excludedCC.size() % 9 == 0 && _tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0x4F4F4F, false);
+        guiGraphics.drawString(minecraft.font, "(" + (page + 1) + "/" + ((int) ((_tile.excludedCC.size() / 9D) + 1 - (_tile.excludedCC.size() % 9 == 0 && _tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0x4F4F4F, false);
 
 		boolean dark = true;
 		for (int i = 0; i < 9; i++) {
-			getGuiGraphics().fill(guiLeft + 10, guiTop + 15 + (i * 10), right - 10, guiTop + 25 + (i * 10), dark ? Color.getValue(Color.DARKER_GREY) : Color.getValue(Color.LIGHTER_GREY));
+            guiGraphics.fill(guiLeft + 10, guiTop + 15 + (i * 10), right - 10, guiTop + 25 + (i * 10), dark ? Color.getValue(Color.DARKER_GREY) : Color.getValue(Color.LIGHTER_GREY));
 			dark = !dark;
 		}
 		dark = true;
 		for (int i = 0; i < 9 && i + (page * 9) < _tile.excludedCC.size(); i++) {
 			Integer id = _tile.excludedCC.get(i + (page * 9));
-			getGuiGraphics().drawString(minecraft.font, Integer.toString(id), guiLeft + 75 - (minecraft.font.width(Integer.toString(id)) / 2), guiTop + 16 + (i * 10), dark ? 0xFFFFFF : 0x000000, false);
+            guiGraphics.drawString(minecraft.font, Integer.toString(id), guiLeft + 75 - (minecraft.font.width(Integer.toString(id)) / 2), guiTop + 16 + (i * 10), dark ? 0xFFFFFF : 0x000000, false);
 			dark = !dark;
 			if (lastClickedX >= guiLeft + 10 && lastClickedX < right - 10 && lastClickedY >= guiTop + 15 + (i * 10) && lastClickedY < guiTop + 25 + (i * 10)) {
 				lastClickedX = -10000000;
@@ -86,14 +86,14 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 
 		//SearchInput
 		if (editSearch) {
-			getGuiGraphics().fill(guiLeft + 40, bottom - 30, right - 40, bottom - 13, Color.getValue(Color.BLACK));
-			getGuiGraphics().fill(guiLeft + 41, bottom - 29, right - 41, bottom - 14, Color.getValue(Color.WHITE));
+            guiGraphics.fill(guiLeft + 40, bottom - 30, right - 40, bottom - 13, Color.getValue(Color.BLACK));
+            guiGraphics.fill(guiLeft + 41, bottom - 29, right - 41, bottom - 14, Color.getValue(Color.WHITE));
 		} else {
-			getGuiGraphics().fill(guiLeft + 41, bottom - 29, right - 41, bottom - 14, Color.getValue(Color.BLACK));
+            guiGraphics.fill(guiLeft + 41, bottom - 29, right - 41, bottom - 14, Color.getValue(Color.BLACK));
 		}
-		getGuiGraphics().fill(guiLeft + 42, bottom - 28, right - 42, bottom - 15, Color.getValue(Color.DARKER_GREY));
+        guiGraphics.fill(guiLeft + 42, bottom - 28, right - 42, bottom - 15, Color.getValue(Color.DARKER_GREY));
 
-		getGuiGraphics().drawString(minecraft.font, searchInput1 + searchInput2, guiLeft + 75 - (minecraft.font.width(searchInput1 + searchInput2) / 2), bottom - 25, 0xFFFFFF, false);
+        guiGraphics.drawString(minecraft.font, searchInput1 + searchInput2, guiLeft + 75 - (minecraft.font.width(searchInput1 + searchInput2) / 2), bottom - 25, 0xFFFFFF, false);
 		if (editSearch) {
 			int lineX = guiLeft + 75 + minecraft.font.width(searchInput1) - (minecraft.font.width(searchInput1 + searchInput2) / 2);
 			if (System.currentTimeMillis() - oldSystemTime > 500) {
@@ -101,7 +101,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 				oldSystemTime = System.currentTimeMillis();
 			}
 			if (displayCursor) {
-				getGuiGraphics().fill(lineX, bottom - 27, lineX + 1, bottom - 16, Color.getValue(Color.WHITE));
+                guiGraphics.fill(lineX, bottom - 27, lineX + 1, bottom - 16, Color.getValue(Color.WHITE));
 			}
 		}
 
@@ -109,7 +109,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 		if (lastClickedX != -10000000 && lastClickedY != -10000000) {
 			if (lastClickedX >= guiLeft + 42 && lastClickedX < right - 42 && lastClickedY >= bottom - 30 && lastClickedY < bottom - 13) {
 				editSearch = true;
-				if (searchInput1.equals("0") && searchInput2.length() == 0) {
+				if (searchInput1.equals("0") && searchInput2.isEmpty()) {
 					searchInput1 = "";
 				}
 				lastClickedX = -10000000;
@@ -273,8 +273,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 		return false;
 	}
 
-	public void fillColor(int x1, int y1, int x2, int y2, Color color) {
-		GuiGraphics gg = getGuiGraphics();
-		if (gg != null) gg.fill(x1, y1, x2, y2, Color.getValue(color));
+	public void fillColor(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, Color color) {
+		guiGraphics.fill(x1, y1, x2, y2, Color.getValue(color));
 	}
 }

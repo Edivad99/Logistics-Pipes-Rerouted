@@ -5,10 +5,12 @@ import java.util.List;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class HUDCrafting extends BasicHUDGui {
 
@@ -20,33 +22,33 @@ public class HUDCrafting extends BasicHUDGui {
 
 	@Override
 	public void renderHeadUpDisplay(double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-		if (pipe.displayList.size() > 0) {
-			LPGuiGraphics.drawGuiBackGround(-50, -28, 50, 30, 0, false);
+        GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
+        if (!pipe.displayList.isEmpty()) {
+			LPGuiGraphics.drawGuiBackGround(guiGraphics, -50, -28, 50, 30, 0, false);
 		} else {
-			LPGuiGraphics.drawGuiBackGround(-30, -22, 30, 25, 0, false);
+			LPGuiGraphics.drawGuiBackGround(guiGraphics, -30, -22, 30, 25, 0, false);
 		}
 		super.renderHeadUpDisplay(d, day, shifted, minecraft, config);
-		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
 		int textColor = day ? 0xff404040 : 0xff7f7f7f;
-		if (gg != null) {
-			if (pipe.displayList.size() > 0) {
-				gg.drawString(minecraft.font, "Result:", -20, -25, textColor, false);
-				gg.drawString(minecraft.font, "Todo:", -20, 0, textColor, false);
+		if (guiGraphics != null) {
+			if (!pipe.displayList.isEmpty()) {
+				guiGraphics.drawString(minecraft.font, "Result:", -20, -25, textColor, false);
+				guiGraphics.drawString(minecraft.font, "Todo:", -20, 0, textColor, false);
 			} else {
-				gg.drawString(minecraft.font, "Result:", -25, -18, textColor, false);
+				guiGraphics.drawString(minecraft.font, "Result:", -25, -18, textColor, false);
 			}
 		}
 		List<ItemIdentifierStack> list = new ArrayList<>();
 		List<ItemIdentifierStack> craftables = pipe.getCraftedItems();
-		if (craftables != null && craftables.size() > 0) {
+		if (craftables != null && !craftables.isEmpty()) {
 			//TODO: handle multiple craftables.
 			list.add(craftables.get(0));
 		}
-		if (pipe.displayList.size() > 0) {
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(list, null, 0, 11, -18, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(pipe.displayList, null, 0, 13, 3, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+		if (!pipe.displayList.isEmpty()) {
+			ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, list, null, 0, 11, -18, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+			ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, pipe.displayList, null, 0, 13, 3, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 		} else {
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(list, null, 0, -9, -1, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+			ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, list, null, 0, -9, -1, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 		}
 	}
 

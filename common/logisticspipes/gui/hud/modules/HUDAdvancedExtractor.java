@@ -6,6 +6,7 @@ import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
@@ -30,7 +31,7 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 	@Override
 	public void renderContent(boolean shifted) {
 		Minecraft mc = Minecraft.getInstance();
-		GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		GuiGraphics gg = SimpleGraphics.guiGraphics;
 		if (selected == 0) {
 			Direction d = module.getSneakyDirection();
 			if (gg != null) {
@@ -38,7 +39,7 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 				gg.drawString(mc.font, label, -mc.font.width(label) / 2, -30, 0xff404040, false);
 			}
 		} else {
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(
+			ItemStackRenderer.renderItemIdentifierStackListIntoGui(gg,
 					ItemIdentifierStack.getListFromInventory(module.getFilterInventory()), null, 0, -25, -32, 3, 9, 18,
 					18, 100.0F, DisplayAmount.NEVER, false, shifted);
 			if (gg != null) {

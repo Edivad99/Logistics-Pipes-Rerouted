@@ -37,12 +37,12 @@ public class GuiEditChannelPopup extends GuiAddChannelPopup {
 				rights = ChannelInformation.AccessRights.PRIVATE;
 			}
 			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(EditChannelPacket.class).setChannelIdentifier(channelIdentifier).setName(this.textInput.getText()).setRights(rights).setSecurityStationID(security));
+					PacketHandler.getPacket(EditChannelPacket.class).setChannelIdentifier(channelIdentifier).setName(this.textInput.getValue()).setRights(rights).setSecurityStationID(security));
 			exitGui();
 		});
 		addRenderableWidget(editSave);
 		if (toInit != null) {
-			this.textInput.setText(toInit.getName());
+			this.textInput.setValue(toInit.getName());
 			checkPublic.setState(toInit.getRights() == ChannelInformation.AccessRights.PUBLIC);
 			checkSecurity.setState(toInit.getRights() == ChannelInformation.AccessRights.SECURED);
 			checkPrivate.setState(toInit.getRights() == ChannelInformation.AccessRights.PRIVATE);
@@ -52,8 +52,8 @@ public class GuiEditChannelPopup extends GuiAddChannelPopup {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderGuiBackground(guiGraphics, mouseX, mouseY);
-		getGuiGraphics().drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "owner") + ": ", guiLeft + 10, guiTop + 115, 0x404040, false);
-		getGuiGraphics().drawString(minecraft.font, toInit.getOwner().getUsername(), guiLeft + 10, guiTop + 127, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "owner") + ": ", guiLeft + 10, guiTop + 115, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, toInit.getOwner().getUsername(), guiLeft + 10, guiTop + 127, 0x404040, false);
 	}
 
 	@Override

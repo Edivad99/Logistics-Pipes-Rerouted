@@ -116,17 +116,17 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		super.renderBg(guiGraphics, f, i, j);
-		drawTransparentBack();
-		drawMap(i, j);
+		drawTransparentBack(guiGraphics);
+		drawMap(guiGraphics, i, j);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 180, right, bottom, 0.0f, true, false, true, true, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 50, topPos + 205);
 	}
 
-	private void drawTransparentBack() {
-		SimpleGraphics.drawGradientRect(0, 0, width, height, Color.BLANK, Color.BLANK, 0.0);
+	private void drawTransparentBack(GuiGraphics guiGraphics) {
+		SimpleGraphics.drawGradientRect(guiGraphics, 0, 0, width, height, Color.BLANK, Color.BLANK, 0.0);
 	}
 
-	private void drawMap(int par1, int par2) {
+	private void drawMap(GuiGraphics guiGraphics, int par1, int par2) {
 		tooltip = null;
 		int leftSide = ((width - imageWidth) / 2);
 		int topSide = ((height - imageHeight) / 2);
@@ -156,7 +156,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
 	}
 
-	private void renderLinkedOrderListItems(LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
+	private void renderLinkedOrderListItems(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
 		int size = list.size();
 		int startLeft = -(size - 1) * (30 / 2) + xPos;
 		yPos += 13;
@@ -192,13 +192,13 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		if (!list.getSubOrders().isEmpty()) {
 			for (int i = 0; i < list.getSubOrders().size(); i++) {
 				startLeft += list.getSubOrders().get(i).getTreeRootSize() * (40 / 2);
-				renderLinkedOrderListItems(list.getSubOrders().get(i), startLeft - 20, yPos + 48, par1, par2);
+				renderLinkedOrderListItems(guiGraphics, list.getSubOrders().get(i), startLeft - 20, yPos + 48, par1, par2);
 				startLeft += list.getSubOrders().get(i).getTreeRootSize() * (40 / 2);
 			}
 		}
 	}
 
-	private void renderLinkedOrderListLines(LinkedLogisticsOrderList list, int xPos, int yPos) {
+	private void renderLinkedOrderListLines(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos) {
 		int size = list.size();
 		if (list.isEmpty()) {
 			size = 1;
@@ -207,39 +207,39 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		yPos += 13;
 		int left = startLeft;
 		for (int i = 0; i < list.size(); i++) {
-			SimpleGraphics.drawVerticalLine(startLeft + 8, yPos - 13, yPos - 3, Color.GREEN, zoom.line);
+			SimpleGraphics.drawVerticalLine(guiGraphics, startLeft + 8, yPos - 13, yPos - 3, Color.GREEN, zoom.line);
 			if (!list.getSubOrders().isEmpty()) {
-				SimpleGraphics.drawVerticalLine(startLeft + 8, yPos + 18, yPos + 28, Color.GREEN, zoom.line);
+				SimpleGraphics.drawVerticalLine(guiGraphics, startLeft + 8, yPos + 18, yPos + 28, Color.GREEN, zoom.line);
 			}
 			startLeft += 30;
 		}
 		if (!list.isEmpty()) {
-			SimpleGraphics.drawHorizontalLine(left + 8, startLeft - 22, yPos - 13, Color.GREEN, zoom.line);
+			SimpleGraphics.drawHorizontalLine(guiGraphics, left + 8, startLeft - 22, yPos - 13, Color.GREEN, zoom.line);
 		}
 		if (!list.getSubOrders().isEmpty()) {
 			if (!list.isEmpty()) {
-				SimpleGraphics.drawHorizontalLine(left + 8, startLeft - 22, yPos + 28, Color.GREEN, zoom.line);
+				SimpleGraphics.drawHorizontalLine(guiGraphics, left + 8, startLeft - 22, yPos + 28, Color.GREEN, zoom.line);
 				startLeft -= 30;
 			}
-			SimpleGraphics.drawVerticalLine(left + ((startLeft - left) / 2) + 8, yPos + 28, yPos + 38, Color.GREEN, zoom.line);
+			SimpleGraphics.drawVerticalLine(guiGraphics, left + ((startLeft - left) / 2) + 8, yPos + 28, yPos + 38, Color.GREEN, zoom.line);
 			startLeft = xPos + 20 - list.getSubTreeRootSize() * (40 / 2);
 			left = startLeft;
 			for (int i = 0; i < list.getSubOrders().size(); i++) {
 				startLeft += list.getSubOrders().get(i).getTreeRootSize() * (40 / 2);
-				SimpleGraphics.drawVerticalLine(startLeft - 12, yPos + 38, yPos + 48, Color.GREEN, zoom.line);
-				drawPointFor(list, xPos, yPos, i, startLeft);
-				renderLinkedOrderListLines(list.getSubOrders().get(i), startLeft - 20, yPos + 48);
+				SimpleGraphics.drawVerticalLine(guiGraphics, startLeft - 12, yPos + 38, yPos + 48, Color.GREEN, zoom.line);
+				drawPointFor(guiGraphics, list, xPos, yPos, i, startLeft);
+				renderLinkedOrderListLines(guiGraphics, list.getSubOrders().get(i), startLeft - 20, yPos + 48);
 				startLeft += list.getSubOrders().get(i).getTreeRootSize() * (40 / 2);
 			}
 			if (!list.getSubOrders().isEmpty()) {
 				left += list.getSubOrders().get(0).getTreeRootSize() * (40 / 2);
 				startLeft -= list.getSubOrders().get(list.getSubOrders().size() - 1).getTreeRootSize() * (40 / 2);
 			}
-			SimpleGraphics.drawHorizontalLine(left - 12, startLeft - 12, yPos + 38, Color.GREEN, zoom.line);
+			SimpleGraphics.drawHorizontalLine(guiGraphics, left - 12, startLeft - 12, yPos + 38, Color.GREEN, zoom.line);
 		}
 	}
 
-	private void drawPointFor(LinkedLogisticsOrderList list, int xPos, int yPos, int i, int startLeft) {
+	private void drawPointFor(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int i, int startLeft) {
 		float totalLine = 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10;
 		for (Float point : list.getSubOrders().get(i).getProgresses()) {
 			int pos = (int) (totalLine * (1.0F - point));
@@ -247,34 +247,34 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 				int newSize = list.getSubOrders().get(i).size();
 				int newStartLeft = -(newSize - 1) * (30 / 2) + startLeft - 20;
 				for (int j = 0; j < newSize; j++) {
-					drawProgressPoint(newStartLeft + 8, yPos + 48 + 12 - pos, 0xff00ff00);
+					drawProgressPoint(guiGraphics, newStartLeft + 8, yPos + 48 + 12 - pos, 0xff00ff00);
 					newStartLeft += 30;
 				}
 			} else if (pos < 10 + 1 + 10 + 1) {
 				pos -= 10;
-				drawProgressPoint(startLeft - 20 + 8, yPos + 38 + 12 - pos, 0xff00ff00);
+				drawProgressPoint(guiGraphics, startLeft - 20 + 8, yPos + 38 + 12 - pos, 0xff00ff00);
 			} else if (pos < Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10 + 1) {
 				pos -= 10 + 1 + 10 + 1;
 				if (startLeft < xPos + 20) {
 					pos *= -1;
 				}
-				drawProgressPoint(startLeft - 12 - pos, yPos + 38, 0xff00ff00);
+				drawProgressPoint(guiGraphics, startLeft - 12 - pos, yPos + 38, 0xff00ff00);
 			} else if (pos < Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10 + 1 + 10 + 1) {
 				pos -= 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1;
-				drawProgressPoint(xPos + 8, yPos + 27 - pos, 0xff00ff00);
+				drawProgressPoint(guiGraphics, xPos + 8, yPos + 27 - pos, 0xff00ff00);
 			} else if (pos < Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10 + 1 + 10 + 1 + 10 + 1) {
 				pos -= 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10 + 1;
 				int newSize = list.size();
 				int newStartLeft = -(newSize - 1) * (30 / 2) + xPos;
 				for (int j = 0; j < newSize; j++) {
-					drawProgressPoint(newStartLeft + 8, yPos + 16 - pos, 0xff00ff00);
+					drawProgressPoint(guiGraphics, newStartLeft + 8, yPos + 16 - pos, 0xff00ff00);
 					newStartLeft += 30;
 				}
 			}
 		}
 	}
 
-	protected void drawProgressPoint(int x, int y, int color) {
+	protected void drawProgressPoint(GuiGraphics guiGraphics, int x, int y, int color) {
 		int line = zoom.line + 1;
 		guiGraphics.fill(x - line + 1, y - line + 1, x + line, y + line, color);
 	}

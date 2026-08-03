@@ -147,22 +147,22 @@ public class GuiDiskPopup extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-		getGuiGraphics().drawString(minecraft.font, "Disk", xCenter - (minecraft.font.width("Disk") / 2), guiTop + 10, 0xFFFFFF, true);
+        guiGraphics.drawString(minecraft.font, "Disk", xCenter - (minecraft.font.width("Disk") / 2), guiTop + 10, 0xFFFFFF, true);
 
 		//NameInput
 		if (editName) {
-			getGuiGraphics().fill(guiLeft + 10, guiTop + 28, right - 10, guiTop + 45, Color.getValue(Color.BLACK));
-			getGuiGraphics().fill(guiLeft + 11, guiTop + 29, right - 11, guiTop + 44, Color.getValue(Color.WHITE));
+			guiGraphics.fill(guiLeft + 10, guiTop + 28, right - 10, guiTop + 45, Color.getValue(Color.BLACK));
+			guiGraphics.fill(guiLeft + 11, guiTop + 29, right - 11, guiTop + 44, Color.getValue(Color.WHITE));
 		} else {
-			getGuiGraphics().fill(guiLeft + 11, guiTop + 29, right - 11, guiTop + 44, Color.getValue(Color.BLACK));
+            guiGraphics.fill(guiLeft + 11, guiTop + 29, right - 11, guiTop + 44, Color.getValue(Color.BLACK));
 		}
-		getGuiGraphics().fill(guiLeft + 12, guiTop + 30, right - 12, guiTop + 43, Color.getValue(Color.DARKER_GREY));
+        guiGraphics.fill(guiLeft + 12, guiTop + 30, right - 12, guiTop + 43, Color.getValue(Color.DARKER_GREY));
 
-		getGuiGraphics().drawString(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFF, false);
+        guiGraphics.drawString(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFF, false);
 
-		//getGuiGraphics().fill(guiLeft + 6, guiTop + 46, right - 6, bottom - 30, Color.getValue(Color.GREY));
+		//guiGraphics.fill(guiLeft + 6, guiTop + 46, right - 6, bottom - 30, Color.getValue(Color.GREY));
 
-		textList.renderGuiBackground(mouseX, mouseY);
+		textList.renderGuiBackground(guiGraphics, mouseX, mouseY);
 
 		if (editName) {
 			int lineX = guiLeft + 15 + minecraft.font.width(name1);
@@ -171,7 +171,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 				oldSystemTime = System.currentTimeMillis();
 			}
 			if (displayCursor) {
-				getGuiGraphics().fill(lineX, guiTop + 31, lineX + 1, guiTop + 42, Color.getValue(Color.WHITE));
+                guiGraphics.fill(lineX, guiTop + 31, lineX + 1, guiTop + 42, Color.getValue(Color.WHITE));
 			}
 		}
 	}

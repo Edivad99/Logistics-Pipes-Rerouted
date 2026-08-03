@@ -5,6 +5,7 @@ import java.util.List;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.modules.ModuleProvider;
+import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
@@ -66,8 +67,7 @@ public class HUDProviderModule implements IHUDModuleRenderer {
 
 	@Override
 	public void renderContent(boolean shifted) {
-		Minecraft mc = Minecraft.getInstance();
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(module.displayList, null, page, -25, -24, 3, 9, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(SimpleGraphics.guiGraphics, module.displayList, null, page, -25, -24, 3, 9, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 	}
 
 	@Override

@@ -38,7 +38,7 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.IItemSearch;
-import logisticspipes.utils.gui.ISubGuiControler;
+import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -206,13 +206,13 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		guiGraphics.fill(leftPos + 164, topPos + 25, leftPos + 180, topPos + 41, Color.getValue(Color.DARKER_GREY));
 
 		if (showRequest) {
-			itemDisplay.renderPageNumber(right - 47, topPos + 6);
+			itemDisplay.renderPageNumber(guiGraphics, right - 47, topPos + 6);
 
-			itemDisplay.renderAmount(getStackAmount());
+			itemDisplay.renderAmount(guiGraphics, getStackAmount());
 			// The search bar draws itself, as a registered widget.
 
-			itemDisplay.renderSortMode(right - 103, bottom - 52);
-			itemDisplay.renderItemArea(0.0f);
+			itemDisplay.renderSortMode(guiGraphics, right - 103, bottom - 52);
+			itemDisplay.renderItemArea(guiGraphics, 0.0f);
 		}
 
 		for (int x = 0; x < 9; x++) {
@@ -550,7 +550,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		if (search.isEmpty()) {
 			return true;
 		}
-		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getText().toLowerCase(Locale.US))) {
+		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getValue().toLowerCase(Locale.US))) {
 			return true;
 		}
 		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
@@ -563,7 +563,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 			if (isSearched(
 					enchantName.toLowerCase(Locale.US),
-					search.getText().toLowerCase(Locale.US))) {
+					search.getValue().toLowerCase(Locale.US))) {
 				return true;
 			}
 		}
@@ -599,7 +599,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
-	public void handleRequestAnswer(Collection<IResource> items, boolean error, ISubGuiControler control, Player player) {
+	public void handleRequestAnswer(Collection<IResource> items, boolean error, ISubGuiController control, Player player) {
 		while (control.hasSubGui()) {
 			control = control.getSubGui();
 		}
@@ -610,7 +610,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		}
 	}
 
-	public void handleSimulateAnswer(Collection<IResource> used, Collection<IResource> missing, ISubGuiControler control, Player player) {
+	public void handleSimulateAnswer(Collection<IResource> used, Collection<IResource> missing, ISubGuiController control, Player player) {
 		while (control.hasSubGui()) {
 			control = control.getSubGui();
 		}
@@ -625,7 +625,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		} else if (Screen.hasAltDown() && StringUtil.isAllowedChatCharacter(c)) {
 			itemDisplay.setFocused(false);
 			search.setFocused(true);
-			search.setText("");
+			search.setValue("");
 			search.handleKey(c, i);
 			return true;
 		}

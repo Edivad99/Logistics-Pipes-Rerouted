@@ -97,7 +97,7 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 			}
 		}
 
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(Arrays.asList(items), null, 0, leftPos + 8, topPos + 79, 9, 9, 18, 18, 0.0F, DisplayAmount.NEVER);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, Arrays.asList(items), null, 0, leftPos + 8, topPos + 79, 9, 9, 18, 18, 0.0F, DisplayAmount.NEVER);
 
 		for (int a = 0; a < 9; a++) {
 			guiGraphics.fill(leftPos + 8 + (a * 18), topPos + 80, leftPos + 24 + (a * 18), topPos + 96, 0xc08b8b8b);

@@ -45,15 +45,17 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 
 			ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 			if (renderDistance == null) {
-				renderDistance = new InputBar(font, getBaseScreen(), 15, 75, 30, 15, false, true, InputBar.Align.RIGHT);
-				renderDistance.putInt(config.getRenderPipeDistance());
+				renderDistance = new InputBar(font, getBaseScreen(), getGuiLeft() + 15, getGuiTop() + 75, 30, 15, false, true, InputBar.Align.RIGHT);
+				renderDistance.setInteger(config.getRenderPipeDistance());
 			}
-			renderDistance.reposition(15, 80, 30, 15);
+			renderDistance.reposition(getGuiLeft() + 15, getGuiTop() + 80, 30, 15);
 			if (contentRenderDistance == null) {
-				contentRenderDistance = new InputBar(font, getBaseScreen(), 15, 105, 30, 15, false, true, InputBar.Align.RIGHT);
-				contentRenderDistance.putInt(config.getRenderPipeContentDistance());
+				contentRenderDistance = new InputBar(font, getBaseScreen(), getGuiLeft() + 15, getGuiTop() + 105, 30, 15, false, true, InputBar.Align.RIGHT);
+				contentRenderDistance.setInteger(config.getRenderPipeContentDistance());
 			}
-			contentRenderDistance.reposition(15, 110, 30, 15);
+			contentRenderDistance.reposition(getGuiLeft() + 15, getGuiTop() + 110, 30, 15);
+            GuiLogisticsSettings.this.addRenderableWidget(renderDistance);
+            GuiLogisticsSettings.this.addRenderableWidget(contentRenderDistance);
 			//useNewRendererButton = (GuiCheckBox) addRenderableWidget(new GuiCheckBox(0, leftPos + 15, topPos + 30, 16, 16, config.isUseNewRenderer()));
 			//useFallbackRendererButton = (GuiCheckBox) addRenderableWidget(new GuiCheckBox(0, leftPos + 15, topPos + 50, 16, 16, config.isUseFallbackRenderer()));
 		}
@@ -64,7 +66,7 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderBackgroundContent() {}
+		public void renderBackgroundContent(GuiGraphics guiGraphics) {}
 
 		@Override
 		public void buttonClicked(net.minecraft.client.gui.components.AbstractButton button) {
@@ -77,9 +79,7 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderForegroundContent() {
-			renderDistance.drawTextBox();
-			contentRenderDistance.drawTextBox();
+		public void renderForegroundContent(GuiGraphics guiGraphics) {
 			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0x404040, false);
 			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0x404040, false);
 			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 70, 0x404040, false);
@@ -102,8 +102,8 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		public void guiClose() {
 			ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 			try {
-				config.setRenderPipeDistance(renderDistance.getInt());
-				config.setRenderPipeContentDistance(contentRenderDistance.getInt());
+				config.setRenderPipeDistance(renderDistance.getInteger());
+				config.setRenderPipeContentDistance(contentRenderDistance.getInteger());
 			} catch (Exception e) {
 				LogisticsPipes.LOG.error("Failed to update render distance config", e);
 			}

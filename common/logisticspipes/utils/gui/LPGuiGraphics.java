@@ -54,81 +54,12 @@ public final class LPGuiGraphics {
     private LPGuiGraphics() {
     }
 
-    /**
-     * Draws the durability bar for GUI items.
-     *
-     * @param itemstack the itemstack, from which the durability bar should be drawn
-     * @param x         the x-coordinate for the bar
-     * @param y         the y-coordinate for the bar
-     * @param zLevel    the z-level for the bar
-     *                  TextureManager, ItemStack, int, int, String)
-     */
-    public static void drawDurabilityBar(ItemStack itemstack, int x, int y, double zLevel) {
-        if (itemstack.getItem().isBarVisible(itemstack)) {
-            double health =
-                itemstack.getMaxDamage() == 0 ? 0.0D : (double) itemstack.getDamageValue() / itemstack.getMaxDamage();
-            int j1 = (int) Math.round(13.0D - health * 13.0D);
-            int k = (int) Math.round(255.0D - health * 255.0D);
-            int l = 255 - k << 16 | k << 8 | 255 << 24;
-            int i1 = (255 - k) / 4 << 16 | 16128 | 255 << 24;
-            RenderSystem.disableDepthTest();
-            SimpleGraphics.guiGraphics.fill(x + 2, y + 15, x + 15, y + 17, Color.BLACK.getValue());
-            SimpleGraphics.guiGraphics.fill(x + 2, y + 15, x + 14, y + 16, i1);
-            SimpleGraphics.guiGraphics.fill(x + 2, y + 15, x + 2 + j1, y + 16, l);
-            RenderSystem.enableDepthTest();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void displayItemToolTip(Object[] tooltip, float pzLevel, int guiLeft, int guiTop, boolean forceAdd) {
-        if (tooltip == null) {
-            return;
-        }
-
-        LPGuiGraphics.zLevel = pzLevel;
-
-        Minecraft mc = Minecraft.getInstance();
-        ItemStack stack = (ItemStack) tooltip[2];
-        if (stack == null) {
-            stack = ItemStack.EMPTY;
-        }
-
-        List<String> tooltipLines;
-        if (mc.screen instanceof AbstractContainerScreen) {
-            // NEI is not available on 1.20.1 — the former dummy proxy always returned an empty mutable list.
-            tooltipLines = new java.util.ArrayList<>();
-        } else {
-            tooltipLines = java.util.Collections.emptyList();
-        }
-
-        if (tooltip.length > 4) {
-            tooltipLines.addAll(1, (List<String>) tooltip[4]);
-        }
-
-        if ((Screen.hasControlDown()) && (tooltip.length < 4 || (Boolean) tooltip[3])) {
-            tooltipLines.add(1, "\u00a77" + ((ItemStack) tooltip[2]).getCount());
-        }
-
-        int x = (Integer) tooltip[0] - (forceAdd ? 0 : guiLeft) + 12;
-        int y = (Integer) tooltip[1] - (forceAdd ? 0 : guiTop) - 12;
-        // NEI render hook removed (former dummy always returned false) — always draw our own tooltip.
-        LPGuiGraphics.drawToolTip(SimpleGraphics.guiGraphics, x, y, tooltipLines, stack.getRarity().color());
-
-        LPGuiGraphics.zLevel = 0;
-    }
-
     public static void drawToolTip(GuiGraphics guiGraphics, int posX, int posY, List<String> msg,
         ChatFormatting rarityColor) {
         if (msg.isEmpty()) {
             return;
         }
-
         int y = posY;
-
-        //RenderSystem.disableDepthTest();
-
-        //LPGuiGraphics.zLevel = 300.0F;
-
         for (int i = 0; i < msg.size(); ++i) {
             String line = msg.get(i);
 
@@ -146,10 +77,6 @@ public final class LPGuiGraphics {
             );
             y += (i == 0) ? 2 : 10;
         }
-
-        //LPGuiGraphics.zLevel = 0.0F;
-
-        //RenderSystem.enableDepthTest();
     }
 
     public static void drawPlayerInventoryBackground(GuiGraphics guiGraphics, int xOffset, int yOffset) {
@@ -212,11 +139,6 @@ public final class LPGuiGraphics {
         doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_TEXTURE);
     }
 
-    @Deprecated
-    public static void drawBigSlotBackground(int x, int y) {
-        drawBigSlotBackground(SimpleGraphics.guiGraphics, x, y);
-    }
-
     public static void drawBigSlotBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(LPGuiGraphics.BIG_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 26, 26, 26, 26);
@@ -255,13 +177,7 @@ public final class LPGuiGraphics {
         drawTexture16by16(guiGraphics, x, y, LPGuiGraphics.STATS_ICON);
     }
 
-    @Deprecated(forRemoval = true)
-    public static void drawGuiBackGround(int guiLeft, int guiTop, int right, int bottom, float zLevel,
-        boolean resetColor) {
-        LPGuiGraphics.drawGuiBackGround(SimpleGraphics.guiGraphics, guiLeft, guiTop, right, bottom, zLevel, resetColor);
-    }
-
-    public static void drawGuiBackGround(GuiGraphics guiGraphics, int guiLeft, int guiTop, int right, int bottom,
+    public static void drawGuiBackGround(@Nullable GuiGraphics guiGraphics, int guiLeft, int guiTop, int right, int bottom,
         float zLevel, boolean resetColor) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, zLevel, resetColor, true, true,
             true, true);

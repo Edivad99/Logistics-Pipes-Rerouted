@@ -84,7 +84,7 @@ public class GuiOverlay {
 						RenderSystem.disableDepthTest();
 						int k1 = slot.x + guiLeft;
 						int i1 = slot.y + guiTop;
-						SimpleGraphics.drawGradientRect(k1, i1, k1 + 16, i1 + 16, 0xa0ff0000, 0xa0ff0000, 0.0);
+						SimpleGraphics.drawGradientRect(SimpleGraphics.guiGraphics, k1, i1, k1 + 16, i1 + 16, 0xa0ff0000, 0xa0ff0000, 0.0);
 						RenderSystem.enableDepthTest();
 					}
 					if (clicked) {

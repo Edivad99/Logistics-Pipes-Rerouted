@@ -10,6 +10,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 @StaticResolve
@@ -31,15 +32,16 @@ public class DiskDropPacket extends CoordinatesPacket {
 			return;
 		}
 		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2 pipeItemsRequestLogisticsMk2) {
-			if (pipeItemsRequestLogisticsMk2.getDisk() != null) {
-				if (pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.DISK.get())) {
-					if (!pipeItemsRequestLogisticsMk2.getDisk().has(DataComponents.CUSTOM_DATA)) {
-						pipeItemsRequestLogisticsMk2.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+            ItemStack disk = pipeItemsRequestLogisticsMk2.getDisk();
+			if (!disk.isEmpty()) {
+				if (disk.getItem().equals(LPItems.DISK.get())) {
+					if (!disk.has(DataComponents.CUSTOM_DATA)) {
+                        disk.set(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
 					}
 				}
 			}
 			pipeItemsRequestLogisticsMk2.dropDisk();
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(pipeItemsRequestLogisticsMk2.getDisk()).setBlockPos(pipe.getBlockPos()), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(disk).setBlockPos(pipe.getBlockPos()), player);
 		}
 	}
 }

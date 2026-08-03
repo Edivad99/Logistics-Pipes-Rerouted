@@ -3,6 +3,8 @@ package logisticspipes.modules;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
@@ -41,7 +43,7 @@ public class ModuleEnchantmentSink extends LogisticsModule {
 	}
 
 	@Override
-	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		// check to see if a better route is already found
 		// Note: Higher MKs are higher priority

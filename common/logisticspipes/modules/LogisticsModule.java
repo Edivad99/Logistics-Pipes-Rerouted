@@ -114,19 +114,19 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	}
 
 	/**
-	 * Gives a sink answer on the given itemstack
-	 *
-	 * @param stack              to sink
-	 * @param item               to sink
-	 * @param bestPriority       best priority seen so far
-	 * @param bestCustomPriority best custom sub-priority
-	 * @param allowDefault       is a default only sink allowed to sink this?
-	 * @param includeInTransit   include the "in transit" items? -- true for a destination
-	 *                           search, false for a sink check.
-	 * @param forcePassive       check for passive routing only, in case this method is redirected to other sinks
-	 * @return SinkReply whether the module sinks the item or not
-	 */
-	public SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+     * Gives a sink answer on the given itemstack
+     *
+     * @param stack              to sink
+     * @param item               to sink
+     * @param bestPriority       best priority seen so far
+     * @param bestCustomPriority best custom sub-priority
+     * @param allowDefault       is a default only sink allowed to sink this?
+     * @param includeInTransit   include the "in transit" items? -- true for a destination
+     *                           search, false for a sink check.
+     * @param forcePassive       check for passive routing only, in case this method is redirected to other sinks
+     * @return SinkReply whether the module sinks the item or not
+     */
+	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		return null;
 	}

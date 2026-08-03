@@ -32,7 +32,7 @@ public class DiskRequestConectPacket extends CoordinatesPacket {
 			return;
 		}
 		if (pipe.pipe instanceof PipeItemsRequestLogisticsMk2 pipeItemsRequestLogisticsMk2) {
-			if (pipeItemsRequestLogisticsMk2.getDisk() != null) {
+			if (!pipeItemsRequestLogisticsMk2.getDisk().isEmpty()) {
 				if (pipeItemsRequestLogisticsMk2.getDisk().getItem().equals(LPItems.DISK.get())) {
 					if (!pipeItemsRequestLogisticsMk2.getDisk().has(DataComponents.CUSTOM_DATA)) {
 						pipeItemsRequestLogisticsMk2.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.EMPTY);

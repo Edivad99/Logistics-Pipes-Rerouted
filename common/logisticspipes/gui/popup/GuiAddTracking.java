@@ -40,8 +40,6 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 
 	@Override
 	public void init() {
-		
-
 		super.init();
 
 		SmallGuiButton refreshBtn = new SmallGuiButton(3, guiLeft + 4, bottom - 25, 50, 20, "Refresh");
@@ -83,11 +81,12 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 			search = new InputBar(font, getBaseScreen(), guiLeft + 30, bottom - 78, right - guiLeft - 58, 15);
 		}
 		search.reposition(guiLeft + 10, bottom - 58, right - guiLeft - 20, 15);
+        addRenderableWidget(search);
 
 		if (itemDisplay == null) {
 			itemDisplay = new ItemDisplay(this, font, getBaseScreen(), null, guiLeft + 10, guiTop + 18, xSize - 20, ySize - 100, 0, 0, 0, new int[] { 1, 10, 64, 64 }, true);
 		}
-		itemDisplay.reposition(guiLeft + 10, guiTop + 18, xSize - 20, ySize - 80, 0, 0);
+        itemDisplay.reposition(guiLeft + 10, guiTop + 18, xSize - 20, ySize - 80, 0, 0);
 	}
 
 	@Override
@@ -98,27 +97,25 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	protected void renderToolTips(int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
 		Object[] tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
 		if (tip != null && tip.length >= 3) {
-			getGuiGraphics().renderTooltip(minecraft.font, (net.minecraft.world.item.ItemStack) tip[2], (int) tip[0], (int) tip[1]);
+            guiGraphics.renderTooltip(minecraft.font, (net.minecraft.world.item.ItemStack) tip[2], (int) tip[0], (int) tip[1]);
 		}
 	}
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		itemDisplay.renderItemArea(0.0f);
+		itemDisplay.renderItemArea(guiGraphics, 0.0f);
 	}
 
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
 		//guiGraphics.drawString(minecraft.font, StringUtil.translate(PREFIX + "title"), guiLeft + 5, guiTop + 6, 0x404040, false);
-		itemDisplay.renderPageNumber(right - 47, guiTop + 6);
+		itemDisplay.renderPageNumber(guiGraphics, right - 47, guiTop + 6);
 
-		search.drawTextBox();
-
-		itemDisplay.renderSortMode(xCenter, bottom - 32);
+        itemDisplay.renderSortMode(guiGraphics, xCenter, bottom - 32);
 	}
 
 	private void refreshItems() {
@@ -159,7 +156,7 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 		if (search.isEmpty()) {
 			return true;
 		}
-		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getText().toLowerCase(Locale.US))) {
+		if (isSearched(item.getFriendlyName().toLowerCase(Locale.US), search.getValue().toLowerCase(Locale.US))) {
 			return true;
 		}
 		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
@@ -172,7 +169,7 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 
 			if (isSearched(
 					enchantName.toLowerCase(Locale.US),
-					search.getText().toLowerCase(Locale.US))) {
+					search.getValue().toLowerCase(Locale.US))) {
 				return true;
 			}
 		}

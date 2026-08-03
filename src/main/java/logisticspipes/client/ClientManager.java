@@ -61,7 +61,7 @@ public class ClientManager {
         NeoForge.EVENT_BUS.register(new RenderTickHandler());
         NeoForge.EVENT_BUS.register(WidgetScreenHudSuppressor.INSTANCE);
         SimpleServiceLocator.setClientPacketBufferHandlerThread(new ClientPacketBufferHandlerThread());
-        LPFontRenderer.Factory.asyncPreload();
+        //LPFontRenderer.Factory.asyncPreload();
     }
 
     // Mod events

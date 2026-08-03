@@ -9,8 +9,10 @@ import static java.lang.Math.round;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
@@ -96,7 +98,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
 		drawBG(guiGraphics);
-		getActiveTab().draw(mouseX, mouseY);
+		getActiveTab().draw(guiGraphics, mouseX, mouseY);
 
 		super.renderBg(guiGraphics, f, mouseX, mouseY);
 	}
@@ -141,7 +143,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
-		getActiveTab().drawForegroundLayer(mouseX, mouseY);
+		getActiveTab().drawForegroundLayer(guiGraphics, mouseX, mouseY);
 	}
 
 	@Override
@@ -162,9 +164,9 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		void init();
 
-		void draw(int mouseX, int mouseY);
+		void draw(GuiGraphics guiGraphics, int mouseX, int mouseY);
 
-		default void drawForegroundLayer(int mouseX, int mouseY) {}
+		default void drawForegroundLayer(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
 
 		default void checkButtons() {}
 
@@ -233,17 +235,17 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 		}
 
 		@Override
-		public void draw(int mouseX, int mouseY) {
+		public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 			taskNameLabel = null;
 			graphTexts.clear();
 			graphTextPos.clear();
-			itemDisplay.renderItemArea(0.0f);
-			itemDisplay.renderPageNumber(right - 40, topPos + 28);
+			itemDisplay.renderItemArea(guiGraphics, 0.0f);
+			itemDisplay.renderPageNumber(guiGraphics, right - 40, topPos + 28);
 			if (itemDisplay.getSelectedItem() != null) {
 				TrackingTask task = getSelectedTask();
 
 				if (task != null) {
-					LPGuiGraphics.drawSlotBackground(leftPos + 10, topPos + 99);
+					LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 10, topPos + 99);
 					guiGraphics.renderItem(task.item.unsafeMakeNormalStack(1), leftPos + 12, topPos + 101);
 					taskNameLabel = StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, font);
 
@@ -262,7 +264,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 					float xViewportCenter = 75;
 					float yViewportCenter = 40;
 
-					java.util.Set<Integer> labeledYPixels = new java.util.HashSet<>();
+					Set<Integer> labeledYPixels = new HashSet<>();
 					int rightLimit = 2; // we want to draw one more graph part past the right edge
 					for (int i = 0; i < data.length; i++) {
 						rightLimit--;
@@ -321,7 +323,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 							}
 						}
 
-						drawGraphPart(xOrigo, yOrigo, (int) prevX, (int) prevY, (int) x, (int) y);
+						drawGraphPart(guiGraphics, xOrigo, yOrigo, (int) prevX, (int) prevY, (int) x, (int) y);
 					}
 				}
 			}
@@ -345,7 +347,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 		}
 
 		@Override
-		public void drawForegroundLayer(int mouseX, int mouseY) {
+		public void drawForegroundLayer(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 			guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "amount"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 			if (taskNameLabel != null) {
 				guiGraphics.drawString(minecraft.font, taskNameLabel, 32, 104, Color.getValue(Color.DARKER_GREY), false);
@@ -414,7 +416,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 			yViewportScale *= mul;
 		}
 
-		private void drawGraphPart(int xOrigo, int yOrigo, int prevX, int prevY, int x, int y) {
+		private void drawGraphPart(GuiGraphics guiGraphics, int xOrigo, int yOrigo, int prevX, int prevY, int x, int y) {
 			Vec2 left = new Vec2(prevX, prevY);
 			Vec2 right = new Vec2(x, y);
 
@@ -528,13 +530,13 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 		}
 
 		@Override
-		public void draw(int mouseX, int mouseY) {
-			itemDisplay.renderItemArea(0.0f);
-			itemDisplay.renderPageNumber(right - 50, topPos + 66);
+		public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+			itemDisplay.renderItemArea(guiGraphics, 0.0f);
+			itemDisplay.renderPageNumber(guiGraphics, right - 50, topPos + 66);
 		}
 
 		@Override
-		public void drawForegroundLayer(int mouseX, int mouseY) {
+		public void drawForegroundLayer(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 			guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "crafting"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 			// Item tooltip omitted — tab has no hovered-item lookup at this point
 		}

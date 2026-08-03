@@ -17,6 +17,7 @@ import logisticspipes.utils.tuples.Pair;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 
@@ -79,7 +80,7 @@ public class ItemDisplay {
 		this.shiftPageChange = shiftPageChange;
 		this.requestCountBar = new InputBar(this.font, screen, amountPosLeft - (amountWidth / 2), amountPosTop - 5, amountWidth, 12, false, true, InputBar.Align.CENTER);
 		this.requestCountBar.minNumber = 1;
-		this.requestCountBar.putInt(1);
+		this.requestCountBar.setInteger(1);
 	}
 
 	public void reposition(int left, int top, int width, int height, int amountPosLeft, int amountPosTop) {
@@ -185,7 +186,7 @@ public class ItemDisplay {
 		_allItems.sort(new ItemidStackDisplayOptionComparator());
 	}
 
-	public void renderSortMode(int x, int y) {
+	public void renderSortMode(GuiGraphics guiGraphics, int x, int y) {
 		String name = ItemDisplay.option.name();
 		boolean up = true;
 		if (name.endsWith("_DOWN")) {
@@ -193,10 +194,10 @@ public class ItemDisplay {
 			up = false;
 		}
 		name += !up ? " /\\" : " \\/";
-		screen.guiGraphics.drawString(font, name, x - font.width(name) / 2, y, 0x404040, false);
+		guiGraphics.drawString(font, name, x - font.width(name) / 2, y, 0x404040, false);
 	}
 
-	public void renderPageNumber(int x, int y) {
+	public void renderPageNumber(GuiGraphics guiGraphics, int x, int y) {
 		maxPage = (getSearchedItemNumber() - 1) / itemsPerPage;
 		if (maxPage == -1) {
 			maxPage = 0;
@@ -205,7 +206,7 @@ public class ItemDisplay {
 			page = maxPage;
 		}
 		String pageString = "Page " + (page + 1) + " / " + (maxPage + 1);
-		screen.guiGraphics.drawString(font, pageString, x - font.width(pageString) / 2, y, 0x404040, false);
+        guiGraphics.drawString(font, pageString, x - font.width(pageString) / 2, y, 0x404040, false);
 	}
 
 	private int getSearchedItemNumber() {
@@ -218,17 +219,15 @@ public class ItemDisplay {
 		return count;
 	}
 
-	public void renderAmount(int stackAmount) {
-		int requestCount = requestCountBar.getInt();
+	public void renderAmount(GuiGraphics guiGraphics, int stackAmount) {
+		int requestCount = requestCountBar.getInteger();
 		String StackrequestCount = (requestCount / stackAmount) + "+" + (requestCount % stackAmount);
 		//screen.guiGraphics.drawString(font, requestCount + "", x - font.width(requestCount + "") / 2, y, 0x404040, false);
-		screen.guiGraphics.drawString(font, StackrequestCount, this.amountPosLeft - font.width(StackrequestCount) / 2, this.amountPosTop + 11, 0x404040, false);
-
-		requestCountBar.drawTextBox();
+		guiGraphics.drawString(font, StackrequestCount, this.amountPosLeft - font.width(StackrequestCount) / 2, this.amountPosTop + 11, 0x404040, false);
 	}
 
-	public void renderItemArea(double zLevel) {
-		screen.guiGraphics.fill(left, top, left + width, top + height, Color.getValue(Color.GREY));
+	public void renderItemArea(GuiGraphics guiGraphics, double zLevel) {
+		guiGraphics.fill(left, top, left + width, top + height, Color.getValue(Color.GREY));
 
 		tooltip = null;
 		int ppi = 0;
@@ -265,8 +264,8 @@ public class ItemDisplay {
 
 			// All fill calls use left/top offset to convert from area-relative to screen coords
 			if (mouseX >= realX && mouseX < realX + panelxSize && mouseY >= realY && mouseY < realY + panelySize) {
-				screen.guiGraphics.fill(left + x - 2, top + y - 2, left + x + panelxSize - 2, top + y + panelySize - 2, Color.getValue(Color.BLACK));
-				screen.guiGraphics.fill(left + x - 1, top + y - 1, left + x + panelxSize - 3, top + y + panelySize - 3, Color.getValue(Color.DARKER_GREY));
+				guiGraphics.fill(left + x - 2, top + y - 2, left + x + panelxSize - 2, top + y + panelySize - 2, Color.getValue(Color.BLACK));
+				guiGraphics.fill(left + x - 1, top + y - 1, left + x + panelxSize - 3, top + y + panelySize - 3, Color.getValue(Color.DARKER_GREY));
 
 				if (itemIdentifierStack.getStackSize() > 0) {
 					tooltip = new Object[] { mouseX, mouseY, itemIdentifierStack.unsafeMakeNormalStack() };
@@ -276,15 +275,15 @@ public class ItemDisplay {
 			}
 
 			if (selectedItem == itemIdentifierStack) {
-				screen.guiGraphics.fill(left + x - 2, top + y - 2, left + x + panelxSize - 2, top + y + panelySize - 2, Color.getValue(Color.BLACK));
-				screen.guiGraphics.fill(left + x - 1, top + y - 1, left + x + panelxSize - 3, top + y + panelySize - 3, Color.getValue(Color.LIGHTER_GREY));
-				screen.guiGraphics.fill(left + x, top + y, left + x + panelxSize - 4, top + y + panelySize - 4, Color.getValue(Color.DARKER_GREY));
+				guiGraphics.fill(left + x - 2, top + y - 2, left + x + panelxSize - 2, top + y + panelySize - 2, Color.getValue(Color.BLACK));
+				guiGraphics.fill(left + x - 1, top + y - 1, left + x + panelxSize - 3, top + y + panelySize - 3, Color.getValue(Color.LIGHTER_GREY));
+				guiGraphics.fill(left + x, top + y, left + x + panelxSize - 4, top + y + panelySize - 4, Color.getValue(Color.DARKER_GREY));
 				if (renderer != null) {
 					renderer.specialItemRendering(itemIdentifierStack.getItem(), left + x, top + y);
 				}
 			}
 
-			stackRenderer.setPosX(left + x).setPosY(top + y).setItemIdentStack(itemIdentifierStack).setDisplayAmount(DisplayAmount.HIDE_ONE).renderInGui();
+			stackRenderer.setPosX(left + x).setPosY(top + y).setItemIdentStack(itemIdentifierStack).setDisplayAmount(DisplayAmount.HIDE_ONE).renderInGui(guiGraphics);
 
 			x += panelxSize;
 			if (x > width) {
@@ -321,7 +320,7 @@ public class ItemDisplay {
 				}
 			}
 		} else if (!requestCountBar.isFocused()) {
-			int requestCount = requestCountBar.getInt();
+			int requestCount = requestCountBar.getInteger();
 			if (isShift && !isControl && !isShiftPageChange()) {
 				if (wheel > 0) {
 					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
@@ -397,7 +396,7 @@ public class ItemDisplay {
 					}
 				}
 			}
-			requestCountBar.putInt(requestCount);
+			requestCountBar.setInteger(requestCount);
 		}
 	}
 
@@ -414,12 +413,12 @@ public class ItemDisplay {
 	}
 
 	public void resetAmount() {
-		requestCountBar.putInt(1);
+		requestCountBar.setInteger(1);
 	}
 
 	public void setMaxAmount() {
 		if (selectedItem != null && selectedItem.getStackSize() != 0) {
-			requestCountBar.putInt(selectedItem.getStackSize());
+			requestCountBar.setInteger(selectedItem.getStackSize());
 		}
 	}
 
@@ -440,15 +439,15 @@ public class ItemDisplay {
 	}
 
 	public void add(int i) {
-		int requestCount = requestCountBar.getInt();
+		int requestCount = requestCountBar.getInteger();
 		if (i != 1 && requestCount == 1) {
 			requestCount -= 1;
 		}
-		requestCountBar.putInt(requestCount + getAmountChangeMode(i));
+		requestCountBar.setInteger(requestCount + getAmountChangeMode(i));
 	}
 
 	public void sub(int i) {
-		requestCountBar.putInt(requestCountBar.getInt() - getAmountChangeMode(i));
+		requestCountBar.setInteger(requestCountBar.getInteger() - getAmountChangeMode(i));
 	}
 
 	public ItemIdentifierStack getSelectedItem() {
@@ -456,7 +455,7 @@ public class ItemDisplay {
 	}
 
 	public int getRequestCount() {
-		return requestCountBar.getInt();
+		return requestCountBar.getInteger();
 	}
 
 	public boolean handleClick(int x, int y, int k) {

@@ -8,6 +8,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 public class ItemPipeController extends LogisticsItem {
@@ -17,27 +18,27 @@ public class ItemPipeController extends LogisticsItem {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand handIn) {
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
 		ItemStack stack = player.getItemInHand(handIn);
-		if (MainProxy.isClient(world)) {
+		if (MainProxy.isClient(level)) {
 			return InteractionResultHolder.pass(stack);
 		}
-		useItem(player, world);
+		useItem(player, level);
 		return InteractionResultHolder.success(stack);
 	}
 
 	@Override
-	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
-		Player player = _ctx.getPlayer();
-		Level world = _ctx.getLevel();
-		if (MainProxy.isClient(world)) {
+	public InteractionResult useOn(UseOnContext context) {
+		Player player = context.getPlayer();
+		Level level = context.getLevel();
+		if (MainProxy.isClient(level)) {
 			return InteractionResult.PASS;
 		}
-		useItem(player, world);
+		useItem(player, level);
 		return InteractionResult.SUCCESS;
 	}
 
-	private void useItem(Player player, Level world) {
+	private void useItem(Player player, Level level) {
 		NewGuiHandler.getGui(LogisticsPlayerSettingsGuiProvider.class).open(player);
 	}
 }

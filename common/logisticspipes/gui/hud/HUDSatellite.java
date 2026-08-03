@@ -2,10 +2,13 @@ package logisticspipes.gui.hud;
 
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+
 import network.rs485.logisticspipes.SatellitePipe;
 
 public class HUDSatellite extends BasicHUDGui {
@@ -57,33 +60,33 @@ public class HUDSatellite extends BasicHUDGui {
 
 	@Override
 	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
+		GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
 		int textColor = day ? 0xff404040 : 0xff7f7f7f;
-		if (pipe.getItemList().size() > 0) {
-			LPGuiGraphics.drawGuiBackGround(-50, -50, 50, 50, 0, false);
+		if (!pipe.getItemList().isEmpty()) {
+			LPGuiGraphics.drawGuiBackGround(guiGraphics, -50, -50, 50, 50, 0, false);
 			super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 
 			String message = pipe.getSatellitePipeName();
-			if (gg != null) {
+			if (guiGraphics != null) {
 				if (minecraft.font.width(message) > 40) {
-					gg.pose().pushPose();
-					gg.pose().scale(0.45F, 0.45F, 1F);
-					gg.drawString(minecraft.font, message, -100, -85, textColor, false);
-					gg.pose().popPose();
+					guiGraphics.pose().pushPose();
+					guiGraphics.pose().scale(0.45F, 0.45F, 1F);
+					guiGraphics.drawString(minecraft.font, message, -100, -85, textColor, false);
+					guiGraphics.pose().popPose();
 				} else {
-					gg.drawString(minecraft.font, message, -42, -40, textColor, false);
+					guiGraphics.drawString(minecraft.font, message, -42, -40, textColor, false);
 				}
 			}
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(pipe.getItemList(), null, page, -35, -20, 4, 12, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
-			if (gg != null) {
-				gg.drawString(minecraft.font, String.format("(%d/%d)", page + 1, getMaxPage()), 9, -41, textColor, false);
+			ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, pipe.getItemList(), null, page, -35, -20, 4, 12, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+			if (guiGraphics != null) {
+				guiGraphics.drawString(minecraft.font, String.format("(%d/%d)", page + 1, getMaxPage()), 9, -41, textColor, false);
 			}
 		} else {
-			LPGuiGraphics.drawGuiBackGround(-50, -15, 50, 20, 0, false);
+			LPGuiGraphics.drawGuiBackGround(guiGraphics, -50, -15, 50, 20, 0, false);
 			super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 			String message = pipe.getSatellitePipeName();
-			if (gg != null) {
-				gg.drawString(minecraft.font, message, -(minecraft.font.width(message) / 2), -2, textColor, false);
+			if (guiGraphics != null) {
+				guiGraphics.drawString(minecraft.font, message, -(minecraft.font.width(message) / 2), -2, textColor, false);
 			}
 		}
 	}

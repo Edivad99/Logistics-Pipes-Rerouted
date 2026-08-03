@@ -3,10 +3,12 @@ package logisticspipes.gui.hud;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsProviderLogistics;
 import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class HUDProvider extends BasicHUDGui {
 
@@ -96,7 +98,8 @@ public class HUDProvider extends BasicHUDGui {
 
 	@Override
 	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-		LPGuiGraphics.drawGuiBackGround(-50, -55, 50, 55, 0, false);
+        GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, -50, -55, 50, 55, 0, false);
 		super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
 
 		float scaleX = 1.125F;
@@ -105,13 +108,12 @@ public class HUDProvider extends BasicHUDGui {
 		ItemStackRenderer itemStackRenderer = new ItemStackRenderer(0, 0, 0.0F, shifted, true);
 		itemStackRenderer.setDisplayAmount(DisplayAmount.ALWAYS);
 		itemStackRenderer.setScaleX(scaleX).setScaleY(scaleY).setScaleZ(scaleZ);
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(pipe.getDisplayList(), null, page, -36, -37, 4, 12, 18, 18, itemStackRenderer);
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(pipe.itemListOrderer, null, pageB, -36, 23, 4, 4, 18, 18, itemStackRenderer);
-		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
-		if (gg != null) {
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, pipe.getDisplayList(), null, page, -36, -37, 4, 12, 18, 18, itemStackRenderer);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, pipe.itemListOrderer, null, pageB, -36, 23, 4, 4, 18, 18, itemStackRenderer);
+		if (guiGraphics != null) {
 			int textColor = day ? 0xff404040 : 0xff7f7f7f;
-			gg.drawString(minecraft.font, String.format("(%d/%d)", page + 1, getMaxPage()), 9, -50, textColor, false);
-			gg.drawString(minecraft.font, String.format("(%d/%d)", pageB + 1, getMaxPageOrderer()), 9, 23, textColor, false);
+            guiGraphics.drawString(minecraft.font, String.format("(%d/%d)", page + 1, getMaxPage()), 9, -50, textColor, false);
+            guiGraphics.drawString(minecraft.font, String.format("(%d/%d)", pageB + 1, getMaxPageOrderer()), 9, 23, textColor, false);
 		}
 	}
 

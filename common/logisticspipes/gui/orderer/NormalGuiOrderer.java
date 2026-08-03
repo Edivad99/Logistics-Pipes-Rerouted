@@ -6,6 +6,8 @@ import logisticspipes.network.packets.orderer.OrdererRefreshRequestPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
+
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 public class NormalGuiOrderer extends GuiOrderer {
@@ -16,7 +18,7 @@ public class NormalGuiOrderer extends GuiOrderer {
 		CraftOnly,
 	}
 
-	protected DisplayOptions displayOptions = DisplayOptions.Both;
+	private DisplayOptions displayOptions = DisplayOptions.Both;
 
 	public NormalGuiOrderer(int x, int y, int z, net.minecraft.resources.ResourceLocation dim, Player entityPlayer) {
 		super(x, y, z, dim, entityPlayer);
@@ -32,22 +34,21 @@ public class NormalGuiOrderer extends GuiOrderer {
 		addRenderableWidget(new SmallGuiButton(13, leftPos + 10, bottom - 28, 46, 10, "Content"));
 		SmallGuiButton modeBtn = new SmallGuiButton(9, leftPos + 10, bottom - 41, 46, 10, "Both");
 		modeBtn.setPressListener(b -> {
-			String displayString = "";
-			switch (displayOptions) {
-				case Both:
-					displayOptions = DisplayOptions.CraftOnly;
-					displayString = "Craft";
-					break;
-				case CraftOnly:
-					displayOptions = DisplayOptions.SupplyOnly;
-					displayString = "Supply";
-					break;
-				case SupplyOnly:
-					displayOptions = DisplayOptions.Both;
-					displayString = "Both";
-					break;
-			}
-			b.setMessage(net.minecraft.network.chat.Component.literal(displayString));
+			String displayString = switch (displayOptions) {
+                case Both -> {
+                    displayOptions = DisplayOptions.CraftOnly;
+                    yield "Craft";
+                }
+                case CraftOnly -> {
+                    displayOptions = DisplayOptions.SupplyOnly;
+                    yield "Supply";
+                }
+                case SupplyOnly -> {
+                    displayOptions = DisplayOptions.Both;
+                    yield "Both";
+                }
+            };
+            b.setMessage(Component.literal(displayString));
 			refreshItems();
 		});
 		addRenderableWidget(modeBtn);
@@ -55,21 +56,12 @@ public class NormalGuiOrderer extends GuiOrderer {
 
 	@Override
 	public void refreshItems() {
-		int integer;
-		switch (displayOptions) {
-			case Both:
-				integer = 0;
-				break;
-			case SupplyOnly:
-				integer = 1;
-				break;
-			case CraftOnly:
-				integer = 2;
-				break;
-			default:
-				integer = 3;
-		}
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
+		int integer = switch (displayOptions) {
+            case Both -> 0;
+            case SupplyOnly -> 1;
+            case CraftOnly -> 2;
+        };
+        MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
 	}
 
 	@Override

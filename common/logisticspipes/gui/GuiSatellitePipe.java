@@ -44,35 +44,34 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 		super.init();
 		SmallGuiButton saveBtn = new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, "Save");
 		saveBtn.setPressListener(b -> MainProxy.sendPacketToServer(
-				PacketHandler.getPacket(SatelliteSetNamePacket.class).setString(input.getText()).setTilePos(satellitePipe.getContainer())));
+				PacketHandler.getPacket(SatelliteSetNamePacket.class).setString(input.getValue()).setTilePos(satellitePipe.getContainer())));
 		addRenderableWidget(saveBtn);
 		input = new InputBar(font, this, leftPos + 8, topPos + 40, 100, 16);
+        addRenderableWidget(input);
 	}
 
 	@Override
 	public void closeGui() throws IOException {
 		super.closeGui();
-		
 	}
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
 		super.renderLabels(guiGraphics, par1, par2);
-		guiGraphics.drawCenteredString(font, TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0x404040);
+		drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0x404040);
 		String name = TextUtil.getTrimmedString(satellitePipe.getSatellitePipeName(), 100, minecraft.font, "...");
 		int yOffset = 0;
 		if (!response.isEmpty()) {
-			guiGraphics.drawCenteredString(font, TextUtil.translate("gui.satellite.naming_result." + response), imageWidth / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
+			drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.naming_result." + response), imageWidth / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
 			yOffset = 4;
 		}
-		guiGraphics.drawCenteredString(font, name, imageWidth / 2, 24 - yOffset, 0x404040);
+		drawCenteredString(guiGraphics, name, imageWidth / 2, 24 - yOffset, 0x404040);
 	}
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		super.renderBg(guiGraphics, f, x, y);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
-		input.drawTextBox();
 	}
 
 	@Override

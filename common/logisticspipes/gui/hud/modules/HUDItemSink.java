@@ -4,6 +4,7 @@ import java.util.List;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.modules.ModuleItemSink;
+import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
@@ -19,8 +20,7 @@ public class HUDItemSink implements IHUDModuleRenderer {
 
 	@Override
 	public void renderContent(boolean shifted) {
-		Minecraft mc = Minecraft.getInstance();
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(ItemIdentifierStack.getListFromInventory(module.getFilterInventory()), null, 0, -25, -32, 3, 9, 18, 18, 100.0F, DisplayAmount.NEVER, false, shifted);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(SimpleGraphics.guiGraphics, ItemIdentifierStack.getListFromInventory(module.getFilterInventory()), null, 0, -25, -32, 3, 9, 18, 18, 100.0F, DisplayAmount.NEVER, false, shifted);
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package logisticspipes.utils.gui;
 
-public interface ISubGuiControler {
+import javax.annotation.Nullable;
+
+public interface ISubGuiController {
 
 	void setSubGui(SubGuiScreen gui);
 
@@ -8,7 +10,7 @@ public interface ISubGuiControler {
 
 	boolean hasSubGui();
 
-	SubGuiScreen getSubGui();
+	@Nullable SubGuiScreen getSubGui();
 
 	LogisticsBaseGuiScreen getBaseScreen();
 

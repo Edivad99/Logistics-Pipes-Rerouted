@@ -75,22 +75,22 @@ public class ItemStackRenderer {
 		scaleZ = 1.0F;
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount) {
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(_allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, zLevel, displayAmount, true, false);
+	public static void renderItemIdentifierStackListIntoGui(GuiGraphics guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount) {
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, zLevel, displayAmount, true, false);
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount, boolean renderEffect, boolean ignoreDepth) {
+	public static void renderItemIdentifierStackListIntoGui(GuiGraphics guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount, boolean renderEffect, boolean ignoreDepth) {
 		ItemStackRenderer itemStackRenderer = new ItemStackRenderer(0, 0, zLevel, renderEffect, ignoreDepth);
 		itemStackRenderer.setDisplayAmount(displayAmount);
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(_allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, itemStackRenderer);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, itemStackRenderer);
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(List<ItemIdentifierStack> _allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, ItemStackRenderer itemStackRenderer) {
+	public static void renderItemIdentifierStackListIntoGui(GuiGraphics guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, ItemStackRenderer itemStackRenderer) {
 		int ppi = 0;
 		int column = 0;
 		int row = 0;
 
-		for (ItemIdentifierStack identifierStack : _allItems) {
+		for (ItemIdentifierStack identifierStack : allItems) {
 			if (identifierStack == null) {
 				column++;
 				if (column >= columns) {
@@ -118,7 +118,7 @@ public class ItemStackRenderer {
 
 			if (!itemstack.isEmpty()) {
 				itemStackRenderer.setItemstack(itemstack).setPosX(x).setPosY(y);
-				itemStackRenderer.renderInGui();
+				itemStackRenderer.renderInGui(guiGraphics);
 			}
 
 			column++;
@@ -129,25 +129,28 @@ public class ItemStackRenderer {
 		}
 	}
 
-	public void renderInGui() {
-		GuiGraphics gg = SimpleGraphics.guiGraphics;
-		if (gg == null) return;
+	public void renderInGui(@Nullable GuiGraphics guiGraphics) {
+		if (guiGraphics == null) {
+            return;
+        }
 
 		ItemStack stack = itemstack;
 		if (stack.isEmpty() && itemIdentStack != null) {
 			stack = itemIdentStack.getItem().unsafeMakeNormalStack(1);
 		}
-		if (stack.isEmpty()) return;
+		if (stack.isEmpty()) {
+            return;
+        }
 
-        gg.renderItem(stack, posX, posY);
+        guiGraphics.renderItem(stack, posX, posY);
 
         if (displayAmount != DisplayAmount.NEVER) {
             long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
             String countLabel = TextUtil.getThreeDigitFormattedNumber(count, displayAmount == DisplayAmount.ALWAYS);
-            gg.renderItemDecorations(font, stack, posX, posY, countLabel);
+            guiGraphics.renderItemDecorations(font, stack, posX, posY, countLabel);
         }
         else {
-            gg.renderItemDecorations(font, stack, posX, posY, null);
+            guiGraphics.renderItemDecorations(font, stack, posX, posY, null);
         }
 	}
 

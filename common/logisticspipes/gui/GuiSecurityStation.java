@@ -71,15 +71,13 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	private static DummyContainer buildDummy(LogisticsSecurityTileEntity tile, Player player) {
 		DummyContainer dummy = new DummyContainer(player.getInventory(), tile.inv);
 		dummy.addRestrictedSlot(0, tile.inv, 82, 141, (Item) null);
-		dummy.addNormalSlotsForPlayerInventory(10, 175);
+		dummy.addNormalSlotsForPlayerInventory(11, 176);
 		return dummy;
 	}
 
 
 	@Override
 	public void init() {
-		
-
 		super.init();
 		btnMinusMinus = new SmallGuiButton(0, leftPos + 10, topPos + 179, 30, 20, "--");
 		btnMinusMinus.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityCardPacket.class).setInteger(0).setBlockPos(_tile.getBlockPos())));
@@ -97,8 +95,8 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		btnPlusPlus.visible = false;
 		btnOpen = new SmallGuiButton(4, leftPos + 241, topPos + 217, 30, 10, TextUtil.translate(GuiSecurityStation.PREFIX + "Open"));
 		btnOpen.setPressListener(b -> {
-			if (!searchBar.getText().isEmpty()) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityStationOpenPlayerRequest.class).setString(searchBar.getText()).setBlockPos(_tile.getBlockPos()));
+			if (!searchBar.getValue().isEmpty()) {
+				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityStationOpenPlayerRequest.class).setString(searchBar.getValue()).setBlockPos(_tile.getBlockPos()));
 			}
 		});
 		addRenderableWidget(btnOpen);
@@ -148,13 +146,13 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 			lastClickedY = -10000000;
 		}
 		searchBar.reposition(leftPos + 180, bottom - 120, right - 8 + addition - leftPos - 180, 17);
+        addRenderableWidget(searchBar);
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(PlayerListRequest.class));
 	}
 
 	@Override
 	public void closeGui() throws IOException {
 		super.closeGui();
-		
 	}
 
 	@Override
@@ -163,21 +161,19 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 175);
 		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 81, topPos + 140);
 
-		addition = (minecraft.font.width(searchBar.getText()) - 82);
+		addition = (minecraft.font.width(searchBar.getValue()) - 82);
 		if (addition < 0) addition = 0;
 
-		searchBar.drawTextBox();
-
-		// Click detection for player list (drawing happens in renderLabels)
+        // Click detection for player list (drawing happens in renderLabels)
 		int pos = bottom - 95;
 		for (String player : players) {
-			if (player.contains(searchBar.getText())) {
+			if (player.contains(searchBar.getValue())) {
 				pos += 11;
 			}
 			if (leftPos + 180 < lastClickedX && lastClickedX < leftPos + 280 && pos - 11 < lastClickedY && lastClickedY < pos) {
 				lastClickedX = -10000000;
 				lastClickedY = -10000000;
-				searchBar.setText(player);
+				searchBar.setValue(player);
 			}
 			if (pos > bottom - 12) break;
 		}
@@ -205,7 +201,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 
 		int pos = bottom - topPos - 95;
 		for (String player : players) {
-			if (player.contains(searchBar.getText())) {
+			if (player.contains(searchBar.getValue())) {
 				guiGraphics.drawString(font, player, 180, pos, 0x404040, false);
 				pos += 11;
 			}
@@ -250,7 +246,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	}
 
 	public void handlePlayerSecurityOpen(SecuritySettings setting) {
-		searchBar.setText("");
+		searchBar.setValue("");
 		setSubGui(new GuiSecurityStationPopup(setting, _tile));
 	}
 
