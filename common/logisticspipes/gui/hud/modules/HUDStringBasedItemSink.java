@@ -7,6 +7,7 @@ import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class HUDStringBasedItemSink implements IHUDModuleRenderer {
 
@@ -54,10 +55,8 @@ public class HUDStringBasedItemSink implements IHUDModuleRenderer {
 	}
 
 	@Override
-	public void renderContent(boolean shifted) {
+	public void renderContent(GuiGraphics gg, boolean shifted) {
 		Minecraft mc = Minecraft.getInstance();
-		net.minecraft.client.gui.GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
-		if (gg == null) return;
 		for (int i = page * 6; i < itemSink.stringListProperty().size() && i < 6 + (page * 6); i++) {
 			String mod = itemSink.stringListProperty().get(i);
 			gg.drawString(mc.font, mod, -28, -25 + ((i - (page * 6)) * 10), 0xff404040, false);

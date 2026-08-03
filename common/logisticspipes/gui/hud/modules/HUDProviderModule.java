@@ -2,14 +2,14 @@ package logisticspipes.gui.hud.modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.modules.ModuleProvider;
-import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class HUDProviderModule implements IHUDModuleRenderer {
 
@@ -66,8 +66,8 @@ public class HUDProviderModule implements IHUDModuleRenderer {
 	}
 
 	@Override
-	public void renderContent(boolean shifted) {
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(SimpleGraphics.guiGraphics, module.displayList, null, page, -25, -24, 3, 9, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+	public void renderContent(GuiGraphics guiGraphics, boolean shifted) {
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, module.displayList, null, page, HudChassisPipe.MODULE_CONTENT_LEFT, -24, 3, 9, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 	}
 
 	@Override

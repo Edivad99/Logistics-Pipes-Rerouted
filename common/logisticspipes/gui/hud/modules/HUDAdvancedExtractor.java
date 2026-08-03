@@ -2,11 +2,11 @@ package logisticspipes.gui.hud.modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
@@ -29,22 +29,17 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 	}
 
 	@Override
-	public void renderContent(boolean shifted) {
+	public void renderContent(GuiGraphics gg, boolean shifted) {
 		Minecraft mc = Minecraft.getInstance();
-		GuiGraphics gg = SimpleGraphics.guiGraphics;
 		if (selected == 0) {
 			Direction d = module.getSneakyDirection();
-			if (gg != null) {
-				String label = "Sneaky: " + (d == null ? "Default" : d.getName());
-				gg.drawString(mc.font, label, -mc.font.width(label) / 2, -30, 0xff404040, false);
-			}
+			String label = "Sneaky: " + (d == null ? "Default" : d.getName());
+			gg.drawString(mc.font, label, -mc.font.width(label) / 2, -30, 0xff404040, false);
 		} else {
 			ItemStackRenderer.renderItemIdentifierStackListIntoGui(gg,
-					ItemIdentifierStack.getListFromInventory(module.getFilterInventory()), null, 0, -25, -32, 3, 9, 18,
+					ItemIdentifierStack.getListFromInventory(module.getFilterInventory()), null, 0, HudChassisPipe.MODULE_CONTENT_LEFT, -32, 3, 9, 18,
 					18, 100.0F, DisplayAmount.NEVER, false, shifted);
-			if (gg != null) {
-				gg.drawString(mc.font, "Filter", -mc.font.width("Filter") / 2, 25, 0xff404040, false);
-			}
+			gg.drawString(mc.font, "Filter", -mc.font.width("Filter") / 2, 25, 0xff404040, false);
 		}
 	}
 
@@ -68,9 +63,12 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 		}
 
 		@Override
-		public void renderButton(boolean hover, boolean clicked, boolean shifted) {
+		public void renderButton(GuiGraphics gg, boolean hover, boolean clicked, boolean shifted) {
 			Minecraft mc = Minecraft.getInstance();
+			gg.pose().pushPose();
+			gg.pose().translate(0.0F, 0.0F, BUTTON_Z);
 			LPGuiGraphics.drawGuiBackGround(
+                    gg,
                     posX * 2,
 					posY * 2,
 					(posX + sizeX) * 2,
@@ -90,12 +88,11 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 			} else {
 				color = Color.getValue(Color.DARK_GREY);
 			}
-			GuiGraphics gg = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
-			if (gg != null) {
-				int tx = -(mc.font.width(label) / 2) + posX + sizeX / 2;
-				int ty = posY + (sizeY - 8) / 2 + 2;
-				gg.drawString(mc.font, label, tx, ty, color, false);
-			}
+			gg.pose().translate(0.0F, 0.0F, BUTTON_LABEL_Z);
+			int tx = -(mc.font.width(label) / 2) + posX + sizeX / 2;
+			int ty = posY + (sizeY - 8) / 2 + 2;
+			gg.drawString(mc.font, label, tx, ty, color, false);
+			gg.pose().popPose();
 		}
 
 		@Override

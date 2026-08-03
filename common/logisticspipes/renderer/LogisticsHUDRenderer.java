@@ -12,6 +12,7 @@ import org.joml.Quaternionf;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -39,6 +40,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -170,6 +173,18 @@ public class LogisticsHUDRenderer {
 	// LP1 drew panels at scale 0.01 offset 0.4 from the pipe; shrunk and pushed clear of the pipe's block.
 	private static final float PANEL_SCALE = 0.008F;
 	private static final float PANEL_OFFSET = 0.75F;
+	// GuiGraphics layers content by translating z: items sit at +150, count labels at +200. RenderType.gui()
+	// keeps LEQUAL depth test *and* depth writes, and a RenderType applies its own state when the batch is
+	// drawn, so RenderSystem.disableDepthTest() around the draw calls cannot switch that off. The layers
+	// therefore have to be far enough apart in world units to survive depth precision at panel distance:
+	// LP1's -0.0001F squashed the whole 0..200 stack into 0.02 blocks, which z-fights with itself and eats
+	// holes out of text, slot backgrounds and item icons. -0.0006F spreads it over ~0.12 blocks instead.
+	// Negative because panel local +z points away from the viewer, while higher GUI z means "nearer".
+	private static final float PANEL_LAYER_SCALE = -0.0006F;
+	// GuiGraphics.renderItem() calls flush() internally, and flush() runs endBatch() on the buffer source it
+	// was handed. Handing it the level renderer's shared BufferSource would end every pending level batch
+	// mid-stage, so the HUD gets its own.
+	private final MultiBufferSource.BufferSource hudBufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
 
 	//TODO: only load this once, rather than twice
 	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/icons.png");
@@ -297,7 +312,7 @@ public class LogisticsHUDRenderer {
 				RenderSystem.enableBlend();
 				RenderSystem.defaultBlendFunc();
 				if (thisIsLast != renderer) {
-					displayOneView(renderer, config, partialTick, false, poseStack, bufferSource, packedLight);
+					displayOneView(renderer, config, partialTick, false, poseStack, packedLight);
 				}
 				poseStack.popPose();
 			}
@@ -306,7 +321,7 @@ public class LogisticsHUDRenderer {
 			poseStack.pushPose();
 			RenderSystem.disableBlend();
 			RenderSystem.disableDepthTest();
-			displayOneView(thisIsLast, config, partialTick, true, poseStack, bufferSource, packedLight);
+			displayOneView(thisIsLast, config, partialTick, true, poseStack, packedLight);
 			RenderSystem.enableBlend();
 			RenderSystem.enableDepthTest();
 			poseStack.popPose();
@@ -427,41 +442,35 @@ public class LogisticsHUDRenderer {
 		}
 	}
 
-	private void displayOneView(IHeadUpDisplayRendererProvider renderer, IHUDConfig config, float partialTick, boolean shifted, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+	private void displayOneView(IHeadUpDisplayRendererProvider renderer, IHUDConfig config, float partialTick, boolean shifted, PoseStack poseStack, int packedLight) {
 		Minecraft mc = Minecraft.getInstance();
 		// The level-stage pose origin is the interpolated camera, not the player's feet as in 1.12.
-		net.minecraft.world.phys.Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
 		double x = renderer.getX() + 0.5 - cam.x;
 		double y = renderer.getY() + 0.5 - cam.y;
 		double z = renderer.getZ() + 0.5 - cam.z;
-		// HUD sub-renderers draw into a GuiGraphics stashed on SimpleGraphics so their existing
-		// guiGraphics.drawString/fill/renderItem calls work without a signature change.
+		// The GuiGraphics is handed down through IHeadUpDisplayRenderer/IHUDButton/IHUDModuleRenderer,
+		// so the HUD render path never touches SimpleGraphics.guiGraphics (still used by the GUI path).
 		// The public 2-arg GuiGraphics ctor creates its own internal PoseStack, so we apply the
-		// HUD billboard transforms to gg.pose() rather than the external poseStack.
-		GuiGraphics previous = logisticspipes.utils.gui.SimpleGraphics.guiGraphics;
-		if (bufferSource instanceof MultiBufferSource.BufferSource bs) {
-			GuiGraphics gg = new GuiGraphics(mc, bs);
-			PoseStack ggPose = gg.pose();
-			ggPose.pushPose();
-			// Compose the camera orientation from the level renderer; gg.pose() starts at identity.
-			ggPose.mulPose(poseStack.last().pose());
-			ggPose.translate((float) x, (float) y, (float) z);
-			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
-			ggPose.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
-			// y is camera relative and therefore already eye relative; LP1 subtracted the eye height here.
-			ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y) + 180)));
-			ggPose.translate(0.0F, 0.0F, -PANEL_OFFSET);
-			// Panel +z points away from the viewer, but GuiGraphics layers content toward +z
-			// (items +150, count labels +200). Negative tiny z flips to GUI convention and
-			// flattens those offsets onto the panel, like LP1's scaleZ = -0.0001 item trick.
-			ggPose.scale(PANEL_SCALE, PANEL_SCALE, -0.0001F);
-			logisticspipes.utils.gui.SimpleGraphics.guiGraphics = gg;
-			try {
-				renderer.getRenderer().renderHeadUpDisplay(Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
-			} finally {
-				logisticspipes.utils.gui.SimpleGraphics.guiGraphics = previous;
-				ggPose.popPose();
-			}
+		// HUD billboard transforms to guiGraphics.pose() rather than the external poseStack.
+		GuiGraphics guiGraphics = new GuiGraphics(mc, hudBufferSource);
+		PoseStack ggPose = guiGraphics.pose();
+		ggPose.pushPose();
+		// Compose the camera orientation from the level renderer; guiGraphics.pose() starts at identity.
+		ggPose.mulPose(poseStack.last().pose());
+		ggPose.translate((float) x, (float) y, (float) z);
+		ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
+		ggPose.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
+		// y is camera relative and therefore already eye relative; LP1 subtracted the eye height here.
+		ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y) + 180)));
+		ggPose.translate(0.0F, 0.0F, -PANEL_OFFSET);
+		ggPose.scale(PANEL_SCALE, PANEL_SCALE, PANEL_LAYER_SCALE);
+		try {
+			renderer.getRenderer().renderHeadUpDisplay(guiGraphics, Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
+		} finally {
+			// Draw this panel's batches now, while the pose and the RenderSystem state still belong to it.
+			guiGraphics.flush();
+			ggPose.popPose();
 		}
 	}
 

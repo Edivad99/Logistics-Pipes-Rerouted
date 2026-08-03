@@ -109,7 +109,9 @@ public final class LPGuiGraphics {
     private static void doDrawSlotBackground(GuiGraphics guiGraphics, int x, int y, ResourceLocation slotDiskTexture) {
         LPGuiGraphics.zLevel = 0;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.depthMask(false);
         guiGraphics.blit(slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
+        RenderSystem.depthMask(true);
         // 1-pixel darker inset border so the slot visually separates from the panel on light backgrounds.
         final int borderColor = 0x80373737;
         guiGraphics.fill(x, y, x + 18, y + 1, borderColor);
@@ -204,6 +206,24 @@ public final class LPGuiGraphics {
         if (panelW <= 0 || panelH <= 0) {
             return;
         }
+
+        // GuiGraphics.blit() draws immediately -- innerBlit() goes straight to BufferUploader.drawWithShader()
+        // instead of a RenderType -- so it obeys the live RenderSystem state and writes depth. That is fine in
+        // a 2D GUI, but the world-space HUD stacks every panel layer within a fraction of a block of the next,
+        // so those depth writes make the following coplanar content (inner panels, slots, text, fills) fail the
+        // LEQUAL test and come out stippled. A background never has to occlude what is drawn after it, so run
+        // it with depth writes off and let draw order decide the layering, exactly as a GUI does.
+        RenderSystem.depthMask(false);
+        try {
+            drawGuiBackGroundLayers(guiGraphics, guiLeft, guiTop, right, bottom, displayTop, displayLeft,
+                displayBottom, displayRight);
+        } finally {
+            RenderSystem.depthMask(true);
+        }
+    }
+
+    private static void drawGuiBackGroundLayers(GuiGraphics guiGraphics, int guiLeft, int guiTop, int right,
+        int bottom, boolean displayTop, boolean displayLeft, boolean displayBottom, boolean displayRight) {
 
         // 9-slice the 45×45 background texture (15px borders).
         // blit(rl, x, y, u, v, w, h, texW, texH) — no stretching, src == dst size

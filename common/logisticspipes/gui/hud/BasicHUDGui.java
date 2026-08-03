@@ -6,6 +6,7 @@ import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 
@@ -16,11 +17,11 @@ public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
+	public void renderHeadUpDisplay(GuiGraphics guiGraphics, double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
 		for (IHUDButton button : buttons) {
-			button.renderAlways(shifted);
+			button.renderAlways(guiGraphics, shifted);
 			if (button.shouldRenderButton()) {
-				button.renderButton(button.isFocused(), button.isblockFocused(), shifted);
+				button.renderButton(guiGraphics, button.isFocused(), button.isblockFocused(), shifted);
 			}
 		}
 	}

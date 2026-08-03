@@ -10,7 +10,6 @@ import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.debug.ClientViewController.DebugInformation;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -87,25 +86,24 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft mc, IHUDConfig config) {
+	public void renderHeadUpDisplay(GuiGraphics guiGraphics, double distance, boolean day, boolean shifted, Minecraft mc, IHUDConfig config) {
 		if (route.isNew) {
 			line = -65;
 		} else {
 			line = -75;
 		}
-        GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, -70, -80, 70, 80, 0, false);
-		super.renderHeadUpDisplay(distance, day, shifted, mc, config);
-		write("Routing Update in: ", mc);
-		write(route.positions.toString(), mc);
+		super.renderHeadUpDisplay(guiGraphics, distance, day, shifted, mc, config);
+		write(guiGraphics, "Routing Update in: ", mc);
+		write(guiGraphics, route.positions.toString(), mc);
 		if (route.closedSet != null) {
 			int left = -55;
 			for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
 				if (route.closedSet.contains(flag)) {
-					if (guiGraphics != null) guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
+					guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
 					left += mc.font.width("+");
 				} else {
-					if (guiGraphics != null) guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
+					guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
 					left += mc.font.width("-");
 				}
 			}
@@ -113,19 +111,19 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 		}
 		if (route.routes != null) {
 			for (ExitRoute exit : route.routes) {
-				if (guiGraphics != null) guiGraphics.drawString(mc.font, "Possible: ", -55, line, 0xffffff);
+				guiGraphics.drawString(mc.font, "Possible: ", -55, line, 0xffffff);
 				int left = -55 + mc.font.width("Possible: ");
 				for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
 					if (exit.containsFlag(flag)) {
-						if (guiGraphics != null) guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
+						guiGraphics.drawString(mc.font, "+", left, line, getColorForFlag(flag));
 						left += mc.font.width("+");
 					} else {
-						if (guiGraphics != null) guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
+						guiGraphics.drawString(mc.font, "-", left, line, getColorForFlag(flag));
 						left += mc.font.width("-");
 					}
 				}
 				line += 10;
-				write("  " + exit.debug.filterPosition, mc);
+				write(guiGraphics, "  " + exit.debug.filterPosition, mc);
 			}
 		}
 	}
@@ -144,10 +142,8 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 		return 0x000000;
 	}
 
-	private void write(String data, Minecraft mc) {
-		if (SimpleGraphics.guiGraphics != null) {
-			SimpleGraphics.guiGraphics.drawString(mc.font, data, -55, line, 0xffffff);
-		}
+	private void write(GuiGraphics guiGraphics, String data, Minecraft mc) {
+		guiGraphics.drawString(mc.font, data, -55, line, 0xffffff);
 		line += 10;
 	}
 

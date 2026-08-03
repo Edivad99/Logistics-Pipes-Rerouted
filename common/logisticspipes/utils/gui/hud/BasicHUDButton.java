@@ -6,9 +6,18 @@ package logisticspipes.utils.gui.hud;
 
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.SimpleGraphics;
+import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class BasicHUDButton implements IHUDButton {
+
+	// Panel content is nearly coplanar once projected into the world, so anything drawn at the panel's own
+	// z compares almost-equal against it and comes out stippled. Backgrounds dodge this by not writing depth
+	// (see LPGuiGraphics#drawGuiBackGround), but fill() goes through RenderType.GUI, which sets its own
+	// COLOR_DEPTH_WRITE mask when the batch is drawn and so ignores RenderSystem.depthMask(). Buttons
+	// therefore step toward the viewer instead, the way GuiGraphics does for items (+150) and their count
+	// labels (+200). Both steps stay well under 150 so a button never covers an item.
+	public static final int BUTTON_Z = 30;
+	public static final int BUTTON_LABEL_Z = 15;
 
 	protected final int posX;
 	protected final int posY;
@@ -76,19 +85,21 @@ public abstract class BasicHUDButton implements IHUDButton {
 	}
 
 	@Override
-	public void renderButton(boolean hover, boolean clicked, boolean shifted) {
-		net.minecraft.client.gui.GuiGraphics gg = SimpleGraphics.guiGraphics;
-		if (gg == null) return;
+	public void renderButton(GuiGraphics gg, boolean hover, boolean clicked, boolean shifted) {
 		int bg = clicked ? 0xaa333333 : hover ? 0xaa555555 : 0xaa444444;
+		gg.pose().pushPose();
+		gg.pose().translate(0.0F, 0.0F, BUTTON_Z);
 		gg.fill(posX, posY, posX + sizeX, posY + sizeY, bg);
 		gg.fill(posX, posY, posX + sizeX, posY + 1, 0xffaaaaaa);
 		gg.fill(posX, posY + sizeY - 1, posX + sizeX, posY + sizeY, 0xff333333);
+		gg.pose().translate(0.0F, 0.0F, BUTTON_LABEL_Z);
 		gg.drawCenteredString(net.minecraft.client.Minecraft.getInstance().font, label,
 			posX + sizeX / 2, posY + (sizeY - 8) / 2, Color.getValue(Color.LIGHTER_GREY));
+		gg.pose().popPose();
 	}
 
 	@Override
-	public void renderAlways(boolean shifted) {
+	public void renderAlways(GuiGraphics guiGraphics, boolean shifted) {
 
 	}
 }

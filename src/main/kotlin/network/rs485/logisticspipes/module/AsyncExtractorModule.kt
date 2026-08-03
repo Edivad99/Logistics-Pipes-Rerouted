@@ -64,6 +64,7 @@ import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
@@ -307,7 +308,7 @@ class AsyncExtractorModule(
     }
 
     class HUDAsyncExtractor(private val module: AsyncExtractorModule) : IHUDModuleRenderer {
-        override fun renderContent(shifted: Boolean) {
+        override fun renderContent(guiGraphics: GuiGraphics, shifted: Boolean) {
             val mc = Minecraft.getInstance()
 
             val d: Direction? = module.sneakyDirection

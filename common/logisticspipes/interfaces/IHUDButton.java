@@ -1,5 +1,7 @@
 package logisticspipes.interfaces;
 
+import net.minecraft.client.gui.GuiGraphics;
+
 public interface IHUDButton {
 
 	int getX();
@@ -24,9 +26,9 @@ public interface IHUDButton {
 
 	void clicked();
 
-	void renderButton(boolean hover, boolean clicked, boolean shifted);
+	void renderButton(GuiGraphics guiGraphics, boolean hover, boolean clicked, boolean shifted);
 
-	void renderAlways(boolean shifted);
+	void renderAlways(GuiGraphics guiGraphics, boolean shifted);
 
 	boolean shouldRenderButton();
 

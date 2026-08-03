@@ -13,7 +13,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import logisticspipes.utils.gui.IItemSearch;
-import logisticspipes.utils.gui.SimpleGraphics;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -170,8 +169,7 @@ public class ItemStackRenderer {
 		ir.renderStatic(itemstack, net.minecraft.world.item.ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, mc.level, 0);
 	}
 
-	public void renderItemInGui(float x, float y, Item item, float zLevel, float scale) {
-		GuiGraphics gg = SimpleGraphics.guiGraphics;
+	public void renderItemInGui(GuiGraphics gg, float x, float y, Item item, float zLevel, float scale) {
 		if (gg == null || item == null) return;
 		ItemStack stack = new ItemStack(item);
 		if (stack.isEmpty()) return;

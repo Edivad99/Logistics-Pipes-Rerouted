@@ -5,7 +5,6 @@ import java.util.List;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
@@ -21,22 +20,19 @@ public class HUDCrafting extends BasicHUDGui {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-        GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
+	public void renderHeadUpDisplay(GuiGraphics guiGraphics, double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
         if (!pipe.displayList.isEmpty()) {
 			LPGuiGraphics.drawGuiBackGround(guiGraphics, -50, -28, 50, 30, 0, false);
 		} else {
 			LPGuiGraphics.drawGuiBackGround(guiGraphics, -30, -22, 30, 25, 0, false);
 		}
-		super.renderHeadUpDisplay(d, day, shifted, minecraft, config);
+		super.renderHeadUpDisplay(guiGraphics, d, day, shifted, minecraft, config);
 		int textColor = day ? 0xff404040 : 0xff7f7f7f;
-		if (guiGraphics != null) {
-			if (!pipe.displayList.isEmpty()) {
-				guiGraphics.drawString(minecraft.font, "Result:", -20, -25, textColor, false);
-				guiGraphics.drawString(minecraft.font, "Todo:", -20, 0, textColor, false);
-			} else {
-				guiGraphics.drawString(minecraft.font, "Result:", -25, -18, textColor, false);
-			}
+		if (!pipe.displayList.isEmpty()) {
+			guiGraphics.drawString(minecraft.font, "Result:", -20, -25, textColor, false);
+			guiGraphics.drawString(minecraft.font, "Todo:", -20, 0, textColor, false);
+		} else {
+			guiGraphics.drawString(minecraft.font, "Result:", -25, -18, textColor, false);
 		}
 		List<ItemIdentifierStack> list = new ArrayList<>();
 		List<ItemIdentifierStack> craftables = pipe.getCraftedItems();

@@ -7,7 +7,6 @@ import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -17,6 +16,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class HudChassisPipe extends BasicHUDGui {
+
+	// Inner panel that the selected module's HUD draws into. The module renderers live in their own classes
+	// but position their content against this frame, so the bounds are shared rather than duplicated.
+	public static final int MODULE_PANEL_LEFT = -23;
+	public static final int MODULE_PANEL_TOP = -35;
+	public static final int MODULE_PANEL_RIGHT = 45;
+	public static final int MODULE_PANEL_BOTTOM = 45;
+	// Item grids sit one unit inside the panel edge, the way an item sits inside its 18x18 slot. The module
+	// renderers used to hardcode -25, which put the first column two units *outside* the panel's left border.
+	public static final int MODULE_CONTENT_LEFT = MODULE_PANEL_LEFT + 1;
 
 	private final PipeLogisticsChassis pipe;
 	private final ItemIdentifierInventory moduleInventory;
@@ -88,10 +97,9 @@ public class HudChassisPipe extends BasicHUDGui {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-        GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
+	public void renderHeadUpDisplay(GuiGraphics guiGraphics, double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, -50, -50, 50, 50, 0, false);
-		super.renderHeadUpDisplay(distance, day, shifted, minecraft, config);
+		super.renderHeadUpDisplay(guiGraphics, distance, day, shifted, minecraft, config);
 		int textColor = day ? 0xff404040 : 0xff7f7f7f;
 		if (selected != -1) {
 			LogisticsModule selectedmodule = pipe.getSubModule(selected);
@@ -99,15 +107,16 @@ public class HudChassisPipe extends BasicHUDGui {
 				return;
 			}
 
-			LPGuiGraphics.drawGuiBackGround(guiGraphics, -23, -35, 45, 45, 0, false);
+			LPGuiGraphics.drawGuiBackGround(guiGraphics, MODULE_PANEL_LEFT, MODULE_PANEL_TOP, MODULE_PANEL_RIGHT,
+					MODULE_PANEL_BOTTOM, 0, false);
 
 			if (selectedmodule instanceof IHUDModuleHandler && ((IHUDModuleHandler) selectedmodule).getHUDRenderer() != null) {
-				((IHUDModuleHandler) selectedmodule).getHUDRenderer().renderContent(shifted);
+				((IHUDModuleHandler) selectedmodule).getHUDRenderer().renderContent(guiGraphics, shifted);
 				if (((IHUDModuleHandler) selectedmodule).getHUDRenderer().getButtons() != null) {
 					for (IHUDButton button : ((IHUDModuleHandler) selectedmodule).getHUDRenderer().getButtons()) {
-						button.renderAlways(shifted);
+						button.renderAlways(guiGraphics, shifted);
 						if (button.shouldRenderButton()) {
-							button.renderButton(button.isFocused(), button.isblockFocused(), shifted);
+							button.renderButton(guiGraphics, button.isFocused(), button.isblockFocused(), shifted);
 						}
 						if (!button.buttonEnabled() || !button.shouldRenderButton()) {
 							continue;
@@ -125,11 +134,9 @@ public class HudChassisPipe extends BasicHUDGui {
 					}
 				}
 			} else {
-				if (guiGraphics != null) {
-					guiGraphics.drawString(minecraft.font, "Nothing", -5, -15, textColor, false);
-					guiGraphics.drawString(minecraft.font, "to", 9, -5, textColor, false);
-					guiGraphics.drawString(minecraft.font, "display", -5, 5, textColor, false);
-				}
+				guiGraphics.drawString(minecraft.font, "Nothing", -5, -15, textColor, false);
+				guiGraphics.drawString(minecraft.font, "to", 9, -5, textColor, false);
+				guiGraphics.drawString(minecraft.font, "display", -5, 5, textColor, false);
 			}
 		} else {
 			ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, pipe.displayList, null, 0, -15, -35, 3, 12, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
@@ -214,7 +221,7 @@ public class HudChassisPipe extends BasicHUDGui {
 		}
 
 		@Override
-		public void renderButton(boolean hover, boolean clicked, boolean shifted) {
+		public void renderButton(GuiGraphics guiGraphics, boolean hover, boolean clicked, boolean shifted) {
             RenderSystem.enableBlend();
 
 			if (shifted || hover || isSlotSelected(position)) {
@@ -223,20 +230,15 @@ public class HudChassisPipe extends BasicHUDGui {
 				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F);
 			}
 
-			GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
-			if (guiGraphics != null) {
-				guiGraphics.pose().pushPose();
-				guiGraphics.pose().translate(0.0F, 0.0F, -0.001F);
-				guiGraphics.pose().scale(0.5F, 0.5F, 1.0F);
-			}
+			guiGraphics.pose().pushPose();
+			guiGraphics.pose().translate(0.0F, 0.0F, BasicHUDButton.BUTTON_Z);
+			guiGraphics.pose().scale(0.5F, 0.5F, 1.0F);
 			if (isSlotSelected(position)) {
 				LPGuiGraphics.drawGuiBackGround(guiGraphics, posX * 2, posY * 2, (posX + sizeX) * 2 + 19, (posY + sizeY) * 2, 0, false, true, true, true, false);
 			} else {
 				LPGuiGraphics.drawGuiBackGround(guiGraphics, posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
 			}
-			if (guiGraphics != null) {
-				guiGraphics.pose().popPose();
-			}
+			guiGraphics.pose().popPose();
 
 			ItemIdentifierStack module = inv.getIDStackInSlot(position);
 
@@ -250,7 +252,7 @@ public class HudChassisPipe extends BasicHUDGui {
 		}
 
 		@Override
-		public void renderAlways(boolean shifted) {
+		public void renderAlways(GuiGraphics guiGraphics, boolean shifted) {
 			if (inv.getIDStackInSlot(position) == null && shouldDisplayButton(position)) {
 				RenderSystem.enableBlend();
 				if (shifted) {
@@ -258,15 +260,11 @@ public class HudChassisPipe extends BasicHUDGui {
 				} else {
 					RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.3F);
 				}
-				GuiGraphics guiGraphics = SimpleGraphics.guiGraphics;
-				if (guiGraphics != null) {
-                    guiGraphics.pose().pushPose();
-                    guiGraphics.pose().scale(0.5F, 0.5F, 1.0F);
-				}
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0.0F, 0.0F, BasicHUDButton.BUTTON_Z);
+                guiGraphics.pose().scale(0.5F, 0.5F, 1.0F);
 				LPGuiGraphics.drawGuiBackGround(guiGraphics, posX * 2, posY * 2, (posX + sizeX) * 2, (posY + sizeY) * 2, 0, false);
-				if (guiGraphics != null) {
-                    guiGraphics.pose().popPose();
-				}
+                guiGraphics.pose().popPose();
 			}
 		}
 
