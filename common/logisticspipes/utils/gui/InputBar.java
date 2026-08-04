@@ -7,6 +7,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 
+import lombok.Setter;
+
 public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventListener {
 
     public enum Align {
@@ -15,7 +17,8 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
         RIGHT
     }
 
-    public int minNumber = 0;
+    @Setter
+    private int minNumber = 0;
 
     public InputBar(Font font, LogisticsBaseGuiScreen screen, int left, int top, int width, int height) {
         this(font, screen, left, top, width, height, true);

@@ -179,11 +179,16 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		currentDrawScreenMouseY = mouseY;
 		checkButtons();
 		if (subGui != null) {
-			// In 1.20.1, Mouse hack removed — subGui renders directly
-			super.render(guiGraphics, 0, 0, partialTicks);
+			// Background first, then content, then the popup on top -- the same order as the branch below.
+			// #renderBackground is a no-op while a popup is open, so AbstractContainerScreen.render's internal
+			// call draws nothing and this explicit one is what puts the chrome on screen: it has to run *before*
+			// super.render(), or renderBg() repaints the panel and slot backgrounds over the buttons that
+			// super.render() just drew, leaving their frames covered.
 			if (!subGui.hasSubGui()) {
 				super.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 			}
+			// In 1.20.1, Mouse hack removed — subGui renders directly
+			super.render(guiGraphics, 0, 0, partialTicks);
 			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
 		} else {
 			renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
@@ -222,13 +227,40 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		extensionControllerRight.render(guiGraphics, leftPos + imageWidth, topPos);
 	}
 
-	// drawSlot removed in 1.20.1 — slot rendering handled via renderSlot or renderLabels
-	protected void drawSlot(Slot slot) {
-		if (extensionControllerLeft.renderSlot(slot) && extensionControllerRight.renderSlot(slot)) {
-			if (subGui == null) {
-				onRenderSlot(slot);
-			}
+	/**
+	 * Vanilla's per-slot entry point. LP1 hooked the equivalent {@code drawSlot(Slot)} to skip slots that are
+	 * covered by an open GUI extension and to stamp the fuzzy-flag markers on top; the 1.20.1 port left that
+	 * method behind as dead code, so neither happened and every slot of the container got drawn.
+	 */
+	@Override
+	protected void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+		if (!shouldRenderSlot(slot)) {
+			return;
 		}
+		super.renderSlot(guiGraphics, slot);
+		// The fuzzy markers and their hover panel belong to the screen underneath, so they stay hidden while a
+		// popup is up -- otherwise they would draw over it.
+		if (subGui == null) {
+			onRenderSlot(slot);
+		}
+	}
+
+	/**
+	 * Whether {@code slot} is present in the current state of the screen -- a slot that fails here is neither
+	 * drawn nor interactive. Subclasses narrow this.
+	 */
+	protected boolean shouldRenderSlot(Slot slot) {
+		return extensionControllerLeft.renderSlot(slot) && extensionControllerRight.renderSlot(slot);
+	}
+
+	/**
+	 * Vanilla routes every slot hit-test through here: the hover highlight in {@code render}, and
+	 * {@code findSlot}, which backs slot clicks, releases and drags. Filtering it in one place is what keeps a
+	 * hidden slot from staying hoverable and clickable where it is not drawn.
+	 */
+	@Override
+	protected boolean isHovering(Slot slot, double mouseX, double mouseY) {
+		return shouldRenderSlot(slot) && super.isHovering(slot, mouseX, mouseY);
 	}
 
 	private void onRenderSlot(Slot slot) {
@@ -298,16 +330,23 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		}
 	}
 
-	// isMouseOverSlot(Slot, int, int) removed in 1.20.1 — use isHovering(Slot, double, double)
-	protected boolean isMouseOverSlot(Slot par1Slot, int par2, int par3) {
-		if (!extensionControllerLeft.renderSelectSlot(par1Slot)) {
+	/**
+	 * LP's own "is the cursor on this slot" test, used by the fuzzy-slot markers and the slot-finder flows.
+	 * <p>
+	 * Presence and bounds come from {@link #isHovering(Slot, double, double)}, so the extension and per-tab
+	 * filters live in {@link #shouldRenderSlot} only. Two conditions remain on top, and neither is about
+	 * whether the slot is drawn: an extension may keep a slot visible but inert (the crafting pipe's liquid
+	 * extension does exactly that until a satellite is chosen), and the open fuzzy panel swallows the cursor
+	 * from the slots it covers.
+	 */
+	protected boolean isMouseOverSlot(Slot slot, int mouseX, int mouseY) {
+		if (!isHovering(slot, (double) mouseX, (double) mouseY)) {
 			return false;
 		}
-		if (!extensionControllerRight.renderSelectSlot(par1Slot)) {
+		if (!extensionControllerLeft.renderSelectSlot(slot) || !extensionControllerRight.renderSelectSlot(slot)) {
 			return false;
 		}
-		if (isMouseInFuzzyPanel(currentDrawScreenMouseX, currentDrawScreenMouseY)) return false;
-		return isHovering(par1Slot.x, par1Slot.y, 16, 16, (double)par2, (double)par3);
+		return !isMouseInFuzzyPanel(currentDrawScreenMouseX, currentDrawScreenMouseY);
 	}
 
 	private boolean isMouseInFuzzyPanel(int x, int y) {
@@ -552,58 +591,58 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		return this;
 	}
 
-	// @Override removed — INEIGuiHandler not in implements (added at runtime by ASM)
-	@ModDependentMethod(modId = LPConstants.neiModID)
-	public List<Object> getInventoryAreas(AbstractContainerScreen gui) { // was: List<TaggedInventoryArea>
-		return null;
-	}
+//	// @Override removed — INEIGuiHandler not in implements (added at runtime by ASM)
+//	@ModDependentMethod(modId = LPConstants.neiModID)
+//	public List<Object> getInventoryAreas(AbstractContainerScreen gui) { // was: List<TaggedInventoryArea>
+//		return null;
+//	}
+//
+//	// @Override removed — INEIGuiHandler not in implements
+//	@ModDependentMethod(modId = LPConstants.neiModID)
+//	public Iterable<Integer> getItemSpawnSlots(AbstractContainerScreen gui, ItemStack stack) {
+//		return null;
+//	}
 
 	// @Override removed — INEIGuiHandler not in implements
-	@ModDependentMethod(modId = LPConstants.neiModID)
-	public Iterable<Integer> getItemSpawnSlots(AbstractContainerScreen gui, ItemStack stack) {
-		return null;
-	}
+//	@ModDependentMethod(modId = LPConstants.neiModID)
+//	public boolean handleDragNDrop(AbstractContainerScreen gui, int mouseX, int mouseY, ItemStack stack, int button) {
+//		if (gui instanceof LogisticsBaseGuiScreen && gui.getMenu() instanceof DummyContainer && !stack.isEmpty()) {
+//			Slot result = null;
+//			int pos = -1;
+//			for (int k = 0; k < menu.slots.size(); ++k) {
+//				Slot slot = menu.slots.get(k);
+//				if (isMouseOverSlot(slot, mouseX, mouseY)) {
+//					result = slot;
+//					pos = k;
+//					break;
+//				}
+//			}
+//			if (result != null) {
+//				if (result instanceof DummySlot || result instanceof ColorSlot || result instanceof FluidSlot) {
+//					((DummyContainer) gui.getMenu()).handleDummyClick(result, pos, stack, button, ClickType.PICKUP, minecraft.player);
+//					MainProxy.sendPacketToServer(PacketHandler.getPacket(DummyContainerSlotClick.class).setSlotId(pos).setStack(stack).setButton(button));
+//					return true;
+//				}
+//			}
+//		}
+//		return false;
+//	}
 
 	// @Override removed — INEIGuiHandler not in implements
-	@ModDependentMethod(modId = LPConstants.neiModID)
-	public boolean handleDragNDrop(AbstractContainerScreen gui, int mouseX, int mouseY, ItemStack stack, int button) {
-		if (gui instanceof LogisticsBaseGuiScreen && gui.getMenu() instanceof DummyContainer && !stack.isEmpty()) {
-			Slot result = null;
-			int pos = -1;
-			for (int k = 0; k < menu.slots.size(); ++k) {
-				Slot slot = menu.slots.get(k);
-				if (isMouseOverSlot(slot, mouseX, mouseY)) {
-					result = slot;
-					pos = k;
-					break;
-				}
-			}
-			if (result != null) {
-				if (result instanceof DummySlot || result instanceof ColorSlot || result instanceof FluidSlot) {
-					((DummyContainer) gui.getMenu()).handleDummyClick(result, pos, stack, button, ClickType.PICKUP, minecraft.player);
-					MainProxy.sendPacketToServer(PacketHandler.getPacket(DummyContainerSlotClick.class).setSlotId(pos).setStack(stack).setButton(button));
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	// @Override removed — INEIGuiHandler not in implements
-	@ModDependentMethod(modId = LPConstants.neiModID)
-	public boolean hideItemPanelSlot(AbstractContainerScreen gui, int x, int y, int w, int h) {
-		if (gui instanceof LogisticsBaseGuiScreen) {
-			return ((LogisticsBaseGuiScreen) gui).extensionControllerRight.isOverPanel(x, y, w, h);
-		}
-		return false;
-	}
+//	@ModDependentMethod(modId = LPConstants.neiModID)
+//	public boolean hideItemPanelSlot(AbstractContainerScreen gui, int x, int y, int w, int h) {
+//		if (gui instanceof LogisticsBaseGuiScreen) {
+//			return ((LogisticsBaseGuiScreen) gui).extensionControllerRight.isOverPanel(x, y, w, h);
+//		}
+//		return false;
+//	}
 
 	public IChainAddList<EventListener> onGuiEvents = new ChainAddArrayList<>();
 
-	public List<Rectangle> getGuiExtraAreas() {
-		return Stream.concat(
-			extensionControllerLeft.getGuiExtraAreas().stream(), extensionControllerRight.getGuiExtraAreas().stream()).collect(Collectors.toList());
-	}
+//	public List<Rectangle> getGuiExtraAreas() {
+//		return Stream.concat(
+//			extensionControllerLeft.getGuiExtraAreas().stream(), extensionControllerRight.getGuiExtraAreas().stream()).collect(Collectors.toList());
+//	}
 
 	public interface EventListener {
 
@@ -613,10 +652,10 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 
 	}
 
-	public void updateScreen() {
-		for (EventListener el : onGuiEvents)
-			el.onUpdateScreen();
-	}
+//	public void updateScreen() {
+//		for (EventListener el : onGuiEvents)
+//			el.onUpdateScreen();
+//	}
 
     public void drawCenteredString(GuiGraphics guiGraphics, String text, int x, int y, int color) {
 		int actualX = x - minecraft.font.width(text) / 2;

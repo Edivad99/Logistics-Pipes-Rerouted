@@ -87,7 +87,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 
 		if (this.resistanceCountBar == null) {
 			this.resistanceCountBar = new InputBar(this.font, this, leftPos + 90, topPos + 55, 30, 12, false, true, InputBar.Align.CENTER);
-			this.resistanceCountBar.minNumber = 0;
+			this.resistanceCountBar.setMinNumber(0);
 			this.resistanceCountBar.setInteger(pipe.resistance);
 		}
 		this.resistanceCountBar.reposition(leftPos + 90, topPos + 55, 30, 12);

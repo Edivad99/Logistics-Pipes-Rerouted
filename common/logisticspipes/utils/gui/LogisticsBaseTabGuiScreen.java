@@ -121,23 +121,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void drawSlot(Slot slot) {
-		if (hiddenSlots.contains(slot)) return;
-		for (int i = 0; i < tabList.size(); i++) {
-			if (tabList.get(i).isSlotForTab(slot)) {
-				if (current_Tab != i || !tabList.get(i).showSlot(slot)) {
-					return;
-				}
-			}
-		}
-		super.drawSlot(slot);
-	}
-
-	@Override
-	protected boolean isMouseOverSlot(Slot slot, int par2, int par3) {
-		if (!super.isMouseOverSlot(slot, par2, par3)) {
-			return false;
-		}
+	protected boolean shouldRenderSlot(Slot slot) {
 		if (hiddenSlots.contains(slot)) return false;
 		for (int i = 0; i < tabList.size(); i++) {
 			if (tabList.get(i).isSlotForTab(slot)) {
@@ -146,8 +130,10 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 				}
 			}
 		}
-		return true;
+		return super.shouldRenderSlot(slot);
 	}
+
+	// isMouseOverSlot needs no override: the per-tab filter reaches it through shouldRenderSlot/isHovering.
 
 	@Override
 	protected void checkButtons() {

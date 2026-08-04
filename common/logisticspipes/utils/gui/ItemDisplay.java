@@ -79,7 +79,7 @@ public class ItemDisplay {
 		this.amountChangeMode = amountChangeMode;
 		this.shiftPageChange = shiftPageChange;
 		this.requestCountBar = new InputBar(this.font, screen, amountPosLeft - (amountWidth / 2), amountPosTop - 5, amountWidth, 12, false, true, InputBar.Align.CENTER);
-		this.requestCountBar.minNumber = 1;
+		this.requestCountBar.setMinNumber(1);
 		this.requestCountBar.setInteger(1);
 	}
 

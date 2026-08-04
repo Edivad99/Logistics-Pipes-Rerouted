@@ -486,7 +486,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		} else if (id == 31) {
 			ArrayList<ItemIdentifierStack> list = new ArrayList<>(9);
 			list.addAll(_table.matrix.getItemsAndCount().entrySet().stream()
-					.map(e -> e.getKey().makeStack(e.getValue())).collect(Collectors.toList()));
+					.map(e -> e.getKey().makeStack(e.getValue())).toList());
 			for (Pair<ItemStack, Integer> entry : _table.inv) {
 				if (entry.getValue1().isEmpty()) continue;
 				int size = entry.getValue1().getCount();
@@ -509,7 +509,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	private void requestMatrix(int multiplier) {
 		ArrayList<ItemIdentifierStack> list = new ArrayList<>(9);
 		list.addAll(_table.matrix.getItemsAndCount().entrySet().stream()
-				.map(e -> e.getKey().makeStack(e.getValue() * multiplier)).collect(Collectors.toList()));
+				.map(e -> e.getKey().makeStack(e.getValue() * multiplier)).toList());
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitListPacket.class).setIdentList(list).setTilePos(_table.container));
 		refreshItems();
 	}

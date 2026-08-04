@@ -3,6 +3,7 @@ package logisticspipes.utils.gui;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -30,6 +31,29 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 	protected ISubGuiController controller;
     @Nullable
 	private SubGuiScreen subGui;
+
+	/**
+	 * How far a popup lifts itself above the screen it covers, in GUI z units.
+	 * <p>
+	 * The parent screen has already drawn itself by the time a popup renders, and its content writes depth, so
+	 * a popup sharing the parent's z loses the LEQUAL test wherever the parent drew something in front. The
+	 * value has to clear the highest z the parent can reach, which is further out than it looks because
+	 * {@code AbstractContainerScreen.renderSlot} wraps every slot in a {@code translate(0, 0, 100)} baseline:
+	 * <ul>
+	 * <li>slot item icon: 100 + 150 = 250</li>
+	 * <li>slot stack-count label: 100 + 200 = 300</li>
+	 * <li>tooltip layer: 400</li>
+	 * <li>carried item's count label: {@code renderFloatingItem}'s 232 + 200 = 432</li>
+	 * </ul>
+	 * Hence 500. At exactly 300 the count labels tied with the panel and won the tie, because a shadowed
+	 * string draws its main glyph pass 0.03 in front of the shadow -- so the digits survived while everything
+	 * else was covered.
+	 * <p>
+	 * {@link RenderSystem#disableDepthTest()} is not an alternative here: {@code blit} draws immediately and
+	 * does obey it, but {@code fill} and {@code drawString} batch through RenderTypes that re-apply their own
+	 * depth state when the batch is drawn, and the popups use a mix of all three.
+	 */
+	private static final float SUB_GUI_Z = 500.0F;
 
 	public SubGuiScreen(int xSize, int ySize, int xOffset, int yOffset) {
 		super(Component.empty());
@@ -124,6 +148,9 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 
 	@Override
 	public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(0.0F, 0.0F, SUB_GUI_Z);
 		renderGuiBackground(guiGraphics, mouseX, mouseY);
 		RenderSystem.disableDepthTest();
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -132,11 +159,14 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 		RenderSystem.enableDepthTest();
 		if (subGui != null) {
 			if (!subGui.hasSubGui()) {
-				super.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+				// Same intent as in LogisticsBaseGuiScreen: dim what this popup covers, nothing else.
+				renderTransparentBackground(guiGraphics);
 			}
+			// Nested popups stack: each one lifts itself another step above the one it covers.
 			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
 		}
 		renderToolTips(guiGraphics, mouseX, mouseY, partialTicks);
+		poseStack.popPose();
 	}
 
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {}
