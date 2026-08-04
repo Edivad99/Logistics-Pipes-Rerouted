@@ -367,7 +367,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		list.add("Mode: " + providerMode.getValue().name());
 		list.add("Filter: ");
 		list.add("<inventory>");
-		list.add("<that>");
+		list.add("<that>" + filterInventory.getTagKey());
 		return list;
 	}
 

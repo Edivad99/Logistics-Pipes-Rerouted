@@ -82,7 +82,7 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 		List<String> list = new ArrayList<>();
 		list.add("Supplied: ");
 		list.add("<inventory>");
-		list.add("<that>");
+		list.add("<that>" + filterInventory.getTagKey());
 		return list;
 	}
 

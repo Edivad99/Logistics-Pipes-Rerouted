@@ -207,7 +207,7 @@ public class ModuleItemSink extends LogisticsModule
 		list.add("Default: " + (isDefaultRoute() ? "Yes" : "No"));
 		list.add("Filter: ");
 		list.add("<inventory>");
-		list.add("<that>");
+		list.add("<that>" + filterInventory.getTagKey());
 		return list;
 	}
 

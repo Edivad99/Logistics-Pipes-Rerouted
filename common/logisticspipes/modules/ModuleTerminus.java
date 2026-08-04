@@ -108,7 +108,7 @@ public class ModuleTerminus extends LogisticsModule
 		List<String> list = new ArrayList<>();
 		list.add("Terminated: ");
 		list.add("<inventory>");
-		list.add("<that>");
+		list.add("<that>" + filterInventory.getTagKey());
 		return list;
 	}
 

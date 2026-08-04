@@ -18,6 +18,7 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -28,6 +29,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -116,7 +118,7 @@ public class ItemModule extends LogisticsItem {
 	}
 
 	@Override
-    public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context) {
+    public InteractionResult useOn(UseOnContext context) {
 		Player player = context.getPlayer();
 		Level world = context.getLevel();
 		BlockPos pos = context.getClickedPos();
@@ -193,17 +195,17 @@ public class ItemModule extends LogisticsItem {
 						if (data.equals("<inventory>") && i + 1 < nbttaglist.size()) {
 							nbtTag = nbttaglist.get(i + 1);
 							data = nbtTag.getAsString();
-							if (data.startsWith("<that>")) {
+							HolderLookup.Provider registries = context.registries();
+							if (data.startsWith("<that>") && registries != null) {
 								String prefix = data.substring(6);
 								CompoundTag module = nbt.getCompound("moduleInformation");
 								int size = module.getList(prefix + "items", module.getId()).size();
 								if (module.contains(prefix + "itemsCount")) {
 									size = module.getInt(prefix + "itemsCount");
 								}
-								ItemIdentifierInventory inv = new ItemIdentifierInventory(size,
-										"InformationTempInventory", Integer.MAX_VALUE);
-								//TODO: A bit sus
-								inv.readFromNBT(module, this.moduleType.getILogisticsModule().getWorld().registryAccess(), prefix);
+								ItemIdentifierInventory inv =
+                                    new ItemIdentifierInventory(size, "InformationTempInventory", Integer.MAX_VALUE);
+								inv.readFromNBT(module, registries, prefix);
 								for (int pos = 0; pos < inv.getContainerSize(); pos++) {
 									ItemIdentifierStack identStack = inv.getIDStackInSlot(pos);
 									if (identStack != null) {

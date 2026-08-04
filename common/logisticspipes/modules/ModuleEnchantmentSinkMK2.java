@@ -107,7 +107,7 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 		List<String> list = new ArrayList<>();
 		list.add("Filter: ");
 		list.add("<inventory>");
-		list.add("<that>");
+		list.add("<that>" + filterInventory.getTagKey());
 		return list;
 	}
 
