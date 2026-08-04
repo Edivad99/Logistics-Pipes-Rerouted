@@ -278,6 +278,7 @@ def lastCommit = providers.exec {
 
 tasks.named('jar', Jar).configure {
     from(sourceSets.main.output)
+    from(sourceSets.api.output)
     manifest {
         attributes([
             'Specification-Title'   : project.name,

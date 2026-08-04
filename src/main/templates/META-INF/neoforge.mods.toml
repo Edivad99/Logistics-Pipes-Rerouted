@@ -15,8 +15,8 @@ license     = "MMPL-1.0.1"
         maintained by NoZeroG and Edivad99 and distributed under the MMPL-1.0.1.
     '''
     authors = "NoZeroG and Edivad99 (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
-    displayURL = "https://github.com/VoiceLessQ/Logistic-Pipes-2"
-    issueTrackerURL = "https://github.com/VoiceLessQ/Logistic-Pipes-2/issues"
+    displayURL = "https://github.com/Edivad99/Logistic-Pipes-2"
+    issueTrackerURL = "https://github.com/Edivad99/Logistic-Pipes-2/issues"
 
 [[dependencies.logisticspipes]]
     type = "required"
