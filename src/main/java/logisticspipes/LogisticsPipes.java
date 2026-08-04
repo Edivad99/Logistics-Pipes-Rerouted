@@ -43,7 +43,8 @@ import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.ProxyManager;
+import logisticspipes.proxy.ConfigToolHandler;
+import logisticspipes.proxy.PowerProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.SpecialInventoryHandlerManager;
 import logisticspipes.proxy.SpecialTankHandlerManager;
@@ -159,7 +160,8 @@ public class LogisticsPipes {
         PacketHandler.initialize();
         NewGuiHandler.initialize();
 
-        ProxyManager.load();
+        SimpleServiceLocator.setConfigToolHandler(new ConfigToolHandler());
+        SimpleServiceLocator.setPowerProxy(new PowerProxy());
         ItemPipeSignCreator.registerPipeSignTypes();
 
         SimpleServiceLocator.setPipeInformationManager(new PipeInformationManager());

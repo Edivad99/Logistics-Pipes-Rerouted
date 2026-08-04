@@ -41,8 +41,4 @@ public class ConfigToolHandler {
 			}
 		}
 	}
-
-	void registerWrapper() {
-		// BuildCraft IToolWrench / CoFH IToolHammer wrappers removed — neither mod exists on 1.20.1.
-	}
 }

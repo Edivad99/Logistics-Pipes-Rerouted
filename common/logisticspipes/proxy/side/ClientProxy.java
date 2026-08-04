@@ -36,17 +36,6 @@ public class ClientProxy implements IProxy {
 		return "Client";
 	}
 
-	@Override
-    @Nullable
-	public Level getWorld() {
-		return Minecraft.getInstance().level;
-	}
-
-    @Override
-	public Player getClientPlayer() {
-		return Minecraft.getInstance().player;
-	}
-
     @Override
 	public String getName(ItemIdentifier item) {
 		return item.getFriendlyName();

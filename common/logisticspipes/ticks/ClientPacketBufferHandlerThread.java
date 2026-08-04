@@ -14,6 +14,8 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.BufferTransfer;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.tuples.Pair;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataIOWrapper;
 
@@ -272,7 +274,7 @@ public class ClientPacketBufferHandlerThread {
 					ByteBuffer = Arrays.copyOfRange(ByteBuffer, size + 4, ByteBuffer.length);
 					packetBufferLock.lock();
 					try {
-						FriendlyByteBuf.add(new Pair<>(MainProxy.proxy.getClientPlayer(), packet));
+						FriendlyByteBuf.add(new Pair<>(Minecraft.getInstance().player, packet));
 					} finally {
 						packetBufferLock.unlock();
 					}

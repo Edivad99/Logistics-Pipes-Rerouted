@@ -13,14 +13,7 @@ public interface IProxy {
 
 	String getSide();
 
-	/**
-     * Returns the client-side main level, or null on the dedicated server.
-     */
-	@Nullable Level getWorld();
-
-    Player getClientPlayer();
-
-	void addLogisticsPipesOverride(Object par1IIconRegister, int index, String override1, String override2, boolean flag);
+    void addLogisticsPipesOverride(Object par1IIconRegister, int index, String override1, String override2, boolean flag);
 
     String getName(ItemIdentifier item);
 

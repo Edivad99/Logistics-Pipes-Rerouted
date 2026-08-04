@@ -30,17 +30,6 @@ public class ServerProxy implements IProxy {
 		return "Server";
 	}
 
-	@Override
-    @Nullable
-	public Level getWorld() {
-		return null;
-	}
-
-    @Override
-	public Player getClientPlayer() {
-		return null;
-	}
-
     @Override
 	public String getName(ItemIdentifier item) {
 		return item.getFriendlyName();
