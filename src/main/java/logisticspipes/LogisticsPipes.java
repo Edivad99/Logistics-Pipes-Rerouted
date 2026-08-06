@@ -154,6 +154,8 @@ public class LogisticsPipes {
 
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
             LPBlockEntityTypes.POWER_PROVIDER_RF.get(), LogisticsRFPowerProviderTileEntity::getEnergyStorageCap);
+
+        //event.registerItem(Capabilities.FluidHandler.ITEM, (o, unused) -> o, LPItems.FLUID_CONTAINER);
     }
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {

@@ -345,7 +345,7 @@ public class DummyContainer extends AbstractContainerMenu {
 				FluidIdentifier ident = FluidIdentifier.get(currentlyEquippedStack);
 				if (ident != null) {
 					if (mouseButton == 0) {
-						slot.set(ident.getItemIdentifier().unsafeMakeNormalStack(1));
+						slot.set(ident.getItemIdentifier().makeNormalStack(1));
 					} else {
 						slot.set(ItemStack.EMPTY);
 					}

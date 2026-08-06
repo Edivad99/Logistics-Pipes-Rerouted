@@ -129,7 +129,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 		}
 		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
 		//Enchantment? Enchantment!
-		ItemEnchantments enchantments = item.unsafeMakeNormalStack(1)
+		ItemEnchantments enchantments = item.makeNormalStack(1)
 				.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
 
 		for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.entrySet()) {

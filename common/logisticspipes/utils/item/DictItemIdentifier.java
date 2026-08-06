@@ -18,7 +18,7 @@ public class DictItemIdentifier {
 	public static DictItemIdentifier getDictItemIdentifier(ItemIdentifier itemIdent) {
 		BitSet ids = new BitSet();
 		boolean hasDict = false;
-		final ItemStack stack = itemIdent.unsafeMakeNormalStack(1);
+		final ItemStack stack = itemIdent.makeNormalStack(1);
 		if (stack.isEmpty()) {
 			LogisticsPipes.LOG.error("Cannot make stack from item " + itemIdent.toString() + " -- item creates and empty stack!");
 			return null;

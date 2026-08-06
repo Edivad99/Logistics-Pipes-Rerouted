@@ -127,7 +127,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 			ppi++;
 			if (ppi <= 27 * page) continue;
 			if (ppi > 27 * (page + 1)) continue;
-			ItemStack st = itemStack.unsafeMakeNormalStack();
+			ItemStack st = itemStack.makeNormalStack();
 			int x = 9 + 18 * column + leftPos;
 			int y = 79 + 18 * row + topPos;
 			if (x < par1 && par1 < x + 18 && y < par2 && par2 < y + 18) {

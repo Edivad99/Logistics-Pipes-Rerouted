@@ -246,7 +246,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 				if (task != null) {
 					LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 10, topPos + 99);
-					guiGraphics.renderItem(task.item.unsafeMakeNormalStack(1), leftPos + 12, topPos + 101);
+					guiGraphics.renderItem(task.item.makeNormalStack(1), leftPos + 12, topPos + 101);
 					taskNameLabel = StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, font);
 
 					int xOrigo = xCenter - 72;

@@ -158,7 +158,7 @@ public class PacketHandler {
     public static void queueAndRemovePacketFromNBT(CompoundTag nbt) {
         byte[] data = nbt.getByteArray("LogisticsPipes:PacketData");
         if (data.length > 0) {
-            LPDataIOWrapper.provideData(data, dataInput -> {
+            LPDataIOWrapper.provideData(data, Minecraft.getInstance().getConnection() != null ? Minecraft.getInstance().getConnection().registryAccess() : null, dataInput -> {
                 final int packetID = dataInput.readShort();
                 final ModernPacket packet = PacketHandler.templateForId(packetID);
                 packet.setDebugId(dataInput.readInt());
@@ -225,7 +225,7 @@ public class PacketHandler {
 
     /** Decodes and dispatches a raw LP packet from a FriendlyByteBuf. */
     public static void onPacketData(final FriendlyByteBuf data, final Player player) {
-        LPDataIOWrapper.provideData(data, input -> {
+        LPDataIOWrapper.provideData(data, player.registryAccess(), input -> {
             final int packetID = input.readShort();
             final ModernPacket packet = PacketHandler.templateForId(packetID);
             packet.setDebugId(input.readInt());

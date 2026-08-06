@@ -31,7 +31,7 @@ public class RequestUpdateNamesPacket extends ModernPacket {
 		List<ItemIdentifier> identList = new LinkedList<>();
 		for (Item item : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
 			if (item != null) {
-				identList.add(ItemIdentifier.get(item, 0, null));
+				identList.add(ItemIdentifier.get(item));
 			}
 		}
 		SimpleServiceLocator.clientBufferHandler.setPause(true);

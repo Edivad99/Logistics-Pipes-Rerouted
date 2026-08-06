@@ -163,7 +163,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		//if(isSearched(String.valueOf(BuiltInRegistries.ITEM.getId(item.item)), search.getContent())) return true;
 		//Enchantment? Enchantment!
 		ItemEnchantments enchantments =
-				item.unsafeMakeNormalStack(1).getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+				item.makeNormalStack(1).getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
 
 		for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.entrySet()) {
 			String enchantName = entry.getKey().value().description().getString();

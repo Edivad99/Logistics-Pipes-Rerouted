@@ -226,7 +226,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 		@Override
 		public void renderForegroundContent(GuiGraphics guiGraphics) {
-			String pipeName = ItemIdentifier.get(pipe.item, 0, null).getFriendlyName();
+			String pipeName = ItemIdentifier.get(pipe.item).getFriendlyName();
 			guiGraphics.drawString(font, pipeName, (170 - font.width(pipeName)) / 2, 28, 0x83601c, false);
 
 			int sessionXCenter = 85;

@@ -166,7 +166,7 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 			String idStr = "";
 			String displayAmount = null;
 			if (itemTypeInv != null && itemTypeInv.getIDStackInSlot(0) != null) {
-				ItemStack itemstack = itemTypeInv.getIDStackInSlot(0).unsafeMakeNormalStack();
+				ItemStack itemstack = itemTypeInv.getIDStackInSlot(0).makeNormalStack();
 
 				renderer.renderItemStackOnSign(itemstack, poseStack, bufferSource, packedLight);
 				Item item = itemstack.getItem();

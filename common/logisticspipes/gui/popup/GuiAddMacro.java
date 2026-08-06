@@ -81,17 +81,10 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			return;
 		}
 		for (int i = 0; i < inventar.size(); i++) {
-			CompoundTag itemNBT = inventar.getCompound(i);
-			int itemID = itemNBT.getInt("id");
-			int itemData = itemNBT.getInt("data");
-			CompoundTag tag = null;
-			if (itemNBT.contains("nbt")) {
-				tag = itemNBT.getCompound("nbt");
+			ItemIdentifierStack stack = ItemIdentifierStack.loadFromNBT(inventar.getCompound(i), minecraft.level.registryAccess());
+			if (stack != null) {
+				macroItems.add(stack);
 			}
-			ItemIdentifier item = ItemIdentifier.get(BuiltInRegistries.ITEM.byId(itemID), itemData, tag);
-			int amount = itemNBT.getInt("amount");
-			ItemIdentifierStack stack = new ItemIdentifierStack(item, amount);
-			macroItems.add(stack);
 		}
 	}
 
@@ -119,14 +112,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 		if (!(name1 + name2).equals("") && macroItems.size() != 0) {
 			ListTag inventar = new ListTag();
 			for (ItemIdentifierStack stack : macroItems) {
-				CompoundTag itemNBT = new CompoundTag();
-				itemNBT.putInt("id", BuiltInRegistries.ITEM.getId(stack.getItem().item));
-				itemNBT.putInt("data", stack.getItem().itemDamage);
-				if (stack.getItem().tag != null) {
-					itemNBT.put("nbt", stack.getItem().tag);
-				}
-				itemNBT.putInt("amount", stack.getStackSize());
-				inventar.add(itemNBT);
+				inventar.add(stack.saveToNBT(minecraft.level.registryAccess()));
 			}
 
 			boolean flag = false;
@@ -219,7 +205,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			if (ppi > 45 * (pageAll + 1)) {
 				continue;
 			}
-			ItemStack st = itemIdStack.unsafeMakeNormalStack();
+			ItemStack st = itemIdStack.makeNormalStack();
 			int x = guiLeft +10 + panelXSize * column;
 			int y = guiTop +18 + panelYSize * row;
 
@@ -250,16 +236,11 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 						if (!handled) {
 							int i = 0;
 							for (ItemIdentifierStack stack : macroItems) {
-								if (item.equals(stack.getItem()) && item.itemDamage < stack.getItem().itemDamage) {
-									if (mouseButton == 0 || wheelUp != 0) {
-										macroItems.add(i, item.makeStack(1 + (wheelUp != 0 ? wheelUp - 1 : 0)));
-									} else if (mouseButton == 2) {
-										macroItems.add(i, item.makeStack(64));
-									}
-									handled = true;
-									break;
-								}
-								if (BuiltInRegistries.ITEM.getId(item.item) < BuiltInRegistries.ITEM.getId(stack.getItem().item)) {
+								// Insert in sorted position. This used to be two branches, one keyed
+								// on damage and one on the registry id; ItemIdentifier's total order
+								// starts with the registry id and continues with the damage, so a
+								// single compareTo covers both.
+								if (item.compareTo(stack.getItem()) < 0) {
 									if (mouseButton == 0 || wheelUp != 0) {
 										macroItems.add(i, item.makeStack(1 + (wheelUp != 0 ? wheelUp - 1 : 0)));
 									} else if (mouseButton == 2) {
@@ -311,7 +292,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			if (ppi > 9 * (pageMacro + 1)) {
 				continue;
 			}
-			ItemStack st = itemStack.unsafeMakeNormalStack();
+			ItemStack st = itemStack.makeNormalStack();
 			int x = guiLeft +10 + panelXSize * column;
 			int y = guiTop +150 + panelYSize * row;
 

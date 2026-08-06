@@ -268,9 +268,9 @@ public class ItemDisplay {
 				guiGraphics.fill(left + x - 1, top + y - 1, left + x + panelxSize - 3, top + y + panelySize - 3, Color.getValue(Color.DARKER_GREY));
 
 				if (itemIdentifierStack.getStackSize() > 0) {
-					tooltip = new Object[] { mouseX, mouseY, itemIdentifierStack.unsafeMakeNormalStack() };
+					tooltip = new Object[] { mouseX, mouseY, itemIdentifierStack.makeNormalStack() };
 				} else {
-					tooltip = new Object[] { mouseX, mouseY, itemIdentifierStack.getItem().unsafeMakeNormalStack(1) };
+					tooltip = new Object[] { mouseX, mouseY, itemIdentifierStack.getItem().makeNormalStack(1) };
 				}
 			}
 

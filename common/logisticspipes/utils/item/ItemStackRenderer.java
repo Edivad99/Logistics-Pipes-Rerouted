@@ -111,7 +111,7 @@ public class ItemStackRenderer {
 			if (ppi > items * (page + 1)) {
 				continue;
 			}
-			ItemStack itemstack = identifierStack.unsafeMakeNormalStack();
+			ItemStack itemstack = identifierStack.makeNormalStack();
 			int x = left + xSize * column;
 			int y = top + ySize * row + 1;
 
@@ -135,7 +135,7 @@ public class ItemStackRenderer {
 
 		ItemStack stack = itemstack;
 		if (stack.isEmpty() && itemIdentStack != null) {
-			stack = itemIdentStack.getItem().unsafeMakeNormalStack(1);
+			stack = itemIdentStack.getItem().makeNormalStack(1);
 		}
 		if (stack.isEmpty()) {
             return;

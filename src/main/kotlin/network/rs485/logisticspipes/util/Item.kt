@@ -44,13 +44,13 @@ import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import kotlin.math.min
 
 
-//fun ItemIdentifier.equalsWithNBT(stack: ItemStack): Boolean = this.item == stack.item &&
-//        this.itemDamage == stack.damageValue &&
-//        ((this.tag == null && stack.tag == null) ||
-//                (this.tag != null && stack.tag != null && this.tag == stack.tag))
-//Fixme
-fun ItemIdentifier.equalsWithNBT(stack: ItemStack): Boolean = this.item == stack.item &&
-        this.itemDamage == stack.damageValue
+/**
+ * Full identity comparison: item plus every data component. Used as a re-validation guard by the
+ * async modules, which plan against a snapshot and must confirm the slot did not change before
+ * acting on it, so this deliberately is the strictest possible match.
+ */
+fun ItemIdentifier.equalsWithNBT(stack: ItemStack): Boolean =
+    this.item === stack.item && this.components == stack.componentsPatch
 
 fun IItemIdentifierInventory.matchingSequence(stack: ItemStack) =
     (0 until containerSize).asSequence().map { getIDStackInSlot(it) }

@@ -11,25 +11,23 @@ package logisticspipes.utils.item;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.BitSet;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.asm.addinfo.IAddInfo;
-import logisticspipes.asm.addinfo.IAddInfoProvider;
-import logisticspipes.items.LogisticsFluidContainer;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
-import logisticspipes.utils.FinalCompoundTag;
-import lombok.AllArgsConstructor;
+
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ByteArrayTag;
@@ -41,15 +39,27 @@ import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+
+import com.mojang.serialization.Codec;
+
 import net.neoforged.fml.ModList;
+
+import logisticspipes.LogisticsPipes;
+import logisticspipes.items.LogisticsFluidContainer;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 
 // net.minecraft.world.item.CreativeModeTab removed — use CreativeModeTab
 
@@ -63,806 +73,747 @@ import net.neoforged.fml.ModList;
  */
 public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTypeHolder {
 
-	//a key to look up a ItemIdentifier by Item:damage:tag
-	// Legacy key: Item + damage + tag
-	private static class ItemKey {
+    private static final Predicate<DataComponentType<?>> IS_DAMAGE = t -> t == DataComponents.DAMAGE;
+    private static final Predicate<DataComponentType<?>> IS_NOT_DAMAGE = t -> t != DataComponents.DAMAGE;
+    private static final AtomicLong serialCounter = new AtomicLong();
+    // Identifiers whose patch is empty. Bounded by the item registry, so these are held strongly.
+    private final static ConcurrentHashMap<Item, ItemIdentifier> simpleIdentifiers = new ConcurrentHashMap<>(4096, 0.5f,
+        1);
+    // Everything else. Held weakly: with damage folded into the patch this tier absorbs every
+    // durability value of every tool and every enchanted book, which is unbounded and player-driven.
+    private final static HashMap<ItemKey, IDReference> keyRefMap = new HashMap<>(1024, 0.5f);
+    //a referenceQueue to collect GCed identifier refs
+    private final static ReferenceQueue<ItemIdentifier> keyRefQueue = new ReferenceQueue<>();
+    //and locks to protect these
+    private final static ReadWriteLock keyRefLock = new ReentrantReadWriteLock();
+    private final static Lock keyRefRlock = ItemIdentifier.keyRefLock.readLock();
+    private final static Lock keyRefWlock = ItemIdentifier.keyRefLock.writeLock();
+    private static final ItemIdentifierCleanupThread cleanupThread = new ItemIdentifierCleanupThread();
+    // Item -> registry-key path of the FIRST CATEGORY tab containing it, built once on demand.
+    // Vanilla only builds tab contents from the client creative-inventory screen, so on a
+    // dedicated server (and on survival clients) getDisplayItems() stays empty forever; we
+    // build the contents ourselves instead of depending on that screen having been opened.
+    @Nullable
+    private static volatile Map<Item, String> creativeTabNameByItem = null;
 
-		public final Item item;
-		//TODO: REPLACE WITH DATACOMPONENTMAP
-		//public final DataComponentMap components;
-		public final int itemDamage;
-		public final FinalCompoundTag tag;
+    static {
+        // Started here rather than from the constructor: a Thread that calls start() on itself
+        // publishes a not-yet-fully-constructed object to the thread it just spawned.
+        ItemIdentifier.cleanupThread.start();
+    }
 
-		public ItemKey(Item i, int d, FinalCompoundTag t) {
-			item = i;
-			itemDamage = d;
-			tag = t;
-		}
+    public final Item item;
+    /**
+     * The component patch that distinguishes this identity from the item's prototype. Always
+     * canonical (sanitized), see {@link #get(Item, DataComponentPatch)}.
+     */
+    public final DataComponentPatch components;
+    private final Object[] ccTypeHolder = new Object[1];
+    /**
+     * Allocation-order tiebreaker, so that {@link #compareTo} can be a total order consistent with
+     * {@link #equals} even when two identities render the same {@link #sortKey()}. Replaces the old
+     * per-Item {@code uniqueID}.
+     */
+    private final long serial;
+    private int maxStackSize = 0;
+    @Nullable
+    private String sortKey = null;
+    @Nullable
+    private ItemIdentifier _IDIgnoringNBT = null;
+    @Nullable
+    private ItemIdentifier _IDIgnoringDamage = null;
+    @Nullable
+    private ItemIdentifier _IDIgnoringData = null;
+    @Nullable
+    private DictItemIdentifier _dict;
+    private boolean canHaveDict = true;
+    @Nullable
+    private String modName;
+    @Nullable
+    private String creativeTabName;
 
-		@Override
-		public boolean equals(Object that) {
-			if (!(that instanceof ItemKey)) {
-				return false;
-			}
-			ItemKey i = (ItemKey) that;
-			return item == i.item && itemDamage == i.itemDamage && tag.equals(i.tag);
-		}
+    //Hide default constructor
+    private ItemIdentifier(Item item, DataComponentPatch components) {
+        this.item = item;
+        this.components = components;
+        this.serial = ItemIdentifier.serialCounter.getAndIncrement();
+    }
 
-		@Override
-		public int hashCode() {
-			return item.hashCode() ^ itemDamage ^ tag.hashCode();
-		}
-	}
+    private static ItemIdentifier getOrCreateSimple(Item item) {
+        //no locking here. if 2 threads race and create the same ItemIdentifier, they end up .equal() and one of them ends up in the map
+        ItemIdentifier ret = ItemIdentifier.simpleIdentifiers.get(item);
+        if (ret != null) {
+            return ret;
+        }
+        ret = new ItemIdentifier(item, DataComponentPatch.EMPTY);
+        ItemIdentifier.simpleIdentifiers.put(item, ret);
+        return ret;
+    }
 
-	//remember itemId/damage/tag so we can find GCed ItemIdentifiers
-	private static class IDReference extends WeakReference<ItemIdentifier> {
+    @Nullable
+    private static ItemIdentifier lookupPatched(ItemKey k) {
+        ItemIdentifier.keyRefRlock.lock();
+        try {
+            IDReference r = ItemIdentifier.keyRefMap.get(k);
+            return r != null ? r.get() : null;
+        } finally {
+            ItemIdentifier.keyRefRlock.unlock();
+        }
+    }
 
-		private final ItemKey key;
-		private final int uniqueID;
+    private static ItemIdentifier getOrCreatePatched(ItemKey k) {
+        ItemIdentifier hit = ItemIdentifier.lookupPatched(k);
+        if (hit != null) {
+            return hit;
+        }
+        ItemIdentifier.keyRefWlock.lock();
+        try {
+            IDReference r = ItemIdentifier.keyRefMap.get(k);
+            if (r != null) {
+                ItemIdentifier ret = r.get();
+                if (ret != null) {
+                    return ret;
+                }
+            }
+            ItemIdentifier ret = new ItemIdentifier(k.item(), k.components());
+            ItemIdentifier.keyRefMap.put(k, new IDReference(k, ret));
+            return ret;
+        } finally {
+            ItemIdentifier.keyRefWlock.unlock();
+        }
+    }
 
-		IDReference(ItemKey k, int u, ItemIdentifier id) {
-			super(id, ItemIdentifier.keyRefQueue);
-			key = k;
-			uniqueID = u;
-		}
-	}
+    /**
+     * Interns the identity of {@code item} carrying {@code rawPatch}.
+     * <p>
+     * A DataComponentPatch is not canonical on its own: a patch that sets a component to the value
+     * the item's prototype already has is a distinct patch from {@link DataComponentPatch#EMPTY} but
+     * yields an identical ItemStack. Patches arriving from the network, from disk or from the
+     * ComputerCraft builder are therefore normalized by round-tripping through an ItemStack, whose
+     * {@link ItemStack#getComponentsPatch()} is canonical by construction -- otherwise the same item
+     * could end up with two different ItemIdentifiers.
+     */
+    public static ItemIdentifier get(Item item, DataComponentPatch rawPatch) {
+        if (rawPatch.isEmpty()) {
+            return ItemIdentifier.getOrCreateSimple(item);
+        }
+        // Fast path: the patch is already canonical because we have seen it before.
+        ItemIdentifier hit = ItemIdentifier.lookupPatched(new ItemKey(item, rawPatch));
+        if (hit != null) {
+            return hit;
+        }
+        return ItemIdentifier.get(new ItemStack(item.builtInRegistryHolder(), 1, rawPatch));
+    }
 
-	private interface IDamagedIdentifierHolder {
+    /**
+     * The bare identity of {@code item}, carrying no components at all.
+     */
+    public static ItemIdentifier get(Item item) {
+        return ItemIdentifier.getOrCreateSimple(item);
+    }
 
-		ItemIdentifier get(int damage);
-
-		void set(int damage, ItemIdentifier ret);
-
-		void ensureCapacity(int damage);
-	}
-
-	private static class MapDamagedItentifierHolder implements IDamagedIdentifierHolder {
-
-		private final ConcurrentHashMap<Integer, ItemIdentifier> holder;
-
-		public MapDamagedItentifierHolder() {
-			holder = new ConcurrentHashMap<>(4096, 0.5f, 1);
-		}
-
-		@Override
-		public ItemIdentifier get(int damage) {
-			return holder.get(damage);
-		}
-
-		@Override
-		public void set(int damage, ItemIdentifier item) {
-			holder.put(damage, item);
-		}
-
-		@Override
-		public void ensureCapacity(int damage) {}
-	}
-
-	private static class ArrayDamagedItentifierHolder implements IDamagedIdentifierHolder {
-
-		private AtomicReferenceArray<ItemIdentifier> holder;
-
-		public ArrayDamagedItentifierHolder(int damage) {
-			//round to nearest superior power of 2
-			int newlen = 1 << (32 - Integer.numberOfLeadingZeros(damage));
-			holder = new AtomicReferenceArray<>(newlen);
-		}
-
-		@Override
-		public ItemIdentifier get(int damage) {
-			return holder.get(damage);
-		}
-
-		@Override
-		public void set(int damage, ItemIdentifier ident) {
-			holder.set(damage, ident);
-		}
-
-		@Override
-		public void ensureCapacity(int damage) {
-			if (holder.length() <= damage) {
-				int newlen = 1 << (32 - Integer.numberOfLeadingZeros(damage));
-				AtomicReferenceArray<ItemIdentifier> newdamages = new AtomicReferenceArray<>(newlen);
-				for (int i = 0; i < holder.length(); i++) {
-					newdamages.set(i, holder.get(i));
-				}
-				holder = newdamages;
-			}
-		}
-	}
-
-	private final Object[] ccTypeHolder = new Object[1];
-
-	//array of ItemIdentifiers for damage=0,tag=null items
-	private final static ConcurrentHashMap<Item, ItemIdentifier> simpleIdentifiers = new ConcurrentHashMap<>(4096, 0.5f, 1);
-
-	//array of arrays for items with damage>0 and tag==null
-	private final static ConcurrentHashMap<Item, IDamagedIdentifierHolder> damageIdentifiers = new ConcurrentHashMap<>(4096, 0.5f, 1);
-
-	//map for id+damage+tag -> ItemIdentifier lookup
-	private final static HashMap<ItemKey, IDReference> keyRefMap = new HashMap<>(1024, 0.5f);
-	//for tracking the tagUniqueIDs in use for a given Item
-	private final static HashMap<Item, BitSet> tagIDsets = new HashMap<>(1024, 0.5f);
-	//a referenceQueue to collect GCed identifier refs
-	private final static ReferenceQueue<ItemIdentifier> keyRefQueue = new ReferenceQueue<>();
-	//and locks to protect these
-	private final static ReadWriteLock keyRefLock = new ReentrantReadWriteLock();
-	private final static Lock keyRefRlock = ItemIdentifier.keyRefLock.readLock();
-	private final static Lock keyRefWlock = ItemIdentifier.keyRefLock.writeLock();
-
-	//helper thread to clean up references to GCed ItemIdentifiers
-	private static final class ItemIdentifierCleanupThread extends Thread {
-
-		public ItemIdentifierCleanupThread() {
-			setName("LogisticsPipes ItemIdentifier Cleanup Thread");
-			setDaemon(true);
-		}
-
-		@Override
-		public void run() {
-			// Runs until interrupted rather than forever. The loop used to swallow
-			// InterruptedException and continue, which left the thread unstoppable and dropped
-			// the interrupt flag on the floor; restoring the flag and returning lets whoever
-			// interrupted us observe that it worked.
-			while (!Thread.currentThread().isInterrupted()) {
-				IDReference r;
-				try {
-					r = (IDReference) (ItemIdentifier.keyRefQueue.remove());
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					return;
-				}
-				// The unlock has to be in a finally: this is the write lock every ItemIdentifier
-				// creation needs, so any exception escaping the loop below would hold it forever
-				// and wedge the whole subsystem instead of just killing this thread.
-				ItemIdentifier.keyRefWlock.lock();
-				try {
-					do {
-						//value in the map might have been replaced in the meantime
-						IDReference current = ItemIdentifier.keyRefMap.get(r.key);
-						if (r == current) {
-							ItemIdentifier.keyRefMap.remove(r.key);
-							BitSet tagIDs = ItemIdentifier.tagIDsets.get(r.key.item);
-							if (tagIDs != null) {
-								tagIDs.clear(r.uniqueID);
-							}
-						}
-						r = (IDReference) (ItemIdentifier.keyRefQueue.poll());
-					} while (r != null);
-				} finally {
-					ItemIdentifier.keyRefWlock.unlock();
-				}
-			}
-		}
-	}
-
-	private static final ItemIdentifierCleanupThread cleanupThread = new ItemIdentifierCleanupThread();
-
-	static {
-		// Started here rather than from the constructor: a Thread that calls start() on itself
-		// publishes a not-yet-fully-constructed object to the thread it just spawned.
-		ItemIdentifier.cleanupThread.start();
-	}
-
-	//Hide default constructor
-	private ItemIdentifier(Item item, int itemDamage, FinalCompoundTag tag, int uniqueID) {
-		this.item = item;
-		this.itemDamage = itemDamage;
-		this.tag = tag;
-		this.uniqueID = uniqueID;
-	}
-
-	public final Item item;
-	public final int itemDamage;
-	public final FinalCompoundTag tag;
-	public final int uniqueID;
-
-	private int maxStackSize = 0;
-
-	private ItemIdentifier _IDIgnoringNBT = null;
-	private ItemIdentifier _IDIgnoringDamage = null;
-	private ItemIdentifier _IDIgnoringData = null;
-	private DictItemIdentifier _dict;
-	private boolean canHaveDict = true;
-	private String modName;
-	private String creativeTabName;
-
-	private static ItemIdentifier getOrCreateSimple(Item item, ItemIdentifier proposal) {
-		if (proposal != null) {
-			if (proposal.item == item && proposal.itemDamage == 0 && proposal.tag == null) {
-				return proposal;
-			}
-		}
-		//no locking here. if 2 threads race and create the same ItemIdentifier, they end up .equal() and one of them ends up in the map
-		ItemIdentifier ret = ItemIdentifier.simpleIdentifiers.get(item);
-		if (ret != null) {
-			return ret;
-		}
-		ret = new ItemIdentifier(item, 0, null, 0);
-		ItemIdentifier.simpleIdentifiers.put(item, ret);
-		return ret;
-	}
-
-	private static ItemIdentifier getOrCreateDamage(Item item, int damage, ItemIdentifier proposal) {
-		if (proposal != null) {
-			if (proposal.item == item && proposal.itemDamage == damage && proposal.tag == null) {
-				return proposal;
-			}
-		}
-		//again no locking, we can end up removing or overwriting ItemIdentifiers concurrently added by another thread, but that doesn't affect anything.
-		IDamagedIdentifierHolder damages = ItemIdentifier.damageIdentifiers.get(item);
-		if (damages == null) {
-			// TODO: TEMP FIX - in 1.21 max damage belongs to ItemStack components
-			ItemStack stack = new ItemStack(item);
-			if (stack.getMaxDamage() < 32767) {
-				damages = new ArrayDamagedItentifierHolder(damage);
-			} else {
-				damages = new MapDamagedItentifierHolder();
-			}
-			ItemIdentifier.damageIdentifiers.put(item, damages);
-		} else {
-			damages.ensureCapacity(damage);
-		}
-		ItemIdentifier ret = damages.get(damage);
-		if (ret != null) {
-			return ret;
-		}
-		ret = new ItemIdentifier(item, damage, null, 0);
-		damages.set(damage, ret);
-		return ret;
-	}
-
-	private static ItemIdentifier getOrCreateTag(Item item, int damage, FinalCompoundTag tag) {
-		ItemKey k = new ItemKey(item, damage, tag);
-		ItemIdentifier.keyRefRlock.lock();
-		IDReference r = ItemIdentifier.keyRefMap.get(k);
-		if (r != null) {
-			ItemIdentifier ret = r.get();
-			if (ret != null) {
-				ItemIdentifier.keyRefRlock.unlock();
-				return ret;
-			}
-		}
-		ItemIdentifier.keyRefRlock.unlock();
-		ItemIdentifier.keyRefWlock.lock();
-		r = ItemIdentifier.keyRefMap.get(k);
-		if (r != null) {
-			ItemIdentifier ret = r.get();
-			if (ret != null) {
-				ItemIdentifier.keyRefWlock.unlock();
-				return ret;
-			}
-		}
-		if (ItemIdentifier.tagIDsets.get(item) == null) {
-			ItemIdentifier.tagIDsets.put(item, new BitSet(16));
-		}
-		int nextUniqueID;
-		if (r == null) {
-			nextUniqueID = ItemIdentifier.tagIDsets.get(item).nextClearBit(1);
-			ItemIdentifier.tagIDsets.get(item).set(nextUniqueID);
-		} else {
-			nextUniqueID = r.uniqueID;
-		}
-		FinalCompoundTag finaltag = new FinalCompoundTag(tag);
-		ItemKey realKey = new ItemKey(item, damage, finaltag);
-		ItemIdentifier ret = new ItemIdentifier(item, damage, finaltag, nextUniqueID);
-		ItemIdentifier.keyRefMap.put(realKey, new IDReference(realKey, nextUniqueID, ret));
-		ItemIdentifier.keyRefWlock.unlock();
-		return ret;
-	}
-
-	public static ItemIdentifier get(Item item, int itemUndamagableDamage, CompoundTag tag) {
-		return get(item, itemUndamagableDamage, tag, null);
-	}
-
-	private static ItemIdentifier get(Item item, int itemUndamagableDamage, @Nullable CompoundTag tag, ItemIdentifier proposal) {
-		if (itemUndamagableDamage < 0) {
-			throw new IllegalArgumentException("Item Damage out of range");
-		}
-		if (tag == null && itemUndamagableDamage == 0) {
-			//no tag, no damage
-			return ItemIdentifier.getOrCreateSimple(item, proposal);
-		} else if (tag == null) {
-			//no tag, damage
-			return ItemIdentifier.getOrCreateDamage(item, itemUndamagableDamage, proposal);
-		} else {
-			//tag
-			return ItemIdentifier.getOrCreateTag(item, itemUndamagableDamage, new FinalCompoundTag(tag));
-		}
-	}
-
-	@AllArgsConstructor
-	public static class ItemStackAddInfo implements IAddInfo {
-
-		private final ItemIdentifier ident;
-	}
-
-	@SuppressWarnings("ConstantConditions")
     public static ItemIdentifier get(ItemStack itemStack) {
-		ItemIdentifier proposal = null;
-		IAddInfoProvider prov = null;
-		boolean hasTag = itemStack.has(DataComponents.CUSTOM_DATA);
-		if (((Object) itemStack) instanceof IAddInfoProvider && !hasTag) {
-			prov = (IAddInfoProvider) (Object) itemStack;
-			ItemStackAddInfo info = prov.getLogisticsPipesAddInfo(ItemStackAddInfo.class);
-			if (info != null) {
-				proposal = info.ident;
-			}
-		}
+        DataComponentPatch patch = itemStack.getComponentsPatch();
+        if (patch.isEmpty()) {
+            return ItemIdentifier.getOrCreateSimple(itemStack.getItem());
+        }
+        return ItemIdentifier.getOrCreatePatched(new ItemKey(itemStack.getItem(), patch));
+    }
 
-		FinalCompoundTag tag = null;
-		if (hasTag) {
-			CompoundTag customData = itemStack
-					.get(DataComponents.CUSTOM_DATA)
-					.copyTag();
-			tag = new FinalCompoundTag(customData);
-		}
+    /**
+     * Returns every interned identity of {@code item} whose damage matches, i.e. all component
+     * variants of that item/damage pair. ComputerCraft API surface only.
+     */
+    public static List<ItemIdentifier> getMatchingNBTIdentifier(Item item, int itemData) {
+        //inefficient, we'll have to add another map if this becomes a bottleneck
+        ArrayList<ItemIdentifier> resultlist = new ArrayList<>(16);
+        ItemIdentifier.keyRefRlock.lock();
+        try {
+            for (IDReference r : ItemIdentifier.keyRefMap.values()) {
+                ItemIdentifier t = r.get();
+                if (t != null && t.item == item && t.getDamageValue() == itemData) {
+                    resultlist.add(t);
+                }
+            }
+        } finally {
+            ItemIdentifier.keyRefRlock.unlock();
+        }
+        return resultlist;
+    }
 
-		ItemIdentifier ident = ItemIdentifier.get(itemStack.getItem(), itemStack.getDamageValue(), tag, proposal);
-		if (ident != proposal && prov != null && !hasTag) {
-			prov.setLogisticsPipesAddInfo(new ItemStackAddInfo(ident));
-		}
-		return ident;
-	}
+    private static Map<Item, String> getCreativeTabNameMap() {
+        Map<Item, String> map = ItemIdentifier.creativeTabNameByItem;
+        if (map != null) {
+            return map;
+        }
+        synchronized (ItemIdentifier.class) {
+            if (ItemIdentifier.creativeTabNameByItem != null) {
+                return ItemIdentifier.creativeTabNameByItem;
+            }
+            map = new HashMap<>();
+            CreativeModeTab.ItemDisplayParameters params =
+                new CreativeModeTab.ItemDisplayParameters(
+                    FeatureFlags.REGISTRY.allFlags(), false,
+                    RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+            for (CreativeModeTab tab : BuiltInRegistries.CREATIVE_MODE_TAB) {
+                // SEARCH aggregates every other tab's items and HOTBAR/INVENTORY are synthetic;
+                // only CATEGORY tabs correspond to LP1's per-item CreativeTabs#tabLabel.
+                if (tab == null || tab.getType() != CreativeModeTab.Type.CATEGORY) {
+                    continue;
+                }
+                ResourceLocation key = BuiltInRegistries.CREATIVE_MODE_TAB.getKeyOrNull(tab);
+                String tabName = key != null ? key.getPath() : tab.getDisplayName().getString();
+                // The client's creative screen may rebuild tab contents concurrently (integrated
+                // server thread vs render thread), so guard the whole per-tab read.
+                try {
+                    Collection<ItemStack> displayItems = tab.getDisplayItems();
+                    if (displayItems.isEmpty()) {
+                        tab.buildContents(params);
+                        displayItems = tab.getDisplayItems();
+                    }
+                    for (ItemStack stack : displayItems) {
+                        if (stack != null && !stack.isEmpty()) {
+                            map.putIfAbsent(stack.getItem(), tabName);
+                        }
+                    }
+                } catch (Exception e) {
+                    LogisticsPipes.LOG.warn("Failed to read creative tab contents for {}", tabName, e);
+                }
+            }
+            ItemIdentifier.creativeTabNameByItem = map;
+            return map;
+        }
+    }
 
-	public static List<ItemIdentifier> getMatchingNBTIdentifier(Item item, int itemData) {
-		//inefficient, we'll have to add another map if this becomes a bottleneck
-		ArrayList<ItemIdentifier> resultlist = new ArrayList<>(16);
-		ItemIdentifier.keyRefRlock.lock();
-		for (IDReference r : ItemIdentifier.keyRefMap.values()) {
-			ItemIdentifier t = r.get();
-			if (t != null && t.item == item && t.itemDamage == itemData) {
-				resultlist.add(t);
-			}
-		}
-		ItemIdentifier.keyRefRlock.unlock();
-		return resultlist;
-	}
+    private static Map<Integer, Object> getArrayAsMap(int[] array) {
+        HashMap<Integer, Object> map = new HashMap<>();
+        int i = 0;
+        for (int object : array) {
+            map.put(i, object);
+            i++;
+        }
+        return map;
+    }
 
-	/* Instance Methods */
+    private static Map<Integer, Object> getArrayAsMap(byte[] array) {
+        HashMap<Integer, Object> map = new HashMap<>();
+        int i = 1;
+        for (byte object : array) {
+            map.put(i, object);
+            i++;
+        }
+        return map;
+    }
 
-	public ItemIdentifier getUndamaged() {
-		if (_IDIgnoringDamage == null) {
-			if (!unsafeMakeNormalStack(1).isDamageableItem()) {
-				_IDIgnoringDamage = this;
-			} else {
-				ItemStack tstack = makeNormalStack(1);
-				tstack.setDamageValue(0);
-				_IDIgnoringDamage = ItemIdentifier.get(tstack);
-			}
-		}
-		return _IDIgnoringDamage;
-	}
+    @Nullable
+    public static Map<Object, Object> getNBTBaseAsMap(@Nullable Tag nbt)
+        throws SecurityException, IllegalArgumentException {
+        if (nbt == null) {
+            return null;
+        }
 
-	public ItemIdentifier getIgnoringNBT() {
-		if (_IDIgnoringNBT == null) {
-			if (tag == null) {
-				_IDIgnoringNBT = this;
-			} else {
-				_IDIgnoringNBT = ItemIdentifier.get(item, itemDamage, null, null);
-			}
-		}
-		return _IDIgnoringNBT;
-	}
+        if (nbt instanceof ByteTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "ByteTag");
+            map.put("value", ((ByteTag) nbt).getAsByte());
+            return map;
+        } else if (nbt instanceof ByteArrayTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "ByteArrayTag");
+            map.put("value", ItemIdentifier.getArrayAsMap(((ByteArrayTag) nbt).getAsByteArray()));
+            return map;
+        } else if (nbt instanceof DoubleTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "DoubleTag");
+            map.put("value", ((DoubleTag) nbt).getAsDouble());
+            return map;
+        } else if (nbt instanceof FloatTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "FloatTag");
+            map.put("value", ((FloatTag) nbt).getAsFloat());
+            return map;
+        } else if (nbt instanceof IntTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "IntTag");
+            map.put("value", ((IntTag) nbt).getAsInt());
+            return map;
+        } else if (nbt instanceof IntArrayTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "IntArrayTag");
+            map.put("value", ItemIdentifier.getArrayAsMap(((IntArrayTag) nbt).getAsIntArray()));
+            return map;
+        } else if (nbt instanceof ListTag) {
+            HashMap<Integer, Object> content = new HashMap<>();
+            int i = 1;
+            for (Object object : ((ListTag) nbt)) {
+                if (object instanceof Tag) {
+                    content.put(i, ItemIdentifier.getNBTBaseAsMap((Tag) object));
+                }
+                i++;
+            }
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "ListTag");
+            map.put("value", content);
+            return map;
+        } else if (nbt instanceof CompoundTag) {
+            HashMap<Object, Object> content = new HashMap<>();
+            HashMap<Integer, Object> keys = new HashMap<>();
+            int i = 1;
+            for (String key : ((CompoundTag) nbt).getAllKeys()) {
+                Tag value = ((CompoundTag) nbt).get(key);
+                content.put(key, ItemIdentifier.getNBTBaseAsMap(value));
+                keys.put(i, key);
+                i++;
+            }
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "CompoundTag");
+            map.put("value", content);
+            map.put("keys", keys);
+            return map;
+        } else if (nbt instanceof LongTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "LongTag");
+            map.put("value", ((LongTag) nbt).getAsLong());
+            return map;
+        } else if (nbt instanceof ShortTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "ShortTag");
+            map.put("value", ((ShortTag) nbt).getAsShort());
+            return map;
+        } else if (nbt instanceof StringTag) {
+            HashMap<Object, Object> map = new HashMap<>();
+            map.put("type", "StringTag");
+            map.put("value", nbt.getAsString());
+            return map;
+        } else {
+            throw new UnsupportedOperationException(
+                "Unsupported net.minecraft.nbt.Tag of type:" + nbt.getClass().getName());
+        }
+    }
 
-	public ItemIdentifier getIgnoringData() {
-		if (_IDIgnoringData == null) {
-			if (itemDamage == 0) {
-				_IDIgnoringData = this;
-			} else {
-				_IDIgnoringData = ItemIdentifier.get(item, 0, tag, null);
-			}
-		}
-		return _IDIgnoringData;
-	}
+    @SuppressWarnings("unchecked")
+    private static String renderComponent(DataComponentType<?> type, Object value) {
+        Codec<Object> codec = (Codec<Object>) type.codec();
+        if (codec != null) {
+            // Plain NbtOps: values referencing a datapack registry cannot be encoded without
+            // RegistryOps and fall through to toString below, which is content-based for the
+            // records component values are made of. Either way `serial` keeps the order total.
+            Optional<String> encoded = codec.encodeStart(NbtOps.INSTANCE, value)
+                .result().map(Tag::toString);
+            if (encoded.isPresent()) {
+                return encoded.get();
+            }
+        }
+        return String.valueOf(value);
+    }
 
-	public String getDebugName() {
-		return item.getDescriptionId() + "(ID: " + BuiltInRegistries.ITEM.getId(item) + ", Damage: " + itemDamage + ")";
-	}
+    /* Instance Methods */
 
-	private String getName(ItemStack stack) {
-		return stack.getHoverName().getString();
-	}
+    /**
+     * The damage this identity carries, 0 when it carries none. In 1.21 damage is just another data
+     * component; this accessor exists so consumers do not have to reach into the patch themselves.
+     */
+    public int getDamageValue() {
+        Optional<? extends Integer> damage = components.get(DataComponents.DAMAGE);
+        return damage != null && damage.isPresent() ? damage.get() : 0;
+    }
 
-	public String getFriendlyName() {
-		return getName(unsafeMakeNormalStack(1));
-	}
+    public boolean hasCustomData() {
+        Optional<? extends CustomData> data = components.get(DataComponents.CUSTOM_DATA);
+        return data != null && data.isPresent();
+    }
 
-	public String getFriendlyNameCC() {
-		return MainProxy.proxy.getName(this);
-	}
+    /**
+     * A mutable copy of this identity's {@link DataComponents#CUSTOM_DATA}, or null when it has
+     * none. This is the closest equivalent of the old {@code tag} field.
+     */
+    @Nullable
+    public CompoundTag getCustomDataTag() {
+        Optional<? extends CustomData> data = components.get(DataComponents.CUSTOM_DATA);
+        return data != null && data.isPresent() ? data.get().copyTag() : null;
+    }
 
-	public String getModName() {
-		if (modName == null) {
-			ResourceLocation rl = BuiltInRegistries.ITEM.getKey(item);
-			if (rl != null) {
-				modName = ModList.get().getModContainerById(rl.getNamespace())
-						.map(mc -> mc.getModInfo().getDisplayName())
-						.orElse("UNKNOWN");
-			} else {
-				modName = "UNKNOWN";
-			}
-		}
-		return modName;
-	}
+    private ItemIdentifier project(DataComponentPatch projected) {
+        return projected.equals(components) ? this : ItemIdentifier.get(item, projected);
+    }
 
-	// Item -> registry-key path of the FIRST CATEGORY tab containing it, built once on demand.
-	// Vanilla only builds tab contents from the client creative-inventory screen, so on a
-	// dedicated server (and on survival clients) getDisplayItems() stays empty forever; we
-	// build the contents ourselves instead of depending on that screen having been opened.
-	private static volatile Map<Item, String> creativeTabNameByItem = null;
+    /**
+     * This identity with its damage dropped, if the item is damageable at all.
+     */
+    public ItemIdentifier getUndamaged() {
+        if (_IDIgnoringDamage == null) {
+            _IDIgnoringDamage = isDamageable() ? project(components.forget(ItemIdentifier.IS_DAMAGE)) : this;
+        }
+        return _IDIgnoringDamage;
+    }
 
-	private static Map<Item, String> getCreativeTabNameMap() {
-		Map<Item, String> map = ItemIdentifier.creativeTabNameByItem;
-		if (map != null) {
-			return map;
-		}
-		synchronized (ItemIdentifier.class) {
-			if (ItemIdentifier.creativeTabNameByItem != null) {
-				return ItemIdentifier.creativeTabNameByItem;
-			}
-			map = new HashMap<>();
-			net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters params =
-					new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(
-							net.minecraft.world.flag.FeatureFlags.REGISTRY.allFlags(), false,
-							net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
-			for (net.minecraft.world.item.CreativeModeTab tab : BuiltInRegistries.CREATIVE_MODE_TAB) {
-				// SEARCH aggregates every other tab's items and HOTBAR/INVENTORY are synthetic;
-				// only CATEGORY tabs correspond to LP1's per-item CreativeTabs#tabLabel.
-				if (tab == null || tab.getType() != net.minecraft.world.item.CreativeModeTab.Type.CATEGORY) {
-					continue;
-				}
-				ResourceLocation key = BuiltInRegistries.CREATIVE_MODE_TAB.getKey(tab);
-				String tabName = key != null ? key.getPath() : tab.getDisplayName().getString();
-				// The client's creative screen may rebuild tab contents concurrently (integrated
-				// server thread vs render thread), so guard the whole per-tab read.
-				try {
-					java.util.Collection<ItemStack> displayItems = tab.getDisplayItems();
-					if (displayItems.isEmpty()) {
-						tab.buildContents(params);
-						displayItems = tab.getDisplayItems();
-					}
-					for (ItemStack stack : displayItems) {
-						if (stack != null && !stack.isEmpty()) {
-							map.putIfAbsent(stack.getItem(), tabName);
-						}
-					}
-				} catch (Exception e) {
-					LogisticsPipes.LOG.warn("Failed to read creative tab contents for {}", tabName, e);
-				}
-			}
-			ItemIdentifier.creativeTabNameByItem = map;
-			return map;
-		}
-	}
+    /**
+     * This identity with everything <i>except</i> damage dropped.
+     * <p>
+     * In 1.12 an ItemStack was Item + damage + NBT tag, where damage was a field separate from the
+     * tag; "ignoring NBT" therefore kept the damage. In 1.21 damage is itself a data component, so
+     * that behaviour has to be spelled out as "keep only DAMAGE" -- otherwise this projection would
+     * collapse into {@link #getUndamaged()} and the IGNORE_NBT / IGNORE_DAMAGE fuzzy flags would
+     * stop being independent.
+     */
+    public ItemIdentifier getIgnoringNBT() {
+        if (_IDIgnoringNBT == null) {
+            _IDIgnoringNBT = project(components.forget(ItemIdentifier.IS_NOT_DAMAGE));
+        }
+        return _IDIgnoringNBT;
+    }
 
-	public String getCreativeTabName() {
-		// In 1.20.1 items are no longer bound to a single creative tab (Item#getCreativeTab
-		// was removed). We resolve the FIRST CATEGORY tab containing this item, mirroring
-		// LP1's CreativeTabs#tabLabel behaviour. The same string is both stored (via the GUI's
-		// getStringForItem -> getCreativeTabName) and compared (ModuleCreativeTabBasedItemSink
-		// #sinksItem -> tabList.contains(getCreativeTabName())), so any stable form keeps them
-		// matched. We use the tab's registry key path which is stable across sessions.
-		if (creativeTabName == null) {
-			creativeTabName = ItemIdentifier.getCreativeTabNameMap().get(item);
-		}
-		return creativeTabName;
-	}
+    /**
+     * This identity with its damage dropped, damageable or not. Differs from {@link #getUndamaged()}
+     * only in skipping the damageable check.
+     */
+    public ItemIdentifier getIgnoringData() {
+        if (_IDIgnoringData == null) {
+            _IDIgnoringData = project(components.forget(ItemIdentifier.IS_DAMAGE));
+        }
+        return _IDIgnoringData;
+    }
 
-	public ItemIdentifierStack makeStack(int stackSize) {
-		return new ItemIdentifierStack(this, stackSize);
-	}
+    private String getName(ItemStack stack) {
+        return stack.getHoverName().getString();
+    }
 
-	public ItemStack unsafeMakeNormalStack(int stackSize) {
-		/*ItemStack stack = new ItemStack(item, stackSize);
-		if (itemDamage != 0) {
-			stack.setDamageValue(itemDamage);
-		}
-		if (tag != null) {
-			stack.set(
-					DataComponents.CUSTOM_DATA,
-					CustomData.of(tag.copy())
-			);
-		}*/
-		return makeNormalStack(stackSize);
-	}
+    public String getFriendlyName() {
+        return getName(makeNormalStack(1));
+    }
 
-	public ItemStack makeNormalStack(int stackSize) {
-		ItemStack stack = new ItemStack(item, stackSize);
-		/*if (itemDamage != 0) {
-			stack.setDamageValue(itemDamage);
-		}
-		if (tag != null) {
-			stack.set(
-					DataComponents.CUSTOM_DATA,
-					CustomData.of(tag.copy())
-			);
-		}*/
-		return stack;
-	}
+    public String getFriendlyNameCC() {
+        return MainProxy.proxy.getName(this);
+    }
 
-	public ItemEntity makeEntityItem(int stackSize, Level world, double x, double y, double z) {
-		return new ItemEntity(world, x, y, z, makeNormalStack(stackSize));
-	}
+    public String getModName() {
+        if (modName == null) {
+            ResourceLocation rl = BuiltInRegistries.ITEM.getKeyOrNull(item);
+            if (rl != null) {
+                modName = ModList.get().getModContainerById(rl.getNamespace())
+                    .map(mc -> mc.getModInfo().getDisplayName())
+                    .orElse("UNKNOWN");
+            } else {
+                modName = "UNKNOWN";
+            }
+        }
+        return modName;
+    }
 
-	public int getMaxStackSize() {
-		if (maxStackSize == 0) {
-			ItemStack tstack = unsafeMakeNormalStack(1);
-			int tstacksize = tstack.getMaxStackSize();
-			if (tstack.isDamageableItem() && tstack.isDamaged()) {
-				tstacksize = 1;
-			}
-			tstacksize = Math.max(1, Math.min(64, tstacksize));
-			maxStackSize = tstacksize;
-		}
-		return maxStackSize;
-	}
+    public String getCreativeTabName() {
+        // In 1.20.1 items are no longer bound to a single creative tab (Item#getCreativeTab
+        // was removed). We resolve the FIRST CATEGORY tab containing this item, mirroring
+        // LP1's CreativeTabs#tabLabel behaviour. The same string is both stored (via the GUI's
+        // getStringForItem -> getCreativeTabName) and compared (ModuleCreativeTabBasedItemSink
+        // #sinksItem -> tabList.contains(getCreativeTabName())), so any stable form keeps them
+        // matched. We use the tab's registry key path which is stable across sessions.
+        if (creativeTabName == null) {
+            creativeTabName = ItemIdentifier.getCreativeTabNameMap().get(item);
+        }
+        return creativeTabName;
+    }
 
-	private static Map<Integer, Object> getArrayAsMap(int[] array) {
-		HashMap<Integer, Object> map = new HashMap<>();
-		int i = 0;
-		for (int object : array) {
-			map.put(i, object);
-			i++;
-		}
-		return map;
-	}
+    public ItemIdentifierStack makeStack(int stackSize) {
+        return new ItemIdentifierStack(this, stackSize);
+    }
 
-	private static Map<Integer, Object> getArrayAsMap(byte[] array) {
-		HashMap<Integer, Object> map = new HashMap<>();
-		int i = 1;
-		for (byte object : array) {
-			map.put(i, object);
-			i++;
-		}
-		return map;
-	}
+    /**
+     * A real ItemStack carrying this identity. There used to be an "unsafe" variant of this that
+     * shared the tag instead of copying it; the distinction is obsolete in the component model, so
+     * the two were collapsed. {@code PatchedDataComponentMap.fromPatch} shares the patch
+     * copy-on-write, so any write to the returned stack copies first and the interned patch cannot
+     * be mutated through it, and component values are immutable by contract.
+     */
+    public ItemStack makeNormalStack(int stackSize) {
+        return new ItemStack(item.builtInRegistryHolder(), stackSize, components);
+    }
 
-	public static Map<Object, Object> getNBTBaseAsMap(net.minecraft.nbt.Tag nbt) throws SecurityException, IllegalArgumentException {
-		if (nbt == null) return null;
+    public ItemEntity makeEntityItem(int stackSize, Level world, double x, double y, double z) {
+        return new ItemEntity(world, x, y, z, makeNormalStack(stackSize));
+    }
 
-		if (nbt instanceof ByteTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "ByteTag");
-			map.put("value", ((ByteTag) nbt).getAsByte());
-			return map;
-		} else if (nbt instanceof ByteArrayTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "ByteArrayTag");
-			map.put("value", ItemIdentifier.getArrayAsMap(((ByteArrayTag) nbt).getAsByteArray()));
-			return map;
-		} else if (nbt instanceof DoubleTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "DoubleTag");
-			map.put("value", ((DoubleTag) nbt).getAsDouble());
-			return map;
-		} else if (nbt instanceof FloatTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "FloatTag");
-			map.put("value", ((FloatTag) nbt).getAsFloat());
-			return map;
-		} else if (nbt instanceof IntTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "IntTag");
-			map.put("value", ((IntTag) nbt).getAsInt());
-			return map;
-		} else if (nbt instanceof IntArrayTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "IntArrayTag");
-			map.put("value", ItemIdentifier.getArrayAsMap(((IntArrayTag) nbt).getAsIntArray()));
-			return map;
-		} else if (nbt instanceof ListTag) {
-			HashMap<Integer, Object> content = new HashMap<>();
-			int i = 1;
-			for (Object object : ((ListTag) nbt)) {
-				if (object instanceof net.minecraft.nbt.Tag) {
-					content.put(i, ItemIdentifier.getNBTBaseAsMap((net.minecraft.nbt.Tag) object));
-				}
-				i++;
-			}
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "ListTag");
-			map.put("value", content);
-			return map;
-		} else if (nbt instanceof CompoundTag) {
-			HashMap<Object, Object> content = new HashMap<>();
-			HashMap<Integer, Object> keys = new HashMap<>();
-			int i = 1;
-			for (String key : ((CompoundTag) nbt).getAllKeys()) {
-				net.minecraft.nbt.Tag value = ((CompoundTag) nbt).get(key);
-				content.put(key, ItemIdentifier.getNBTBaseAsMap(value));
-				keys.put(i, key);
-				i++;
-			}
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "CompoundTag");
-			map.put("value", content);
-			map.put("keys", keys);
-			return map;
-		} else if (nbt instanceof LongTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "LongTag");
-			map.put("value", ((LongTag) nbt).getAsLong());
-			return map;
-		} else if (nbt instanceof ShortTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "ShortTag");
-			map.put("value", ((ShortTag) nbt).getAsShort());
-			return map;
-		} else if (nbt instanceof StringTag) {
-			HashMap<Object, Object> map = new HashMap<>();
-			map.put("type", "StringTag");
-			map.put("value", ((StringTag) nbt).getAsString());
-			return map;
-		} else {
-			throw new UnsupportedOperationException("Unsupported net.minecraft.nbt.Tag of type:" + nbt.getClass().getName());
-		}
-	}
+    public int getMaxStackSize() {
+        if (maxStackSize == 0) {
+            ItemStack tstack = makeNormalStack(1);
+            int tstacksize = tstack.getMaxStackSize();
+            if (tstack.isDamageableItem() && tstack.isDamaged()) {
+                tstacksize = 1;
+            }
+            tstacksize = Math.clamp(tstacksize, 1, 64);
+            maxStackSize = tstacksize;
+        }
+        return maxStackSize;
+    }
 
-	@Override
-	public String toString() {
-		return getModName() + ":" + getFriendlyName() + ", " + BuiltInRegistries.ITEM.getId(item) + ":" + itemDamage;
-	}
+    @Override
+    public String toString() {
+        return getModName() + ":" + getFriendlyName() + ", " + BuiltInRegistries.ITEM.getId(item) + ":"
+            + getDamageValue();
+    }
 
-	@Override
-	public int compareTo(ItemIdentifier o) {
-		int c = BuiltInRegistries.ITEM.getId(item) - BuiltInRegistries.ITEM.getId(o.item);
-		if (c != 0) {
-			return c;
-		}
-		c = itemDamage - o.itemDamage;
-		if (c != 0) {
-			return c;
-		}
-		c = uniqueID - o.uniqueID;
-		return c;
-	}
+    /**
+     * A deterministic rendering of {@link #components}, used to give the component half of the
+     * identity a stable sort position.
+     * <p>
+     * Entries are sorted by the component type's registry key, so the result is stable across runs
+     * and between client and server. {@code DataComponentPatch.toString()} cannot be used for this:
+     * it iterates a {@code Reference2ObjectArrayMap} in insertion order, which is not canonical.
+     */
+    private String sortKey() {
+        String key = sortKey;
+        if (key != null) {
+            return key;
+        }
+        if (components.isEmpty()) {
+            return sortKey = "";
+        }
+        List<String> parts = new ArrayList<>(components.size());
+        for (Map.Entry<DataComponentType<?>, Optional<?>> entry : components.entrySet()) {
+            ResourceLocation typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey());
+            String name = typeKey != null ? typeKey.toString() : entry.getKey().toString();
+            // An empty Optional means "removed relative to the prototype", not "absent".
+            parts.add(entry.getValue()
+                .map(value -> name + "=" + ItemIdentifier.renderComponent(entry.getKey(), value))
+                .orElse("!" + name));
+        }
+        parts.sort(null);
+        return sortKey = String.join(",", parts);
+    }
 
-	@Override
-	public boolean equals(Object that) {
-		if (that instanceof ItemIdentifierStack) {
-			throw new IllegalStateException("Comparison between ItemIdentifierStack and ItemIdentifier -- did you forget a .getItem() in your code?");
-		}
-		if (!(that instanceof ItemIdentifier)) {
-			return false;
-		}
-		ItemIdentifier i = (ItemIdentifier) that;
-		return this.equals(i);
+    /**
+     * A total order consistent with {@link #equals}. That consistency is load-bearing:
+     * {@code ServerRouter} keeps its routing interests in a {@code TreeSet<ItemIdentifier>}, so an
+     * order that reported unequal identities as equal would silently drop interests.
+     */
+    @Override
+    public int compareTo(ItemIdentifier o) {
+        if (this == o) {
+            return 0;
+        }
+        int c = Integer.compare(BuiltInRegistries.ITEM.getId(item), BuiltInRegistries.ITEM.getId(o.item));
+        if (c != 0) {
+            return c;
+        }
+        c = Integer.compare(getDamageValue(), o.getDamageValue());
+        if (c != 0) {
+            return c;
+        }
+        c = sortKey().compareTo(o.sortKey());
+        if (c != 0) {
+            return c;
+        }
+        // Only reached when two distinct identities render identically, i.e. they differ solely in
+        // components that could not be encoded. Keeps the order total and consistent with equals.
+        return Long.compare(serial, o.serial);
+    }
 
-	}
+    @Override
+    public boolean equals(Object that) {
+        if (that instanceof ItemIdentifierStack) {
+            throw new IllegalStateException(
+                "Comparison between ItemIdentifierStack and ItemIdentifier -- did you forget a .getItem() in your code?");
+        }
+        if (!(that instanceof ItemIdentifier i)) {
+            return false;
+        }
+        return this.equals(i);
 
-	public boolean equals(ItemIdentifier that) {
-		if (that == null) return false;
-		return item == that.item && itemDamage == that.itemDamage && uniqueID == that.uniqueID;
-	}
+    }
 
-	@Override
-	public int hashCode() {
-		if (tag == null) {
-			return item.hashCode() + itemDamage;
-		} else {
-			return (item.hashCode() + itemDamage) ^ tag.hashCode();
-		}
-	}
+    public boolean equals(@Nullable ItemIdentifier that) {
+        if (that == null) {
+            return false;
+        }
+        return item == that.item && components.equals(that.components);
+    }
 
-	public boolean equalsForCrafting(ItemIdentifier item) {
-		return this.item == item.item && (item.isDamageable() || (itemDamage == item.itemDamage));
-	}
+    @Override
+    public int hashCode() {
+        return item.hashCode() * 31 + components.hashCode();
+    }
 
-	public boolean equalsWithoutNBT(ItemStack stack) {
-		return item == stack.getItem();// && itemDamage == stack.getDamageValue();
-	}
+    public boolean equalsForCrafting(ItemIdentifier item) {
+        return this.item == item.item && (item.isDamageable() || (getDamageValue() == item.getDamageValue()));
+    }
 
-	public boolean equalsWithoutNBT(ItemIdentifier item) {
-		return this.item == item.item; // && itemDamage == item.itemDamage;
-	}
+    public boolean equalsWithoutNBT(ItemStack stack) {
+        return item == stack.getItem() && getDamageValue() == stack.getDamageValue();
+    }
 
-	public boolean isDamageable() {
-		return unsafeMakeNormalStack(1).isDamageableItem();
-	}
+    /**
+     * Item and damage match, everything else ignored. Equivalent to comparing the two
+     * {@link #getIgnoringNBT()} projections.
+     */
+    public boolean equalsWithoutNBT(ItemIdentifier item) {
+        return this.item == item.item && getDamageValue() == item.getDamageValue();
+    }
 
-	public boolean isFluidContainer() {
-		return item instanceof LogisticsFluidContainer;
-	}
+    public boolean isDamageable() {
+        return makeNormalStack(1).isDamageableItem();
+    }
 
-	@Nullable
-	public DictItemIdentifier getDictIdentifiers() {
-		if (_dict == null && canHaveDict) {
-			_dict = DictItemIdentifier.getDictItemIdentifier(this);
-			canHaveDict = false;
-		}
-		return _dict;
-	}
+    public boolean isFluidContainer() {
+        return item instanceof LogisticsFluidContainer;
+    }
 
-	public void debugDumpData(boolean isClient) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(isClient ? "Client" : "Server").append(" Item: ")
-			.append(BuiltInRegistries.ITEM.getId(item)).append(':').append(itemDamage)
-			.append(" uniqueID ").append(uniqueID).append('\n');
-		sb.append("Tag: ");
-		debugDumpTag(tag, sb);
-		sb.append('\n');
-		sb.append("Damageable: ").append(isDamageable()).append('\n');
-		sb.append("MaxStackSize: ").append(getMaxStackSize()).append('\n');
-		if (getUndamaged() == this) {
-			sb.append("Undamaged: this\n");
-		} else {
-			sb.append("Undamaged: (see recursive dump)\n");
-			getUndamaged().debugDumpData(isClient);
-		}
-		sb.append("Mod: ").append(getModName()).append('\n');
-		sb.append("CreativeTab: ").append(getCreativeTabName());
-		LogisticsPipes.LOG.info("{}", sb);
-		if (getDictIdentifiers() != null) {
-			getDictIdentifiers().debugDumpData(isClient);
-		}
-	}
+    @Nullable
+    public DictItemIdentifier getDictIdentifiers() {
+        if (_dict == null && canHaveDict) {
+            _dict = DictItemIdentifier.getDictItemIdentifier(this);
+            canHaveDict = false;
+        }
+        return _dict;
+    }
 
-	private void debugDumpTag(net.minecraft.nbt.Tag nbt, StringBuilder sb) {
-		if (nbt == null) {
-			sb.append("null");
-			return;
-		}
-		if (nbt instanceof ByteTag) {
-			sb.append("TagByte(data=").append(((ByteTag) nbt).getAsByte()).append(")");
-		} else if (nbt instanceof ShortTag) {
-			sb.append("TagShort(data=").append(((ShortTag) nbt).getAsShort()).append(")");
-		} else if (nbt instanceof IntTag) {
-			sb.append("TagInt(data=").append(((IntTag) nbt).getAsInt()).append(")");
-		} else if (nbt instanceof LongTag) {
-			sb.append("TagLong(data=").append(((LongTag) nbt).getAsLong()).append(")");
-		} else if (nbt instanceof FloatTag) {
-			sb.append("TagFloat(data=").append(((FloatTag) nbt).getAsFloat()).append(")");
-		} else if (nbt instanceof DoubleTag) {
-			sb.append("TagDouble(data=").append(((DoubleTag) nbt).getAsDouble()).append(")");
-		} else if (nbt instanceof StringTag) {
-			sb.append("TagString(data=\"").append(((StringTag) nbt).getAsString()).append("\")");
-		} else if (nbt instanceof ByteArrayTag) {
-			sb.append("TagByteArray(data=");
-			for (int i = 0; i < ((ByteArrayTag) nbt).getAsByteArray().length; i++) {
-				sb.append(((ByteArrayTag) nbt).getAsByteArray()[i]);
-				if (i < ((ByteArrayTag) nbt).getAsByteArray().length - 1) {
-					sb.append(",");
-				}
-			}
-			sb.append(")");
-		} else if (nbt instanceof IntArrayTag) {
-			sb.append("TagIntArray(data=");
-			for (int i = 0; i < ((IntArrayTag) nbt).getAsIntArray().length; i++) {
-				sb.append(((IntArrayTag) nbt).getAsIntArray()[i]);
-				if (i < ((IntArrayTag) nbt).getAsIntArray().length - 1) {
-					sb.append(",");
-				}
-			}
-			sb.append(")");
-		} else if (nbt instanceof ListTag) {
-			sb.append("TagList(data=");
-			for (int i = 0; i < ((ListTag) nbt).size(); i++) {
-				debugDumpTag((((ListTag) nbt).get(i)), sb);
-				if (i < ((ListTag) nbt).size() - 1) {
-					sb.append(",");
-				}
-			}
-			sb.append(")");
-		} else if (nbt instanceof CompoundTag) {
-			sb.append("TagCompound(data=");
-			for (Iterator<String> iter = ((CompoundTag) nbt).getAllKeys().iterator(); iter.hasNext(); ) {
-				String key = iter.next();
-				net.minecraft.nbt.Tag value = ((CompoundTag) nbt).get(key);
-				sb.append("\"").append(key).append("\"=");
-				debugDumpTag((value), sb);
-				if (iter.hasNext()) {
-					sb.append(",");
-				}
-			}
-			sb.append(")");
-		} else {
-			sb.append(nbt.getClass().getName()).append("(?)");
-		}
-	}
+    public void debugDumpData(boolean isClient) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(isClient ? "Client" : "Server").append(" Item: ")
+            .append(BuiltInRegistries.ITEM.getId(item)).append(':').append(getDamageValue())
+            .append(" serial ").append(serial).append('\n');
+        sb.append("Components: ").append(sortKey()).append('\n');
+        sb.append("CustomData: ");
+        debugDumpTag(getCustomDataTag(), sb);
+        sb.append('\n');
+        sb.append("Damageable: ").append(isDamageable()).append('\n');
+        sb.append("MaxStackSize: ").append(getMaxStackSize()).append('\n');
+        if (getUndamaged() == this) {
+            sb.append("Undamaged: this\n");
+        } else {
+            sb.append("Undamaged: (see recursive dump)\n");
+            getUndamaged().debugDumpData(isClient);
+        }
+        sb.append("Mod: ").append(getModName()).append('\n');
+        sb.append("CreativeTab: ").append(getCreativeTabName());
+        LogisticsPipes.LOG.info("{}", sb);
+        if (getDictIdentifiers() != null) {
+            getDictIdentifiers().debugDumpData(isClient);
+        }
+    }
 
-	@Override
-	public Object[] getTypeHolder() {
-		return ccTypeHolder;
-	}
+    private void debugDumpTag(net.minecraft.nbt.Tag nbt, StringBuilder sb) {
+        if (nbt == null) {
+            sb.append("null");
+            return;
+        }
+        if (nbt instanceof ByteTag) {
+            sb.append("TagByte(data=").append(((ByteTag) nbt).getAsByte()).append(")");
+        } else if (nbt instanceof ShortTag) {
+            sb.append("TagShort(data=").append(((ShortTag) nbt).getAsShort()).append(")");
+        } else if (nbt instanceof IntTag) {
+            sb.append("TagInt(data=").append(((IntTag) nbt).getAsInt()).append(")");
+        } else if (nbt instanceof LongTag) {
+            sb.append("TagLong(data=").append(((LongTag) nbt).getAsLong()).append(")");
+        } else if (nbt instanceof FloatTag) {
+            sb.append("TagFloat(data=").append(((FloatTag) nbt).getAsFloat()).append(")");
+        } else if (nbt instanceof DoubleTag) {
+            sb.append("TagDouble(data=").append(((DoubleTag) nbt).getAsDouble()).append(")");
+        } else if (nbt instanceof StringTag) {
+            sb.append("TagString(data=\"").append(nbt.getAsString()).append("\")");
+        } else if (nbt instanceof ByteArrayTag) {
+            sb.append("TagByteArray(data=");
+            for (int i = 0; i < ((ByteArrayTag) nbt).getAsByteArray().length; i++) {
+                sb.append(((ByteArrayTag) nbt).getAsByteArray()[i]);
+                if (i < ((ByteArrayTag) nbt).getAsByteArray().length - 1) {
+                    sb.append(",");
+                }
+            }
+            sb.append(")");
+        } else if (nbt instanceof IntArrayTag) {
+            sb.append("TagIntArray(data=");
+            for (int i = 0; i < ((IntArrayTag) nbt).getAsIntArray().length; i++) {
+                sb.append(((IntArrayTag) nbt).getAsIntArray()[i]);
+                if (i < ((IntArrayTag) nbt).getAsIntArray().length - 1) {
+                    sb.append(",");
+                }
+            }
+            sb.append(")");
+        } else if (nbt instanceof ListTag) {
+            sb.append("TagList(data=");
+            for (int i = 0; i < ((ListTag) nbt).size(); i++) {
+                debugDumpTag((((ListTag) nbt).get(i)), sb);
+                if (i < ((ListTag) nbt).size() - 1) {
+                    sb.append(",");
+                }
+            }
+            sb.append(")");
+        } else if (nbt instanceof CompoundTag) {
+            sb.append("TagCompound(data=");
+            for (Iterator<String> iter = ((CompoundTag) nbt).getAllKeys().iterator(); iter.hasNext(); ) {
+                String key = iter.next();
+                net.minecraft.nbt.Tag value = ((CompoundTag) nbt).get(key);
+                sb.append("\"").append(key).append("\"=");
+                debugDumpTag((value), sb);
+                if (iter.hasNext()) {
+                    sb.append(",");
+                }
+            }
+            sb.append(")");
+        } else {
+            sb.append(nbt.getClass().getName()).append("(?)");
+        }
+    }
+
+    @Override
+    public Object[] getTypeHolder() {
+        return ccTypeHolder;
+    }
+
+    // A key to look up an ItemIdentifier by Item + component patch. DataComponentPatch is immutable
+    // and has value-based equals/hashCode, so a record is all the bookkeeping this needs -- the
+    // per-Item BitSet of tag ids that used to give the NBT half of the identity a comparable int is
+    // gone, DataComponentPatch.equals does that job directly.
+    private record ItemKey(Item item, DataComponentPatch components) {}
+
+    //remember the key so we can find GCed ItemIdentifiers
+    private static class IDReference extends WeakReference<ItemIdentifier> {
+
+        private final ItemKey key;
+
+        IDReference(ItemKey k, ItemIdentifier id) {
+            super(id, ItemIdentifier.keyRefQueue);
+            key = k;
+        }
+    }
+
+    //helper thread to clean up references to GCed ItemIdentifiers
+    private static final class ItemIdentifierCleanupThread extends Thread {
+
+        public ItemIdentifierCleanupThread() {
+            setName("LogisticsPipes ItemIdentifier Cleanup Thread");
+            setDaemon(true);
+        }
+
+        @Override
+        public void run() {
+            // Runs until interrupted rather than forever. The loop used to swallow
+            // InterruptedException and continue, which left the thread unstoppable and dropped
+            // the interrupt flag on the floor; restoring the flag and returning lets whoever
+            // interrupted us observe that it worked.
+            while (!Thread.currentThread().isInterrupted()) {
+                IDReference r;
+                try {
+                    r = (IDReference) (ItemIdentifier.keyRefQueue.remove());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                // The unlock has to be in a finally: this is the write lock every ItemIdentifier
+                // creation needs, so any exception escaping the loop below would hold it forever
+                // and wedge the whole subsystem instead of just killing this thread.
+                ItemIdentifier.keyRefWlock.lock();
+                try {
+                    do {
+                        //value in the map might have been replaced in the meantime
+                        IDReference current = ItemIdentifier.keyRefMap.get(r.key);
+                        if (r == current) {
+                            ItemIdentifier.keyRefMap.remove(r.key);
+                        }
+                        r = (IDReference) (ItemIdentifier.keyRefQueue.poll());
+                    } while (r != null);
+                } finally {
+                    ItemIdentifier.keyRefWlock.unlock();
+                }
+            }
+        }
+    }
 }

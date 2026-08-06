@@ -82,22 +82,22 @@ object FuzzyUtil {
                 }
             }
         }
-        val firstStack: ItemStack = firstItem.makeNormalStack(1)
-        val secondStack: ItemStack = secondItem.makeNormalStack(1)
-        if (firstStack.item !== secondStack.item) {
+        // Compare the identifiers' projections directly rather than round-tripping through
+        // ItemStacks. hasSubtypes was removed in 1.13+ (item variants became distinct items), so
+        // the item check carries what metadata used to.
+        if (firstItem.item !== secondItem.item) {
             return false
         }
-        if (firstStack.damageValue != secondStack.damageValue) {
-            // hasSubtypes removed in 1.13+ — item variants became distinct items
-            if (!fuzzyFlagger(FuzzyFlag.IGNORE_DAMAGE)) {
-                return false
-            }
+        val ignoreDamage = fuzzyFlagger(FuzzyFlag.IGNORE_DAMAGE)
+        val ignoreNBT = fuzzyFlagger(FuzzyFlag.IGNORE_NBT)
+        return when {
+            ignoreDamage && ignoreNBT -> true
+            // Keeps only DAMAGE, so everything else is ignored.
+            ignoreNBT -> firstItem.ignoringNBT == secondItem.ignoringNBT
+            // Drops DAMAGE, so everything else still has to match.
+            ignoreDamage -> firstItem.ignoringData == secondItem.ignoringData
+            else -> firstItem == secondItem
         }
-        if (fuzzyFlagger(FuzzyFlag.IGNORE_NBT)) {
-            return true
-        }
-
-        return ItemStack.isSameItemSameComponents(firstStack, secondStack)
     }
 
 }

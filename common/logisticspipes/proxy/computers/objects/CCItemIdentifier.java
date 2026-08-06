@@ -38,7 +38,7 @@ public class CCItemIdentifier implements ILPCCTypeDefinition {
 
 		@CCCommand(description = "Returns the data/damage of this ItemIdentifier")
 		public int getData() {
-			return ident.itemDamage;
+			return ident.getDamageValue();
 		}
 
 		@CCCommand(description = "Returns true if this ItemIdentifier is damagable")
@@ -48,12 +48,12 @@ public class CCItemIdentifier implements ILPCCTypeDefinition {
 
 		@CCCommand(description = "Returns true if this ItemIdentifier has an tag")
 		public boolean hasTagCompound() {
-			return ident.tag != null;
+			return ident.hasCustomData();
 		}
 
 		@CCCommand(description = "Returns the tag of this ItemIdentifier")
 		public CompoundTag getTagCompound() {
-			return ident.tag;
+			return ident.getCustomDataTag();
 		}
 
 		@CCCommand(description = "Returns this ItemIdentifier in it's undamaged version")

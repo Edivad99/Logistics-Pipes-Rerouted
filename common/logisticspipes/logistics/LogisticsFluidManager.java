@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -61,12 +62,15 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 	@Override
 	public ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack, HolderLookup.Provider provider) {
 		ItemStack item = new ItemStack(LPItems.FLUID_CONTAINER.get(), 1);
-		CompoundTag nbt = new CompoundTag();
-		stack.makeFluidStack().save(provider, nbt);
-		item.set(
-				DataComponents.CUSTOM_DATA,
-				CustomData.of(nbt)
-		);
+        FluidStack fluidStack = stack.makeFluidStack();
+        if (!fluidStack.isEmpty()) {
+            CompoundTag nbt = new CompoundTag();
+            nbt.put("fluidStack", fluidStack.save(provider, new CompoundTag()));
+            item.set(
+                DataComponents.CUSTOM_DATA,
+                CustomData.of(nbt)
+            );
+        }
 		return ItemIdentifierStack.getFromStack(item);
 	}
 
@@ -78,9 +82,9 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 			CompoundTag tag = itemStack
 					.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
 					.copyTag();
-			if (!tag.isEmpty()) {
+			if (!tag.isEmpty() && tag.contains("fluidStack")) {
 				return FluidIdentifierStack.getFromStack(
-						FluidStack.parse(provider, tag).orElse(FluidStack.EMPTY)
+						FluidStack.parse(provider, Objects.requireNonNull(tag.get("fluidStack"))).orElse(FluidStack.EMPTY)
 				);
 			}
 		}

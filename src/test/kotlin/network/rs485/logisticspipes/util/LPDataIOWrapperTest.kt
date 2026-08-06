@@ -38,12 +38,19 @@
 package network.rs485.logisticspipes.util
 
 import io.netty.buffer.Unpooled
+import logisticspipes.utils.item.ItemIdentifier
 import net.minecraft.SharedConstants
 import net.minecraft.server.Bootstrap
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.component.CustomData
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
 import net.minecraft.core.Direction
 import net.minecraft.core.NonNullList
+import net.minecraft.core.RegistryAccess
+import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import network.rs485.logisticspipes.util.TestUtil.Companion.getBytesFromInteger
 import network.rs485.util.use
 import org.junit.jupiter.api.BeforeAll
@@ -586,6 +593,100 @@ class LPDataIOWrapperTest {
             val actual = input.readItemStack()
 
             assertEquals(ItemStack.EMPTY, actual)
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    /**
+     * Only the built-in registries; that covers items and the components used here. Components
+     * referencing a datapack registry (enchantments) need a running server and are covered by the
+     * game tests instead.
+     */
+    private fun testRegistries(): RegistryAccess =
+        RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)
+
+    @Test
+    fun `test writeItemStack and readItemStack preserve count and components`() {
+        val expected = ItemStack(Items.DIAMOND_PICKAXE, 1).also {
+            it.damageValue = 137
+            it.set(DataComponents.CUSTOM_NAME, Component.literal("Worn"))
+        }
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeItemStack(expected) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+            val actual = input.readItemStack()
+
+            assertTrue(ItemStack.isSameItemSameComponents(expected, actual), "components differ: $actual")
+            assertEquals(137, actual.damageValue)
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeItemStack and readItemStack preserve a count above one`() {
+        val expected = ItemStack(Items.COBBLESTONE, 42)
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeItemStack(expected) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+            assertEquals(42, input.readItemStack().count)
+        }
+    }
+
+    @Test
+    fun `test writeItemIdentifier and readItemIdentifier round trip`() {
+        val identities = listOf(
+            ItemIdentifier.get(Items.COBBLESTONE),
+            ItemIdentifier.get(ItemStack(Items.DIAMOND_PICKAXE).also { it.damageValue = 137 }),
+            ItemIdentifier.get(
+                ItemStack(Items.STICK).also { it.set(DataComponents.CUSTOM_NAME, Component.literal("Pointy")) },
+            ),
+            ItemIdentifier.get(
+                ItemStack(Items.STONE).also {
+                    it.set(DataComponents.CUSTOM_DATA, CustomData.of(CompoundTag().apply { putInt("lp_test", 7) }))
+                },
+            ),
+        )
+        val registries = testRegistries()
+        identities.forEach { expected ->
+            val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeItemIdentifier(expected) }
+            LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+                // Interned, so identity equality is the strongest assertion available.
+                assertSame(expected, input.readItemIdentifier(), "round trip of $expected")
+                assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+            }
+        }
+    }
+
+    @Test
+    fun `test writeItemIdentifier and readItemIdentifier with null`() {
+        // The null marker used to be `itemId == 0`, which collided with minecraft:air.
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeItemIdentifier(null) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+            assertNull(input.readItemIdentifier())
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test an air identifier survives the round trip and is not read back as null`() {
+        val air = ItemIdentifier.get(Items.AIR)
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeItemIdentifier(air) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+            assertSame(air, input.readItemIdentifier())
+        }
+    }
+
+    @Test
+    fun `test writeItemIdentifierStack and readItemIdentifierStack round trip`() {
+        val expected = ItemIdentifier.get(ItemStack(Items.DIAMOND_PICKAXE).also { it.damageValue = 5 }).makeStack(3)
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeItemIdentifierStack(expected) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+            val actual = input.readItemIdentifierStack()
+
+            assertEquals(expected, actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
         }
     }

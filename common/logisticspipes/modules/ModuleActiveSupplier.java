@@ -312,7 +312,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 		//Reduce what I have and what have been requested already
 		for (Entry<ItemIdentifier, Integer> item : needed.entrySet()) {
 			int haveCount = haveUndamaged.getOrDefault(item.getKey().getUndamaged(), 0);
-			int spaceAvailable = invUtil.roomForItem(item.getKey().unsafeMakeNormalStack(Integer.MAX_VALUE));
+			int spaceAvailable = invUtil.roomForItem(item.getKey().makeNormalStack(Integer.MAX_VALUE));
 			if (requestMode.getValue() == SupplyMode.Infinite) {
 				Integer requestedCount = _requestedItems.get(item.getKey());
 				if (requestedCount != null) {

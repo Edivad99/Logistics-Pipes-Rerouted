@@ -256,7 +256,7 @@ public class ItemIdentifierInventory
 			if (_contents[i] != null && _contents[i].getStackSize() > 0) {
 				CompoundTag stackTag = new CompoundTag();
 				stackTag.putInt("index", i);
-				listTag.add(_contents[i].unsafeMakeNormalStack().save(provider, stackTag));
+				listTag.add(_contents[i].makeNormalStack().save(provider, stackTag));
 			}
 		}
 		tag.put(prefix + "items", listTag);
@@ -389,6 +389,17 @@ public class ItemIdentifierInventory
 
 	/* InventoryUtil-like functions */
 
+	/**
+	 * Rebuilds the four lookup indexes. Each one stores a <i>projected</i> identifier, so callers
+	 * have to project their query the same way -- see the contains* methods below.
+	 * <p>
+	 * The composition order below is load-bearing and must not be "tidied up". The projections do
+	 * not commute in one edge case: {@code getIgnoringNBT()} drops UNBREAKABLE, so for an item whose
+	 * patch sets it, the projection is damageable while the original is not, and
+	 * {@code getIgnoringNBT().getUndamaged()} differs from {@code getUndamaged().getIgnoringNBT()}.
+	 * Every set/query pair therefore has to agree on the order, and the ones here match what
+	 * PipeItemsFirewall and the sink modules use.
+	 */
 	private void updateContents() {
 		_contentsMap.clear();
 		_contentsUndamagedSet.clear();

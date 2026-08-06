@@ -91,7 +91,7 @@ public class CraftingPipeSign implements IPipeSign {
 				ItemIdentifierStack itemstack = craftables.get(0);
 				oldRenderedStack = itemstack;
 
-				renderer.renderItemStackOnSign(itemstack.unsafeMakeNormalStack(), poseStack, bufferSource, packedLight);
+				renderer.renderItemStackOnSign(itemstack.makeNormalStack(), poseStack, bufferSource, packedLight);
 				Item item = itemstack.getItem().item;
 
 				poseStack.pushPose();
@@ -100,7 +100,7 @@ public class CraftingPipeSign implements IPipeSign {
 				poseStack.scale(1.0F / 90.0F, 1.0F / 90.0F, 1.0F / 90.0F);
 
 				try {
-					name = item.getName(itemstack.unsafeMakeNormalStack()).getString();
+					name = item.getName(itemstack.makeNormalStack()).getString();
 				} catch (Exception e) {
 					try {
 						name = item.getDescriptionId();

@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 
 import logisticspipes.asm.addinfo.IAddInfo;
 import logisticspipes.asm.addinfo.IAddInfoProvider;
+import logisticspipes.proxy.LPRegistries;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -27,6 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -84,7 +86,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	}
 
 	private static String getFluidName(Fluid fluid) {
-		ResourceLocation key = BuiltInRegistries.FLUID.getKey(fluid);
+		ResourceLocation key = BuiltInRegistries.FLUID.getKeyOrNull(fluid);
 		return key != null ? key.toString() : "unknown";
 	}
 
@@ -219,12 +221,12 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
     @Nullable
 	public static FluidIdentifier get(ItemIdentifierStack stack) {
 		FluidStack f = null;
-		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack, Minecraft.getInstance().level.registryAccess());
+		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack, LPRegistries.access());
 		if (fstack != null) {
 			f = fstack.makeFluidStack();
 		}
 		if (f == null) {
-			ItemStack itemStack = stack.unsafeMakeNormalStack();
+			ItemStack itemStack = stack.makeNormalStack();
 			var capability = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
 			if (capability != null) {
 				{
@@ -237,7 +239,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 			}
 		}
 		if (f == null) {
-			f = FluidUtil.getFluidContained(stack.unsafeMakeNormalStack()).orElse(null);
+			f = FluidUtil.getFluidContained(stack.makeNormalStack()).orElse(null);
 		}
 		if (f == null) {
 			return null;
@@ -280,7 +282,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	}
 
 	public Fluid getFluid() {
-		return net.minecraft.core.registries.BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(fluidID));
+		return BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(fluidID));
 	}
 
 	public int getFreeSpaceInsideTank(IFluidHandler tank) {
@@ -300,7 +302,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		if (FluidIdentifier.init) {
 			return;
 		}
-		net.minecraft.core.registries.BuiltInRegistries.FLUID.forEach(FluidIdentifier::get);
+		BuiltInRegistries.FLUID.forEach(FluidIdentifier::get);
 		if (flag) {
 			FluidIdentifier.init = true;
 		}
@@ -312,6 +314,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return name + "/" + fluidID + ":" + t;
 	}
 
+    @Nullable
 	public FluidIdentifier next() {
 		FluidIdentifier.rlock.lock();
 		boolean takeNext = false;
@@ -328,7 +331,8 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return null;
 	}
 
-	public FluidIdentifier prev() {
+    @Nullable
+    public FluidIdentifier prev() {
 		FluidIdentifier.rlock.lock();
 		FluidIdentifier last = null;
 		for (FluidIdentifier i : FluidIdentifier._fluidIdentifierCache.values()) {
@@ -344,7 +348,8 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return last;
 	}
 
-	public static FluidIdentifier first() {
+    @Nullable
+    public static FluidIdentifier first() {
 		FluidIdentifier.rlock.lock();
 		for (FluidIdentifier i : FluidIdentifier._fluidIdentifierCache.values()) {
 			if (i != null) {
@@ -356,7 +361,8 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return null;
 	}
 
-	public static FluidIdentifier last() {
+    @Nullable
+    public static FluidIdentifier last() {
 		FluidIdentifier.rlock.lock();
 		FluidIdentifier last = null;
 		for (FluidIdentifier i : FluidIdentifier._fluidIdentifierCache.values()) {
@@ -376,7 +382,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	}
 
 	public ItemIdentifier getItemIdentifier() {
-		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1), Minecraft.getInstance().level.registryAccess()).getItem();
+		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1), LPRegistries.access()).getItem();
 	}
 
 	@Override

@@ -26,7 +26,6 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -151,13 +150,10 @@ public class RequestHandler {
 		ListTag list = itemlist.getList("inventar", 10);
 		final List<ItemIdentifierStack> transaction = new ArrayList<>(list.size());
 		for (int i = 0; i < list.size(); i++) {
-			CompoundTag itemnbt = list.getCompound(i);
-			CompoundTag itemNBTContent = itemnbt.getCompound("nbt");
-			if (!itemnbt.contains("nbt")) {
-				itemNBTContent = null;
+			ItemIdentifierStack stack = ItemIdentifierStack.loadFromNBT(list.getCompound(i), player.registryAccess());
+			if (stack != null) {
+				transaction.add(stack);
 			}
-			ItemIdentifierStack stack = ItemIdentifier.get(BuiltInRegistries.ITEM.byId(itemnbt.getInt("id")), itemnbt.getInt("data"), itemNBTContent).makeStack(itemnbt.getInt("amount"));
-			transaction.add(stack);
 		}
 		RequestTree.request(transaction, requester, new RequestLog() {
 

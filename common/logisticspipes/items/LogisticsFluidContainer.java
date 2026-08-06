@@ -38,20 +38,17 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
 		FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(stack), Minecraft.getInstance().level.registryAccess());
 		if (fluidStack != null) {
 			// Fluid.getDescriptionId() removed in 1.20.1; use FluidStack.getDisplayName()
-			String s = fluidStack.makeFluidStack().getHoverName().getString();
-			if (s != null) {
-				return s;
-			}
-		}
+            return fluidStack.makeFluidStack().getHoverName().getString();
+        }
 		return super.getDescriptionId(stack);
 	}
 
 	@Override
-    public net.minecraft.network.chat.Component getName(ItemStack itemstack) {
+    public Component getName(ItemStack itemstack) {
 		// getUnlocalizedNameInefficiently removed in 1.20.1; use getDescriptionId() for base key
 		String translationKey = getDescriptionId(itemstack);
 		String baseKey = getDescriptionId();
-		return net.minecraft.network.chat.Component.literal(
+		return Component.literal(
 				I18n.get(translationKey + (translationKey.equals(baseKey) ? ".name" : "")).trim());
 	}
 

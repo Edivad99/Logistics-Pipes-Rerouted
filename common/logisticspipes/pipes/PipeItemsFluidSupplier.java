@@ -149,7 +149,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			Map<ItemIdentifier, Integer> wantContainers = dummyInventory.getItemsAndCount();
 			HashMap<FluidIdentifier, Integer> wantFluids = new HashMap<>();
 			for (Entry<ItemIdentifier, Integer> item : wantContainers.entrySet()) {
-				ItemStack wantItem = item.getKey().unsafeMakeNormalStack(1);
+				ItemStack wantItem = item.getKey().makeNormalStack(1);
 				FluidStack liquidStack = FluidUtil.getFluidContained(wantItem).orElse(null);
 				if (liquidStack == null) {
 					continue;
@@ -178,7 +178,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 				}
 			}
 			for (Entry<ItemIdentifier, Integer> requestedItem : _requestedItems.entrySet()) {
-				ItemStack wantItem = requestedItem.getKey().unsafeMakeNormalStack(1);
+				ItemStack wantItem = requestedItem.getKey().makeNormalStack(1);
 				FluidStack requestedFluidId = FluidUtil.getFluidContained(wantItem).orElse(null);
 				if (requestedFluidId == null) {
 					continue;
@@ -195,7 +195,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			//Make request
 
 			for (ItemIdentifier need : wantContainers.keySet()) {
-				FluidStack requestedFluidId = FluidUtil.getFluidContained(need.unsafeMakeNormalStack(1)).orElse(null);
+				FluidStack requestedFluidId = FluidUtil.getFluidContained(need.makeNormalStack(1)).orElse(null);
 				if (requestedFluidId == null) {
 					continue;
 				}
@@ -263,7 +263,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		}
 		//still remaining... was from fuzzyMatch on a crafter
 		for (Entry<ItemIdentifier, Integer> e : _requestedItems.entrySet()) {
-			if (e.getKey().item == item.getItem().item && e.getKey().itemDamage == item.getItem().itemDamage) {
+			if (e.getKey().equalsWithoutNBT(item.getItem())) {
 				int expected = e.getValue();
 				e.setValue(Math.max(0, expected - remaining));
 				remaining -= expected;

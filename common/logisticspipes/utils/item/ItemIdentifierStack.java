@@ -8,12 +8,19 @@
 package logisticspipes.utils.item;
 
 import java.util.LinkedList;
+import javax.annotation.Nullable;
 
+import logisticspipes.LogisticsPipes;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.tuples.Triplet;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -27,6 +34,42 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 
 	public static ItemIdentifierStack getFromStack(ItemStack stack) {
 		return new ItemIdentifierStack(ItemIdentifier.get(stack), stack.getCount());
+	}
+
+	/**
+	 * Serializes this stack as <code>{ item: &lt;namespaced id + components&gt;, amount: int }</code>.
+	 * <p>
+	 * {@link ItemStack#SINGLE_ITEM_CODEC} rather than {@link ItemStack#CODEC}: the latter caps the
+	 * count at 99, and the amounts stored here routinely exceed that, so the count is kept as a
+	 * separate field. Note that the codec drops transient components, matching vanilla's own
+	 * persistence behaviour.
+	 */
+	public CompoundTag saveToNBT(HolderLookup.Provider provider) {
+		RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
+		CompoundTag entry = new CompoundTag();
+		entry.put("item", ItemStack.SINGLE_ITEM_CODEC.encodeStart(ops, _item.makeNormalStack(1)).getOrThrow());
+		entry.putInt("amount", getStackSize());
+		return entry;
+	}
+
+	/**
+	 * Reads back what {@link #saveToNBT} wrote, or null when the entry is unreadable.
+	 */
+	@Nullable
+	public static ItemIdentifierStack loadFromNBT(CompoundTag entry, HolderLookup.Provider provider) {
+		if (!entry.contains("item")) {
+			if (entry.contains("id")) {
+				LogisticsPipes.LOG.warn(
+						"Skipping an item stored in the pre-DataComponents format (numeric item id + damage + nbt). "
+								+ "It cannot be migrated automatically; re-save it to update the format.");
+			}
+			return null;
+		}
+		RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
+		return ItemStack.SINGLE_ITEM_CODEC.parse(ops, entry.get("item"))
+				.resultOrPartial(error -> LogisticsPipes.LOG.error("Could not read stored item: {}", error))
+				.map(stack -> new ItemIdentifierStack(ItemIdentifier.get(stack), entry.getInt("amount")))
+				.orElse(null);
 	}
 
 	public ItemIdentifierStack(ItemIdentifier item, int stackSize) {
@@ -61,10 +104,6 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 		this.stackSize -= stackSize;
 	}
 
-	public ItemStack unsafeMakeNormalStack() {
-		return _item.unsafeMakeNormalStack(stackSize);
-	}
-
 	public ItemStack makeNormalStack() {
 		return _item.makeNormalStack(stackSize);
 	}
@@ -93,7 +132,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 
 	@Override
 	public String toString() {
-		return String.format("%dx %s", getStackSize(), _item.toString());
+		return String.format("%dx %s", getStackSize(), _item);
 	}
 
 	public String getFriendlyName() {

@@ -100,7 +100,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 		if (damageSet == null) {
 			return null;
 		}
-		if (damageSet.isEmpty() || damageSet.contains(item.itemDamage)) {
+		if (damageSet.isEmpty() || damageSet.contains(item.getDamageValue())) {
 			return _sinkReply;
 		}
 		return null;
@@ -135,7 +135,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 			if (!stackForHud.isEmpty()) {
 				oreHudList.add(new ItemIdentifierStack(ItemIdentifier.get(stackForHud), 1));
 			} else {
-				oreHudList.add(new ItemIdentifierStack(ItemIdentifier.get(Item.BY_BLOCK.get(Blocks.FIRE), 0, null), 1));
+				oreHudList.add(new ItemIdentifierStack(ItemIdentifier.get(Item.BY_BLOCK.get(Blocks.FIRE)), 1));
 			}
 		}
 	}

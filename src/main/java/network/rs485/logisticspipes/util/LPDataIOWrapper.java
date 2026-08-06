@@ -55,10 +55,14 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.minecraft.nbt.NbtIo; // was CompressedStreamTools
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
@@ -72,11 +76,11 @@ import static io.netty.buffer.Unpooled.wrappedBuffer;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.IReadListObject;
 import logisticspipes.network.IWriteListObject;
+import logisticspipes.proxy.LPRegistries;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.world.item.component.CustomData;
 
 public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
@@ -84,12 +88,21 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	private static final HashMap<Long, LPDataIOWrapper> BUFFER_WRAPPER_MAP = new HashMap<>();
 	ByteBuf localBuffer;
 	private int reference;
+	/**
+	 * Registry access for the data-component codecs, which cannot encode values referencing a
+	 * datapack registry without it. Held per buffer rather than passed per call: it is a property
+	 * of the connection, and adding a parameter to the ~40 LPDataInput/LPDataOutput methods would
+	 * break the method references the packet classes use. May be null when the caller had none in
+	 * hand; {@link #registryBuf()} then falls back to {@link LPRegistries}.
+	 */
+	@Nullable
+	private RegistryAccess registryAccess;
 
 	private LPDataIOWrapper(ByteBuf buffer) {
 		localBuffer = buffer;
 	}
 
-	private static LPDataIOWrapper getInstance(ByteBuf buffer) {
+	private static LPDataIOWrapper getInstance(ByteBuf buffer, @Nullable RegistryAccess registryAccess) {
 		if (buffer.hasMemoryAddress()) {
 			synchronized (BUFFER_WRAPPER_MAP) {
 				LPDataIOWrapper instance = BUFFER_WRAPPER_MAP.get(buffer.memoryAddress());
@@ -97,17 +110,34 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 					instance = new LPDataIOWrapper(buffer);
 					BUFFER_WRAPPER_MAP.put(buffer.memoryAddress(), instance);
 				}
+				// Always overwrite: wrappers are pooled by memory address and reused, so a stale
+				// registry access would otherwise leak into the next packet on that buffer.
+				instance.registryAccess = registryAccess;
 				++instance.reference;
 				return instance;
 			}
 		} else {
-			return new LPDataIOWrapper(buffer);
+			LPDataIOWrapper instance = new LPDataIOWrapper(buffer);
+			instance.registryAccess = registryAccess;
+			return instance;
 		}
 	}
 
+	/**
+	 * Wraps (does not copy) the current buffer, so encoding into the result writes straight through.
+	 */
+	private RegistryFriendlyByteBuf registryBuf() {
+		RegistryAccess access = registryAccess != null ? registryAccess : LPRegistries.access();
+		return new RegistryFriendlyByteBuf(localBuffer, access, ConnectionType.OTHER);
+	}
+
 	public static void provideData(byte[] data, LPDataInputConsumer dataInputConsumer) {
+		provideData(data, null, dataInputConsumer);
+	}
+
+	public static void provideData(byte[] data, @Nullable RegistryAccess registryAccess, LPDataInputConsumer dataInputConsumer) {
 		ByteBuf dataBuffer = wrappedBuffer(data);
-		LPDataIOWrapper lpData = getInstance(dataBuffer);
+		LPDataIOWrapper lpData = getInstance(dataBuffer, registryAccess);
 
 		dataInputConsumer.accept(lpData);
 
@@ -116,8 +146,12 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	}
 
 	public static byte[] collectData(LPDataOutputConsumer dataOutputConsumer) {
+		return collectData(null, dataOutputConsumer);
+	}
+
+	public static byte[] collectData(@Nullable RegistryAccess registryAccess, LPDataOutputConsumer dataOutputConsumer) {
 		ByteBuf dataBuffer = buffer();
-		LPDataIOWrapper lpData = getInstance(dataBuffer);
+		LPDataIOWrapper lpData = getInstance(dataBuffer, registryAccess);
 
 		dataOutputConsumer.accept(lpData);
 
@@ -131,9 +165,13 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	}
 
 	public static void provideData(ByteBuf dataBuffer, LPDataInputConsumer dataInputConsumer) {
+		provideData(dataBuffer, null, dataInputConsumer);
+	}
+
+	public static void provideData(ByteBuf dataBuffer, @Nullable RegistryAccess registryAccess, LPDataInputConsumer dataInputConsumer) {
 		// ignore empty data
 		if (dataBuffer.readableBytes() == 0) return;
-		LPDataIOWrapper lpData = getInstance(dataBuffer);
+		LPDataIOWrapper lpData = getInstance(dataBuffer, registryAccess);
 
 		dataInputConsumer.accept(lpData);
 
@@ -141,9 +179,13 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	}
 
 	public static void writeData(ByteBuf dataBuffer, LPDataOutputConsumer dataOutputConsumer) {
+		writeData(dataBuffer, null, dataOutputConsumer);
+	}
+
+	public static void writeData(ByteBuf dataBuffer, @Nullable RegistryAccess registryAccess, LPDataOutputConsumer dataOutputConsumer) {
 		// ignore unwritable data
 		if (dataBuffer.writableBytes() == 0) return;
-		LPDataIOWrapper lpData = getInstance(dataBuffer);
+		LPDataIOWrapper lpData = getInstance(dataBuffer, registryAccess);
 
 		dataOutputConsumer.accept(lpData);
 
@@ -334,28 +376,29 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Override
 	public void writeItemStack(ItemStack itemstack) {
+		// Vanilla's codec carries the count and every component, which is what the hand-rolled
+		// framing here used to do badly (the damage was written but never applied on read). The
+		// empty case is still framed by hand so that writing an empty stack -- which carries no
+		// components at all -- does not need registry access.
 		if (itemstack.isEmpty()) {
-			writeInt(0);
+			writeBoolean(false);
 		} else {
-			writeInt(BuiltInRegistries.ITEM.getId(itemstack.getItem()));
-			writeInt(itemstack.getCount());
-			writeInt(itemstack.getDamageValue());
-			CompoundTag tag = null;
-			if (itemstack.has(DataComponents.CUSTOM_DATA)) {
-				tag = Objects.requireNonNull(itemstack.get(DataComponents.CUSTOM_DATA)).copyTag();
-			}
-			writeCompoundTag(tag);
+			writeBoolean(true);
+			ItemStack.STREAM_CODEC.encode(registryBuf(), itemstack);
 		}
 	}
 
 	@Override
 	public void writeItemIdentifier(@Nullable ItemIdentifier item) {
+		// An explicit null marker rather than the old `itemId == 0` sentinel, which was
+		// indistinguishable from minecraft:air. The item is written as its namespaced key: numeric
+		// registry ids are not stable across sessions nor between client and server.
 		if (item == null) {
-			writeInt(0);
+			writeBoolean(false);
 		} else {
-			writeInt(BuiltInRegistries.ITEM.getId(item.item));
-			writeInt(item.itemDamage);
-			writeCompoundTag(item.tag);
+			writeBoolean(true);
+			writeUTF(Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.item)).toString());
+			DataComponentPatch.STREAM_CODEC.encode(registryBuf(), item.components);
 		}
 	}
 
@@ -600,14 +643,12 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public ItemIdentifier readItemIdentifier() {
-		final int itemId = readInt();
-		if (itemId == 0) {
+		if (!readBoolean()) {
 			return null;
 		}
-
-		int damage = readInt();
-		CompoundTag tag = readCompoundTag();
-		return ItemIdentifier.get(net.minecraft.core.registries.BuiltInRegistries.ITEM.byId(itemId), damage, tag);
+		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(readUTF()));
+		DataComponentPatch patch = DataComponentPatch.STREAM_CODEC.decode(registryBuf());
+		return ItemIdentifier.get(item, patch);
 	}
 
 	@Nullable
@@ -628,19 +669,10 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Override
 	public ItemStack readItemStack() {
-		final int itemId = readInt();
-		if (itemId == 0) {
+		if (!readBoolean()) {
 			return ItemStack.EMPTY;
 		}
-
-		int stackSize = readInt();
-		int damage = readInt();
-		ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.byId(itemId), stackSize);
-		var tag = readCompoundTag();
-		if (tag != null) {
-			stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-		}
-		return stack;
+		return ItemStack.STREAM_CODEC.decode(registryBuf());
 	}
 
 	@Nullable

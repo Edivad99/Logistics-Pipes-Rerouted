@@ -474,7 +474,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 
 	private void renderItemAt(GuiGraphics guiGraphics, ItemIdentifierStack item, int x, int y) {
 		if (guiLeft < x && x < guiLeft + xSize - 16 && guiTop < y && y < guiTop + ySize - 16) {
-			net.minecraft.world.item.ItemStack stack = item.getItem().unsafeMakeNormalStack(1);
+			net.minecraft.world.item.ItemStack stack = item.getItem().makeNormalStack(1);
 			if (!stack.isEmpty()) {
                 guiGraphics.renderItem(stack, x, y);
 			}

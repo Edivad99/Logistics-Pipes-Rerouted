@@ -119,7 +119,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
 
                     ItemStack stack = ident
                         .getItemIdentifier()
-                        .unsafeMakeNormalStack(1);
+                        .makeNormalStack(1);
 
                     fluidSlot.set(stack);
 
@@ -166,7 +166,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
 
                     ItemStack stack = ident
                         .getItemIdentifier()
-                        .unsafeMakeNormalStack(1);
+                        .makeNormalStack(1);
 
                     fluidSlot.set(stack);
 

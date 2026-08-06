@@ -5,6 +5,8 @@ import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.item.ItemIdentifier;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -58,7 +60,11 @@ public class CCItemIdentifierBuilder implements ILPCCTypeHolder {
 		if (item == null) {
 			throw new UnsupportedOperationException("Not a valid ItemIdentifier");
 		}
-		return ItemIdentifier.get(item, itemData, null);
+		// The scripting API still speaks damage, which in 1.21 is just the DAMAGE component.
+		if (itemData == 0) {
+			return ItemIdentifier.get(item);
+		}
+		return ItemIdentifier.get(item, DataComponentPatch.builder().set(DataComponents.DAMAGE, itemData).build());
 	}
 
 	@CCCommand(description = "Returns a list of all ItemIdentifier with an NBT tag matching the given Item ID and data")
