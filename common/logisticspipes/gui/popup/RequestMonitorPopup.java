@@ -95,7 +95,11 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	private int minX = -800;
 	private int maxX = 800;
 	private ZOOM_LEVEL zoom = ZOOM_LEVEL.NORMAL;
-	private Object[] tooltip = null;
+
+	/** The lines to draw for the order under the cursor, and where. */
+	private record OrderTooltip(int x, int y, List<String> lines) {}
+
+	private OrderTooltip tooltip = null;
 
 	public RequestMonitorPopup(PipeBlockRequestTable table, int orderId) {
 		super(256, 202, 0, 0);
@@ -138,12 +142,10 @@ public class RequestMonitorPopup extends SubGuiScreen {
 
 	@Override
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
-		if (tooltip != null && tooltip.length >= 5) {
-			@SuppressWarnings("unchecked")
-			List<String> lines = (List<String>) tooltip[4];
-            guiGraphics.renderComponentTooltip(minecraft.font,
-					lines.stream().map(net.minecraft.network.chat.Component::literal).collect(java.util.stream.Collectors.toList()),
-					(int) tooltip[0], (int) tooltip[1]);
+		if (tooltip != null) {
+			guiGraphics.renderComponentTooltip(minecraft.font,
+					tooltip.lines().stream().map(net.minecraft.network.chat.Component::literal).collect(java.util.stream.Collectors.toList()),
+					tooltip.x(), tooltip.y());
 		}
 	}
 
@@ -380,8 +382,9 @@ public class RequestMonitorPopup extends SubGuiScreen {
 					List<String> tooltipList = new ArrayList<>();
 					tooltipList.add(ChatColor.BLUE + "Request Type: " + ChatColor.YELLOW + order.getType().name());
 					tooltipList.add(ChatColor.BLUE + "Send to Router ID: " + ChatColor.YELLOW + order.getRouterId());
-					tooltip = new Object[] { (int) (par1 * zoom.zoom - 10), (int) (par2 * zoom.zoom), order
-							.getAsDisplayItem().makeNormalStack(), true, tooltipList };
+					// The display item and the constant `true` that the old Object[] also carried
+					// were never read back by the renderer, so they are gone.
+					tooltip = new OrderTooltip((int) (par1 * zoom.zoom - 10), (int) (par2 * zoom.zoom), tooltipList);
 				}
 			}
 			startLeft += 30;

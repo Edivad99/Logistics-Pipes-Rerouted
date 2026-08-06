@@ -9,6 +9,7 @@ import logisticspipes.network.packets.orderer.DiscContent;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.IItemSearch;
+import logisticspipes.utils.gui.ItemTooltip;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -48,7 +49,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	private boolean displayCursor = false;
 	private long oldSystemTime = 0;
 
-	private Object[] tooltip;
+	private ItemTooltip tooltip;
 
 	private static final int NAME_WIDTH = 122;
 	private static final int SEARCH_WIDTH = 138;
@@ -170,8 +171,8 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
 	@Override
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
-		if (tooltip != null && tooltip.length >= 3) {
-			guiGraphics.renderTooltip(minecraft.font, (ItemStack) tooltip[2], (int) tooltip[0], (int) tooltip[1]);
+		if (tooltip != null) {
+			guiGraphics.renderTooltip(minecraft.font, tooltip.stack(), tooltip.screenX(), tooltip.screenY());
 		}
 	}
 
@@ -213,7 +214,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 				if (mouseX >= x && mouseX < x + panelXSize && mouseY >= y && mouseY < y + panelYSize) {
 					guiGraphics.fill(x - 3, y - 1, x + panelXSize - 3, y + panelYSize - 3, Color.getValue(Color.BLACK));
 					guiGraphics.fill(x - 2, y - 0, x + panelXSize - 4, y + panelYSize - 4, Color.getValue(Color.DARKER_GREY));
-					tooltip = new Object[] { mouseX, mouseY, st };
+					tooltip = new ItemTooltip(mouseX, mouseY, st);
 				}
 
 				if (mousePosX != 0 && mousePosY != 0) {
@@ -298,7 +299,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
 			if (!super.hasSubGui()) {
 				if (mouseX >= x && mouseX < x + panelXSize && mouseY >= y && mouseY < y + panelYSize) {
-					tooltip = new Object[] { mouseX, mouseY, st };
+					tooltip = new ItemTooltip(mouseX, mouseY, st);
 				}
 			}
 			column++;

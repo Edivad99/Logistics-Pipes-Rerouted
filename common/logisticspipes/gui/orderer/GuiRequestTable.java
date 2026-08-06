@@ -41,6 +41,7 @@ import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
+import logisticspipes.utils.gui.ItemTooltip;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -535,7 +536,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		if (!showRequest || itemDisplay == null) {
 			return;
 		}
-		ItemDisplay.Tooltip tip = itemDisplay.getToolTip();
+		ItemTooltip tip = itemDisplay.getToolTip();
 		if (tip != null) {
 			guiGraphics.renderTooltip(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
 		}

@@ -1,7 +1,5 @@
 package logisticspipes.logic.gui;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.logic.LogicController;
@@ -12,7 +10,6 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
-import logisticspipes.utils.string.ChatColor;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -71,7 +68,6 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	private double guiMapY;
 	private ZOOM_LEVEL zoom = ZOOM_LEVEL.NORMAL;
 
-	private Object[] tooltip = null;
 
 	public LogicLayoutGui(LogicController controller, Player player) {
 		super(256, 202 + 90, 0, 0);
@@ -127,7 +123,6 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	}
 
 	private void drawMap(GuiGraphics guiGraphics, int par1, int par2) {
-		tooltip = null;
 		int leftSide = ((width - imageWidth) / 2);
 		int topSide = ((height - imageHeight) / 2);
 
@@ -176,16 +171,10 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 				guiGraphics.fill(startLeft - 3, yPos + 21, startLeft + 19, yPos + 23, 0xffffffff);
 				guiGraphics.fill(startLeft - 3, yPos + 21, startLeft - 3 + (22 * aList.getMachineProgress() / 100), yPos + 23, 0xffff0000);
 			}
-			if (startLeft - 10 < par1 && par1 < startLeft + 20 && yPos - 6 < par2 && par2 < yPos + 20) {
-				if (leftPos < par1 && par1 < leftPos + imageWidth - 16 && topPos < par2 && par2 < topPos + imageHeight - 16) {
-					IOrderInfoProvider order = aList;
-					List<String> tooltipList = new ArrayList<>();
-					tooltipList.add(ChatColor.BLUE + "Request Type: " + ChatColor.YELLOW + order.getType().name());
-					tooltipList.add(ChatColor.BLUE + "Send to Router ID: " + ChatColor.YELLOW + order.getRouterId());
-					tooltip = new Object[] { (int) (par1 * zoom.zoom - 10), (int) (par2 * zoom.zoom), order
-							.getAsDisplayItem().makeNormalStack(), true, tooltipList };
-				}
-			}
+			// A hover tooltip was built here but never rendered -- this class has no renderToolTips
+			// and nothing ever read the field back -- so it only cost an ItemStack allocation per
+			// frame while hovering. Removed rather than wired up; see RequestMonitorPopup, which
+			// does render the same kind of order tooltip.
 			startLeft += 30;
 		}
 		startLeft = xPos + 20 - list.getSubTreeRootSize() * (40 / 2);

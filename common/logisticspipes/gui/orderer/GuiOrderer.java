@@ -28,6 +28,7 @@ import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
+import logisticspipes.utils.gui.ItemTooltip;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -148,7 +149,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		// Deliberately not in renderLabels: that runs inside a pose translated by (leftPos, topPos),
 		// which would apply the gui origin to the screen coords ItemDisplay reports.
-		ItemDisplay.Tooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
+		ItemTooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
 		if (tip != null) {
 			guiGraphics.renderTooltip(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
 		}

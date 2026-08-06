@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
+import logisticspipes.utils.gui.ItemTooltip;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -80,7 +81,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 
 	@Override
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
-		ItemDisplay.Tooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
+		ItemTooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
 		if (tip != null) {
 			guiGraphics.renderTooltip(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
 		}

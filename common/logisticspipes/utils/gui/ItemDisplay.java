@@ -35,17 +35,6 @@ public class ItemDisplay {
 		NAME_DOWN,
 	}
 
-	/**
-	 * What to draw for the item currently under the cursor.
-	 *
-	 * @param screenX the cursor position in <b>screen</b> coordinates, ready to hand to
-	 * {@code GuiGraphics#renderTooltip}. Drawing from a pose that is already translated -- as
-	 * {@code renderLabels} is, by (leftPos, topPos) -- would offset the tooltip by the gui origin.
-	 * @param screenY see {@code screenX}.
-	 * @param stack the hovered stack.
-	 */
-	public record Tooltip(int screenX, int screenY, ItemStack stack) {}
-
 	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/icons.png");
 	private static final int PANELSIZEX = 20;
 	private static final int PANELSIZEY = 20;
@@ -60,7 +49,7 @@ public class ItemDisplay {
 	//private int requestCount = 1;
 	private InputBar requestCountBar;
 	@Nullable
-	private Tooltip tooltip = null;
+	private ItemTooltip tooltip = null;
 	private boolean listbyserver = false;
 
 	private final IItemSearch search;
@@ -287,9 +276,9 @@ public class ItemDisplay {
 				guiGraphics.fill(left + x - 1, top + y - 1, left + x + panelxSize - 3, top + y + panelySize - 3, Color.getValue(Color.DARKER_GREY));
 
 				if (itemIdentifierStack.getStackSize() > 0) {
-					tooltip = new Tooltip(screenMouseX, screenMouseY, itemIdentifierStack.makeNormalStack());
+					tooltip = new ItemTooltip(screenMouseX, screenMouseY, itemIdentifierStack.makeNormalStack());
 				} else {
-					tooltip = new Tooltip(screenMouseX, screenMouseY, itemIdentifierStack.getItem().makeNormalStack(1));
+					tooltip = new ItemTooltip(screenMouseX, screenMouseY, itemIdentifierStack.getItem().makeNormalStack(1));
 				}
 			}
 
@@ -432,7 +421,7 @@ public class ItemDisplay {
 	 * {@code renderToolTips} override, which both screen bases call outside any pose translation.
 	 */
 	@Nullable
-	public Tooltip getToolTip() {
+	public ItemTooltip getToolTip() {
 		return tooltip;
 	}
 
