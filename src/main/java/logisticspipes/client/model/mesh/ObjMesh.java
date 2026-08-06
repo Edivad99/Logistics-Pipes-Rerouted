@@ -248,6 +248,29 @@ public final class ObjMesh {
         return new ObjMesh(pos.clone(), uv.clone(), newNormal, quadCount);
     }
 
+    /**
+     * Returns a mesh where every vertex carries the same normal, so that anything shading from
+     * the normal shades the whole mesh uniformly.
+     *
+     * <p>This is the immediate-mode counterpart of baking chunk quads with {@code shade = false}:
+     * both opt out of letting the geometry decide the brightness. {@link #withComputedNormals()}
+     * derives the normal from each quad's winding order, and the pipe OBJs do not wind their faces
+     * consistently, so neighbouring faces of one surface can end up with opposed normals and be lit
+     * as if they faced opposite ways.</p>
+     */
+    public ObjMesh withUniformNormal(float nx, float ny, float nz) {
+        if (quadCount == 0) {
+            return this;
+        }
+        float[] newNormal = new float[normal.length];
+        for (int vertex = 0; vertex < quadCount * VERTICES_PER_QUAD; vertex++) {
+            newNormal[vertex * 3] = nx;
+            newNormal[vertex * 3 + 1] = ny;
+            newNormal[vertex * 3 + 2] = nz;
+        }
+        return new ObjMesh(pos.clone(), uv.clone(), newNormal, quadCount);
+    }
+
     // ─── Queries ────────────────────────────────────────────────────────────
 
     /**

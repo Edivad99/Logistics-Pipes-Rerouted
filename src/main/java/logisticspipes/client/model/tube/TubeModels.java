@@ -152,7 +152,14 @@ public final class TubeModels {
                     // opposed normals in the same place, and since entity render types shade
                     // from the normal, the two copies fought for depth and were lit opposite
                     // ways — one side of a tube came out darker than the other.
-                    placed.add(part.mesh().transform(transform).withComputedNormals());
+                    //
+                    // Removing the duplicates was not enough, because the winding of the OBJ
+                    // itself is not consistent between neighbouring faces (the same reason
+                    // PipeQuadBaker bakes the pipe frame with shade = false), and
+                    // withComputedNormals() reads the normal straight off that winding. So a
+                    // uniform normal instead: the tubes end up flat-lit, matching the unshaded
+                    // pipe frame they attach to, rather than half-lit by an arbitrary winding.
+                    placed.add(part.mesh().transform(transform).withUniformNormal(0.0f, 1.0f, 0.0f));
                 }
                 // The originals kept the four lanes as separate models only because each had to
                 // become its own RenderEntry; one mesh per orientation is equivalent and cheaper.
