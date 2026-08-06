@@ -63,6 +63,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		}, item);
 
 		throttleTime = 100;
+		dummyInventory.addListener(inventory -> markTileDirty());
 	}
 
 	@Override
@@ -293,6 +294,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 
 	public void setRequestingPartials(boolean value) {
 		_requestPartials = value;
+		markTileDirty();
 	}
 
 	@Override

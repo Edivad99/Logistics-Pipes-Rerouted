@@ -47,6 +47,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	public PipeFluidSupplierMk2(Item item) {
 		super(item);
 		throttleTime = 100;
+		dummyInventory.addListener(inventory -> markTileDirty());
 	}
 
 	@Override
@@ -265,6 +266,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 
 	public void setRequestingPartials(boolean value) {
 		_requestPartials = value;
+		markTileDirty();
 	}
 
 	public MinMode getMinMode() {
@@ -273,6 +275,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 
 	public void setMinMode(MinMode value) {
 		_bucketMinimum = value;
+		markTileDirty();
 	}
 
 	@Override
@@ -301,6 +304,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 		if (amount <= 0) {
 			amount = 0;
 		}
+		markTileDirty();
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FluidSupplierAmount.class).putInt(amount).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
 	}
 
