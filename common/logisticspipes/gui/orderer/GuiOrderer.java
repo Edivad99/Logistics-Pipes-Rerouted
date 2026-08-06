@@ -40,7 +40,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
@@ -143,12 +142,15 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		} else {
 			guiGraphics.drawString(minecraft.font, "Popup", 25, bottom - topPos - 56, Color.getValue(Color.GREY), false);
 		}
-		if (super.hasSubGui()) {
-			return;
-		}
-		Object[] tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
-		if (tip != null && tip.length >= 3) {
-			guiGraphics.renderTooltip(minecraft.font, (ItemStack) tip[2], (int) tip[0], (int) tip[1]);
+	}
+
+	@Override
+	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		// Deliberately not in renderLabels: that runs inside a pose translated by (leftPos, topPos),
+		// which would apply the gui origin to the screen coords ItemDisplay reports.
+		ItemDisplay.Tooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
+		if (tip != null) {
+			guiGraphics.renderTooltip(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
 		}
 	}
 

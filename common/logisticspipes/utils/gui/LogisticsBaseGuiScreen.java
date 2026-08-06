@@ -209,6 +209,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 				}
 			}
 			this.renderTooltip(guiGraphics, mouseX, mouseY);
+			renderToolTips(guiGraphics, mouseX, mouseY, partialTicks);
 		}
 		Runnable run = renderAtTheEnd.poll();
 		while (run != null) {
@@ -373,6 +374,19 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	public void addRenderSlot(IRenderSlot slot) {
 		slots.add(slot);
 	}
+
+	/**
+	 * Draw tooltips here rather than from {@link #renderLabels}, and in <b>screen</b> coordinates.
+	 * <p>
+	 * This runs after {@code AbstractContainerScreen#render} has popped its pose, so nothing is
+	 * translated: what you pass to {@code GuiGraphics#renderTooltip} is what the player sees.
+	 * {@code renderLabels}, by contrast, runs inside a pose already translated by
+	 * (leftPos, topPos), so drawing a tooltip there applies the gui origin twice. Mirrors
+	 * {@code SubGuiScreen#renderToolTips}, so both kinds of screen work the same way.
+	 * <p>
+	 * Only called when no popup is open; a popup draws its own tooltips.
+	 */
+	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {}
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {

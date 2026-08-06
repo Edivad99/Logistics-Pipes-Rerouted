@@ -80,9 +80,9 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 
 	@Override
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
-		Object[] tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
-		if (tip != null && tip.length >= 3) {
-			guiGraphics.renderTooltip(minecraft.font, (net.minecraft.world.item.ItemStack) tip[2], (int) tip[0], (int) tip[1]);
+		ItemDisplay.Tooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
+		if (tip != null) {
+			guiGraphics.renderTooltip(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
 		}
 	}
 

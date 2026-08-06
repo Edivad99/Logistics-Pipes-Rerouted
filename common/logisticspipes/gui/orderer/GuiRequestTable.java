@@ -528,6 +528,20 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
+	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		// Guarded on showRequest because renderItemArea is what refreshes the hovered item, and it
+		// only runs while the request panel is open -- without this the last hovered item would
+		// linger as a tooltip after the panel is collapsed.
+		if (!showRequest || itemDisplay == null) {
+			return;
+		}
+		ItemDisplay.Tooltip tip = itemDisplay.getToolTip();
+		if (tip != null) {
+			guiGraphics.renderTooltip(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
+		}
+	}
+
+	@Override
 	public void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
 		super.renderLabels(guiGraphics, par1, par2);
 		if (super.hasSubGui()) {

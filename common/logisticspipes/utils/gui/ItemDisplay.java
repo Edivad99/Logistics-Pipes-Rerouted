@@ -1,5 +1,7 @@
 package logisticspipes.utils.gui;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemDisplay {
 
@@ -31,6 +34,17 @@ public class ItemDisplay {
 		NAME,
 		NAME_DOWN,
 	}
+
+	/**
+	 * What to draw for the item currently under the cursor.
+	 *
+	 * @param screenX the cursor position in <b>screen</b> coordinates, ready to hand to
+	 * {@code GuiGraphics#renderTooltip}. Drawing from a pose that is already translated -- as
+	 * {@code renderLabels} is, by (leftPos, topPos) -- would offset the tooltip by the gui origin.
+	 * @param screenY see {@code screenX}.
+	 * @param stack the hovered stack.
+	 */
+	public record Tooltip(int screenX, int screenY, ItemStack stack) {}
 
 	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/icons.png");
 	private static final int PANELSIZEX = 20;
@@ -45,7 +59,8 @@ public class ItemDisplay {
 	private int maxPage = 0;
 	//private int requestCount = 1;
 	private InputBar requestCountBar;
-	private Object[] tooltip = null;
+	@Nullable
+	private Tooltip tooltip = null;
 	private boolean listbyserver = false;
 
 	private final IItemSearch search;
@@ -56,7 +71,6 @@ public class ItemDisplay {
 	private int itemsPerPage;
 	private final int[] amountChangeMode;
 	private final boolean shiftPageChange;
-	private final Minecraft mc = Minecraft.getInstance();
 	private static DisplayOption option = DisplayOption.ID;
 	private final ItemStackRenderer stackRenderer = new ItemStackRenderer(0, 0, 100.0F, false, false);
 
@@ -235,9 +249,14 @@ public class ItemDisplay {
 		int panelySize = 20;
 		int x = 2;
 		int y = 2;
-		// Mouse coords relative to the display area origin (left, top)
-		int mouseX = screen.getCurrentMouseX() - left;
-		int mouseY = screen.getCurrentMouseY() - top;
+		// Two coordinate spaces are in play here, and mixing them up is what used to shift the
+		// tooltip up and to the left by exactly (left, top): the hit tests below are in coords
+		// relative to the display area origin, but GuiGraphics#renderTooltip -- which is what the
+		// screens hand getToolTip()'s first two entries to -- expects screen coords.
+		int screenMouseX = screen.getCurrentMouseX();
+		int screenMouseY = screen.getCurrentMouseY();
+		int mouseX = screenMouseX - left;
+		int mouseY = screenMouseY - top;
 
 		for (ItemIdentifierStack itemIdentifierStack : _allItems) {
 			ItemIdentifier item = itemIdentifierStack.getItem();
@@ -268,9 +287,9 @@ public class ItemDisplay {
 				guiGraphics.fill(left + x - 1, top + y - 1, left + x + panelxSize - 3, top + y + panelySize - 3, Color.getValue(Color.DARKER_GREY));
 
 				if (itemIdentifierStack.getStackSize() > 0) {
-					tooltip = new Object[] { mouseX, mouseY, itemIdentifierStack.makeNormalStack() };
+					tooltip = new Tooltip(screenMouseX, screenMouseY, itemIdentifierStack.makeNormalStack());
 				} else {
-					tooltip = new Object[] { mouseX, mouseY, itemIdentifierStack.getItem().makeNormalStack(1) };
+					tooltip = new Tooltip(screenMouseX, screenMouseY, itemIdentifierStack.getItem().makeNormalStack(1));
 				}
 			}
 
@@ -408,7 +427,12 @@ public class ItemDisplay {
 		return shiftPageChange;
 	}
 
-	public Object[] getToolTip() {
+	/**
+	 * The tooltip for the item under the cursor, or null when nothing is hovered. Render it from a
+	 * {@code renderToolTips} override, which both screen bases call outside any pose translation.
+	 */
+	@Nullable
+	public Tooltip getToolTip() {
 		return tooltip;
 	}
 
