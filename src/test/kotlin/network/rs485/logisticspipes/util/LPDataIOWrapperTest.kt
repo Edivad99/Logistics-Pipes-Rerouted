@@ -51,6 +51,8 @@ import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.world.level.material.Fluids
+import net.neoforged.neoforge.fluids.FluidStack
 import network.rs485.logisticspipes.util.TestUtil.Companion.getBytesFromInteger
 import network.rs485.util.use
 import org.junit.jupiter.api.BeforeAll
@@ -588,11 +590,38 @@ class LPDataIOWrapperTest {
 
     @Test
     fun `test readItemStack with EMPTY value`() {
-        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeItemStack(ItemStack.EMPTY) }
-        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeItemStack(ItemStack.EMPTY) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
             val actual = input.readItemStack()
 
             assertEquals(ItemStack.EMPTY, actual)
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeFluidStack and readFluidStack round trip`() {
+        val expected = FluidStack(Fluids.WATER, 1000).also {
+            it.set(DataComponents.CUSTOM_DATA, CustomData.of(CompoundTag().apply { putInt("lp_test", 7) }))
+        }
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeFluidStack(expected) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+            val actual = input.readFluidStack()
+
+            assertTrue(FluidStack.isSameFluidSameComponents(expected, actual), "components differ: $actual")
+            assertEquals(1000, actual.amount)
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeFluidStack and readFluidStack with EMPTY value`() {
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeFluidStack(FluidStack.EMPTY) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+            assertTrue(input.readFluidStack().isEmpty)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
         }
     }

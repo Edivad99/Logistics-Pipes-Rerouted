@@ -26,17 +26,17 @@ public class CCFluidIdentifier implements ILPCCTypeDefinition {
 
 		@CCCommand(description = "Returns the fluidIdentifier of this FluidIdentifier")
 		public String getId() {
-			return ident.fluidID;
+			return ident.getFluidID();
 		}
 
 		@CCCommand(description = "Returns true if this FluidIdentifier has an tag")
 		public boolean hasTagCompound() {
-			return ident.tag != null;
+			return ident.hasCustomData();
 		}
 
 		@CCCommand(description = "Returns the tag of this FluidIdentifier")
 		public CompoundTag getTagCompound() {
-			return ident.tag;
+			return ident.getCustomDataTag();
 		}
 
 		@CCCommand(description = "Returns the Name of this FluidIdentifier")

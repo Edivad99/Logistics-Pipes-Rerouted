@@ -1,224 +1,157 @@
 package logisticspipes.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nullable;
 
-import logisticspipes.asm.addinfo.IAddInfo;
-import logisticspipes.asm.addinfo.IAddInfoProvider;
-import logisticspipes.proxy.LPRegistries;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
-import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.item.ItemIdentifierStack;
-import lombok.AllArgsConstructor;
-import net.minecraft.client.Minecraft;
+import com.mojang.serialization.Codec;
+
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
+import logisticspipes.proxy.LPRegistries;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
+import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.utils.item.ItemIdentifierStack;
+
+/**
+ * The fluid counterpart of {@link ItemIdentifier}: an immutable, interned, unique handle on a fluid
+ * identity. Since 1.21 that identity is {@link Fluid} plus a {@link DataComponentPatch}, mirroring
+ * how {@link FluidStack} itself is built.
+ */
 public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHolder {
 
+	// Cache key. DataComponentPatch is immutable with value-based equals/hashCode, so a record
+	// covers all the bookkeeping this needs.
+	private record FluidKey(Fluid fluid, DataComponentPatch components) {}
+
+	private static final AtomicLong serialCounter = new AtomicLong();
+
+	// Identifiers whose patch is empty. Bounded by the fluid registry, so these are held strongly.
+	private final static ConcurrentHashMap<Fluid, FluidIdentifier> simpleIdentifiers = new ConcurrentHashMap<>(256, 0.5f, 1);
+
+	// Everything else. Held weakly for the same reason as the item cache: nothing bounds how many
+	// component variants of a fluid a mod may produce at runtime.
+	private final static WeakInternCache<FluidKey, FluidIdentifier> patchedIdentifiers =
+			WeakInternCache.create("LogisticsPipes FluidIdentifier Cleanup Thread");
+
 	private final Object[] ccTypeHolder = new Object[1];
-	private final static ReadWriteLock dblock = new ReentrantReadWriteLock();
-	private final static Lock rlock = FluidIdentifier.dblock.readLock();
-	private final static Lock wlock = FluidIdentifier.dblock.writeLock();
 
-	//map uniqueID -> FluidIdentifier
-	private final static HashMap<Integer, FluidIdentifier> _fluidIdentifierIdCache = new HashMap<>(256, 0.5f);
+	public final Fluid fluid;
+	/**
+	 * The component patch that distinguishes this identity from the fluid's prototype. Always
+	 * canonical (sanitized), see {@link #get(Fluid, DataComponentPatch)}.
+	 */
+	public final DataComponentPatch components;
+	/**
+	 * Allocation-order tiebreaker keeping {@link #compareTo} a total order consistent with
+	 * {@link #equals}. Replaces the old {@code uniqueID}, which was a random int drawn from a fresh
+	 * {@code Random} per attempt and made the ordering of component-carrying fluids differ between
+	 * runs.
+	 */
+	private final long serial;
 
-	//for fluids with tags, map fluidID -> map tag -> FluidIdentifier
-	private final static Map<String, HashMap<FinalCompoundTag, FluidIdentifier>> _fluidIdentifierTagCache = new HashMap<>(256);
+	@Nullable
+	private String sortKey = null;
 
-	//for fluids without tags, map fluidID -> FluidIdentifier
-	private final static Map<String, FluidIdentifier> _fluidIdentifierCache = new HashMap<>(256);
+	private FluidIdentifier(Fluid fluid, DataComponentPatch components) {
+		this.fluid = fluid;
+		this.components = components;
+		this.serial = FluidIdentifier.serialCounter.getAndIncrement();
+	}
 
-	public final String fluidID;
-	public final String name;
-	public final FinalCompoundTag tag;
-	public final int uniqueID;
+	/* Factories */
 
-	@Override
-	public int compareTo(FluidIdentifier o) {
-		int c = fluidID.compareTo(o.fluidID);
-		if (c != 0) {
-			return c;
+	private static FluidIdentifier getOrCreateSimple(Fluid fluid) {
+		// No locking: if two threads race they produce equal identifiers and one wins the map.
+		FluidIdentifier ret = FluidIdentifier.simpleIdentifiers.get(fluid);
+		if (ret != null) {
+			return ret;
 		}
-		c = uniqueID - o.uniqueID;
-		return c;
+		ret = new FluidIdentifier(fluid, DataComponentPatch.EMPTY);
+		FluidIdentifier.simpleIdentifiers.put(fluid, ret);
+		return ret;
 	}
 
-	@AllArgsConstructor
-	private static class FluidStackAddInfo implements IAddInfo {
-
-		private final FluidIdentifier fluid;
+	/**
+	 * The bare identity of {@code fluid}, carrying no components.
+	 */
+	public static FluidIdentifier get(Fluid fluid) {
+		return FluidIdentifier.getOrCreateSimple(fluid);
 	}
 
-	@AllArgsConstructor
-	private static class FluidAddInfo implements IAddInfo {
-
-		private final FluidIdentifier fluid;
-	}
-
-	private FluidIdentifier(String fluidID, String name, FinalCompoundTag tag, int uniqueID) {
-		this.fluidID = fluidID;
-		this.name = name;
-		this.tag = tag;
-		this.uniqueID = uniqueID;
-	}
-
-	private static String getFluidName(Fluid fluid) {
-		ResourceLocation key = BuiltInRegistries.FLUID.getKeyOrNull(fluid);
-		return key != null ? key.toString() : "unknown";
-	}
-
-	public static FluidIdentifier get(Fluid fluid, CompoundTag tag, FluidIdentifier proposal) {
-		String fluidID = getFluidName(fluid);
-		if (tag == null) {
-			if (proposal != null) {
-				if (proposal.fluidID.equals(fluidID) && proposal.tag == null) {
-					return proposal;
-				}
-			}
-			proposal = null;
-			IAddInfoProvider prov = null;
-			if (fluid instanceof IAddInfoProvider) {
-				prov = (IAddInfoProvider) fluid;
-				FluidAddInfo info = prov.getLogisticsPipesAddInfo(FluidAddInfo.class);
-				if (info != null) {
-					proposal = info.fluid;
-				}
-			}
-			FluidIdentifier ident = getFluidIdentifierWithoutTag(fluid, fluidID, proposal);
-			if (proposal != ident && prov != null) {
-				prov.setLogisticsPipesAddInfo(new FluidAddInfo(ident));
-			}
-			return ident;
-		} else {
-			FluidIdentifier.rlock.lock();
-			{
-				HashMap<FinalCompoundTag, FluidIdentifier> fluidNBTList = FluidIdentifier._fluidIdentifierTagCache.get(fluidID);
-				if (fluidNBTList != null) {
-					FinalCompoundTag tagwithfixedname = new FinalCompoundTag(tag);
-					FluidIdentifier unknownFluid = fluidNBTList.get(tagwithfixedname);
-					if (unknownFluid != null) {
-						FluidIdentifier.rlock.unlock();
-						return unknownFluid;
-					}
-				}
-			}
-			FluidIdentifier.rlock.unlock();
-			FluidIdentifier.wlock.lock();
-			{
-				HashMap<FinalCompoundTag, FluidIdentifier> fluidNBTList = FluidIdentifier._fluidIdentifierTagCache.get(fluidID);
-				if (fluidNBTList != null) {
-					FinalCompoundTag tagwithfixedname = new FinalCompoundTag(tag);
-					FluidIdentifier unknownFluid = fluidNBTList.get(tagwithfixedname);
-					if (unknownFluid != null) {
-						FluidIdentifier.wlock.unlock();
-						return unknownFluid;
-					}
-				}
-			}
-			HashMap<FinalCompoundTag, FluidIdentifier> fluidNBTList = FluidIdentifier._fluidIdentifierTagCache
-					.computeIfAbsent(fluidID, k -> new HashMap<>(16, 0.5f));
-			FinalCompoundTag finaltag = new FinalCompoundTag(tag);
-			int id = FluidIdentifier.getUnusedId();
-			FluidIdentifier unknownFluid = new FluidIdentifier(fluidID, getFluidName(fluid), finaltag, id);
-			fluidNBTList.put(finaltag, unknownFluid);
-			FluidIdentifier._fluidIdentifierIdCache.put(id, unknownFluid);
-			FluidIdentifier.wlock.unlock();
-			return (unknownFluid);
+	/**
+	 * Interns the identity of {@code fluid} carrying {@code rawPatch}.
+	 * <p>
+	 * As with items, a patch is not canonical on its own: one that sets a component to the value the
+	 * fluid's prototype already has is a distinct patch from {@link DataComponentPatch#EMPTY} yet
+	 * yields an identical FluidStack. Unseen patches are therefore normalized by round-tripping
+	 * through a FluidStack, whose {@link FluidStack#getComponentsPatch()} is canonical by
+	 * construction.
+	 */
+	public static FluidIdentifier get(Fluid fluid, DataComponentPatch rawPatch) {
+		if (rawPatch.isEmpty()) {
+			return FluidIdentifier.getOrCreateSimple(fluid);
 		}
+		FluidIdentifier hit = FluidIdentifier.patchedIdentifiers.getIfPresent(new FluidKey(fluid, rawPatch));
+		if (hit != null) {
+			return hit;
+		}
+		return FluidIdentifier.get(new FluidStack(fluid.builtInRegistryHolder(), 1, rawPatch));
 	}
 
-	private static FluidIdentifier getFluidIdentifierWithoutTag(Fluid fluid, String fluidID, FluidIdentifier proposal) {
-		if (proposal != null) {
-			if (proposal.fluidID.equals(fluidID) && proposal.tag == null) {
-				return proposal;
-			}
-		}
-		FluidIdentifier.rlock.lock();
-		{
-			FluidIdentifier unknownFluid = FluidIdentifier._fluidIdentifierCache.get(fluidID);
-			if (unknownFluid != null) {
-				FluidIdentifier.rlock.unlock();
-				return unknownFluid;
-			}
-		}
-		FluidIdentifier.rlock.unlock();
-		FluidIdentifier.wlock.lock();
-		{
-			FluidIdentifier unknownFluid = FluidIdentifier._fluidIdentifierCache.get(fluidID);
-			if (unknownFluid != null) {
-				FluidIdentifier.wlock.unlock();
-				return unknownFluid;
-			}
-		}
-		int id = FluidIdentifier.getUnusedId();
-		FluidIdentifier unknownFluid = new FluidIdentifier(fluidID, getFluidName(fluid), null, id);
-		FluidIdentifier._fluidIdentifierCache.put(fluidID, unknownFluid);
-		FluidIdentifier._fluidIdentifierIdCache.put(id, unknownFluid);
-		FluidIdentifier.wlock.unlock();
-		return (unknownFluid);
-	}
-
-    @Nullable
+	@Nullable
 	public static FluidIdentifier get(@Nullable FluidStack stack) {
-		if (stack == null) {
+		if (stack == null || stack.isEmpty()) {
 			return null;
 		}
-		FluidIdentifier proposal = null;
-		IAddInfoProvider prov = null;
-		//TODO: IDK
-//		if (stack instanceof IAddInfoProvider) {
-//			prov = (IAddInfoProvider) stack;
-//			FluidStackAddInfo info = prov.getLogisticsPipesAddInfo(FluidStackAddInfo.class);
-//			if (info != null) {
-//				proposal = info.fluid;
-//			}
-//		}
-        FluidIdentifier ident;
-        if (stack.has(DataComponents.CUSTOM_DATA)) {
-            ident = FluidIdentifier.get(stack.getFluid(), Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag(), proposal);
-        } else {
-            ident = FluidIdentifier.get(stack.getFluid(), null, proposal);
-        }
-		if (proposal != ident && stack.getComponentsPatch().isEmpty() && prov != null) {
-			prov.setLogisticsPipesAddInfo(new FluidStackAddInfo(ident));
+		DataComponentPatch patch = stack.getComponentsPatch();
+		if (patch.isEmpty()) {
+			return FluidIdentifier.getOrCreateSimple(stack.getFluid());
 		}
-		return ident;
+		return FluidIdentifier.patchedIdentifiers.getOrCreate(
+				new FluidKey(stack.getFluid(), patch),
+				key -> new FluidIdentifier(key.fluid(), key.components()));
 	}
 
-    @Nullable
-    public static FluidIdentifier get(ItemIdentifier stack) {
+	@Nullable
+	public static FluidIdentifier get(ItemIdentifier stack) {
 		return FluidIdentifier.get(stack.makeStack(1));
 	}
 
-    @Nullable
-    public static FluidIdentifier get(ItemStack stack) {
+	@Nullable
+	public static FluidIdentifier get(ItemStack stack) {
 		return FluidIdentifier.get(ItemIdentifierStack.getFromStack(stack));
 	}
 
-    @Nullable
+	/**
+	 * The fluid held by a container item, looked up through LP's own container registry first, then
+	 * the item's fluid-handler capability, then {@link FluidUtil}.
+	 */
+	@Nullable
 	public static FluidIdentifier get(ItemIdentifierStack stack) {
 		FluidStack f = null;
 		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack, LPRegistries.access());
@@ -229,72 +162,76 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 			ItemStack itemStack = stack.makeNormalStack();
 			var capability = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
 			if (capability != null) {
-				{
-					f = IntStream.range(0, capability.getTanks())
-							.mapToObj(capability::getFluidInTank)
-							.filter(s -> !s.isEmpty())
-							.findFirst()
-							.orElse(null);
-				}
+				f = IntStream.range(0, capability.getTanks())
+						.mapToObj(capability::getFluidInTank)
+						.filter(s -> !s.isEmpty())
+						.findFirst()
+						.orElse(null);
 			}
 		}
 		if (f == null) {
 			f = FluidUtil.getFluidContained(stack.makeNormalStack()).orElse(null);
 		}
-		if (f == null) {
-			return null;
-		}
 		return FluidIdentifier.get(f);
 	}
 
-	private static FluidIdentifier get(Fluid fluid) {
-		return FluidIdentifier.get(fluid, null, null);
+	/* Accessors */
+
+	public Fluid getFluid() {
+		return fluid;
 	}
 
-	private static int getUnusedId() {
-		int id = new Random().nextInt();
-		while (FluidIdentifier.isIdUsed(id)) {
-			id = new Random().nextInt();
-		}
-		return id;
-	}
-
-	private static boolean isIdUsed(int id) {
-		return FluidIdentifier._fluidIdentifierIdCache.containsKey(id);
+	/**
+	 * The registry name of this fluid, e.g. {@code minecraft:water}.
+	 */
+	public String getFluidID() {
+		ResourceLocation key = BuiltInRegistries.FLUID.getKey(fluid);
+		return key != null ? key.toString() : "unknown";
 	}
 
 	public String getName() {
-		return name;
+		return getFluidID();
+	}
+
+	public boolean hasCustomData() {
+		Optional<? extends CustomData> data = components.get(DataComponents.CUSTOM_DATA);
+		return data != null && data.isPresent();
+	}
+
+	/**
+	 * A mutable copy of this identity's {@link DataComponents#CUSTOM_DATA}, or null when it has
+	 * none. The closest equivalent of the old {@code tag} field.
+	 */
+	@Nullable
+	public CompoundTag getCustomDataTag() {
+		Optional<? extends CustomData> data = components.get(DataComponents.CUSTOM_DATA);
+		return data != null && data.isPresent() ? data.get().copyTag() : null;
 	}
 
 	public FluidStack makeFluidStack(int amount) {
-		// In 1.20, FluidStack(Fluid, int, CompoundTag) was removed — use setTag()
-		FluidStack fs = new FluidStack(getFluid(), amount);
-		if (tag != null) {
-			fs.set(DataComponents.CUSTOM_DATA, CustomData.of(tag.copy()));
-		}
-		return fs;
+		return new FluidStack(fluid.builtInRegistryHolder(), amount, components);
 	}
 
 	public FluidIdentifierStack makeFluidIdentifierStack(int amount) {
-		//FluidStack constructor does the tag.copy(), so this is safe
 		return new FluidIdentifierStack(this, amount);
 	}
 
-	public Fluid getFluid() {
-		return BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(fluidID));
+	public ItemIdentifier getItemIdentifier() {
+		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1), LPRegistries.access()).getItem();
 	}
 
 	public int getFreeSpaceInsideTank(IFluidHandler tank) {
 		FluidStack liquid = tank.getFluidInTank(0);
-		if (liquid == null || liquid.getFluid() == null) {
+		if (liquid == null || liquid.isEmpty()) {
 			return tank.getTankCapacity(0);
 		}
-		if (FluidIdentifier.get(liquid).equals(this)) {
+		if (this.equals(FluidIdentifier.get(liquid))) {
 			return tank.getTankCapacity(0) - liquid.getAmount();
 		}
 		return 0;
 	}
+
+	/* Registry-wide access */
 
 	private static boolean init = false;
 
@@ -308,86 +245,120 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		}
 	}
 
+	/**
+	 * Every component-free fluid identity a tank can actually hold, in a stable order. This drives
+	 * the fluid picker GUI.
+	 * <p>
+	 * Two filters matter here. Every flowing fluid is registered twice, as a source and as a flowing
+	 * variant ({@code minecraft:water} and {@code minecraft:flowing_water}), and both map to the
+	 * same visible container, so listing both showed every fluid twice in the picker. And
+	 * {@code minecraft:empty} is not a fluid anyone can select. Fluid handlers only ever report
+	 * source fluids, so the flowing variants are of no use as identities.
+	 * <p>
+	 * The order is sorted rather than a HashMap's iteration order, which is unspecified and could
+	 * differ between client and server.
+	 */
+	public static Collection<FluidIdentifier> all() {
+		List<FluidIdentifier> list = new ArrayList<>();
+		for (FluidIdentifier ident : FluidIdentifier.simpleIdentifiers.values()) {
+			if (ident.isSelectable()) {
+				list.add(ident);
+			}
+		}
+		list.sort(null);
+		return Collections.unmodifiableCollection(list);
+	}
+
+	/**
+	 * Whether this identity denotes a fluid that can actually sit in a tank, i.e. neither the empty
+	 * fluid nor the flowing variant of a source fluid.
+	 */
+	public boolean isSelectable() {
+		return fluid != Fluids.EMPTY && fluid.isSource(fluid.defaultFluidState());
+	}
+
+	/* Identity */
+
+	@Override
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		if (!(that instanceof FluidIdentifier other)) {
+			return false;
+		}
+		return fluid == other.fluid && components.equals(other.components);
+	}
+
+	@Override
+	public int hashCode() {
+		return fluid.hashCode() * 31 + components.hashCode();
+	}
+
+	/**
+	 * A deterministic rendering of {@link #components}, giving the component half of the identity a
+	 * stable sort position. Same approach as {@code ItemIdentifier#sortKey}.
+	 */
+	private String sortKey() {
+		String key = sortKey;
+		if (key != null) {
+			return key;
+		}
+		if (components.isEmpty()) {
+			return sortKey = "";
+		}
+		List<String> parts = new ArrayList<>(components.size());
+		for (Map.Entry<DataComponentType<?>, Optional<?>> entry : components.entrySet()) {
+			ResourceLocation typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey());
+			String name = typeKey != null ? typeKey.toString() : entry.getKey().toString();
+			parts.add(entry.getValue()
+					.map(value -> name + "=" + FluidIdentifier.renderComponent(entry.getKey(), value))
+					.orElse("!" + name));
+		}
+		parts.sort(null);
+		return sortKey = String.join(",", parts);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static String renderComponent(DataComponentType<?> type, Object value) {
+		Codec<Object> codec = (Codec<Object>) type.codec();
+		if (codec != null) {
+			Optional<String> encoded = codec.encodeStart(NbtOps.INSTANCE, value).result().map(Tag::toString);
+			if (encoded.isPresent()) {
+				return encoded.get();
+			}
+		}
+		return String.valueOf(value);
+	}
+
+	/**
+	 * A total order consistent with {@link #equals}, deterministic across runs and between sides.
+	 */
+	@Override
+	public int compareTo(FluidIdentifier o) {
+		if (this == o) {
+			return 0;
+		}
+		int c = Integer.compare(BuiltInRegistries.FLUID.getId(fluid), BuiltInRegistries.FLUID.getId(o.fluid));
+		if (c != 0) {
+			return c;
+		}
+		c = sortKey().compareTo(o.sortKey());
+		if (c != 0) {
+			return c;
+		}
+		// Only reached when two distinct identities render identically, i.e. they differ solely in
+		// components that could not be encoded.
+		return Long.compare(serial, o.serial);
+	}
+
 	@Override
 	public String toString() {
-		String t = tag != null ? tag.toString() : "null";
-		return name + "/" + fluidID + ":" + t;
-	}
-
-    @Nullable
-	public FluidIdentifier next() {
-		FluidIdentifier.rlock.lock();
-		boolean takeNext = false;
-		for (FluidIdentifier i : FluidIdentifier._fluidIdentifierCache.values()) {
-			if (takeNext && i != null) {
-				FluidIdentifier.rlock.unlock();
-				return i;
-			}
-			if (equals(i)) {
-				takeNext = true;
-			}
-		}
-		FluidIdentifier.rlock.unlock();
-		return null;
-	}
-
-    @Nullable
-    public FluidIdentifier prev() {
-		FluidIdentifier.rlock.lock();
-		FluidIdentifier last = null;
-		for (FluidIdentifier i : FluidIdentifier._fluidIdentifierCache.values()) {
-			if (equals(i)) {
-				FluidIdentifier.rlock.unlock();
-				return last;
-			}
-			if (i != null) {
-				last = i;
-			}
-		}
-		FluidIdentifier.rlock.unlock();
-		return last;
-	}
-
-    @Nullable
-    public static FluidIdentifier first() {
-		FluidIdentifier.rlock.lock();
-		for (FluidIdentifier i : FluidIdentifier._fluidIdentifierCache.values()) {
-			if (i != null) {
-				FluidIdentifier.rlock.unlock();
-				return i;
-			}
-		}
-		FluidIdentifier.rlock.unlock();
-		return null;
-	}
-
-    @Nullable
-    public static FluidIdentifier last() {
-		FluidIdentifier.rlock.lock();
-		FluidIdentifier last = null;
-		for (FluidIdentifier i : FluidIdentifier._fluidIdentifierCache.values()) {
-			if (i != null) {
-				last = i;
-			}
-		}
-		FluidIdentifier.rlock.unlock();
-		return last;
-	}
-
-	public static Collection<FluidIdentifier> all() {
-		FluidIdentifier.rlock.lock();
-		Collection<FluidIdentifier> list = Collections.unmodifiableCollection(FluidIdentifier._fluidIdentifierCache.values());
-		FluidIdentifier.rlock.unlock();
-		return list;
-	}
-
-	public ItemIdentifier getItemIdentifier() {
-		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1), LPRegistries.access()).getItem();
+		return getFluidID() + (components.isEmpty() ? "" : ":" + sortKey());
 	}
 
 	@Override
 	public Object[] getTypeHolder() {
 		return ccTypeHolder;
 	}
-
 }

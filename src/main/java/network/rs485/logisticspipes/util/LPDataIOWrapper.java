@@ -62,6 +62,7 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.minecraft.nbt.NbtIo; // was CompressedStreamTools
 import net.minecraft.nbt.CompoundTag;
@@ -376,16 +377,15 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Override
 	public void writeItemStack(ItemStack itemstack) {
-		// Vanilla's codec carries the count and every component, which is what the hand-rolled
-		// framing here used to do badly (the damage was written but never applied on read). The
-		// empty case is still framed by hand so that writing an empty stack -- which carries no
-		// components at all -- does not need registry access.
-		if (itemstack.isEmpty()) {
-			writeBoolean(false);
-		} else {
-			writeBoolean(true);
-			ItemStack.STREAM_CODEC.encode(registryBuf(), itemstack);
-		}
+		// Vanilla's codec already frames the empty stack and carries the count and every component,
+		// which is what the hand-rolled framing here used to do badly: the damage was written but
+		// never applied on read.
+		ItemStack.OPTIONAL_STREAM_CODEC.encode(registryBuf(), itemstack);
+	}
+
+	@Override
+	public void writeFluidStack(FluidStack fluidstack) {
+		FluidStack.OPTIONAL_STREAM_CODEC.encode(registryBuf(), fluidstack);
 	}
 
 	@Override
@@ -669,10 +669,12 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Override
 	public ItemStack readItemStack() {
-		if (!readBoolean()) {
-			return ItemStack.EMPTY;
-		}
-		return ItemStack.STREAM_CODEC.decode(registryBuf());
+		return ItemStack.OPTIONAL_STREAM_CODEC.decode(registryBuf());
+	}
+
+	@Override
+	public FluidStack readFluidStack() {
+		return FluidStack.OPTIONAL_STREAM_CODEC.decode(registryBuf());
 	}
 
 	@Nullable

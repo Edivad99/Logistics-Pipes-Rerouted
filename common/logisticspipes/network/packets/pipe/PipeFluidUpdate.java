@@ -10,10 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
@@ -36,8 +33,7 @@ public class PipeFluidUpdate extends CoordinatesPacket {
 		bits = input.readBitSet();
 		for (int i = 0; i < renderCache.length; i++) {
 			if (bits.get(i)) {
-				Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.tryParse(input.readUTF()));
-				renderCache[i] = new FluidStack(fluid, input.readInt()); //TODO:, input.readCompoundTag());
+				renderCache[i] = input.readFluidStack();
 			}
 		}
 	}
@@ -51,9 +47,7 @@ public class PipeFluidUpdate extends CoordinatesPacket {
 		output.writeBitSet(bits);
 		for (FluidStack aRenderCache : renderCache) {
 			if (aRenderCache != null && !aRenderCache.isEmpty()) {
-				output.writeUTF(net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(aRenderCache.getFluid()).toString());
-				output.writeInt(aRenderCache.getAmount());
-				// output.writeCompoundTag(aRenderCache.getTag());
+				output.writeFluidStack(aRenderCache);
 			}
 		}
 	}

@@ -44,6 +44,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -127,6 +128,8 @@ public interface LPDataOutput {
 	void writeCompoundTag(@Nullable CompoundTag tag);
 
 	void writeItemStack(ItemStack itemstack);
+
+	void writeFluidStack(FluidStack fluidstack);
 
 	void writeItemIdentifier(@Nullable ItemIdentifier item);
 

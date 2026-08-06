@@ -8,8 +8,6 @@
 
 package logisticspipes.utils.item;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,9 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
@@ -58,6 +53,7 @@ import net.neoforged.fml.ModList;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.items.LogisticsFluidContainer;
+import logisticspipes.utils.WeakInternCache;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 
@@ -81,26 +77,14 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         1);
     // Everything else. Held weakly: with damage folded into the patch this tier absorbs every
     // durability value of every tool and every enchanted book, which is unbounded and player-driven.
-    private final static HashMap<ItemKey, IDReference> keyRefMap = new HashMap<>(1024, 0.5f);
-    //a referenceQueue to collect GCed identifier refs
-    private final static ReferenceQueue<ItemIdentifier> keyRefQueue = new ReferenceQueue<>();
-    //and locks to protect these
-    private final static ReadWriteLock keyRefLock = new ReentrantReadWriteLock();
-    private final static Lock keyRefRlock = ItemIdentifier.keyRefLock.readLock();
-    private final static Lock keyRefWlock = ItemIdentifier.keyRefLock.writeLock();
-    private static final ItemIdentifierCleanupThread cleanupThread = new ItemIdentifierCleanupThread();
+    private final static WeakInternCache<ItemKey, ItemIdentifier> patchedIdentifiers =
+            WeakInternCache.create("LogisticsPipes ItemIdentifier Cleanup Thread");
     // Item -> registry-key path of the FIRST CATEGORY tab containing it, built once on demand.
     // Vanilla only builds tab contents from the client creative-inventory screen, so on a
     // dedicated server (and on survival clients) getDisplayItems() stays empty forever; we
     // build the contents ourselves instead of depending on that screen having been opened.
     @Nullable
     private static volatile Map<Item, String> creativeTabNameByItem = null;
-
-    static {
-        // Started here rather than from the constructor: a Thread that calls start() on itself
-        // publishes a not-yet-fully-constructed object to the thread it just spawned.
-        ItemIdentifier.cleanupThread.start();
-    }
 
     public final Item item;
     /**
@@ -150,37 +134,8 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         return ret;
     }
 
-    @Nullable
-    private static ItemIdentifier lookupPatched(ItemKey k) {
-        ItemIdentifier.keyRefRlock.lock();
-        try {
-            IDReference r = ItemIdentifier.keyRefMap.get(k);
-            return r != null ? r.get() : null;
-        } finally {
-            ItemIdentifier.keyRefRlock.unlock();
-        }
-    }
-
     private static ItemIdentifier getOrCreatePatched(ItemKey k) {
-        ItemIdentifier hit = ItemIdentifier.lookupPatched(k);
-        if (hit != null) {
-            return hit;
-        }
-        ItemIdentifier.keyRefWlock.lock();
-        try {
-            IDReference r = ItemIdentifier.keyRefMap.get(k);
-            if (r != null) {
-                ItemIdentifier ret = r.get();
-                if (ret != null) {
-                    return ret;
-                }
-            }
-            ItemIdentifier ret = new ItemIdentifier(k.item(), k.components());
-            ItemIdentifier.keyRefMap.put(k, new IDReference(k, ret));
-            return ret;
-        } finally {
-            ItemIdentifier.keyRefWlock.unlock();
-        }
+        return ItemIdentifier.patchedIdentifiers.getOrCreate(k, key -> new ItemIdentifier(key.item(), key.components()));
     }
 
     /**
@@ -198,7 +153,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
             return ItemIdentifier.getOrCreateSimple(item);
         }
         // Fast path: the patch is already canonical because we have seen it before.
-        ItemIdentifier hit = ItemIdentifier.lookupPatched(new ItemKey(item, rawPatch));
+        ItemIdentifier hit = ItemIdentifier.patchedIdentifiers.getIfPresent(new ItemKey(item, rawPatch));
         if (hit != null) {
             return hit;
         }
@@ -227,17 +182,11 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
     public static List<ItemIdentifier> getMatchingNBTIdentifier(Item item, int itemData) {
         //inefficient, we'll have to add another map if this becomes a bottleneck
         ArrayList<ItemIdentifier> resultlist = new ArrayList<>(16);
-        ItemIdentifier.keyRefRlock.lock();
-        try {
-            for (IDReference r : ItemIdentifier.keyRefMap.values()) {
-                ItemIdentifier t = r.get();
-                if (t != null && t.item == item && t.getDamageValue() == itemData) {
-                    resultlist.add(t);
-                }
+        ItemIdentifier.patchedIdentifiers.forEachValue(t -> {
+            if (t.item == item && t.getDamageValue() == itemData) {
+                resultlist.add(t);
             }
-        } finally {
-            ItemIdentifier.keyRefRlock.unlock();
-        }
+        });
         return resultlist;
     }
 
@@ -763,57 +712,4 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
     // per-Item BitSet of tag ids that used to give the NBT half of the identity a comparable int is
     // gone, DataComponentPatch.equals does that job directly.
     private record ItemKey(Item item, DataComponentPatch components) {}
-
-    //remember the key so we can find GCed ItemIdentifiers
-    private static class IDReference extends WeakReference<ItemIdentifier> {
-
-        private final ItemKey key;
-
-        IDReference(ItemKey k, ItemIdentifier id) {
-            super(id, ItemIdentifier.keyRefQueue);
-            key = k;
-        }
-    }
-
-    //helper thread to clean up references to GCed ItemIdentifiers
-    private static final class ItemIdentifierCleanupThread extends Thread {
-
-        public ItemIdentifierCleanupThread() {
-            setName("LogisticsPipes ItemIdentifier Cleanup Thread");
-            setDaemon(true);
-        }
-
-        @Override
-        public void run() {
-            // Runs until interrupted rather than forever. The loop used to swallow
-            // InterruptedException and continue, which left the thread unstoppable and dropped
-            // the interrupt flag on the floor; restoring the flag and returning lets whoever
-            // interrupted us observe that it worked.
-            while (!Thread.currentThread().isInterrupted()) {
-                IDReference r;
-                try {
-                    r = (IDReference) (ItemIdentifier.keyRefQueue.remove());
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-                // The unlock has to be in a finally: this is the write lock every ItemIdentifier
-                // creation needs, so any exception escaping the loop below would hold it forever
-                // and wedge the whole subsystem instead of just killing this thread.
-                ItemIdentifier.keyRefWlock.lock();
-                try {
-                    do {
-                        //value in the map might have been replaced in the meantime
-                        IDReference current = ItemIdentifier.keyRefMap.get(r.key);
-                        if (r == current) {
-                            ItemIdentifier.keyRefMap.remove(r.key);
-                        }
-                        r = (IDReference) (ItemIdentifier.keyRefQueue.poll());
-                    } while (r != null);
-                } finally {
-                    ItemIdentifier.keyRefWlock.unlock();
-                }
-            }
-        }
-    }
 }
