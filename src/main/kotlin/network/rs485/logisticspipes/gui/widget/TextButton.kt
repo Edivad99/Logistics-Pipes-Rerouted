@@ -79,7 +79,12 @@ open class TextButton(
             trimmedText = trimText(value)
         }
     private var trimmedText: String = trimText(text)
-    val yOffset: Int = ((relativeBody.roundedHeight - helper.mcFontRenderer.lineHeight) / 2) + 1
+
+    // Computed on demand, not stored: at construction time the widget has not been laid out yet, so
+    // the height is still 0 and a stored offset would come out negative -- drawing the label above
+    // the button instead of centred in it.
+    val yOffset: Int
+        get() = ((relativeBody.roundedHeight - helper.mcFontRenderer.lineHeight) / 2) + 1
     private val centerX: Float
         get() = relativeBody.width / 2
 

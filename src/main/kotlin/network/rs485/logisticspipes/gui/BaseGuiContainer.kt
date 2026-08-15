@@ -77,10 +77,13 @@ abstract class BaseGuiContainer(
         // We just copy the centered rect into leftPos/topPos/imageWidth/imageHeight.
         widgetScreen.initGuiWidget(this@BaseGuiContainer, width, height)
         val rect = widgetScreen.relativeBody
-        imageWidth = rect.width.toInt()
-        imageHeight = rect.height.toInt()
-        leftPos = rect.x0.toInt()
-        topPos = rect.y0.toInt()
+        // Round exactly the way the widgets do. Centering puts the panel on a half pixel as often as
+        // not, and truncating here while the widgets draw at roundToInt() shifts every slot's
+        // contents -- and its hit test -- one pixel off the slot background painted around it.
+        imageWidth = rect.roundedWidth
+        imageHeight = rect.roundedHeight
+        leftPos = rect.roundedLeft
+        topPos = rect.roundedTop
     }
 
     open fun drawBackgroundLayer(mouseX: Int, mouseY: Int, partialTicks: Float) {}
@@ -95,6 +98,25 @@ abstract class BaseGuiContainer(
         lastPartialTick = partialTick
         renderBackground(guiGraphics, mouseX, mouseY, partialTick)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
+        drawHoveredSlotHighlight(guiGraphics)
+    }
+
+    /**
+     * Re-draws the hover highlight vanilla already drew during [render].
+     *
+     * The widget layer paints its slot backgrounds from [renderLabels], which
+     * `AbstractContainerScreen#render` calls *after* the highlight, so the flat highlight quad ends
+     * up buried under those backgrounds -- items survive only because they are drawn with depth.
+     * Drawing it once more here, on top, gives these slots the same feedback as every vanilla slot.
+     */
+    private fun drawHoveredSlotHighlight(guiGraphics: GuiGraphics) {
+        val slot = hoveredSlot?.takeIf { it.isActive && it.isHighlightable } ?: return
+        val pose = guiGraphics.pose()
+        pose.pushPose()
+        // Slot.x/y are panel-local, the same coords vanilla renders them at.
+        pose.translate(leftPos.toFloat(), topPos.toFloat(), 0f)
+        renderSlotHighlight(guiGraphics, slot.x, slot.y, 0)
+        pose.popPose()
     }
 
     override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {

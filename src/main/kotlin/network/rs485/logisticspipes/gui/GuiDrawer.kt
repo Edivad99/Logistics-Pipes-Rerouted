@@ -86,8 +86,14 @@ object GuiDrawer {
         // TODO: texture-atlas sprite blit — no widget GUI calls this yet; port alongside guide book work.
     }
 
-    private val VANILLA_WIDGETS = ResourceLocation.withDefaultNamespace("textures/gui/widgets.png")
+    private val BUTTON = ResourceLocation.withDefaultNamespace("widget/button")
+    private val BUTTON_DISABLED = ResourceLocation.withDefaultNamespace("widget/button_disabled")
+    private val BUTTON_HIGHLIGHTED = ResourceLocation.withDefaultNamespace("widget/button_highlighted")
 
+    /**
+     * Draws a vanilla button face. [light] and [thickerBottomBorder] described the hand-drawn borders
+     * of the pre-1.21 renderer; the vanilla sprites bake both in, so they no longer select anything.
+     */
     fun drawBorderedTile(
         guiGraphics: GuiGraphics,
         rect: IRectangle,
@@ -96,23 +102,12 @@ object GuiDrawer {
         light: Boolean,
         thickerBottomBorder: Boolean,
     ) {
-        val textureY = 46 + when {
-            !enabled -> 0
-            hovered -> 2
-            else -> 1
-        } * 20
-        //Fixme
-//        val sprite = Minecraft.getInstance()
-//            .guiSprites
-//            .getSprite(VANILLA_WIDGETS)
-//        gg.blitNineSlicedSprite(
-//            VANILLA_WIDGETS,
-//            rect.roundedLeft,
-//            rect.roundedTop,
-//            rect.roundedWidth,
-//            rect.roundedHeight,
-//            20, 4, 200, 20, 0, textureY,
-//        )
+        val sprite = when {
+            !enabled -> BUTTON_DISABLED
+            hovered -> BUTTON_HIGHLIGHTED
+            else -> BUTTON
+        }
+        guiGraphics.blitSprite(sprite, rect.roundedLeft, rect.roundedTop, rect.roundedWidth, rect.roundedHeight)
     }
 
     fun drawGuideBookFrame(rect: IRectangle, slider: IRectangle) {
