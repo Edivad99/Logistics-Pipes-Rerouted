@@ -25,6 +25,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.client.ClientManager;
 import logisticspipes.commands.LogisticsPipesCommand;
@@ -114,31 +115,13 @@ public class LogisticsPipes {
         }
 
         PacketHandler.register(modEventBus);
-        //    RailcraftEntityTypes.register(modEventBus);
         LPBlocks.register(modEventBus);
         LPItems.register(modEventBus);
-        //    RailcraftMobEffects.register(modEventBus);
         LPCreativeModeTabs.register(modEventBus);
         LPBlockEntityTypes.register(modEventBus);
-        //    TrackTypes.register(modEventBus);
-        //    RailcraftFluids.register(modEventBus);
-        //    RailcraftFluidTypes.register(modEventBus);
         LPMenuTypes.register(modEventBus);
-        //    RailcraftSoundEvents.register(modEventBus);
         LPParticleTypes.register(modEventBus);
         LPRecipeSerializers.register(modEventBus);
-        //    RailcraftRecipeTypes.register(modEventBus);
-        //    RailcraftGameEvents.register(modEventBus);
-        //    RailcraftDataSerializers.register(modEventBus);
-        //    RailcraftPoiTypes.register(modEventBus);
-        //    RailcraftVillagerProfession.register(modEventBus);
-        //    RailcraftLootModifiers.register(modEventBus);
-        //    RailcraftFeatures.register(modEventBus);
-        //    RailcraftStructureTypes.register(modEventBus);
-        //    RailcraftStructurePieces.register(modEventBus);
-        //    RailcraftCriteriaTriggers.register(modEventBus);
-        //    RailcraftAttachmentTypes.register(modEventBus);
-        //    RailcraftDataMaps.register(modEventBus);
         LPDataComponents.register(modEventBus);
     }
 
@@ -153,9 +136,9 @@ public class LogisticsPipes {
             LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getFluidCap);
 
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
+            LPBlockEntityTypes.POWER_JUNCTION.get(), LogisticsPowerJunctionTileEntity::getEnergyStorageCap);
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
             LPBlockEntityTypes.POWER_PROVIDER_RF.get(), LogisticsRFPowerProviderTileEntity::getEnergyStorageCap);
-
-        //event.registerItem(Capabilities.FluidHandler.ITEM, (o, unused) -> o, LPItems.FLUID_CONTAINER);
     }
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {
@@ -234,7 +217,7 @@ public class LogisticsPipes {
         // MCMultiPart) — none of these mods exist on 1.20.1.
         SimpleServiceLocator.addCraftingRecipeProvider(new LogisticsCraftingTable());
 
-        FluidIdentifier.initFromForge(false);
+        FluidIdentifier.initFromNeoForge(false);
     }
 
     private void handleGatherData(GatherDataEvent event) {

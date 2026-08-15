@@ -1,5 +1,7 @@
 package logisticspipes.utils;
 
+import javax.annotation.Nullable;
+
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -14,12 +16,14 @@ public class FluidIdentifierStack implements Comparable<FluidIdentifierStack> {
 		setAmount(milliBuckets);
 	}
 
+    @Nullable
 	public static FluidIdentifierStack getFromStack(FluidStack stack) {
 		FluidIdentifier fluid = FluidIdentifier.get(stack);
 		if (fluid == null) return null;
 		return new FluidIdentifierStack(fluid, stack.getAmount());
 	}
 
+    @Nullable
 	public static FluidIdentifierStack getFromStack(ItemIdentifierStack stack) {
 		FluidIdentifier fluid = FluidIdentifier.get(stack);
 		if (fluid == null) return null;

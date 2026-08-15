@@ -2,6 +2,8 @@ package logisticspipes.utils;
 
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
+
 import logisticspipes.interfaces.ITankUtil;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -26,13 +28,13 @@ public class TankUtil implements ITankUtil {
 	}
 
 	@Override
-	public FluidIdentifierStack drain(FluidIdentifierStack stack, boolean doDrain) {
+	public @Nullable FluidIdentifierStack drain(FluidIdentifierStack stack, boolean doDrain) {
 		return FluidIdentifierStack.getFromStack(fluidhandler.drain(stack.makeFluidStack(),
 				doDrain ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE));
 	}
 
 	@Override
-	public FluidIdentifierStack drain(int amount, boolean doDrain) {
+	public @Nullable FluidIdentifierStack drain(int amount, boolean doDrain) {
 		return FluidIdentifierStack.getFromStack(fluidhandler.drain(amount,
 				doDrain ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE));
 	}

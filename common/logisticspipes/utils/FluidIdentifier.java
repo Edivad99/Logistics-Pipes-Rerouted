@@ -235,7 +235,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 
 	private static boolean init = false;
 
-	public static void initFromForge(boolean flag) {
+	public static void initFromNeoForge(boolean flag) {
 		if (FluidIdentifier.init) {
 			return;
 		}

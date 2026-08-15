@@ -30,7 +30,7 @@ public class LPTickHandler {
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
 	public void clientTick(ClientTickEvent.Post event) {
-		FluidIdentifier.initFromForge(true);
+		FluidIdentifier.initFromNeoForge(true);
 		SimpleServiceLocator.clientBufferHandler.clientTick();
 		MainProxy.getProxy(true).tickClient();
 		DebugGuiController.instance().execClient();

@@ -55,6 +55,11 @@ import network.rs485.logisticspipes.connection.getTankUtil
 object PipeFluidUtil {
 
     fun getTankUtilForTE(tile: BlockEntity?, dirOnEntity: Direction?): ITankUtil? {
+        // Storage networks first: they hold fluids without tanks to enumerate, so they cannot be
+        // reached through Capabilities.FluidHandler at all. Same precedence as the item side, where
+        // InventoryUtilFactory consults the special handlers before the item-handler capability.
+        SimpleServiceLocator.specialTankHandler.getSpecialTankUtilFor(tile, dirOnEntity)?.let { return it }
+
         // NeoForge 1.20.1: BlockCapability queried via static method
         if (SimpleServiceLocator.specialTankHandler.hasHandlerFor(tile)) {
             val handler = SimpleServiceLocator.specialTankHandler.getTankHandlerFor(tile)

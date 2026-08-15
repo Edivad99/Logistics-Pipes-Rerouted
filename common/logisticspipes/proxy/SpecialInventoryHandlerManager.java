@@ -1,24 +1,21 @@
 package logisticspipes.proxy;
 
-import static logisticspipes.LPConstants.appliedenergisticsModID;
-
-import logisticspipes.proxy.specialinventoryhandler.AEInterfaceInventoryHandler;
 import net.neoforged.fml.ModList;
-import network.rs485.logisticspipes.proxy.StorageDrawersProxy;
+
+import appeng.api.ids.AEConstants;
+
+import logisticspipes.LPConstants;
+import logisticspipes.integrations.ae2.AEInterfaceInventoryHandler;
+import logisticspipes.integrations.refinedstorage.RSInterfaceInventoryHandler;
 
 public class SpecialInventoryHandlerManager {
 
-	public static void load() {
-
-		if (ModList.get().isLoaded(appliedenergisticsModID)) {
-			SimpleServiceLocator.inventoryUtilFactory.registerHandler(new AEInterfaceInventoryHandler());
-		}
-
-		// BuildCraft inventory handler removed — no 1.20.1 port exists.
-
-		StorageDrawersProxy.INSTANCE.registerInventoryHandler();
-
-		// Charset has no 1.20.1 port — removed
-	}
-
+    public static void load() {
+        if (ModList.get().isLoaded(AEConstants.MOD_ID)) {
+            SimpleServiceLocator.inventoryUtilFactory.registerHandler(new AEInterfaceInventoryHandler());
+        }
+        if (ModList.get().isLoaded(LPConstants.RS_MOD_ID)) {
+            SimpleServiceLocator.inventoryUtilFactory.registerHandler(new RSInterfaceInventoryHandler());
+        }
+    }
 }

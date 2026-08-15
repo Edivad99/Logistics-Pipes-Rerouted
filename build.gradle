@@ -142,6 +142,7 @@ test {
 }
 
 repositories {
+    mavenCentral()
     maven {
         name 'JEI/Patchouli'
         url 'https://maven.blamejared.com/'
@@ -149,6 +150,10 @@ repositories {
     maven {
         name 'curseforge'
         url 'https://www.cursemaven.com'
+    }
+    maven {
+        name 'Refined Storage'
+        url 'https://maven.creeperhost.net'
     }
 }
 
@@ -178,6 +183,16 @@ dependencies {
     localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
 
     implementation "curse.maven:jade-api-324717:$jade_id"
+
+    compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version:api"
+    localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
+
+    compileOnly("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
+        transitive = false
+    }
+    localRuntime("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
+        transitive = false
+    }
 
     localRuntime "curse.maven:mekanism-268560:7904058"
     testImplementation "org.jetbrains.kotlin:kotlin-test:2.4.0"

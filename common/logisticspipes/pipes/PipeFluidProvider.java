@@ -60,8 +60,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 				break;
 			}
 			boolean fallback = true;
-			if (pair.getValue2() instanceof ISpecialTankUtil) {
-				ISpecialTankUtil util = (ISpecialTankUtil) pair.getValue2();
+			if (pair.getValue2() instanceof ISpecialTankUtil util) {
 				fallback = false;
 				ISpecialTankAccessHandler handler = util.getSpecialHandler();
 				FluidStack drained = handler.drainFrom(pair.getValue1().getTileEntity(), order.getFluid(), amountToSend.get(), false);
@@ -89,13 +88,19 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 						if (fluidStack != null && fluidStack.getFluid() != null) {
 							if (order.getFluid().equals(fluidStack.getFluid())) {
 								int amount = Math.min(fluidStack.getAmount(), amountToSend.get());
-								FluidIdentifierStack drained = pair.getValue2().drain(amount, false);
+								// Drain the ordered fluid by name, not "whatever comes out first": the
+								// amount-only overload takes the first fluid the container reports, which is
+								// the right one for a tank holding a single fluid but arbitrary for a storage
+								// network holding several, so an order for anything but that one fluid would
+								// drain the wrong fluid and get thrown away by the check below.
+								FluidIdentifierStack drained = pair.getValue2().drain(order.getFluid().makeFluidIdentifierStack(amount), false);
 								if (drained != null && drained.getAmount() > 0 && order.getFluid().equals(drained.getFluid())) {
-									drained = pair.getValue2().drain(amount, true);
+									drained = pair.getValue2().drain(order.getFluid().makeFluidIdentifierStack(amount), true);
 									while (drained.getAmount() < amountToSend.get()) {
-										FluidIdentifierStack addition = pair.getValue2().drain(amountToSend.get() - drained.getAmount(), false);
+										int missing = amountToSend.get() - drained.getAmount();
+										FluidIdentifierStack addition = pair.getValue2().drain(order.getFluid().makeFluidIdentifierStack(missing), false);
 										if (addition != null && addition.getAmount() > 0 && order.getFluid().equals(addition.getFluid())) {
-											addition = pair.getValue2().drain(amountToSend.get() - drained.getAmount(), true);
+											addition = pair.getValue2().drain(order.getFluid().makeFluidIdentifierStack(missing), true);
 											drained.raiseAmount(addition.getAmount());
 										} else {
 											break;

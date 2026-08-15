@@ -99,7 +99,9 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		if (SimpleServiceLocator.specialTankHandler.hasHandlerFor(tile)) {
 			return true;
 		}
-		boolean fluidTile = false;
+		// dir points from this pipe to the tile, so the tile is asked about the side facing us -- the
+		// same side getTankUtil() uses when it builds the util we would end up filling.
+		boolean fluidTile = SimpleServiceLocator.specialTankHandler.hasSpecialTankUtilFor(tile, dir.getOpposite());
 		if (tile != null && tile.getLevel() != null) {
 			Level level = tile.getLevel();
 			IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, tile.getBlockPos(), dir);

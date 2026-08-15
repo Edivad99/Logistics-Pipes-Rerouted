@@ -25,14 +25,6 @@ public class FluidGuiOrderer extends GuiOrderer {
 		SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 25, 46, 20, "Refresh");
 		refreshBtn.setPressListener(b -> refreshItems());
 		addRenderableWidget(refreshBtn);
-		SmallGuiButton submitBtn = new SmallGuiButton(0, leftPos + 60, bottom - 25, 46, 20, "Request");
-		submitBtn.setPressListener(b -> {
-			if (itemDisplay.getSelectedItem() != null) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(SubmitFluidRequestPacket.class).setStack(itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount())).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
-				refreshItems();
-			}
-		});
-		addRenderableWidget(submitBtn);
 		if (setItemDisplay) {
 			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24, 49, new int[] { 1, 1000, 16000, 100 }, false);
 		}
@@ -42,6 +34,11 @@ public class FluidGuiOrderer extends GuiOrderer {
 	@Override
 	protected int getStackAmount() {
 		return 1000;
+	}
+
+	@Override
+	protected void submitRequest() {
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(SubmitFluidRequestPacket.class).setStack(itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount())).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
 	}
 
 	@Override

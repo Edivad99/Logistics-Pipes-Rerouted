@@ -145,7 +145,7 @@ class FluidIdentifierTest {
     fun `all lists each fluid once, without the flowing variants or the empty fluid`() {
         // Every flowing fluid is registered twice, source and flowing, and both map to the same
         // visible container -- listing both showed every fluid twice in the picker GUI.
-        FluidIdentifier.initFromForge(false)
+        FluidIdentifier.initFromNeoForge(false)
         val all = FluidIdentifier.all().toList()
 
         assertTrue(all.contains(FluidIdentifier.get(Fluids.WATER)), "water is missing")

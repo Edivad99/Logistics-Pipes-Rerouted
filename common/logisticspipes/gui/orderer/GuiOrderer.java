@@ -35,6 +35,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -229,10 +230,9 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		return btn;
 	}
 
-	private void handleBtn(int id, net.minecraft.client.gui.components.AbstractButton guibutton) {
+	private void handleBtn(int id, AbstractButton guibutton) {
 		if (id == 0 && itemDisplay.getSelectedItem() != null) {
-			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitPacket.class).setStack(stack).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
+			submitRequest();
 			refreshItems();
 		} else if (id == 1) {
 			itemDisplay.nextPage();
@@ -268,6 +268,16 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 
 	protected int getStackAmount() {
 		return 64;
+	}
+
+	/**
+	 * Sends the request for the currently selected item. Called by the shared "Request" button, which
+	 * only fires when something is selected; subclasses override this to send their own packet type
+	 * instead of adding a second button.
+	 */
+	protected void submitRequest() {
+		final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitPacket.class).setStack(stack).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
 	}
 
 	@Override

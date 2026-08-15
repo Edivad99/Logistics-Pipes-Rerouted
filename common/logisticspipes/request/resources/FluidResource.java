@@ -2,6 +2,13 @@ package logisticspipes.request.resources;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.MutableComponent;
+
+import lombok.Getter;
+
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.FluidIdentifier;
@@ -15,17 +22,19 @@ public class FluidResource implements IResource {
 
 	private final Object[] ccTypeHolder = new Object[1];
 	private final FluidIdentifier liquid;
+    @Getter
+    @Nullable
 	private final IRequestFluid target;
 	private int amount;
 
-	public FluidResource(FluidIdentifier liquid, int amount, IRequestFluid target) {
+	public FluidResource(FluidIdentifier liquid, int amount, @Nullable IRequestFluid target) {
 		this.liquid = liquid;
 		this.amount = amount;
 		this.target = target;
 	}
 
 	public FluidResource(LPDataInput input) {
-		liquid = FluidIdentifier.get(Objects.requireNonNull(input.readItemIdentifier()));
+		liquid = Objects.requireNonNull(FluidIdentifier.get(Objects.requireNonNull(input.readItemIdentifier())));
 		amount = input.readInt();
 		target = null;
 	}
@@ -50,11 +59,7 @@ public class FluidResource implements IResource {
 		return liquid;
 	}
 
-	public IRequestFluid getTarget() {
-		return target;
-	}
-
-	@Override
+    @Override
     public IRouter getRouter() {
 		return target.getRouter();
 	}
@@ -102,7 +107,7 @@ public class FluidResource implements IResource {
 		}
 		builder.append(amount);
 		builder.append("mB ");
-		builder.append(liquid.makeFluidStack(0).getHoverName().getString());
+		builder.append(liquid.makeFluidStack(1).getHoverName().getString());
 		if (code != ColorCode.NONE) {
 			builder.append(ChatColor.WHITE);
 		}

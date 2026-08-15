@@ -1,12 +1,18 @@
 package logisticspipes.blocks.powertile;
 
 import java.util.List;
-import logisticspipes.LPConstants;
-import logisticspipes.api.ILogisticsPowerProvider;
-import logisticspipes.asm.ModDependentInterface;
-import logisticspipes.asm.ModDependentMethod;
-import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
+import javax.annotation.Nullable;
+
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+
+import net.neoforged.neoforge.energy.IEnergyStorage;
+
 import logisticspipes.LPConfigs;
+import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockWatchingHandler;
 import logisticspipes.interfaces.IGuiOpenControler;
@@ -27,29 +33,12 @@ import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
-// CapabilityEnergy removed in NeoForge 1.20.1 — use ForgeCapabilities.EnergyStorage.BLOCK
-// import buildcraft.api.mj.IMjConnector;
-// import buildcraft.api.mj.IMjReceiver;
-// IC2 imports removed — IC2 has no 1.20.1 port; IEnergySink interface added at runtime via @ModDependentInterface ASM
-
-@ModDependentInterface(modId = { LPConstants.ic2ModID }, interfacePath = { "ic2.api.energy.tile.IEnergySink" })
 @CCType(name = "LogisticsPowerJunction")
-public class LogisticsPowerJunctionTileEntity extends LogisticsSolidBlockEntity implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenControler, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler
-		// IEnergySink — added at runtime by @ModDependentInterface ASM when IC2 is present
-{
+public class LogisticsPowerJunctionTileEntity extends LogisticsSolidBlockEntity implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenControler, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
 
-	public Object OPENPERIPHERAL_IGNORE; //Tell OpenPeripheral to ignore this class
-
-	// TODO: BuildCraft MJ capabilities (IMjConnector, IMjReceiver) — deferred until BuildCraft 1.20.1 is available.
-	// Capability<T> API removed in NeoForge 1.20.1; use BlockCapability when migrating.
-
-	// true if it needs more power, turns off at full, turns on at 50%.
+    // true if it needs more power, turns off at full, turns on at 50%.
 	public boolean needMorePowerTriggerCheck = true;
 
 	public final static int IC2Multiplier = 2;
@@ -290,7 +279,7 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidBlockEntity 
 	}
 
 	@Override
-	public net.minecraft.world.level.Level getLevelForHUD() {
+	public Level getLevelForHUD() {
 		return getWorld();
 	}
 
@@ -335,57 +324,17 @@ public class LogisticsPowerJunctionTileEntity extends LogisticsSolidBlockEntity 
 		return getWorld().getBlockEntity(getBlockPos()) == this;
 	}
 
-	// @Override removed — IEnergySink not in implements
-	@ModDependentMethod(modId = LPConstants.ic2ModID)
-	public boolean acceptsEnergyFrom(Object tile, Direction dir) { // was: IEnergyEmitter tile
-		return true;
-	}
-
-	private void transferFromIC2Buffer() {
-		if (freeSpace() > 0 && internalBuffer >= 1) {
-			int addAmount = Math.min((int) Math.floor(internalBuffer), freeSpace());
-			addEnergy(addAmount);
-			internalBuffer -= addAmount;
-		}
-	}
-
-	// @Override removed — IEnergySink not in implements
-	@ModDependentMethod(modId = LPConstants.ic2ModID)
-	public double getDemandedEnergy() {
-		if (!addedToEnergyNet) {
-			return 0;
-		}
-		transferFromIC2Buffer();
-		//round up so we demand enough to completely fill visible storage
-		return (freeSpace() + LogisticsPowerJunctionTileEntity.IC2Multiplier - 1) / LogisticsPowerJunctionTileEntity.IC2Multiplier;
-	}
-
-	// @Override removed — IEnergySink not in implements
-	@ModDependentMethod(modId = LPConstants.ic2ModID)
-	public double injectEnergy(Direction directionFrom, double amount, double voltage) {
-		internalBuffer += amount * LogisticsPowerJunctionTileEntity.IC2Multiplier;
-		transferFromIC2Buffer();
-		return 0;
-	}
-
-	// @Override removed — IEnergySink not in implements
-	@ModDependentMethod(modId = LPConstants.ic2ModID)
-	public int getSinkTier() {
-		return Integer.MAX_VALUE;
-	}
-
-	@Override
+    @Override
 	public boolean isHUDInvalid() {
 		return isRemoved();
 	}
 
-	/** Used by RegisterCapabilitiesEvent wiring in LPRegistries. */
-	public IEnergyStorage getEnergyInterface() {
-		return energyInterface;
-	}
-
-	@Override
+    @Override
 	public CoordinatesGuiProvider getGuiProvider() {
 		return NewGuiHandler.getGui(PowerJunctionGui.class);
 	}
+
+    public IEnergyStorage getEnergyStorageCap(@Nullable Direction direction) {
+        return this.energyInterface;
+    }
 }
