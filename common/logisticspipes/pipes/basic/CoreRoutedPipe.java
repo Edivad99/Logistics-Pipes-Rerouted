@@ -139,11 +139,11 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	private static int pipecount = 0;
 	public final PlayerCollectionList watchers = new PlayerCollectionList();
-	protected final PriorityBlockingQueue<ItemRoutingInformation> _inTransitToMe = new PriorityBlockingQueue<>(10,
+	protected final PriorityBlockingQueue<ItemRoutingInformation> inTransitToMe = new PriorityBlockingQueue<>(10,
 			new ItemRoutingInformation.DelayComparator());
-	protected final LinkedList<Triplet<IRoutedItem, Direction, ItemSendMode>> _sendQueue = new LinkedList<>();
+	protected final LinkedList<Triplet<IRoutedItem, Direction, ItemSendMode>> sendQueue = new LinkedList<>();
 	protected final Map<ItemIdentifier, Queue<Pair<Integer, ItemRoutingInformation>>> queuedDataForUnroutedItems = Collections.synchronizedMap(new TreeMap<>());
-	public boolean _textureBufferPowered;
+	public boolean textureBufferPowered;
 	public long delayTo = 0;
 	public int repeatFor = 0;
 	public int stat_session_sent;
@@ -159,17 +159,17 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     @Nullable
 	protected String routerId;
 	protected final Object routerIdLock = new Object();
-	protected int _delayOffset;
-	protected boolean _initialInit = true;
+	protected int delayOffset;
+	protected boolean initialInit = true;
     @Nullable
-	protected RouteLayer _routeLayer;
+	protected RouteLayer routeLayer;
     @Nullable
-	protected TransportLayer _transportLayer;
+	protected TransportLayer transportLayer;
 
 	final protected UpgradeManager upgradeManager = new UpgradeManager(this);
 
     @Nullable
-	protected LogisticsItemOrderManager _orderItemManager = null;
+	protected LogisticsItemOrderManager orderItemManager = null;
 	protected int throttleTime = 20;
 	protected IPipeSign[] signItem = new IPipeSign[6];
 	private boolean recheckConnections = false;
@@ -237,7 +237,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		super.initialize();
 		throttleTimeLeft = 20 + new Random().nextInt(LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
 		//Roughly spread pipe updates throughout the frequency, no need to maintain balance
-		_delayOffset = CoreRoutedPipe.pipecount % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
+		delayOffset = CoreRoutedPipe.pipecount % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
 	}
 
 	@Override
@@ -246,17 +246,17 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	public RouteLayer getRouteLayer() {
-		if (_routeLayer == null) {
-			_routeLayer = new RouteLayer(getRouter(), getTransportLayer(), this);
+		if (routeLayer == null) {
+			routeLayer = new RouteLayer(getRouter(), getTransportLayer(), this);
 		}
-		return _routeLayer;
+		return routeLayer;
 	}
 
 	public TransportLayer getTransportLayer() {
-		if (_transportLayer == null) {
-			_transportLayer = new PipeTransportLayer(this, this, getRouter());
+		if (transportLayer == null) {
+			transportLayer = new PipeTransportLayer(this, this, getRouter());
 		}
-		return _transportLayer;
+		return transportLayer;
 	}
 
 	@Override
@@ -276,13 +276,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Override
 	public void queueRoutedItem(IRoutedItem routedItem, Direction from) {
         Objects.requireNonNull(from);
-		_sendQueue.addLast(new Triplet<>(routedItem, from, ItemSendMode.Normal));
+		sendQueue.addLast(new Triplet<>(routedItem, from, ItemSendMode.Normal));
 		sendQueueChanged(false);
 	}
 
 	public void queueRoutedItem(IRoutedItem routedItem, Direction from, ItemSendMode mode) {
         Objects.requireNonNull(from);
-		_sendQueue.addLast(new Triplet<>(routedItem, from, mode));
+		sendQueue.addLast(new Triplet<>(routedItem, from, mode));
 		sendQueueChanged(false);
 	}
 
@@ -320,19 +320,19 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	private void notifyOfSend(ItemRoutingInformation routedItem) {
-		_inTransitToMe.add(routedItem);
+		inTransitToMe.add(routedItem);
 		//LogisticsPipes.log.info("Sending: "+routedItem.getIDStack().getItem().getFriendlyName());
 	}
 
 	public void notifyOfReroute(ItemRoutingInformation routedItem) {
-		_inTransitToMe.remove(routedItem);
+		inTransitToMe.remove(routedItem);
 	}
 
 	//When Recreating the Item from the TE version we have the same hashCode but a different instance so we need to refresh this
 	public void refreshItem(ItemRoutingInformation routedItem) {
-		if (_inTransitToMe.contains(routedItem)) {
-			_inTransitToMe.remove(routedItem);
-			_inTransitToMe.add(routedItem);
+		if (inTransitToMe.contains(routedItem)) {
+			inTransitToMe.remove(routedItem);
+			inTransitToMe.add(routedItem);
 		}
 	}
 
@@ -419,8 +419,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 
 		// remove old items _inTransit -- these should have arrived, but have probably been lost instead. In either case, it will allow a re-send so that another attempt to re-fill the inventory can be made.
-		while (_inTransitToMe.peek() != null && _inTransitToMe.peek().getTickToTimeOut() <= 0) {
-			final ItemRoutingInformation polledInfo = _inTransitToMe.poll();
+		while (inTransitToMe.peek() != null && inTransitToMe.peek().getTickToTimeOut() <= 0) {
+			final ItemRoutingInformation polledInfo = inTransitToMe.poll();
 			if (polledInfo != null) {
 				if (LogisticsPipes.isDEBUG()) {
 					LogisticsPipes.LOG.info("Timed Out: " + polledInfo.getItem().getFriendlyName() + " (" + polledInfo.hashCode() + ")");
@@ -430,8 +430,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 		//update router before ticking logic/transport
 		final boolean doFullRefresh =
-				getWorld().getGameTime() % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt() == _delayOffset
-				|| _initialInit || recheckConnections;
+				getWorld().getGameTime() % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt() == delayOffset
+				|| initialInit || recheckConnections;
 		if (doFullRefresh) {
 			// update adjacent cache first, so interests can be gathered correctly
 			// in getRouter().update(…) below
@@ -453,26 +453,26 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 
 		ignoreDisableUpdateEntity();
-		_initialInit = false;
-		if (!_sendQueue.isEmpty()) {
+		initialInit = false;
+		if (!sendQueue.isEmpty()) {
 			if (getItemSendMode() == ItemSendMode.Normal) {
-				Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = _sendQueue.getFirst();
+				Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = sendQueue.getFirst();
 				sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
-				_sendQueue.removeFirst();
-				for (int i = 0; i < 16 && !_sendQueue.isEmpty() && _sendQueue.getFirst().getValue3() == ItemSendMode.Fast; i++) {
-					if (!_sendQueue.isEmpty()) {
-						itemToSend = _sendQueue.getFirst();
+				sendQueue.removeFirst();
+				for (int i = 0; i < 16 && !sendQueue.isEmpty() && sendQueue.getFirst().getValue3() == ItemSendMode.Fast; i++) {
+					if (!sendQueue.isEmpty()) {
+						itemToSend = sendQueue.getFirst();
 						sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
-						_sendQueue.removeFirst();
+						sendQueue.removeFirst();
 					}
 				}
 				sendQueueChanged(false);
 			} else if (getItemSendMode() == ItemSendMode.Fast) {
 				for (int i = 0; i < 16; i++) {
-					if (!_sendQueue.isEmpty()) {
-						Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = _sendQueue.getFirst();
+					if (!sendQueue.isEmpty()) {
+						Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = sendQueue.getFirst();
 						sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
-						_sendQueue.removeFirst();
+						sendQueue.removeFirst();
 					}
 				}
 				sendQueueChanged(false);
@@ -511,7 +511,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public boolean isNthTick(int n) {
-		return ((getWorld().getGameTime() + _delayOffset) % n == 0);
+		return ((getWorld().getGameTime() + delayOffset) % n == 0);
 	}
 
 	private void doDebugStuff(Player entityplayer) {
@@ -540,7 +540,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 		sb.append(router).append('\n');
 		sb.append("---------CONNECTED TO---------------\n");
-		for (CoreRoutedPipe adj : router._adjacent.keySet()) {
+		for (CoreRoutedPipe adj : router.adjacent.keySet()) {
 			sb.append(adj.getRouter().getSimpleID()).append('\n');
 		}
 		sb.append('\n');
@@ -583,9 +583,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		sb.append(router.getPowerProvider()).append('\n');
 		sb.append("~~~~~~~~~~~SUBSYSTEMPOWER~~~~~~~~~~~\n");
 		sb.append(router.getSubSystemPowerProvider()).append('\n');
-		if (_orderItemManager != null) {
+		if (orderItemManager != null) {
 			sb.append("################ORDERDUMP#################\n");
-			_orderItemManager.dump(sb);
+			orderItemManager.dump(sb);
 		}
 		sb.append("################END#################\n");
 		refreshConnectionAndRender(true);
@@ -635,12 +635,12 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (!isNthTick(10)) {
 			return;
 		}
-		if (stillNeedReplace || _initialInit || router == null) {
+		if (stillNeedReplace || initialInit || router == null) {
 			return;
 		}
 		boolean flag;
-		if ((flag = canUseEnergy(1)) != _textureBufferPowered) {
-			_textureBufferPowered = flag;
+		if ((flag = canUseEnergy(1)) != textureBufferPowered) {
+			textureBufferPowered = flag;
 			refreshRender(false);
 			spawnParticle(Particles.RED_SPARKLE, 3);
 		}
@@ -654,7 +654,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public abstract TextureType getCenterTexture();
 
 	public TextureType getTextureType(@Nullable Direction connection) {
-		if (stillNeedReplace || _initialInit) {
+		if (stillNeedReplace || initialInit) {
 			return getCenterTexture();
 		}
 
@@ -774,7 +774,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 
 		ListTag sendqueue = new ListTag();
-		for (Triplet<IRoutedItem, Direction, ItemSendMode> p : _sendQueue) {
+		for (Triplet<IRoutedItem, Direction, ItemSendMode> p : sendQueue) {
 			CompoundTag tagentry = new CompoundTag();
 			CompoundTag tagentityitem = new CompoundTag();
 			p.getValue1().writeToNBT(tagentityitem, provider);
@@ -827,7 +827,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		upgradeManager.readFromNBT(nbttagcompound.getCompound("upgradeManager"), provider);
 		powerHandler.readFromNBT(nbttagcompound.getCompound("powerHandler"));
 
-		_sendQueue.clear();
+		sendQueue.clear();
 		ListTag sendqueue = nbttagcompound.getList("sendqueue", nbttagcompound.getId());
 		for (int i = 0; i < sendqueue.size(); i++) {
 			CompoundTag tagentry = sendqueue.getCompound(i);
@@ -835,7 +835,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			LPTravelingItemServer item = new LPTravelingItemServer(tagentityitem);
 			Direction from = Direction.values()[tagentry.getByte("from")];
 			ItemSendMode mode = ItemSendMode.values()[tagentry.getByte("mode")];
-			_sendQueue.add(new Triplet<>(item, from, mode));
+			sendQueue.add(new Triplet<>(item, from, mode));
 		}
 		for (int i = 0; i < 6; i++) {
 			if (nbttagcompound.getBoolean("PipeSign_" + i)) {
@@ -1190,7 +1190,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	public boolean initialInit() {
-		return _initialInit;
+		return this.initialInit;
 	}
 
 	@Override
@@ -1297,7 +1297,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	public void notifyOfItemArival(ItemRoutingInformation information) {
-		_inTransitToMe.remove(information);
+		inTransitToMe.remove(information);
 		if (this instanceof IRequireReliableTransport) {
 			((IRequireReliableTransport) this).itemArrived(information.getItem(), information.targetInfo);
 		}
@@ -1315,7 +1315,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Override
 	public int countOnRoute(ItemIdentifier it) {
 		int count = 0;
-		for (ItemRoutingInformation next : _inTransitToMe) {
+		for (ItemRoutingInformation next : inTransitToMe) {
 			if (next.getItem().getItem().equals(it)) {
 				count += next.getItem().getStackSize();
 			}
@@ -1326,7 +1326,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	@Override
 	public final int getIconIndex(@Nullable Direction connection) {
 		TextureType texture = getTextureType(connection);
-		if (_textureBufferPowered) {
+		if (textureBufferPowered) {
 			return texture.powered;
 		} else if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
 			return texture.normal;
@@ -1507,8 +1507,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public LogisticsItemOrderManager getItemOrderManager() {
-		_orderItemManager = _orderItemManager != null ? _orderItemManager : new LogisticsItemOrderManager(this);
-		return _orderItemManager;
+		orderItemManager = orderItemManager != null ? orderItemManager : new LogisticsItemOrderManager(this);
+		return orderItemManager;
 	}
 
 	public LogisticsOrderManager<?, ?> getOrderManager() {
@@ -1644,7 +1644,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		StatusEntry entry = new StatusEntry();
 		entry.name = "Send Queue";
 		entry.subEntry = new ArrayList<>();
-		for (Triplet<IRoutedItem, Direction, ItemSendMode> part : _sendQueue) {
+		for (Triplet<IRoutedItem, Direction, ItemSendMode> part : sendQueue) {
 			StatusEntry subEntry = new StatusEntry();
 			subEntry.name = part.toString();
 			entry.subEntry.add(subEntry);
@@ -1653,7 +1653,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		entry = new StatusEntry();
 		entry.name = "In Transit To Me";
 		entry.subEntry = new ArrayList<>();
-		for (ItemRoutingInformation part : _inTransitToMe) {
+		for (ItemRoutingInformation part : inTransitToMe) {
 			StatusEntry subEntry = new StatusEntry();
 			subEntry.name = part.toString();
 			entry.subEntry.add(subEntry);

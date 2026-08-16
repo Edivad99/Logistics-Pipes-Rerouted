@@ -39,12 +39,12 @@ import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport {
 
-	private boolean _lastRequestFailed = false;
-	private boolean _requestPartials = false;
+	private boolean lastRequestFailed = false;
+	private boolean requestPartials = false;
 
 	private ItemIdentifierInventory dummyInventory = new ItemIdentifierInventory(9, "Fluids to keep stocked", 127);
 
-	private final HashMap<ItemIdentifier, Integer> _requestedItems = new HashMap<>();
+	private final HashMap<ItemIdentifier, Integer> requestedItems = new HashMap<>();
 
 	public PipeItemsFluidSupplier(Item item) {
 		super(new PipeTransportLogistics(true) {
@@ -73,11 +73,11 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 
 	/* TRIGGER INTERFACE */
 	public boolean isRequestFailed() {
-		return _lastRequestFailed;
+		return lastRequestFailed;
 	}
 
 	public void setRequestFailed(boolean value) {
-		_lastRequestFailed = value;
+		lastRequestFailed = value;
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 					liquidId.setValue(liquidId.getValue() - haveCount);
 				}
 			}
-			for (Entry<ItemIdentifier, Integer> requestedItem : _requestedItems.entrySet()) {
+			for (Entry<ItemIdentifier, Integer> requestedItem : requestedItems.entrySet()) {
 				ItemStack wantItem = requestedItem.getKey().makeNormalStack(1);
 				FluidStack requestedFluidId = FluidUtil.getFluidContained(wantItem).orElse(null);
 				if (requestedFluidId == null) {
@@ -214,7 +214,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 
 				boolean success = false;
 
-				if (_requestPartials) {
+				if (requestPartials) {
 					countToRequest = RequestTree.requestPartial(need.makeStack(countToRequest), (IRequestItems) container.pipe, null);
 					if (countToRequest > 0) {
 						success = true;
@@ -224,11 +224,11 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 				}
 
 				if (success) {
-					Integer currentRequest = _requestedItems.get(need);
+					Integer currentRequest = requestedItems.get(need);
 					if (currentRequest == null) {
-						_requestedItems.put(need, countToRequest);
+						requestedItems.put(need, countToRequest);
 					} else {
-						_requestedItems.put(need, currentRequest + countToRequest);
+						requestedItems.put(need, currentRequest + countToRequest);
 					}
 				} else {
 					((PipeItemsFluidSupplier) container.pipe).setRequestFailed(true);
@@ -241,29 +241,29 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.readFromNBT(nbttagcompound, provider);
 		dummyInventory.readFromNBT(nbttagcompound, provider, "");
-		_requestPartials = nbttagcompound.getBoolean("requestpartials");
+		requestPartials = nbttagcompound.getBoolean("requestpartials");
 	}
 
 	@Override
 	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.writeToNBT(nbttagcompound, provider);
 		dummyInventory.writeToNBT(nbttagcompound, provider, "");
-		nbttagcompound.putBoolean("requestpartials", _requestPartials);
+		nbttagcompound.putBoolean("requestpartials", requestPartials);
 	}
 
 	private void decreaseRequested(ItemIdentifierStack item) {
 		int remaining = item.getStackSize();
 		//see if we can get an exact match
-		Integer count = _requestedItems.get(item.getItem());
+		Integer count = requestedItems.get(item.getItem());
 		if (count != null) {
-			_requestedItems.put(item.getItem(), Math.max(0, count - remaining));
+			requestedItems.put(item.getItem(), Math.max(0, count - remaining));
 			remaining -= count;
 		}
 		if (remaining <= 0) {
 			return;
 		}
 		//still remaining... was from fuzzyMatch on a crafter
-		for (Entry<ItemIdentifier, Integer> e : _requestedItems.entrySet()) {
+		for (Entry<ItemIdentifier, Integer> e : requestedItems.entrySet()) {
 			if (e.getKey().equalsWithoutNBT(item.getItem())) {
 				int expected = e.getValue();
 				e.setValue(Math.max(0, expected - remaining));
@@ -289,11 +289,11 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 	}
 
 	public boolean isRequestingPartials() {
-		return _requestPartials;
+		return requestPartials;
 	}
 
 	public void setRequestingPartials(boolean value) {
-		_requestPartials = value;
+		requestPartials = value;
 		markTileDirty();
 	}
 

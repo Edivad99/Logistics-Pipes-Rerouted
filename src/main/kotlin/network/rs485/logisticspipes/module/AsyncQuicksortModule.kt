@@ -99,8 +99,8 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
     override fun getLPName(): String = name
 
     override fun jobSetup(): Pair<Int, ItemStack>? {
-        val serverRouter = this._service?.router as? ServerRouter ?: return null
-        val inventory = _service?.availableInventories()?.firstOrNull() ?: return null
+        val serverRouter = this.service?.router as? ServerRouter ?: return null
+        val inventory = service?.availableInventories()?.firstOrNull() ?: return null
         if (inventory.containerSize == 0) return null
         if (currentSlot >= inventory.containerSize) currentSlot = 0
         val slot = currentSlot++
@@ -120,7 +120,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
 
     override suspend fun tickAsync(setupObject: Pair<Int, ItemStack>?): QuicksortAsyncResult? {
         if (setupObject == null) return null
-        val serverRouter = this._service?.router as? ServerRouter ?: return null
+        val serverRouter = this.service?.router as? ServerRouter ?: return null
         AsyncRouting.updateRoutingTable(serverRouter)
         val itemid = ItemIdentifier.get(setupObject.second)
         val result = withContext(Coroutines.serverScope.coroutineContext) {
@@ -132,7 +132,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
     @ExperimentalCoroutinesApi
     override fun completeJob(deferred: Deferred<QuicksortAsyncResult?>) {
         val result = deferred.getCompleted() ?: return
-        val inventory = _service?.availableInventories()?.firstOrNull() ?: return
+        val inventory = service?.availableInventories()?.firstOrNull() ?: return
         if (result.slot >= inventory.containerSize) return
         val stack = inventory.getItem(result.slot)
         if (result.itemid.equalsWithNBT(stack)) {
@@ -147,7 +147,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
         destRouterId: Int,
         sinkReply: SinkReply,
     ) {
-        val service = _service ?: return
+        val service = service ?: return
         val pointedOrientation = service.pointedOrientation ?: return
         val toExtract = getExtractionMax(stack.count, stack.maxStackSize, sinkReply)
         if (toExtract <= 0) return

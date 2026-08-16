@@ -46,50 +46,50 @@ public class ItemIdentifierInventory
 		implements IStore, Iterable<Pair<ItemIdentifierStack, Integer>>, IItemIdentifierInventory {
 
 	private final Object[] ccTypeHolder = new Object[1];
-	private final ItemIdentifierStack[] _contents;
-	private final String _name;
-	private final int _stackLimit;
-	private final HashMap<ItemIdentifier, Integer> _contentsMap;
-	private final HashSet<ItemIdentifier> _contentsUndamagedSet;
-	private final HashSet<ItemIdentifier> _contentsNoNBTSet;
-	private final HashSet<ItemIdentifier> _contentsUndamagedNoNBTSet;
+	private final ItemIdentifierStack[] contents;
+	private final String name;
+	private final int stackLimit;
+	private final HashMap<ItemIdentifier, Integer> contentsMap;
+	private final HashSet<ItemIdentifier> contentsUndamagedSet;
+	private final HashSet<ItemIdentifier> contentsNoNBTSet;
+	private final HashSet<ItemIdentifier> contentsUndamagedNoNBTSet;
 	private final boolean isLiquidInventory;
 
-	private final LinkedList<ISimpleInventoryEventHandler> _listener = new LinkedList<>();
+	private final LinkedList<ISimpleInventoryEventHandler> listener = new LinkedList<>();
 
 	public final SlotAccess slotAccess = new SlotAccess() {
 
 		@Override
 		public void mergeSlots(int intoSlot, int fromSlot) {
-			if (_contents[intoSlot] == null) {
-				_contents[intoSlot] = _contents[fromSlot];
+			if (contents[intoSlot] == null) {
+				contents[intoSlot] = contents[fromSlot];
 			} else {
-				_contents[intoSlot].setStackSize(_contents[intoSlot].getStackSize() + _contents[fromSlot].getStackSize());
+				contents[intoSlot].setStackSize(contents[intoSlot].getStackSize() + contents[fromSlot].getStackSize());
 			}
-			_contents[fromSlot] = null;
+			contents[fromSlot] = null;
 			updateContents();
 		}
 
 		@Override
 		public boolean canMerge(int intoSlot, int fromSlot) {
-			return _contents[intoSlot].getItem().equals(_contents[fromSlot].getItem());
+			return contents[intoSlot].getItem().equals(contents[fromSlot].getItem());
 		}
 
 		@Override
 		public boolean isSlotEmpty(int idx) {
-			return _contents[idx] == null;
+			return contents[idx] == null;
 		}
 
 	};
 
 	public ItemIdentifierInventory(int size, String name, int stackLimit, boolean liquidInv) {
-		_contents = new ItemIdentifierStack[size];
-		_name = name;
-		_stackLimit = stackLimit;
-		_contentsMap = new HashMap<>((int) (size * 1.5));
-		_contentsUndamagedSet = new HashSet<>((int) (size * 1.5));
-		_contentsNoNBTSet = new HashSet<>((int) (size * 1.5));
-		_contentsUndamagedNoNBTSet = new HashSet<>((int) (size * 1.5));
+		contents = new ItemIdentifierStack[size];
+		this.name = name;
+		this.stackLimit = stackLimit;
+		contentsMap = new HashMap<>((int) (size * 1.5));
+		contentsUndamagedSet = new HashSet<>((int) (size * 1.5));
+		contentsNoNBTSet = new HashSet<>((int) (size * 1.5));
+		contentsUndamagedNoNBTSet = new HashSet<>((int) (size * 1.5));
 		isLiquidInventory = liquidInv;
 	}
 
@@ -98,16 +98,16 @@ public class ItemIdentifierInventory
 	}
 
 	public ItemIdentifierInventory(ItemIdentifierInventory copy) {
-		_contents = Arrays.copyOf(copy._contents, copy._contents.length);
-		for (int i = 0; i < _contents.length; i++) {
-			if (copy._contents[i] != null) _contents[i] = new ItemIdentifierStack(copy._contents[i]);
+		contents = Arrays.copyOf(copy.contents, copy.contents.length);
+		for (int i = 0; i < contents.length; i++) {
+			if (copy.contents[i] != null) contents[i] = new ItemIdentifierStack(copy.contents[i]);
 		}
-		_name = copy._name;
-		_stackLimit = copy._stackLimit;
-		_contentsMap = new HashMap<>(copy._contentsMap);
-		_contentsUndamagedSet = new HashSet<>(copy._contentsUndamagedSet);
-		_contentsNoNBTSet = new HashSet<>(copy._contentsNoNBTSet);
-		_contentsUndamagedNoNBTSet = new HashSet<>(copy._contentsUndamagedNoNBTSet);
+		name = copy.name;
+		stackLimit = copy.stackLimit;
+		contentsMap = new HashMap<>(copy.contentsMap);
+		contentsUndamagedSet = new HashSet<>(copy.contentsUndamagedSet);
+		contentsNoNBTSet = new HashSet<>(copy.contentsNoNBTSet);
+		contentsUndamagedNoNBTSet = new HashSet<>(copy.contentsUndamagedNoNBTSet);
 		isLiquidInventory = copy.isLiquidInventory;
 	}
 
@@ -128,34 +128,34 @@ public class ItemIdentifierInventory
 
 	@Override
 	public int getContainerSize() {
-		return _contents.length;
+		return contents.length;
 	}
 
 	@Override
     public ItemStack getItem(int i) {
-		if (_contents[i] == null) {
+		if (contents[i] == null) {
 			return ItemStack.EMPTY;
 		}
-		return _contents[i].makeNormalStack();
+		return contents[i].makeNormalStack();
 	}
 
 	@Override
     @Nullable
 	public ItemIdentifierStack getIDStackInSlot(int i) {
-		return _contents[i];
+		return contents[i];
 	}
 
 	@Override
     public ItemStack removeItem(int slot, int count) {
-		if (_contents[slot] == null) {
+		if (contents[slot] == null) {
 			return ItemStack.EMPTY;
 		}
-		ItemStack ret = _contents[slot].makeNormalStack();
-		if (_contents[slot].getStackSize() > count) {
+		ItemStack ret = contents[slot].makeNormalStack();
+		if (contents[slot].getStackSize() > count) {
 			ret.setCount(count);
-			_contents[slot].setStackSize(_contents[slot].getStackSize() - count);
+			contents[slot].setStackSize(contents[slot].getStackSize() - count);
 		} else {
-			_contents[slot] = null;
+			contents[slot] = null;
 		}
 		updateContents();
 		return ret;
@@ -164,7 +164,7 @@ public class ItemIdentifierInventory
 	@Override
 	public void setItem(int i, ItemStack itemstack) {
 		if (itemstack.isEmpty()) {
-			_contents[i] = null;
+			contents[i] = null;
 		} else {
 			if (isInvalidStack(itemstack)) {
 				if (LogisticsPipes.isDEBUG()) {
@@ -173,7 +173,7 @@ public class ItemIdentifierInventory
 				}
 				return;
 			}
-			_contents[i] = ItemIdentifierStack.getFromStack(itemstack);
+			contents[i] = ItemIdentifierStack.getFromStack(itemstack);
 		}
 		updateContents();
 	}
@@ -181,7 +181,7 @@ public class ItemIdentifierInventory
 	@Override
 	public void setItem(int i, @Nullable ItemIdentifierStack itemstack) {
 		if (itemstack == null) {
-			_contents[i] = null;
+			contents[i] = null;
 		} else {
 			if (!isValidStack(itemstack)) {
 				if (LogisticsPipes.isDEBUG()) {
@@ -190,20 +190,20 @@ public class ItemIdentifierInventory
 				}
 				return;
 			}
-			_contents[i] = itemstack;
+			contents[i] = itemstack;
 		}
 		updateContents();
 	}
 
 	@Override
 	public int getMaxStackSize() {
-		return _stackLimit;
+		return stackLimit;
 	}
 
 	@Override
 	public void setChanged() {
 		updateContents();
-		for (ISimpleInventoryEventHandler handler : _listener) {
+		for (ISimpleInventoryEventHandler handler : listener) {
 			handler.InventoryChanged(this);
 		}
 	}
@@ -227,19 +227,19 @@ public class ItemIdentifierInventory
 	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider, String prefix) {
 		ListTag listtag = tag.getList(prefix + "items", Tag.TAG_COMPOUND);
 
-		Arrays.fill(_contents, null);
+		Arrays.fill(contents, null);
 		for (int j = 0; j < listtag.size(); ++j) {
 			CompoundTag compoundTag = listtag.getCompound(j);
 			int index = compoundTag.getInt("index");
-			if (index >= 0 && index < _contents.length) {
+			if (index >= 0 && index < contents.length) {
 				ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(compoundTag, provider);
 				ItemIdentifierStack itemstack = ItemIdentifierStack.getFromStack(stack);
 				if (isValidStack(itemstack)) {
-					_contents[index] = itemstack;
+					contents[index] = itemstack;
 				}
 			} else {
 				LogisticsPipes.LOG.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of "
-						+ _contents.length);
+						+ contents.length);
 			}
 		}
 		updateContents();
@@ -252,15 +252,15 @@ public class ItemIdentifierInventory
 
 	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider, String prefix) {
 		ListTag listTag = new ListTag();
-		for (int i = 0; i < _contents.length; ++i) {
-			if (_contents[i] != null && _contents[i].getStackSize() > 0) {
+		for (int i = 0; i < contents.length; ++i) {
+			if (contents[i] != null && contents[i].getStackSize() > 0) {
 				CompoundTag stackTag = new CompoundTag();
 				stackTag.putInt("index", i);
-				listTag.add(_contents[i].makeNormalStack().save(provider, stackTag));
+				listTag.add(contents[i].makeNormalStack().save(provider, stackTag));
 			}
 		}
 		tag.put(prefix + "items", listTag);
-		tag.putInt(prefix + "itemsCount", _contents.length);
+		tag.putInt(prefix + "itemsCount", contents.length);
 	}
 
 	public void dropContents(Level level, BlockPos pos) {
@@ -269,9 +269,9 @@ public class ItemIdentifierInventory
 
 	public void dropContents(Level level, int posX, int posY, int posZ) {
 		if (MainProxy.isServer(level)) {
-			for (int i = 0; i < _contents.length; i++) {
-				while (_contents[i] != null) {
-					ItemStack todrop = removeItem(i, _contents[i].getItem().getMaxStackSize());
+			for (int i = 0; i < contents.length; i++) {
+				while (contents[i] != null) {
+					ItemStack todrop = removeItem(i, contents[i].getItem().getMaxStackSize());
 					ItemIdentifierInventory.dropItems(level, todrop, posX, posY, posZ);
 				}
 			}
@@ -281,36 +281,36 @@ public class ItemIdentifierInventory
 
 	@Override
 	public void addListener(ISimpleInventoryEventHandler listener) {
-		if (!_listener.contains(listener)) {
-			_listener.add(listener);
+		if (!this.listener.contains(listener)) {
+			this.listener.add(listener);
 		}
 	}
 
 	@Override
 	public void removeListener(ISimpleInventoryEventHandler listener) {
-		_listener.remove(listener);
+		this.listener.remove(listener);
 	}
 
 	@Override
 	public ItemStack removeItemNoUpdate(int i) {
-		if (_contents[i] == null) {
+		if (contents[i] == null) {
 			return ItemStack.EMPTY;
 		}
 
-		ItemStack stackToTake = _contents[i].makeNormalStack();
-		_contents[i] = null;
+		ItemStack stackToTake = contents[i].makeNormalStack();
+		contents[i] = null;
 		updateContents();
 		return stackToTake;
 	}
 
 	@Override
-	public void handleItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {
+	public void handleItemIdentifierList(Collection<ItemIdentifierStack> allItems) {
 		int i = 0;
-		for (ItemIdentifierStack stack : _allItems) {
-			if (_contents.length <= i) {
+		for (ItemIdentifierStack stack : allItems) {
+			if (contents.length <= i) {
 				break;
 			}
-			_contents[i] = stack;
+			contents[i] = stack;
 			i++;
 		}
 		setChanged();
@@ -323,12 +323,12 @@ public class ItemIdentifierInventory
 			}
 			return 0;
 		}
-		ItemIdentifierStack slot = _contents[i];
+		ItemIdentifierStack slot = contents[i];
 
 		if (slot == null) {
-			_contents[i] = ItemIdentifierStack.getFromStack(stack);
-			_contents[i].setStackSize(Math.min(_contents[i].getStackSize(), realstacklimit));
-			return _contents[i].getStackSize();
+			contents[i] = ItemIdentifierStack.getFromStack(stack);
+			contents[i].setStackSize(Math.min(contents[i].getStackSize(), realstacklimit));
+			return contents[i].getStackSize();
 		}
 
 		ItemIdentifier stackIdent = ItemIdentifier.get(stack);
@@ -362,21 +362,21 @@ public class ItemIdentifierInventory
 		stack = stack.copy();
 
 		ItemIdentifier stackIdent = ItemIdentifier.get(stack);
-		int stacklimit = _stackLimit;
+		int stacklimit = stackLimit;
 
 		if (!ignoreMaxStackSize) {
 			stacklimit = Math.min(stacklimit, stackIdent.getMaxStackSize());
 		}
 
-		for (int i = 0; i < _contents.length; i++) {
+		for (int i = 0; i < contents.length; i++) {
 			if (stack.getCount() <= 0) break;
-			if (_contents[i] == null) continue; //Skip Empty Slots on first attempt.
+			if (contents[i] == null) continue; //Skip Empty Slots on first attempt.
 
 			int added = tryAddToSlot(i, stack, stacklimit);
 			stack.setCount(stack.getCount() - added);
 		}
 
-		for (int i = 0; i < _contents.length; i++) {
+		for (int i = 0; i < contents.length; i++) {
 			if (stack.getCount() <= 0) break;
 
 			int added = tryAddToSlot(i, stack, stacklimit);
@@ -401,57 +401,57 @@ public class ItemIdentifierInventory
 	 * PipeItemsFirewall and the sink modules use.
 	 */
 	private void updateContents() {
-		_contentsMap.clear();
-		_contentsUndamagedSet.clear();
-		_contentsNoNBTSet.clear();
-		_contentsUndamagedNoNBTSet.clear();
-		for (ItemIdentifierStack _content : _contents) {
-			if (_content == null) continue;
+		contentsMap.clear();
+		contentsUndamagedSet.clear();
+		contentsNoNBTSet.clear();
+		contentsUndamagedNoNBTSet.clear();
+		for (ItemIdentifierStack content : contents) {
+			if (content == null) continue;
 
-			ItemIdentifier itemId = _content.getItem();
-			_contentsMap.merge(itemId, _content.getStackSize(), Integer::sum);
-			_contentsUndamagedSet.add(itemId
+			ItemIdentifier itemId = content.getItem();
+			contentsMap.merge(itemId, content.getStackSize(), Integer::sum);
+			contentsUndamagedSet.add(itemId
 					.getUndamaged()); // add is cheaper than check then add; it just returns false if it is already there
-			_contentsNoNBTSet.add(itemId
+			contentsNoNBTSet.add(itemId
 					.getIgnoringNBT()); // add is cheaper than check then add; it just returns false if it is already there
-			_contentsUndamagedNoNBTSet.add(itemId.getIgnoringNBT()
+			contentsUndamagedNoNBTSet.add(itemId.getIgnoringNBT()
 					.getUndamaged()); // add is cheaper than check then add; it just returns false if it is already there
 		}
 	}
 
 	@Override
 	public int itemCount(final ItemIdentifier item) {
-		return _contentsMap.getOrDefault(item, 0);
+		return contentsMap.getOrDefault(item, 0);
 	}
 
 	@Override
     public Map<ItemIdentifier, Integer> getItemsAndCount() {
-		return _contentsMap;
+		return contentsMap;
 	}
 
 	@Override
 	public boolean containsItem(final ItemIdentifier item) {
-		return _contentsMap.containsKey(item);
+		return contentsMap.containsKey(item);
 	}
 
 	@Override
 	public boolean containsUndamagedItem(final ItemIdentifier item) {
-		return _contentsUndamagedSet.contains(item);
+		return contentsUndamagedSet.contains(item);
 	}
 
 	@Override
 	public boolean containsExcludeNBTItem(final ItemIdentifier item) {
-		return _contentsNoNBTSet.contains(item);
+		return contentsNoNBTSet.contains(item);
 	}
 
 	@Override
 	public boolean containsUndamagedExcludeNBTItem(final ItemIdentifier item) {
-		return _contentsUndamagedNoNBTSet.contains(item);
+		return contentsUndamagedNoNBTSet.contains(item);
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return _contentsMap.isEmpty();
+		return contentsMap.isEmpty();
 	}
 
 	@Override
@@ -465,21 +465,21 @@ public class ItemIdentifierInventory
 	}
 
 	public void clear() {
-		Arrays.fill(_contents, null);
+		Arrays.fill(contents, null);
 		updateContents();
 	}
 
 	@Override
 	public void clearInventorySlotContents(int i) {
-		_contents[i] = null;
+		contents[i] = null;
 		updateContents();
 	}
 
 	@Override
 	public void recheckStackLimit() {
-		for (ItemIdentifierStack _content : _contents) {
-			if (_content != null) {
-				_content.setStackSize(Math.min(_content.getStackSize(), _stackLimit));
+		for (ItemIdentifierStack content : contents) {
+			if (content != null) {
+				content.setStackSize(Math.min(content.getStackSize(), stackLimit));
 			}
 		}
 	}
@@ -503,7 +503,7 @@ public class ItemIdentifierInventory
 
 	@Override
     public Iterator<Pair<ItemIdentifierStack, Integer>> iterator() {
-		final Iterator<ItemIdentifierStack> iter = Arrays.asList(_contents).iterator();
+		final Iterator<ItemIdentifierStack> iter = Arrays.asList(contents).iterator();
 		return new Iterator<>() {
 
             int pos = -1;
@@ -523,18 +523,18 @@ public class ItemIdentifierInventory
 
 	public void clearGrid() {
 		for (int i = 0; i < getContainerSize(); i++) {
-			_contents[i] = null;
+			contents[i] = null;
 		}
 		updateContents();
 	}
 
 	public String getName() {
-		return _name;
+		return name;
 	}
 
 	public NonNullList<ItemStack> toNonNullList() {
 		NonNullList<ItemStack> list = NonNullList.create();
-		list.addAll(0, Arrays.stream(_contents)
+		list.addAll(0, Arrays.stream(contents)
 				.filter(Objects::nonNull)
 				.map(ItemIdentifierStack::makeNormalStack)
 				.toList());
@@ -543,7 +543,7 @@ public class ItemIdentifierInventory
 
 	@Override
 	public List<String> getClientInformation() {
-		return Arrays.stream(_contents).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.toList());
+		return Arrays.stream(contents).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.toList());
 	}
 
 	@Override

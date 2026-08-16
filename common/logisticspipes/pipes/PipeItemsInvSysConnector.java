@@ -345,8 +345,8 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 				Optional<CoreRoutedPipe> bestConnection = connectedPipes.stream()
 						.map(con -> new Triplet<>(
 								con,
-								con.getRouter().getExitFor(info.destinationint, info._transportMode == IRoutedItem.TransportMode.Active, info.getItem().getItem()),
-								con.getRouter().getExitFor(getRouterId(), info._transportMode == IRoutedItem.TransportMode.Active, info.getItem().getItem())
+								con.getRouter().getExitFor(info.destinationint, info.transportMode == IRoutedItem.TransportMode.Active, info.getItem().getItem()),
+								con.getRouter().getExitFor(getRouterId(), info.transportMode == IRoutedItem.TransportMode.Active, info.getItem().getItem())
 						))
 						.filter(triplet -> triplet.getValue2() != null && triplet.getValue3() != null)
 						.filter(triplet -> triplet.getValue2().exitOrientation != triplet.getValue3().exitOrientation)
@@ -355,7 +355,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 					bestConnection = connectedPipes.stream()
 							.map(con -> new Pair<>(
 									con,
-									con.getRouter().getExitFor(info.destinationint, info._transportMode == IRoutedItem.TransportMode.Active, info.getItem().getItem())
+									con.getRouter().getExitFor(info.destinationint, info.transportMode == IRoutedItem.TransportMode.Active, info.getItem().getItem())
 							))
 							.filter(triplet -> triplet.getValue2() != null)
 							.min(Comparator.comparing(trip -> trip.getValue2().blockDistance)).map(Pair::getValue1);

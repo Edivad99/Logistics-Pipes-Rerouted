@@ -48,27 +48,27 @@ public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsIt
 
 	@Override
 	public void sendFailed() {
-		_orders.getFirst().sendFailed();
+		orders.getFirst().sendFailed();
 		super.sendFailed();
 	}
 
 	public LogisticsItemOrder addOrder(ItemIdentifierStack stack, IRequestItems requester, ResourceType type, IAdditionalTargetInformation info) {
 		LogisticsItemOrder order = new LogisticsItemOrder(new DictResource(stack, null), requester, type, info);
-		_orders.addLast(order);
+		orders.addLast(order);
 		listen();
 		return order;
 	}
 
 	public LogisticsItemOrder addOrder(DictResource stack, IRequestItems requester, ResourceType type, IAdditionalTargetInformation info) {
 		LogisticsItemOrder order = new LogisticsItemOrder(stack, requester, type, info);
-		_orders.addLast(order);
+		orders.addLast(order);
 		listen();
 		return order;
 	}
 
 	public LogisticsItemOrderExtra addExtra(DictResource stack) {
 		LogisticsItemOrderExtra order = new LogisticsItemOrderExtra(stack, null, ResourceType.EXTRA, null);
-		_orders.addLast(order);
+		orders.addLast(order);
 		listen();
 		return order;
 	}
@@ -76,7 +76,7 @@ public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsIt
 	public void removeExtras(DictResource resource) {
 		int itemsToRemove = resource.getRequestedAmount();
 		DictResource.Identifier ident = resource.getIdentifier();
-		Iterator<LogisticsItemOrder> iter = _orders.iterator();
+		Iterator<LogisticsItemOrder> iter = orders.iterator();
 		List<LogisticsItemOrder> toRemove = new LinkedList<LogisticsItemOrder>();
 		while (iter.hasNext()) {
 			LogisticsItemOrder order = iter.next();
@@ -86,7 +86,7 @@ public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsIt
 					itemsToRemove -= order.getAmount();
 					toRemove.add(order);
 					if (itemsToRemove == 0) {
-						_orders.removeAll(toRemove);
+						orders.removeAll(toRemove);
 						return;
 					}
 				} else {
@@ -95,12 +95,12 @@ public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsIt
 				}
 			}
 		}
-		_orders.removeAll(toRemove);
+		orders.removeAll(toRemove);
 	}
 
 	public int totalItemsCountInOrders(ItemIdentifier item) {
 		int itemCount = 0;
-		for (LogisticsItemOrder request : _orders) {
+		for (LogisticsItemOrder request : orders) {
 			if (!request.getResource().getItem().equals(item)) {
 				continue;
 			}

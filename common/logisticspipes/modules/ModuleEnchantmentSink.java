@@ -14,7 +14,7 @@ import network.rs485.logisticspipes.property.Property;
 
 public class ModuleEnchantmentSink extends LogisticsModule {
 
-	private SinkReply _sinkReply;
+	private SinkReply sinkReply;
 
 	public static String getName() {
 		return "enchantment_sink";
@@ -33,7 +33,7 @@ public class ModuleEnchantmentSink extends LogisticsModule {
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.EnchantmentItemSink,
+		sinkReply = new SinkReply(FixedPriority.EnchantmentItemSink,
 				0,
 				true,
 				false,
@@ -47,14 +47,14 @@ public class ModuleEnchantmentSink extends LogisticsModule {
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		// check to see if a better route is already found
 		// Note: Higher MKs are higher priority
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+				&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
 
 		//check to see if item is enchanted
 		if (stack.isEnchanted()) {
-			return _sinkReply;
+			return sinkReply;
 		}
 		return null;
 	}

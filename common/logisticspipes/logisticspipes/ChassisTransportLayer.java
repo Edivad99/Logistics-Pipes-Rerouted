@@ -8,40 +8,40 @@ import net.minecraft.core.Direction;
 
 public class ChassisTransportLayer extends TransportLayer {
 
-	private final PipeLogisticsChassis _chassisPipe;
+	private final PipeLogisticsChassis chassisPipe;
 
 	public ChassisTransportLayer(PipeLogisticsChassis chassisPipe) {
-		_chassisPipe = chassisPipe;
+		this.chassisPipe = chassisPipe;
 	}
 
 	@Override
 	public Direction itemArrived(IRoutedItem item, Direction denied) {
 		if (item.getItemIdentifierStack() != null) {
-			_chassisPipe.receivedItem(item.getItemIdentifierStack().getStackSize());
+			chassisPipe.receivedItem(item.getItemIdentifierStack().getStackSize());
 		}
-		return _chassisPipe.getPointedOrientation();
+		return chassisPipe.getPointedOrientation();
 	}
 
 	@Override
 	public boolean stillWantItem(IRoutedItem item) {
-		LogisticsModule module = _chassisPipe.getLogisticsModule();
+		LogisticsModule module = chassisPipe.getLogisticsModule();
 		if (module == null) {
-			_chassisPipe.notifyOfItemArival(item.getInfo());
+			chassisPipe.notifyOfItemArival(item.getInfo());
 			return false;
 		}
-		if (!_chassisPipe.isEnabled()) {
-			_chassisPipe.notifyOfItemArival(item.getInfo());
+		if (!chassisPipe.isEnabled()) {
+			chassisPipe.notifyOfItemArival(item.getInfo());
 			return false;
 		}
 		final ItemIdentifierStack itemIdStack = item.getItemIdentifierStack();
 		SinkReply reply = module.sinksItem(itemIdStack.makeNormalStack(), itemIdStack.getItem(), -1, 0, true, false, false);
 		if (reply == null || reply.maxNumberOfItems < 0) {
-			_chassisPipe.notifyOfItemArival(item.getInfo());
+			chassisPipe.notifyOfItemArival(item.getInfo());
 			return false;
 		}
 
 		if (reply.maxNumberOfItems > 0 && itemIdStack.getStackSize() > reply.maxNumberOfItems) {
-			Direction o = _chassisPipe.getPointedOrientation();
+			Direction o = chassisPipe.getPointedOrientation();
 			if (o == null) {
 				o = Direction.UP;
 			}

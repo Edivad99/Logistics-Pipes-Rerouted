@@ -16,7 +16,7 @@ import network.rs485.logisticspipes.property.Property;
 
 public class ModuleSatellite extends LogisticsModule {
 
-	private final SinkReply _sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0, null);
+	private final SinkReply sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0, null);
 
 	@Override
 	public String getLPName() {
@@ -31,20 +31,20 @@ public class ModuleSatellite extends LogisticsModule {
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+				&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
 		final int itemCount = spaceFor(stack, item, includeInTransit);
 		if (itemCount > 0) {
-			return new SinkReply(_sinkReply, itemCount);
+			return new SinkReply(sinkReply, itemCount);
 		} else {
 			return null;
 		}
 	}
 
 	private int spaceFor(ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
-		final IPipeServiceProvider service = Objects.requireNonNull(_service);
+		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		int count = service.getAvailableAdjacent().inventories().stream()
 				.map(neighbor -> LPNeighborTileEntityKt.sneakyInsertion(neighbor).from(getUpgradeManager()))
 				.map(LPNeighborTileEntityKt::getInventoryUtil)

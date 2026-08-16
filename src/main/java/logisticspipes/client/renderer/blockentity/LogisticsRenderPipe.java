@@ -319,7 +319,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         CoordinateUtils.add(pos, Direction.SOUTH, dist);
         CoordinateUtils.add(pos, Direction.EAST, dist);
         CoordinateUtils.add(pos, Direction.UP, dist);
-        for (Pair<ItemIdentifierStack, Pair<Integer, Integer>> item : pipe.transport._itemBuffer) {
+        for (Pair<ItemIdentifierStack, Pair<Integer, Integer>> item : pipe.transport.itemBuffer) {
             if (item == null || item.getValue1() == null) {
                 continue;
             }

@@ -58,7 +58,7 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 	private final List<ItemIdentifierStack> itemList = new LinkedList<>();
 	private final List<ItemIdentifierStack> oldList = new LinkedList<>();
 	private final HUDSatellite HUD = new HUDSatellite(this);
-	protected final Map<FluidIdentifier, Integer> _lostItems = new HashMap<>();
+	protected final Map<FluidIdentifier, Integer> lostItems = new HashMap<>();
 	private final ModuleSatellite moduleSatellite;
 
 	@Getter
@@ -223,10 +223,10 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 	@Override
 	public void throttledUpdateEntity() {
 		super.throttledUpdateEntity();
-		if (_lostItems.isEmpty()) {
+		if (lostItems.isEmpty()) {
 			return;
 		}
-		final Iterator<Entry<FluidIdentifier, Integer>> iterator = _lostItems.entrySet().iterator();
+		final Iterator<Entry<FluidIdentifier, Integer>> iterator = lostItems.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Entry<FluidIdentifier, Integer> stack = iterator.next();
 			int received = RequestTree.requestFluidPartial(stack.getKey(), stack.getValue(), this, null);
@@ -243,10 +243,10 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 
 	@Override
 	public void liquidLost(FluidIdentifier item, int amount) {
-		if (_lostItems.containsKey(item)) {
-			_lostItems.put(item, _lostItems.get(item) + amount);
+		if (lostItems.containsKey(item)) {
+			lostItems.put(item, lostItems.get(item) + amount);
 		} else {
-			_lostItems.put(item, amount);
+			lostItems.put(item, amount);
 		}
 	}
 

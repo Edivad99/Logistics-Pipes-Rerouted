@@ -11,19 +11,19 @@ import net.minecraft.world.item.ItemStack;
 public class ModuleSlot extends RestrictedSlot {
 
 	@Getter
-	private final PipeLogisticsChassis _pipe;
+	private final PipeLogisticsChassis pipe;
 	@Getter
-	private final int _moduleIndex;
+	private final int moduleIndex;
 
 	public ModuleSlot(Container iinventory, int i, int j, int k, PipeLogisticsChassis pipe) {
 		super(iinventory, i, j, k, ItemModule.class);
-		_pipe = pipe;
-		_moduleIndex = i;
+		this.pipe = pipe;
+		moduleIndex = i;
 	}
 
 	@Override
 	public void onTake(Player player, ItemStack itemStack) {
-		ItemModuleInformationManager.saveInformation(itemStack, _pipe.getSubModule(_moduleIndex), player.registryAccess());
+		ItemModuleInformationManager.saveInformation(itemStack, pipe.getSubModule(moduleIndex), player.registryAccess());
 		super.onTake(player, itemStack);
 	}
 }

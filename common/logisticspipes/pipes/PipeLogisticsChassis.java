@@ -109,8 +109,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		implements ICraftItems, IBufferItems, ISimpleInventoryEventHandler, ISendRoutedItem, IProvideItems,
 		IHeadUpDisplayRendererProvider, ISendQueueContentRecieiver, IChassisPipe, PropertyHolder {
 
-	private final ChassisModule _module;
-	private final ItemIdentifierInventory _moduleInventory;
+	private final ChassisModule module;
+	private final ItemIdentifierInventory moduleInventory;
 	private boolean init = false;
 
 	// HUD
@@ -124,11 +124,11 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 
 	public PipeLogisticsChassis(Item item) {
 		super(item);
-		_moduleInventory = new ItemIdentifierInventory(getChassisSize(), "Chassis pipe", 1);
-		_moduleInventory.addListener(this);
-		_module = new ChassisModule(getChassisSize(), this);
-		_module.registerHandler(this, this);
-		hud = new HudChassisPipe(this, _moduleInventory);
+		moduleInventory = new ItemIdentifierInventory(getChassisSize(), "Chassis pipe", 1);
+		moduleInventory.addListener(this);
+		module = new ChassisModule(getChassisSize(), this);
+		module.registerHandler(this, this);
+		hud = new HudChassisPipe(this, moduleInventory);
 	}
 
 	@Override
@@ -215,7 +215,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				new SingleAdjacent(this, newNeighbor.getValue1().getDirection(), newNeighbor.getValue2()));
 			packet.setDir(newNeighbor.getValue1().getDirection());
 		}
-		MainProxy.sendPacketToAllWatchingChunk(_module, packet.setTilePos(container));
+		MainProxy.sendPacketToAllWatchingChunk(module, packet.setTilePos(container));
 		refreshRender(true);
 	}
 
@@ -230,13 +230,13 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	private void updateModuleInventory(HolderLookup.Provider provider) {
-		_module.slottedModules().forEach(slottedModule -> {
+		this.module.slottedModules().forEach(slottedModule -> {
 			if (slottedModule.isEmpty()) {
-				_moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
+				moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
 				return;
 			}
 			final LogisticsModule module = Objects.requireNonNull(slottedModule.getModule());
-			final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(slottedModule.getSlot());
+			final ItemIdentifierStack idStack = moduleInventory.getIDStackInSlot(slottedModule.getSlot());
 			ItemStack moduleStack;
 			if (idStack != null) {
 				moduleStack = idStack.getItem().makeNormalStack(1);
@@ -247,18 +247,18 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				moduleStack = new ItemStack(item);
 			}
 			ItemModuleInformationManager.saveInformation(moduleStack, module, provider);
-			_moduleInventory.setItem(slottedModule.getSlot(), moduleStack);
+			moduleInventory.setItem(slottedModule.getSlot(), moduleStack);
 		});
 	}
 
 	@Override
     public Container getModuleInventory(HolderLookup.@NotNull Provider provider) {
 		updateModuleInventory(provider);
-		return _moduleInventory;
+		return moduleInventory;
 	}
 
 	public ModuleUpgradeManager getModuleUpgradeManager(int slot) {
-		return _module.getModuleUpgradeManager(slot);
+		return module.getModuleUpgradeManager(slot);
 	}
 
 	@Override
@@ -289,11 +289,11 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	@Override
 	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
 		super.readFromNBT(tag, provider);
-		_moduleInventory.readFromNBT(tag, provider, "chassi");
+		moduleInventory.readFromNBT(tag, provider, "chassi");
 
 
 		// register slotted modules
-		_module.slottedModules()
+		module.slottedModules()
 				.filter(slottedModule -> !slottedModule.isEmpty())
 				.forEach(slottedModule -> {
 					LogisticsModule logisticsModule = Objects.requireNonNull(slottedModule.getModule());
@@ -307,12 +307,12 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {
 		super.writeToNBT(tag, provider);
 		updateModuleInventory(provider);
-		_moduleInventory.writeToNBT(tag, provider, "chassi");
+		moduleInventory.writeToNBT(tag, provider, "chassi");
 	}
 
 	@Override
 	public void onAllowedRemoval() {
-		_moduleInventory.removeListener(this);
+		moduleInventory.removeListener(this);
 		if (MainProxy.isServer(getWorld())) {
 			for (int i = 0; i < getChassisSize(); i++) {
 				LogisticsModule x = getSubModule(i);
@@ -322,7 +322,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				}
 			}
 			updateModuleInventory(getWorld().registryAccess());
-			_moduleInventory.dropContents(getWorld(), getX(), getY(), getZ());
+			moduleInventory.dropContents(getWorld(), getX(), getY(), getZ());
 
 			for (int i = 0; i < getChassisSize(); i++) {
 				getModuleUpgradeManager(i).dropUpgrades();
@@ -388,8 +388,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			ItemStack stack = inventory.getItem(i);
 			if (stack.isEmpty()) {
-				if (_module.hasModule(i)) {
-					_module.removeModule(i);
+				if (module.hasModule(i)) {
+					module.removeModule(i);
 					reInitGui = true;
 				}
 				continue;
@@ -398,12 +398,12 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			final Item stackItem = stack.getItem();
 			if (stackItem instanceof ItemModule) {
 				final ItemModule moduleItem = (ItemModule) stackItem;
-				LogisticsModule current = _module.getModule(i);
+				LogisticsModule current = module.getModule(i);
 				LogisticsModule next = moduleItem.getModuleForItem(stack, current, this, this);
 				Objects.requireNonNull(next, "getModuleForItem returned null for " + stack);
 				next.registerPosition(ModulePositionType.SLOT, i);
 				if (current != next) {
-					_module.installModule(i, next);
+					module.installModule(i, next);
 					if (!MainProxy.isClient(getWorld())) {
 						ItemModuleInformationManager.readInformation(stack, next);
 					}
@@ -422,7 +422,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		if (MainProxy.isServer(getWorld())) {
 			if (!localModeWatchers.isEmpty()) {
 				MainProxy.sendToPlayerList(PacketHandler.getPacket(ChassisPipeModuleContent.class)
-						.setIdentList(ItemIdentifierStack.getListFromInventory(_moduleInventory))
+						.setIdentList(ItemIdentifierStack.getListFromInventory(moduleInventory))
 						.setPosX(getX()).setPosY(getY()).setPosZ(getZ()),
 						localModeWatchers);
 			}
@@ -441,23 +441,23 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 
 	@Override
 	public final @Nullable LogisticsModule getLogisticsModule() {
-		return _module;
+		return module;
 	}
 
 	@Override
 	public TransportLayer getTransportLayer() {
-		if (_transportLayer == null) {
-			_transportLayer = new ChassisTransportLayer(this);
+		if (transportLayer == null) {
+			transportLayer = new ChassisTransportLayer(this);
 		}
-		return _transportLayer;
+		return transportLayer;
 	}
 
 	private boolean tryInsertingModule(Player entityplayer) {
 		updateModuleInventory(entityplayer.registryAccess());
-		for (int i = 0; i < _moduleInventory.getContainerSize(); i++) {
-			if (_moduleInventory.getIDStackInSlot(i) == null) {
-				_moduleInventory.setItem(i, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).split(1));
-				InventoryChanged(_moduleInventory);
+		for (int i = 0; i < moduleInventory.getContainerSize(); i++) {
+			if (moduleInventory.getIDStackInSlot(i) == null) {
+				moduleInventory.setItem(i, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).split(1));
+				InventoryChanged(moduleInventory);
 				return true;
 			}
 		}
@@ -580,8 +580,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		if (mode == 1) {
 			updateModuleInventory(player.registryAccess());
 			localModeWatchers.add(player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChassisPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(_moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SendQueueContent.class).setIdentList(ItemIdentifierStack.getListSendQueue(_sendQueue)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChassisPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SendQueueContent.class).setIdentList(ItemIdentifierStack.getListSendQueue(sendQueue)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
 		} else {
 			super.playerStartWatching(player, mode);
 		}
@@ -593,8 +593,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		localModeWatchers.remove(player);
 	}
 
-	public void handleModuleItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {
-		_moduleInventory.handleItemIdentifierList(_allItems);
+	public void handleModuleItemIdentifierList(Collection<ItemIdentifierStack> allItems) {
+		moduleInventory.handleItemIdentifierList(allItems);
 	}
 
 	@Override
@@ -604,7 +604,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				HudUpdateTick.add(getRouter());
 			} else {
 				if (localModeWatchers.size() > 0) {
-					LinkedList<ItemIdentifierStack> items = ItemIdentifierStack.getListSendQueue(_sendQueue);
+					LinkedList<ItemIdentifierStack> items = ItemIdentifierStack.getListSendQueue(sendQueue);
 					MainProxy.sendToPlayerList(PacketHandler.getPacket(SendQueueContent.class).setIdentList(items).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
 					return items.size();
 				}
@@ -614,19 +614,19 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void handleSendQueueItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {
+	public void handleSendQueueItemIdentifierList(Collection<ItemIdentifierStack> allItems) {
 		displayList.clear();
-		displayList.addAll(_allItems);
+		displayList.addAll(allItems);
 	}
 
 	public ChassisModule getModules() {
-		return _module;
+		return module;
 	}
 
 	@Override
 	public void setTile(BlockEntity tile) {
 		super.setTile(tile);
-		_module.slottedModules().forEach(SlottedModule::registerPosition);
+		module.slottedModules().forEach(SlottedModule::registerPosition);
 	}
 
 	@Override
@@ -702,7 +702,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	/** ICraftItems */
-	public final LinkedList<LogisticsOrder> _extras = new LinkedList<>();
+	public final LinkedList<LogisticsOrder> extras = new LinkedList<>();
 
 	@Override
 	public void registerExtras(IPromise promise) {
@@ -710,7 +710,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			throw new UnsupportedOperationException("Extra has to be an item for a chassis pipe");
 		}
 		ItemIdentifierStack stack = new ItemIdentifierStack(((LogisticsPromise) promise).item, ((LogisticsPromise) promise).numberOfItems);
-		_extras.add(new LogisticsItemOrder(new DictResource(stack, null), null, ResourceType.EXTRA, null));
+		extras.add(new LogisticsItemOrder(new DictResource(stack, null), null, ResourceType.EXTRA, null));
 	}
 
 	@Override
@@ -767,7 +767,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			}
 			return super.getUpgradeManager(slot, positionInt);
 		}
-		return _module.getModuleUpgradeManager(positionInt);
+		return module.getModuleUpgradeManager(positionInt);
 	}
 
 	@Override
@@ -778,7 +778,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 
 	@Nullable
 	public LogisticsModule getSubModule(int slot) {
-		return _module.getModule(slot);
+		return module.getModule(slot);
 	}
 
 	public static class ChassiTargetInformation implements IAdditionalTargetInformation {

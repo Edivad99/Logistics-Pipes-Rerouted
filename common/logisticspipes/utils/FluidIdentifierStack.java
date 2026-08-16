@@ -8,11 +8,11 @@ import net.neoforged.neoforge.fluids.FluidStack;
 public class FluidIdentifierStack implements Comparable<FluidIdentifierStack> {
 
 	private Object ccType;
-	private final FluidIdentifier _fluid;
+	private final FluidIdentifier fluid;
 	private int milliBuckets;
 
 	public FluidIdentifierStack(FluidIdentifier fluid, int milliBuckets) {
-		_fluid = fluid;
+		this.fluid = fluid;
 		setAmount(milliBuckets);
 	}
 
@@ -31,7 +31,7 @@ public class FluidIdentifierStack implements Comparable<FluidIdentifierStack> {
 	}
 
 	public FluidIdentifier getFluid() {
-		return _fluid;
+		return fluid;
 	}
 
 	/**
@@ -54,12 +54,12 @@ public class FluidIdentifierStack implements Comparable<FluidIdentifierStack> {
 	}
 
 	public FluidStack makeFluidStack() {
-		return _fluid.makeFluidStack(milliBuckets);
+		return fluid.makeFluidStack(milliBuckets);
 	}
 
 	@Override
 	public int compareTo(FluidIdentifierStack o) {
-		int c = _fluid.compareTo(o._fluid);
+		int c = fluid.compareTo(o.fluid);
 		if (c == 0) {
 			return Integer.compare(getAmount(), o.getAmount());
 		}

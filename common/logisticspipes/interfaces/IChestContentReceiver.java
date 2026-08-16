@@ -6,6 +6,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public interface IChestContentReceiver {
 
-	void setReceivedChestContent(Collection<ItemIdentifierStack> _allItems);
+	void setReceivedChestContent(Collection<ItemIdentifierStack> allItems);
 
 }

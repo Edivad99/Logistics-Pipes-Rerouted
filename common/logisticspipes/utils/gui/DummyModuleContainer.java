@@ -33,12 +33,12 @@ public class DummyModuleContainer extends DummyContainer {
 	}
 
 	public void setInventory(Container inv) {
-		_dummyInventory = inv;
+		dummyInventory = inv;
 	}
 
 	@Override
     protected Slot addSlot(Slot slotIn) {
-		if (slotIn.getSlotIndex() == slot && slotIn.container == _playerInventory) {
+		if (slotIn.getSlotIndex() == slot && slotIn.container == playerInventory) {
 			return super.addSlot(new UnmodifiableSlot(slotIn));
 		}
 		return super.addSlot(slotIn);

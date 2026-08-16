@@ -49,7 +49,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
-	private SinkReply _sinkReply;
+	private SinkReply sinkReply;
 
 	public ModulePassiveSupplier() {
 		filterInventory.addListener(this);
@@ -77,19 +77,19 @@ public class ModulePassiveSupplier extends LogisticsModule
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.PassiveSupplier, 0, true, false, 2, 0,
+		sinkReply = new SinkReply(FixedPriority.PassiveSupplier, 0, true, false, 2, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+				&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
 
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
 		IInventoryUtil targetUtil = PipeServiceProviderUtilKt.availableSneakyInventories(service, upgradeManager)
@@ -109,7 +109,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 		}
 
 		if (service.canUseEnergy(2)) {
-			return new SinkReply(_sinkReply, targetCount - haveCount);
+			return new SinkReply(sinkReply, targetCount - haveCount);
 		}
 		return null;
 	}

@@ -36,17 +36,17 @@ public class RequestTree extends RequestTreeNode {
 	}
 
 	public static final EnumSet<ActiveRequestType> defaultRequestFlags = EnumSet.of(ActiveRequestType.Provide, ActiveRequestType.Craft);
-	private HashMap<FinalPair<IProvide, ItemIdentifier>, Integer> _promisetotals;
+	private HashMap<FinalPair<IProvide, ItemIdentifier>, Integer> promisetotals;
 
 	public RequestTree(IResource requestType, RequestTree parent, EnumSet<ActiveRequestType> requestFlags, IAdditionalTargetInformation info) {
 		super(requestType, parent, requestFlags, info);
 	}
 
 	private int getExistingPromisesFor(FinalPair<IProvide, ItemIdentifier> key) {
-		if (_promisetotals == null) {
-			_promisetotals = new HashMap<>();
+		if (promisetotals == null) {
+			promisetotals = new HashMap<>();
 		}
-		Integer n = _promisetotals.get(key);
+		Integer n = promisetotals.get(key);
 		if (n == null) {
 			return 0;
 		}
@@ -87,19 +87,19 @@ public class RequestTree extends RequestTreeNode {
 
 	protected void promiseAdded(IPromise promise) {
 		FinalPair<IProvide, ItemIdentifier> key = new FinalPair<>(promise.getProvider(), promise.getItemType());
-		if (_promisetotals == null) {
-			_promisetotals = new HashMap<>();
+		if (promisetotals == null) {
+			promisetotals = new HashMap<>();
 		}
-		_promisetotals.put(key, getExistingPromisesFor(key) + promise.getAmount());
+		promisetotals.put(key, getExistingPromisesFor(key) + promise.getAmount());
 	}
 
 	protected void promiseRemoved(IPromise promise) {
 		FinalPair<IProvide, ItemIdentifier> key = new FinalPair<>(promise.getProvider(), promise.getItemType());
 		int r = getExistingPromisesFor(key) - promise.getAmount();
 		if (r == 0) {
-			_promisetotals.remove(key);
+			promisetotals.remove(key);
 		} else {
-			_promisetotals.put(key, r);
+			promisetotals.put(key, r);
 		}
 	}
 

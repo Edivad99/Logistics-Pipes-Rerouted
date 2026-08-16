@@ -63,7 +63,7 @@ abstract class AsyncModule<S, C> : LogisticsModule() {
      * available.
      */
     private val connectedEntity: BlockEntity?
-        get() = _service?.availableAdjacent?.inventories()?.firstOrNull()?.tileEntity
+        get() = service?.availableAdjacent?.inventories()?.firstOrNull()?.tileEntity
 
     @ExperimentalCoroutinesApi
     override fun tick() {
@@ -80,7 +80,7 @@ abstract class AsyncModule<S, C> : LogisticsModule() {
                 }
             }
 
-            if (_service?.isNthTick(everyNthTick) == true) {
+            if (service?.isNthTick(everyNthTick) == true) {
                 val setup = jobSetup()
                 currentJob = Coroutines.asynchronousScope.async {
                     try {

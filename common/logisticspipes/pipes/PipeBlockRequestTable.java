@@ -543,8 +543,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 
 	@Override
 	public TransportLayer getTransportLayer() {
-		if (_transportLayer == null) {
-			_transportLayer = new TransportLayer() {
+		if (transportLayer == null) {
+			transportLayer = new TransportLayer() {
 
 				@Override
 				public void handleItem(IRoutedItem item) {
@@ -566,7 +566,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				}
 			};
 		}
-		return _transportLayer;
+		return transportLayer;
 	}
 
 	@Override

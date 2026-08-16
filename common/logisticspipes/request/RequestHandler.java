@@ -88,33 +88,33 @@ public class RequestHandler {
 	}
 
 	public static void refresh(Player player, CoreRoutedPipe pipe, DisplayOptions option) {
-		Map<ItemIdentifier, Integer> _availableItems;
-		LinkedList<ItemIdentifier> _craftableItems;
+		Map<ItemIdentifier, Integer> availableItems;
+		LinkedList<ItemIdentifier> craftableItems;
 
 		if (option == DisplayOptions.SupplyOnly || option == DisplayOptions.Both) {
-			_availableItems = SimpleServiceLocator.logisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
+			availableItems = SimpleServiceLocator.logisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
 		} else {
-			_availableItems = new HashMap<>();
+			availableItems = new HashMap<>();
 		}
 		if (option == DisplayOptions.CraftOnly || option == DisplayOptions.Both) {
-			_craftableItems = SimpleServiceLocator.logisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
+			craftableItems = SimpleServiceLocator.logisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
 		} else {
-			_craftableItems = new LinkedList<>();
+			craftableItems = new LinkedList<>();
 		}
-		TreeSet<ItemIdentifierStack> _allItems = new TreeSet<>();
+		TreeSet<ItemIdentifierStack> allItems = new TreeSet<>();
 
-		for (Entry<ItemIdentifier, Integer> item : _availableItems.entrySet()) {
+		for (Entry<ItemIdentifier, Integer> item : availableItems.entrySet()) {
 			ItemIdentifierStack newStack = item.getKey().makeStack(item.getValue());
-			_allItems.add(newStack);
+			allItems.add(newStack);
 		}
 
-		for (ItemIdentifier item : _craftableItems) {
-			if (_availableItems.containsKey(item)) {
+		for (ItemIdentifier item : craftableItems) {
+			if (availableItems.containsKey(item)) {
 				continue;
 			}
-			_allItems.add(item.makeStack(0));
+			allItems.add(item.makeStack(0));
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class).setIdentSet(_allItems), player);
+		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class).setIdentSet(allItems), player);
 	}
 
 	public static void requestList(final Player player, final List<ItemIdentifierStack> list, final CoreRoutedPipe pipe) {
@@ -210,10 +210,10 @@ public class RequestHandler {
 	}
 
 	public static void refreshFluid(Player player, CoreRoutedPipe pipe) {
-		TreeSet<FluidIdentifierStack> _allItems = SimpleServiceLocator.logisticsFluidManager.getAvailableFluid(pipe.getRouter().getIRoutersByCost());
+		TreeSet<FluidIdentifierStack> allItems = SimpleServiceLocator.logisticsFluidManager.getAvailableFluid(pipe.getRouter().getIRoutersByCost());
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class)
 						.setIdentSet(
-								_allItems.stream()
+								allItems.stream()
 										.map(item -> new ItemIdentifierStack(item.getFluid().getItemIdentifier(), item.getAmount()))
 										.collect(Collectors.toCollection(TreeSet::new))
 						)

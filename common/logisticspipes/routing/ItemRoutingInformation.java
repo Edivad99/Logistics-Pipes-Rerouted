@@ -37,8 +37,8 @@ public class ItemRoutingInformation {
 		that.destinationUUID = destinationUUID;
 		that.arrived = arrived;
 		that.bufferCounter = bufferCounter;
-		that._doNotBuffer = _doNotBuffer;
-		that._transportMode = _transportMode;
+		that.doNotBuffer = doNotBuffer;
+		that.transportMode = transportMode;
 		that.jamlist = new ArrayList<>(jamlist);
 		that.tracker = tracker;
 		that.targetInfo = targetInfo;
@@ -51,8 +51,8 @@ public class ItemRoutingInformation {
 	public UUID destinationUUID;
 	public boolean arrived;
 	public int bufferCounter = 0;
-	public boolean _doNotBuffer;
-	public TransportMode _transportMode = TransportMode.Unknown;
+	public boolean doNotBuffer;
+	public TransportMode transportMode = TransportMode.Unknown;
 	public List<Integer> jamlist = new ArrayList<>();
     @Nullable
 	public IDistanceTracker tracker = null;
@@ -71,7 +71,7 @@ public class ItemRoutingInformation {
 		}
 		arrived = nbttagcompound.getBoolean("arrived");
 		bufferCounter = nbttagcompound.getInt("bufferCounter");
-		_transportMode = TransportMode.values()[nbttagcompound.getInt("transportMode")];
+		transportMode = TransportMode.values()[nbttagcompound.getInt("transportMode")];
 		ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound.getCompound("Item"), provider);
 		setItem(ItemIdentifierStack.getFromStack(stack));
 	}
@@ -82,7 +82,7 @@ public class ItemRoutingInformation {
 		}
 		nbttagcompound.putBoolean("arrived", arrived);
 		nbttagcompound.putInt("bufferCounter", bufferCounter);
-		nbttagcompound.putInt("transportMode", _transportMode.ordinal());
+		nbttagcompound.putInt("transportMode", transportMode.ordinal());
 
 		CompoundTag nbttagcompound2 = new CompoundTag();
 		nbttagcompound.put("Item", getItem().makeNormalStack().save(provider, nbttagcompound2));
@@ -114,7 +114,7 @@ public class ItemRoutingInformation {
 
 	@Override
 	public String toString() {
-		return String.format("(%s, %d, %s, %s, %s, %d, %s)", item, destinationint, destinationUUID, _transportMode, jamlist, delay, tracker);
+		return String.format("(%s, %d, %s, %s, %s, %d, %s)", item, destinationint, destinationUUID, transportMode, jamlist, delay, tracker);
 	}
 
 	public void storeToNBT(CompoundTag nbtTagCompound, HolderLookup.Provider provider) {

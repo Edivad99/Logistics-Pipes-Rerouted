@@ -60,7 +60,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 
-	private SinkReply _sinkReply;
+	private SinkReply sinkReply;
 
 	public static String getName() {
 		return "item_sink_oredict";
@@ -79,7 +79,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.OreDictItemSink,
+		sinkReply = new SinkReply(FixedPriority.OreDictItemSink,
 				0,
 				true,
 				false,
@@ -90,7 +90,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority, boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal() && bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal() && bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
 		if (oreItemIdMap == null) {
@@ -101,7 +101,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
 			return null;
 		}
 		if (damageSet.isEmpty() || damageSet.contains(item.getDamageValue())) {
-			return _sinkReply;
+			return sinkReply;
 		}
 		return null;
 	}

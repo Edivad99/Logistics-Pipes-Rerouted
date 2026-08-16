@@ -84,7 +84,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	private static final ResourceLocation achievementTextures = LPConstants.rl("textures/gui/gui_border.png");
-	private final PipeBlockRequestTable _table;
+	private final PipeBlockRequestTable table;
 	private final int orderId;
 
 	private int isMouseButtonDown;
@@ -105,7 +105,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 
 	public RequestMonitorPopup(PipeBlockRequestTable table, int orderId) {
 		super(256, 202, 0, 0);
-		_table = table;
+		this.table = table;
 		this.orderId = orderId;
 		guiMapY = -200;
 	}
@@ -158,7 +158,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		if (!_table.watchedRequests.containsKey(orderId)) {
+		if (!table.watchedRequests.containsKey(orderId)) {
 			exitGui();
 			return;
 		}
@@ -183,11 +183,11 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	private void createBoundary() {
-		int size = _table.watchedRequests.get(orderId).getValue2().getTreeRootSize();
+		int size = table.watchedRequests.get(orderId).getValue2().getTreeRootSize();
 		minX = -size * (40 / 2) + (int) (75 * (zoom.zoom));
 		maxX = -minX + zoom.maxX;
 		maxY = -100;
-		findLowest(_table.watchedRequests.get(orderId).getValue2(), -200);
+		findLowest(table.watchedRequests.get(orderId).getValue2(), -200);
 	}
 
 	private void drawTransparentBack(GuiGraphics guiGraphics) {
@@ -207,10 +207,10 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	private void saveTreeToImage() {
 		// Renders the whole request tree into an offscreen framebuffer and saves it as a PNG,
 		// replacing LP1's glReadPixels tile-stitching which is gone in 1.20.1.
-		if (!_table.watchedRequests.containsKey(orderId)) {
+		if (!table.watchedRequests.containsKey(orderId)) {
 			return;
 		}
-		LinkedLogisticsOrderList list = _table.watchedRequests.get(orderId).getValue2();
+		LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).getValue2();
 		int imgWidth = Math.max(256, list.getTreeRootSize() * 40 + 160);
 		int imgHeight = Math.max(256, treeDepth(list) * 48 + 140);
 		int anchorX = imgWidth / 2 - 8;
@@ -325,7 +325,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int innerTopSide = topSide + 17;
 
 		RenderSystem.disableBlend();
-		LinkedLogisticsOrderList list = _table.watchedRequests.get(orderId).getValue2();
+		LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).getValue2();
 		if (!list.isEmpty()) {
 			SimpleGraphics.drawVerticalLine(guiGraphics, innerLeftSide - mapX + 110, innerTopSide - mapY - 197, innerTopSide - mapY - 180, Color.GREEN, zoom.line);
 		}

@@ -50,7 +50,7 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
-	private SinkReply _sinkReply;
+	private SinkReply sinkReply;
 
 	public ModuleEnchantmentSinkMK2() {
 		filterInventory.addListener(this);
@@ -79,20 +79,20 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.EnchantmentItemSink, 1, true, false, 1, 0,
+		sinkReply = new SinkReply(FixedPriority.EnchantmentItemSink, 1, true, false, 1, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+				&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
 		if (filterInventory.containsExcludeNBTItem(item.getUndamaged().getIgnoringNBT())) {
 			if (stack.isEnchanted()) {
-				return _sinkReply;
+				return sinkReply;
 			}
 			return null;
 		}

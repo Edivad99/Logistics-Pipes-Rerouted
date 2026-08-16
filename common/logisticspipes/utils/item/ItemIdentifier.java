@@ -103,13 +103,13 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
     @Nullable
     private String sortKey = null;
     @Nullable
-    private ItemIdentifier _IDIgnoringNBT = null;
+    private ItemIdentifier idIgnoringNBT = null;
     @Nullable
-    private ItemIdentifier _IDIgnoringDamage = null;
+    private ItemIdentifier idIgnoringDamage = null;
     @Nullable
-    private ItemIdentifier _IDIgnoringData = null;
+    private ItemIdentifier idIgnoringData = null;
     @Nullable
-    private DictItemIdentifier _dict;
+    private DictItemIdentifier dict;
     private boolean canHaveDict = true;
     @Nullable
     private String modName;
@@ -390,10 +390,10 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
      * This identity with its damage dropped, if the item is damageable at all.
      */
     public ItemIdentifier getUndamaged() {
-        if (_IDIgnoringDamage == null) {
-            _IDIgnoringDamage = isDamageable() ? project(components.forget(ItemIdentifier.IS_DAMAGE)) : this;
+        if (idIgnoringDamage == null) {
+            idIgnoringDamage = isDamageable() ? project(components.forget(ItemIdentifier.IS_DAMAGE)) : this;
         }
-        return _IDIgnoringDamage;
+        return idIgnoringDamage;
     }
 
     /**
@@ -406,10 +406,10 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
      * stop being independent.
      */
     public ItemIdentifier getIgnoringNBT() {
-        if (_IDIgnoringNBT == null) {
-            _IDIgnoringNBT = project(components.forget(ItemIdentifier.IS_NOT_DAMAGE));
+        if (idIgnoringNBT == null) {
+            idIgnoringNBT = project(components.forget(ItemIdentifier.IS_NOT_DAMAGE));
         }
-        return _IDIgnoringNBT;
+        return idIgnoringNBT;
     }
 
     /**
@@ -417,10 +417,10 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
      * only in skipping the damageable check.
      */
     public ItemIdentifier getIgnoringData() {
-        if (_IDIgnoringData == null) {
-            _IDIgnoringData = project(components.forget(ItemIdentifier.IS_DAMAGE));
+        if (idIgnoringData == null) {
+            idIgnoringData = project(components.forget(ItemIdentifier.IS_DAMAGE));
         }
-        return _IDIgnoringData;
+        return idIgnoringData;
     }
 
     private String getName(ItemStack stack) {
@@ -607,11 +607,11 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
     @Nullable
     public DictItemIdentifier getDictIdentifiers() {
-        if (_dict == null && canHaveDict) {
-            _dict = DictItemIdentifier.getDictItemIdentifier(this);
+        if (dict == null && canHaveDict) {
+            dict = DictItemIdentifier.getDictItemIdentifier(this);
             canHaveDict = false;
         }
-        return _dict;
+        return dict;
     }
 
     public void debugDumpData(boolean isClient) {

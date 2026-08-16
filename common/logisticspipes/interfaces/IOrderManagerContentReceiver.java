@@ -6,5 +6,5 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public interface IOrderManagerContentReceiver {
 
-	void setOrderManagerContent(Collection<ItemIdentifierStack> _allItems);
+	void setOrderManagerContent(Collection<ItemIdentifierStack> allItems);
 }

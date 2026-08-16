@@ -193,7 +193,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
 		tooltip = null;
 
-		for (ItemIdentifierStack itemIdStack : diskProvider.getItemDisplay()._allItems) {
+		for (ItemIdentifierStack itemIdStack : diskProvider.getItemDisplay().allItems) {
 			ItemIdentifier item = itemIdStack.getItem();
 			if (!itemSearched(item)) {
 				continue;
@@ -274,7 +274,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			}
 		}
 
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, diskProvider.getItemDisplay()._allItems, this, pageAll, guiLeft +9, guiTop +17, 9, 45, panelXSize, panelYSize, 100.0F, DisplayAmount.NEVER);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, diskProvider.getItemDisplay().allItems, this, pageAll, guiLeft +9, guiTop +17, 9, 45, panelXSize, panelYSize, 100.0F, DisplayAmount.NEVER);
 
 		ppi = 0;
 		column = 0;
@@ -316,7 +316,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, false);
 		guiGraphics.drawString(minecraft.font, "Add Macro", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +6, 0x404040, false);
 
-		maxPageAll = (int) Math.floor((getSearchedItemNumber(diskProvider.getItemDisplay()._allItems) - 1) / 45F);
+		maxPageAll = (int) Math.floor((getSearchedItemNumber(diskProvider.getItemDisplay().allItems) - 1) / 45F);
 		if (maxPageAll == -1) {
 			maxPageAll = 0;
 		}

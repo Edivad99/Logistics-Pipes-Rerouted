@@ -29,7 +29,7 @@ import net.minecraft.world.level.Level;
 public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack>, ILPCCTypeHolder {
 
 	private final Object[] ccTypeHolder = new Object[1];
-	private final ItemIdentifier _item;
+	private final ItemIdentifier item;
 	private int stackSize;
 
 	public static ItemIdentifierStack getFromStack(ItemStack stack) {
@@ -47,7 +47,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 	public CompoundTag saveToNBT(HolderLookup.Provider provider) {
 		RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
 		CompoundTag entry = new CompoundTag();
-		entry.put("item", ItemStack.SINGLE_ITEM_CODEC.encodeStart(ops, _item.makeNormalStack(1)).getOrThrow());
+		entry.put("item", ItemStack.SINGLE_ITEM_CODEC.encodeStart(ops, item.makeNormalStack(1)).getOrThrow());
 		entry.putInt("amount", getStackSize());
 		return entry;
 	}
@@ -73,16 +73,16 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 	}
 
 	public ItemIdentifierStack(ItemIdentifier item, int stackSize) {
-		_item = item;
+		this.item = item;
 		setStackSize(stackSize);
 	}
 
 	public ItemIdentifierStack(ItemIdentifierStack copy) {
-		this(copy._item, copy.getStackSize());
+		this(copy.item, copy.getStackSize());
 	}
 
 	public ItemIdentifier getItem() {
-		return _item;
+		return item;
 	}
 
 	/**
@@ -105,18 +105,18 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 	}
 
 	public ItemStack makeNormalStack() {
-		return _item.makeNormalStack(stackSize);
+		return item.makeNormalStack(stackSize);
 	}
 
 	public ItemEntity makeEntityItem(Level level, double x, double y, double z) {
-		return _item.makeEntityItem(stackSize, level, x, y, z);
+		return item.makeEntityItem(stackSize, level, x, y, z);
 	}
 
 	@Override
 	public boolean equals(Object that) {
 		if (that instanceof ItemIdentifierStack) {
 			ItemIdentifierStack stack = (ItemIdentifierStack) that;
-			return stack._item.equals(_item) && stack.getStackSize() == getStackSize();
+			return stack.item.equals(item) && stack.getStackSize() == getStackSize();
 		}
 		if ((that instanceof ItemIdentifier)) {
 			throw new IllegalStateException("Comparison between ItemIdentifierStack and ItemIdentifier -- did you forget a .getItem() in your code?");
@@ -127,16 +127,16 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 
 	@Override
 	public int hashCode() {
-		return _item.hashCode() ^ (1023 * getStackSize());
+		return item.hashCode() ^ (1023 * getStackSize());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%dx %s", getStackSize(), _item);
+		return String.format("%dx %s", getStackSize(), item);
 	}
 
 	public String getFriendlyName() {
-		return getStackSize() + " " + _item.getFriendlyName();
+		return getStackSize() + " " + item.getFriendlyName();
 	}
 
 	public static LinkedList<ItemIdentifierStack> getListFromInventory(Container inv) {
@@ -157,9 +157,9 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 		return list;
 	}
 
-	public static LinkedList<ItemIdentifierStack> getListSendQueue(LinkedList<Triplet<IRoutedItem, Direction, ItemSendMode>> _sendQueue) {
+	public static LinkedList<ItemIdentifierStack> getListSendQueue(LinkedList<Triplet<IRoutedItem, Direction, ItemSendMode>> sendQueue) {
 		LinkedList<ItemIdentifierStack> list = new LinkedList<>();
-		for (Triplet<IRoutedItem, Direction, ItemSendMode> part : _sendQueue) {
+		for (Triplet<IRoutedItem, Direction, ItemSendMode> part : sendQueue) {
 			if (part == null) {
 				list.add(null);
 			} else {
@@ -181,7 +181,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 
 	@Override
 	public int compareTo(ItemIdentifierStack o) {
-		int c = _item.compareTo(o._item);
+		int c = item.compareTo(o.item);
 		if (c == 0) {
 			return getStackSize() - o.getStackSize();
 		}

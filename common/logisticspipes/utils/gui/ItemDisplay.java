@@ -40,7 +40,7 @@ public class ItemDisplay {
 	private static final int PANELSIZEY = 20;
 
 	private ItemIdentifierStack selectedItem = null;
-	public final LinkedList<ItemIdentifierStack> _allItems = new LinkedList<>();
+	public final LinkedList<ItemIdentifierStack> allItems = new LinkedList<>();
 	private final Map<Pair<Integer, Integer>, ItemIdentifierStack> map = new HashMap<>();
 
 	@Getter
@@ -99,13 +99,13 @@ public class ItemDisplay {
 
 	public void setItemList(Collection<ItemIdentifierStack> allItems) {
 		listbyserver = true;
-		_allItems.clear();
-		allItems.stream().sorted(new ItemidStackDisplayOptionComparator()).forEach(_allItems::add);
+		this.allItems.clear();
+		allItems.stream().sorted(new ItemidStackDisplayOptionComparator()).forEach(this.allItems::add);
 		boolean found = false;
 		if (selectedItem == null) {
 			return;
 		}
-		for (ItemIdentifierStack itemStack : _allItems) {
+		for (ItemIdentifierStack itemStack : this.allItems) {
 			if (itemStack.getItem().equals(selectedItem.getItem())) {
 				selectedItem = itemStack;
 				found = true;
@@ -186,7 +186,7 @@ public class ItemDisplay {
 			i = 0;
 		}
 		ItemDisplay.option = DisplayOption.values()[i];
-		_allItems.sort(new ItemidStackDisplayOptionComparator());
+		allItems.sort(new ItemidStackDisplayOptionComparator());
 	}
 
 	public void renderSortMode(GuiGraphics guiGraphics, int x, int y) {
@@ -214,7 +214,7 @@ public class ItemDisplay {
 
 	private int getSearchedItemNumber() {
 		int count = 0;
-		for (ItemIdentifierStack item : _allItems) {
+		for (ItemIdentifierStack item : allItems) {
 			if (search == null || search.itemSearched(item.getItem())) {
 				count++;
 			}
@@ -247,7 +247,7 @@ public class ItemDisplay {
 		int mouseX = screenMouseX - left;
 		int mouseY = screenMouseY - top;
 
-		for (ItemIdentifierStack itemIdentifierStack : _allItems) {
+		for (ItemIdentifierStack itemIdentifierStack : allItems) {
 			ItemIdentifier item = itemIdentifierStack.getItem();
 			if (search != null && !search.itemSearched(item)) {
 				continue;

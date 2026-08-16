@@ -107,8 +107,8 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         val isInitialized = super.initialized
         super.finishInit()
         if (isInitialized) return
-        if (_service != null) {
-            val level = _world?.getWorld()
+        if (service != null) {
+            val level = worldProvider?.getWorld()
             MainProxy.runOnServer(level) {
                 Runnable {
                     itemsIncluded.addObserver {

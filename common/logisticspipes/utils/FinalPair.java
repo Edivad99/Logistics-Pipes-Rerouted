@@ -6,32 +6,32 @@ package logisticspipes.utils;
  */
 public class FinalPair<T1, T2> {
 
-	private final T1 _value1;
-	private final T2 _value2;
-	private final int _hashcode;
+	private final T1 value1;
+	private final T2 value2;
+	private final int hashcode;
 
 	public FinalPair(T1 value1, T2 value2) {
-		_value1 = value1;
-		_value2 = value2;
-		_hashcode = _value1.hashCode() ^ _value2.hashCode();
+		this.value1 = value1;
+		this.value2 = value2;
+		hashcode = this.value1.hashCode() ^ this.value2.hashCode();
 	}
 
 	public T1 getValue1() {
-		return _value1;
+		return value1;
 	}
 
 	public T2 getValue2() {
-		return _value2;
+		return value2;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("<%s,%s>", _value1, _value2);
+		return String.format("<%s,%s>", value1, value2);
 	}
 
 	@Override
 	public int hashCode() {
-		return _hashcode;
+		return hashcode;
 	}
 
 	@Override
@@ -40,6 +40,6 @@ public class FinalPair<T1, T2> {
 			return false;
 		}
 		FinalPair<?, ?> p = (FinalPair<?, ?>) o;
-		return _value1.equals(p._value1) && _value2.equals(p._value2);
+		return value1.equals(p.value1) && value2.equals(p.value2);
 	}
 }

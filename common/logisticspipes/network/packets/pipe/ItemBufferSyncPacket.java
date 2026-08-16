@@ -40,8 +40,8 @@ public class ItemBufferSyncPacket
 		if (pipe == null || pipe.pipe == null || pipe.pipe.transport == null) {
 			return;
 		}
-		pipe.pipe.transport._itemBuffer.clear();
-		pipe.pipe.transport._itemBuffer.addAll(getList());
+		pipe.pipe.transport.itemBuffer.clear();
+		pipe.pipe.transport.itemBuffer.addAll(getList());
 	}
 
 	@Override

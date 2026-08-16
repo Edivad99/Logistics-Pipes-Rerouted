@@ -19,7 +19,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 
 	private static final String PREFIX = "gui.securitystation.popup.ccAccess.";
 
-	private final LogisticsSecurityTileEntity _tile;
+	private final LogisticsSecurityTileEntity tile;
 
 	private String searchInput1 = "0";
 	private String searchInput2 = "";
@@ -36,7 +36,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 
 	public GuiEditCCAccessTable(LogisticsSecurityTileEntity tile) {
 		super(150, 150, 0, 0);
-		_tile = tile;
+		this.tile = tile;
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(minecraft.font, "(" + (page + 1) + "/" + ((int) ((_tile.excludedCC.size() / 9D) + 1 - (_tile.excludedCC.size() % 9 == 0 && _tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0x4F4F4F, false);
+        guiGraphics.drawString(minecraft.font, "(" + (page + 1) + "/" + ((int) ((tile.excludedCC.size() / 9D) + 1 - (tile.excludedCC.size() % 9 == 0 && tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0x4F4F4F, false);
 
 		boolean dark = true;
 		for (int i = 0; i < 9; i++) {
@@ -73,8 +73,8 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 			dark = !dark;
 		}
 		dark = true;
-		for (int i = 0; i < 9 && i + (page * 9) < _tile.excludedCC.size(); i++) {
-			Integer id = _tile.excludedCC.get(i + (page * 9));
+		for (int i = 0; i < 9 && i + (page * 9) < tile.excludedCC.size(); i++) {
+			Integer id = tile.excludedCC.get(i + (page * 9));
             guiGraphics.drawString(minecraft.font, Integer.toString(id), guiLeft + 75 - (minecraft.font.width(Integer.toString(id)) / 2), guiTop + 16 + (i * 10), dark ? 0xFFFFFF : 0x000000, false);
 			dark = !dark;
 			if (lastClickedX >= guiLeft + 10 && lastClickedX < right - 10 && lastClickedY >= guiTop + 15 + (i * 10) && lastClickedY < guiTop + 25 + (i * 10)) {
@@ -189,17 +189,17 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 				break;
 			case 2: {
 				Integer id1 = Integer.valueOf(searchInput1 + searchInput2);
-				_tile.excludedCC.remove(id1);
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityRemoveCCIdPacket.class).putInt(id1).setBlockPos(_tile.getBlockPos()));
+				tile.excludedCC.remove(id1);
+				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityRemoveCCIdPacket.class).putInt(id1).setBlockPos(tile.getBlockPos()));
 			}
 			break;
 			case 3: {
 				Integer id2 = Integer.valueOf(searchInput1 + searchInput2);
-				if (!_tile.excludedCC.contains(id2)) {
-					_tile.excludedCC.add(id2);
-					Collections.sort(_tile.excludedCC);
+				if (!tile.excludedCC.contains(id2)) {
+					tile.excludedCC.add(id2);
+					Collections.sort(tile.excludedCC);
 				}
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityAddCCIdPacket.class).putInt(id2).setBlockPos(_tile.getBlockPos()));
+				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityAddCCIdPacket.class).putInt(id2).setBlockPos(tile.getBlockPos()));
 			}
 			break;
 			case 4:
@@ -210,8 +210,8 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 				break;
 			case 5:
 				page++;
-				if (page > (_tile.excludedCC.size() / 9) - (_tile.excludedCC.size() % 9 == 0 && _tile.excludedCC.size() != 0 ? 1 : 0)) {
-					page = (_tile.excludedCC.size() / 9) - (_tile.excludedCC.size() % 9 == 0 && _tile.excludedCC.size() != 0 ? 1 : 0);
+				if (page > (tile.excludedCC.size() / 9) - (tile.excludedCC.size() % 9 == 0 && tile.excludedCC.size() != 0 ? 1 : 0)) {
+					page = (tile.excludedCC.size() / 9) - (tile.excludedCC.size() % 9 == 0 && tile.excludedCC.size() != 0 ? 1 : 0);
 				}
 				break;
 			default:

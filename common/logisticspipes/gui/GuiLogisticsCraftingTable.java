@@ -19,7 +19,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
-	public LogisticsCraftingTableBlockEntity _crafter;
+	public LogisticsCraftingTableBlockEntity crafter;
 
 	private int fuzzyPanelSelection = -1;
 	private int fuzzyPanelHover = -1;
@@ -29,7 +29,7 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
 	public GuiLogisticsCraftingTable(Player player, LogisticsCraftingTableBlockEntity crafter) {
 		super(buildDummy(player, crafter), 176, 218, 0, 0);
-		_crafter = crafter;
+		this.crafter = crafter;
 		((DummyContainer) this.menu).guiHolderForJEI = this;
 	}
 	private static DummyContainer buildDummy(Player player, LogisticsCraftingTableBlockEntity crafter) {
@@ -63,17 +63,17 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 	public void init() {
 		super.init();
 		SmallGuiButton upBtn = new SmallGuiButton(0, leftPos + 144, topPos + 25, 15, 10, "/\\");
-		upBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(false).setTilePos(_crafter)));
+		upBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(false).setTilePos(crafter)));
 		(cycleButtons[0] = addRenderableWidget(upBtn)).visible = false;
 		SmallGuiButton dnBtn = new SmallGuiButton(1, leftPos + 144, topPos + 37, 15, 10, "\\/");
-		dnBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(true).setTilePos(_crafter)));
+		dnBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(true).setTilePos(crafter)));
 		(cycleButtons[1] = addRenderableWidget(dnBtn)).visible = false;
 	}
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float fA, int iA, int jA) {
 		for (AbstractButton cycleButton : cycleButtons) {
-			cycleButton.visible = _crafter.targetType != null;
+			cycleButton.visible = crafter.targetType != null;
 		}
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
@@ -92,8 +92,8 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
 		ItemIdentifierStack[] items = new ItemIdentifierStack[9];
 		for (int i = 0; i < 9; i++) {
-			if (_crafter.matrix.getIDStackInSlot(i) != null) {
-				items[i] = _crafter.matrix.getIDStackInSlot(i);
+			if (crafter.matrix.getIDStackInSlot(i) != null) {
+				items[i] = crafter.matrix.getIDStackInSlot(i);
 			}
 		}
 

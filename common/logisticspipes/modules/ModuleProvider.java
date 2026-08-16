@@ -162,7 +162,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 
 	@Override
 	public void tick() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return;
 		if (service.isNthTick(6)) {
 			checkUpdate(null);
@@ -198,7 +198,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 
 	@Override
 	public void onBlockRemoval() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return;
 		while (service.getItemOrderManager().hasOrders(ResourceType.PROVIDER)) {
 			service.getItemOrderManager().sendFailed();
@@ -206,7 +206,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	public Stream<IInventoryUtil> inventoriesWithMode() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return Stream.empty();
 		return service.getAvailableAdjacent().inventories().stream()
 				.map(this::getInventoryUtilWithMode)
@@ -229,12 +229,12 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		}
 		for (ItemIdentifier item : possible) {
 			int canProvide = getAvailableItemCount(item);
-			canProvide -= root.getAllPromissesFor((IProvideItems) _service, item);
+			canProvide -= root.getAllPromissesFor((IProvideItems) service, item);
 			canProvide = Math.min(canProvide, tree.getMissingAmount());
 			if (canProvide < 1) {
 				continue;
 			}
-			LogisticsPromise promise = new LogisticsPromise(item, canProvide, (IProvideItems) _service,
+			LogisticsPromise promise = new LogisticsPromise(item, canProvide, (IProvideItems) service,
 					ResourceType.PROVIDER);
 			tree.addPromise(promise);
 		}
@@ -243,7 +243,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	@Override
 	public LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination,
 			IAdditionalTargetInformation info) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		service.spawnParticle(Particles.WHITE_SPARKLE, 2);
 		return service.getItemOrderManager()
@@ -252,14 +252,14 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	private int getAvailableItemCount(ItemIdentifier item) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return 0;
 		return getTotalItemCount(item) - service.getItemOrderManager().totalItemsCountInOrders(item);
 	}
 
 	@Override
 	public void getAllItems(Map<ItemIdentifier, Integer> items, List<IFilter> filters) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return;
 		items.putAll(
 				inventoriesWithMode()
@@ -288,7 +288,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	// returns -1 on permanently failed, don't try another stack this tick
 	// returns 0 on "unable to do this delivery"
 	public int sendStack(ItemIdentifierStack stack, int maxCount, int destination, IAdditionalTargetInformation info) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return -1;
 
 		ItemIdentifier item = stack.getItem();

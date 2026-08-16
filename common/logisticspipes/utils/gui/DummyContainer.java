@@ -53,11 +53,11 @@ public class DummyContainer extends AbstractContainerMenu {
 
 	public List<BitSet> slotsFuzzyFlags = new ArrayList<>();
     @Nullable
-	protected Container _playerInventory;
+	protected Container playerInventory;
     @Nullable
-	protected Container _dummyInventory;
+	protected Container dummyInventory;
     @Nullable
-	protected IGuiOpenControler[] _controler;
+	protected IGuiOpenControler[] controler;
 	boolean wasDummyLookup;
 	boolean overrideMCAntiSend;
 	private final List<Slot> transferTop = new ArrayList<>();
@@ -69,18 +69,18 @@ public class DummyContainer extends AbstractContainerMenu {
 
 	public DummyContainer(@Nullable Container playerInventory, @Nullable Container dummyInventory) {
 		super(null, 0);
-		_playerInventory = playerInventory;
-		_dummyInventory = dummyInventory;
-		_controler = null;
+		this.playerInventory = playerInventory;
+		this.dummyInventory = dummyInventory;
+		controler = null;
 	}
 
 	public DummyContainer(Player player, Container dummyInventory, IGuiOpenControler... controler) {
 		super(null, 0);
-		_playerInventory = player.getInventory();
-		_dummyInventory = dummyInventory;
-		_controler = controler;
+		playerInventory = player.getInventory();
+		this.dummyInventory = dummyInventory;
+		this.controler = controler;
 		if (MainProxy.isServer(player.level())) {
-			for (IGuiOpenControler element : _controler) {
+			for (IGuiOpenControler element : this.controler) {
 				element.guiOpenedByPlayer(player);
 			}
 		}
@@ -95,13 +95,13 @@ public class DummyContainer extends AbstractContainerMenu {
 	 * Adds all slots for the player inventory and hotbar
 	 */
 	public void addNormalSlotsForPlayerInventory(int xOffset, int yOffset) {
-		if (_playerInventory == null) {
+		if (playerInventory == null) {
 			return;
 		}
 		// Player "backpack"
 		for (int row = 0; row < 3; row++) {
 			for (int column = 0; column < 9; column++) {
-				Slot slot = new Slot(_playerInventory, column + row * 9 + 9, xOffset + column * 18, yOffset + row * 18);
+				Slot slot = new Slot(playerInventory, column + row * 9 + 9, xOffset + column * 18, yOffset + row * 18);
 				addSlot(slot);
 				transferBottom.add(slot);
 			}
@@ -109,7 +109,7 @@ public class DummyContainer extends AbstractContainerMenu {
 
 		// Player "hotbar"
 		for (int i1 = 0; i1 < 9; i1++) {
-			Slot slot = new Slot(_playerInventory, i1, xOffset + i1 * 18, yOffset + 58);
+			Slot slot = new Slot(playerInventory, i1, xOffset + i1 * 18, yOffset + 58);
 			addSlot(slot);
 			transferBottom.add(slot);
 		}
@@ -126,7 +126,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	 *            yCoord of TopLeft corner of where the slot should be rendered
 	 */
 	public Slot addDummySlot(int slotId, int xCoord, int yCoord) {
-		return addSlot(new DummySlot(_dummyInventory, slotId, xCoord, yCoord));
+		return addSlot(new DummySlot(dummyInventory, slotId, xCoord, yCoord));
 	}
 
 	public Slot addDummySlot(int slotId, Container dummy, int xCoord, int yCoord) {
@@ -162,7 +162,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	}
 
 	public Slot addFluidSlot(int slotId, int xCoord, int yCoord) {
-		return addSlot(new FluidSlot(_dummyInventory, slotId, xCoord, yCoord));
+		return addSlot(new FluidSlot(dummyInventory, slotId, xCoord, yCoord));
 	}
 
 	public Slot addFluidSlot(int slotId, Container inventory, int xCoord, int yCoord) {
@@ -182,7 +182,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	}
 
 	public Slot addFuzzyDummySlot(int slotId, int xCoord, int yCoord, IBitSet fuzzyFlags) {
-		return addSlot(new FuzzyDummySlot(_dummyInventory, slotId, xCoord, yCoord, fuzzyFlags));
+		return addSlot(new FuzzyDummySlot(dummyInventory, slotId, xCoord, yCoord, fuzzyFlags));
 	}
 
 	public Slot addFuzzyUnmodifiableSlot(int slotId, Container inventory, int xCoord, int yCoord, IBitSet fuzzyFlags) {
@@ -275,8 +275,8 @@ public class DummyContainer extends AbstractContainerMenu {
 
 	private void handleSwitch(Slot slot2, ItemStack out, ItemStack in, Player player) {
 		if (slot2 instanceof ModuleSlot) {
-			ChassisModule chassis = (ChassisModule) ((ModuleSlot) slot2).get_pipe().getLogisticsModule();
-			int moduleIndex = ((ModuleSlot) slot2).get_moduleIndex();
+			ChassisModule chassis = (ChassisModule) ((ModuleSlot) slot2).getPipe().getLogisticsModule();
+			int moduleIndex = ((ModuleSlot) slot2).getModuleIndex();
 			if (out.getItem() instanceof ItemModule) {
 				if (chassis.hasModule(moduleIndex)) {
 					ItemModuleInformationManager.saveInformation(out, chassis.getModule(moduleIndex), player.registryAccess());
@@ -482,8 +482,8 @@ public class DummyContainer extends AbstractContainerMenu {
 
 	@Override
 	public void removed(Player player) {
-		if (_controler != null) {
-			for (IGuiOpenControler element : _controler) {
+		if (controler != null) {
+			for (IGuiOpenControler element : controler) {
 				element.guiClosedByPlayer(player);
 			}
 		}
@@ -491,21 +491,21 @@ public class DummyContainer extends AbstractContainerMenu {
 	}
 
 	public void addRestrictedHotbarForPlayerInventory(int xOffset, int yOffset) {
-		if (_playerInventory == null) {
+		if (playerInventory == null) {
 			return;
 		}
 		// Player "hotbar"
 		for (int i1 = 0; i1 < 9; i1++) {
-			addSlot(new UnmodifiableSlot(_playerInventory, i1, xOffset + i1 * 18, yOffset));
+			addSlot(new UnmodifiableSlot(playerInventory, i1, xOffset + i1 * 18, yOffset));
 		}
 	}
 
 	public void addRestrictedArmorForPlayerInventory(int xOffset, int yOffset) {
-		if (_playerInventory == null) {
+		if (playerInventory == null) {
 			return;
 		}
 		for (int i1 = 0; i1 < 4; i1++) {
-			addSlot(new UnmodifiableSlot(_playerInventory, i1 + 36, xOffset, yOffset - i1 * 18));
+			addSlot(new UnmodifiableSlot(playerInventory, i1 + 36, xOffset, yOffset - i1 * 18));
 		}
 	}
 
@@ -536,8 +536,8 @@ public class DummyContainer extends AbstractContainerMenu {
 	@Override
 	public void setItem(int par1, int stateId, ItemStack par2ItemStack) {
 		if (this.slots.isEmpty()) {
-			_playerInventory.setItem(par1, par2ItemStack);
-			_playerInventory.setChanged();
+			playerInventory.setItem(par1, par2ItemStack);
+			playerInventory.setChanged();
 			return;
 		}
 		super.setItem(par1, stateId, par2ItemStack);

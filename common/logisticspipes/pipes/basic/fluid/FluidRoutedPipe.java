@@ -39,7 +39,7 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 
 public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 
-	private LogisticsFluidOrderManager _orderFluidManager;
+	private LogisticsFluidOrderManager orderFluidManager;
 
 	public FluidRoutedPipe(Item item) {
 		super(new PipeFluidTransportLogistics(), item);
@@ -197,7 +197,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 
 	public int countOnRoute(FluidIdentifier ident) {
 		int amount = 0;
-		for (ItemRoutingInformation next : _inTransitToMe) {
+		for (ItemRoutingInformation next : inTransitToMe) {
 			ItemIdentifierStack item = next.getItem();
 			if (item.getItem().isFluidContainer()) {
 				FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(item, getWorld().registryAccess());
@@ -301,8 +301,8 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 	}
 
 	public LogisticsFluidOrderManager getFluidOrderManager() {
-		_orderFluidManager = _orderFluidManager != null ? _orderFluidManager : new LogisticsFluidOrderManager(this);
-		return _orderFluidManager;
+		orderFluidManager = orderFluidManager != null ? orderFluidManager : new LogisticsFluidOrderManager(this);
+		return orderFluidManager;
 	}
 
 	@Override

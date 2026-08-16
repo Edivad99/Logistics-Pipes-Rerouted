@@ -37,13 +37,13 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	private static final Component TEXT_COMPONENT_EMPTY = Component.literal("");
 
 	private final NonNullList<ItemStack> stackList;
-	private final String _name;
-	private final int _stackLimit;
+	private final String name;
+	private final int stackLimit;
 
-	private final LinkedList<ISimpleInventoryEventHandler> _listener = new LinkedList<>();
+	private final LinkedList<ISimpleInventoryEventHandler> listener = new LinkedList<>();
 
 	public SimpleStackInventory(SimpleStackInventory copy) {
-		this(copy.getContainerSize(), copy._name, copy._stackLimit);
+		this(copy.getContainerSize(), copy.name, copy.stackLimit);
 		for (int i = 0; i < copy.getContainerSize(); i++) {
 			stackList.set(i, copy.getItem(i).copy());
 		}
@@ -51,8 +51,8 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 
 	public SimpleStackInventory(int size, String name, int stackLimit) {
 		stackList = NonNullList.withSize(size, ItemStack.EMPTY);
-		_name = name;
-		_stackLimit = stackLimit;
+		this.name = name;
+		this.stackLimit = stackLimit;
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	}
 
 	public String getName() {
-		return _name;
+		return name;
 	}
 
 	public Component getDisplayName() {
@@ -104,12 +104,12 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 
 	@Override
 	public int getMaxStackSize() {
-		return _stackLimit;
+		return stackLimit;
 	}
 
 	@Override
 	public void setChanged() {
-		for (ISimpleInventoryEventHandler handler : _listener) {
+		for (ISimpleInventoryEventHandler handler : listener) {
 			handler.InventoryChanged(this);
 		}
 	}
@@ -188,13 +188,13 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	}
 
 	public void addListener(ISimpleInventoryEventHandler listner) {
-		if (!_listener.contains(listner)) {
-			_listener.add(listner);
+		if (!listener.contains(listner)) {
+			listener.add(listner);
 		}
 	}
 
 	public void removeListener(ISimpleInventoryEventHandler listner) {
-		_listener.remove(listner);
+		listener.remove(listner);
 	}
 
 	@Override
@@ -231,7 +231,7 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 		stack = stack.copy();
 
 		ItemIdentifier stackIdent = ItemIdentifier.get(stack);
-		int stacklimit = _stackLimit;
+		int stacklimit = stackLimit;
 		if (!ignoreMaxStackSize) {
 			stacklimit = Math.min(stacklimit, stackIdent.getMaxStackSize());
 		}

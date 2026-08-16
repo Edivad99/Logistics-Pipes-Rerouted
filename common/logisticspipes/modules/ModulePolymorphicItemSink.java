@@ -18,7 +18,7 @@ import network.rs485.logisticspipes.property.Property;
 
 public class ModulePolymorphicItemSink extends LogisticsModule {
 
-	private SinkReply _sinkReply;
+	private SinkReply sinkReply;
 
 	public static String getName() {
 		return "item_sink_polymorphic";
@@ -37,7 +37,7 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.ItemSink,
+		sinkReply = new SinkReply(FixedPriority.ItemSink,
 				0,
 				true,
 				false,
@@ -49,11 +49,11 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+				&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
 		IInventoryUtil targetInventory = PipeServiceProviderUtilKt.availableSneakyInventories(service, upgradeManager)
@@ -67,7 +67,7 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 		}
 
 		if (service.canUseEnergy(3)) {
-			return _sinkReply;
+			return sinkReply;
 		}
 		return null;
 	}

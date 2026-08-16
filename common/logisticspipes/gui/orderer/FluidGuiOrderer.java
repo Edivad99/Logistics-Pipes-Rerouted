@@ -14,7 +14,7 @@ public class FluidGuiOrderer extends GuiOrderer {
 
 	public FluidGuiOrderer(PipeFluidRequestLogistics pipe, Player entityPlayer) {
 		super(pipe.getX(), pipe.getY(), pipe.getZ(), pipe.getWorld().dimension().location(), entityPlayer);
-		_title = "Request Fluid";
+		title = "Request Fluid";
 		refreshItems();
 	}
 

@@ -27,14 +27,14 @@ import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class ClientRouter implements IRouter {
 
-	private final int _xCoord;
-	private final int _yCoord;
-	private final int _zCoord;
+	private final int xCoord;
+	private final int yCoord;
+	private final int zCoord;
 
 	public ClientRouter(UUID id, ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
-		_xCoord = xCoord;
-		_yCoord = yCoord;
-		_zCoord = zCoord;
+		this.xCoord = xCoord;
+		this.yCoord = yCoord;
+		this.zCoord = zCoord;
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class ClientRouter implements IRouter {
 		if (level == null) {
 			return null;
 		}
-        if (level.getBlockEntity(new BlockPos(_xCoord, _yCoord, _zCoord)) instanceof LogisticsTileGenericPipe pipe) {
+        if (level.getBlockEntity(new BlockPos(xCoord, yCoord, zCoord)) instanceof LogisticsTileGenericPipe pipe) {
             if (pipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
                 return coreRoutedPipe;
             }
@@ -115,12 +115,12 @@ public class ClientRouter implements IRouter {
 
 	@Override
 	public boolean isAt(ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
-		return _xCoord == xCoord && _yCoord == yCoord && _zCoord == zCoord;
+		return this.xCoord == xCoord && this.yCoord == yCoord && this.zCoord == zCoord;
 	}
 
 	@Override
 	public DoubleCoordinates getLPPosition() {
-		return new DoubleCoordinates(_xCoord, _yCoord, _zCoord);
+		return new DoubleCoordinates(xCoord, yCoord, zCoord);
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class ClientRouter implements IRouter {
 
 	@Override
 	public String toString() {
-		return String.format("ServerRouter: {UUID: %s, AT: (%d, %d, %d)}", getId(), _xCoord, _yCoord, _zCoord);
+		return String.format("ServerRouter: {UUID: %s, AT: (%d, %d, %d)}", getId(), xCoord, yCoord, zCoord);
 	}
 
 	@Override

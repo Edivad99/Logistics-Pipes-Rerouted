@@ -38,9 +38,9 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 
 	private final Object[] ccTypeHolder = new Object[1];
 	@Nullable
-	protected IWorldProvider _world;
+	protected IWorldProvider worldProvider;
 	@Nullable
-	protected IPipeServiceProvider _service;
+	protected IPipeServiceProvider service;
 	@Getter
     @Nullable
     protected ModulePositionType slot;
@@ -55,8 +55,8 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	 * @param service Inventory access, power and utility functions provided by the pipe.
 	 */
 	public void registerHandler(IWorldProvider world, IPipeServiceProvider service) {
-		_world = world;
-		_service = service;
+		this.worldProvider = world;
+		this.service = service;
 	}
 
 	/**
@@ -80,7 +80,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 
     @Nullable
 	public BlockPos getBlockPos() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) {
 			if (LogisticsPipes.isDEBUG()) {
 				throw new IllegalStateException("Module has no service, but getBlockPos was called");
@@ -98,7 +98,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 
 	@Nullable
 	public Level getWorld() {
-		final IWorldProvider worldProvider = _world;
+		final IWorldProvider worldProvider = this.worldProvider;
 		if (worldProvider == null) return null;
 		return worldProvider.getWorld();
 	}
@@ -190,19 +190,19 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	}
 
 	protected ISlotUpgradeManager getUpgradeManager() {
-		return Objects.requireNonNull(_service, "service object was null in " + this)
+		return Objects.requireNonNull(service, "service object was null in " + this)
 				.getUpgradeManager(slot, positionInt);
 	}
 
 	@Override
 	public String toString() {
 		String at = "{service is null}";
-		if (_service != null) {
-			at = Objects.toString(_service.getPos());
+		if (service != null) {
+			at = Objects.toString(service.getPos());
 		}
 		String in = "{world is null}";
-		if (_world != null) {
-			in = Objects.toString(_world.getWorld());
+		if (worldProvider != null) {
+			in = Objects.toString(worldProvider.getWorld());
 		}
 		return String.format("%s at %s in %s", getClass().getName(), at, in);
 	}
@@ -222,11 +222,11 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 			}
 			return;
 		}
-		if (_service != null) {
-			final Level blockAccess = _world == null ? null : _world.getWorld();
+		if (service != null) {
+			final Level blockAccess = worldProvider == null ? null : worldProvider.getWorld();
 			MainProxy.runOnServer(blockAccess, () -> () ->
 					UtilKt.addObserver(getProperties(), (prop) -> {
-						_service.markTileDirty();
+						service.markTileDirty();
 						return Unit.INSTANCE;
 					})
 			);

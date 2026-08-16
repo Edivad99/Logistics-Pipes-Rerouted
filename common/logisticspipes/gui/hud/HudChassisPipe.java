@@ -36,9 +36,9 @@ public class HudChassisPipe extends BasicHUDGui {
 	private int xCursor;
 	private int yCursor;
 
-	public HudChassisPipe(PipeLogisticsChassis pipeLogisticsChassis, ItemIdentifierInventory _moduleInventory) {
+	public HudChassisPipe(PipeLogisticsChassis pipeLogisticsChassis, ItemIdentifierInventory moduleInventory) {
 		pipe = pipeLogisticsChassis;
-		moduleInventory = _moduleInventory;
+		this.moduleInventory = moduleInventory;
 		for (int i = 0; i < pipe.getChassisSize(); i++) {
 			addRenderableWidget(new ItemButton(moduleInventory, i, -45, -35 + ((i % 3) * 27), 20, 25));
 		}

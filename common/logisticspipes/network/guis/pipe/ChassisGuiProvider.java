@@ -36,24 +36,24 @@ public class ChassisGuiProvider extends BooleanModuleCoordinatesGuiProvider {
 		if (!(pipe.pipe instanceof PipeLogisticsChassis)) {
 			return null;
 		}
-		final PipeLogisticsChassis _chassiPipe = (PipeLogisticsChassis) pipe.pipe;
-		Container _moduleInventory = _chassiPipe.getModuleInventory(player.registryAccess());
-		DummyContainer dummy = new DummyContainer(player.getInventory(), _moduleInventory);
-		if (_chassiPipe.getChassisSize() < 5) {
+		final PipeLogisticsChassis chassiPipe = (PipeLogisticsChassis) pipe.pipe;
+		Container moduleInventory = chassiPipe.getModuleInventory(player.registryAccess());
+		DummyContainer dummy = new DummyContainer(player.getInventory(), moduleInventory);
+		if (chassiPipe.getChassisSize() < 5) {
 			dummy.addNormalSlotsForPlayerInventory(18, 97);
 		} else {
 			dummy.addNormalSlotsForPlayerInventory(18, 174);
 		}
-		for (int i = 0; i < _chassiPipe.getChassisSize(); i++) {
-			dummy.addModuleSlot(i, _moduleInventory, 19, 9 + 20 * i, _chassiPipe);
+		for (int i = 0; i < chassiPipe.getChassisSize(); i++) {
+			dummy.addModuleSlot(i, moduleInventory, 19, 9 + 20 * i, chassiPipe);
 		}
 
-		if (_chassiPipe.getUpgradeManager().hasUpgradeModuleUpgrade()) {
-			for (int i = 0; i < _chassiPipe.getChassisSize(); i++) {
+		if (chassiPipe.getUpgradeManager().hasUpgradeModuleUpgrade()) {
+			for (int i = 0; i < chassiPipe.getChassisSize(); i++) {
 				final int fI = i;
-				ModuleUpgradeManager upgradeManager = _chassiPipe.getModuleUpgradeManager(i);
-				dummy.addUpgradeSlot(0, upgradeManager, 0, 145, 9 + i * 20, itemStack -> ChassisGuiProvider.checkStack(itemStack, _chassiPipe, fI));
-				dummy.addUpgradeSlot(1, upgradeManager, 1, 165, 9 + i * 20, itemStack -> ChassisGuiProvider.checkStack(itemStack, _chassiPipe, fI));
+				ModuleUpgradeManager upgradeManager = chassiPipe.getModuleUpgradeManager(i);
+				dummy.addUpgradeSlot(0, upgradeManager, 0, 145, 9 + i * 20, itemStack -> ChassisGuiProvider.checkStack(itemStack, chassiPipe, fI));
+				dummy.addUpgradeSlot(1, upgradeManager, 1, 165, 9 + i * 20, itemStack -> ChassisGuiProvider.checkStack(itemStack, chassiPipe, fI));
 			}
 		}
 		return dummy;

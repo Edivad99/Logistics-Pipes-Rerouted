@@ -18,14 +18,14 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
 
 	private static final String PREFIX = "gui.securitystation.popup.player.";
 
-	private final LogisticsSecurityTileEntity _tile;
+	private final LogisticsSecurityTileEntity tile;
 	private final SecuritySettings activeSetting;
 	private GuiCheckBox cb0, cb1, cb2, cb3, cb4, cb5;
 
 	public GuiSecurityStationPopup(SecuritySettings setting, LogisticsSecurityTileEntity tile) {
 		super(160, 135, 0, 0);
 		activeSetting = setting;
-		_tile = tile;
+		this.tile = tile;
 	}
 
 	@Override
@@ -57,8 +57,8 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
 
 	private void sendSettings() {
 		CompoundTag nbt = new CompoundTag();
-		activeSetting.writeToNBT(nbt, _tile.getLevel().registryAccess());
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(SaveSecurityPlayerPacket.class).put(nbt).setBlockPos(_tile.getBlockPos()));
+		activeSetting.writeToNBT(nbt, tile.getLevel().registryAccess());
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(SaveSecurityPlayerPacket.class).put(nbt).setBlockPos(tile.getBlockPos()));
 	}
 
 	@Override

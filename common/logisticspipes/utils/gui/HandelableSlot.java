@@ -8,11 +8,11 @@ import net.minecraft.world.item.ItemStack;
 
 public class HandelableSlot extends Slot {
 
-	private final ISlotClick _handler;
+	private final ISlotClick handler;
 
 	public HandelableSlot(Container inventory, int slotId, int xCoord, int yCoord, ISlotClick handler) {
 		super(inventory, slotId, xCoord, yCoord);
-		_handler = handler;
+		this.handler = handler;
 	}
 
 	@Override
@@ -21,7 +21,7 @@ public class HandelableSlot extends Slot {
 	}
 
 	public ItemStack getProvidedStack() {
-		return _handler.getResultForClick();
+		return handler.getResultForClick();
 	}
 
 	@Override

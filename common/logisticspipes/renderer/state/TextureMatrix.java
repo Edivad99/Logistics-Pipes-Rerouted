@@ -69,10 +69,10 @@ public class TextureMatrix {
 				dirty = true;
 			}
 			hasPowerUpgrade = cPipe.getUpgradeManager().hasRFPowerSupplierUpgrade() || cPipe.getUpgradeManager().getIC2PowerLevel() > 0;
-			if (hasPower != (cPipe._textureBufferPowered || LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean())) {
+			if (hasPower != (cPipe.textureBufferPowered || LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean())) {
 				dirty = true;
 			}
-			hasPower = cPipe._textureBufferPowered || LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean();
+			hasPower = cPipe.textureBufferPowered || LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean();
 			if (isFluid != cPipe.isFluidPipe()) {
 				dirty = true;
 			}

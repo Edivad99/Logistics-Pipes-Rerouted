@@ -26,13 +26,13 @@ import net.minecraft.world.level.Level;
 
 public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> implements Iterable<T> {
 
-	protected final LogisticsOrderLinkedList<T, I> _orders;
+	protected final LogisticsOrderLinkedList<T, I> orders;
 	protected IChangeListener listener = null;
 	protected PlayerCollectionList watchingPlayers = new PlayerCollectionList();
 	private ILPPositionProvider pos;
 
 	public LogisticsOrderManager(LogisticsOrderLinkedList<T, I> orders, ILPPositionProvider pos) {
-		_orders = orders;
+		this.orders = orders;
 		this.pos = pos;
 	}
 
@@ -59,7 +59,7 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 	}
 
 	public void dump(StringBuilder sb) {
-		for (T s : _orders) {
+		for (T s : orders) {
 			sb.append(s.getAsDisplayItem())
 					.append(" / ")
 					.append(s.getAmount())
@@ -70,11 +70,11 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 	}
 
 	public LinkedList<ItemIdentifierStack> getContentList(Level level) {
-		if (MainProxy.isClient(level) || _orders.size() == 0) {
+		if (MainProxy.isClient(level) || orders.size() == 0) {
 			return new LinkedList<>();
 		}
 		LinkedList<ItemIdentifierStack> list = new LinkedList<>();
-		for (LogisticsOrder request : _orders) {
+		for (LogisticsOrder request : orders) {
 			LogisticsOrderManager.addToList(request.getAsDisplayItem(), list);
 		}
 		return list;
@@ -88,92 +88,92 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 	@SuppressWarnings("unchecked")
 	public T peekAtTopRequest(ResourceType... type) {
 		List<ResourceType> typeList = Arrays.asList(type);
-		if (_orders.size() == 0) {
+		if (orders.size() == 0) {
 			return null;
 		}
-		T top = (T) _orders.getFirst().setInProgress(true);
+		T top = (T) orders.getFirst().setInProgress(true);
 		int loopCount = 0;
 		while (!typeList.contains(top.getType())) {
 			loopCount++;
-			if (loopCount > _orders.size()) {
+			if (loopCount > orders.size()) {
 				return null;
 			}
 			deferSend(); // sets the new top to InProgress
-			top = _orders.getFirst();
+			top = orders.getFirst();
 		}
 		return top;
 	}
 
 	@SuppressWarnings("unchecked")
 	public void sendSuccessfull(int number, boolean defersend, IRoutedItem item) {
-		_orders.getFirst().reduceAmountBy(number);
-		if (_orders.getFirst().isWatched() && item != null) {
+		orders.getFirst().reduceAmountBy(number);
+		if (orders.getFirst().isWatched() && item != null) {
 			IDistanceTracker tracker = new DistanceTracker();
 			item.setDistanceTracker(tracker);
-			_orders.getFirst().addDistanceTracker(tracker);
+			orders.getFirst().addDistanceTracker(tracker);
 		}
-		int destination = _orders.getFirst().getRouterId();
-		if (_orders.getFirst().getAmount() <= 0) {
-			LogisticsOrder order = _orders.removeFirst();
+		int destination = orders.getFirst().getRouterId();
+		if (orders.getFirst().getAmount() <= 0) {
+			LogisticsOrder order = orders.removeFirst();
 			order.setFinished(true);
 			order.setInProgress(false);
 		}
-		if (!_orders.isEmpty()) {
-			LogisticsOrder start = _orders.getFirst();
+		if (!orders.isEmpty()) {
+			LogisticsOrder start = orders.getFirst();
 			if (defersend && destination == start.getRouterId()) {
-				_orders.addLast((T) _orders.removeFirst().setInProgress(false));
-				while (start != _orders.getFirst() && destination == _orders.getFirst().getRouterId()) {
-					_orders.addLast(_orders.removeFirst());
+				orders.addLast((T) orders.removeFirst().setInProgress(false));
+				while (start != orders.getFirst() && destination == orders.getFirst().getRouterId()) {
+					orders.addLast(orders.removeFirst());
 				}
-				if (start == _orders.getFirst()) {
-					_orders.addLast(_orders.removeFirst());
+				if (start == orders.getFirst()) {
+					orders.addLast(orders.removeFirst());
 				}
-				_orders.getFirst().setInProgress(true);
+				orders.getFirst().setInProgress(true);
 			}
 		}
 		listen();
 	}
 
 	public void sendFailed() {
-		if (!_orders.isEmpty()) {
-			LogisticsOrder order = _orders.removeFirst();
+		if (!orders.isEmpty()) {
+			LogisticsOrder order = orders.removeFirst();
 			order.setFinished(true);
 			order.setInProgress(false);
 		}
-		if (!_orders.isEmpty()) {
-			_orders.getFirst().setInProgress(true);
+		if (!orders.isEmpty()) {
+			orders.getFirst().setInProgress(true);
 		}
 		listen();
 	}
 
 	@SuppressWarnings("unchecked")
 	public void deferSend() {
-		_orders.addLast((T) _orders.removeFirst().setInProgress(false));
-		_orders.getFirst().setInProgress(true);
+		orders.addLast((T) orders.removeFirst().setInProgress(false));
+		orders.getFirst().setInProgress(true);
 		listen();
 	}
 
 	public int totalAmountCountInAllOrders() {
 		int amount = 0;
-		for (LogisticsOrder request : _orders) {
+		for (LogisticsOrder request : orders) {
 			amount += request.getAmount();
 		}
 		return amount;
 	}
 
 	public void setMachineProgress(byte progress) {
-		if (_orders.isEmpty()) {
+		if (orders.isEmpty()) {
 			return;
 		}
-		_orders.getFirst().setMachineProgress(progress);
+		orders.getFirst().setMachineProgress(progress);
 		changed();
 	}
 
 	public boolean isFirstOrderWatched() {
-		if (_orders.isEmpty()) {
+		if (orders.isEmpty()) {
 			return false;
 		}
-		return _orders.getFirst().isWatched();
+		return orders.getFirst().isWatched();
 	}
 
 	public void startWatching(Player player) {
@@ -186,7 +186,7 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 	}
 
 	public boolean hasExtras() {
-		return _orders.hasExtras();
+		return orders.hasExtras();
 	}
 
 	private void changed() {
@@ -205,10 +205,10 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 	 */
 	@Override
 	public Iterator<T> iterator() {
-		return this._orders.iterator();
+		return this.orders.iterator();
 	}
 
 	public int size() {
-		return _orders.size();
+		return orders.size();
 	}
 }

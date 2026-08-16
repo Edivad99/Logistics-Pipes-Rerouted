@@ -39,10 +39,10 @@ package logisticspipes.routing
 
 object AsyncRouting {
     fun getDistance(sourceRouter: ServerRouter, destinationRouter: IRouter): List<ExitRoute>? {
-        return if (sourceRouter._routeTable.size <= destinationRouter.simpleID) {
+        return if (sourceRouter.routeTable.size <= destinationRouter.simpleID) {
             null
         } else {
-            sourceRouter._routeTable[destinationRouter.simpleID]
+            sourceRouter.routeTable[destinationRouter.simpleID]
         }
     }
 
@@ -52,11 +52,11 @@ object AsyncRouting {
         }
     }
 
-    fun ServerRouter.needsRoutingTableUpdate(): Boolean = _LSAVersion > ServerRouter._lastLSAVersion[simpleID]
+    fun ServerRouter.needsRoutingTableUpdate(): Boolean = lsaVersion > ServerRouter.lastLsaVersion[simpleID]
 
     fun updateRoutingTable(serverRouter: ServerRouter) {
-        if (serverRouter._LSAVersion > ServerRouter._lastLSAVersion[serverRouter.simpleID]) {
-            serverRouter.CreateRouteTable(serverRouter._LSAVersion)
+        if (serverRouter.lsaVersion > ServerRouter.lastLsaVersion[serverRouter.simpleID]) {
+            serverRouter.CreateRouteTable(serverRouter.lsaVersion)
         }
     }
 }

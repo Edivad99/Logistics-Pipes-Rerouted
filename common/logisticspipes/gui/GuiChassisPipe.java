@@ -37,7 +37,7 @@ import network.rs485.logisticspipes.module.Gui;
 public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 
 	private final PipeLogisticsChassis chassisPipe;
-	private final Container _moduleInventory;
+	private final Container moduleInventory;
 	//private final Screen _previousGui;
 	private final List<SmallGuiButton> moduleConfigButtons = new LinkedList<>();
 
@@ -49,7 +49,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	public GuiChassisPipe(Player player, PipeLogisticsChassis chassis, boolean hasUpgradeModuleUpgrade) { //, Screen previousGui) {
 		super(buildDummy(player, chassis, hasUpgradeModuleUpgrade));
 		chassisPipe = chassis;
-		_moduleInventory = chassis.getModuleInventory(player.registryAccess());
+		moduleInventory = chassis.getModuleInventory(player.registryAccess());
 		//_previousGui = previousGui;
 		this.hasUpgradeModuleUpgrade = hasUpgradeModuleUpgrade;
 
@@ -100,7 +100,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 				}
 			});
 			moduleConfigButtons.add(addRenderableWidget(cfgBtn));
-			if (_moduleInventory == null) {
+			if (moduleInventory == null) {
 				continue;
 			}
 			updateModuleConfigButtonVisibility(i);
@@ -121,7 +121,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	}
 
 	private void updateModuleConfigButtonVisibility(int slot) {
-		ItemStack module = _moduleInventory.getItem(slot);
+		ItemStack module = moduleInventory.getItem(slot);
 		LogisticsModule subModule = chassisPipe.getSubModule(slot);
 		if (module.isEmpty() || subModule == null) {
 			moduleConfigButtons.get(slot).visible = false;
@@ -152,16 +152,16 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	}
 
 	private String getModuleName(int slot) {
-		if (_moduleInventory == null) {
+		if (moduleInventory == null) {
 			return "";
 		}
-		if (_moduleInventory.getItem(slot).isEmpty()) {
+		if (moduleInventory.getItem(slot).isEmpty()) {
 			return "";
 		}
-		if (!(_moduleInventory.getItem(slot).getItem() instanceof ItemModule)) {
+		if (!(moduleInventory.getItem(slot).getItem() instanceof ItemModule)) {
 			return "";
 		}
-		String name = _moduleInventory.getItem(slot).getHoverName().getString();
+		String name = moduleInventory.getItem(slot).getHoverName().getString();
 		if (!hasUpgradeModuleUpgrade) {
 			return name;
 		}

@@ -47,11 +47,11 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer {
 
-	public final Player _entityPlayer;
+	public final Player entityPlayer;
 	public ItemDisplay itemDisplay;
 	private InputBar search;
 
-	protected String _title = "Request items";
+	protected String title = "Request items";
 
 	public final int xCoord;
 	public final int yCoord;
@@ -71,7 +71,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		} else {
 			dimension = GuiOrderer.dimensioncache != null ? GuiOrderer.dimensioncache : dim;
 		}
-		_entityPlayer = entityPlayer;
+		this.entityPlayer = entityPlayer;
 	}
 
 	private static DummyContainer buildDummy(Player entityPlayer) {
@@ -138,7 +138,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	@Override
 	public void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, _title, minecraft.font.width(_title) / 2, 6, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, title, minecraft.font.width(title) / 2, 6, 0x404040, false);
 		if (popupCheck != null && popupCheck.getState()) {
 			guiGraphics.drawString(minecraft.font, "Popup", 25, bottom - topPos - 56, 0x404040, false);
 		} else {
@@ -210,9 +210,9 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 			control = control.getSubGui();
 		}
 		if (error) {
-			control.setSubGui(new GuiRequestPopup(_entityPlayer, "You are missing:", items));
+			control.setSubGui(new GuiRequestPopup(entityPlayer, "You are missing:", items));
 		} else {
-			control.setSubGui(new GuiRequestPopup(_entityPlayer, "Request successful!", items));
+			control.setSubGui(new GuiRequestPopup(entityPlayer, "Request successful!", items));
 		}
 	}
 
@@ -220,7 +220,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		while (control.hasSubGui()) {
 			control = control.getSubGui();
 		}
-		control.setSubGui(new GuiRequestPopup(_entityPlayer, "Components: ", used, "Missing: ", missing));
+		control.setSubGui(new GuiRequestPopup(entityPlayer, "Components: ", used, "Missing: ", missing));
 	}
 
 	private GuiCheckBox popupCheck;

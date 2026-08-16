@@ -151,16 +151,16 @@ public class ModuleCrafter extends LogisticsModule
 			.build();
 
 	// for reliable transport
-	protected final DelayQueue<DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>>> _lostItems = new DelayQueue<>();
+	protected final DelayQueue<DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>>> lostItems = new DelayQueue<>();
 	protected final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	protected final PlayerCollectionList guiWatcher = new PlayerCollectionList();
 
 	public ClientSideSatelliteNames clientSideSatelliteNames = new ClientSideSatelliteNames();
 
-	protected SinkReply _sinkReply;
+	protected SinkReply sinkReply;
 
 	@Nullable
-	private IRequestItems _invRequester;
+	private IRequestItems invRequester;
 	private WeakReference<BlockEntity> lastAccessedCrafter = new WeakReference<>(null);
 	private boolean cachedAreAllOrderesToBuffer;
 	public ModuleCrafter() {
@@ -189,26 +189,26 @@ public class ModuleCrafter extends LogisticsModule
 	@Override
 	public void registerHandler(IWorldProvider world, IPipeServiceProvider service) {
 		super.registerHandler(world, service);
-		_invRequester = (IRequestItems) service;
+		invRequester = (IRequestItems) service;
 	}
 
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0,
+		sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+				&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
 		final int itemCount = spaceFor(stack, item, includeInTransit);
 		if (itemCount > 0) {
-			return new SinkReply(_sinkReply, itemCount,
+			return new SinkReply(sinkReply, itemCount,
 					areAllOrderesToBuffer() ? BufferMode.DESTINATION_BUFFERED : BufferMode.NONE);
 		} else {
 			return null;
@@ -217,7 +217,7 @@ public class ModuleCrafter extends LogisticsModule
 
 	protected int spaceFor(ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
 		Pair<String, ItemIdentifier> key = new Pair<>("spaceFor", item);
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return 0;
 		Object cache = service.getCacheHolder().getCacheFor(CacheTypes.Inventory, key);
 		int onRoute = 0;
@@ -244,14 +244,14 @@ public class ModuleCrafter extends LogisticsModule
 
 	@Override
 	public void tick() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return;
 		enabledUpdateEntity();
-		if (_lostItems.isEmpty()) {
+		if (lostItems.isEmpty()) {
 			return;
 		}
 		// if(true) return;
-		DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>> lostItem = _lostItems.poll();
+		DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>> lostItem = lostItems.poll();
 		int reRequested = 0;
 		while (lostItem != null && reRequested < 100) {
 			Pair<ItemIdentifierStack, IAdditionalTargetInformation> pair = lostItem.get();
@@ -259,8 +259,8 @@ public class ModuleCrafter extends LogisticsModule
 				SinkReply reply = LogisticsManager.canSink(pair.getValue1().makeNormalStack(), getRouter(), null, true,
 						pair.getValue1().getItem(), null, true, true, false);
 				if (reply == null || reply.maxNumberOfItems < 1) {
-					_lostItems.add(new DelayedGeneric<>(pair, 9000 + (int) (Math.random() * 2000)));
-					lostItem = _lostItems.poll();
+					lostItems.add(new DelayedGeneric<>(pair, 9000 + (int) (Math.random() * 2000)));
+					lostItem = lostItems.poll();
 					continue;
 				}
 			}
@@ -268,9 +268,9 @@ public class ModuleCrafter extends LogisticsModule
 			reRequested++;
 			if (received < pair.getValue1().getStackSize()) {
 				pair.getValue1().setStackSize(pair.getValue1().getStackSize() - received);
-				_lostItems.add(new DelayedGeneric<>(pair, 4500 + (int) (Math.random() * 1000)));
+				lostItems.add(new DelayedGeneric<>(pair, 4500 + (int) (Math.random() * 1000)));
 			}
-			lostItem = _lostItems.poll();
+			lostItem = lostItems.poll();
 		}
 	}
 
@@ -280,7 +280,7 @@ public class ModuleCrafter extends LogisticsModule
 
 	@Override
 	public void itemLost(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-		_lostItems.add(new DelayedGeneric<>(new Pair<>(item, info), 5000));
+		lostItems.add(new DelayedGeneric<>(new Pair<>(item, info), 5000));
 	}
 
 	@Override
@@ -324,7 +324,7 @@ public class ModuleCrafter extends LogisticsModule
 
 	@Override
 	public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return;
 		if (!service.getItemOrderManager().hasExtras() || tree.hasBeenQueried(service.getItemOrderManager())) {
 			return;
@@ -371,7 +371,7 @@ public class ModuleCrafter extends LogisticsModule
 	@Override
 	public LogisticsItemOrder fullFill(LogisticsPromise promise, IRequestItems destination,
 			IAdditionalTargetInformation info) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		if (promise instanceof LogisticsExtraDictPromise) {
 			service.getItemOrderManager().removeExtras(((LogisticsExtraDictPromise) promise).getResource());
@@ -397,12 +397,12 @@ public class ModuleCrafter extends LogisticsModule
 
 	@Override
     public IRouter getRouter() {
-		return Objects.requireNonNull(_service, "service was null").getRouter();
+		return Objects.requireNonNull(service, "service was null").getRouter();
 	}
 
 	@Override
 	public void itemCouldNotBeSend(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-		Objects.requireNonNull(_invRequester).itemCouldNotBeSend(item, info);
+		Objects.requireNonNull(invRequester).itemCouldNotBeSend(item, info);
 	}
 
 	@Override
@@ -412,14 +412,14 @@ public class ModuleCrafter extends LogisticsModule
 
 	@Override
 	public int getID() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return -1;
 		return service.getRouter().getSimpleID();
 	}
 
 	@Override
 	public void registerExtras(IPromise promise) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return;
 		if (promise instanceof LogisticsDictPromise) {
 			service.getItemOrderManager().addExtra(((LogisticsDictPromise) promise).getResource());
@@ -604,7 +604,7 @@ public class ModuleCrafter extends LogisticsModule
 
 	@Override
 	public int getTodo() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return 0;
 		return service.getItemOrderManager().totalAmountCountInAllOrders();
 	}
@@ -698,7 +698,7 @@ public class ModuleCrafter extends LogisticsModule
 			final CoordinatesPacket packet = PacketHandler.getPacket(CPipeSatelliteImport.class).setModulePos(this);
 			MainProxy.sendPacketToServer(packet);
 		} else {
-			final IPipeServiceProvider service = _service;
+			final IPipeServiceProvider service = this.service;
 			if (service == null) return;
 			service.getAvailableAdjacent().neighbors().keySet().stream().flatMap(
 					neighbor -> SimpleServiceLocator.craftingRecipeProviders.stream()
@@ -772,9 +772,9 @@ public class ModuleCrafter extends LogisticsModule
 			return false;
 		}
 
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return false;
-		final IWorldProvider worldProvider = _world;
+		final IWorldProvider worldProvider = this.worldProvider;
 		if (worldProvider == null) return false;
 
 		// hack to avoid wrenching blocks
@@ -838,7 +838,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	public void enabledUpdateEntity() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return;
 
 		if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
@@ -990,7 +990,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	public void cacheAreAllOrderesToBuffer() {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return;
 		boolean result = true;
 		for (LogisticsItemOrder order : service.getItemOrderManager()) {
@@ -1028,7 +1028,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	private ItemStack extractFromInventory(IInventoryUtil invUtil, IResource wantedItem, int count) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return ItemStack.EMPTY;
 		ItemIdentifier itemToExtract = null;
 		if (wantedItem instanceof ItemResource) {
@@ -1061,7 +1061,7 @@ public class ModuleCrafter extends LogisticsModule
 
 	private ItemStack extractFromInventoryFiltered(IInventoryUtil invUtil, IItemIdentifierInventory filter,
 			boolean isExcluded, int filterInvLimit) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return ItemStack.EMPTY;
 
 		ItemIdentifier wantedItem = null;
@@ -1103,7 +1103,7 @@ public class ModuleCrafter extends LogisticsModule
 	private ItemStack extractFromLogisticsCraftingTable(
 			NeighborTileEntity<LogisticsCraftingTableBlockEntity> adjacentCraftingTable, IResource wantedItem,
 			int count) {
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return ItemStack.EMPTY;
 		ItemStack extracted = extractFromInventory(
 				Objects.requireNonNull(LPNeighborTileEntityKt.getInventoryUtil(adjacentCraftingTable)), wantedItem,

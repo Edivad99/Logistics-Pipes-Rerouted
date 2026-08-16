@@ -17,11 +17,11 @@ import net.minecraft.world.Container;
 
 public class GuiFluidSupplier extends ModuleBaseGui {
 
-	private final ModuleFluidSupplier _liquidSupplier;
+	private final ModuleFluidSupplier liquidSupplier;
 
 	public GuiFluidSupplier(Container playerInventory, ModuleFluidSupplier module) {
 		super(buildDummy(playerInventory, module), module);
-		_liquidSupplier = module;
+		liquidSupplier = module;
 		imageWidth = 175;
 		imageHeight = 142;
 	}
@@ -39,7 +39,7 @@ public class GuiFluidSupplier extends ModuleBaseGui {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) _liquidSupplier.getFilterInventory()).getName(), 8, 6, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) liquidSupplier.getFilterInventory()).getName(), 8, 6, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040, false);
 	}
 

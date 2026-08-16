@@ -46,7 +46,7 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 
-	private SinkReply _sinkReply;
+	private SinkReply sinkReply;
 
 	public static String getName() {
 		return "item_sink_creativetab";
@@ -65,22 +65,22 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.ModBasedItemSink, 0, true, false, 5, 0,
+		sinkReply = new SinkReply(FixedPriority.ModBasedItemSink, 0, true, false, 5, 0,
 				new ChassiTargetInformation(getPositionInt()));
 	}
 
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+				&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		if (tabList.contains(item.getCreativeTabName())) {
 			if (service.canUseEnergy(5)) {
-				return _sinkReply;
+				return sinkReply;
 			}
 		}
 		return null;
@@ -124,7 +124,7 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 
 	@Override
 	public void listChanged() {
-		final IWorldProvider worldProvider = _world;
+		final IWorldProvider worldProvider = this.worldProvider;
 		if (worldProvider == null) return;
 		if (MainProxy.isServer(worldProvider.getWorld())) {
 			CompoundTag nbt = new CompoundTag();

@@ -29,7 +29,7 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 	private final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(9, "Requested liquids", 1), "filterInv");
 
-	private SinkReply _sinkReply;
+	private SinkReply sinkReply;
 
 	@Override
 	public String getLPName() {
@@ -48,7 +48,7 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.ItemSink,
+		sinkReply = new SinkReply(FixedPriority.ItemSink,
 				0,
 				true,
 				false,
@@ -60,16 +60,16 @@ public class ModuleFluidSupplier extends LogisticsModule implements IClientInfor
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > _sinkReply.fixedPriority.ordinal()
-				|| (bestPriority == _sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal()
+				|| (bestPriority == sinkReply.fixedPriority.ordinal()
+				&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		if (filterInventory.containsItem(item)) {
 			service.spawnParticle(Particles.VIOLET_SPARKLE, 2);
-			return _sinkReply;
+			return sinkReply;
 		}
 		return null;
 	}

@@ -36,7 +36,7 @@ import net.minecraft.world.item.Item;
 @CCType(name = "LogisticsPipes:Request")
 public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IRequestItems {
 
-	private final LinkedList<Map<ItemIdentifier, Integer>> _history = new LinkedList<>();
+	private final LinkedList<Map<ItemIdentifier, Integer>> history = new LinkedList<>();
 
 	public PipeItemsRequestLogistics(Item item) {
 		super(item);
@@ -75,9 +75,9 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 	public void enabledUpdateEntity() {
 		super.enabledUpdateEntity();
 		if (getWorld().getGameTime() % 1200 == 0) {
-			_history.addLast(SimpleServiceLocator.logisticsManager.getAvailableItems(getRouter().getIRoutersByCost()));
-			if (_history.size() > 20) {
-				_history.removeFirst();
+			history.addLast(SimpleServiceLocator.logisticsManager.getAvailableItems(getRouter().getIRoutersByCost()));
+			if (history.size() > 20) {
+				history.removeFirst();
 			}
 		}
 	}

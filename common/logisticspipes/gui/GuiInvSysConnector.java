@@ -35,7 +35,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	private static final String PREFIX = "gui.invsyscon.";
 
 	private int page = 0;
-	private final List<ItemIdentifierStack> _allItems = new ArrayList<>();
+	private final List<ItemIdentifierStack> allItems = new ArrayList<>();
 	private final PipeItemsInvSysConnector pipe;
 	private InputBar resistanceCountBar;
 
@@ -118,12 +118,12 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Resistance") + ":", 10, 55, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Waitingfor") + ":", 10, 68, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, (page + 1) + "/" + maxPage(), 136, 69, 0x404040, false);
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, _allItems, null, page, 9, 79, 9, 27, 18, 18, 100.0F, DisplayAmount.ALWAYS);
+		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, null, page, 9, 79, 9, 27, 18, 18, 100.0F, DisplayAmount.ALWAYS);
 
 		int ppi = 0;
 		int column = 0;
 		int row = 0;
-		for (ItemIdentifierStack itemStack : _allItems) {
+		for (ItemIdentifierStack itemStack : allItems) {
 			ppi++;
 			if (ppi <= 27 * page) continue;
 			if (ppi > 27 * (page + 1)) continue;
@@ -162,7 +162,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	private int maxPage() {
-		int i = (int) (Math.floor(((float) _allItems.size()) / 27) + (((float) _allItems.size()) % 27 == 0 ? 0 : 1));
+		int i = (int) (Math.floor(((float) allItems.size()) / 27) + (((float) allItems.size()) % 27 == 0 ? 0 : 1));
 		if (i <= 0) {
 			i = 1;
 		}
@@ -186,8 +186,8 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	public void handleContentAnswer(Collection<ItemIdentifierStack> allItems) {
-		_allItems.clear();
-		_allItems.addAll(allItems);
+		this.allItems.clear();
+		this.allItems.addAll(allItems);
 	}
 
 	public void handleResistanceAnswer(int resistance) {

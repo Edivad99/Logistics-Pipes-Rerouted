@@ -33,7 +33,7 @@ public class LogisticsFluidOrderManager extends LogisticsOrderManager<LogisticsF
 
 	@Override
 	public void sendFailed() {
-		_orders.getFirst().sendFailed();
+		orders.getFirst().sendFailed();
 		super.sendFailed();
 	}
 
@@ -42,14 +42,14 @@ public class LogisticsFluidOrderManager extends LogisticsOrderManager<LogisticsF
 			throw new RuntimeException("The amount can't be less than zero");
 		}
 		LogisticsFluidOrder order = new LogisticsFluidOrder(promise.liquid, promise.amount, destination, type, info);
-		_orders.addLast(order);
+		orders.addLast(order);
 		listen();
 		return order;
 	}
 
 	public Integer totalFluidsCountInOrders(FluidIdentifier fluid) {
 		int itemCount = 0;
-		for (LogisticsFluidOrder request : _orders) {
+		for (LogisticsFluidOrder request : orders) {
 			if (!request.getFluid().equals(fluid)) {
 				continue;
 			}

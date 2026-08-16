@@ -316,7 +316,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 		private AbstractButton leftButton;
 		private AbstractButton rightButton;
-		private ItemDisplay _itemDisplay_5;
+		private ItemDisplay itemDisplay_5;
 		private boolean managerWatching;
 
 		@Override
@@ -325,10 +325,10 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 			leftButton = addRenderableWidget(new SmallGuiButton(1, leftPos + 95, topPos + 26, 10, 10, "<"));
 			rightButton = addRenderableWidget(new SmallGuiButton(2, leftPos + 165, topPos + 26, 10, 10, ">"));
-			if (_itemDisplay_5 == null) {
-				_itemDisplay_5 = new ItemDisplay(null, font, GuiPipeController.this, null, 10, 40, 20, 60, 0, 0, 0, new int[] { 1, 1, 1, 1 }, true);
+			if (itemDisplay_5 == null) {
+				itemDisplay_5 = new ItemDisplay(null, font, GuiPipeController.this, null, 10, 40, 20, 60, 0, 0, 0, new int[] { 1, 1, 1, 1 }, true);
 			}
-			_itemDisplay_5.reposition(10, 40, 20, 60, 0, 0);
+			itemDisplay_5.reposition(10, 40, 20, 60, 0, 0);
 		}
 
 		@Override
@@ -360,20 +360,20 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		@Override
 		public void buttonClicked(AbstractButton button) {
 			if (button == leftButton) {
-				_itemDisplay_5.prevPage();
+				itemDisplay_5.prevPage();
 			} else if (button == rightButton) {
-				_itemDisplay_5.nextPage();
+				itemDisplay_5.nextPage();
 			}
 		}
 
 		@Override
 		public void renderForegroundContent(GuiGraphics guiGraphics) {
-			List<ItemIdentifierStack> _allItems = pipe.getClientSideOrderManager().stream()
+			List<ItemIdentifierStack> allItems = pipe.getClientSideOrderManager().stream()
 					.map(IOrderInfoProvider::getAsDisplayItem).collect(Collectors.toCollection(LinkedList::new));
-			_itemDisplay_5.setItemList(_allItems);
-			_itemDisplay_5.renderItemArea(guiGraphics, 0.0f);
-			_itemDisplay_5.renderPageNumber(guiGraphics, right - leftPos - 45, 28);
-			int start = _itemDisplay_5.getPage() * 3;
+			itemDisplay_5.setItemList(allItems);
+			itemDisplay_5.renderItemArea(guiGraphics, 0.0f);
+			itemDisplay_5.renderPageNumber(guiGraphics, right - leftPos - 45, 28);
+			int start = itemDisplay_5.getPage() * 3;
 			int stringPos = 40;
 			for (int i = start; i < start + 3 && i < pipe.getClientSideOrderManager().size(); i++) {
 				IOrderInfoProvider order = pipe.getClientSideOrderManager().get(i);

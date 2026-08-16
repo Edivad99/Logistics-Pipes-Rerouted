@@ -24,17 +24,17 @@ import network.rs485.logisticspipes.property.layer.ValuePropertyOverlay;
 
 public class GuiAdvancedExtractor extends ModuleBaseGui {
 
-	private final AsyncAdvancedExtractor _advancedExtractor;
+	private final AsyncAdvancedExtractor advancedExtractor;
 	private final PropertyLayer propertyLayer;
 	private final ValuePropertyOverlay<Boolean, BooleanProperty> itemsIncludedOverlay;
 
 	public GuiAdvancedExtractor(Container playerInventory, AsyncAdvancedExtractor advancedExtractor) {
 		super(buildDummy(playerInventory, advancedExtractor), advancedExtractor);
-		_advancedExtractor = advancedExtractor;
+		this.advancedExtractor = advancedExtractor;
 
-		propertyLayer = new PropertyLayer(_advancedExtractor.getProperties());
+		propertyLayer = new PropertyLayer(this.advancedExtractor.getProperties());
 
-		itemsIncludedOverlay = propertyLayer.overlay(_advancedExtractor.getItemsIncluded());
+		itemsIncludedOverlay = propertyLayer.overlay(this.advancedExtractor.getItemsIncluded());
 
 		imageWidth = 175;
 		imageHeight = 142;
@@ -60,7 +60,7 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 				() -> itemsIncludedOverlay.write(BooleanProperty::toggle)));
 
 		logisticspipes.utils.gui.SmallGuiButton sneaky = new logisticspipes.utils.gui.SmallGuiButton(1, width / 2 - 25, height / 2 - 34, 40, 20, "Sneaky");
-		sneaky.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(AdvancedExtractorSneakyGuiPacket.class).setModulePos(_advancedExtractor)));
+		sneaky.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(AdvancedExtractorSneakyGuiPacket.class).setModulePos(advancedExtractor)));
 		addRenderableWidget(sneaky);
 	}
 
@@ -76,7 +76,7 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, _advancedExtractor.getFilterInventory().getName(), 8, 6, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, advancedExtractor.getFilterInventory().getName(), 8, 6, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040, false);
 	}
 

@@ -72,13 +72,13 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 		craftingModule.registerHandler(this, this);
 		craftingModule.registerPosition(ModulePositionType.IN_PIPE, 0);
 		throttleTime = 40;
-		_orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
+		orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
 	}
 
 	@Override
 	public void onAllowedRemoval() {
-		while (_orderItemManager.hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
-			_orderItemManager.sendFailed();
+		while (orderItemManager.hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
+			orderItemManager.sendFailed();
 		}
 	}
 
@@ -152,7 +152,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 
 	@Override
 	public int getTodo() {
-		return _orderItemManager.totalAmountCountInAllOrders();
+		return orderItemManager.totalAmountCountInAllOrders();
 	}
 
 	@Override
@@ -195,7 +195,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 
 	private void checkContentUpdate() {
 		doContentUpdate = false;
-		LinkedList<ItemIdentifierStack> all = _orderItemManager.getContentList(getWorld());
+		LinkedList<ItemIdentifierStack> all = orderItemManager.getContentList(getWorld());
 		if (!oldList.equals(all)) {
 			oldList.clear();
 			oldList.addAll(all);
@@ -216,7 +216,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 
 	@Override
 	public double getLoadFactor() {
-		return (_orderItemManager.totalAmountCountInAllOrders() + 63.0) / 64.0;
+		return (orderItemManager.totalAmountCountInAllOrders() + 63.0) / 64.0;
 	}
 
 	/* ComputerCraftCommands */

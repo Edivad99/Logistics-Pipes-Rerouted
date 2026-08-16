@@ -6,5 +6,5 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public interface ISendQueueContentRecieiver {
 
-	void handleSendQueueItemIdentifierList(Collection<ItemIdentifierStack> _allItems);
+	void handleSendQueueItemIdentifierList(Collection<ItemIdentifierStack> allItems);
 }

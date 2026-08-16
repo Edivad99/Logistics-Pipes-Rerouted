@@ -67,9 +67,9 @@ public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContai
         BlockEntity be;
 
         if (gui instanceof GuiLogisticsCraftingTable craftingTable) {
-            be = craftingTable._crafter;
+            be = craftingTable.crafter;
         } else {
-            be = ((GuiRequestTable) gui)._table.container;
+            be = ((GuiRequestTable) gui).table.container;
         }
 
         if (be == null) {

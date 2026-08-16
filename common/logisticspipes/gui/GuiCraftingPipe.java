@@ -44,7 +44,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 
 	@Getter
 	private final ModuleCrafter craftingModule;
-	private final Player _player;
+	private final Player player;
 	private final AbstractButton[] normalButtonArray;
 	private final AbstractButton[][] advancedSatButtonArray;
 	private final AbstractButton[][] liquidGuiParts;
@@ -69,7 +69,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 			boolean cleanupExclude) {
 		super(buildDummy(player, module, isAdvancedSat, liquidCrafter, amount, hasByproductExtractor, isFuzzy, cleanupSize, cleanupExclude), module);
 		craftingModule = module;
-		_player = player;
+		this.player = player;
 		this.isAdvancedSat = isAdvancedSat;
 		this.liquidCrafter = liquidCrafter;
 		this.hasByproductExtractor = hasByproductExtractor;
@@ -293,7 +293,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 					default:
 						break;
 				}
-				craftingModule.changeFluidAmount(amount, i, _player);
+				craftingModule.changeFluidAmount(amount, i, player);
 			} else if (action == 8) {
 				openSubGuiForSatelliteSelection(110 + i, true);
 			}
@@ -303,10 +303,10 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 				openSubGuiForSatelliteSelection(0, false);
 				break;
 			case 3:
-				craftingModule.importFromCraftingTable(_player);
+				craftingModule.importFromCraftingTable(player);
 				break;
 			case 4:
-				craftingModule.openAttachedGui(_player);
+				craftingModule.openAttachedGui(player);
 				break;
 			case 20:
 				craftingPriorityOverlay.write(prop -> prop.increase(1));

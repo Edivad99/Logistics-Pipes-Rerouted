@@ -24,45 +24,45 @@ import logisticspipes.utils.tuples.Pair;
 
 public class DictCraftingTemplate implements IReqCraftingTemplate {
 
-	protected DictResource _result;
-	protected ICraftItems _crafter;
+	protected DictResource result;
+	protected ICraftItems crafter;
 
-	protected ArrayList<Pair<IResource, IAdditionalTargetInformation>> _required = new ArrayList<>(9);
+	protected ArrayList<Pair<IResource, IAdditionalTargetInformation>> required = new ArrayList<>(9);
 
-	protected ArrayList<ItemIdentifierStack> _byproduct = new ArrayList<>(9);
+	protected ArrayList<ItemIdentifierStack> byproduct = new ArrayList<>(9);
 
 	private final int priority;
 
 	public DictCraftingTemplate(DictResource result, ICraftItems crafter, int priority) {
-		_result = result;
-		_crafter = crafter;
+		this.result = result;
+		this.crafter = crafter;
 		this.priority = priority;
 	}
 
 	public void addRequirement(IResource requirement, IAdditionalTargetInformation info) {
-		_required.add(new Pair<>(requirement, info));
+		required.add(new Pair<>(requirement, info));
 	}
 
 	public void addByproduct(ItemIdentifierStack stack) {
-		for (ItemIdentifierStack i : _byproduct) {
+		for (ItemIdentifierStack i : byproduct) {
 			if (i.getItem().equals(stack.getItem())) {
 				i.setStackSize(i.getStackSize() + stack.getStackSize());
 				return;
 			}
 		}
-		_byproduct.add(stack);
+		byproduct.add(stack);
 	}
 
 	@Override
 	public LogisticsPromise generatePromise(int nResultSets) {
-		return new LogisticsDictPromise(_result, _result.stack.getStackSize() * nResultSets, _crafter, ResourceType.CRAFTING);
+		return new LogisticsDictPromise(result, result.stack.getStackSize() * nResultSets, crafter, ResourceType.CRAFTING);
 	}
 
 	//TODO: refactor so that other classes don't reach through the template to the crafter.
 	// needed to get the crafter todo, in order to sort
 	@Override
 	public ICraftItems getCrafter() {
-		return _crafter;
+		return crafter;
 	}
 
 	@Override
@@ -74,10 +74,10 @@ public class DictCraftingTemplate implements IReqCraftingTemplate {
 	public int compareTo(ICraftingTemplate o) {
 		int c = o.comparePriority(priority);
 		if (c == 0) {
-			c = o.compareStack(_result.stack);
+			c = o.compareStack(result.stack);
 		}
 		if (c == 0) {
-			c = o.compareCrafter(_crafter);
+			c = o.compareCrafter(crafter);
 		}
 		return c;
 	}
@@ -89,42 +89,42 @@ public class DictCraftingTemplate implements IReqCraftingTemplate {
 
 	@Override
 	public int compareStack(ItemIdentifierStack stack) {
-		return stack.compareTo(this._result.stack);
+		return stack.compareTo(this.result.stack);
 	}
 
 	@Override
 	public int compareCrafter(ICraftItems crafter) {
-		return crafter.compareTo(this._crafter);
+		return crafter.compareTo(this.crafter);
 	}
 
 	@Override
 	public boolean canCraft(IResource type) {
-		return _result.matches(type, IResource.MatchSettings.NORMAL);
+		return result.matches(type, IResource.MatchSettings.NORMAL);
 	}
 
 	@Override
 	public int getResultStackSize() {
-		return _result.stack.getStackSize();
+		return result.stack.getStackSize();
 	}
 
 	@Override
 	public IResource getResultItem() {
-		return _result;
+		return result;
 	}
 
 	@Override
 	public List<IExtraPromise> getByproducts(int workSets) {
-		return _byproduct.stream()
+		return byproduct.stream()
 				.map(stack -> new LogisticsExtraPromise(stack.getItem(), stack.getStackSize() * workSets, getCrafter(), false))
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<Pair<IResource, IAdditionalTargetInformation>> getComponents(int nCraftingSetsNeeded) {
-		List<Pair<IResource, IAdditionalTargetInformation>> stacks = new ArrayList<>(_required.size());
+		List<Pair<IResource, IAdditionalTargetInformation>> stacks = new ArrayList<>(required.size());
 
 		// for each thing needed to satisfy this promise
-		for (Pair<IResource, IAdditionalTargetInformation> stack : _required) {
+		for (Pair<IResource, IAdditionalTargetInformation> stack : required) {
 			Pair<IResource, IAdditionalTargetInformation> pair = new Pair<>(stack.getValue1()
 					.clone(nCraftingSetsNeeded), stack.getValue2());
 			stacks.add(pair);

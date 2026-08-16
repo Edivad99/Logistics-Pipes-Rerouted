@@ -76,8 +76,8 @@ public class ModuleItemSink extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDItemSink(this);
-	private SinkReply _sinkReply;
-	private SinkReply _sinkReplyDefault;
+	private SinkReply sinkReply;
+	private SinkReply sinkReplyDefault;
 
 	public ModuleItemSink() {
 		filterInventory.addListener(this);
@@ -121,14 +121,14 @@ public class ModuleItemSink extends LogisticsModule
 	@Override
 	public void registerPosition(ModulePositionType slot, int positionInt) {
 		super.registerPosition(slot, positionInt);
-		_sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0,
+		sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0,
 			new ChassiTargetInformation(getPositionInt()));
-		_sinkReplyDefault = new SinkReply(FixedPriority.DefaultRoute, 0, true, true, 1, 0,
+		sinkReplyDefault = new SinkReply(FixedPriority.DefaultRoute, 0, true, true, 1, 0,
 			new ChassiTargetInformation(getPositionInt()));
 	}
 
 	public Stream<ItemIdentifier> getAdjacentInventoriesItems() {
-		return Objects.requireNonNull(_service)
+		return Objects.requireNonNull(service)
 			.getAvailableAdjacent()
 			.inventories()
 			.stream()
@@ -144,15 +144,15 @@ public class ModuleItemSink extends LogisticsModule
 		if (defaultRoute.getValue() && !allowDefault) {
 			return null;
 		}
-		if (bestPriority > _sinkReply.fixedPriority.ordinal() || (bestPriority == _sinkReply.fixedPriority.ordinal()
-			&& bestCustomPriority >= _sinkReply.customPriority)) {
+		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+			&& bestCustomPriority >= sinkReply.customPriority)) {
 			return null;
 		}
-		final IPipeServiceProvider service = _service;
+		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		if (filterInventory.containsUndamagedItem(item.getUndamaged())) {
 			if (service.canUseEnergy(1)) {
-				return _sinkReply;
+				return sinkReply;
 			}
 			return null;
 		}
@@ -178,20 +178,20 @@ public class ModuleItemSink extends LogisticsModule
 				}
 				if (ident1.equals(ident2)) {
 					if (service.canUseEnergy(5)) {
-						return _sinkReply;
+						return sinkReply;
 					}
 					return null;
 				}
 			}
 		}
 		if (defaultRoute.getValue()) {
-			if (bestPriority > _sinkReplyDefault.fixedPriority.ordinal() || (
-				bestPriority == _sinkReplyDefault.fixedPriority.ordinal()
-					&& bestCustomPriority >= _sinkReplyDefault.customPriority)) {
+			if (bestPriority > sinkReplyDefault.fixedPriority.ordinal() || (
+				bestPriority == sinkReplyDefault.fixedPriority.ordinal()
+					&& bestCustomPriority >= sinkReplyDefault.customPriority)) {
 				return null;
 			}
 			if (service.canUseEnergy(1)) {
-				return _sinkReplyDefault;
+				return sinkReplyDefault;
 			}
 			return null;
 		}

@@ -209,10 +209,10 @@ class AsyncExtractorModule(
     private var currentJob: ExtractorJob? = null
 
     internal val serverRouter: ServerRouter?
-        get() = _service?.router as? ServerRouter
+        get() = service?.router as? ServerRouter
 
     internal val service: IPipeServiceProvider?
-        get() = _service
+        get() = service
 
     override val pipeGuiProvider: ModuleCoordinatesGuiProvider
         get() =
@@ -243,7 +243,7 @@ class AsyncExtractorModule(
         } ?: CoreRoutedPipe.ItemSendMode.Normal
 
     private val connectedInventory: IInventoryUtil?
-        get() = _service?.availableSneakyInventories(sneakyDirection)?.firstOrNull()
+        get() = service?.availableSneakyInventories(sneakyDirection)?.firstOrNull()
 
     override fun getLPName(): String = name
 

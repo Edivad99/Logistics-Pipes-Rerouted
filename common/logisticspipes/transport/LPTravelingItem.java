@@ -291,9 +291,9 @@ public abstract class LPTravelingItem {
 			//keep buffercounter and jamlist
 			info.destinationint = -1;
 			info.destinationUUID = null;
-			info._doNotBuffer = false;
+			info.doNotBuffer = false;
 			info.arrived = false;
-			info._transportMode = TransportMode.Unknown;
+			info.transportMode = TransportMode.Unknown;
 			info.targetInfo = null;
 		}
 
@@ -344,12 +344,12 @@ public abstract class LPTravelingItem {
 
 		@Override
 		public void setDoNotBuffer(boolean isBuffered) {
-			info._doNotBuffer = isBuffered;
+			info.doNotBuffer = isBuffered;
 		}
 
 		@Override
 		public boolean getDoNotBuffer() {
-			return info._doNotBuffer;
+			return info.doNotBuffer;
 		}
 
 		@Override
@@ -388,12 +388,12 @@ public abstract class LPTravelingItem {
 
 		@Override
 		public void setTransportMode(TransportMode transportMode) {
-			info._transportMode = transportMode;
+			info.transportMode = transportMode;
 		}
 
 		@Override
 		public TransportMode getTransportMode() {
-			return info._transportMode;
+			return info.transportMode;
 		}
 
 		@Override

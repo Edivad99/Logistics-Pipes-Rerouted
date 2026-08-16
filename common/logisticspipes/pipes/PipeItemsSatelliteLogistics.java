@@ -62,7 +62,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final LinkedList<ItemIdentifierStack> itemList = new LinkedList<>();
 	private final HUDSatellite HUD = new HUDSatellite(this);
-	protected final LinkedList<ItemIdentifierStack> _lostItems = new LinkedList<>();
+	protected final LinkedList<ItemIdentifierStack> lostItems = new LinkedList<>();
 	private final ModuleSatellite moduleSatellite;
 
 	@Getter
@@ -224,10 +224,10 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	@Override
 	public void throttledUpdateEntity() {
 		super.throttledUpdateEntity();
-		if (_lostItems.isEmpty()) {
+		if (lostItems.isEmpty()) {
 			return;
 		}
-		final Iterator<ItemIdentifierStack> iterator = _lostItems.iterator();
+		final Iterator<ItemIdentifierStack> iterator = lostItems.iterator();
 		while (iterator.hasNext()) {
 			ItemIdentifierStack stack = iterator.next();
 			int received = RequestTree.requestPartial(stack, (CoreRoutedPipe) container.pipe, null);
@@ -243,7 +243,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 
 	@Override
 	public void itemLost(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-		_lostItems.add(item);
+		lostItems.add(item);
 	}
 
 	@Override

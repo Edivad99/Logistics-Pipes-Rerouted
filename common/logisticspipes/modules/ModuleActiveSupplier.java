@@ -59,7 +59,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	public static final int SUPPLIER_SLOTS = 9;
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-	private final HashMap<ItemIdentifier, Integer> _requestedItems = new HashMap<>();
+	private final HashMap<ItemIdentifier, Integer> requestedItems = new HashMap<>();
 
 	// properties for the pattern upgrade
 	public final IntListProperty slotAssignmentPattern = new IntListProperty("slotpattern");
@@ -81,7 +81,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 			.add(isLimited)
 			.build();
 
-	private boolean _lastRequestFailed = false;
+	private boolean lastRequestFailed = false;
 
 	public ModuleActiveSupplier() {
 		inventory.addListener(this);
@@ -178,21 +178,21 @@ public class ModuleActiveSupplier extends LogisticsModule
 
 	/* TRIGGER INTERFACE */
 	public boolean isRequestFailed() {
-		return _lastRequestFailed;
+		return lastRequestFailed;
 	}
 
 	public void setRequestFailed(boolean value) {
-		_lastRequestFailed = value;
+		lastRequestFailed = value;
 	}
 
 	@Override
 	public void tick() {
-		final IPipeServiceProvider service = Objects.requireNonNull(_service);
+		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		if (!service.isNthTick(100)) {
 			return;
 		}
 
-		_requestedItems.values().stream().filter(amount -> amount > 0)
+		requestedItems.values().stream().filter(amount -> amount > 0)
 				.forEach(amount -> service.spawnParticle(Particles.VIOLET_SPARKLE, 2));
 
 		AdjacentUtilKt.sneakyInventoryUtils(service.getAvailableAdjacent(), getUpgradeManager()).stream()
@@ -207,7 +207,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	private void createPatternRequest(IInventoryUtil invUtil) {
-		final IPipeServiceProvider service = Objects.requireNonNull(_service);
+		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		service.getDebug().log("Supplier: Start calculating pattern request");
 		setRequestFailed(false);
 
@@ -239,7 +239,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 				continue;
 			}
 
-			Integer requestedCount = _requestedItems.get(needed.getItem());
+			Integer requestedCount = requestedItems.get(needed.getItem());
 			if (requestedCount != null) {
 				haveCount += requestedCount;
 			}
@@ -280,11 +280,11 @@ public class ModuleActiveSupplier extends LogisticsModule
 			}
 
 			if (success) {
-				Integer currentRequest = _requestedItems.get(toRequest.getItem());
+				Integer currentRequest = requestedItems.get(toRequest.getItem());
 				if (currentRequest == null) {
-					_requestedItems.put(toRequest.getItem(), neededCount);
+					requestedItems.put(toRequest.getItem(), neededCount);
 				} else {
-					_requestedItems.put(toRequest.getItem(), currentRequest + neededCount);
+					requestedItems.put(toRequest.getItem(), currentRequest + neededCount);
 				}
 			} else {
 				setRequestFailed(true);
@@ -293,7 +293,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	private void createSupplyRequest(IInventoryUtil invUtil) {
-		final IPipeServiceProvider service = Objects.requireNonNull(_service);
+		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		service.getDebug().log("Supplier: Start calculating supply request");
 		//How many do I want?
 		HashMap<ItemIdentifier, Integer> needed = new HashMap<>(inventory.getItemsAndCount());
@@ -314,7 +314,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 			int haveCount = haveUndamaged.getOrDefault(item.getKey().getUndamaged(), 0);
 			int spaceAvailable = invUtil.roomForItem(item.getKey().makeNormalStack(Integer.MAX_VALUE));
 			if (requestMode.getValue() == SupplyMode.Infinite) {
-				Integer requestedCount = _requestedItems.get(item.getKey());
+				Integer requestedCount = requestedItems.get(item.getKey());
 				if (requestedCount != null) {
 					spaceAvailable -= requestedCount;
 				}
@@ -332,7 +332,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 				// so that 1 damaged item can't satisfy a request for 2 other damage values.
 				haveUndamaged.put(item.getKey().getUndamaged(), haveCount - item.getValue());
 			}
-			Integer requestedCount = _requestedItems.get(item.getKey());
+			Integer requestedCount = requestedItems.get(item.getKey());
 			if (requestedCount != null) {
 				item.setValue(item.getValue() - requestedCount);
 			}
@@ -375,12 +375,12 @@ public class ModuleActiveSupplier extends LogisticsModule
 			}
 
 			if (success) {
-				Integer currentRequest = _requestedItems.get(need.getKey());
+				Integer currentRequest = requestedItems.get(need.getKey());
 				if (currentRequest == null) {
-					_requestedItems.put(need.getKey(), neededCount);
+					requestedItems.put(need.getKey(), neededCount);
 					service.getDebug().log("Supplier: Inserting Requested Items: " + neededCount);
 				} else {
-					_requestedItems.put(need.getKey(), currentRequest + neededCount);
+					requestedItems.put(need.getKey(), currentRequest + neededCount);
 					service.getDebug()
 							.log("Supplier: Raising Requested Items from: " + currentRequest + " to: " + currentRequest
 									+ neededCount);
@@ -394,16 +394,16 @@ public class ModuleActiveSupplier extends LogisticsModule
 
 
 	private void decreaseRequested(ItemIdentifierStack item) {
-		final IPipeServiceProvider service = Objects.requireNonNull(_service);
+		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		int remaining = item.getStackSize();
 		//see if we can get an exact match
-		Integer count = _requestedItems.get(item.getItem());
+		Integer count = requestedItems.get(item.getItem());
 		if (count != null) {
 			service.getDebug().log("Supplier: Exact match. Still missing: " + Math.max(0, count - remaining));
 			if (count - remaining > 0) {
-				_requestedItems.put(item.getItem(), count - remaining);
+				requestedItems.put(item.getItem(), count - remaining);
 			} else {
-				_requestedItems.remove(item.getItem());
+				requestedItems.remove(item.getItem());
 			}
 			remaining -= count;
 		}
@@ -411,7 +411,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 			return;
 		}
 		//still remaining... was from fuzzyMatch on a crafter
-		Iterator<Entry<ItemIdentifier, Integer>> it = _requestedItems.entrySet().iterator();
+		Iterator<Entry<ItemIdentifier, Integer>> it = requestedItems.entrySet().iterator();
 		while (it.hasNext()) {
 			Entry<ItemIdentifier, Integer> e = it.next();
 			if (e.getKey().equalsWithoutNBT(item.getItem())) {
@@ -435,14 +435,14 @@ public class ModuleActiveSupplier extends LogisticsModule
 
 	@Override
 	public void itemLost(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-		final IPipeServiceProvider service = Objects.requireNonNull(_service);
+		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		service.getDebug().log("Supplier: Registered Item Lost: " + item);
 		decreaseRequested(item);
 	}
 
 	@Override
 	public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-		final IPipeServiceProvider service = Objects.requireNonNull(_service);
+		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		service.getDebug().log("Supplier: Registered Item Arrived: " + item);
 		decreaseRequested(item);
 	}
@@ -451,7 +451,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 		StatusEntry entry = new StatusEntry();
 		entry.name = "Requested Items";
 		entry.subEntry = new ArrayList<>();
-		for (Entry<ItemIdentifier, Integer> part : _requestedItems.entrySet()) {
+		for (Entry<ItemIdentifier, Integer> part : requestedItems.entrySet()) {
 			StatusEntry subEntry = new StatusEntry();
 			subEntry.name = part.toString();
 			entry.subEntry.add(subEntry);
@@ -476,7 +476,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 
 	@Override
     public IRouter getRouter() {
-		final IPipeServiceProvider service = Objects.requireNonNull(_service);
+		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		return service.getRouter();
 	}
 

@@ -67,9 +67,9 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer, IDiskProvider {
 
-	public final PipeBlockRequestTable _table;
-	public final Player _entityPlayer;
-	protected final String _title = "Request items";
+	public final PipeBlockRequestTable table;
+	public final Player entityPlayer;
+	protected final String title = "Request items";
 	public ItemDisplay itemDisplay;
 	public ResourceLocation dimension;
 	protected DisplayOptions displayOptions = DisplayOptions.Both;
@@ -88,11 +88,11 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 	public GuiRequestTable(Player entityPlayer, PipeBlockRequestTable table) {
 		super(buildDummy(entityPlayer, table), 410, 240, 0, 0);
-		_table = table;
-		_entityPlayer = entityPlayer;
+		this.table = table;
+		this.entityPlayer = entityPlayer;
         ((DummyContainer) this.menu).guiHolderForJEI = this;
         if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
-			dimension = _table.getWorld().dimension().location();
+			dimension = this.table.getWorld().dimension().location();
 		} else {
 			dimension = GuiOrderer.dimensioncache;
 		}
@@ -199,7 +199,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	@Override
 	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
 		for (AbstractButton cycleButton : cycleButtons) {
-			cycleButton.visible = _table.targetType != null;
+			cycleButton.visible = table.targetType != null;
 		}
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right - (showRequest ? 0 : 105), bottom, 0.0f, true);
 
@@ -237,7 +237,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			guiGraphics.fill(leftPos + 164 + a, topPos + 65 - a, leftPos + 166 + a, topPos + 67 - a, Color.getValue(Color.DARKER_GREY));
 		}
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 20, topPos + 150);
-		for (final Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : _table.watchedRequests.entrySet()) {
+		for (final Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : table.watchedRequests.entrySet()) {
 			if (!handledExtension.get(entry.getKey())) {
 				handledExtension.set(entry.getKey());
 				extensionControllerLeft.addExtension(new GuiExtension() {
@@ -249,7 +249,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 					@Override
 					public void renderForeground(GuiGraphics guiGraphics, int left, int top) {
-						if (!_table.watchedRequests.containsKey(entry.getKey())) {
+						if (!table.watchedRequests.containsKey(entry.getKey())) {
 							extensionControllerLeft.removeExtension(this);
 							if (isFullyExtended() && localControlledButton != null) {
 								removeWidget(localControlledButton);
@@ -384,7 +384,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
             case SupplyOnly -> 1;
             case CraftOnly -> 2;
         };
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setTilePos(_table.container).setDimension(dimension));
+        MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setTilePos(table.container).setDimension(dimension));
 	}
 
 	private SmallGuiButton wire(SmallGuiButton btn, int id) {
@@ -395,7 +395,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	private void handleBtn(int id, AbstractButton guibutton) {
 		if (id == 0 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitPacket.class).setStack(stack).setTilePos(_table.container).setDimension(dimension));
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitPacket.class).setStack(stack).setTilePos(table.container).setDimension(dimension));
 			refreshItems();
 		} else if (id == 1) {
 			itemDisplay.nextPage();
@@ -421,7 +421,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			LPConfigs.savePopupState();
 		} else if (id == 13 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestComponentPacket.class).setStack(stack).setTilePos(_table.container).setDimension(dimension));
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestComponentPacket.class).setStack(stack).setTilePos(table.container).setDimension(dimension));
 		} else if (id == 9) {
 			String displayString = "";
 			switch (displayOptions) {
@@ -473,22 +473,22 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			orderIdForButton = -1;
 		} else if (id == 100) {
 			extensionControllerLeft.retract();
-			setSubGui(new RequestMonitorPopup(_table, orderIdForButton));
+			setSubGui(new RequestMonitorPopup(table, orderIdForButton));
 		} else if (id == 18) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(_table.getX()).setPosY(_table.getY()).setPosZ(_table.getZ()));
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(table.getX()).setPosY(table.getY()).setPosZ(table.getZ()));
 			setSubGui(new GuiDiskPopup(this));
 		} else if (id == 20) {
 			itemDisplay.cycle();
 		} else if (id == 21 || id == 22) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(id == 22).setTilePos(_table.container));
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(id == 22).setTilePos(table.container));
 		} else if (id == 30) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(ClearCraftingGridPacket.class).setTilePos(_table.container));
-			_table.cacheRecipe();
+			MainProxy.sendPacketToServer(PacketHandler.getPacket(ClearCraftingGridPacket.class).setTilePos(table.container));
+			table.cacheRecipe();
 		} else if (id == 31) {
 			ArrayList<ItemIdentifierStack> list = new ArrayList<>(9);
-			list.addAll(_table.matrix.getItemsAndCount().entrySet().stream()
+			list.addAll(table.matrix.getItemsAndCount().entrySet().stream()
 					.map(e -> e.getKey().makeStack(e.getValue())).toList());
-			for (Pair<ItemStack, Integer> entry : _table.inv) {
+			for (Pair<ItemStack, Integer> entry : table.inv) {
 				if (entry.getValue1().isEmpty()) continue;
 				int size = entry.getValue1().getCount();
 				ItemIdentifier ident = ItemIdentifier.get(entry.getValue1());
@@ -501,7 +501,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			}
 			list.removeIf(itemIdentifierStack -> itemIdentifierStack.getStackSize() <= 0);
 			if (!list.isEmpty()) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitListPacket.class).setIdentList(list).setTilePos(_table.container));
+				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitListPacket.class).setIdentList(list).setTilePos(table.container));
 				refreshItems();
 			}
 		}
@@ -509,9 +509,9 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 	private void requestMatrix(int multiplier) {
 		ArrayList<ItemIdentifierStack> list = new ArrayList<>(9);
-		list.addAll(_table.matrix.getItemsAndCount().entrySet().stream()
+		list.addAll(table.matrix.getItemsAndCount().entrySet().stream()
 				.map(e -> e.getKey().makeStack(e.getValue() * multiplier)).toList());
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitListPacket.class).setIdentList(list).setTilePos(_table.container));
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitListPacket.class).setIdentList(list).setTilePos(table.container));
 		refreshItems();
 	}
 
@@ -548,10 +548,10 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		if (super.hasSubGui()) {
 			return;
 		}
-		macroButton.active = !_table.diskInv.getItem(0).isEmpty() && _table.diskInv.getItem(0).getItem().equals(LPItems.DISK.get());
+		macroButton.active = !table.diskInv.getItem(0).isEmpty() && table.diskInv.getItem(0).getItem().equals(LPItems.DISK.get());
 		guiGraphics.drawString(minecraft.font, "Sort:", 136, 55, 0xffffff, false);
 		if (showRequest) {
-			guiGraphics.drawString(minecraft.font, _title, 180 + minecraft.font.width(_title) / 2, 6, 0x404040, false);
+			guiGraphics.drawString(minecraft.font, title, 180 + minecraft.font.width(title) / 2, 6, 0x404040, false);
 			if (popupCheck != null && popupCheck.getState()) {
 				guiGraphics.drawString(minecraft.font, "Popup", 225, bottom - topPos - 56, 0x404040, false);
 			} else {
@@ -619,9 +619,9 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			control = control.getSubGui();
 		}
 		if (error) {
-			control.setSubGui(new GuiRequestPopup(_entityPlayer, "You are missing:", items));
+			control.setSubGui(new GuiRequestPopup(entityPlayer, "You are missing:", items));
 		} else {
-			control.setSubGui(new GuiRequestPopup(_entityPlayer, "Request successful!", items));
+			control.setSubGui(new GuiRequestPopup(entityPlayer, "Request successful!", items));
 		}
 	}
 
@@ -629,7 +629,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		while (control.hasSubGui()) {
 			control = control.getSubGui();
 		}
-		control.setSubGui(new GuiRequestPopup(_entityPlayer, "Components: ", used, "Missing: ", missing));
+		control.setSubGui(new GuiRequestPopup(entityPlayer, "Components: ", used, "Missing: ", missing));
 	}
 
 	@Override
@@ -661,22 +661,22 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 
 	@Override
     public ItemStack getDisk() {
-		return _table.diskInv.getItem(0);
+		return table.diskInv.getItem(0);
 	}
 
 	@Override
 	public int getX() {
-		return _table.getX();
+		return table.getX();
 	}
 
 	@Override
 	public int getY() {
-		return _table.getY();
+		return table.getY();
 	}
 
 	@Override
 	public int getZ() {
-		return _table.getZ();
+		return table.getZ();
 	}
 
 	@Override

@@ -31,24 +31,24 @@ public class RequestAmountTaskSubGui extends CoordinatesPacket {
 			return;
 		}
 
-		Map<ItemIdentifier, Integer> _availableItems = SimpleServiceLocator.logisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
-		LinkedList<ItemIdentifier> _craftableItems = SimpleServiceLocator.logisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
+		Map<ItemIdentifier, Integer> availableItems = SimpleServiceLocator.logisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
+		LinkedList<ItemIdentifier> craftableItems = SimpleServiceLocator.logisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
 
-		TreeSet<ItemIdentifierStack> _allItems = new TreeSet<>();
+		TreeSet<ItemIdentifierStack> allItems = new TreeSet<>();
 
-		for (Entry<ItemIdentifier, Integer> item : _availableItems.entrySet()) {
+		for (Entry<ItemIdentifier, Integer> item : availableItems.entrySet()) {
 			ItemIdentifierStack newStack = item.getKey().makeStack(item.getValue());
-			_allItems.add(newStack);
+			allItems.add(newStack);
 		}
 
-		for (ItemIdentifier item : _craftableItems) {
-			if (_availableItems.containsKey(item)) {
+		for (ItemIdentifier item : craftableItems) {
+			if (availableItems.containsKey(item)) {
 				continue;
 			}
-			_allItems.add(item.makeStack(1));
+			allItems.add(item.makeStack(1));
 		}
 
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(AmountTaskSubGui.class).setIdentSet(_allItems), player);
+		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(AmountTaskSubGui.class).setIdentSet(allItems), player);
 	}
 
 	@Override

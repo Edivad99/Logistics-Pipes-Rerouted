@@ -28,7 +28,7 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFluid, IRequireReliableFluidTransport {
 
-	private boolean _lastRequestFailed = false;
+	private boolean lastRequestFailed = false;
 
 	public enum MinMode {
 		NONE(0),
@@ -72,11 +72,11 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 
 	/* TRIGGER INTERFACE */
 	public boolean isRequestFailed() {
-		return _lastRequestFailed;
+		return lastRequestFailed;
 	}
 
 	public void setRequestFailed(boolean value) {
-		_lastRequestFailed = value;
+		lastRequestFailed = value;
 	}
 
 	@Override
@@ -93,10 +93,10 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	private ItemIdentifierInventory dummyInventory = new ItemIdentifierInventory(1, "Fluid to keep stocked", 127, true);
 	private int amount = 0;
 
-	private final Map<FluidIdentifier, Integer> _requestedItems = new HashMap<>();
+	private final Map<FluidIdentifier, Integer> requestedItems = new HashMap<>();
 
-	private boolean _requestPartials = false;
-	private MinMode _bucketMinimum = MinMode.ONEBUCKET;
+	private boolean requestPartials = false;
+	private MinMode bucketMinimum = MinMode.ONEBUCKET;
 
 	@Override
 	public void throttledUpdateEntity() {
@@ -155,7 +155,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 					liquidId.setValue(liquidId.getValue() - haveCount);
 				}
 				//@formatter:off
-						_requestedItems.entrySet().stream()
+						requestedItems.entrySet().stream()
 								.filter(requestedItem -> requestedItem.getKey().equals(liquidId.getKey()))
 								.forEach(requestedItem -> liquidId.setValue(liquidId.getValue() - requestedItem.getValue()));
 						//@formatter:on
@@ -170,7 +170,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 				if (countToRequest < 1) {
 					continue;
 				}
-				if (_bucketMinimum.getAmount() != 0 && countToRequest < _bucketMinimum.getAmount()) {
+				if (bucketMinimum.getAmount() != 0 && countToRequest < bucketMinimum.getAmount()) {
 					continue;
 				}
 
@@ -180,7 +180,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 
 				boolean success = false;
 
-				if (_requestPartials) {
+				if (requestPartials) {
 					countToRequest = RequestTree.requestFluidPartial(need, countToRequest, this, null);
 					if (countToRequest > 0) {
 						success = true;
@@ -190,11 +190,11 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 				}
 
 				if (success) {
-					Integer currentRequest = _requestedItems.get(need);
+					Integer currentRequest = requestedItems.get(need);
 					if (currentRequest == null) {
-						_requestedItems.put(need, countToRequest);
+						requestedItems.put(need, countToRequest);
 					} else {
-						_requestedItems.put(need, currentRequest + countToRequest);
+						requestedItems.put(need, currentRequest + countToRequest);
 					}
 				} else {
 					setRequestFailed(true);
@@ -207,32 +207,32 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.readFromNBT(nbttagcompound, provider);
 		dummyInventory.readFromNBT(nbttagcompound, provider, "");
-		_requestPartials = nbttagcompound.getBoolean("requestpartials");
+		requestPartials = nbttagcompound.getBoolean("requestpartials");
 		amount = nbttagcompound.getInt("amount");
-		_bucketMinimum = MinMode.values()[nbttagcompound.getByte("_bucketMinimum")];
+		bucketMinimum = MinMode.values()[nbttagcompound.getByte("_bucketMinimum")];
 	}
 
 	@Override
 	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.writeToNBT(nbttagcompound, provider);
 		dummyInventory.writeToNBT(nbttagcompound, provider, "");
-		nbttagcompound.putBoolean("requestpartials", _requestPartials);
+		nbttagcompound.putBoolean("requestpartials", requestPartials);
 		nbttagcompound.putInt("amount", amount);
-		nbttagcompound.putByte("_bucketMinimum", (byte) _bucketMinimum.ordinal());
+		nbttagcompound.putByte("_bucketMinimum", (byte) bucketMinimum.ordinal());
 	}
 
 	private void decreaseRequested(FluidIdentifier liquid, int remaining) {
 		//see if we can get an exact match
-		Integer count = _requestedItems.get(liquid);
+		Integer count = requestedItems.get(liquid);
 		if (count != null) {
-			_requestedItems.put(liquid, Math.max(0, count - remaining));
+			requestedItems.put(liquid, Math.max(0, count - remaining));
 			remaining -= count;
 		}
 		if (remaining <= 0) {
 			return;
 		}
 		//still remaining... was from fuzzyMatch on a crafter
-		for (Entry<FluidIdentifier, Integer> e : _requestedItems.entrySet()) {
+		for (Entry<FluidIdentifier, Integer> e : requestedItems.entrySet()) {
 			if (e.getKey().equals(liquid)) {
 				int expected = e.getValue();
 				e.setValue(Math.max(0, expected - remaining));
@@ -261,20 +261,20 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	public void liquidNotInserted(FluidIdentifier item, int amount) {}
 
 	public boolean isRequestingPartials() {
-		return _requestPartials;
+		return requestPartials;
 	}
 
 	public void setRequestingPartials(boolean value) {
-		_requestPartials = value;
+		requestPartials = value;
 		markTileDirty();
 	}
 
 	public MinMode getMinMode() {
-		return _bucketMinimum;
+		return bucketMinimum;
 	}
 
 	public void setMinMode(MinMode value) {
-		_bucketMinimum = value;
+		bucketMinimum = value;
 		markTileDirty();
 	}
 
