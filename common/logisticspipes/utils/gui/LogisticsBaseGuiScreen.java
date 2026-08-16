@@ -7,23 +7,18 @@
 
 package logisticspipes.utils.gui;
 
-import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.interfaces.IChainAddList;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.DummyContainerSlotClick;
 import logisticspipes.network.packets.gui.FuzzySlotSettingsPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.ChainAddArrayList;
@@ -45,9 +40,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+
 import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyFlag;
 import network.rs485.logisticspipes.util.FuzzyUtil;
@@ -389,12 +383,12 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		if (par1 < leftPos) {
-			extensionControllerLeft.mouseOver(par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		if (mouseX < leftPos) {
+			extensionControllerLeft.mouseOver(mouseX, mouseY);
 		}
-		if (par1 > leftPos + imageWidth) {
-			extensionControllerRight.mouseOver(par1, par2);
+		if (mouseX > leftPos + imageWidth) {
+			extensionControllerRight.mouseOver(mouseX, mouseY);
 		}
 		for (IRenderSlot slot : slots) {
 			if (slot instanceof IItemTextureRenderSlot) {

@@ -11,6 +11,7 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -69,7 +70,7 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		public void renderBackgroundContent(GuiGraphics guiGraphics) {}
 
 		@Override
-		public void buttonClicked(net.minecraft.client.gui.components.AbstractButton button) {
+		public void buttonClicked(AbstractButton button) {
 			if (button == useNewRendererButton) {
 				useNewRendererButton.change();
 			}

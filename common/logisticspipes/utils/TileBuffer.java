@@ -16,12 +16,12 @@ public final class TileBuffer {
 	private BlockEntity tile;
 
 	private final SafeTimeTracker tracker = new SafeTimeTracker(20, 5);
-	private final Level world;
+	private final Level level;
 	private final int x, y, z;
 	private final boolean loadUnloaded;
 
-	public TileBuffer(Level world, int x, int y, int z, boolean loadUnloaded) {
-		this.world = world;
+	public TileBuffer(Level level, int x, int y, int z, boolean loadUnloaded) {
+		this.level = level;
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -41,7 +41,7 @@ public final class TileBuffer {
 		// inside ChunkMap.processUnloads — after that tick's purgeStaleTickets. The ticket can
 		// then never expire, the chunk never becomes isReadyForSaving(), and scheduleUnload
 		// busy-retries forever: the server hangs on "Saving world" at 100% CPU.
-		LevelChunk chunk = world.getChunkSource().getChunkNow(
+		LevelChunk chunk = level.getChunkSource().getChunkNow(
 				SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
 		if (chunk == null) {
 			// Not resident: nothing can be observed about this neighbour right now. Leave the
@@ -72,7 +72,7 @@ public final class TileBuffer {
 	public void set(Block block, BlockEntity tile) {
 		this.block = block;
 		this.tile = tile;
-		tracker.markTime(world);
+		tracker.markTime(level);
 	}
 
 	public Block getBlock() {
@@ -80,7 +80,7 @@ public final class TileBuffer {
 			return block;
 		}
 
-		if (tracker.markTimeIfDelay(world)) {
+		if (tracker.markTimeIfDelay(level)) {
 			refresh();
 
 			if (tile != null && !tile.isRemoved()) {
@@ -96,7 +96,7 @@ public final class TileBuffer {
 			return tile;
 		}
 
-		if (tracker.markTimeIfDelay(world)) {
+		if (tracker.markTimeIfDelay(level)) {
 			refresh();
 
 			if (tile != null && !tile.isRemoved()) {
@@ -107,12 +107,12 @@ public final class TileBuffer {
 		return null;
 	}
 
-	public static TileBuffer[] makeBuffer(Level world, BlockPos pos, boolean loadUnloaded) {
+	public static TileBuffer[] makeBuffer(Level level, BlockPos pos, boolean loadUnloaded) {
 		TileBuffer[] buffer = new TileBuffer[6];
 
 		for (int i = 0; i < 6; i++) {
 			Direction d = Direction.from3DDataValue(i);
-			buffer[i] = new TileBuffer(world, pos.getX() + d.getStepX(), pos.getY() + d.getStepY(), pos.getZ() + d.getStepZ(), loadUnloaded);
+			buffer[i] = new TileBuffer(level, pos.getX() + d.getStepX(), pos.getY() + d.getStepY(), pos.getZ() + d.getStepZ(), loadUnloaded);
 		}
 
 		return buffer;

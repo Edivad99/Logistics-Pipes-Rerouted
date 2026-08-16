@@ -477,8 +477,8 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         return new ItemStack(item.builtInRegistryHolder(), stackSize, components);
     }
 
-    public ItemEntity makeEntityItem(int stackSize, Level world, double x, double y, double z) {
-        return new ItemEntity(world, x, y, z, makeNormalStack(stackSize));
+    public ItemEntity makeEntityItem(int stackSize, Level level, double x, double y, double z) {
+        return new ItemEntity(level, x, y, z, makeNormalStack(stackSize));
     }
 
     public int getMaxStackSize() {
@@ -639,7 +639,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         }
     }
 
-    private void debugDumpTag(net.minecraft.nbt.Tag nbt, StringBuilder sb) {
+    private void debugDumpTag(Tag nbt, StringBuilder sb) {
         if (nbt == null) {
             sb.append("null");
             return;
@@ -689,7 +689,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
             sb.append("TagCompound(data=");
             for (Iterator<String> iter = ((CompoundTag) nbt).getAllKeys().iterator(); iter.hasNext(); ) {
                 String key = iter.next();
-                net.minecraft.nbt.Tag value = ((CompoundTag) nbt).get(key);
+                Tag value = ((CompoundTag) nbt).get(key);
                 sb.append("\"").append(key).append("\"=");
                 debugDumpTag((value), sb);
                 if (iter.hasNext()) {

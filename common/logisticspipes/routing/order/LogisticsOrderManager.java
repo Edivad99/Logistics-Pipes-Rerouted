@@ -69,8 +69,8 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 		}
 	}
 
-	public LinkedList<ItemIdentifierStack> getContentList(Level world) {
-		if (MainProxy.isClient(world) || _orders.size() == 0) {
+	public LinkedList<ItemIdentifierStack> getContentList(Level level) {
+		if (MainProxy.isClient(level) || _orders.size() == 0) {
 			return new LinkedList<>();
 		}
 		LinkedList<ItemIdentifierStack> list = new LinkedList<>();

@@ -136,8 +136,8 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	public void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	public void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		guiGraphics.drawString(minecraft.font, _title, minecraft.font.width(_title) / 2, 6, 0x404040, false);
 		if (popupCheck != null && popupCheck.getState()) {
 			guiGraphics.drawString(minecraft.font, "Popup", 25, bottom - topPos - 56, 0x404040, false);

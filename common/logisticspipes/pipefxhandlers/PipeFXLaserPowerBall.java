@@ -24,8 +24,8 @@ public class PipeFXLaserPowerBall extends Particle {
 	private final float g;
 	private final float b;
 
-	public PipeFXLaserPowerBall(ClientLevel world, DoubleCoordinates pos, int color, BlockEntity tile) {
-		super(world, pos.getXCoord() + 0.5D, pos.getYCoord() + 0.5D, pos.getZCoord() + 0.5D, 0.0D, 0.0D, 0.0D);
+	public PipeFXLaserPowerBall(ClientLevel level, DoubleCoordinates pos, int color, BlockEntity tile) {
+		super(level, pos.getXCoord() + 0.5D, pos.getYCoord() + 0.5D, pos.getZCoord() + 0.5D, 0.0D, 0.0D, 0.0D);
 		this.r = ((color >> 16) & 0xFF) / 255.0f;
 		this.g = ((color >> 8) & 0xFF) / 255.0f;
 		this.b = (color & 0xFF) / 255.0f;

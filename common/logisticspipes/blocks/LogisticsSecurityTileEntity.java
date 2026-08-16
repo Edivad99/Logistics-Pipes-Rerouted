@@ -34,19 +34,22 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IGuiOpenControler, ISecurityProvider, IGuiTileEntity {
 
-	public LogisticsSecurityTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+	public LogisticsSecurityTileEntity(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.SECURITY_STATION.get(), pos, state);
 	}
 
@@ -150,7 +153,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		settingsList.clear();
 		ListTag list = tag.getList("settings", 10);
 		while (!list.isEmpty()) {
-			net.minecraft.nbt.Tag base = list.remove(0);
+			Tag base = list.remove(0);
 			String name = ((CompoundTag) base).getString("name");
 			CompoundTag value = ((CompoundTag) base).getCompound("content");
 			SecuritySettings settings = new SecuritySettings(name);
@@ -160,7 +163,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		excludedCC.clear();
 		list = tag.getList("excludedCC", 3);
 		while (!list.isEmpty()) {
-			net.minecraft.nbt.Tag base = list.remove(0);
+			Tag base = list.remove(0);
 			excludedCC.add(((IntTag) base).getAsInt());
 		}
 	}
@@ -303,7 +306,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		excludedCC.clear();
 		ListTag list = tag.getList("list", 3);
 		while (list.size() > 0) {
-			net.minecraft.nbt.Tag base = list.remove(0);
+			Tag base = list.remove(0);
 			excludedCC.add(((IntTag) base).getAsInt());
 		}
 	}

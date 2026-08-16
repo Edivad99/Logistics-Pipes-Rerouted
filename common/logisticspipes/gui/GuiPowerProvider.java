@@ -43,8 +43,8 @@ public class GuiPowerProvider extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerProvider.PREFIX + "Logistics" + junction.getBrand() + "PowerProvider"), 25, 8, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerProvider.PREFIX + "StoredEnergy") + ":", 40, 25, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, StringUtils.getStringWithSpacesFromInteger(junction.getDisplayPowerLevel()) + " " + junction.getBrand(), 40, 35, 0x404040, false);

@@ -403,7 +403,7 @@ object CraftingTest {
                 craftingPipe.logisticsModule!!.importFromCraftingTable(null)
             })
             .run {
-                setupLogisticsPower(Direction.EAST, 100000F)
+                setupLogisticsPower(Direction.EAST, 100000)
                 val (_, providerChestPlacer) = setupProvidingChest(Direction.WEST, *providerStacks)
                 val (requesterPipePlacer, requesterChestPlacer) = setupRequestingChest(Direction.UP)
                 object : FuzzyCraftingSetup {

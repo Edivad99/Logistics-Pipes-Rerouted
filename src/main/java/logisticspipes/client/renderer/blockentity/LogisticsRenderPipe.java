@@ -362,7 +362,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
         // In 1.12.2 the -0.35 offset compensated for EntityItem's foot-to-center gap; in 1.20.1
         // ir.renderStatic(GROUND) has no such offset, so we leave the item centred in the pipe.
-        itemRenderer.setItemstack(itemstack).setWorld(level).setPartialTickTime(partialTickTime);
+        itemRenderer.setItemstack(itemstack).setLevel(level).setPartialTickTime(partialTickTime);
         itemRenderer.renderInWorld(poseStack, bufferSource, packedLight, packedOverlay);
         poseStack.popPose();
     }

@@ -188,7 +188,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
                 widget.setX(widget.getX() + 105);
 			}
 			hideShowButton.setX(hideShowButton.getX() + 90);
-			hideShowButton.setMessage(net.minecraft.network.chat.Component.literal("Show"));
+			hideShowButton.setMessage(Component.literal("Show"));
 			for (AbstractWidget widget : hideWhileSmall) {
                 widget.visible = false;
 			}
@@ -245,7 +245,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 					private Map<Pair<Integer, Integer>, IOrderInfoProvider> ordererPosition = new HashMap<>();
 					private int height;
 					private int width = 4;
-					private net.minecraft.client.gui.components.AbstractButton localControlledButton;
+					private AbstractButton localControlledButton;
 
 					@Override
 					public void renderForeground(GuiGraphics guiGraphics, int left, int top) {
@@ -543,8 +543,8 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
-	public void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	public void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		if (super.hasSubGui()) {
 			return;
 		}

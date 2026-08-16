@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
@@ -129,14 +130,14 @@ public class RenderTickHandler {
 		Inventory inventory = mc.player.getInventory();
 		ItemStack stack = inventory.items.get(inventory.selected);
 		CoreUnroutedPipe pipe = ((ItemLogisticsPipe) stack.getItem()).getDummyPipe();
-		Level world = player.level();
+		Level level = player.level();
 		Direction side = blockHit.getDirection();
 		BlockPos pos = blockHit.getBlockPos();
-		Block block = world.getBlockState(pos).getBlock();
+		Block block = level.getBlockState(pos).getBlock();
 
-		if (block == Blocks.SNOW && world.getBlockState(pos).canBeReplaced()) {
+		if (block == Blocks.SNOW && level.getBlockState(pos).canBeReplaced()) {
 			side = Direction.UP;
-		} else if (!world.getBlockState(pos).canBeReplaced()) {
+		} else if (!level.getBlockState(pos).canBeReplaced()) {
 			pos = pos.relative(side);
 		}
 
@@ -157,8 +158,8 @@ public class RenderTickHandler {
 			globalPos.addToAll(orientation.getOffset());
 
 			for (DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare> posType : globalPos) {
-				if (!world.isEmptyBlock(posType.getBlockPos())) {
-					BlockEntity tile = world.getBlockEntity(posType.getBlockPos());
+				if (!level.isEmptyBlock(posType.getBlockPos())) {
+					BlockEntity tile = level.getBlockEntity(posType.getBlockPos());
 					boolean canPlace = false;
 					if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 						if (CoreMultiBlockPipe.canShare(((LogisticsTileGenericSubMultiBlock) tile).getSubTypes(), posType.getType())) {
@@ -172,7 +173,7 @@ public class RenderTickHandler {
 				}
 			}
 		} else {
-			if (!world.isEmptyBlock(pos)) {
+			if (!level.isEmptyBlock(pos)) {
 				isFreeSpace = false;
 			}
 		}
@@ -183,7 +184,7 @@ public class RenderTickHandler {
 		// Ghost pipe rendering — LP1 drew the pipe highlight model at the target position
 		// with the plain white pipe texture and alpha forced to 0x50.
 		poseStack.pushPose();
-		net.minecraft.world.phys.Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+		Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 		double gx = pos.getX() + (orientation != null ? orientation.getOffset().getXInt() : 0);
 		double gy = pos.getY() + (orientation != null ? orientation.getOffset().getYInt() : 0);
 		double gz = pos.getZ() + (orientation != null ? orientation.getOffset().getZInt() : 0);

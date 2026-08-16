@@ -24,8 +24,8 @@ public abstract class WrappedShapedRecipe extends ShapedRecipe {
 
     public abstract ItemStack assemble(CraftingInput input, HolderLookup.Provider provider);
 
-    public boolean matches(CraftingInput input, Level world) {
-        return this.internal.matches(input, world) && !this.assemble(input, world.registryAccess()).isEmpty();
+    public boolean matches(CraftingInput input, Level level) {
+        return this.internal.matches(input, level) && !this.assemble(input, level.registryAccess()).isEmpty();
     }
 
     public boolean canCraftInDimensions(int width, int height) {

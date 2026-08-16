@@ -46,11 +46,11 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
 import network.rs485.logisticspipes.connection.LPNeighborTileEntity
 
-data class WorldCoordinatesWrapper(private val world: Level, private val pos: BlockPos) {
+data class WorldCoordinatesWrapper(private val level: Level, private val pos: BlockPos) {
     constructor(tileEntity: BlockEntity) : this(tileEntity.level!!, tileEntity.blockPos)
 
     val tileEntity: BlockEntity?
-        get() = world.getBlockEntity(pos)
+        get() = level.getBlockEntity(pos)
 
     fun allNeighborTileEntities(): List<LPNeighborTileEntity<BlockEntity>> =
         Direction.values().mapNotNull { direction: Direction -> getNeighbor(direction) }
@@ -65,12 +65,12 @@ data class WorldCoordinatesWrapper(private val world: Level, private val pos: Bl
     }
 
     fun getNeighbor(direction: Direction): LPNeighborTileEntity<BlockEntity>? {
-        val tileEntity = world.getBlockEntity(pos.relative(direction)) ?: return null
+        val tileEntity = level.getBlockEntity(pos.relative(direction)) ?: return null
         return LPNeighborTileEntity(tileEntity, direction)
     }
 
     override fun hashCode(): Int {
-        var result = world.hashCode()
+        var result = level.hashCode()
         result = 31 * result + pos.hashCode()
         return result
     }
@@ -78,11 +78,11 @@ data class WorldCoordinatesWrapper(private val world: Level, private val pos: Bl
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is WorldCoordinatesWrapper) return false
-        return world == other.world && pos == other.pos
+        return level == other.level && pos == other.pos
     }
 
     override fun toString(): String {
-        return "WorldCoordinatesWrapper(world=$world, pos=$pos)"
+        return "WorldCoordinatesWrapper(level=$level, pos=$pos)"
     }
 
 }

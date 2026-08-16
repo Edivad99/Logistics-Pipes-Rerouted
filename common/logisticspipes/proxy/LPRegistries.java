@@ -2,6 +2,8 @@ package logisticspipes.proxy;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -29,8 +31,8 @@ public final class LPRegistries {
 		static RegistryAccess access() {
 			// The connection's registry access rather than the level's: it is non-null earlier in
 			// the join sequence, and it is what vanilla's own RegistryFriendlyByteBuf decorator uses.
-			net.minecraft.client.multiplayer.ClientPacketListener connection =
-					net.minecraft.client.Minecraft.getInstance().getConnection();
+			ClientPacketListener connection =
+					Minecraft.getInstance().getConnection();
 			return connection != null ? connection.registryAccess() : null;
 		}
 	}

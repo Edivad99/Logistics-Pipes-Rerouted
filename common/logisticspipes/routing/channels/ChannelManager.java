@@ -28,8 +28,8 @@ public class ChannelManager implements IChannelManager {
 	private static final String DATA_NAME = LPConstants.ID + "_ChannelManager_SavedData";
 	private final ChannelSavedData savedData;
 
-	public ChannelManager(Level world) {
-		if (world instanceof ServerLevel serverLevel) {
+	public ChannelManager(Level level) {
+		if (level instanceof ServerLevel serverLevel) {
 			savedData = serverLevel.getDataStorage()
 					.computeIfAbsent(new SavedData.Factory<>(ChannelSavedData::new, ChannelSavedData::load), DATA_NAME);
 		} else {

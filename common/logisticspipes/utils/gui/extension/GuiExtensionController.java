@@ -9,6 +9,7 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import lombok.Setter;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.inventory.Slot;
 
 public class GuiExtensionController {
@@ -24,7 +25,7 @@ public class GuiExtensionController {
 	private int maxBottom;
 	private GuiExtension currentlyExtended = null;
 	private Map<Slot, Integer> slotMap = new HashMap<>();
-	private Map<net.minecraft.client.gui.components.AbstractWidget, Integer> buttonMap = new HashMap<>();
+	private Map<AbstractWidget, Integer> buttonMap = new HashMap<>();
 
 	private final GuiSide side;
 
@@ -178,17 +179,17 @@ public class GuiExtensionController {
 		return currentlyExtended.renderSelectSlot(id);
 	}
 
-	public int registerControlledButton(net.minecraft.client.gui.components.AbstractWidget button) {
+	public int registerControlledButton(AbstractWidget button) {
 		int size = buttonMap.size();
 		buttonMap.put(button, size);
 		return size;
 	}
 
-	public boolean renderButtonControlled(net.minecraft.client.gui.components.AbstractWidget button) {
+	public boolean renderButtonControlled(AbstractWidget button) {
 		return buttonMap.containsKey(button);
 	}
 
-	public boolean renderButton(net.minecraft.client.gui.components.AbstractWidget button) {
+	public boolean renderButton(AbstractWidget button) {
 		if (!buttonMap.containsKey(button)) {
 			return true;
 		}

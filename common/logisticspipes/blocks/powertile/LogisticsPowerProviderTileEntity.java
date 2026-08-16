@@ -38,11 +38,17 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
@@ -70,7 +76,7 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 	private IHeadUpDisplayRenderer HUD;
 	private boolean init = false;
 
-	protected LogisticsPowerProviderTileEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+	protected LogisticsPowerProviderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		HUD = new HUDPowerLevel(this);
 	}
@@ -249,7 +255,7 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 	}
 
 	@Override
-	public net.minecraft.world.level.Level getLevelForHUD() {
+	public Level getLevelForHUD() {
 		return getWorld();
 	}
 

@@ -61,7 +61,7 @@ object MinecraftTest {
      */
     private val isDebugging = checkBooleanProperty("logisticspipes.test.debug")
 
-    private lateinit var world: ServerLevel
+    private lateinit var level: ServerLevel
     private lateinit var firstBlockPos: BlockPos
     private lateinit var testBlockBuilder: TestWorldBuilder
 
@@ -69,7 +69,7 @@ object MinecraftTest {
 
     fun serverStart(event: ServerStartedEvent) {
         val serverInstance = ServerLifecycleHooks.getCurrentServer() as DedicatedServer
-        world = serverInstance.overworld()
+        level = serverInstance.overworld()
         firstBlockPos = BlockPos(0, LEVEL, 0)
         if (isDebugging) {
             val threadmxbean = ManagementFactory.getThreadMXBean()
@@ -78,13 +78,13 @@ object MinecraftTest {
             if (watchdog != null) error("Watchdog already running! Set max-tick-time to 0, please restart the server!")
 
             // set rules for spawning players without annoying stuff
-            world.setDefaultSpawnPos(firstBlockPos, 0f)
-            world.gameRules.getRule(GameRules.RULE_SPAWN_RADIUS).set(0, serverInstance)
-            world.gameRules.getRule(GameRules.RULE_DAYLIGHT).set(false, serverInstance)
-            world.gameRules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverInstance)
-            world.setDayTime(5000)
-            world.setRainLevel(0f)
-            world.setThunderLevel(0f)
+            level.setDefaultSpawnPos(firstBlockPos, 0f)
+            level.gameRules.getRule(GameRules.RULE_SPAWN_RADIUS).set(0, serverInstance)
+            level.gameRules.getRule(GameRules.RULE_DAYLIGHT).set(false, serverInstance)
+            level.gameRules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverInstance)
+            level.setDayTime(5000)
+            level.setRainLevel(0f)
+            level.setThunderLevel(0f)
         }
         val task = startTests { msg: Any -> LogisticsPipes.LOG.info(msg.toString()) }
         task.invokeOnCompletion {
@@ -101,8 +101,8 @@ object MinecraftTest {
             delay(Duration.ofSeconds(1 * TIMEOUT_MODIFIER).toMillis())
             logger("[STARTING LOGISTICSPIPES TESTS]")
             withTimeout(Duration.ofMinutes(3)) {
-                testBlockBuilder = TestWorldBuilder(world, firstBlockPos)
-                world.setDefaultSpawnPos(testBlockBuilder.buildSpawnPlatform(), 0f)
+                testBlockBuilder = TestWorldBuilder(level, firstBlockPos)
+                level.setDefaultSpawnPos(testBlockBuilder.buildSpawnPlatform(), 0f)
                 listOf(
                     async {
                         CraftingTest.`test single fuzzy ingredient crafting fails multi-request with mixed OreDict input`(

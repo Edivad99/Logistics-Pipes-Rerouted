@@ -186,8 +186,8 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityStation"), 105, 10, 0x404040, false);
 		guiGraphics.drawString(font, _tile.getSecId() == null ? "null" : _tile.getSecId().toString(), 32, 25, 0x404040, false);
 		if (LogisticsPipes.isDEBUG()) {

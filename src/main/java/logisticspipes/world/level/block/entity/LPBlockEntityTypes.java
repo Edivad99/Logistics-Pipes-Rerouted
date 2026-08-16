@@ -10,7 +10,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsFrameTileEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -29,9 +28,9 @@ public class LPBlockEntityTypes {
     // NOTE: BlockEntity constructors must be migrated to (BlockPos, BlockState) before
     // these suppliers will compile. Stubs use placeholder suppliers for now.
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsPowerJunctionTileEntity>> POWER_JUNCTION =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsPowerJunctionBlockEntity>> POWER_JUNCTION =
         deferredRegister.register("power_junction",
-            () -> BlockEntityType.Builder.of(LogisticsPowerJunctionTileEntity::new,
+            () -> BlockEntityType.Builder.of(LogisticsPowerJunctionBlockEntity::new,
                 LPBlocks.POWER_JUNCTION.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsRFPowerProviderTileEntity>> POWER_PROVIDER_RF =
         deferredRegister.register("power_provider_rf",

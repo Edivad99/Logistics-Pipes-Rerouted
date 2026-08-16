@@ -228,8 +228,8 @@ public abstract class LPTravelingItem {
 
         @Nullable
 		public ItemEntity toEntityItem() {
-			Level world = container.getLevel();
-			if (MainProxy.isServer(world)) {
+			Level level = container.getLevel();
+			if (MainProxy.isServer(level)) {
 				if (getItemIdentifierStack().getStackSize() <= 0) {
 					return null;
 				}
@@ -266,13 +266,13 @@ public abstract class LPTravelingItem {
 				DoubleCoordinates motion = new DoubleCoordinates(0, 0, 0);
 				CoordinateUtils.add(motion, exitdirection, getSpeed() * 2.0);
 
-				ItemEntity entityitem = new ItemEntity(world, position.getXCoord(), position.getYCoord(), position.getZCoord(), getItemIdentifierStack().makeNormalStack());
+				ItemEntity entityitem = new ItemEntity(level, position.getXCoord(), position.getYCoord(), position.getZCoord(), getItemIdentifierStack().makeNormalStack());
 
 				//uniformly distributed in -0.005 .. 0.01 to increase bias toward smaller values
-				float f3 = world.getRandom().nextFloat() * 0.015F - 0.005F;
-				double motionX = world.getRandom().nextGaussian() * f3 + motion.getXCoord();
-				double motionY = world.getRandom().nextGaussian() * f3 + motion.getYCoord();
-				double motionZ = world.getRandom().nextGaussian() * f3 + motion.getZCoord();
+				float f3 = level.getRandom().nextFloat() * 0.015F - 0.005F;
+				double motionX = level.getRandom().nextGaussian() * f3 + motion.getXCoord();
+				double motionY = level.getRandom().nextGaussian() * f3 + motion.getYCoord();
+				double motionZ = level.getRandom().nextGaussian() * f3 + motion.getZCoord();
 				entityitem.setDeltaMovement(motionX, motionY, motionZ);
 				itemWasLost();
 
@@ -329,8 +329,8 @@ public abstract class LPTravelingItem {
 		@Override
 		public void setDestination(int destination) {
 			info.destinationint = destination;
-			final @Nullable Level world = container != null ? container.getLevel() : null;
-			if (MainProxy.isServer(world)) {
+			final @Nullable Level level = container != null ? container.getLevel() : null;
+			if (MainProxy.isServer(level)) {
 				IRouter router = SimpleServiceLocator.routerManager.getServerRouter(destination);
 				if (router != null) {
 					info.destinationUUID = router.getId();

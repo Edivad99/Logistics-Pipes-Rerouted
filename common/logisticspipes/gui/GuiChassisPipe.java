@@ -137,8 +137,8 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++) {
 			updateModuleConfigButtonVisibility(i);
 		}

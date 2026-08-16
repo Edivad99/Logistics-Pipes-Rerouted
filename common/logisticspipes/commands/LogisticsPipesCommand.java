@@ -12,6 +12,7 @@ import logisticspipes.commands.exception.PermissionDeniedException;
 import logisticspipes.proxy.MainProxy;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
@@ -59,18 +60,18 @@ public class LogisticsPipesCommand {
 		Player sender = source.getPlayer();
 		if (sender == null) return;
 		if (arguments.length <= 0) {
-			sender.sendSystemMessage(net.minecraft.network.chat.Component.literal("Type '/logisticspipes help' for help."));
+			sender.sendSystemMessage(Component.literal("Type '/logisticspipes help' for help."));
 			return;
 		}
 		try {
 			mainCommand.executeCommand(sender, arguments);
 		} catch (LPCommandException e) {
 			if (e instanceof PermissionDeniedException) {
-				sender.sendSystemMessage(net.minecraft.network.chat.Component.literal("You are not allowed to execute that command now."));
+				sender.sendSystemMessage(Component.literal("You are not allowed to execute that command now."));
 			} else if (e instanceof CommandNotFoundException) {
-				sender.sendSystemMessage(net.minecraft.network.chat.Component.literal("The command was not found"));
+				sender.sendSystemMessage(Component.literal("The command was not found"));
 			} else {
-				sender.sendSystemMessage(net.minecraft.network.chat.Component.literal("Usage: /logisticspipes help"));
+				sender.sendSystemMessage(Component.literal("Usage: /logisticspipes help"));
 			}
 		}
 	}

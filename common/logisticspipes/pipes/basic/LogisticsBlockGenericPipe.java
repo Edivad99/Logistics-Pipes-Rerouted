@@ -40,6 +40,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -179,10 +180,10 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
 		}
 
-		Level world = pipe.container.getLevel();
+		Level level = pipe.container.getLevel();
 
-		if (LogisticsBlockGenericPipe.lastRemovedDate != world.getGameTime()) {
-			LogisticsBlockGenericPipe.lastRemovedDate = world.getGameTime();
+		if (LogisticsBlockGenericPipe.lastRemovedDate != level.getGameTime()) {
+			LogisticsBlockGenericPipe.lastRemovedDate = level.getGameTime();
 			LogisticsBlockGenericPipe.pipeRemoved.clear();
 			LogisticsBlockGenericPipe.pipeSubMultiRemoved.clear();
 		}
@@ -194,7 +195,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			LPPositionSet<DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare>> list = ((CoreMultiBlockPipe) pipe).getRotatedSubBlocks();
 			list.forEach(pos -> pos.add(new DoubleCoordinates(pipe)));
 			for (DoubleCoordinates pos : pipe.container.subMultiBlock) {
-				BlockEntity tile = pos.getTileEntity(world);
+				BlockEntity tile = pos.getTileEntity(level);
 				if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 					DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare> equ = list.findClosest(pos);
 					if (equ != null) {
@@ -202,7 +203,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 					}
 					if (((LogisticsTileGenericSubMultiBlock) tile).removeMainPipe(new DoubleCoordinates(pipe))) {
 						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = true;
-						pos.setBlockToAir(world);
+						pos.setBlockToAir(level);
 						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = false;
 						LogisticsBlockGenericPipe.pipeSubMultiRemoved.put(new DoubleCoordinates(pos), pipe.container.getBlockPos());
 					} else {
@@ -214,7 +215,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 		BlockPos pos = pipe.container.getBlockPos();
 		LogisticsBlockGenericPipe.pipeRemoved.put(new DoubleCoordinates(pos), pipe);
-		world.removeBlockEntity(pos);
+		level.removeBlockEntity(pos);
 	}
 
 	/* Registration ******************************************************** */
@@ -257,20 +258,20 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return null;
 	}
 
-	public static boolean placePipe(CoreUnroutedPipe pipe, Level world, BlockPos blockPos, Block block) {
-		return LogisticsBlockGenericPipe.placePipe(pipe, world, blockPos, block, null);
+	public static boolean placePipe(CoreUnroutedPipe pipe, Level level, BlockPos blockPos, Block block) {
+		return LogisticsBlockGenericPipe.placePipe(pipe, level, blockPos, block, null);
 	}
 
-	public static boolean placePipe(CoreUnroutedPipe pipe, Level world, BlockPos blockPos, Block block, ITubeOrientation orientation) {
-		BlockState oldBlockState = world.getBlockState(blockPos);
-		boolean placed = world.setBlock(blockPos, block.defaultBlockState(), 3);
+	public static boolean placePipe(CoreUnroutedPipe pipe, Level level, BlockPos blockPos, Block block, ITubeOrientation orientation) {
+		BlockState oldBlockState = level.getBlockState(blockPos);
+		boolean placed = level.setBlock(blockPos, block.defaultBlockState(), 3);
 
-		if (world.isClientSide) {
+		if (level.isClientSide) {
 			return placed;
 		}
 
 		if (placed) {
-			BlockEntity tile = world.getBlockEntity(blockPos);
+			BlockEntity tile = level.getBlockEntity(blockPos);
 			if (tile instanceof LogisticsTileGenericPipe) {
 				LogisticsTileGenericPipe tilePipe = (LogisticsTileGenericPipe) tile;
 				if (pipe instanceof CoreMultiBlockPipe) {
@@ -285,27 +286,27 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 					orientation.rotatePositions(positions);
 					for (DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare> pos : positions) {
 						pos.add(placeAt);
-						BlockEntity subTile = world.getBlockEntity(pos.getBlockPos());
-						BlockState oldSubBlockState = world.getBlockState(pos.getBlockPos());
+						BlockEntity subTile = level.getBlockEntity(pos.getBlockPos());
+						BlockState oldSubBlockState = level.getBlockState(pos.getBlockPos());
 						if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
 							((LogisticsTileGenericSubMultiBlock) subTile).addMultiBlockMainPos(placeAt);
 							((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(pos.getType());
 							MainProxy.sendPacketToAllWatchingChunk(subTile, ((LogisticsTileGenericSubMultiBlock) subTile).getLPDescriptionPacket());
 						} else {
-							world.setBlock(pos.getBlockPos(), LPBlocks.SUB_MULTIBLOCK.get().defaultBlockState(), 3);
-							subTile = world.getBlockEntity(pos.getBlockPos());
+							level.setBlock(pos.getBlockPos(), LPBlocks.SUB_MULTIBLOCK.get().defaultBlockState(), 3);
+							subTile = level.getBlockEntity(pos.getBlockPos());
 							if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
 								((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(pos.getType());
 							}
 						}
-						world.markAndNotifyBlock(pos.getBlockPos(), world.getChunkAt(pos.getBlockPos()), oldSubBlockState, world.getBlockState(pos.getBlockPos()), 3, 512);
+						level.markAndNotifyBlock(pos.getBlockPos(), level.getChunkAt(pos.getBlockPos()), oldSubBlockState, level.getBlockState(pos.getBlockPos()), 3, 512);
 					}
 					LogisticsBlockGenericSubMultiBlock.currentCreatedMultiBlock = null;
 				}
 				tilePipe.initialize(pipe);
 				//				tilePipe.sendUpdateToClient();
 			}
-			world.markAndNotifyBlock(blockPos, world.getChunkAt(blockPos), oldBlockState, world.getBlockState(blockPos), 3, 512);
+			level.markAndNotifyBlock(blockPos, level.getChunkAt(blockPos), oldBlockState, level.getBlockState(blockPos), 3, 512);
 		}
 
 		return placed;
@@ -402,8 +403,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	// Internal collision helper — addCollisionBoxToList is no longer an MC override in 1.20.1; called from the overload above
-	public void addCollisionBoxToList(BlockState state, Level world, BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
-		BlockEntity te = world.getBlockEntity(pos);
+	public void addCollisionBoxToList(BlockState state, Level level, BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
+		BlockEntity te = level.getBlockEntity(pos);
 		if (te instanceof LogisticsTileGenericPipe) {
 			LogisticsTileGenericPipe tile = (LogisticsTileGenericPipe) te;
 			CoreUnroutedPipe pipe = tile.pipe;
@@ -496,13 +497,13 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	// getSelectedBoundingBox removed in 1.20.1 — replaced by getShape(state, level, pos, context)
 	// Renamed to avoid @Override on non-existent method; logic preserved for reference
 	@OnlyIn(Dist.CLIENT)
-	public AABB getSelectedBoundingBox_DEAD(BlockState state, Level world, BlockPos pos) {
-		BlockEntity tile = world.getBlockEntity(pos);
+	public AABB getSelectedBoundingBox_DEAD(BlockState state, Level level, BlockPos pos) {
+		BlockEntity tile = level.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).isPipeBlock()) {
 			return new AABB((double) pos.getX() + 0, (double) pos.getY() + 0, (double) pos.getZ() + 0,
 					(double) pos.getX() + 1, (double) pos.getY() + 1, (double) pos.getZ() + 1);
 		}
-		InternalRayTraceResult rayTraceResult = doRayTrace(world, pos, Minecraft.getInstance().player);
+		InternalRayTraceResult rayTraceResult = doRayTrace(level, pos, Minecraft.getInstance().player);
 
 		if (rayTraceResult != null && rayTraceResult.boundingBox != null) {
 			AABB box = rayTraceResult.boundingBox;
@@ -520,7 +521,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	// @Override
 	// public HitResult collisionRayTrace(BlockState state, Level world, BlockPos pos, Vec3 start, Vec3 end) { ... }
 
-	public InternalRayTraceResult doRayTrace(Level world, BlockPos pos, Player player) {
+	public InternalRayTraceResult doRayTrace(Level level, BlockPos pos, Player player) {
 		double reachDistance = player instanceof ServerPlayer
 				? player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE)
 				: 5;
@@ -529,12 +530,12 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		Vec3 start = player.getEyePosition();
 		Vec3 end = start.add(lookVec.x * reachDistance, lookVec.y * reachDistance, lookVec.z * reachDistance);
 
-		return doRayTrace(world, pos, start, end);
+		return doRayTrace(level, pos, start, end);
 	}
 
     @Nullable
-	public InternalRayTraceResult doRayTrace(Level world, BlockPos pos, Vec3 start, Vec3 end) {
-		BlockEntity te = world.getBlockEntity(pos);
+	public InternalRayTraceResult doRayTrace(Level level, BlockPos pos, Vec3 start, Vec3 end) {
+		BlockEntity te = level.getBlockEntity(pos);
 
 		if (te instanceof LogisticsTileGenericPipe) {
 			LogisticsTileGenericPipe tileG = (LogisticsTileGenericPipe) te;
@@ -719,26 +720,26 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
 		if (state.getBlock() != newState.getBlock()) {
-			LogisticsBlockGenericPipe.removePipe(LogisticsBlockGenericPipe.getPipe(world, pos));
+			LogisticsBlockGenericPipe.removePipe(LogisticsBlockGenericPipe.getPipe(level, pos));
 		}
-		super.onRemove(state, world, pos, newState, isMoving);
+		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	// @Override removed — dropBlockAsItemWithChance removed in 1.20.1
-	public void dropBlockAsItemWithChance_DEAD(Level world, final BlockPos pos, BlockState state, float chance, int fortune) {
+	public void dropBlockAsItemWithChance_DEAD(Level level, final BlockPos pos, BlockState state, float chance, int fortune) {
 
-		if (world.isClientSide) {
+		if (level.isClientSide) {
 			return;
 		}
 
 		// quantityDropped removed in 1.20.1; drop once if chance passes
-		if (world.getRandom().nextFloat() > chance) {
+		if (level.getRandom().nextFloat() > chance) {
 			return;
 		}
 
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
+		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
 
 		if (pipe == null) {
 			pipe = LogisticsBlockGenericPipe.pipeRemoved.get(new DoubleCoordinates(pos));
@@ -748,9 +749,9 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 		if (pipe.item != null && (pipe.canBeDestroyed() || pipe.destroyByPlayer())) {
 			for (ItemStack stack : pipe.dropContents()) {
-				Block.popResource(world, pos, stack);
+				Block.popResource(level, pos, stack);
 			}
-			Block.popResource(world, pos, new ItemStack(pipe.item, 1));
+			Block.popResource(level, pos, new ItemStack(pipe.item, 1));
 		} else if (pipe.item != null) {
 			LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
 		}
@@ -763,17 +764,17 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-    public ItemStack getPickedResult(BlockState state, HitResult target, net.minecraft.world.level.LevelReader levelReader, BlockPos pos, Player player) {
+    public ItemStack getPickedResult(BlockState state, HitResult target, LevelReader levelReader, BlockPos pos, Player player) {
 		ItemStack pick = getCloneItemStack(levelReader, pos, state);
 		if (!pick.isEmpty()) {
 			return pick;
 		}
-		Level world = (Level) levelReader; // safe — client-only code, LevelReader is always a Level here
-		InternalRayTraceResult rayTraceResult = doRayTrace(world, pos, player);
+		Level level = (Level) levelReader; // safe — client-only code, LevelReader is always a Level here
+		InternalRayTraceResult rayTraceResult = doRayTrace(level, pos, player);
 
 		if (rayTraceResult != null && rayTraceResult.boundingBox != null) {
 			if (rayTraceResult.hitPart == Part.PIPE) {
-				final CoreUnroutedPipe pipe = Objects.requireNonNull(LogisticsBlockGenericPipe.getPipe(world, pos));
+				final CoreUnroutedPipe pipe = Objects.requireNonNull(LogisticsBlockGenericPipe.getPipe(level, pos));
 				return new ItemStack(pipe.item);
 			}
 		}
@@ -807,9 +808,9 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	@Override
-	public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-		super.setPlacedBy(world, pos, state, placer, stack);
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+		super.setPlacedBy(level, pos, state, placer, stack);
+		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
 
 		if (LogisticsBlockGenericPipe.isValid(pipe)) {
 			pipe.onBlockPlaced();
@@ -833,7 +834,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 			if (heldItem.isEmpty()) {
 				// Fall through the end of the test
-			} else if (heldItem.getItem() instanceof net.minecraft.world.item.SignItem) { // Items.SIGN removed in 1.20.1 — sign items split per wood type
+			} else if (heldItem.getItem() instanceof SignItem) { // Items.SIGN removed in 1.20.1 — sign items split per wood type
 				// Sign will be placed anyway, so lets show the sign gui
 				return InteractionResult.PASS;
 			} else if (heldItem.getItem() instanceof ItemLogisticsPipe) {

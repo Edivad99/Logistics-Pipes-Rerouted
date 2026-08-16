@@ -6,6 +6,7 @@ package logisticspipes.utils.gui.hud;
 
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.utils.Color;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class BasicHUDButton implements IHUDButton {
@@ -93,7 +94,7 @@ public abstract class BasicHUDButton implements IHUDButton {
 		gg.fill(posX, posY, posX + sizeX, posY + 1, 0xffaaaaaa);
 		gg.fill(posX, posY + sizeY - 1, posX + sizeX, posY + sizeY, 0xff333333);
 		gg.pose().translate(0.0F, 0.0F, BUTTON_LABEL_Z);
-		gg.drawCenteredString(net.minecraft.client.Minecraft.getInstance().font, label,
+		gg.drawCenteredString(Minecraft.getInstance().font, label,
 			posX + sizeX / 2, posY + (sizeY - 8) / 2, Color.getValue(Color.LIGHTER_GREY));
 		gg.pose().popPose();
 	}

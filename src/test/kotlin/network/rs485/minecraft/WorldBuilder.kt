@@ -45,5 +45,5 @@ interface WorldBuilder {
     fun finalPosition(selector: BlockPosSelector): BlockPos
     fun loadChunk(pos: ChunkPos)
 
-    val world: ServerLevel
+    val level: ServerLevel
 }

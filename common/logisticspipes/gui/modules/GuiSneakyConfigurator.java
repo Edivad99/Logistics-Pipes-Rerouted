@@ -18,6 +18,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.SneakyDirection;
@@ -66,16 +67,16 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 	private void refreshButtons() {
 		for (logisticspipes.utils.gui.SmallGuiButton button : dirButtons) {
 			if (button == null) continue;
-			button.setMessage(net.minecraft.network.chat.Component.literal(getButtonOrientationString(button.id == 6 ? null : Direction.from3DDataValue(button.id))));
+			button.setMessage(Component.literal(getButtonOrientationString(button.id == 6 ? null : Direction.from3DDataValue(button.id))));
 		}
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 
 		refreshButtons();
 
-		super.renderLabels(guiGraphics, par1, par2);
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 
 		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0x404040, false);
 	}

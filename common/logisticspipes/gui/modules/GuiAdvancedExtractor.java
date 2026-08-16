@@ -75,7 +75,7 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		guiGraphics.drawString(minecraft.font, _advancedExtractor.getFilterInventory().getName(), 8, 6, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040, false);
 	}

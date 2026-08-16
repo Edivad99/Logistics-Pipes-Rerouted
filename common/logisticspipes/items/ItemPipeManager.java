@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -28,7 +29,7 @@ public class ItemPipeManager extends LogisticsItem implements ILPPipeConfigTool 
 	public void wrenchUsed(Player player, ItemStack wrench, ILPPipeTile pipe) {}
 
 	@Override
-	public boolean doesSneakBypassUse(ItemStack stack, net.minecraft.world.level.LevelReader world, BlockPos pos, Player player) {
+	public boolean doesSneakBypassUse(ItemStack stack, LevelReader level, BlockPos pos, Player player) {
 		return true;
 	}
 
@@ -39,12 +40,12 @@ public class ItemPipeManager extends LogisticsItem implements ILPPipeConfigTool 
 	 */
 	@Override
     public InteractionResult useOn(UseOnContext ctx) {
-		Level world = ctx.getLevel();
+		Level level = ctx.getLevel();
 		BlockPos pos = ctx.getClickedPos();
 		Player player = ctx.getPlayer();
-		if (world.isClientSide() || player == null) return InteractionResult.PASS;
+		if (level.isClientSide() || player == null) return InteractionResult.PASS;
 
-		BlockState state = world.getBlockState(pos);
+		BlockState state = level.getBlockState(pos);
 
 		// Try FACING first, then HORIZONTAL_FACING, then AXIS
 		BlockState rotated = null;
@@ -58,13 +59,13 @@ public class ItemPipeManager extends LogisticsItem implements ILPPipeConfigTool 
 			rotated = state.setValue(BlockStateProperties.HORIZONTAL_FACING, next);
 		} else {
 			// Fall back to Minecraft's built-in rotate() for axis-based blocks etc.
-			BlockState attempt = state.rotate(world, pos, Rotation.CLOCKWISE_90);
+			BlockState attempt = state.rotate(level, pos, Rotation.CLOCKWISE_90);
 			if (!attempt.equals(state)) rotated = attempt;
 		}
 
 		if (rotated != null && !rotated.equals(state)) {
-			world.setBlock(pos, rotated, 3);
-			world.levelEvent(player, 1000, pos, 0);
+			level.setBlock(pos, rotated, 3);
+			level.levelEvent(player, 1000, pos, 0);
 			return InteractionResult.SUCCESS;
 		}
 		return InteractionResult.PASS;

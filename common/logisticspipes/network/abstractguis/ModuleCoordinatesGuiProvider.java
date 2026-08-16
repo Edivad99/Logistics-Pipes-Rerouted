@@ -34,8 +34,8 @@ public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvide
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getLogisticsModule(Level world, Class<T> clazz) {
-		LogisticsTileGenericPipe pipe = getTileAs(world, LogisticsTileGenericPipe.class);
+	public <T> T getLogisticsModule(Level level, Class<T> clazz) {
+		LogisticsTileGenericPipe pipe = getTileAs(level, LogisticsTileGenericPipe.class);
 		if (!(pipe.pipe instanceof CoreRoutedPipe)) {
 			if (LogisticsPipes.isDEBUG() && pipe.isInitialized()) {
 				LogisticsPipes.LOG.error(toString());

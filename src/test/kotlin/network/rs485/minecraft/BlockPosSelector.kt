@@ -92,9 +92,9 @@ class BlockPosSelector(val worldBuilder: WorldBuilder) {
             val translated = worldBuilder.finalPosition(this@BlockPosSelector)
             val configurators = placersToOffsets.map {
                 (translated + it.second).let { pos ->
-                    worldBuilder.loadChunk(worldBuilder.world.getChunk(pos).pos)
+                    worldBuilder.loadChunk(worldBuilder.level.getChunk(pos).pos)
                     async {
-                        it.first.place(worldBuilder.world, pos)
+                        it.first.place(worldBuilder.level, pos)
                     }
                 }
             }.awaitAll()
@@ -119,7 +119,7 @@ class BlockPosSelector(val worldBuilder: WorldBuilder) {
             }
         })
         ?.also {
-            worldBuilder.world.setBlock(it.first, it.second, 3)
+            worldBuilder.level.setBlock(it.first, it.second, 3)
         }
 }
 
@@ -131,7 +131,7 @@ enum class TestState {
 }
 
 interface Placer {
-    suspend fun place(world: ServerLevel, pos: BlockPos): Configurator
+    suspend fun place(level: ServerLevel, pos: BlockPos): Configurator
 }
 
 interface Configurator {

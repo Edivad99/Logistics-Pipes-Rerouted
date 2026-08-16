@@ -46,6 +46,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 
@@ -158,7 +159,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
-	public net.minecraft.world.level.Level getLevelForHUD() {
+	public Level getLevelForHUD() {
 		return getWorld();
 	}
 

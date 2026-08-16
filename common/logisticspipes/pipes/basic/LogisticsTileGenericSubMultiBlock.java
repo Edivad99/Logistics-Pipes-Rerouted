@@ -21,6 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
@@ -123,7 +124,7 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 			}
 		}
 		if (tag.contains("MainPipePosList")) {
-			ListTag list = tag.getList("MainPipePosList", net.minecraft.nbt.Tag.TAG_COMPOUND);
+			ListTag list = tag.getList("MainPipePosList", Tag.TAG_COMPOUND);
 			for (int i = 0; i < list.size(); i++) {
 				DoubleCoordinates pos = DoubleCoordinates.readFromNBT("MainPipePos_", list.getCompound(i));
 				if (pos != null) {
@@ -132,7 +133,7 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 			}
 		}
 		if (tag.contains("SubTypeList")) {
-			ListTag list = tag.getList("SubTypeList", net.minecraft.nbt.Tag.TAG_STRING);
+			ListTag list = tag.getList("SubTypeList", Tag.TAG_STRING);
 			subTypes.clear();
 			for (int i = 0; i < list.size(); i++) {
 				String name = list.getString(i);

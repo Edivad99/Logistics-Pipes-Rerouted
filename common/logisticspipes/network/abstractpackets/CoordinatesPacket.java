@@ -34,8 +34,8 @@ public abstract class CoordinatesPacket extends ModernPacket {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T getTileAs(Object whosAsking, Level world, BlockPos blockPos, Class<T> clazz) {
-		final BlockEntity tile = getWorldTile(whosAsking, world, blockPos);
+	public static <T> T getTileAs(Object whosAsking, Level level, BlockPos blockPos, Class<T> clazz) {
+		final BlockEntity tile = getWorldTile(whosAsking, level, blockPos);
 		if (tile != null) {
 			if (clazz.isAssignableFrom(tile.getClass())) {
 				return (T) tile;
@@ -104,8 +104,8 @@ public abstract class CoordinatesPacket extends ModernPacket {
 		return this;
 	}
 
-	public BlockEntity getTileAs(Level world, Function<BlockEntity, Boolean> validateResult) {
-		BlockEntity tile = getTileAs(world, BlockEntity.class);
+	public BlockEntity getTileAs(Level level, Function<BlockEntity, Boolean> validateResult) {
+		BlockEntity tile = getTileAs(level, BlockEntity.class);
 		if (!validateResult.apply(tile)) {
 			throw new TargetNotFoundException("BlockEntity condition not met", this);
 		}
@@ -145,12 +145,12 @@ public abstract class CoordinatesPacket extends ModernPacket {
 	 * Retrieves pipe at packet coordinates if any.
 	 */
 	@Deprecated
-	public LogisticsTileGenericPipe getPipe(Level world) {
-		return getPipe(world, LTGPCompletionCheck.NONE);
+	public LogisticsTileGenericPipe getPipe(Level level) {
+		return getPipe(level, LTGPCompletionCheck.NONE);
 	}
 
-	public LogisticsTileGenericPipe getPipe(Level world, LTGPCompletionCheck check) {
-		LogisticsTileGenericPipe pipe = getTileAs(world, LogisticsTileGenericPipe.class);
+	public LogisticsTileGenericPipe getPipe(Level level, LTGPCompletionCheck check) {
+		LogisticsTileGenericPipe pipe = getTileAs(level, LogisticsTileGenericPipe.class);
 		if (check == LTGPCompletionCheck.PIPE || check == LTGPCompletionCheck.TRANSPORT) {
 			if (pipe.pipe == null) {
 				throw new TargetNotFoundException("The found pipe didn't have a loaded pipe field", this);

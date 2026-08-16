@@ -38,7 +38,9 @@
 package network.rs485.logisticspipes.gui.guidebook
 
 import logisticspipes.utils.MinecraftColor
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.screens.Screen
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
@@ -129,12 +131,12 @@ class TabButton(
         val handled = when (button) {
             0 -> onLeftClick()
             1 -> onRightClick(
-                shiftClick = net.minecraft.client.gui.screens.Screen.hasShiftDown(),
-                ctrlClick = net.minecraft.client.gui.screens.Screen.hasControlDown(),
+                shiftClick = Screen.hasShiftDown(),
+                ctrlClick = Screen.hasControlDown(),
             )
             else -> false
         }
-        if (handled) playDownSound(net.minecraft.client.Minecraft.getInstance().soundManager)
+        if (handled) playDownSound(Minecraft.getInstance().soundManager)
         return handled
     }
 }

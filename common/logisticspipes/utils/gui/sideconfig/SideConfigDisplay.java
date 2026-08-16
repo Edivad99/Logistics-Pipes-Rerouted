@@ -39,8 +39,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -59,7 +62,7 @@ public abstract class SideConfigDisplay {
 	private long initTime;
 
 	private Minecraft mc = Minecraft.getInstance();
-	private Level world;
+	private Level level;
 
 	private final Vector3d origin = new Vector3d();
 	private final Vector3d eye = new Vector3d();
@@ -128,7 +131,7 @@ public abstract class SideConfigDisplay {
 			}
 		}
 
-		world = mc.player.level();
+		level = mc.player.level();
 	}
 
 	public abstract void handleSelection(SelectedFace selection);
@@ -165,10 +168,10 @@ public abstract class SideConfigDisplay {
 
 		for (DoubleCoordinates coord : configurables) {
 			BlockPos pos = new BlockPos(coord.getXInt(), coord.getYInt(), coord.getZInt());
-			BlockState state = world.getBlockState(pos);
-			net.minecraft.world.phys.shapes.VoxelShape shape = state.getShape(world, pos);
+			BlockState state = level.getBlockState(pos);
+			VoxelShape shape = state.getShape(level, pos);
 			if (shape.isEmpty()) continue;
-			net.minecraft.world.phys.AABB box = shape.bounds().move(pos);
+			AABB box = shape.bounds().move(pos);
 			box.clip(worldStart, worldEnd).ifPresent(pt -> {
 				Direction face = Direction.getNearest(
 					(float)(pt.x - (pos.getX() + 0.5)),
@@ -176,10 +179,10 @@ public abstract class SideConfigDisplay {
 					(float)(pt.z - (pos.getZ() + 0.5)));
 				double d = pt.distanceToSqr(worldStart);
 				if (d < minDist) {
-					BlockEntity be = world.getBlockEntity(pos);
+					BlockEntity be = level.getBlockEntity(pos);
 					if (be != null) {
 						selection = new SelectedFace(be, face,
-							new net.minecraft.world.phys.BlockHitResult(pt, face, pos, false));
+							new BlockHitResult(pt, face, pos, false));
 					}
 				}
 			});
@@ -297,7 +300,7 @@ public abstract class SideConfigDisplay {
 	private void renderBlockAt(DoubleCoordinates coord, BlockRenderDispatcher blockRenderer,
 			MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, boolean transparent) {
 		BlockPos pos = new BlockPos(coord.getXInt(), coord.getYInt(), coord.getZInt());
-		BlockState state = world.getBlockState(pos);
+		BlockState state = level.getBlockState(pos);
 		if (state.isAir()) return;
 		poseStack.pushPose();
 		poseStack.translate(pos.getX() - origin.x, pos.getY() - origin.y, pos.getZ() - origin.z);
@@ -307,8 +310,8 @@ public abstract class SideConfigDisplay {
 			RenderSystem.defaultBlendFunc();
 		}
 		try {
-			blockRenderer.renderBatched(state, pos, world, poseStack,
-				bufferSource.getBuffer(renderType), false, world.getRandom(), ModelData.EMPTY, null);
+			blockRenderer.renderBatched(state, pos, level, poseStack,
+				bufferSource.getBuffer(renderType), false, level.getRandom(), ModelData.EMPTY, null);
 		} catch (Exception ignored) {}
 		poseStack.popPose();
 		if (transparent) {

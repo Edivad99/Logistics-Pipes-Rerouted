@@ -323,10 +323,10 @@ public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgrad
 		return disconnectedSides.contains(side);
 	}
 
-	public boolean tryIserting(Level world, Player entityplayer) {
+	public boolean tryIserting(Level level, Player entityplayer) {
 		ItemStack itemStackInMainHand = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
 		if (!itemStackInMainHand.isEmpty() && itemStackInMainHand.getItem() instanceof ItemUpgrade) {
-			if (MainProxy.isClient(world)) {
+			if (MainProxy.isClient(level)) {
 				return true;
 			}
 			IPipeUpgrade upgrade = ((ItemUpgrade) itemStackInMainHand.getItem()).getUpgradeForItem(itemStackInMainHand, null);
@@ -344,7 +344,7 @@ public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgrad
 			}
 		}
 		if (!itemStackInMainHand.isEmpty() && itemStackInMainHand.getItem() == LPItems.ITEM_CARD.get() && itemStackInMainHand.getDamageValue() == LogisticsItemCard.SEC_CARD) {
-			if (MainProxy.isClient(world)) {
+			if (MainProxy.isClient(level)) {
 				return true;
 			}
 			if (secInv.getItem(0).isEmpty()) {

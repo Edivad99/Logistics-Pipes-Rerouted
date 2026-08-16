@@ -12,6 +12,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.component.DataComponents;
@@ -233,7 +234,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 				writeDiskName();
 				return true;
 			} else if (i == 47 && Screen.hasControlDown()) {
-				name1 = name1 + net.minecraft.client.Minecraft.getInstance().keyboardHandler.getClipboard();
+				name1 = name1 + Minecraft.getInstance().keyboardHandler.getClipboard();
 			} else if (c == 8) {
 				if (name1.length() > 0) {
 					name1 = name1.substring(0, name1.length() - 1);

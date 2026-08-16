@@ -22,6 +22,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -88,8 +89,8 @@ public class ItemModule extends LogisticsItem {
 		return module;
 	}
 
-	private void openConfigGui(ItemStack stack, Player player, Level world) {
-		LogisticsModule module = getModuleForItem(stack, null, new DummyLevelProvider(world), null);
+	private void openConfigGui(ItemStack stack, Player player, Level level) {
+		LogisticsModule module = getModuleForItem(stack, null, new DummyLevelProvider(level), null);
 		if (module instanceof Gui && !stack.isEmpty()) {
 			module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().selected);
 			ItemModuleInformationManager.readInformation(stack, module);
@@ -109,33 +110,33 @@ public class ItemModule extends LogisticsItem {
 	}
 
 	@Override
-    public InteractionResultHolder<ItemStack> use(final Level world, final Player player,
+    public InteractionResultHolder<ItemStack> use(final Level level, final Player player,
 			final InteractionHand hand) {
 		if (MainProxy.isServer(player.level())) {
-			openConfigGui(player.getItemInHand(hand), player, world);
+			openConfigGui(player.getItemInHand(hand), player, level);
 		}
-		return super.use(world, player, hand);
+		return super.use(level, player, hand);
 	}
 
 	@Override
     public InteractionResult useOn(UseOnContext context) {
 		Player player = context.getPlayer();
-		Level world = context.getLevel();
+		Level level = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		InteractionHand hand = context.getHand();
 		if (player != null && MainProxy.isServer(player.level())) {
-			BlockEntity tile = world.getBlockEntity(pos);
+			BlockEntity tile = level.getBlockEntity(pos);
 			if (tile instanceof LogisticsTileGenericPipe) {
 				if (player.getDisplayName().getString()
 						.equals("ComputerCraft")) { // Allow turtle to place modules in pipes.
-					CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
+					CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
 					if (LogisticsBlockGenericPipe.isValid(pipe)) {
 						pipe.blockActivated(player);
 					}
 				}
 				return InteractionResult.PASS;
 			}
-			openConfigGui(player.getItemInHand(hand), player, world);
+			openConfigGui(player.getItemInHand(hand), player, level);
 		}
 		return InteractionResult.PASS;
 	}
@@ -190,7 +191,7 @@ public class ItemModule extends LogisticsItem {
 				if (Screen.hasShiftDown()) {
 					ListTag nbttaglist = nbt.getList("informationList", 8);
 					for (int i = 0; i < nbttaglist.size(); i++) {
-						net.minecraft.nbt.Tag nbtTag = nbttaglist.get(i);
+						Tag nbtTag = nbttaglist.get(i);
 						String data = nbtTag.getAsString();
 						if (data.equals("<inventory>") && i + 1 < nbttaglist.size()) {
 							nbtTag = nbttaglist.get(i + 1);

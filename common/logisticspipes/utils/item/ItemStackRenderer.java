@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
@@ -57,7 +58,7 @@ public class ItemStackRenderer {
 	private boolean renderInColor;
 	private ItemEntity entityitem;
     @Nullable
-	private Level world;
+	private Level level;
 	private float partialTickTime;
 
 	public ItemStackRenderer(int posX, int posY, float zLevel, boolean renderEffects, boolean ignoreDepth) {
@@ -67,7 +68,7 @@ public class ItemStackRenderer {
 		this.renderEffects = renderEffects;
 		this.ignoreDepth = ignoreDepth;
 		font = Minecraft.getInstance().font;
-		world = null;
+		level = null;
 		texManager = Minecraft.getInstance().getTextureManager();
 		scaleX = 1.0F;
 		scaleY = 1.0F;
@@ -166,7 +167,7 @@ public class ItemStackRenderer {
 		if (itemstack.isEmpty()) return;
 		Minecraft mc = Minecraft.getInstance();
 		ItemRenderer ir = mc.getItemRenderer();
-		ir.renderStatic(itemstack, net.minecraft.world.item.ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, mc.level, 0);
+		ir.renderStatic(itemstack, ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, mc.level, 0);
 	}
 
 	public void renderItemInGui(GuiGraphics gg, float x, float y, Item item, float zLevel, float scale) {

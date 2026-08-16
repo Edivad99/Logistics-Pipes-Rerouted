@@ -1,6 +1,7 @@
 package logisticspipes.api;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * things implementing this interface are capable of providing power, but they
@@ -22,9 +23,9 @@ public interface IRoutedPowerProvider {
 	// each IRoutedPowerProvider that can recurse should:
 	//   a) check that it is not already on the list
 	//   b) add itself to the list (creating it if the list is null),
-	boolean useEnergy(int amount, List<Object> providersToIgnore);
+	boolean useEnergy(int amount, @Nullable List<Object> providersToIgnore);
 
-	boolean canUseEnergy(int amount, List<Object> providersToIgnore);
+	boolean canUseEnergy(int amount, @Nullable List<Object> providersToIgnore);
 
 	int getX(); // the coordinates of the associated tile (typically "this.xCoords"). needed for sending packets.
 

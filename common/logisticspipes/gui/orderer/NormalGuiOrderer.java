@@ -8,6 +8,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public class NormalGuiOrderer extends GuiOrderer {
@@ -20,7 +21,7 @@ public class NormalGuiOrderer extends GuiOrderer {
 
 	private DisplayOptions displayOptions = DisplayOptions.Both;
 
-	public NormalGuiOrderer(int x, int y, int z, net.minecraft.resources.ResourceLocation dim, Player entityPlayer) {
+	public NormalGuiOrderer(int x, int y, int z, ResourceLocation dim, Player entityPlayer) {
 		super(x, y, z, dim, entityPlayer);
 		refreshItems();
 	}

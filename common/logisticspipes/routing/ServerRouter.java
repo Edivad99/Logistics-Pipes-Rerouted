@@ -68,6 +68,9 @@ import logisticspipes.utils.tuples.Quartet;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -130,7 +133,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	int ticksUntillNextInventoryCheck = 0;
 	private EnumSet<Direction> _routedExits = EnumSet.noneOf(Direction.class);
 	private EnumMap<Direction, Integer> _subPowerExits = new EnumMap<>(Direction.class);
-	private final net.minecraft.resources.ResourceLocation _dimension;
+	private final ResourceLocation _dimension;
 	private WeakReference<CoreRoutedPipe> _myPipeCache = null;
 	private final LinkedList<Pair<Integer, IRouterQueuedTask>> queue = new LinkedList<>();
 	int connectionNeedsChecking = 0;
@@ -162,7 +165,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	private Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
 	private Set<LPTileEntityObject> oldTouchedPipes = new HashSet<>();
 
-	public ServerRouter(UUID globalID, net.minecraft.resources.ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+	public ServerRouter(UUID globalID, ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
 		if (globalID != null) {
 			id = globalID;
 		} else {
@@ -293,12 +296,12 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	@Override
-	public boolean isInDim(net.minecraft.resources.ResourceLocation dimension) {
+	public boolean isInDim(ResourceLocation dimension) {
 		return _dimension.equals(dimension);
 	}
 
 	@Override
-	public boolean isAt(net.minecraft.resources.ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+	public boolean isAt(ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
 		return _dimension.equals(dimension) && _xCoord == xCoord && _yCoord == yCoord && _zCoord == zCoord;
 	}
 
@@ -313,13 +316,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		if (crp != null) {
 			return crp;
 		}
-		Level world = null;
+		Level level = null;
 		var server = ServerLifecycleHooks.getCurrentServer();
 		if (server != null) {
-			world = server.getLevel(net.minecraft.resources.ResourceKey.create(
-					net.minecraft.core.registries.Registries.DIMENSION, _dimension));
+			level = server.getLevel(ResourceKey.create(
+					Registries.DIMENSION, _dimension));
 		}
-		if (world == null) {
+		if (level == null) {
 			return null;
 		}
 		BlockPos pos = new BlockPos(_xCoord, _yCoord, _zCoord);
@@ -333,7 +336,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		// purgeStaleTickets — so the ticket can never expire, the chunk never becomes
 		// isReadyForSaving(), and scheduleUnload busy-retries forever: the game hangs on
 		// "Saving world" burning a core. A chunk that is not loaded has no pipe to return.
-		LevelChunk chunk = world.getChunkSource().getChunkNow(
+		LevelChunk chunk = level.getChunkSource().getChunkNow(
 				SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
 		if (chunk == null) {
 			return null;

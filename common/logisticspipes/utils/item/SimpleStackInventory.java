@@ -163,27 +163,27 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 		tag.putInt(prefix + "itemsCount", stackList.size());
 	}
 
-	public void dropContents(Level world, BlockPos pos) {
-		if (MainProxy.isServer(world)) {
+	public void dropContents(Level level, BlockPos pos) {
+		if (MainProxy.isServer(level)) {
 			for (int i = 0; i < stackList.size(); i++) {
-				dropSlot(i, world, pos);
+				dropSlot(i, level, pos);
 			}
 		}
 	}
 
-	private void dropSlot(int slot, Level world, BlockPos pos) {
+	private void dropSlot(int slot, Level level, BlockPos pos) {
 		final ItemStack slotStack = stackList.get(slot);
 		IntStream.range(0, (slotStack.getCount() / slotStack.getMaxStackSize()) + 1)
 				.mapToObj(i -> removeItem(slot, slotStack.getMaxStackSize()))
 				.filter(dropStack -> !dropStack.isEmpty())
 				.forEach(dropStack -> {
 					float f1 = 0.7F;
-					double d = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
-					double d1 = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
-					double d2 = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
-					ItemEntity entityitem = new ItemEntity(world, pos.getX() + d, pos.getY() + d1, pos.getZ() + d2, dropStack);
+					double d = (level.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+					double d1 = (level.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+					double d2 = (level.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+					ItemEntity entityitem = new ItemEntity(level, pos.getX() + d, pos.getY() + d1, pos.getZ() + d2, dropStack);
 					entityitem.setDefaultPickUpDelay();
-					world.addFreshEntity(entityitem);
+					level.addFreshEntity(entityitem);
 				});
 	}
 

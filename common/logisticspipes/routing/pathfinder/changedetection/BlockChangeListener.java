@@ -32,11 +32,11 @@ public class BlockChangeListener {
      */
     @SubscribeEvent
     public void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
-        if (!(event.getLevel() instanceof Level world)) return;
-        if (!MainProxy.isServer(world)) return;
+        if (!(event.getLevel() instanceof Level level)) return;
+        if (!MainProxy.isServer(level)) return;
         final BlockPos pos = event.getPos();
         QueuedTasks.queueTask(() -> {
-            notifyAdjacentPipes(world, pos);
+            notifyAdjacentPipes(level, pos);
             return null;
         });
     }
@@ -47,11 +47,11 @@ public class BlockChangeListener {
      */
     @SubscribeEvent
     public void onBlockBroken(BlockEvent.BreakEvent event) {
-        if (!(event.getLevel() instanceof Level world)) return;
-        if (!MainProxy.isServer(world)) return;
+        if (!(event.getLevel() instanceof Level level)) return;
+        if (!MainProxy.isServer(level)) return;
         final BlockPos pos = event.getPos();
         QueuedTasks.queueTask(() -> {
-            notifyAdjacentPipes(world, pos);
+            notifyAdjacentPipes(level, pos);
             return null;
         });
     }
@@ -60,15 +60,15 @@ public class BlockChangeListener {
      * For each adjacent position to {@code changedPos}, if there is an LP item
      * pipe, tell it to refresh the side that faces {@code changedPos}.
      */
-    private static void notifyAdjacentPipes(Level world, BlockPos changedPos) {
+    private static void notifyAdjacentPipes(Level level, BlockPos changedPos) {
         DoubleCoordinates changed = new DoubleCoordinates(
                 changedPos.getX(), changedPos.getY(), changedPos.getZ());
 
         for (Direction dir : Direction.values()) {
             DoubleCoordinates adjacent = CoordinateUtils.sum(changed, dir);
-            if (!adjacent.blockExists(world)) continue;
+            if (!adjacent.blockExists(level)) continue;
 
-            BlockEntity adjacentTE = adjacent.getTileEntity(world);
+            BlockEntity adjacentTE = adjacent.getTileEntity(level);
             if (adjacentTE == null) continue;
 
             // Guard: only LP-managed TEs carry ILPTEInformation

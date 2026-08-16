@@ -51,7 +51,7 @@ import kotlin.math.min
 const val LEVEL = 100
 val ONE_VECTOR = Vec3i(1, 1, 1)
 
-class TestWorldBuilder(override val world: ServerLevel, val firstBlockPos: BlockPos) : WorldBuilder {
+class TestWorldBuilder(override val level: ServerLevel, val firstBlockPos: BlockPos) : WorldBuilder {
 
     private val selectors = ArrayList<Pair<BlockPosSelector, BlockPos>>()
 
@@ -70,25 +70,25 @@ class TestWorldBuilder(override val world: ServerLevel, val firstBlockPos: Block
         val borderEnd = end.offset(ONE_VECTOR)
         lowest = min(lowest, borderStart.y)
         nextPos = BlockPos(borderEnd.x + 2, LEVEL, 0)
-        world.setBlocksInRange(borderStart, borderEnd, Blocks.AIR.defaultBlockState())
+        level.setBlocksInRange(borderStart, borderEnd, Blocks.AIR.defaultBlockState())
         // Border platform
         val slabState = Blocks.SMOOTH_STONE_SLAB.defaultBlockState()
-        world.setBlocksInRange(BlockPos(borderStart.x, lowest, borderStart.z), BlockPos(borderStart.x, lowest, borderEnd.z), slabState)
-        world.setBlocksInRange(BlockPos(borderStart.x, lowest, borderEnd.z), BlockPos(borderEnd.x, lowest, borderEnd.z), slabState)
-        world.setBlocksInRange(BlockPos(borderEnd.x, lowest, borderStart.z), BlockPos(borderEnd.x, lowest, borderEnd.z), slabState)
-        world.setBlocksInRange(BlockPos(borderStart.x, lowest, borderStart.z), BlockPos(borderEnd.x, lowest, borderStart.z), slabState)
-        world.setBlocksInRange(BlockPos(start.x, lowest, start.z), BlockPos(end.x, lowest, end.z), Blocks.STONE.defaultBlockState())
+        level.setBlocksInRange(BlockPos(borderStart.x, lowest, borderStart.z), BlockPos(borderStart.x, lowest, borderEnd.z), slabState)
+        level.setBlocksInRange(BlockPos(borderStart.x, lowest, borderEnd.z), BlockPos(borderEnd.x, lowest, borderEnd.z), slabState)
+        level.setBlocksInRange(BlockPos(borderEnd.x, lowest, borderStart.z), BlockPos(borderEnd.x, lowest, borderEnd.z), slabState)
+        level.setBlocksInRange(BlockPos(borderStart.x, lowest, borderStart.z), BlockPos(borderEnd.x, lowest, borderStart.z), slabState)
+        level.setBlocksInRange(BlockPos(start.x, lowest, start.z), BlockPos(end.x, lowest, end.z), Blocks.STONE.defaultBlockState())
     }
 
     override fun loadChunk(pos: ChunkPos) {
         if (chunksToLoad.add(pos)) {
-            world.setChunkForced(pos.x, pos.z, true)
+            level.setChunkForced(pos.x, pos.z, true)
         }
     }
 
     fun buildSpawnPlatform(): BlockPos {
         val start = firstBlockPos.subtract(ONE_VECTOR)
-        world.setBlocksInRange(
+        level.setBlocksInRange(
             BlockPos(start.x - 5, start.y, start.z),
             BlockPos(start.x - 1, start.y, start.z + 4),
             Blocks.OBSIDIAN.defaultBlockState(),

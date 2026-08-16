@@ -45,8 +45,8 @@ public abstract class ModernPacket {
 		return this;
 	}
 
-	public ModernPacket setDimension(Level world) {
-		this.dimension = world.dimension().location();
+	public ModernPacket setDimension(Level level) {
+		this.dimension = level.dimension().location();
 		return this;
 	}
 

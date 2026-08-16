@@ -118,6 +118,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -353,10 +354,10 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 		// Double-chest: one pipe is adjacent to the left half, the other to the right half.
 		// ChestBlock.getConnectedDirection() points from one half to the partner half.
-		net.minecraft.world.level.Level world = getWorld();
-		if (world == null) return false;
+		Level level = getWorld();
+		if (level == null) return false;
 		for (BlockPos pos : myPositions) {
-			BlockState state = world.getBlockState(pos);
+			BlockState state = level.getBlockState(pos);
 			if (!(state.getBlock() instanceof ChestBlock)) continue;
 			if (state.getValue(ChestBlock.TYPE) == ChestType.SINGLE) continue;
 			BlockPos partner = pos.relative(ChestBlock.getConnectedDirection(state));
@@ -1097,7 +1098,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public boolean canUseEnergy(int amount, List<Object> providersToIgnore) {
+	public boolean canUseEnergy(int amount, @Nullable List<Object> providersToIgnore) {
 		if (MainProxy.isClient(getWorld())) {
 			return false;
 		}
@@ -1129,11 +1130,11 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public boolean useEnergy(int amount, List<Object> providersToIgnore) {
+	public boolean useEnergy(int amount, @Nullable List<Object> providersToIgnore) {
 		return useEnergy(amount, providersToIgnore, false);
 	}
 
-	private boolean useEnergy(int amount, List<Object> providersToIgnore, boolean sparkles) {
+	private boolean useEnergy(int amount, @Nullable List<Object> providersToIgnore, boolean sparkles) {
 		if (MainProxy.isClient(getWorld())) {
 			return false;
 		}

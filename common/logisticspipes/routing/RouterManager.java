@@ -81,14 +81,14 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		}
 	}
 
-	public IRouter getOrCreateRouter(UUID UUid, Level world, int xCoord, int yCoord, int zCoord) {
+	public IRouter getOrCreateRouter(UUID UUid, Level level, int xCoord, int yCoord, int zCoord) {
 		IRouter r;
 		int id = getIDforUUID(UUid);
 		if (id > 0) {
 			getRouter(id);
 		}
-		ResourceLocation dimId = world.dimension().location();
-		if (MainProxy.isClient(world)) {
+		ResourceLocation dimId = level.dimension().location();
+		if (MainProxy.isClient(level)) {
 			synchronized (_routersClient) {
 				for (IRouter r2 : _routersClient) {
 					if (r2.isAt(dimId, xCoord, yCoord, zCoord)) {

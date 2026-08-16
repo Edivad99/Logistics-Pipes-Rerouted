@@ -10,6 +10,7 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -226,7 +227,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 				return true;
 			} else if (i == 47 && Screen.hasControlDown()) {
 				try {
-					String clip = net.minecraft.client.Minecraft.getInstance().keyboardHandler.getClipboard();
+					String clip = Minecraft.getInstance().keyboardHandler.getClipboard();
 					Integer.valueOf(clip);
 					searchInput1 = searchInput1 + clip;
 				} catch (Exception e) {

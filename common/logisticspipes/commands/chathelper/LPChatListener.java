@@ -11,6 +11,8 @@ import logisticspipes.network.packets.gui.OpenChatGui;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -109,18 +111,18 @@ public class LPChatListener {
 
 	@OnlyIn(Dist.CLIENT)
 	private void clearChat() {
-		net.minecraft.client.Minecraft.getInstance().gui.getChat().clearMessages(true);
+		Minecraft.getInstance().gui.getChat().clearMessages(true);
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	private void storeSendMessages() {
-		sendChatMessages = new ArrayList<>(net.minecraft.client.Minecraft.getInstance().gui.getChat().getRecentChat());
+		sendChatMessages = new ArrayList<>(Minecraft.getInstance().gui.getChat().getRecentChat());
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	private void restoreSendMessages() {
 		if (sendChatMessages != null) {
-			net.minecraft.client.gui.components.ChatComponent chat = net.minecraft.client.Minecraft.getInstance().gui.getChat();
+			ChatComponent chat = Minecraft.getInstance().gui.getChat();
 			for (String msg : sendChatMessages) {
 				chat.addRecentChat(msg);
 			}
@@ -130,7 +132,7 @@ public class LPChatListener {
 
 	@OnlyIn(Dist.CLIENT)
 	private void addSendMessages(String substring) {
-		net.minecraft.client.Minecraft.getInstance().gui.getChat().addRecentChat(substring);
+		Minecraft.getInstance().gui.getChat().addRecentChat(substring);
 	}
 
 	public static void register(MorePageDisplay displayInput, String name) {

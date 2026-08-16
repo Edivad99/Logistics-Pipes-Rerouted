@@ -690,7 +690,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		if (!pipeBound && pipe != null) {
 			pipe.setTile(this);
 			if (pipe.item != null) {
-				net.minecraft.resources.ResourceLocation key = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(pipe.item);
+				ResourceLocation key = BuiltInRegistries.ITEM.getKey(pipe.item);
 				coreState.pipeIdName = key == null ? "" : key.toString();
 			}
 			pipeBound = true;
@@ -724,7 +724,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	public void afterStateUpdated() {
 		if (pipe == null && coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
-			Item pipeItem = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(
+			Item pipeItem = BuiltInRegistries.ITEM.get(
 				ResourceLocation.parse(coreState.pipeIdName));
 			initialize(LogisticsBlockGenericPipe.createPipe(pipeItem));
 		}

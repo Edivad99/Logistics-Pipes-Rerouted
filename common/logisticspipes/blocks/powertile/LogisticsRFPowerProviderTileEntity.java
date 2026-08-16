@@ -9,11 +9,13 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICoFHEnergyStorage;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import lombok.Getter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -23,7 +25,6 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	public static final int MAX_MAXMODE = 8;
 	public static final int MAX_PROVIDE_PER_TICK = 10000; //TODO
 
-	@Getter
     private IEnergyStorage energyInterface = new IEnergyStorage() {
 
 		@Override
@@ -59,12 +60,12 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 
 	private ICoFHEnergyStorage storage;
 
-	public LogisticsRFPowerProviderTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+	public LogisticsRFPowerProviderTileEntity(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.POWER_PROVIDER_RF.get(), pos, state);
 		storage = SimpleServiceLocator.powerProxy.getEnergyStorage(10000);
 	}
 
-	public void addEnergy(double amount) {
+	private void addEnergy(double amount) {
 		if (MainProxy.isClient(getWorld())) {
 			return;
 		}

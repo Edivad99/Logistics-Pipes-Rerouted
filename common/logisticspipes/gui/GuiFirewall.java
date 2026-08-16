@@ -56,8 +56,8 @@ public class GuiFirewall extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Firewall"), 45, 8, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filter") + ":", 14, 28, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filtereditemsare") + ":", 125, 8, 0x404040, false);

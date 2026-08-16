@@ -14,10 +14,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -33,9 +35,9 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	}
 
 	@Override
-    public net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
 		// Sub-multiblocks are invisible helpers; main pipe BER renders the visible geometry.
-		return net.minecraft.world.level.block.RenderShape.INVISIBLE;
+		return RenderShape.INVISIBLE;
 	}
 
 	/** Fallback so the helper block stays targetable when no main pipe geometry is found. */
@@ -99,7 +101,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	}
 
 	@Override
-    public List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
 		// Sub-blocks drop nothing; the main pipe block entity handles drops.
 		return Collections.emptyList();
 	}
@@ -145,9 +147,9 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-		super.neighborChanged(state, world, pos, block, fromPos, isMoving);
-		BlockEntity tile = world.getBlockEntity(pos);
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+		super.neighborChanged(state, level, pos, block, fromPos, isMoving);
+		BlockEntity tile = level.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 			((LogisticsTileGenericSubMultiBlock) tile).scheduleNeighborChange();
 		}

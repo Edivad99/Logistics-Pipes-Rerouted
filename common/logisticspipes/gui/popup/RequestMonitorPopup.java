@@ -5,6 +5,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexSorting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
 import java.io.File;
@@ -144,7 +146,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
 		if (tooltip != null) {
 			guiGraphics.renderComponentTooltip(minecraft.font,
-					tooltip.lines().stream().map(net.minecraft.network.chat.Component::literal).collect(java.util.stream.Collectors.toList()),
+					tooltip.lines().stream().map(Component::literal).collect(java.util.stream.Collectors.toList()),
 					tooltip.x(), tooltip.y());
 		}
 	}
@@ -288,7 +290,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 				File candidate = new File(screenShotsFolder, s + "_tree" + (i == 1 ? "" : "_" + i) + ".png");
 				if (!candidate.exists()) {
 					image.writeToFile(candidate);
-					Minecraft.getInstance().player.sendSystemMessage(net.minecraft.network.chat.Component.literal("Saved tree view as " + candidate.getName()));
+					Minecraft.getInstance().player.sendSystemMessage(Component.literal("Saved tree view as " + candidate.getName()));
 					return;
 				}
 				++i;
@@ -477,7 +479,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 
 	private void renderItemAt(GuiGraphics guiGraphics, ItemIdentifierStack item, int x, int y) {
 		if (guiLeft < x && x < guiLeft + xSize - 16 && guiTop < y && y < guiTop + ySize - 16) {
-			net.minecraft.world.item.ItemStack stack = item.getItem().makeNormalStack(1);
+			ItemStack stack = item.getItem().makeNormalStack(1);
 			if (!stack.isEmpty()) {
                 guiGraphics.renderItem(stack, x, y);
 			}

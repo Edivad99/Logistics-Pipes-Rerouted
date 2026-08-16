@@ -18,7 +18,7 @@ import java.util.Random;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.interfaces.IBufferItems;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IItemAdvancedExistance;
@@ -632,7 +632,7 @@ public class PipeTransportLogistics {
 			if (tile instanceof ILogisticsPowerProvider || tile instanceof ISubSystemPowerProvider) {
 				Direction ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
 				if (ori != null) {
-					return !((tile instanceof LogisticsPowerJunctionTileEntity || tile instanceof ISubSystemPowerProvider) && ori.getAxis() == Direction.Axis.Y);
+					return !((tile instanceof LogisticsPowerJunctionBlockEntity || tile instanceof ISubSystemPowerProvider) && ori.getAxis() == Direction.Axis.Y);
 				}
 			}
 			IInventoryUtil util = SimpleServiceLocator.inventoryUtilFactory.getInventoryUtil(tile, side.getOpposite());

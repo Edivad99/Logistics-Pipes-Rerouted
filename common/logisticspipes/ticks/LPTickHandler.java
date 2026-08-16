@@ -57,11 +57,11 @@ public class LPTickHandler {
 		info.worldTick++;
 	}
 
-	public static LPWorldInfo getWorldInfo(Level world) {
-		LPWorldInfo info = LPTickHandler.worldInfo.get(world);
+	public static LPWorldInfo getWorldInfo(Level level) {
+		LPWorldInfo info = LPTickHandler.worldInfo.get(level);
 		if (info == null) {
 			info = new LPWorldInfo();
-			LPTickHandler.worldInfo.put(world, info);
+			LPTickHandler.worldInfo.put(level, info);
 		}
 		return info;
 	}

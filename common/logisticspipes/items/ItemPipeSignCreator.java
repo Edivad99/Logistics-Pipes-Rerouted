@@ -52,17 +52,17 @@ public class ItemPipeSignCreator extends LogisticsItem {
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		Player player = context.getPlayer();
-		Level world = context.getLevel();
+		Level level = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		Direction facing = context.getClickedFace();
-		if (MainProxy.isClient(world)) {
+		if (MainProxy.isClient(level)) {
 			return InteractionResult.FAIL;
 		}
 		ItemStack itemStack = player.getMainHandItem();
 		if (itemStack.isEmpty() || itemStack.getDamageValue() > this.getMaxDamage(itemStack)) {
 			return InteractionResult.FAIL;
 		}
-		if (!(world.getBlockEntity(pos) instanceof LogisticsTileGenericPipe genericPipe)) {
+		if (!(level.getBlockEntity(pos) instanceof LogisticsTileGenericPipe genericPipe)) {
 			return InteractionResult.FAIL;
 		}
 
@@ -124,9 +124,9 @@ public class ItemPipeSignCreator extends LogisticsItem {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(final Level world, final Player player, final InteractionHand hand) {
+	public InteractionResultHolder<ItemStack> use(final Level level, final Player player, final InteractionHand hand) {
 		ItemStack stack = player.getMainHandItem();
-		if (MainProxy.isClient(world)) {
+		if (MainProxy.isClient(level)) {
 			return InteractionResultHolder.pass(stack);
 		}
 		if (player.isCrouching()) {

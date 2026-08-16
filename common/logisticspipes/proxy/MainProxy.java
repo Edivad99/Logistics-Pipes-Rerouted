@@ -153,12 +153,12 @@ public class MainProxy {
 		return MainProxy.isClient();
 	}
 
-	public static void runOnServer(@Nullable LevelAccessor world, Supplier<Runnable> runnableConsumer) {
-		if (isServer(world)) runnableConsumer.get().run();
+	public static void runOnServer(@Nullable LevelAccessor level, Supplier<Runnable> runnableConsumer) {
+		if (isServer(level)) runnableConsumer.get().run();
 	}
 
-	public static void runOnClient(@Nullable LevelAccessor world, Supplier<Runnable> runnableConsumer) {
-		if (isClient(world)) runnableConsumer.get().run();
+	public static void runOnClient(@Nullable LevelAccessor level, Supplier<Runnable> runnableConsumer) {
+		if (isClient(level)) runnableConsumer.get().run();
 	}
 
 	// ── Networking ────────────────────────────────────────────────────────────
@@ -280,9 +280,9 @@ public class MainProxy {
 		MainProxy.globalTick++;
 	}
 
-	public static ItemEntity dropItems(Level world, ItemStack stack, int xCoord, int yCoord, int zCoord) {
-		ItemEntity item = new ItemEntity(world, xCoord, yCoord, zCoord, stack);
-		world.addFreshEntity(item);
+	public static ItemEntity dropItems(Level level, ItemStack stack, int xCoord, int yCoord, int zCoord) {
+		ItemEntity item = new ItemEntity(level, xCoord, yCoord, zCoord, stack);
+		level.addFreshEntity(item);
 		return item;
 	}
 

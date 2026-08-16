@@ -11,5 +11,5 @@ import net.minecraft.world.level.Level;
 
 public interface IPaintPath {
 
-	void addLaser(Level world, LaserData laser);
+	void addLaser(Level level, LaserData laser);
 }

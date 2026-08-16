@@ -40,6 +40,7 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.HolderLookup;
@@ -56,6 +57,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
@@ -106,8 +108,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		super.ignoreDisableUpdateEntity();
 		if (tick++ == 5) {
 			if (getWorld() != null) {
-				net.minecraft.core.BlockPos pos = new net.minecraft.core.BlockPos(getX(), getY(), getZ());
-				net.minecraft.world.level.block.state.BlockState state = getWorld().getBlockState(pos);
+				BlockPos pos = new BlockPos(getX(), getY(), getZ());
+				BlockState state = getWorld().getBlockState(pos);
 				getWorld().sendBlockUpdated(pos, state, state, 3);
 			}
 		}

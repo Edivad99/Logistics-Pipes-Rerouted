@@ -28,7 +28,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import lombok.Getter;
 
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.interfaces.IGuiTileEntity;
@@ -42,7 +42,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
 
     public static final IntegerProperty rotationProperty = IntegerProperty.create("rotation", 0, 3);
     public static final BooleanProperty active = BooleanProperty.create("active");
-    public static final Map<Direction, BooleanProperty> connectionPropertys = Arrays.stream(Direction.values())
+    public static final Map<Direction, BooleanProperty> connectionProperties = Arrays.stream(Direction.values())
         .collect(Collectors.toMap(key -> key, key -> BooleanProperty.create("connection_" + key.ordinal())));
 
     @Getter
@@ -57,12 +57,11 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos,
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
         boolean isMoving) {
-        super.neighborChanged(state, world, pos, block, fromPos, isMoving);
-        BlockEntity tile = world.getBlockEntity(pos);
-        if (tile instanceof LogisticsSolidBlockEntity) {
-            ((LogisticsSolidBlockEntity) tile).notifyOfBlockChange();
+        super.neighborChanged(state, level, pos, block, fromPos, isMoving);
+        if (level.getBlockEntity(pos) instanceof LogisticsSolidBlockEntity logisticsSolidBlockEntity) {
+            logisticsSolidBlockEntity.notifyOfBlockChange();
         }
     }
 
@@ -87,7 +86,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         BlockEntity be = level.getBlockEntity(pos);
-        if (level.getBlockEntity(pos) instanceof LogisticsCraftingTableBlockEntity craftingTableBlockEntity) {
+        if (be instanceof LogisticsCraftingTableBlockEntity craftingTableBlockEntity) {
             craftingTableBlockEntity.placedBy(placer);
         }
         if (placer != null && be instanceof IRotationProvider rotationProvider) {
@@ -108,10 +107,10 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (!type.hasTE()) {
+        if (!type.hasBlockEntity()) {
             return null;
         }
-        return type.createTE(pos, state);
+        return type.createBlockEntity(pos, state);
     }
 
     @Nullable
@@ -131,7 +130,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         // Types with a BlockEntity are drawn by LogisticsSolidBlockRenderer — suppress the
         // flat cube_all JSON model so only the 3D OBJ geometry is visible. Types without a
         // TE (frame, BC power provider) fall back to the JSON model for now.
-        if (type.hasTE()) {
+        if (type.hasBlockEntity()) {
             return RenderShape.ENTITYBLOCK_ANIMATED;
         }
         return super.getRenderShape(state);
@@ -141,11 +140,11 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(rotationProperty);
         builder.add(active);
-        connectionPropertys.values().forEach(builder::add);
+        connectionProperties.values().forEach(builder::add);
     }
 
     public enum Type {
-        LOGISTICS_POWER_JUNCTION(LogisticsPowerJunctionTileEntity::new),
+        LOGISTICS_POWER_JUNCTION(LogisticsPowerJunctionBlockEntity::new),
         LOGISTICS_SECURITY_STATION(LogisticsSecurityTileEntity::new),
         LOGISTICS_AUTOCRAFTING_TABLE(LogisticsCraftingTableBlockEntity::new),
         LOGISTICS_FUZZYCRAFTING_TABLE(LogisticsCraftingTableBlockEntity::new),
@@ -159,28 +158,28 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         LOGISTICS_BLOCK_FRAME(LogisticsFrameTileEntity::new);
 
         @Nullable
-        private final BiFunction<BlockPos, BlockState, BlockEntity> teConstructor;
+        private final BiFunction<BlockPos, BlockState, BlockEntity> beConstructor;
         @Getter
         final boolean hasActiveTexture;
 
-        Type(@Nullable BiFunction<BlockPos, BlockState, BlockEntity> teConstructor) {
-            this(teConstructor, false);
+        Type(@Nullable BiFunction<BlockPos, BlockState, BlockEntity> beConstructor) {
+            this(beConstructor, false);
         }
 
-        Type(@Nullable BiFunction<BlockPos, BlockState, BlockEntity> teConstructor, boolean hasActiveTexture) {
-            this.teConstructor = teConstructor;
+        Type(@Nullable BiFunction<BlockPos, BlockState, BlockEntity> beConstructor, boolean hasActiveTexture) {
+            this.beConstructor = beConstructor;
             this.hasActiveTexture = hasActiveTexture;
         }
 
-        public boolean hasTE() {
-            return teConstructor != null;
+        public boolean hasBlockEntity() {
+            return beConstructor != null;
         }
 
-        public BlockEntity createTE(BlockPos pos, BlockState state) {
-            if (!hasTE()) {
+        public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+            if (!hasBlockEntity()) {
                 throw new UnsupportedOperationException("This block type has no tile entity!");
             }
-            return teConstructor.apply(pos, state);
+            return beConstructor.apply(pos, state);
         }
     }
 

@@ -29,6 +29,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Quartet;
 import logisticspipes.utils.tuples.Triplet;
+import net.minecraft.nbt.Tag;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 public class CCObjectWrapper {
@@ -116,9 +117,9 @@ public class CCObjectWrapper {
 				map.put(CCObjectWrapper.getWrappedObject(key, wrapper), CCObjectWrapper.getWrappedObject(oldMap.get(key), wrapper));
 			}
 			return map;
-		} else if (input instanceof net.minecraft.nbt.Tag) {
+		} else if (input instanceof Tag) {
 			try {
-				return ItemIdentifier.getNBTBaseAsMap((net.minecraft.nbt.Tag) input);
+				return ItemIdentifier.getNBTBaseAsMap((Tag) input);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return null;

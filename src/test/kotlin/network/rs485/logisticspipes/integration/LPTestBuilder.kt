@@ -41,7 +41,7 @@ import network.rs485.grow.ServerTickDispatcher
 import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
 import logisticspipes.blocks.LogisticsSolidBlock
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity
 import logisticspipes.interfaces.routing.IRequestItems
 import logisticspipes.pipes.PipeItemsBasicLogistics
 import logisticspipes.pipes.PipeItemsProviderLogistics
@@ -72,13 +72,13 @@ import kotlinx.coroutines.time.withTimeoutOrNull
 
 fun BlockPosSelector.setupLogisticsPower(
     direction: Direction,
-    amount: Float,
+    amount: Int,
 ): Pair<PipePlacer<PipeItemsBasicLogistics>, BlockPlacer<LogisticsSolidBlock>> =
     resetOffsetAfter {
         val basicPipePlacer = PipePlacer(PipeItemsBasicLogistics(LPItems.PIPE_BASIC.get()))
             .also { direction(direction).place(it) }
         val powerJunctionPlacer = BlockPlacer(LPBlocks.POWER_JUNCTION.get()) {
-            it.getTileEntity<LogisticsPowerJunctionTileEntity>().apply {
+            it.getTileEntity<LogisticsPowerJunctionBlockEntity>().apply {
                 addEnergy(amount)
             }
         }.also { direction(direction).place(it) }

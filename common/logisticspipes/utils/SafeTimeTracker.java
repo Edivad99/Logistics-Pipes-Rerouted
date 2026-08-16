@@ -28,16 +28,16 @@ public class SafeTimeTracker {
 		randomRange = random;
 	}
 
-	public boolean markTimeIfDelay(Level world) {
-		return markTimeIfDelay(world, internalDelay);
+	public boolean markTimeIfDelay(Level level) {
+		return markTimeIfDelay(level, internalDelay);
 	}
 
-	private boolean markTimeIfDelay(Level world, long delay) {
-		if (world == null) {
+	private boolean markTimeIfDelay(Level level, long delay) {
+		if (level == null) {
 			return false;
 		}
 
-		long currentTime = world.getGameTime();
+		long currentTime = level.getGameTime();
 
 		if (currentTime < lastMark) {
 			lastMark = currentTime;
@@ -57,7 +57,7 @@ public class SafeTimeTracker {
 		return duration > 0 ? duration : 0;
 	}
 
-	public void markTime(Level world) {
-		lastMark = world.getGameTime();
+	public void markTime(Level level) {
+		lastMark = level.getGameTime();
 	}
 }

@@ -108,8 +108,8 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 		return _item.makeNormalStack(stackSize);
 	}
 
-	public ItemEntity makeEntityItem(Level world, double x, double y, double z) {
-		return _item.makeEntityItem(stackSize, world, x, y, z);
+	public ItemEntity makeEntityItem(Level level, double x, double y, double z) {
+		return _item.makeEntityItem(stackSize, level, x, y, z);
 	}
 
 	@Override

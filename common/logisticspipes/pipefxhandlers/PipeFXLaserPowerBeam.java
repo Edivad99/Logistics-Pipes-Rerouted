@@ -31,8 +31,8 @@ public class PipeFXLaserPowerBeam extends Particle {
 	private final float g;
 	private final float b;
 
-	public PipeFXLaserPowerBeam(ClientLevel world, DoubleCoordinates pos, float length, Direction dir, int color, BlockEntity tile) {
-		super(world, pos.getXCoord() + 0.5D, pos.getYCoord() + 0.5D, pos.getZCoord() + 0.5D, 0.0D, 0.0D, 0.0D);
+	public PipeFXLaserPowerBeam(ClientLevel level, DoubleCoordinates pos, float length, Direction dir, int color, BlockEntity tile) {
+		super(level, pos.getXCoord() + 0.5D, pos.getYCoord() + 0.5D, pos.getZCoord() + 0.5D, 0.0D, 0.0D, 0.0D);
 		this.length = length;
 		this.dir = dir;
 		this.r = ((color >> 16) & 0xFF) / 255.0f;

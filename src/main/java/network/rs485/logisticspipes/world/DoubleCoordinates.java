@@ -164,8 +164,8 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 		return world.getBlockState(getBlockPos());
 	}
 
-	public boolean blockExists(Level world) {
-		return !world.isEmptyBlock(getBlockPos());
+	public boolean blockExists(Level level) {
+		return !level.isEmptyBlock(getBlockPos());
 	}
 
 	public double distanceTo(DoubleCoordinates targetPos) {
@@ -194,8 +194,8 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 		return this;
 	}
 
-	public void setBlockToAir(Level world) {
-		world.removeBlock(getBlockPos(), false);
+	public void setBlockToAir(Level level) {
+		level.removeBlock(getBlockPos(), false);
 	}
 
 	@Override

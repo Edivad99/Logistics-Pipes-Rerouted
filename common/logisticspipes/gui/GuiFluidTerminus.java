@@ -70,8 +70,8 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		guiGraphics.drawString(minecraft.font, "Fluid Terminus", 10, 8, 0x404040, false);
 	}
 }

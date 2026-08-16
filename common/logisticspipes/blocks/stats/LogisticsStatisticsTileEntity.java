@@ -11,14 +11,16 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.BlockState;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class LogisticsStatisticsTileEntity extends LogisticsSolidBlockEntity implements IGuiTileEntity {
 
-	public LogisticsStatisticsTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+	public LogisticsStatisticsTileEntity(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.STATISTICS_TABLE.get(), pos, state);
 	}
 

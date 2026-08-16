@@ -25,6 +25,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
@@ -101,7 +102,7 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		String name;
 		if (hasPatternUpgrade) {
 			name = TextUtil.translate(GuiSupplierPipe.PREFIX + "TargetInvPattern");
@@ -149,10 +150,10 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 		modeBtn.setPressListener(b -> {
 			if (hasPatternUpgrade) {
 				final PatternMode newMode = patternModeOverlay.write(EnumProperty::next);
-				modeBtn.setMessage(net.minecraft.network.chat.Component.literal(newMode.toString()));
+				modeBtn.setMessage(Component.literal(newMode.toString()));
 			} else {
 				final SupplyMode newMode = requestModeOverlay.write(EnumProperty::next);
-				modeBtn.setMessage(net.minecraft.network.chat.Component.literal(newMode.toString()));
+				modeBtn.setMessage(Component.literal(newMode.toString()));
 			}
 		});
 		addRenderableWidget(modeBtn);
@@ -160,7 +161,7 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 			limBtn = new SmallGuiButton(1, leftPos + 5, topPos + 68, 45, 10, getLimitationText());
 			limBtn.setPressListener(b -> {
 				limitedPropertyOverlay.write(BooleanProperty::toggle);
-				limBtn.setMessage(net.minecraft.network.chat.Component.literal(getLimitationText()));
+				limBtn.setMessage(Component.literal(getLimitationText()));
 			});
 			addRenderableWidget(limBtn);
 			for (int i = 0; i < 9; i++) {
@@ -174,10 +175,10 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 	}
 
 	public void refreshMode() {
-		if (modeBtn != null) modeBtn.setMessage(net.minecraft.network.chat.Component.literal(getModeText()));
+		if (modeBtn != null) modeBtn.setMessage(Component.literal(getModeText()));
 		if (hasPatternUpgrade) {
 			limitedPropertyOverlay = propertyLayer.overlay(supplierModule.isLimited);
-			if (limBtn != null) limBtn.setMessage(net.minecraft.network.chat.Component.literal(getLimitationText()));
+			if (limBtn != null) limBtn.setMessage(Component.literal(getLimitationText()));
 		}
 	}
 

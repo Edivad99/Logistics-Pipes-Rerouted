@@ -9,6 +9,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -29,7 +30,7 @@ public class RequestUpdateNamesPacket extends ModernPacket {
 	public void processPacket(Player player) {
 		// fillItemCategory/getCreativeTabs removed in 1.20.1 — iterate registry directly
 		List<ItemIdentifier> identList = new LinkedList<>();
-		for (Item item : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
+		for (Item item : BuiltInRegistries.ITEM) {
 			if (item != null) {
 				identList.add(ItemIdentifier.get(item));
 			}

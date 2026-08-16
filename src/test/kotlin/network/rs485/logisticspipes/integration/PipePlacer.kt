@@ -55,16 +55,16 @@ class PipePlacer<T : CoreRoutedPipe>(
     },
 ) : Placer {
 
-    private lateinit var world: ServerLevel
+    private lateinit var level: ServerLevel
     private lateinit var pos: BlockPos
     private var placed = false
 
-    override suspend fun place(world: ServerLevel, pos: BlockPos): Configurator {
+    override suspend fun place(level: ServerLevel, pos: BlockPos): Configurator {
         placed = true
         this.pos = pos
-        this.world = world
-        assertTrue(message = "Expected $pipe to be placed at $pos (${world})") {
-            LogisticsBlockGenericPipe.placePipe(pipe, world, pos, LPBlocks.PIPE.get())
+        this.level = level
+        assertTrue(message = "Expected $pipe to be placed at $pos (${level})") {
+            LogisticsBlockGenericPipe.placePipe(pipe, level, pos, LPBlocks.PIPE.get())
         }
         return configurator(name = "$pipe at $pos") { pipePlacerConfigurator(this@PipePlacer) }
     }

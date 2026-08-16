@@ -34,6 +34,7 @@ import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -45,6 +46,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
@@ -113,10 +115,10 @@ public class LogisticsEventListener {
 						event.setCanceled(true);
 						event.getEntity().sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 						((LogisticsTileGenericPipe) tile).scheduleNeighborChange();
-						Level world = event.getEntity().level();
+						Level level = event.getEntity().level();
 						BlockPos pos = tile.getBlockPos();
-						BlockState state = world.getBlockState(pos);
-						world.sendBlockUpdated(pos, state, state, 2);
+						BlockState state = level.getBlockState(pos);
+						level.sendBlockUpdated(pos, state, state, 2);
 						((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).delayTo = System.currentTimeMillis() + 200;
 						((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).repeatFor = 10;
 					} else {
@@ -130,20 +132,20 @@ public class LogisticsEventListener {
 	@SubscribeEvent
 	public void onPlayerRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
 		if (MainProxy.isClient(event.getEntity().level())) return;
-		Level world = event.getEntity().level();
+		Level level = event.getEntity().level();
 		BlockPos pos = event.getPos();
-		BlockEntity te = world.getBlockEntity(pos);
+		BlockEntity te = level.getBlockEntity(pos);
 		if (te == null) return;
 		// Only act on blocks that expose an item handler (chests, barrels, etc.)
-		IItemHandler itemHandler = world.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+		IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
 		if (itemHandler == null) return;
 
 		Player player = event.getEntity();
 		List<WeakReference<AsyncQuicksortModule>> modules = null;
 
-		for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.values()) {
+		for (Direction dir : Direction.values()) {
 			BlockPos neighborPos = pos.relative(dir);
-			BlockEntity neighbor = world.getBlockEntity(neighborPos);
+			BlockEntity neighbor = level.getBlockEntity(neighborPos);
 			if (!(neighbor instanceof LogisticsTileGenericPipe)) continue;
 			LogisticsTileGenericPipe pipeTile = (LogisticsTileGenericPipe) neighbor;
 			if (!(pipeTile.pipe instanceof PipeLogisticsChassis)) continue;
@@ -322,12 +324,12 @@ public class LogisticsEventListener {
 	 */
 	@SubscribeEvent
 	public void onNeighborNotify(BlockEvent.NeighborNotifyEvent event) {
-		net.minecraft.world.level.LevelAccessor levelAccessor = event.getLevel();
+		LevelAccessor levelAccessor = event.getLevel();
 		if (!(levelAccessor instanceof Level)) return;
 		Level level = (Level) levelAccessor;
 		if (level.isClientSide()) return;
 		BlockPos changed = event.getPos();
-		for (net.minecraft.core.Direction dir : event.getNotifiedSides()) {
+		for (Direction dir : event.getNotifiedSides()) {
 			BlockEntity neighbor = level.getBlockEntity(changed.relative(dir));
 			if (neighbor instanceof LogisticsTileGenericPipe pipe
 					&& pipe.pipe instanceof CoreRoutedPipe routedPipe

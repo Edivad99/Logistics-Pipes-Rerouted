@@ -51,8 +51,8 @@ public abstract class CoordinatesGuiProvider extends GuiProvider {
 		return this;
 	}
 
-	public <T> T getTileAs(Level world, Class<T> clazz) {
-		return CoordinatesPacket.getTileAs(this, world, new BlockPos(getPosX(), getPosY(), getPosZ()), clazz);
+	public <T> T getTileAs(Level level, Class<T> clazz) {
+		return CoordinatesPacket.getTileAs(this, level, new BlockPos(getPosX(), getPosY(), getPosZ()), clazz);
 	}
 
 }

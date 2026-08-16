@@ -41,6 +41,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonParseException
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.PlayerIdentifier
+import net.minecraft.world.level.storage.LevelResource
 import net.neoforged.neoforge.server.ServerLifecycleHooks
 import java.io.File
 import java.io.FileNotFoundException
@@ -58,7 +59,7 @@ class ServerConfigurationManager {
     init {
         val serverHooks = ServerLifecycleHooks.getCurrentServer()
             ?: error("Cannot init: server is not running")
-        configFile = serverHooks.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve(fileName).toFile()
+        configFile = serverHooks.getWorldPath(LevelResource.ROOT).resolve(fileName).toFile()
         internalRepresentation = try {
             configFile.bufferedReader(Charsets.UTF_8).use {
                 gson.fromJson(gson.newJsonReader(it), ServerConfiguration::class.java)

@@ -109,9 +109,9 @@ class ItemGuideBook(properties: Properties) : LogisticsItem(properties) {
         })
     }
 
-    override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
         val stack = player.getItemInHand(hand)
-        if (stack.item is ItemGuideBook && MainProxy.isServer(world)) {
+        if (stack.item is ItemGuideBook && MainProxy.isServer(level)) {
             MainProxy.sendPacketToPlayer(
                 PacketHandler.getPacket(OpenGuideBook::class.java).setHand(hand).setStack(stack),
                 player,

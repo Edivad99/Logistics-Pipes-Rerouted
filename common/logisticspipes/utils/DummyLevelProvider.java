@@ -5,14 +5,14 @@ import net.minecraft.world.level.Level;
 
 public class DummyLevelProvider implements IWorldProvider {
 
-	private final Level world;
+	private final Level level;
 
-	public DummyLevelProvider(Level world) {
-		this.world = world;
+	public DummyLevelProvider(Level level) {
+		this.level = level;
 	}
 
 	@Override
 	public Level getWorld() {
-		return world;
+		return level;
 	}
 }

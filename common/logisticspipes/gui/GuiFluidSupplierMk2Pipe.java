@@ -18,6 +18,7 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -45,7 +46,7 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv"), imageWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv")) / 2, 6, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Inventory"), 15, imageHeight - 95, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Fluid") + ":", 25, 22, 0x404040, false);
@@ -74,7 +75,7 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 		SmallGuiButton partialsBtn = new SmallGuiButton(0, width / 2 - 48, topPos + imageHeight - 115, 30, 20, logic.isRequestingPartials() ? TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Yes") : TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "No"));
 		partialsBtn.setPressListener(b -> {
 			logic.setRequestingPartials(!logic.isRequestingPartials());
-			b.setMessage(net.minecraft.network.chat.Component.literal(logic.isRequestingPartials() ? TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Yes") : TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "No")));
+			b.setMessage(Component.literal(logic.isRequestingPartials() ? TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Yes") : TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "No")));
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierMode.class).putInt((logic.isRequestingPartials() ? 1 : 0)).setPosX(logic.getX()).setPosY(logic.getY()).setPosZ(logic.getZ()));
 		});
 		addRenderableWidget(partialsBtn);
@@ -85,7 +86,7 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 				index = 0;
 			}
 			logic.setMinMode(MinMode.values()[index]);
-			b.setMessage(net.minecraft.network.chat.Component.literal(TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + logic.getMinMode().name())));
+			b.setMessage(Component.literal(TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + logic.getMinMode().name())));
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierMinMode.class).putInt(logic.getMinMode().ordinal()).setPosX(logic.getX()).setPosY(logic.getY()).setPosZ(logic.getZ()));
 		});
 		addRenderableWidget(minModeBtn);

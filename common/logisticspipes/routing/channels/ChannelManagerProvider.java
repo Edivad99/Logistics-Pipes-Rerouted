@@ -19,13 +19,13 @@ public class ChannelManagerProvider implements IChannelManagerProvider {
 	}
 
 	@Override
-	public IChannelManager getChannelManager(Level world) {
+	public IChannelManager getChannelManager(Level level) {
 		if (worldWeakReference == null || worldWeakReference.get() == null || channelManager == null) {
-			worldWeakReference = new WeakReference<>(world);
+			worldWeakReference = new WeakReference<>(level);
 			if (channelManager != null) {
 				channelManager.setChanged();
 			}
-			channelManager = new ChannelManager(world);
+			channelManager = new ChannelManager(level);
 		}
 		return channelManager;
 	}

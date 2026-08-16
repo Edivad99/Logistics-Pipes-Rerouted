@@ -390,9 +390,9 @@ public class PathFinder {
 		}
 	}
 
-	public static int messureDistanceToNextRoutedPipe(DoubleCoordinates lpPosition, Direction exitOrientation, Level world) {
+	public static int messureDistanceToNextRoutedPipe(DoubleCoordinates lpPosition, Direction exitOrientation, Level level) {
 		int dis = 1;
-		BlockEntity tile = lpPosition.getTileEntity(world);
+		BlockEntity tile = lpPosition.getTileEntity(level);
 		if (tile instanceof LogisticsTileGenericPipe) {
 			tile = ((LogisticsTileGenericPipe) tile).getNextConnectedTile(exitOrientation);
 		}

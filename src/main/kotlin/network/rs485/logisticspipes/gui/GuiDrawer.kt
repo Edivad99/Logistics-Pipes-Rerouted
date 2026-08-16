@@ -141,33 +141,31 @@ object GuiDrawer {
     }
 
     fun drawLine(guiGraphics: GuiGraphics, start: Pair<Float, Float>, finish: Pair<Float, Float>, color: Int, thickness: Float) {
-        val gg = guiGraphics
         val (x1, y1) = start
         val (x2, y2) = finish
         val t = thickness.coerceAtLeast(1f).toInt()
         if (y1 == y2) {
             val xMin = min(x1, x2).toInt()
             val xMax = kotlin.math.max(x1, x2).toInt()
-            gg.fill(xMin, y1.toInt(), xMax, y1.toInt() + t, color)
+            guiGraphics.fill(xMin, y1.toInt(), xMax, y1.toInt() + t, color)
         } else if (x1 == x2) {
             val yMin = min(y1, y2).toInt()
             val yMax = kotlin.math.max(y1, y2).toInt()
-            gg.fill(x1.toInt(), yMin, x1.toInt() + t, yMax, color)
+            guiGraphics.fill(x1.toInt(), yMin, x1.toInt() + t, yMax, color)
         } else {
             // diagonal not supported in widget paths — use axis-aligned only.
         }
     }
 
     fun drawOutlineRect(guiGraphics: GuiGraphics, rect: IRectangle, color: Int) {
-        val gg = guiGraphics
         val left = rect.roundedLeft
         val top = rect.roundedTop
         val right = rect.roundedRight
         val bottom = rect.roundedBottom
-        gg.fill(left, top, right, top + 1, color)
-        gg.fill(left, bottom - 1, right, bottom, color)
-        gg.fill(left, top, left + 1, bottom, color)
-        gg.fill(right - 1, top, right, bottom, color)
+        guiGraphics.fill(left, top, right, top + 1, color)
+        guiGraphics.fill(left, bottom - 1, right, bottom, color)
+        guiGraphics.fill(left, top, left + 1, bottom, color)
+        guiGraphics.fill(right - 1, top, right, bottom, color)
     }
 }
 

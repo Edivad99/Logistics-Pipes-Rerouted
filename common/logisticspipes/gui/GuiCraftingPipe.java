@@ -24,10 +24,11 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extension.GuiExtension;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.gui.widget.Label;
 import network.rs485.logisticspipes.gui.widget.VerticalLabel;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.IntListProperty;
 import network.rs485.logisticspipes.property.IntegerProperty;
@@ -44,9 +45,9 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 	@Getter
 	private final ModuleCrafter craftingModule;
 	private final Player _player;
-	private final net.minecraft.client.gui.components.AbstractButton[] normalButtonArray;
-	private final net.minecraft.client.gui.components.AbstractButton[][] advancedSatButtonArray;
-	private final net.minecraft.client.gui.components.AbstractButton[][] liquidGuiParts;
+	private final AbstractButton[] normalButtonArray;
+	private final AbstractButton[][] advancedSatButtonArray;
+	private final AbstractButton[][] liquidGuiParts;
 	private final boolean isAdvancedSat;
 	private final int liquidCrafter;
 	private final boolean hasByproductExtractor;
@@ -59,7 +60,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 	private final ValuePropertyOverlay<Integer, IntegerProperty> craftingPriorityOverlay;
 	private final PropertyOverlay<List<Integer>, IntListProperty> liquidAmountsOverlay;
 
-	private net.minecraft.client.gui.components.AbstractButton cleanupModeButton;
+	private AbstractButton cleanupModeButton;
 	private final Label[] satellitePipeLabels;
 	private Label satellitePipeLabel;
 
@@ -94,21 +95,21 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		}
 
 		craftingModule.liquidAmounts.replaceContent(amount);
-		normalButtonArray = new net.minecraft.client.gui.components.AbstractButton[7];
-		advancedSatButtonArray = new net.minecraft.client.gui.components.AbstractButton[9][2];
+		normalButtonArray = new AbstractButton[7];
+		advancedSatButtonArray = new AbstractButton[9][2];
 		for (int i = 0; i < 9; i++) {
-			advancedSatButtonArray[i] = new net.minecraft.client.gui.components.AbstractButton[2];
+			advancedSatButtonArray[i] = new AbstractButton[2];
 		}
 		satellitePipeLabels = new Label[9];
 
 		// Register controlled slots with extensionControllerLeft and store IDs.
 		// Slot order in menu: 36 player inv + 9 input + 1 output = 46 base, then fluid, byproduct, cleanup.
 		int slotBase = 36 + 9 + 1;
-		liquidGuiParts = new net.minecraft.client.gui.components.AbstractButton[liquidCrafter][];
+		liquidGuiParts = new AbstractButton[liquidCrafter][];
 		fluidSlotIDs = new int[liquidCrafter];
 		for (int i = 0; i < liquidCrafter; i++) {
 			fluidSlotIDs[i] = extensionControllerLeft.registerControlledSlot(this.menu.slots.get(slotBase + i));
-			liquidGuiParts[i] = new net.minecraft.client.gui.components.AbstractButton[10];
+			liquidGuiParts[i] = new AbstractButton[10];
 		}
 		int byproductBase = slotBase + liquidCrafter;
 		byproductSlotID = hasByproductExtractor
@@ -210,7 +211,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 			} else {
 				liquidLeft = leftPos - (liquidCrafter * 40) + (i * 40);
 			}
-			liquidGuiParts[i] = new net.minecraft.client.gui.components.AbstractButton[10];
+			liquidGuiParts[i] = new AbstractButton[10];
 			extension.registerButton(extensionControllerLeft.registerControlledButton(addRenderableWidget(liquidGuiParts[i][0] = new SmallGuiButton(100 + 10 * i + 0, liquidLeft + 22, topPos + 65, 10, 10, "+"))));
 			extension.registerButton(extensionControllerLeft.registerControlledButton(addRenderableWidget(liquidGuiParts[i][1] = new SmallGuiButton(100 + 10 * i + 1, liquidLeft + 22, topPos + 85, 10, 10, "+"))));
 			extension.registerButton(extensionControllerLeft.registerControlledButton(addRenderableWidget(liquidGuiParts[i][2] = new SmallGuiButton(100 + 10 * i + 2, liquidLeft + 22, topPos + 105, 10, 10, "+"))));
@@ -402,7 +403,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 	}
 
 	private Unit updateCleanupModeButton(Property<Boolean> prop) {
-		cleanupModeButton.setMessage(net.minecraft.network.chat.Component.literal(TextUtil.translate(
+		cleanupModeButton.setMessage(Component.literal(TextUtil.translate(
 				GuiCraftingPipe.PREFIX + (prop.copyValue() ? "Exclude" : "Include"))));
 		return Unit.INSTANCE;
 	}

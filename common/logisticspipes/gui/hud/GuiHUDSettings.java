@@ -67,8 +67,8 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		guiGraphics.drawString(minecraft.font, "HUD Chassis Pipe", 50, 13, 0x4c4c4c, false);
 		guiGraphics.drawString(minecraft.font, "HUD Crafting Pipe", 50, 33, 0x4c4c4c, false);
 		guiGraphics.drawString(minecraft.font, "HUD InvSysCon Pipe", 50, 53, 0x4c4c4c, false);

@@ -25,7 +25,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.client.ClientManager;
 import logisticspipes.commands.LogisticsPipesCommand;
@@ -136,7 +136,7 @@ public class LogisticsPipes {
             LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getFluidCap);
 
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
-            LPBlockEntityTypes.POWER_JUNCTION.get(), LogisticsPowerJunctionTileEntity::getEnergyStorageCap);
+            LPBlockEntityTypes.POWER_JUNCTION.get(), LogisticsPowerJunctionBlockEntity::getEnergyStorageCap);
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
             LPBlockEntityTypes.POWER_PROVIDER_RF.get(), LogisticsRFPowerProviderTileEntity::getEnergyStorageCap);
     }

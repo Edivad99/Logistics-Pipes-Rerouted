@@ -43,6 +43,7 @@ import logisticspipes.integrations.jei.JEIPluginLoader
 import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.screens.ConfirmLinkScreen
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
@@ -107,7 +108,7 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
         fun onWebLinkClick(webLink: String) {
             try {
                 clickedLinkURI = URI(webLink)
-                minecraft?.setScreen(net.minecraft.client.gui.screens.ConfirmLinkScreen({ confirmed ->
+                minecraft?.setScreen(ConfirmLinkScreen({ confirmed ->
                     if (confirmed) net.minecraft.Util.getPlatform().openUri(clickedLinkURI!!)
                     minecraft?.setScreen(this@GuiGuideBook)
                 }, webLink, true))

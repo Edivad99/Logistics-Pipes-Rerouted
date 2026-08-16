@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -62,7 +63,7 @@ public class ItemUpgrade extends LogisticsItem {
 
 	public static Item getAndCheckUpgrade(ResourceLocation resource) {
 		Objects.requireNonNull(resource, "Resource for upgrade is null. Was the upgrade registered?");
-		return Objects.requireNonNull(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(resource), "Upgrade " + resource.toString() + " not found in Item registry");
+		return Objects.requireNonNull(BuiltInRegistries.ITEM.get(resource), "Upgrade " + resource.toString() + " not found in Item registry");
 	}
 
 	public IPipeUpgrade getUpgradeForItem(ItemStack itemStack, IPipeUpgrade currentUpgrade) {
@@ -112,16 +113,16 @@ public class ItemUpgrade extends LogisticsItem {
 				//and {0} modules
 				String base1 = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "both1");
 				String base2 = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "both2");
-				tooltipComponents.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base1, join(pipe))));
-				tooltipComponents.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base2, join(module))));
+				tooltipComponents.add(Component.literal(MessageFormat.format(base1, join(pipe))));
+				tooltipComponents.add(Component.literal(MessageFormat.format(base2, join(module))));
 			} else if (!pipe.isEmpty()) {
 				//Can be applied to {0} pipes
 				String base = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "pipe");
-				tooltipComponents.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base, join(pipe))));
+				tooltipComponents.add(Component.literal(MessageFormat.format(base, join(pipe))));
 			} else {
 				//Can be applied to {0} modules
 				String base = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "module");
-				tooltipComponents.add(net.minecraft.network.chat.Component.literal(MessageFormat.format(base, join(module))));
+				tooltipComponents.add(Component.literal(MessageFormat.format(base, join(module))));
 			}
 		} else {
 			TextUtil.addTooltipInformation(stack, tooltipComponents, false);

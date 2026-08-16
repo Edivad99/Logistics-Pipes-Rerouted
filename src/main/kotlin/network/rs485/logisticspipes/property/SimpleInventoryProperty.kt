@@ -64,7 +64,7 @@ class SimpleInventoryProperty(private val inv: SimpleStackInventory, override va
 
     fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 
-    fun dropContents(world: Level, pos: BlockPos) = inv.dropContents(world, pos).alsoIChanged()
+    fun dropContents(level: Level, pos: BlockPos) = inv.dropContents(level, pos).alsoIChanged()
 
     fun addCompressed(toAdd: ItemStack, ignoreMaxStackSize: Boolean): Int =
         inv.addCompressed(toAdd, ignoreMaxStackSize).alsoIChanged()

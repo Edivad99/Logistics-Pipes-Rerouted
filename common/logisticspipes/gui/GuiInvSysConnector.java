@@ -110,8 +110,8 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "InventorySystemConnector"), 5, 6, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "ConnectionInformation") + ":", 10, 21, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.getTrimmedString(TextUtil.translate(GuiInvSysConnector.PREFIX + "Channel") + ": " + (connectedChannel != null ? connectedChannel.getName() : "UNDEFINED"), 150, this.font, "..."), 15, 38, 0x404040, false);
@@ -130,8 +130,8 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 			ItemStack st = itemStack.makeNormalStack();
 			int x = 9 + 18 * column + leftPos;
 			int y = 79 + 18 * row + topPos;
-			if (x < par1 && par1 < x + 18 && y < par2 && par2 < y + 18) {
-				guiGraphics.renderTooltip(minecraft.font, st, par1, par2);
+			if (x < mouseX && mouseX < x + 18 && y < mouseY && mouseY < y + 18) {
+				guiGraphics.renderTooltip(minecraft.font, st, mouseX, mouseY);
 			}
 			column++;
 			if (column >= 9) {

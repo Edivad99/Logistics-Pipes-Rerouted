@@ -10,6 +10,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -59,7 +60,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 
 	private static final ResourceLocation achievementTextures = ResourceLocation.withDefaultNamespace("textures/gui/achievement/achievement_background.png");
 
-	private final ItemRenderer renderItem = net.minecraft.client.Minecraft.getInstance().getItemRenderer();
+	private final ItemRenderer renderItem = Minecraft.getInstance().getItemRenderer();
 
 	private int isMouseButtonDown;
 	private int mouseX;

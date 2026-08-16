@@ -1,7 +1,7 @@
 package logisticspipes.network.packets.block;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
@@ -24,7 +24,7 @@ public class PowerJunctionCheatPacket extends CoordinatesPacket {
 		if (!LogisticsPipes.isDEBUG()) {
 			return;
 		}
-		final LogisticsPowerJunctionTileEntity tile = this.getTileAs(player.level(), LogisticsPowerJunctionTileEntity.class);
+		final LogisticsPowerJunctionBlockEntity tile = this.getTileAs(player.level(), LogisticsPowerJunctionBlockEntity.class);
 		if (tile != null) {
 			tile.addEnergy(100000);
 		}

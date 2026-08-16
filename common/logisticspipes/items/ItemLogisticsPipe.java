@@ -28,6 +28,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -59,15 +60,15 @@ public class ItemLogisticsPipe extends LogisticsItem {
 	}
 
 	@Override
-	public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext _ctx) {
-		Player player = _ctx.getPlayer();
-		Level world = _ctx.getLevel();
-		BlockPos pos = _ctx.getClickedPos();
-		InteractionHand hand = _ctx.getHand();
-		Direction facing = _ctx.getClickedFace();
+	public InteractionResult useOn(UseOnContext context) {
+		Player player = context.getPlayer();
+		Level level = context.getLevel();
+		BlockPos pos = context.getClickedPos();
+		InteractionHand hand = context.getHand();
+		Direction facing = context.getClickedFace();
 		Block block = LPBlocks.PIPE.get();
 
-		BlockState iblockstate = world.getBlockState(pos);
+		BlockState iblockstate = level.getBlockState(pos);
 		Block worldBlock = iblockstate.getBlock();
 
 		if (!iblockstate.canBeReplaced()) {
@@ -81,7 +82,7 @@ public class ItemLogisticsPipe extends LogisticsItem {
 		}
 
 		if (!dummyPipe.isMultiBlock()) {
-			if (player.mayUseItemAt(pos, facing, itemstack) && world.isEmptyBlock(pos)) {
+			if (player.mayUseItemAt(pos, facing, itemstack) && level.isEmptyBlock(pos)) {
 				CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.createPipe(this);
 
 				if (pipe == null) {
@@ -89,18 +90,18 @@ public class ItemLogisticsPipe extends LogisticsItem {
 					return InteractionResult.PASS;
 				}
 
-				if (LogisticsBlockGenericPipe.placePipe(pipe, world, pos, block, null)) {
-					BlockState state = world.getBlockState(pos);
+				if (LogisticsBlockGenericPipe.placePipe(pipe, level, pos, block, null)) {
+					BlockState state = level.getBlockState(pos);
 					if (state.is(block)) {
 						//setTileEntityNBT(world, player, pos, stack);
-						block.setPlacedBy(world, pos, state, player, itemstack);
+						block.setPlacedBy(level, pos, state, player, itemstack);
 
 						if (player instanceof ServerPlayer)
 							CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, pos, itemstack);
 
-						BlockState newBlockState = world.getBlockState(pos);
-						SoundType soundtype = newBlockState.getBlock().getSoundType(newBlockState, world, pos, player);
-						world.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
+						BlockState newBlockState = level.getBlockState(pos);
+						SoundType soundtype = newBlockState.getBlock().getSoundType(newBlockState, level, pos, player);
+						level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
 								soundtype.getPitch() * 0.8F);
 
 						itemstack.shrink(1);
@@ -128,8 +129,8 @@ public class ItemLogisticsPipe extends LogisticsItem {
 			placeAt.add(orientation.getOffset());
 
 			for (DoubleCoordinatesType<CoreMultiBlockPipe.SubBlockTypeForShare> iPos : globalPos) {
-				if (!player.mayUseItemAt(iPos.getBlockPos(), facing, itemstack) || !world.isEmptyBlock(iPos.getBlockPos())) {
-					BlockEntity tile = world.getBlockEntity(iPos.getBlockPos());
+				if (!player.mayUseItemAt(iPos.getBlockPos(), facing, itemstack) || !level.isEmptyBlock(iPos.getBlockPos())) {
+					BlockEntity tile = level.getBlockEntity(iPos.getBlockPos());
 					boolean canPlace = false;
 					if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 						if (CoreMultiBlockPipe.canShare(((LogisticsTileGenericSubMultiBlock) tile).getSubTypes(), iPos.getType())) {
@@ -150,18 +151,18 @@ public class ItemLogisticsPipe extends LogisticsItem {
 					return InteractionResult.SUCCESS;
 				}
 
-				if (LogisticsBlockGenericPipe.placePipe(pipe, world, placeAt.getBlockPos(), block, orientation)) {
-					BlockState state = world.getBlockState(placeAt.getBlockPos());
+				if (LogisticsBlockGenericPipe.placePipe(pipe, level, placeAt.getBlockPos(), block, orientation)) {
+					BlockState state = level.getBlockState(placeAt.getBlockPos());
 					if (state.getBlock() == block) {
 						//setTileEntityNBT(world, player, pos, stack);
-						block.setPlacedBy(world, pos, state, player, itemstack);
+						block.setPlacedBy(level, pos, state, player, itemstack);
 
 						if (player instanceof ServerPlayer)
 							CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, placeAt.getBlockPos(), itemstack);
 
-						BlockState newBlockState = world.getBlockState(placeAt.getBlockPos());
-						SoundType soundtype = newBlockState.getBlock().getSoundType(newBlockState, world, placeAt.getBlockPos(), player);
-						world.playSound(player, placeAt.getBlockPos(), soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
+						BlockState newBlockState = level.getBlockState(placeAt.getBlockPos());
+						SoundType soundtype = newBlockState.getBlock().getSoundType(newBlockState, level, placeAt.getBlockPos(), player);
+						level.playSound(player, placeAt.getBlockPos(), soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F,
 								soundtype.getPitch() * 0.8F);
 
 						itemstack.shrink(1);

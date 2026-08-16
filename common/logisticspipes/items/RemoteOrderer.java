@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -59,7 +60,7 @@ public class RemoteOrderer extends LogisticsItem {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand handIn) {
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
 		ItemStack par1ItemStack = player.getMainHandItem();
 		if (par1ItemStack.isEmpty() || !par1ItemStack.has(DataComponents.CUSTOM_DATA)) {
 			return InteractionResultHolder.fail(par1ItemStack);
@@ -113,24 +114,24 @@ public class RemoteOrderer extends LogisticsItem {
 		// Resolve dimension: prefer ResourceLocation string, fall back to hash match.
 		var server = ServerLifecycleHooks.getCurrentServer();
 		if (server == null) return null;
-		Level world = null;
+		Level level = null;
 		if (tag.contains("connectedPipe-world-dim-key")) {
 			try {
 				ResourceLocation rl = ResourceLocation.parse(tag.getString("connectedPipe-world-dim-key"));
 				ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, rl);
-				world = server.getLevel(key);
+				level = server.getLevel(key);
 			} catch (Exception ignored) {}
 		}
-		if (world == null) {
+		if (level == null) {
 			int wantHash = tag.getInt("connectedPipe-world-dim");
-			for (net.minecraft.server.level.ServerLevel lvl : server.getAllLevels()) {
-				if (lvl.dimension().location().hashCode() == wantHash) { world = lvl; break; }
+			for (ServerLevel lvl : server.getAllLevels()) {
+				if (lvl.dimension().location().hashCode() == wantHash) { level = lvl; break; }
 			}
 		}
-		if (world == null) {
+		if (level == null) {
 			return null;
 		}
-		BlockEntity tile = world.getBlockEntity(new BlockPos(tag.getInt("connectedPipe-x"), tag.getInt("connectedPipe-y"), tag.getInt("connectedPipe-z")));
+		BlockEntity tile = level.getBlockEntity(new BlockPos(tag.getInt("connectedPipe-x"), tag.getInt("connectedPipe-y"), tag.getInt("connectedPipe-z")));
 		if (!(tile instanceof LogisticsTileGenericPipe)) {
 			return null;
 		}

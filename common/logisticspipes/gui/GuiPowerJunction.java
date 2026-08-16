@@ -4,7 +4,7 @@ package logisticspipes.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.PowerJunctionCheatPacket;
 import logisticspipes.proxy.MainProxy;
@@ -19,13 +19,13 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 
 	private static final String PREFIX = "gui.powerjunction.";
 
-	private final LogisticsPowerJunctionTileEntity junction;
+	private final LogisticsPowerJunctionBlockEntity junction;
 
-	public GuiPowerJunction(Player player, LogisticsPowerJunctionTileEntity junction) {
+	public GuiPowerJunction(Player player, LogisticsPowerJunctionBlockEntity junction) {
 		super(buildDummy(player, junction), 176, 166, 0, 0);
 		this.junction = junction;
 	}
-	private static DummyContainer buildDummy(Player player, LogisticsPowerJunctionTileEntity junction) {
+	private static DummyContainer buildDummy(Player player, LogisticsPowerJunctionBlockEntity junction) {
 		DummyContainer dummy = new DummyContainer(player, null, junction);
 		dummy.addNormalSlotsForPlayerInventory(8, 80);
 		return dummy;
@@ -33,13 +33,13 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerJunction.PREFIX + "LogisticsPowerJunction"), 30, 8, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiPowerJunction.PREFIX + "StoredEnergy") + ":", 40, 23, 0x404040, false);
 		guiGraphics.drawString(minecraft.font, TextUtil.formatNumberWithCommas(junction.getPowerLevel()) + " LP", 40, 33, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "/ " + TextUtil.formatNumberWithCommas(LogisticsPowerJunctionTileEntity.MAX_STORAGE) + " LP", 40, 43, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "10 RF = 5 LP", 30, 58, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "/ " + TextUtil.formatNumberWithCommas(LogisticsPowerJunctionBlockEntity.MAX_STORAGE) + " LP", 40, 43, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "10 FE = 5 LP", 30, 58, 0x404040, false);
 	}
 
 	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/power_junction.png");

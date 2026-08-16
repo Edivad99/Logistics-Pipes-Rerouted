@@ -49,20 +49,20 @@ open class BlockPlacer<T : Block>(
     private val blockPlacerConfigurator: suspend (BlockPlacer<T>) -> Unit = {},
 ) : Placer {
 
-    private lateinit var world: ServerLevel
+    private lateinit var level: ServerLevel
     private lateinit var pos: BlockPos
     private var placed = false
 
-    override suspend fun place(world: ServerLevel, pos: BlockPos): Configurator {
+    override suspend fun place(level: ServerLevel, pos: BlockPos): Configurator {
         this.pos = pos
-        this.world = world
-        world.setBlock(pos, state, 3)
+        this.level = level
+        level.setBlock(pos, state, 3)
         placed = true
         return configurator(name = "$block at $pos") { blockPlacerConfigurator(this@BlockPlacer) }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <Y : BlockEntity> getTileEntity(): Y =
-        if (placed) world.getBlockEntity(pos) as Y else error("$block has not been placed yet")
+        if (placed) level.getBlockEntity(pos) as Y else error("$block has not been placed yet")
 
 }

@@ -109,12 +109,12 @@ public class ClientRouter implements IRouter {
 	}
 
 	@Override
-	public boolean isInDim(net.minecraft.resources.ResourceLocation dimension) {
+	public boolean isInDim(ResourceLocation dimension) {
 		return true;
 	}
 
 	@Override
-	public boolean isAt(net.minecraft.resources.ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+	public boolean isAt(ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
 		return _xCoord == xCoord && _yCoord == yCoord && _zCoord == zCoord;
 	}
 

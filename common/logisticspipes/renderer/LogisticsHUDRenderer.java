@@ -351,7 +351,7 @@ public class LogisticsHUDRenderer {
 			RenderSystem.setShader(GameRenderer::getPositionColorShader);
 			Tesselator tes = Tesselator.getInstance();
 			// The pose origin is the interpolated camera, not the player's feet as in 1.12.
-			net.minecraft.world.phys.Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+			Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
 			for (LaserData data : lasers) {
 				poseStack.pushPose();
 				double x = data.getPosX() + 0.5 - cam.x;

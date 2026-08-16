@@ -33,6 +33,7 @@ import logisticspipes.utils.math.Vec2;
 import logisticspipes.utils.string.StringUtils;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiStatistics extends LogisticsBaseGuiScreen {
@@ -193,7 +194,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 		private boolean isDraggingXBar = false;
 		private boolean isDraggingYBar = false;
 
-		private final List<net.minecraft.client.gui.components.AbstractButton> BUTTONS = new ArrayList<>();
+		private final List<AbstractButton> BUTTONS = new ArrayList<>();
 
 		// Buffered text labels populated in draw(), drawn in drawForegroundLayer()
 		private String taskNameLabel = null;
@@ -387,7 +388,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		@Override
 		public void checkButtons() {
-			for (net.minecraft.client.gui.components.AbstractButton button : BUTTONS) {
+			for (AbstractButton button : BUTTONS) {
 				button.visible = getActiveTab() == this;
 				if (button.getMessage().getString().equals("Remove")) {
 					button.active = itemDisplay.getSelectedItem() != null;
@@ -507,7 +508,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		private ItemDisplay itemDisplay;
 
-		private final List<net.minecraft.client.gui.components.AbstractButton> BUTTONS = new ArrayList<>();
+		private final List<AbstractButton> BUTTONS = new ArrayList<>();
 
 		@Override
 		public void init() {
@@ -557,7 +558,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 
 		@Override
 		public void checkButtons() {
-			for (net.minecraft.client.gui.components.AbstractButton button : BUTTONS) {
+			for (AbstractButton button : BUTTONS) {
 				button.visible = getActiveTab() == this;
 			}
 		}

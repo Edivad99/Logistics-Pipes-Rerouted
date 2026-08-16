@@ -1,5 +1,8 @@
 package logisticspipes.utils;
 
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public enum MinecraftColor {
@@ -28,35 +31,35 @@ public enum MinecraftColor {
 	}
 
 	// In 1.20.1 dyes are separate items; map via DyeItem / DyeColor
-	private static final java.util.Map<net.minecraft.world.item.Item, MinecraftColor> DYE_TO_COLOR;
+	private static final java.util.Map<Item, MinecraftColor> DYE_TO_COLOR;
 	static {
 		DYE_TO_COLOR = new java.util.HashMap<>();
 		for (MinecraftColor color : values()) {
 			if (color != BLANK) {
-				net.minecraft.world.item.Item dyeItem = net.minecraft.world.item.DyeItem.byColor(color.toDyeColor());
+				Item dyeItem = DyeItem.byColor(color.toDyeColor());
 				DYE_TO_COLOR.put(dyeItem, color);
 			}
 		}
 	}
 
-	private net.minecraft.world.item.DyeColor toDyeColor() {
+	private DyeColor toDyeColor() {
 		return switch (this) {
-			case BLACK -> net.minecraft.world.item.DyeColor.BLACK;
-			case RED -> net.minecraft.world.item.DyeColor.RED;
-			case GREEN -> net.minecraft.world.item.DyeColor.GREEN;
-			case BROWN -> net.minecraft.world.item.DyeColor.BROWN;
-			case BLUE -> net.minecraft.world.item.DyeColor.BLUE;
-			case PURPLE -> net.minecraft.world.item.DyeColor.PURPLE;
-			case CYAN -> net.minecraft.world.item.DyeColor.CYAN;
-			case LIGHT_GRAY -> net.minecraft.world.item.DyeColor.LIGHT_GRAY;
-			case GRAY -> net.minecraft.world.item.DyeColor.GRAY;
-			case PINK -> net.minecraft.world.item.DyeColor.PINK;
-			case LIME -> net.minecraft.world.item.DyeColor.LIME;
-			case YELLOW -> net.minecraft.world.item.DyeColor.YELLOW;
-			case LIGHT_BLUE -> net.minecraft.world.item.DyeColor.LIGHT_BLUE;
-			case MAGENTA -> net.minecraft.world.item.DyeColor.MAGENTA;
-			case ORANGE -> net.minecraft.world.item.DyeColor.ORANGE;
-			case WHITE -> net.minecraft.world.item.DyeColor.WHITE;
+			case BLACK -> DyeColor.BLACK;
+			case RED -> DyeColor.RED;
+			case GREEN -> DyeColor.GREEN;
+			case BROWN -> DyeColor.BROWN;
+			case BLUE -> DyeColor.BLUE;
+			case PURPLE -> DyeColor.PURPLE;
+			case CYAN -> DyeColor.CYAN;
+			case LIGHT_GRAY -> DyeColor.LIGHT_GRAY;
+			case GRAY -> DyeColor.GRAY;
+			case PINK -> DyeColor.PINK;
+			case LIME -> DyeColor.LIME;
+			case YELLOW -> DyeColor.YELLOW;
+			case LIGHT_BLUE -> DyeColor.LIGHT_BLUE;
+			case MAGENTA -> DyeColor.MAGENTA;
+			case ORANGE -> DyeColor.ORANGE;
+			case WHITE -> DyeColor.WHITE;
 			default -> throw new IllegalStateException("No DyeColor for " + this);
 		};
 	}
@@ -77,7 +80,7 @@ public enum MinecraftColor {
 		if (this == BLANK) {
 			return ItemStack.EMPTY;
 		}
-		return new ItemStack(net.minecraft.world.item.DyeItem.byColor(toDyeColor()));
+		return new ItemStack(DyeItem.byColor(toDyeColor()));
 	}
 
 	public MinecraftColor getNext() {

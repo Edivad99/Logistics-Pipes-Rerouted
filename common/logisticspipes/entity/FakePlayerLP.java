@@ -10,8 +10,8 @@ public class FakePlayerLP extends FakePlayer {
   private final Component DISPLAY_NAME = Component.literal(
       String.format("[%s]", LPConstants.NAME.replace(" ", "")));
 
-  public FakePlayerLP(ServerLevel world) {
-    super(world, LPConstants.FAKE_GAMEPROFILE);
+  public FakePlayerLP(ServerLevel level) {
+    super(level, LPConstants.FAKE_GAMEPROFILE);
     this.setPos(0, 0, 0);
   }
 

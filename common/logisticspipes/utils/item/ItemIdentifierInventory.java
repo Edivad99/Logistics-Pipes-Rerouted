@@ -111,19 +111,19 @@ public class ItemIdentifierInventory
 		isLiquidInventory = copy.isLiquidInventory;
 	}
 
-	public static void dropItems(Level world, ItemStack stack, BlockPos pos) {
-		dropItems(world, stack, pos.getX(), pos.getY(), pos.getZ());
+	public static void dropItems(Level level, ItemStack stack, BlockPos pos) {
+		dropItems(level, stack, pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public static void dropItems(Level world, ItemStack stack, int i, int j, int k) {
+	public static void dropItems(Level level, ItemStack stack, int i, int j, int k) {
 		if (stack.isEmpty()) return;
 		float f1 = 0.7F;
-		double d = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
-		double d1 = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
-		double d2 = (world.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
-		ItemEntity entityitem = new ItemEntity(world, i + d, j + d1, k + d2, stack);
+		double d = (level.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+		double d1 = (level.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+		double d2 = (level.getRandom().nextFloat() * f1) + (1.0F - f1) * 0.5D;
+		ItemEntity entityitem = new ItemEntity(level, i + d, j + d1, k + d2, stack);
 		entityitem.setPickUpDelay(10);
-		world.addFreshEntity(entityitem);
+		level.addFreshEntity(entityitem);
 	}
 
 	@Override
@@ -263,16 +263,16 @@ public class ItemIdentifierInventory
 		tag.putInt(prefix + "itemsCount", _contents.length);
 	}
 
-	public void dropContents(Level world, BlockPos pos) {
-		dropContents(world, pos.getX(), pos.getY(), pos.getZ());
+	public void dropContents(Level level, BlockPos pos) {
+		dropContents(level, pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public void dropContents(Level world, int posX, int posY, int posZ) {
-		if (MainProxy.isServer(world)) {
+	public void dropContents(Level level, int posX, int posY, int posZ) {
+		if (MainProxy.isServer(level)) {
 			for (int i = 0; i < _contents.length; i++) {
 				while (_contents[i] != null) {
 					ItemStack todrop = removeItem(i, _contents[i].getItem().getMaxStackSize());
-					ItemIdentifierInventory.dropItems(world, todrop, posX, posY, posZ);
+					ItemIdentifierInventory.dropItems(level, todrop, posX, posY, posZ);
 				}
 			}
 			updateContents();

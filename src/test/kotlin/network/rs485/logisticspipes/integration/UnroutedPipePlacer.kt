@@ -50,10 +50,10 @@ import kotlin.test.assertTrue
 
 object UnroutedPipePlacer : Placer {
 
-    override suspend fun place(world: ServerLevel, pos: BlockPos): Configurator {
+    override suspend fun place(level: ServerLevel, pos: BlockPos): Configurator {
         val unroutedPipe = PipeItemsBasicTransport(LPItems.PIPE_UNROUTED.get())
-        assertTrue(message = "Expected unrouted pipe to be placed at $pos (${world})") {
-            LogisticsBlockGenericPipe.placePipe(unroutedPipe, world, pos, LPBlocks.PIPE.get())
+        assertTrue(message = "Expected unrouted pipe to be placed at $pos (${level})") {
+            LogisticsBlockGenericPipe.placePipe(unroutedPipe, level, pos, LPBlocks.PIPE.get())
         }
         return configurator { unroutedPipe.updateEntity() }
     }

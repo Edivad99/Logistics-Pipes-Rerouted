@@ -10,7 +10,7 @@ import java.util.Collection;
 
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.blocks.powertile.LogisticsPowerJunctionTileEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -73,7 +73,7 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 			return false;
 		}
 
-		return tilePipe instanceof LogisticsPowerJunctionTileEntity;
+		return tilePipe instanceof LogisticsPowerJunctionBlockEntity;
 	}
 
 	private boolean isSecurityProvider(Direction ori) {

@@ -9,6 +9,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 
 
@@ -25,7 +26,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 		super(xSize, ySize, 0, 0);
 	}
 
-	public LogisticsBaseTabGuiScreen(net.minecraft.world.inventory.AbstractContainerMenu container, int xSize, int ySize) {
+	public LogisticsBaseTabGuiScreen(AbstractContainerMenu container, int xSize, int ySize) {
 		super(container, xSize, ySize, 0, 0);
 	}
 
@@ -111,8 +112,8 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
-		super.renderLabels(guiGraphics, par1, par2);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		for (int i = 0; i < tabList.size(); i++) {
 			if (current_Tab == i) {
 				tabList.get(i).renderForegroundContent(guiGraphics);

@@ -41,6 +41,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
 import net.minecraft.client.resources.language.I18n
 import net.minecraft.locale.Language
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.ChatFormatting
 import java.text.NumberFormat
@@ -118,16 +119,16 @@ object TextUtil {
     }
 
     @JvmStatic
-    fun addTooltipInformation(stack: ItemStack, tooltip: MutableList<net.minecraft.network.chat.Component>, extended: Boolean){
+    fun addTooltipInformation(stack: ItemStack, tooltip: MutableList<Component>, extended: Boolean){
         if(extended) {
             var tooltipLine = 1
             while(Language.getInstance().has("${stack.descriptionId}.tip$tooltipLine")){
-                tooltip += net.minecraft.network.chat.Component.literal(translate("${stack.descriptionId}.tip$tooltipLine"))
+                tooltip += Component.literal(translate("${stack.descriptionId}.tip$tooltipLine"))
                 tooltipLine++
             }
         } else {
             if(Language.getInstance().has("${stack.descriptionId}.tip1")){
-                tooltip += net.minecraft.network.chat.Component.literal(translate(holdShiftTooltip))
+                tooltip += Component.literal(translate(holdShiftTooltip))
             }
         }
     }
