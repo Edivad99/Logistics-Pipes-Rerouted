@@ -37,9 +37,6 @@
 
 package network.rs485.logisticspipes.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,22 +46,18 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.connection.ConnectionType;
-import net.minecraft.nbt.NbtIo; // was CompressedStreamTools
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -74,7 +67,6 @@ import io.netty.buffer.ByteBuf;
 import static io.netty.buffer.Unpooled.buffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 
-import logisticspipes.LogisticsPipes;
 import logisticspipes.network.IReadListObject;
 import logisticspipes.network.IWriteListObject;
 import logisticspipes.proxy.LPRegistries;
@@ -126,10 +118,23 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	/**
 	 * Wraps (does not copy) the current buffer, so encoding into the result writes straight through.
+	 * <p>
+	 * Only for the codec-based values (item stacks, fluid stacks, component patches), which cannot
+	 * be encoded without a registry. Everything else must go through {@link #buf()}: resolving a
+	 * {@link RegistryAccess} throws when neither a server nor a client connection exists, which is
+	 * the normal situation in unit tests.
 	 */
 	private RegistryFriendlyByteBuf registryBuf() {
 		RegistryAccess access = registryAccess != null ? registryAccess : LPRegistries.access();
 		return new RegistryFriendlyByteBuf(localBuffer, access, ConnectionType.OTHER);
+	}
+
+	/**
+	 * Wraps (does not copy) the current buffer, sharing its reader and writer indices, so vanilla's
+	 * readers and writers interleave freely with the direct {@link #localBuffer} access below.
+	 */
+	private FriendlyByteBuf buf() {
+		return new FriendlyByteBuf(localBuffer);
 	}
 
 	public static void provideData(byte[] data, LPDataInputConsumer dataInputConsumer) {
@@ -290,48 +295,24 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Override
 	public void writeResourceLocation(@Nullable ResourceLocation resource) {
-		if (resource == null) {
-			writeBoolean(false);
-		} else {
-			writeBoolean(true);
-			writeUTF(resource.toString());
-		}
+		buf().writeNullable(resource, ResourceLocation.STREAM_CODEC);
 	}
 
 	@Override
 	public <T extends Enum<T>> void writeEnumSet(EnumSet<T> types, Class<T> clazz) {
-		T[] parts = clazz.getEnumConstants();
-		final int length = parts.length / 8 + (parts.length % 8 == 0 ? 0 : 1);
-		byte[] set = new byte[length];
-
-		for (T part : parts) {
-			if (types.contains(part)) {
-				byte i = (byte) (1 << (part.ordinal() % 8));
-				set[part.ordinal() / 8] |= i;
-			}
-		}
-		writeByteArray(set);
+		buf().writeEnumSet(types, clazz);
 	}
 
 	@Override
 	public void writeBitSet(BitSet bits) {
-		writeLongArray(bits.toLongArray());
+		buf().writeBitSet(bits);
 	}
 
 	@Override
 	public void writeCompoundTag(@Nullable CompoundTag tag) {
-		if (tag == null) {
-			writeByte(0);
-		} else {
-			writeByte(1);
-			try {
-				ByteArrayOutputStream output = new ByteArrayOutputStream();
-				NbtIo.writeCompressed(tag, output);
-				writeByteArray(output.toByteArray());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		// Vanilla frames null as a TAG_END marker and writes the tag uncompressed; the gzip round
+		// trip this used to do bought nothing on a packet buffer.
+		buf().writeNbt(tag);
 	}
 
 	@Override
@@ -391,25 +372,16 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Override
 	public void writeItemIdentifier(@Nullable ItemIdentifier item) {
 		// An explicit null marker rather than the old `itemId == 0` sentinel, which was
-		// indistinguishable from minecraft:air. The item is written as its namespaced key: numeric
-		// registry ids are not stable across sessions nor between client and server.
-		if (item == null) {
-			writeBoolean(false);
-		} else {
-			writeBoolean(true);
-			writeUTF(Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.item)).toString());
-			DataComponentPatch.STREAM_CODEC.encode(registryBuf(), item.components);
-		}
+		// indistinguishable from minecraft:air.
+		//
+		// The static overload, not the instance one: that one pins the encoder to
+		// `? super FriendlyByteBuf`, which a registry-aware codec is not.
+		FriendlyByteBuf.writeNullable(registryBuf(), item, ItemIdentifier.STREAM_CODEC);
 	}
 
 	@Override
 	public void writeItemIdentifierStack(@Nullable ItemIdentifierStack stack) {
-		if (stack == null) {
-			writeInt(-1);
-		} else {
-			writeInt(stack.getStackSize());
-			writeItemIdentifier(stack.getItem());
-		}
+		FriendlyByteBuf.writeNullable(registryBuf(), stack, ItemIdentifierStack.STREAM_CODEC);
 	}
 
 	@Override
@@ -454,26 +426,17 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Override
 	public void writeChannelInformation(ChannelInformation channel) {
-		this.writeUTF(channel.getName());
-		this.writeUUID(channel.getChannelIdentifier());
-		this.writePlayerIdentifier(channel.getOwner());
-		this.writeEnum(channel.getRights());
-		this.writeUUID(channel.getResponsibleSecurityID());
+		ChannelInformation.STREAM_CODEC.encode(localBuffer, channel);
 	}
 
 	@Override
 	public void writeUUID(@Nullable UUID uuid) {
-		this.writeBoolean(uuid != null);
-		if (uuid != null) {
-			this.writeLong(uuid.getMostSignificantBits());
-			this.writeLong(uuid.getLeastSignificantBits());
-		}
+		buf().writeNullable(uuid, UUIDUtil.STREAM_CODEC);
 	}
 
 	@Override
 	public void writePlayerIdentifier(PlayerIdentifier playerIdentifier) {
-		this.writeUTF(playerIdentifier.getUsername());
-		this.writeUUID(playerIdentifier.getId());
+		PlayerIdentifier.STREAM_CODEC.encode(localBuffer, playerIdentifier);
 	}
 
 	@Override
@@ -538,51 +501,23 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public ResourceLocation readResourceLocation() {
-		if (readBoolean()) {
-			return ResourceLocation.parse(Objects.requireNonNull(readUTF()));
-		}
-		return null;
+		return buf().readNullable(ResourceLocation.STREAM_CODEC);
 	}
 
 	@Override
 	public <T extends Enum<T>> EnumSet<T> readEnumSet(Class<T> clazz) {
-		EnumSet<T> types = EnumSet.noneOf(clazz);
-		byte[] arr = readByteArray();
-		if (arr != null) {
-			T[] parts = clazz.getEnumConstants();
-			for (T part : parts) {
-				if ((arr[part.ordinal() / 8] & (1 << (part.ordinal() % 8))) != 0) {
-					types.add(part);
-				}
-			}
-		}
-		return types;
+		return buf().readEnumSet(clazz);
 	}
 
 	@Override
 	public BitSet readBitSet() {
-		final long[] words = readLongArray();
-		if (words == null) {
-			return new BitSet();
-		} else {
-			return BitSet.valueOf(words);
-		}
+		return buf().readBitSet();
 	}
 
 	@Nullable
 	@Override
 	public CompoundTag readCompoundTag() {
-		boolean isEmpty = (readByte() == 0);
-		if (isEmpty) {
-			return null;
-		}
-
-		try {
-			return NbtIo.readCompressed(new ByteArrayInputStream(Objects.requireNonNull(readByteArray())), NbtAccounter.unlimitedHeap());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return buf().readNbt();
 	}
 
 	@Nullable
@@ -643,28 +578,13 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public ItemIdentifier readItemIdentifier() {
-		if (!readBoolean()) {
-			return null;
-		}
-		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(readUTF()));
-		DataComponentPatch patch = DataComponentPatch.STREAM_CODEC.decode(registryBuf());
-		return ItemIdentifier.get(item, patch);
+		return FriendlyByteBuf.readNullable(registryBuf(), ItemIdentifier.STREAM_CODEC);
 	}
 
 	@Nullable
 	@Override
 	public ItemIdentifierStack readItemIdentifierStack() {
-		int stacksize = readInt();
-		if (stacksize == -1) {
-			return null;
-		}
-
-		ItemIdentifier item = readItemIdentifier();
-		if (item == null) {
-			LogisticsPipes.LOG.error("Read null ItemIdentifier in readItemIdentifierStack");
-			return null;
-		}
-		return new ItemIdentifierStack(item, stacksize);
+		return FriendlyByteBuf.readNullable(registryBuf(), ItemIdentifierStack.STREAM_CODEC);
 	}
 
 	@Override
@@ -769,21 +689,18 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Override
 	public ChannelInformation readChannelInformation() {
-		return new ChannelInformation(this.readUTF(), this.readUUID(), this.readPlayerIdentifier(), this.readEnum(ChannelInformation.AccessRights.class), this.readUUID());
+		return ChannelInformation.STREAM_CODEC.decode(localBuffer);
 	}
 
 	@Nullable
 	@Override
 	public UUID readUUID() {
-		if (!this.readBoolean()) {
-			return null;
-		}
-		return new UUID(this.readLong(), this.readLong());
+		return buf().readNullable(UUIDUtil.STREAM_CODEC);
 	}
 
 	@Override
 	public PlayerIdentifier readPlayerIdentifier() {
-		return PlayerIdentifier.get(this.readUTF(), this.readUUID());
+		return PlayerIdentifier.STREAM_CODEC.decode(localBuffer);
 	}
 
 }

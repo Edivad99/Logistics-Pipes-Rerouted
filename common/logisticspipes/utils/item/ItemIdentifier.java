@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -38,6 +39,8 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.flag.FeatureFlags;
@@ -47,15 +50,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
-import com.mojang.serialization.Codec;
-
 import net.neoforged.fml.ModList;
+
+import com.mojang.serialization.Codec;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.items.LogisticsFluidContainer;
-import logisticspipes.utils.WeakInternCache;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
+import logisticspipes.utils.WeakInternCache;
 
 // net.minecraft.world.item.CreativeModeTab removed — use CreativeModeTab
 
@@ -69,6 +72,16 @@ import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
  */
 public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTypeHolder {
 
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemIdentifier> STREAM_CODEC =
+        StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC,
+            identifier -> Objects.requireNonNull(
+                BuiltInRegistries.ITEM.getKey(identifier.item),
+                "item is not registered"),
+            DataComponentPatch.STREAM_CODEC,
+            identifier -> identifier.components,
+            (key, patch) -> ItemIdentifier.get(BuiltInRegistries.ITEM.get(key), patch));
+
     private static final Predicate<DataComponentType<?>> IS_DAMAGE = t -> t == DataComponents.DAMAGE;
     private static final Predicate<DataComponentType<?>> IS_NOT_DAMAGE = t -> t != DataComponents.DAMAGE;
     private static final AtomicLong serialCounter = new AtomicLong();
@@ -78,14 +91,13 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
     // Everything else. Held weakly: with damage folded into the patch this tier absorbs every
     // durability value of every tool and every enchanted book, which is unbounded and player-driven.
     private final static WeakInternCache<ItemKey, ItemIdentifier> patchedIdentifiers =
-            WeakInternCache.create("LogisticsPipes ItemIdentifier Cleanup Thread");
+        WeakInternCache.create("LogisticsPipes ItemIdentifier Cleanup Thread");
     // Item -> registry-key path of the FIRST CATEGORY tab containing it, built once on demand.
     // Vanilla only builds tab contents from the client creative-inventory screen, so on a
     // dedicated server (and on survival clients) getDisplayItems() stays empty forever; we
     // build the contents ourselves instead of depending on that screen having been opened.
     @Nullable
     private static volatile Map<Item, String> creativeTabNameByItem = null;
-
     public final Item item;
     /**
      * The component patch that distinguishes this identity from the item's prototype. Always
@@ -135,7 +147,8 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
     }
 
     private static ItemIdentifier getOrCreatePatched(ItemKey k) {
-        return ItemIdentifier.patchedIdentifiers.getOrCreate(k, key -> new ItemIdentifier(key.item(), key.components()));
+        return ItemIdentifier.patchedIdentifiers.getOrCreate(k,
+            key -> new ItemIdentifier(key.item(), key.components()));
     }
 
     /**
