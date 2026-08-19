@@ -21,8 +21,8 @@ import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 
 import logisticspipes.LPConstants;
 import logisticspipes.data.recipes.builders.ProgrammerRecipeBuilder;
-import logisticspipes.items.ItemModule;
 import logisticspipes.modules.LogisticsModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
 
 public class LPRecipeProvider extends RecipeProvider implements IConditionBuilder {

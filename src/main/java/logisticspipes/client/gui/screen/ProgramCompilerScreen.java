@@ -14,9 +14,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
-import logisticspipes.items.ItemLogisticsPipe;
-import logisticspipes.items.ItemModule;
-import logisticspipes.items.ItemUpgrade;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.CompilerTriggerTaskPacket;
 import logisticspipes.proxy.MainProxy;
@@ -27,6 +24,9 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
+import logisticspipes.world.item.ItemLogisticsPipe;
+import logisticspipes.world.item.ItemModule;
+import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import network.rs485.logisticspipes.util.TextUtil;
 

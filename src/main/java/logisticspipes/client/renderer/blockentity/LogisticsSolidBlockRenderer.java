@@ -17,10 +17,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import logisticspipes.LPConstants;
+import logisticspipes.blocks.LogisticsSolidBlock;
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.solid.SolidBlockModelParts;
-import logisticspipes.blocks.LogisticsSolidBlock;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import network.rs485.logisticspipes.world.CoordinateUtils;

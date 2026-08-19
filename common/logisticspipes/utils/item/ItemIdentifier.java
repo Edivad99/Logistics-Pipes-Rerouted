@@ -55,7 +55,7 @@ import net.neoforged.fml.ModList;
 import com.mojang.serialization.Codec;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.items.LogisticsFluidContainer;
+import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.WeakInternCache;

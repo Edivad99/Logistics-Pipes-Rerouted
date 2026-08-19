@@ -2,7 +2,7 @@ package logisticspipes.gui;
 
 import logisticspipes.world.item.LPItems;
 import logisticspipes.interfaces.IGuiOpenControler;
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.utils.CardManagementInventory;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;

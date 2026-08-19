@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.guidebook
 
-import logisticspipes.items.LogisticsItem
+import logisticspipes.world.item.LogisticsItem
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.guis.OpenGuideBook
 import logisticspipes.proxy.MainProxy

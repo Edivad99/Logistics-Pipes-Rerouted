@@ -4,5 +4,6 @@
 package logisticspipes.client.model.solid;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;

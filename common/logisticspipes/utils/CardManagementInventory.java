@@ -1,7 +1,7 @@
 package logisticspipes.utils;
 
-import logisticspipes.items.ItemModule;
-import logisticspipes.items.LogisticsItemCard;
+import logisticspipes.world.item.ItemModule;
+import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

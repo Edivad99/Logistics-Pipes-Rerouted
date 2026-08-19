@@ -1,7 +1,7 @@
 package logisticspipes.pipes.upgrades;
 
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.items.ItemUpgrade;
+import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.ISimpleInventoryEventHandler;

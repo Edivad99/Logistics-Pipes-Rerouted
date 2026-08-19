@@ -26,20 +26,10 @@ import logisticspipes.pipes.tubes.HSTubeSpeedup;
 @OnlyIn(Dist.CLIENT)
 public final class TubeMeshes {
 
+    private static final TubeGeometry NONE = new TubeGeometry(ObjMesh.empty(), null);
+
     private TubeMeshes() {
     }
-
-    /**
-     * Empty mesh when the pipe is not a tube, or has no orientation yet.
-     */
-    public record TubeGeometry(ObjMesh mesh, @Nullable ResourceLocation texture) {
-
-        public boolean isEmpty() {
-            return mesh.isEmpty() || texture == null;
-        }
-    }
-
-    private static final TubeGeometry NONE = new TubeGeometry(ObjMesh.empty(), null);
 
     public static TubeGeometry forPipe(@Nullable CoreUnroutedPipe pipe) {
         return forPipe(pipe, null);
@@ -116,5 +106,15 @@ public final class TubeMeshes {
             case HSTubeSCurve tube -> tube.getOrientation();
             default -> null;
         };
+    }
+
+    /**
+     * Empty mesh when the pipe is not a tube, or has no orientation yet.
+     */
+    public record TubeGeometry(ObjMesh mesh, @Nullable ResourceLocation texture) {
+
+        public boolean isEmpty() {
+            return mesh.isEmpty() || texture == null;
+        }
     }
 }

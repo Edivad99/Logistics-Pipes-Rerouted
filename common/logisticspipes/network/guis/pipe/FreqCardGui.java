@@ -2,7 +2,7 @@ package logisticspipes.network.guis.pipe;
 
 import logisticspipes.world.item.LPItems;
 import logisticspipes.gui.GuiFreqCardContent;
-import logisticspipes.items.LogisticsItemCard;
+import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.PipeItemsSystemDestinationLogistics;

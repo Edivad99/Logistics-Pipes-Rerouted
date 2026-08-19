@@ -37,10 +37,8 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemIdentifierStack> STREAM_CODEC =
         StreamCodec.composite(
-            ItemIdentifier.STREAM_CODEC,
-            ItemIdentifierStack::getItem,
-            ByteBufCodecs.INT,
-            ItemIdentifierStack::getStackSize,
+            ItemIdentifier.STREAM_CODEC, ItemIdentifierStack::getItem,
+            ByteBufCodecs.INT, ItemIdentifierStack::getStackSize,
             ItemIdentifierStack::new);
 
     private final Object[] ccTypeHolder = new Object[1];

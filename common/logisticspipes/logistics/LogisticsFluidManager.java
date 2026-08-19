@@ -14,7 +14,7 @@ import logisticspipes.particle.Particles;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.interfaces.routing.IFluidSink;
 import logisticspipes.interfaces.routing.IProvideFluids;
-import logisticspipes.items.LogisticsFluidContainer;
+import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;

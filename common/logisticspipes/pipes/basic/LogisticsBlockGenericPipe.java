@@ -20,7 +20,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
 import logisticspipes.interfaces.ITubeOrientation;
-import logisticspipes.items.ItemLogisticsPipe;
+import logisticspipes.world.item.ItemLogisticsPipe;
 import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockBlock;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.ticks.QueuedTasks;
@@ -247,6 +247,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		});
 	}
 
+    @Nullable
 	public static CoreUnroutedPipe createPipe(Item key) {
 		Function<Item, ? extends CoreUnroutedPipe> pipe = LogisticsBlockGenericPipe.pipes.get(key);
 		if (pipe != null) {

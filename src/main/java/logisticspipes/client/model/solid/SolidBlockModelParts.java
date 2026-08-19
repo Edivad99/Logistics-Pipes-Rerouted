@@ -31,53 +31,9 @@ import logisticspipes.client.model.mesh.UvTransform;
 public final class SolidBlockModelParts {
 
     private static final Logger LOGGER = LogManager.getLogger(SolidBlockModelParts.class);
-
-    /**
-     * The cover plate positions, named by the letter their OBJ groups use.
-     * There is no {@code UP} — the block's top has no plate.
-     */
-    public enum CoverSide {
-        DOWN(Direction.DOWN, "D"),
-        NORTH(Direction.NORTH, "N"),
-        SOUTH(Direction.SOUTH, "S"),
-        WEST(Direction.WEST, "W"),
-        EAST(Direction.EAST, "E");
-
-        public final Direction dir;
-        public final String letter;
-
-        CoverSide(Direction dir, String letter) {
-            this.dir = dir;
-            this.letter = letter;
-        }
-
-        /**
-         * The world-space face this plate ends up on once the block is rotated.
-         */
-        public Direction facing(int rotation) {
-            if (dir == Direction.DOWN) {
-                return dir;
-            }
-            Direction result = dir;
-            // Reproduces the original's deliberate switch fall-through: rotation 0 turns three
-            // times, 3 turns twice, 1 turns once, 2 not at all.
-            int turns = switch (rotation) {
-                case 0 -> 3;
-                case 3 -> 2;
-                case 1 -> 1;
-                default -> 0;
-            };
-            for (int i = 0; i < turns; i++) {
-                result = result.getClockWise();
-            }
-            return result;
-        }
-    }
-
     private final Map<Integer, ObjMesh> body;
     private final Map<CoverSide, Map<Integer, ObjMesh>> outerPlates;
     private final Map<CoverSide, Map<Integer, ObjMesh>> innerPlates;
-
     private SolidBlockModelParts(Map<Integer, ObjMesh> body,
         Map<CoverSide, Map<Integer, ObjMesh>> outerPlates,
         Map<CoverSide, Map<Integer, ObjMesh>> innerPlates) {
@@ -88,22 +44,6 @@ public final class SolidBlockModelParts {
 
     public static SolidBlockModelParts empty() {
         return new SolidBlockModelParts(Map.of(), Map.of(), Map.of());
-    }
-
-    public boolean isEmpty() {
-        return body.isEmpty();
-    }
-
-    public ObjMesh body(int rotation) {
-        return body.getOrDefault(rotation, ObjMesh.empty());
-    }
-
-    public ObjMesh outerPlate(CoverSide side, int rotation) {
-        return outerPlates.getOrDefault(side, Map.of()).getOrDefault(rotation, ObjMesh.empty());
-    }
-
-    public ObjMesh innerPlate(CoverSide side, int rotation) {
-        return innerPlates.getOrDefault(side, Map.of()).getOrDefault(rotation, ObjMesh.empty());
     }
 
     public static SolidBlockModelParts load() {
@@ -167,6 +107,22 @@ public final class SolidBlockModelParts {
         return byRotation;
     }
 
+    public boolean isEmpty() {
+        return body.isEmpty();
+    }
+
+    public ObjMesh body(int rotation) {
+        return body.getOrDefault(rotation, ObjMesh.empty());
+    }
+
+    public ObjMesh outerPlate(CoverSide side, int rotation) {
+        return outerPlates.getOrDefault(side, Map.of()).getOrDefault(rotation, ObjMesh.empty());
+    }
+
+    public ObjMesh innerPlate(CoverSide side, int rotation) {
+        return innerPlates.getOrDefault(side, Map.of()).getOrDefault(rotation, ObjMesh.empty());
+    }
+
     /**
      * Every mesh, for callers that need a flat view.
      */
@@ -175,5 +131,47 @@ public final class SolidBlockModelParts {
         outerPlates.values().forEach(byRotation -> all.addAll(byRotation.values()));
         innerPlates.values().forEach(byRotation -> all.addAll(byRotation.values()));
         return all;
+    }
+
+    /**
+     * The cover plate positions, named by the letter their OBJ groups use.
+     * There is no {@code UP} — the block's top has no plate.
+     */
+    public enum CoverSide {
+        DOWN(Direction.DOWN, "D"),
+        NORTH(Direction.NORTH, "N"),
+        SOUTH(Direction.SOUTH, "S"),
+        WEST(Direction.WEST, "W"),
+        EAST(Direction.EAST, "E");
+
+        public final Direction dir;
+        public final String letter;
+
+        CoverSide(Direction dir, String letter) {
+            this.dir = dir;
+            this.letter = letter;
+        }
+
+        /**
+         * The world-space face this plate ends up on once the block is rotated.
+         */
+        public Direction facing(int rotation) {
+            if (dir == Direction.DOWN) {
+                return dir;
+            }
+            Direction result = dir;
+            // Reproduces the original's deliberate switch fall-through: rotation 0 turns three
+            // times, 3 turns twice, 1 turns once, 2 not at all.
+            int turns = switch (rotation) {
+                case 0 -> 3;
+                case 3 -> 2;
+                case 1 -> 1;
+                default -> 0;
+            };
+            for (int i = 0; i < turns; i++) {
+                result = result.getClockWise();
+            }
+            return result;
+        }
     }
 }

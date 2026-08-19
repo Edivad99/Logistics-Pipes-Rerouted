@@ -2,7 +2,7 @@ package logisticspipes.utils.gui;
 
 import java.util.Objects;
 
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;

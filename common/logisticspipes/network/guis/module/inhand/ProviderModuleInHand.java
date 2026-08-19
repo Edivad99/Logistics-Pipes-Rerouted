@@ -1,6 +1,6 @@
 package logisticspipes.network.guis.module.inhand;
 
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.abstractguis.GuiProvider;

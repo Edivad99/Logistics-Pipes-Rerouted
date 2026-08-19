@@ -18,26 +18,25 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.common.NeoForge;
 
 import logisticspipes.LPConstants;
-import logisticspipes.client.particle.SparkParticle;
-import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
-import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
 import logisticspipes.client.gui.screen.ProgramCompilerScreen;
 import logisticspipes.client.model.ObjModelManager;
 import logisticspipes.client.model.pipe.PipeModelRegistration;
+import logisticspipes.client.particle.SparkParticle;
+import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
+import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
+import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
 import logisticspipes.particle.LPParticleTypes;
-import logisticspipes.items.ItemPipeSignCreator;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.FluidContainerRenderer;
-import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
 import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
+import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor;
-import network.rs485.logisticspipes.gui.font.LPFontRenderer;
 
 public class ClientManager {
 
@@ -163,10 +162,11 @@ public class ClientManager {
             LPItems.PIPE_HS_S_CURVE,
             LPItems.PIPE_HS_LINE,
             LPItems.PIPE_HS_GAIN
-            );
+        );
     }
 
     private static void handleRegisterMenuScreens(RegisterMenuScreensEvent event) {
-        event.register(LPMenuTypes.PROGRAM_COMPILER.get(), (MenuScreens.ScreenConstructor<ProgramCompilerMenu, AbstractContainerScreen<ProgramCompilerMenu>>) ProgramCompilerScreen::new);
+        event.register(LPMenuTypes.PROGRAM_COMPILER.get(),
+            (MenuScreens.ScreenConstructor<ProgramCompilerMenu, AbstractContainerScreen<ProgramCompilerMenu>>) ProgramCompilerScreen::new);
     }
 }

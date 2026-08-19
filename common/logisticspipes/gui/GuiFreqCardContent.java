@@ -2,7 +2,7 @@
 package logisticspipes.gui;
 
 import logisticspipes.world.item.LPItems;
-import logisticspipes.items.LogisticsItemCard;
+import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;

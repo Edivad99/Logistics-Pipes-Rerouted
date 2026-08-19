@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
-import logisticspipes.items.LogisticsFluidContainer;
+import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;

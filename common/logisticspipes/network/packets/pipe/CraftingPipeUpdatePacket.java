@@ -1,6 +1,6 @@
 package logisticspipes.network.packets.pipe;
 
-import logisticspipes.items.ItemUpgrade;
+import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;

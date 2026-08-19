@@ -19,11 +19,11 @@ import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.pipe.PipeQuadBaker;
 import logisticspipes.client.model.tube.TubeMeshes;
-import logisticspipes.items.ItemLogisticsPipe;
+import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.renderer.state.PipeRenderState;
+import logisticspipes.world.item.ItemLogisticsPipe;
 
 /**
  * BEWLR that draws a pipe item using the same OBJ geometry pipeline as the in-world

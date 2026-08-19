@@ -1,7 +1,7 @@
 package logisticspipes.network.abstractpackets;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.exception.TargetNotFoundException;

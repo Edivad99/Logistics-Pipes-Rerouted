@@ -1,12 +1,9 @@
 package logisticspipes.world.item;
 
 import java.util.Collection;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 
 import net.neoforged.bus.api.IEventBus;
@@ -18,22 +15,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import logisticspipes.LPConstants;
-import logisticspipes.items.ItemBlankModule;
-import logisticspipes.items.ItemDisk;
-import logisticspipes.items.ItemHUDArmor;
-import logisticspipes.items.ItemLogisticsPipe;
-import logisticspipes.items.ItemLogisticsProgrammer;
-import logisticspipes.items.ItemModule;
-import logisticspipes.items.ItemParts;
-import logisticspipes.items.ItemPipeController;
-import logisticspipes.items.ItemPipeManager;
-import logisticspipes.items.ItemPipeSignCreator;
-import logisticspipes.items.ItemUpgrade;
-import logisticspipes.items.LogisticsBrokenItem;
-import logisticspipes.items.LogisticsFluidContainer;
-import logisticspipes.items.LogisticsItem;
-import logisticspipes.items.LogisticsItemCard;
-import logisticspipes.items.RemoteOrderer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleCrafter;
@@ -131,10 +112,10 @@ public class LPItems {
         deferredRegister.registerItem("sign_creator", ItemPipeSignCreator::new);
     public static final DeferredItem<ItemHUDArmor> HUD_GLASSES =
         deferredRegister.registerItem("hud_glasses", ItemHUDArmor::new);
-    public static final DeferredItem<ItemParts> PARTS =
-        deferredRegister.registerItem("parts", ItemParts::new);
-    public static final DeferredItem<ItemBlankModule> MODULE_BLANK =
-        deferredRegister.registerItem("module_blank", ItemBlankModule::new);
+    public static final DeferredItem<LogisticsItem> PARTS =
+        deferredRegister.registerItem("parts", LogisticsItem::new);
+    public static final DeferredItem<LogisticsItem> MODULE_BLANK =
+        deferredRegister.registerItem("module_blank", LogisticsItem::new);
     public static final DeferredItem<ItemDisk> DISK =
         deferredRegister.registerItem("disk", ItemDisk::new);
     public static final DeferredItem<LogisticsFluidContainer> FLUID_CONTAINER =

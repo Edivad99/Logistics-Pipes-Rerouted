@@ -19,7 +19,7 @@ import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.interfaces.ISlotClick;
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.ChassisModule;
 import logisticspipes.network.PacketHandler;

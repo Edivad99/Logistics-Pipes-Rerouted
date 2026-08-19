@@ -25,6 +25,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.client.ClientManager;
@@ -35,7 +36,6 @@ import logisticspipes.data.LPSpriteSourceProvider;
 import logisticspipes.data.models.LPBlockModelProvider;
 import logisticspipes.data.models.LPItemModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
-import logisticspipes.items.ItemPipeSignCreator;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.NewGuiHandler;

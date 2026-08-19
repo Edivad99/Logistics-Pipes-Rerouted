@@ -1,7 +1,7 @@
 package logisticspipes.network.guis.pipe;
 
 import logisticspipes.gui.GuiChassisPipe;
-import logisticspipes.items.ItemUpgrade;
+import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.BooleanModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;

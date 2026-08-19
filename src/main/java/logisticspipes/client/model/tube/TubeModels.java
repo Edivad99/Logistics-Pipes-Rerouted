@@ -41,42 +41,11 @@ import logisticspipes.client.model.mesh.ObjModel;
 public final class TubeModels {
 
     private static final Logger LOGGER = LogManager.getLogger(TubeModels.class);
+    private static final float QUARTER = (float) (Math.PI / 2);
+    private static volatile Map<Kind, Map<String, ObjMesh>> loaded = Map.of();
 
     private TubeModels() {
     }
-
-    /**
-     * Which OBJ, which group tag, and which standalone texture a tube type draws with.
-     */
-    // Texture names are the ones the five renderers already used — note that speedup is
-    // "hs-speedup" and not "hs-tube-speedup", and that three of the five share "hs-tube".
-    public enum Kind {
-        LINE(LpObjModels.TUBE_LINE, "Side", "hs-tube-line", "NORTH_SOUTH"),
-        CURVE(LpObjModels.TUBE_TURN, "Lane", "hs-tube", "NORTH_EAST"),
-        GAIN(LpObjModels.TUBE_GAIN, "Lane", "hs-tube", "NORTH"),
-        SPEEDUP(LpObjModels.TUBE_SPEEDUP, "Side", "hs-speedup", "NORTH"),
-        // Deliberately the gain model: the S-curve is the gain geometry stood on its side.
-        SCURVE(LpObjModels.TUBE_GAIN, "Lane", "hs-tube", "NORTH");
-
-        public final ResourceLocation obj;
-        public final String groupToken;
-        public final ResourceLocation texture;
-        /**
-         * Orientation drawn when there is no placed tube to read one from — the item form.
-         * These are the orientations LP1's five renderers returned from
-         * {@code getModelsWithoutPipe()}.
-         */
-        public final String orientationWithoutPipe;
-
-        Kind(ResourceLocation obj, String groupToken, String texture, String orientationWithoutPipe) {
-            this.obj = obj;
-            this.groupToken = groupToken;
-            this.texture = LPConstants.rl("textures/blocks/pipes/" + texture + ".png");
-            this.orientationWithoutPipe = orientationWithoutPipe;
-        }
-    }
-
-    private static final float QUARTER = (float) (Math.PI / 2);
 
     /**
      * Placement per orientation, keyed by the orientation enum's {@code name()} so the five
@@ -126,8 +95,6 @@ public final class TubeModels {
     private static Matrix4f rotZ(float radians) {
         return MeshTransforms.rotation(radians, 0, 0, 1);
     }
-
-    private static volatile Map<Kind, Map<String, ObjMesh>> loaded = Map.of();
 
     /**
      * Rebuilt whenever the OBJ models are republished.
@@ -193,5 +160,36 @@ public final class TubeModels {
 
     public static boolean isLoaded() {
         return !loaded.isEmpty();
+    }
+
+    /**
+     * Which OBJ, which group tag, and which standalone texture a tube type draws with.
+     */
+    // Texture names are the ones the five renderers already used — note that speedup is
+    // "hs-speedup" and not "hs-tube-speedup", and that three of the five share "hs-tube".
+    public enum Kind {
+        LINE(LpObjModels.TUBE_LINE, "Side", "hs-tube-line", "NORTH_SOUTH"),
+        CURVE(LpObjModels.TUBE_TURN, "Lane", "hs-tube", "NORTH_EAST"),
+        GAIN(LpObjModels.TUBE_GAIN, "Lane", "hs-tube", "NORTH"),
+        SPEEDUP(LpObjModels.TUBE_SPEEDUP, "Side", "hs-speedup", "NORTH"),
+        // Deliberately the gain model: the S-curve is the gain geometry stood on its side.
+        SCURVE(LpObjModels.TUBE_GAIN, "Lane", "hs-tube", "NORTH");
+
+        public final ResourceLocation obj;
+        public final String groupToken;
+        public final ResourceLocation texture;
+        /**
+         * Orientation drawn when there is no placed tube to read one from — the item form.
+         * These are the orientations LP1's five renderers returned from
+         * {@code getModelsWithoutPipe()}.
+         */
+        public final String orientationWithoutPipe;
+
+        Kind(ResourceLocation obj, String groupToken, String texture, String orientationWithoutPipe) {
+            this.obj = obj;
+            this.groupToken = groupToken;
+            this.texture = LPConstants.rl("textures/blocks/pipes/" + texture + ".png");
+            this.orientationWithoutPipe = orientationWithoutPipe;
+        }
     }
 }

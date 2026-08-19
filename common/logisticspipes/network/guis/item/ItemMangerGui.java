@@ -3,7 +3,7 @@ package logisticspipes.network.guis.item;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.gui.GuiCardManager;
 import logisticspipes.interfaces.IGuiOpenControler;
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.CardManagementInventory;
 import logisticspipes.utils.StaticResolve;

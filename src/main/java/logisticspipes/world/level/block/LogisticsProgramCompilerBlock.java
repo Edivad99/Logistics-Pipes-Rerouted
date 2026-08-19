@@ -16,9 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import logisticspipes.blocks.LogisticsSolidBlock;
-import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.ITickable;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 

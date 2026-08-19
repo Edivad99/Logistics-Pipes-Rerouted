@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import logisticspipes.LPConfigs;
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.guis.pipe.ChassisGuiProvider;

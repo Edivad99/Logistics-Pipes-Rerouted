@@ -3,7 +3,7 @@ package logisticspipes.pipes;
 import javax.annotation.Nullable;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.interfaces.routing.IRequestItems;
-import logisticspipes.items.RemoteOrderer;
+import logisticspipes.world.item.RemoteOrderer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;

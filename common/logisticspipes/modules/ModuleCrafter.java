@@ -27,7 +27,7 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IItemSpaceControl;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequestItems;
-import logisticspipes.items.ItemUpgrade;
+import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;

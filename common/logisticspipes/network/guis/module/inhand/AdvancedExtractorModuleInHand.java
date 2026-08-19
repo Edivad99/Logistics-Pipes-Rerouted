@@ -1,7 +1,7 @@
 package logisticspipes.network.guis.module.inhand;
 
 import logisticspipes.gui.modules.GuiAdvancedExtractor;
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;

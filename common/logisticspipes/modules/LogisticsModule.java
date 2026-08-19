@@ -20,6 +20,8 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.ItemModule;
+
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -61,7 +63,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 
 	/**
 	 * Returns the name this module is registered in LP with, as used in
-	 * {@link logisticspipes.items.ItemModule#registerModule} and saved in {@link LPItems#modules}.
+	 * {@link ItemModule#registerModule} and saved in {@link LPItems#modules}.
 	 */
 	public abstract String getLPName();
 

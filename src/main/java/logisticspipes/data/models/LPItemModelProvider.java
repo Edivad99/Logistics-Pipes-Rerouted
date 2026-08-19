@@ -50,12 +50,12 @@ public class LPItemModelProvider extends ItemModelProvider {
 
         ItemModelBuilder base =
             withExistingParent(name, mcLoc("item/generated"))
-            .texture("layer0", LPConstants.rl("item/" + name + "_" + SIGN_CREATOR_MODES[0]));
+                .texture("layer0", LPConstants.rl("item/" + name + "_" + SIGN_CREATOR_MODES[0]));
 
         for (int mode = 0; mode < SIGN_CREATOR_MODES.length; mode++) {
             ItemModelBuilder variant =
                 withExistingParent(name + "_" + SIGN_CREATOR_MODES[mode], mcLoc("item/generated"))
-                .texture("layer0", LPConstants.rl("item/" + name + "_" + SIGN_CREATOR_MODES[mode]));
+                    .texture("layer0", LPConstants.rl("item/" + name + "_" + SIGN_CREATOR_MODES[mode]));
 
             if (mode > 0) {
                 base.override().predicate(LPConstants.rl("creator_mode"), mode).model(variant).end();

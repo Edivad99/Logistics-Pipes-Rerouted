@@ -19,8 +19,8 @@ import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsSolidBlockEntity extends BlockEntity implements ITickable, IRotationProvider {
 
-    private boolean init = false;
     public int rotation = 0;
+    private boolean init = false;
 
     public LogisticsSolidBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -74,13 +74,13 @@ public class LogisticsSolidBlockEntity extends BlockEntity implements ITickable,
         return rotation;
     }
 
-    public boolean isActive() {
-        return false;
-    }
-
     @Override
     public void setRotation(int rotation) {
         this.rotation = rotation;
+    }
+
+    public boolean isActive() {
+        return false;
     }
 
     public void notifyOfBlockChange() {

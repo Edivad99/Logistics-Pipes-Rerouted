@@ -1,6 +1,6 @@
 package logisticspipes.utils.gui;
 
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import lombok.Getter;

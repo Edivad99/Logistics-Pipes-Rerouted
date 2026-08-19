@@ -60,10 +60,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      */
     private static final float FLAT_ITEM_DEPTH = 0.02F;
     private static final WoodType TYPE = WoodType.OAK;
+    private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
     public static LogisticsNewPipeItemBoxRenderer boxRenderer = new LogisticsNewPipeItemBoxRenderer();
     public static ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
-    private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
-
     @Nullable
     private static TextureAtlasSprite requestTableSprite = null;
 
@@ -73,25 +72,6 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         signModel = SignRenderer.createSignModel(context.getModelSet(), TYPE);
         // A pipe sign hangs on the pipe, so it never has the standing sign's post.
         signModel.stick.visible = false;
-    }
-
-    @Override
-    public void render(LogisticsTileGenericPipe blockEntity, float partialTicks, PoseStack poseStack,
-        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        if (blockEntity.pipe == null) {
-            return;
-        }
-
-        // renderInternal draws what genuinely varies per frame: pipe signs, traveling items and
-        // their transport boxes, the request table body and fluid overlays. The pipe frame
-        // itself now lives in the chunk mesh, supplied by PipeBakedModel.
-        poseStack.pushPose();
-        try {
-            renderInternal(blockEntity, 0, 0, 0, partialTicks, poseStack, bufferSource, packedLight,
-                packedOverlay);
-        } finally {
-            poseStack.popPose();
-        }
     }
 
     /**
@@ -127,6 +107,25 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
             MeshRenderer.emit(buffer, poseStack.last(), parts.outerPlate(side, 0), sprite, packedLight, packedOverlay);
             MeshRenderer.emit(buffer, poseStack.last(), parts.innerPlate(side, 0), sprite, packedLight, packedOverlay);
+        }
+    }
+
+    @Override
+    public void render(LogisticsTileGenericPipe blockEntity, float partialTicks, PoseStack poseStack,
+        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+        if (blockEntity.pipe == null) {
+            return;
+        }
+
+        // renderInternal draws what genuinely varies per frame: pipe signs, traveling items and
+        // their transport boxes, the request table body and fluid overlays. The pipe frame
+        // itself now lives in the chunk mesh, supplied by PipeBakedModel.
+        poseStack.pushPose();
+        try {
+            renderInternal(blockEntity, 0, 0, 0, partialTicks, poseStack, bufferSource, packedLight,
+                packedOverlay);
+        } finally {
+            poseStack.popPose();
         }
     }
 

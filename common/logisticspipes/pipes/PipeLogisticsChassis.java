@@ -40,7 +40,7 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
-import logisticspipes.items.ItemModule;
+import logisticspipes.world.item.ItemModule;
 import logisticspipes.logisticspipes.ChassisTransportLayer;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.logisticspipes.TransportLayer;
