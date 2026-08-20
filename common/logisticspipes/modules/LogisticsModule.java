@@ -56,7 +56,7 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	 * @param world   that the module is in.
 	 * @param service Inventory access, power and utility functions provided by the pipe.
 	 */
-	public void registerHandler(IWorldProvider world, IPipeServiceProvider service) {
+	public void registerHandler(@Nullable IWorldProvider world, @Nullable IPipeServiceProvider service) {
 		this.worldProvider = world;
 		this.service = service;
 	}

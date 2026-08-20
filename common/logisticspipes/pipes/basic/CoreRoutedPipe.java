@@ -455,33 +455,31 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		ignoreDisableUpdateEntity();
 		initialInit = false;
 		if (!sendQueue.isEmpty()) {
-			if (getItemSendMode() == ItemSendMode.Normal) {
-				Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = sendQueue.getFirst();
-				sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
-				sendQueue.removeFirst();
-				for (int i = 0; i < 16 && !sendQueue.isEmpty() && sendQueue.getFirst().getValue3() == ItemSendMode.Fast; i++) {
-					if (!sendQueue.isEmpty()) {
-						itemToSend = sendQueue.getFirst();
-						sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
-						sendQueue.removeFirst();
-					}
-				}
-				sendQueueChanged(false);
-			} else if (getItemSendMode() == ItemSendMode.Fast) {
-				for (int i = 0; i < 16; i++) {
-					if (!sendQueue.isEmpty()) {
-						Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = sendQueue.getFirst();
-						sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
-						sendQueue.removeFirst();
-					}
-				}
-				sendQueueChanged(false);
-			} else if (getItemSendMode() == null) {
-				throw new UnsupportedOperationException("getItemSendMode() can't return null. " + this.getClass().getName());
-			} else {
-				throw new UnsupportedOperationException(
-						"getItemSendMode() returned unhandled value. " + getItemSendMode().name() + " in " + this.getClass().getName());
-			}
+            switch (getItemSendMode()) {
+                case Normal -> {
+                    Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = sendQueue.getFirst();
+                    sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
+                    sendQueue.removeFirst();
+                    for (int i = 0; i < 16 && !sendQueue.isEmpty() && sendQueue.getFirst().getValue3() == ItemSendMode.Fast; i++) {
+                        if (!sendQueue.isEmpty()) {
+                            itemToSend = sendQueue.getFirst();
+                            sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
+                            sendQueue.removeFirst();
+                        }
+                    }
+                    sendQueueChanged(false);
+                }
+                case Fast -> {
+                    for (int i = 0; i < 16; i++) {
+                        if (!sendQueue.isEmpty()) {
+                            Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = sendQueue.getFirst();
+                            sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
+                            sendQueue.removeFirst();
+                        }
+                    }
+                    sendQueueChanged(false);
+                }
+            }
 		}
 		if (MainProxy.isClient(getWorld())) {
 			return;

@@ -11,6 +11,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
@@ -19,6 +20,8 @@ import net.neoforged.neoforge.common.NeoForge;
 
 import logisticspipes.LPConstants;
 import logisticspipes.client.gui.screen.ProgramCompilerScreen;
+import logisticspipes.client.gui.tooltip.ClientModuleInventoryTooltip;
+import logisticspipes.client.gui.tooltip.ModuleTooltipPlacement;
 import logisticspipes.client.model.ObjModelManager;
 import logisticspipes.client.model.pipe.PipeModelRegistration;
 import logisticspipes.client.particle.SparkParticle;
@@ -35,6 +38,7 @@ import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
 import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor;
 
@@ -50,6 +54,7 @@ public class ClientManager {
         modEventBus.addListener(ClientManager::handleClientExtensions);
         modEventBus.addListener(ClientManager::handleRegisterMenuScreens);
         modEventBus.addListener(ClientManager::handleRegisterReloadListeners);
+        modEventBus.addListener(ClientManager::handleRegisterTooltipComponents);
 
         modEventBus.register(TextureRegistrar.class);
         modEventBus.register(PipeModelRegistration.class);
@@ -58,6 +63,7 @@ public class ClientManager {
         //NeoForge.EVENT_BUS.register(ClientManager.class);
 
         NeoForge.EVENT_BUS.register(new RenderTickHandler());
+        NeoForge.EVENT_BUS.register(ModuleTooltipPlacement.class);
         NeoForge.EVENT_BUS.register(WidgetScreenHudSuppressor.INSTANCE);
         SimpleServiceLocator.setClientPacketBufferHandlerThread(new ClientPacketBufferHandlerThread());
         //LPFontRenderer.Factory.asyncPreload();
@@ -163,6 +169,10 @@ public class ClientManager {
             LPItems.PIPE_HS_LINE,
             LPItems.PIPE_HS_GAIN
         );
+    }
+
+    private static void handleRegisterTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(ModuleInventoryTooltip.class, ClientModuleInventoryTooltip::new);
     }
 
     private static void handleRegisterMenuScreens(RegisterMenuScreensEvent event) {

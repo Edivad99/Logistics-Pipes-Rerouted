@@ -1,5 +1,7 @@
 package logisticspipes.world.item;
 
+import java.util.Set;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -26,7 +28,13 @@ public class LPCreativeModeTabs {
                 .icon(LPItems.PIPE_BASIC::toStack)
                 .title(Component.translatable("itemGroup.logisticspipes"))
                 .displayItems((params, output) -> {
+                    var denyList = Set.of(
+                        LPItems.BROKEN_ITEM.getId(),
+                        LPItems.FLUID_CONTAINER.getId());
+
                     LPItems.entries()
+                        .stream()
+                        .filter(x -> !denyList.contains(x.getId()))
                         .forEach(reg -> output.accept(new ItemStack(reg.get())));
                 })
                 .build());

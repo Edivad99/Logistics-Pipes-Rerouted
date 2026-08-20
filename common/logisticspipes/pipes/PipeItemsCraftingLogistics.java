@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import logisticspipes.gui.hud.HUDCrafting;
 import logisticspipes.interfaces.IChangeListener;
@@ -54,6 +55,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
+import com.google.common.base.Preconditions;
+
 @CCType(name = "LogisticsPipes:Crafting")
 public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraftItems, IRequireReliableTransport, IHeadUpDisplayRendererProvider, IChangeListener, IOrderManagerContentReceiver, IHavePriority {
 
@@ -77,6 +80,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 
 	@Override
 	public void onAllowedRemoval() {
+        Preconditions.checkNotNull(orderItemManager);
 		while (orderItemManager.hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
 			orderItemManager.sendFailed();
 		}
@@ -152,7 +156,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 
 	@Override
 	public int getTodo() {
-		return orderItemManager.totalAmountCountInAllOrders();
+		return Objects.requireNonNull(orderItemManager).totalAmountCountInAllOrders();
 	}
 
 	@Override
@@ -195,7 +199,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 
 	private void checkContentUpdate() {
 		doContentUpdate = false;
-		LinkedList<ItemIdentifierStack> all = orderItemManager.getContentList(getWorld());
+		LinkedList<ItemIdentifierStack> all = Objects.requireNonNull(orderItemManager).getContentList(getWorld());
 		if (!oldList.equals(all)) {
 			oldList.clear();
 			oldList.addAll(all);
@@ -216,7 +220,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 
 	@Override
 	public double getLoadFactor() {
-		return (orderItemManager.totalAmountCountInAllOrders() + 63.0) / 64.0;
+		return (Objects.requireNonNull(orderItemManager).totalAmountCountInAllOrders() + 63.0) / 64.0;
 	}
 
 	/* ComputerCraftCommands */

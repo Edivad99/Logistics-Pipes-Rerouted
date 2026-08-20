@@ -2,12 +2,12 @@ package logisticspipes.world.item;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -17,6 +17,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
@@ -33,8 +34,7 @@ import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.DummyLevelProvider;
-import logisticspipes.utils.item.ItemIdentifierInventory;
-import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -133,9 +133,6 @@ public class ItemModule extends LogisticsItem {
             }
         }
         LogisticsModule newModule = moduleType.getILogisticsModule();
-        if (newModule == null) {
-            return null;
-        }
         newModule.registerHandler(world, service);
         return newModule;
     }
@@ -160,57 +157,85 @@ public class ItemModule extends LogisticsItem {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
         TooltipFlag tooltipFlag) {
-        if (stack.has(DataComponents.CUSTOM_DATA)) {
-            CompoundTag nbt = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
-
-            if (nbt.contains("informationList")) {
-                if (Screen.hasShiftDown()) {
-                    ListTag nbttaglist = nbt.getList("informationList", 8);
-                    for (int i = 0; i < nbttaglist.size(); i++) {
-                        Tag nbtTag = nbttaglist.get(i);
-                        String data = nbtTag.getAsString();
-                        if (data.equals("<inventory>") && i + 1 < nbttaglist.size()) {
-                            nbtTag = nbttaglist.get(i + 1);
-                            data = nbtTag.getAsString();
-                            HolderLookup.Provider registries = context.registries();
-                            if (data.startsWith("<that>") && registries != null) {
-                                String prefix = data.substring(6);
-                                CompoundTag module = nbt.getCompound("moduleInformation");
-                                int size = module.getList(prefix + "items", module.getId()).size();
-                                if (module.contains(prefix + "itemsCount")) {
-                                    size = module.getInt(prefix + "itemsCount");
-                                }
-                                ItemIdentifierInventory inv =
-                                    new ItemIdentifierInventory(size, "InformationTempInventory", Integer.MAX_VALUE);
-                                inv.readFromNBT(module, registries, prefix);
-                                for (int pos = 0; pos < inv.getContainerSize(); pos++) {
-                                    ItemIdentifierStack identStack = inv.getIDStackInSlot(pos);
-                                    if (identStack != null) {
-                                        if (identStack.getStackSize() > 1) {
-                                            tooltipComponents.add(Component.literal(
-                                                "  " + identStack.getStackSize() + "x "
-                                                    + identStack.getFriendlyName()));
-                                        } else {
-                                            tooltipComponents.add(
-                                                Component.literal("  " + identStack.getFriendlyName()));
-                                        }
-                                    }
-                                }
-                            }
-                            i++;
-                        } else {
-                            tooltipComponents.add(Component.literal(data));
-                        }
-                    }
-                } else {
-                    TextUtil.addTooltipInformation(stack, tooltipComponents, false);
-                }
-            } else {
-                TextUtil.addTooltipInformation(stack, tooltipComponents, Screen.hasShiftDown());
-            }
-        } else {
+        ListTag informationList = getInformationList(stack);
+        if (informationList == null) {
             TextUtil.addTooltipInformation(stack, tooltipComponents, Screen.hasShiftDown());
+            return;
         }
+        if (!Screen.hasShiftDown()) {
+            TextUtil.addTooltipInformation(stack, tooltipComponents, false);
+            return;
+        }
+        for (int i = 0; i < informationList.size(); i++) {
+            String data = informationList.getString(i);
+            if (data.equals("<inventory>") && i + 1 < informationList.size()) {
+                // The filter contents are drawn as an item grid, see getTooltipImage.
+                i++;
+            } else {
+                tooltipComponents.add(Component.literal(data));
+            }
+        }
+    }
+
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+        if (!Screen.hasShiftDown()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(getInventoryTooltip(stack));
+    }
+
+    @Nullable
+    private static ListTag getInformationList(ItemStack stack) {
+        if (!stack.has(DataComponents.CUSTOM_DATA)) {
+            return null;
+        }
+        CompoundTag nbt = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
+        if (!nbt.contains("informationList")) {
+            return null;
+        }
+        return nbt.getList("informationList", Tag.TAG_STRING);
+    }
+
+    /**
+     * Index of the {@code <inventory>} entry in the module's information list, which is the line the
+     * item grid takes the place of. Returns {@code -1} when the module has no inventory to show.
+     */
+    public static int getInventoryLineIndex(ItemStack stack) {
+        ListTag informationList = getInformationList(stack);
+        return informationList == null ? -1 : findInventoryEntry(informationList);
+    }
+
+    private static int findInventoryEntry(ListTag informationList) {
+        for (int i = 0; i + 1 < informationList.size(); i++) {
+            if (informationList.getString(i).equals("<inventory>")
+                && informationList.getString(i + 1).startsWith("<that>")) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    @Nullable
+    private static ModuleInventoryTooltip getInventoryTooltip(ItemStack stack) {
+        ListTag informationList = getInformationList(stack);
+        if (informationList == null) {
+            return null;
+        }
+        int entry = findInventoryEntry(informationList);
+        if (entry < 0) {
+            return null;
+        }
+        String prefix = informationList.getString(entry + 1).substring("<that>".length());
+        CompoundTag nbt = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
+        CompoundTag moduleInformation = nbt.getCompound("moduleInformation");
+        int size = moduleInformation.contains(prefix + "itemsCount")
+            ? moduleInformation.getInt(prefix + "itemsCount")
+            : moduleInformation.getList(prefix + "items", Tag.TAG_COMPOUND).size();
+        if (size <= 0) {
+            return null;
+        }
+        return new ModuleInventoryTooltip(moduleInformation, prefix, size);
     }
 
     private static class Module {
@@ -224,15 +249,11 @@ public class ItemModule extends LogisticsItem {
         }
 
         private LogisticsModule getILogisticsModule() {
-            if (moduleConstructor == null) {
-                return null;
-            }
             return moduleConstructor.get();
         }
 
         private Class<? extends LogisticsModule> getILogisticsModuleClass() {
             return moduleClass;
         }
-
     }
 }

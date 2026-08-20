@@ -75,11 +75,11 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void onEntitySpawn(EntityJoinLevelEvent event) {
-		if (event != null && event.getEntity() instanceof ItemEntity itemEntity && !event.getLevel().isClientSide) {
+		if (event.getEntity() instanceof ItemEntity itemEntity && !event.getLevel().isClientSide) {
 			ItemStack stack = itemEntity.getItem();
 			if (!stack.isEmpty() &&
-					stack.getItem() instanceof IItemAdvancedExistance &&
-					!((IItemAdvancedExistance) stack.getItem()).canExistInWorld(stack)) {
+					stack.getItem() instanceof IItemAdvancedExistance itemAdvancedExistence &&
+					!itemAdvancedExistence.canExistInWorld(stack)) {
 				event.setCanceled(true);
 				return;
 			}

@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import java.util.regex.Matcher
 
@@ -20,6 +19,10 @@ tasks.named('wrapper', Wrapper).configure {
 
 version = "$minecraft_version-$mod_version"
 group = 'network.rs485'
+
+// Local copy: inside the `runs` container an unqualified `mod_id` would resolve to a run
+// configuration of that name instead of to the project property.
+def modId = mod_id
 base {
     archivesName = mod_id
 }
@@ -33,11 +36,9 @@ java {
     }
 }
 
-tasks.withType(KotlinCompile).configureEach {
+kotlin {
     compilerOptions {
-        languageVersion.set(
-            KotlinVersion.KOTLIN_2_0
-        )
+        languageVersion.set(KotlinVersion.KOTLIN_2_0)
         jvmTarget.set(JvmTarget.JVM_21)
         freeCompilerArgs.add("-Xjvm-default=all")
     }
@@ -88,7 +89,7 @@ neoForge {
             systemProperty 'forge.logging.markers', 'REGISTRIES'
             logLevel = org.slf4j.event.Level.DEBUG
 
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.enabledGameTestNamespaces', modId
 
             if (System.getProperty('idea.active')) {
                 jvmArguments.add("-XX:+AllowEnhancedClassRedefinition")
@@ -97,26 +98,26 @@ neoForge {
 
         client {
             client()
-            gameDirectory = project.file('runs/client')
+            gameDirectory = file('runs/client')
         }
 
         server {
             server()
-            gameDirectory = project.file('runs/server')
+            gameDirectory = file('runs/server')
             programArgument '--nogui'
         }
 
         data {
             data()
-            gameDirectory = project.file('runs/data')
-            programArguments.addAll '--mod', project.mod_id, '--all',
+            gameDirectory = file('runs/data')
+            programArguments.addAll '--mod', modId, '--all',
                 '--output', file('src/generated/resources/').getAbsolutePath(),
                 '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
         gameTestServer {
             type = "gameTestServer"
-            gameDirectory = project.file('runs/gameTestServer')
+            gameDirectory = file('runs/gameTestServer')
         }
     }
 
@@ -199,6 +200,7 @@ dependencies {
 }
 
 kotlinLombok {
+    //noinspection GroovyAssignabilityCheck -- IDE misreads the decorated extension
     lombokConfigurationFile file("lombok.config")
 }
 

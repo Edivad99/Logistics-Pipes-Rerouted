@@ -2,6 +2,7 @@ package logisticspipes.world.item.component;
 
 import java.util.UUID;
 
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -39,6 +40,15 @@ public class LPDataComponents {
             builder -> builder
                 .persistent(HUDComponent.CODEC)
                 .networkSynchronized(HUDComponent.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<GlobalPos>> CONNECTED_PIPE =
+        deferredRegister.register(
+            "connected_pipe",
+            () -> DataComponentType.<GlobalPos>builder()
+                .persistent(GlobalPos.CODEC)
+                .networkSynchronized(GlobalPos.STREAM_CODEC)
+                .build()
+        );
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> RECIPE_TARGET =
         deferredRegister.register(
