@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:pipe_transport_basic"
-    }
+    "a": "logisticspipes:pipe_transport_basic"
   },
   "pattern": [
     "aaa"

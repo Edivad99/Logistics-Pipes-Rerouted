@@ -26,7 +26,7 @@ public class RoutingThreadCommand implements ICommandHandler {
 
 	@Override
 	public void executeCommand(Player sender, String[] args) {
-		sender.sendSystemMessage(Component.literal("RoutingTableUpdateThread: Queued: " + RoutingTableUpdateThread.size()));
-		sender.sendSystemMessage(Component.literal("RoutingTableUpdateThread: Average: " + RoutingTableUpdateThread.getAverage() + "ns"));
+		sender.displayClientMessage(Component.literal("RoutingTableUpdateThread: Queued: " + RoutingTableUpdateThread.size()), false);
+		sender.displayClientMessage(Component.literal("RoutingTableUpdateThread: Average: " + RoutingTableUpdateThread.getAverage() + "ns"), false);
 	}
 }

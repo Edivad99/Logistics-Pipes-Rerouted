@@ -45,6 +45,7 @@ import logisticspipes.utils.gui.LPGuiGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import java.lang.Float.min
@@ -107,7 +108,7 @@ object GuiDrawer {
             hovered -> BUTTON_HIGHLIGHTED
             else -> BUTTON
         }
-        guiGraphics.blitSprite(sprite, rect.roundedLeft, rect.roundedTop, rect.roundedWidth, rect.roundedHeight)
+        guiGraphics.blitSprite(RenderType::guiTextured, sprite, rect.roundedLeft, rect.roundedTop, rect.roundedWidth, rect.roundedHeight)
     }
 
     fun drawGuideBookFrame(rect: IRectangle, slider: IRectangle) {

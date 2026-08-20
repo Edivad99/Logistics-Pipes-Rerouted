@@ -49,6 +49,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
+import net.minecraft.client.renderer.CoreShaders;
+import com.mojang.blaze3d.ProjectionType;
 
 //Based on: https://github.com/SleepyTrousers/EnderIO/blob/master/src/main/java/crazypants/enderio/machine/gui/GuiOverlayIoConfig.java
 @OnlyIn(Dist.CLIENT)
@@ -173,7 +175,7 @@ public abstract class SideConfigDisplay {
 			if (shape.isEmpty()) continue;
 			AABB box = shape.bounds().move(pos);
 			box.clip(worldStart, worldEnd).ifPresent(pt -> {
-				Direction face = Direction.getNearest(
+				Direction face = Direction.getApproximateNearest(
 					(float)(pt.x - (pos.getX() + 0.5)),
 					(float)(pt.y - (pos.getY() + 0.5)),
 					(float)(pt.z - (pos.getZ() + 0.5)));
@@ -247,7 +249,7 @@ public abstract class SideConfigDisplay {
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderUtil.bindBlockTexture();
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShader(CoreShaders.POSITION_TEX);
 
 		Tesselator tes = Tesselator.getInstance();
 		BufferBuilder buf = tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -274,7 +276,7 @@ public abstract class SideConfigDisplay {
 		// restore projection vanilla
 		RenderSystem.setProjectionMatrix(
 				Minecraft.getInstance().gameRenderer.getProjectionMatrix(70.0f),
-				VertexSorting.DISTANCE_TO_ORIGIN
+				ProjectionType.PERSPECTIVE
 		);
 	}
 
@@ -344,10 +346,10 @@ public abstract class SideConfigDisplay {
 		RenderSystem.viewport(vp.x, vp.y, vp.width, vp.height);
 		// Clear the depth buffer so blocks render over the GUI background
 		GlStateManager._clearDepth(1.0);
-		GlStateManager._clear(0x00000100 /* GL_DEPTH_BUFFER_BIT */, Minecraft.ON_OSX);
+		GlStateManager._clear(0x00000100 /* GL_DEPTH_BUFFER_BIT */);
 		// Swap in custom perspective projection matrix
 //		RenderSystem.backupProjectionMatrix();
-//		RenderSystem.setProjectionMatrix(toJoml(camera.getProjectionMatrix()), VertexSorting.DISTANCE_TO_ORIGIN);
+//		RenderSystem.setProjectionMatrix(toJoml(camera.getProjectionMatrix()), ProjectionType.PERSPECTIVE);
 //		// Load view matrix into the modelview stack
 //		PoseStack modelViewStack = RenderSystem.getModelViewStack();
 //		modelViewStack.pushPose();
@@ -356,7 +358,7 @@ public abstract class SideConfigDisplay {
 
 		RenderSystem.setProjectionMatrix(
 				toJoml(camera.getProjectionMatrix()),
-				VertexSorting.DISTANCE_TO_ORIGIN
+				ProjectionType.PERSPECTIVE
 		);
 	}
 

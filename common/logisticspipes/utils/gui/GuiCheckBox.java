@@ -5,6 +5,7 @@ import logisticspipes.LPConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -38,7 +39,7 @@ public class GuiCheckBox extends AbstractButton {
 			boolean hover = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
 			ResourceLocation tex = LPConstants.rl("textures/gui/checkbox-" + (state ? "on" : "out") + (hover ? "-mouse" : "") + ".png");
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			guiGraphics.blit(tex, getX(), getY(), 0, 0, width, height, width, height);
+			guiGraphics.blit(RenderType::guiTextured, tex, getX(), getY(), 0, 0, width, height, width, height);
 		}
 	}
 

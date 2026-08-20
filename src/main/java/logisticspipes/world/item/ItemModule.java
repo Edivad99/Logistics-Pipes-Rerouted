@@ -15,7 +15,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -90,7 +89,7 @@ public class ItemModule extends LogisticsItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(final Level level, final Player player,
+    public InteractionResult use(final Level level, final Player player,
         final InteractionHand hand) {
         if (MainProxy.isServer(player.level())) {
             openConfigGui(player.getItemInHand(hand), player, level);

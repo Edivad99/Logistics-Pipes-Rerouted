@@ -51,7 +51,7 @@ public class RegisterProgrammerRecipes {
         if (upgradeResource == null) {
             return;
         }
-        Item upgrade = BuiltInRegistries.ITEM.get(upgradeResource);
+        Item upgrade = BuiltInRegistries.ITEM.getValue(upgradeResource);
         if (upgrade.equals(Items.AIR)) {
             return;
         }
@@ -73,7 +73,7 @@ public class RegisterProgrammerRecipes {
     private static void registerModuleRecipe(ResourceLocation recipeCategory, String moduleName,
         @Nullable String baseModuleName) {
         final ResourceLocation moduleResource = LPItems.modules.get(moduleName);
-        Item module = BuiltInRegistries.ITEM.get(moduleResource);
+        Item module = BuiltInRegistries.ITEM.getValue(moduleResource);
         if (module.equals(Items.AIR)) {
             return;
         }
@@ -81,7 +81,7 @@ public class RegisterProgrammerRecipes {
         if (baseModuleName == null) {
             baseModule = LPItems.MODULE_BLANK.get();
         } else {
-            baseModule = BuiltInRegistries.ITEM.get(LPItems.modules.get(baseModuleName));
+            baseModule = BuiltInRegistries.ITEM.getValue(LPItems.modules.get(baseModuleName));
         }
         if (baseModule.equals(Items.AIR)) {
             return;

@@ -1,8 +1,8 @@
 package logisticspipes.particle;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.server.level.ParticleStatus;
 
 public class PipeFXRenderHandler {
 

@@ -2,21 +2,11 @@
   "type": "logisticspipes:programmer_recipe",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:logistics_programmer"
-    },
-    "b": {
-      "item": "logisticspipes:pipe_chassis_mk2"
-    },
-    "c": {
-      "tag": "c:dusts/glowstone"
-    },
-    "d": {
-      "tag": "c:ingots/iron"
-    },
-    "e": {
-      "item": "logisticspipes:chip_advanced"
-    }
+    "a": "logisticspipes:logistics_programmer",
+    "b": "logisticspipes:pipe_chassis_mk2",
+    "c": "#c:dusts/glowstone",
+    "d": "#c:ingots/iron",
+    "e": "logisticspipes:chip_advanced"
   },
   "pattern": [
     " a ",

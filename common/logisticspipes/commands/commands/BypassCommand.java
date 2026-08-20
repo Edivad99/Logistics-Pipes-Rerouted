@@ -29,10 +29,10 @@ public class BypassCommand implements ICommandHandler {
 	public void executeCommand(Player sender, String[] args) {
 		if (!LogisticsSecurityTileEntity.byPassed.contains((Player) sender)) {
 			LogisticsSecurityTileEntity.byPassed.add((Player) sender);
-			sender.sendSystemMessage(Component.literal("Enabled"));
+			sender.displayClientMessage(Component.literal("Enabled"), false);
 		} else {
 			LogisticsSecurityTileEntity.byPassed.remove((Player) sender);
-			sender.sendSystemMessage(Component.literal("Disabled"));
+			sender.displayClientMessage(Component.literal("Disabled"), false);
 		}
 	}
 }

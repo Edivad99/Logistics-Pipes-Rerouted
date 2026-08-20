@@ -179,23 +179,23 @@ dependencies {
     compileOnly "org.projectlombok:lombok:$lombok_version"
     annotationProcessor "org.projectlombok:lombok:$lombok_version"
 
-    compileOnly "mezz.jei:jei-$minecraft_version-common-api:$jei_version"
-    compileOnly "mezz.jei:jei-$minecraft_version-neoforge-api:$jei_version"
-    localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
+    compileOnly "mezz.jei:jei-1.21.1-common-api:$jei_version"
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:$jei_version"
+    //localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
 
-    implementation "curse.maven:jade-api-324717:$jade_id"
+    //implementation "curse.maven:jade-api-324717:$jade_id"
 
     compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version:api"
-    localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
+    //localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
 
     compileOnly("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
         transitive = false
     }
-    localRuntime("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
+    /*localRuntime("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
         transitive = false
-    }
+    }*/
 
-    localRuntime "curse.maven:mekanism-268560:7904058"
+    //localRuntime "curse.maven:mekanism-268560:7904058"
     testImplementation "org.jetbrains.kotlin:kotlin-test:2.4.0"
 }
 

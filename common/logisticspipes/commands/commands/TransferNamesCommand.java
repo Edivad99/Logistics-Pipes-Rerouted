@@ -29,7 +29,7 @@ public class TransferNamesCommand implements ICommandHandler {
 
 	@Override
 	public void executeCommand(Player sender, String[] args) {
-		sender.sendSystemMessage(Component.literal("Requesting Transfer"));
+		sender.displayClientMessage(Component.literal("Requesting Transfer"), false);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RequestUpdateNamesPacket.class), sender);
 		MainProxy.getProxy(false).sendNameUpdateRequest(sender);
 	}

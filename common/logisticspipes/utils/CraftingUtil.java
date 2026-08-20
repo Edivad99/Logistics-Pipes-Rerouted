@@ -17,8 +17,6 @@ public class CraftingUtil {
         if (server == null) {
             return Collections.emptyList();
         }
-
-        return server.getRecipeManager()
-                .getAllRecipesFor(RecipeType.CRAFTING);
+        return server.getRecipeManager().recipeMap().byType(RecipeType.CRAFTING);
     }
 }

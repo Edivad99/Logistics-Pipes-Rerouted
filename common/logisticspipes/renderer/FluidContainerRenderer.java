@@ -77,7 +77,7 @@ public class FluidContainerRenderer {
 			long r = 0, g = 0, b = 0, n = 0;
 			for (int y = 0; y < image.getHeight(); y++) {
 				for (int x = 0; x < image.getWidth(); x++) {
-					int abgr = image.getPixelRGBA(x, y); // NativeImage pixels are ABGR
+					int abgr = image.getPixel(x, y); // NativeImage pixels are ABGR
 					if (((abgr >> 24) & 0xff) < 128) continue;
 					b += (abgr >> 16) & 0xff;
 					g += (abgr >> 8) & 0xff;

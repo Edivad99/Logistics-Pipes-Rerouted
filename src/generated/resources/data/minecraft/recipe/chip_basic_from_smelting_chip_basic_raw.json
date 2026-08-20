@@ -4,9 +4,7 @@
   "cookingtime": 200,
   "experience": 0.5,
   "group": "chip_basic",
-  "ingredient": {
-    "item": "logisticspipes:chip_basic_raw"
-  },
+  "ingredient": "logisticspipes:chip_basic_raw",
   "result": {
     "count": 1,
     "id": "logisticspipes:chip_basic"

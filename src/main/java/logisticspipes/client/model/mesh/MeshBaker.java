@@ -119,7 +119,9 @@ public final class MeshBaker {
             }
             // tintIndex -1: the color is baked into the vertices above, so no block color
             // handler should touch it.
-            out.add(new BakedQuad(data, -1, lightSampleFace(mesh, quad), sprite, shade));
+            // 1.21.3 added a lightEmission argument; 0 keeps the pre-1.21.3 behaviour of letting
+            // the chunk builder's lightmap decide the brightness.
+            out.add(new BakedQuad(data, -1, lightSampleFace(mesh, quad), sprite, shade, 0));
         }
     }
 

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:chip_basic"
-    },
-    "b": {
-      "item": "logisticspipes:crafting_table"
-    }
+    "a": "logisticspipes:chip_basic",
+    "b": "logisticspipes:crafting_table"
   },
   "pattern": [
     "a",

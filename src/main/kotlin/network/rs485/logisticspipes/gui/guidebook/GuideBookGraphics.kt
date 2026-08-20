@@ -41,6 +41,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import logisticspipes.LPConstants
 import network.rs485.logisticspipes.util.IRectangle
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.resources.ResourceLocation
 
 /**
@@ -75,13 +76,14 @@ internal object GuideBookGraphics {
         if (blend) RenderSystem.enableBlend()
         setShaderColor(color)
         guiGraphics.blit(
+            RenderType::guiTextured,
             GUI_ATLAS,
             dst.roundedLeft,
             dst.roundedTop,
-            dst.roundedWidth,
-            dst.roundedHeight,
             src.left,
             src.top,
+            dst.roundedWidth,
+            dst.roundedHeight,
             src.roundedWidth,
             src.roundedHeight,
             ATLAS_SIZE,
@@ -122,11 +124,11 @@ internal object GuideBookGraphics {
         val railWidth = slider.roundedWidth
         val railHeight = slider.roundedHeight
         // Top cap (1px), stretched horizontally.
-        guiGraphics.blit(GUI_ATLAS, railLeft, railTop, railWidth, 1, 96f, 64f, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
+        guiGraphics.blit(RenderType::guiTextured, GUI_ATLAS, railLeft, railTop, 96f, 64f, railWidth, 1, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
         // Middle, stretched both ways.
-        guiGraphics.blit(GUI_ATLAS, railLeft, railTop + 1, railWidth, railHeight - 2, 96f, 65f, 16, 14, ATLAS_SIZE, ATLAS_SIZE)
+        guiGraphics.blit(RenderType::guiTextured, GUI_ATLAS, railLeft, railTop + 1, 96f, 65f, railWidth, railHeight - 2, 16, 14, ATLAS_SIZE, ATLAS_SIZE)
         // Bottom cap (1px), stretched horizontally.
-        guiGraphics.blit(GUI_ATLAS, railLeft, railTop + railHeight - 1, railWidth, 1, 96f, 79f, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
+        guiGraphics.blit(RenderType::guiTextured, GUI_ATLAS, railLeft, railTop + railHeight - 1, 96f, 79f, railWidth, 1, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
         RenderSystem.disableBlend()
     }
 
@@ -148,7 +150,7 @@ internal object GuideBookGraphics {
             val w = minOf(tile, right - x)
             while (y < bottom) {
                 val h = minOf(tile, bottom - y)
-                guiGraphics.blit(GUI_DARK_PATTERN, x, y, 0.0f, 0.0f, w, h, tile, tile)
+                guiGraphics.blit(RenderType::guiTextured, GUI_DARK_PATTERN, x, y, 0.0f, 0.0f, w, h, tile, tile)
                 y += tile
             }
             x += tile

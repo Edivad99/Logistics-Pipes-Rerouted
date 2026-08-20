@@ -72,7 +72,7 @@ public class ServerProxy implements IProxy {
 		var server = ServerLifecycleHooks.getCurrentServer();
 		if (server != null) {
 			for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-				p.sendSystemMessage(Component.literal("[LP] Server: " + message));
+				p.displayClientMessage(Component.literal("[LP] Server: " + message), false);
 			}
 		}
 	}

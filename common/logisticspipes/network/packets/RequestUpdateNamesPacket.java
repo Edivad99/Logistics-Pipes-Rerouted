@@ -40,7 +40,7 @@ public class RequestUpdateNamesPacket extends ModernPacket {
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(UpdateName.class).setIdent(item).setName(item.getFriendlyName()));
 		}
 		SimpleServiceLocator.clientBufferHandler.setPause(false);
-		Minecraft.getInstance().player.sendSystemMessage(Component.literal("Names in send Queue"));
+		Minecraft.getInstance().player.displayClientMessage(Component.literal("Names in send Queue"), false);
 	}
 
 	@Override

@@ -42,9 +42,9 @@ public class PipeDebugAskForTarget extends ModernPacket {
 				if (tile instanceof LogisticsTileGenericPipe) {
 					((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe = !((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe;
 					if (((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe) {
-						player.sendSystemMessage(Component.literal("Debug enabled On Client"));
+						player.displayClientMessage(Component.literal("Debug enabled On Client"), false);
 					} else {
-						player.sendSystemMessage(Component.literal("Debug disabled On Client"));
+						player.displayClientMessage(Component.literal("Debug disabled On Client"), false);
 					}
 				}
 			} else {

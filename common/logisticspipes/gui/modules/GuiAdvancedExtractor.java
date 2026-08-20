@@ -16,6 +16,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.property.BooleanProperty;
@@ -86,7 +87,7 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 		// texture: LogisticsBaseGuiScreen.ITEMSINK
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(LogisticsBaseGuiScreen.ITEMSINK, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, LogisticsBaseGuiScreen.ITEMSINK, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 
 }

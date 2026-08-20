@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:chip_advanced"
-    },
-    "b": {
-      "tag": "c:ingots/iron"
-    },
-    "c": {
-      "item": "logisticspipes:chip_fpga"
-    },
-    "d": {
-      "tag": "c:ingots/gold"
-    },
-    "e": {
-      "item": "logisticspipes:module_blank"
-    }
+    "a": "logisticspipes:chip_advanced",
+    "b": "#c:ingots/iron",
+    "c": "logisticspipes:chip_fpga",
+    "d": "#c:ingots/gold",
+    "e": "logisticspipes:module_blank"
   },
   "pattern": [
     " a ",

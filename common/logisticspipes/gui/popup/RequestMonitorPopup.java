@@ -34,10 +34,12 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 
 import network.rs485.logisticspipes.util.TextUtil;
+import com.mojang.blaze3d.ProjectionType;
 
 public class RequestMonitorPopup extends SubGuiScreen {
 
@@ -220,18 +222,17 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		//GuiGraphics oldStored = getGuiGraphics();
         GuiGraphics gg = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
         PoseStack modelView = gg.pose();
-		TextureTarget target = new TextureTarget(imgWidth, imgHeight, true, Minecraft.ON_OSX);
+		TextureTarget target = new TextureTarget(imgWidth, imgHeight, true);
 		try {
 
             target.setClearColor(0.15F, 0.15F, 0.15F, 1.0F);
-			target.clear(Minecraft.ON_OSX);
+			target.clear();
 			target.bindWrite(true);
 			RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, imgWidth, imgHeight, 0.0F, 1000.0F, 21000.0F),
-					VertexSorting.ORTHOGRAPHIC_Z);
+					ProjectionType.ORTHOGRAPHIC);
 			modelView.pushPose();
 			modelView.setIdentity();
 			modelView.translate(0.0D, 0.0D, -11000.0D);
-			RenderSystem.applyModelViewMatrix();
 
 			// Widen the clip rect so renderItemAt draws the full tree instead of the popup viewport
 			guiLeft = -1;
@@ -247,7 +248,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			String s = Integer.toString(orderId);
 			int badgeY = list.isEmpty() ? anchorY + 18 : anchorY - 40;
-			gg.blit(RequestMonitorPopup.achievementTextures, anchorX - 5, badgeY, 0.0f, 202.0f, 26, 26, 256, 256);
+			gg.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, anchorX - 5, badgeY, 0.0f, 202.0f, 26, 26, 256, 256);
 			gg.drawString(minecraft.font, s, anchorX + 9 - minecraft.font.width(s) / 2, badgeY + 10, 16777215, true);
 			renderLinkedOrderListItems(gg, list, anchorX, anchorY, Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -265,7 +266,6 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			ySize = oldYSize;
 			//storedGuiGraphics = oldStored;
 			modelView.popPose();
-			RenderSystem.applyModelViewMatrix();
 			target.destroyBuffers();
 			Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
 		}
@@ -290,7 +290,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 				File candidate = new File(screenShotsFolder, s + "_tree" + (i == 1 ? "" : "_" + i) + ".png");
 				if (!candidate.exists()) {
 					image.writeToFile(candidate);
-					Minecraft.getInstance().player.sendSystemMessage(Component.literal("Saved tree view as " + candidate.getName()));
+					Minecraft.getInstance().player.displayClientMessage(Component.literal("Saved tree view as " + candidate.getName()), false);
 					return;
 				}
 				++i;
@@ -310,7 +310,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int topSide = ((height - ySize) / 2);
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
+        guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 
 		guiTop *= 1 / zoom.zoom;
 		guiLeft *= 1 / zoom.zoom;
@@ -338,10 +338,10 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 		String s = Integer.toString(orderId);
 		if (!list.isEmpty()) {
-			guiGraphics.blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0.0f, 202.0f, 26, 26, 256, 256);
+			guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0.0f, 202.0f, 26, 26, 256, 256);
 			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 210, 16777215, true);
 		} else {
-			guiGraphics.blit(RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0.0f, 202.0f, 26, 26, 256, 256);
+			guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0.0f, 202.0f, 26, 26, 256, 256);
 			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 16777215, true);
 		}
 		renderLinkedOrderListItems(guiGraphics, list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180, par1, par2);
@@ -355,7 +355,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		topSide *= zoom.zoom;
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
+        guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 	}
 
 	private void renderLinkedOrderListItems(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
@@ -370,7 +370,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			}
 			// GL_LIGHTING removed — use shaders
 			RenderSystem.setShaderTexture(0, RequestMonitorPopup.achievementTextures);
-            guiGraphics.blit(RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
+            guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			renderItemAt(guiGraphics, aList.getAsDisplayItem(), startLeft, yPos);
 			if (aList.isInProgress() && aList.getMachineProgress() != 0) {

@@ -12,6 +12,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.utils.gui.DummyContainer;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.SimpleFilter;
@@ -54,6 +55,6 @@ public class GuiSimpleFilter extends ModuleBaseGui {
 		// texture: GuiSimpleFilter.TEXTURE
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(GuiSimpleFilter.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, GuiSimpleFilter.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 }

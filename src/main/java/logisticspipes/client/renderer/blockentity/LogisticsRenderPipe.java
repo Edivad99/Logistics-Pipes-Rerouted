@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -66,12 +67,11 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     @Nullable
     private static TextureAtlasSprite requestTableSprite = null;
 
-    private final SignRenderer.SignModel signModel;
+    private final Model signModel;
 
     public LogisticsRenderPipe(BlockEntityRendererProvider.Context context) {
-        signModel = SignRenderer.createSignModel(context.getModelSet(), TYPE);
         // A pipe sign hangs on the pipe, so it never has the standing sign's post.
-        signModel.stick.visible = false;
+        signModel = SignRenderer.createSignModel(context.getModelSet(), TYPE, false);
     }
 
     /**
@@ -460,7 +460,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         try {
             poseStack.scale(signScale, -signScale, -signScale);
             VertexConsumer buffer = Sheets.getSignMaterial(TYPE).buffer(bufferSource, signModel::renderType);
-            signModel.root.render(poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY);
+            signModel.root().render(poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY);
         } finally {
             poseStack.popPose();
         }

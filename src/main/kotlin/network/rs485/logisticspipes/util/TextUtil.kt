@@ -122,12 +122,12 @@ object TextUtil {
     fun addTooltipInformation(stack: ItemStack, tooltip: MutableList<Component>, extended: Boolean){
         if(extended) {
             var tooltipLine = 1
-            while(Language.getInstance().has("${stack.descriptionId}.tip$tooltipLine")){
-                tooltip += Component.literal(translate("${stack.descriptionId}.tip$tooltipLine"))
+            while(Language.getInstance().has("${stack.item.descriptionId}.tip$tooltipLine")){
+                tooltip += Component.literal(translate("${stack.item.descriptionId}.tip$tooltipLine"))
                 tooltipLine++
             }
         } else {
-            if(Language.getInstance().has("${stack.descriptionId}.tip1")){
+            if(Language.getInstance().has("${stack.item.descriptionId}.tip1")){
                 tooltip += Component.literal(translate(holdShiftTooltip))
             }
         }

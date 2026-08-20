@@ -2,9 +2,7 @@ package logisticspipes.world.item;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
@@ -19,13 +17,13 @@ public class ItemPipeController extends LogisticsItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
-        ItemStack stack = player.getItemInHand(handIn);
+    public InteractionResult use(Level level, Player player, InteractionHand handIn) {
         if (MainProxy.isClient(level)) {
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
         }
         useItem(player, level);
-        return InteractionResultHolder.success(stack);
+        // SUCCESS_SERVER: the early return above leaves only the server side reaching this.
+        return InteractionResult.SUCCESS_SERVER;
     }
 
     @Override

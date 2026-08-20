@@ -12,6 +12,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -128,7 +129,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		int topSide = ((height - imageHeight) / 2);
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
 
 		topPos = (int) (topPos * 1 / zoom.zoom);
 		leftPos = (int) (leftPos * 1 / zoom.zoom);
@@ -149,7 +150,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		topSide *= zoom.zoom;
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		guiGraphics.blit(LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
 	}
 
 	private void renderLinkedOrderListItems(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
@@ -164,7 +165,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 			}
 			// GL_LIGHTING removed — use shaders
 			RenderSystem.setShaderTexture(0, LogicLayoutGui.achievementTextures);
-			guiGraphics.blit(LogicLayoutGui.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
+			guiGraphics.blit(RenderType::guiTextured, LogicLayoutGui.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			//renderItemAt(aList.getAsDisplayItem(), startLeft, yPos);
 			if (aList.isInProgress() && aList.getMachineProgress() != 0) {

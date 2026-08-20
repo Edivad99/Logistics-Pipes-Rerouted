@@ -17,6 +17,7 @@ import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -90,7 +91,7 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 		int j = leftPos;
 		int k = topPos;
 		//guiGraphics.fill(width/2 - imageWidth / 2, height / 2 - imageHeight /2, width/2 + imageWidth / 2, height / 2 + imageHeight /2, 0xFF404040);
-		guiGraphics.blit(GuiSneakyConfigurator.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, GuiSneakyConfigurator.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 
 	private String getButtonOrientationString(Direction orientation) {

@@ -67,6 +67,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
+import net.minecraft.world.level.redstone.Orientation;
 
 // BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
 // Particle/ParticleEngine/TextureAtlasSprite imports removed — rendering deferred (see addHitEffects/addDestroyEffects TODOs)
@@ -232,8 +233,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 			DeferredRegister.Items registry,
 			String name,
 			Function<Item, ? extends CoreUnroutedPipe> constructor) {
-		return registry.register("pipe_" + name, () -> {
-            Item.Properties properties = new Item.Properties();
+		return registry.registerItem("pipe_" + name, properties -> {
 			ItemLogisticsPipe item = new ItemLogisticsPipe(properties);
 			LogisticsBlockGenericPipe.pipes.put(item, constructor);
 			// Create a dummy pipe instance for type/size queries (isMultiBlock, etc.)
@@ -471,12 +471,12 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	 * purpose, so an unloaded or pipe-block tile stays targetable and collidable.</p>
 	 */
 	@Override
-	protected int getLightBlock(BlockState state, BlockGetter world, BlockPos pos) {
+	protected int getLightBlock(BlockState state) {
 		return 0;
 	}
 
 	@Override
-	protected boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+	protected boolean propagatesSkylightDown(BlockState state) {
 		return true;
 	}
 
@@ -798,8 +798,9 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 
 	/* Wrappers ************************************************************ */
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean movedByPiston) {
-		super.neighborChanged(state, worldIn, pos, blockIn, fromPos, movedByPiston);
+	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn,
+		@Nullable Orientation orientation, boolean movedByPiston) {
+		super.neighborChanged(state, worldIn, pos, blockIn, orientation, movedByPiston);
 
 		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(worldIn, pos);
 

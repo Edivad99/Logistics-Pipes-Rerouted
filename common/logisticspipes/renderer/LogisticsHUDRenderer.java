@@ -36,6 +36,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -44,6 +45,7 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.client.renderer.CoreShaders;
 
 public class LogisticsHUDRenderer {
 
@@ -199,9 +201,9 @@ public class LogisticsHUDRenderer {
 			int height = mc.getWindow().getGuiScaledHeight();
 			if (mc.gui != null && guiGraphics != null) {
 				// LP1 redrew the vanilla crosshair tinted black to mark a HUD target lock.
-				guiGraphics.setColor(0.0f, 0.0f, 0.0f, 1.0f);
-				guiGraphics.blit(TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f, 16, 16, 256, 256);
-				guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+				// GuiGraphics.setColor is gone in 1.21.3 -- the tint is an ARGB blit argument now.
+				guiGraphics.blit(RenderType::guiTextured, TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f, 16, 16,
+					256, 256, 0xFF000000);
 			}
 		}
 	}
@@ -348,7 +350,7 @@ public class LogisticsHUDRenderer {
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		if (!lasers.isEmpty()) {
-			RenderSystem.setShader(GameRenderer::getPositionColorShader);
+			RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 			Tesselator tes = Tesselator.getInstance();
 			// The pose origin is the interpolated camera, not the player's feet as in 1.12.
 			Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();

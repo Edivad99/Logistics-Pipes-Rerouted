@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "logisticspipes:module_quick_sort"
-    }
+    "logisticspipes:module_quick_sort"
   ],
   "result": {
     "count": 1,

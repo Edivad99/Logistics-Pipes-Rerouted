@@ -70,7 +70,7 @@ import kotlinx.coroutines.delay
 
 @Suppress("FunctionName")
 object CraftingTest {
-    private val fuzzyUpgradeItem = BuiltInRegistries.ITEM.get(LPItems.upgrades[FuzzyUpgrade.getName()])
+    private val fuzzyUpgradeItem = BuiltInRegistries.ITEM.getValue(LPItems.upgrades[FuzzyUpgrade.getName()])
 
     suspend fun `test single fuzzy ingredient crafting fails multi-request with mixed OreDict input`(
         loggerIn: (Any) -> Unit,

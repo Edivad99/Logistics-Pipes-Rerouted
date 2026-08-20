@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -67,10 +67,10 @@ public class RemoteOrderer extends LogisticsItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
+    public InteractionResult use(Level level, Player player, InteractionHand handIn) {
         ItemStack par1ItemStack = player.getMainHandItem();
         if (par1ItemStack.isEmpty() || !par1ItemStack.has(LPDataComponents.CONNECTED_PIPE)) {
-            return InteractionResultHolder.fail(par1ItemStack);
+            return InteractionResult.FAIL;
         }
         if (level instanceof ServerLevel serverLevel) {
             PipeItemsRemoteOrdererLogistics pipe = RemoteOrderer.getPipe(serverLevel.getServer(), par1ItemStack);
@@ -94,6 +94,6 @@ public class RemoteOrderer extends LogisticsItem {
                 }
             }
         }
-        return InteractionResultHolder.pass(par1ItemStack);
+        return InteractionResult.PASS;
     }
 }

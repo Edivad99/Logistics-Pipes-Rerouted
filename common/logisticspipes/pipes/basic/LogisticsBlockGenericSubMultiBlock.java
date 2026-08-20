@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -147,8 +148,9 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-		super.neighborChanged(state, level, pos, block, fromPos, isMoving);
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
+        @Nullable Orientation orientation, boolean isMoving) {
+		super.neighborChanged(state, level, pos, block, orientation, isMoving);
 		BlockEntity tile = level.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 			((LogisticsTileGenericSubMultiBlock) tile).scheduleNeighborChange();

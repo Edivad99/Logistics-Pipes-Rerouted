@@ -1,15 +1,20 @@
 package logisticspipes.world.item.crafting;
 
+import java.util.List;
+
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 
 import com.mojang.serialization.MapCodec;
@@ -40,32 +45,35 @@ public class ProgrammerRecipe extends WrappedShapedRecipe {
     }
 
     private String getRequiredProgram() {
-        return BuiltInRegistries.ITEM.getKey(getResultItem(null).getItem()).toString();
+        return BuiltInRegistries.ITEM.getKey(this.result.getItem()).toString();
     }
 
     @Override
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
-        return getResultItem(provider).copy();
+        return this.result.copy();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends ShapedRecipe> getSerializer() {
         return LPRecipeSerializers.PROGRAMMER_RECIPE.get();
     }
 
     @Override
-    public NonNullList<Ingredient> getIngredients() {
-        NonNullList<Ingredient> ingredients = NonNullList.create();
-        for (Ingredient ingredient : super.getIngredients()) {
-            if (ingredient.test(LPItems.LOGISTICS_PROGRAMMER.toStack())) {
-                ItemStack programmer = LPItems.LOGISTICS_PROGRAMMER.toStack();
-                programmer.set(LPDataComponents.RECIPE_TARGET.get(), getRequiredProgram());
-                ingredients.add(Ingredient.of(programmer));
-            } else {
-                ingredients.add(ingredient);
-            }
-        }
-        return ingredients;
+    public List<RecipeDisplay> display() {
+        ItemStack programmer = LPItems.LOGISTICS_PROGRAMMER.toStack();
+        programmer.set(LPDataComponents.RECIPE_TARGET.get(), getRequiredProgram());
+        SlotDisplay programmerSlot = new SlotDisplay.ItemStackSlotDisplay(programmer);
+        List<SlotDisplay> slots = getIngredients().stream()
+            .map(ingredient -> ingredient
+                .map(it -> it.test(LPItems.LOGISTICS_PROGRAMMER.toStack()) ? programmerSlot : it.display())
+                .orElse(SlotDisplay.Empty.INSTANCE))
+            .toList();
+        return List.of(new ShapedCraftingRecipeDisplay(
+            getWidth(),
+            getHeight(),
+            slots,
+            new SlotDisplay.ItemStackSlotDisplay(this.result),
+            new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)));
     }
 
     public static class Serializer implements RecipeSerializer<ProgrammerRecipe> {

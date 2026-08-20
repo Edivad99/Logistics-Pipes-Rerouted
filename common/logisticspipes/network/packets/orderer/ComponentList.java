@@ -61,10 +61,10 @@ public class ComponentList extends ModernPacket {
 					.handleSimulateAnswer(used, missing, (GuiRequestTable) Minecraft.getInstance().screen, player);
 		} else {
 			for (IResource item : used) {
-				player.sendSystemMessage(Component.literal("Component: " + item.getDisplayText(ColorCode.SUCCESS)));
+				player.displayClientMessage(Component.literal("Component: " + item.getDisplayText(ColorCode.SUCCESS)), false);
 			}
 			for (IResource item : missing) {
-				player.sendSystemMessage(Component.literal("Missing: " + item.getDisplayText(ColorCode.MISSING)));
+				player.displayClientMessage(Component.literal("Missing: " + item.getDisplayText(ColorCode.MISSING)), false);
 			}
 		}
 	}

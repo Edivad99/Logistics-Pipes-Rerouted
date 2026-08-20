@@ -242,7 +242,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				moduleStack = idStack.getItem().makeNormalStack(1);
 			} else {
 				ResourceLocation resourceLocation = LPItems.modules.get(module.getLPName());
-				Item item = BuiltInRegistries.ITEM.get(resourceLocation);
+				Item item = BuiltInRegistries.ITEM.getValue(resourceLocation);
 				if (item == null) return;
 				moduleStack = new ItemStack(item);
 			}
@@ -475,7 +475,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				if (settings == null || settings.openGui) {
 					((PipeLogisticsChassis) container.pipe).nextOrientation();
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
 				}
 			}
 			SimpleServiceLocator.configToolHandler.wrenchUsed(entityplayer, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND), container);
@@ -487,7 +487,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				if (settings == null || settings.openGui) {
 					return tryInsertingModule(entityplayer);
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
 				}
 			}
 			return true;

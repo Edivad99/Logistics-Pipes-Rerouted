@@ -1,63 +1,122 @@
 package logisticspipes.data.recipes.builders;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.level.ItemLike;
 
 import logisticspipes.world.item.crafting.ProgrammerRecipe;
 
-public class ProgrammerRecipeBuilder extends ShapedRecipeBuilder {
+/**
+ * Datagen builder for {@link ProgrammerRecipe}, a shaped recipe that additionally requires the
+ * programmer in the grid to be programmed for the result item.
+ *
+ * <p>Up to 1.21.1 this only had to subclass {@link net.minecraft.data.recipes.ShapedRecipeBuilder}
+ * and override {@code save}. 1.21.3 made that class's constructors and {@code ensureValid} private,
+ * so the shaped-pattern bookkeeping is duplicated here instead.
+ */
+public class ProgrammerRecipeBuilder implements RecipeBuilder {
 
-    public ProgrammerRecipeBuilder(RecipeCategory category, ItemLike result, int count) {
-        this(category, new ItemStack(result, count));
+    private final HolderGetter<Item> items;
+    private final RecipeCategory category;
+    private final ItemStack resultStack;
+    private final List<String> rows = new java.util.ArrayList<>();
+    private final Map<Character, Ingredient> key = new LinkedHashMap<>();
+    private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
+    @Nullable
+    private String group;
+    private boolean showNotification = true;
+
+    private ProgrammerRecipeBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+        this.items = items;
+        this.category = category;
+        this.resultStack = result;
     }
 
-    public ProgrammerRecipeBuilder(RecipeCategory category, ItemStack result) {
-        super(category, result);
+    public static ProgrammerRecipeBuilder shaped(HolderGetter<Item> items, RecipeCategory category, ItemLike result) {
+        return shaped(items, category, result, 1);
     }
 
-    public ProgrammerRecipeBuilder(RecipeCategory category, ItemStack result, int count) {
-        super(category, result);
+    public static ProgrammerRecipeBuilder shaped(HolderGetter<Item> items, RecipeCategory category, ItemLike result,
+        int count) {
+        return new ProgrammerRecipeBuilder(items, category, new ItemStack(result, count));
     }
 
-    public static ProgrammerRecipeBuilder shaped(RecipeCategory category, ItemLike result) {
-        return shaped(category, result, 1);
-    }
-
-    public static ProgrammerRecipeBuilder shaped(RecipeCategory category, ItemLike result, int count) {
-        return new ProgrammerRecipeBuilder(category, result, count);
-    }
-
-    public static ProgrammerRecipeBuilder shaped(RecipeCategory category, ItemStack result) {
-        return new ProgrammerRecipeBuilder(category, result);
+    public static ProgrammerRecipeBuilder shaped(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+        return new ProgrammerRecipeBuilder(items, category, result);
     }
 
     public ProgrammerRecipeBuilder define(Character symbol, TagKey<Item> tag) {
-        return (ProgrammerRecipeBuilder) super.define(symbol, Ingredient.of(tag));
+        return this.define(symbol, Ingredient.of(this.items.getOrThrow(tag)));
     }
 
     public ProgrammerRecipeBuilder define(Character symbol, ItemLike item) {
-        return (ProgrammerRecipeBuilder) super.define(symbol, Ingredient.of(item));
+        return this.define(symbol, Ingredient.of(item));
+    }
+
+    public ProgrammerRecipeBuilder define(Character symbol, Ingredient ingredient) {
+        if (this.key.containsKey(symbol)) {
+            throw new IllegalArgumentException("Symbol '" + symbol + "' is already defined!");
+        } else if (symbol == ' ') {
+            throw new IllegalArgumentException("Symbol ' ' (whitespace) is reserved and cannot be defined");
+        }
+        this.key.put(symbol, ingredient);
+        return this;
+    }
+
+    public ProgrammerRecipeBuilder pattern(String pattern) {
+        if (!this.rows.isEmpty() && pattern.length() != this.rows.get(0).length()) {
+            throw new IllegalArgumentException("Pattern must be the same width on every line!");
+        }
+        this.rows.add(pattern);
+        return this;
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, ResourceLocation id) {
-        ShapedRecipePattern shapedrecipepattern = this.ensureValid(id);
+    public ProgrammerRecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+        this.criteria.put(name, criterion);
+        return this;
+    }
+
+    @Override
+    public ProgrammerRecipeBuilder group(@Nullable String groupName) {
+        this.group = groupName;
+        return this;
+    }
+
+    public ProgrammerRecipeBuilder showNotification(boolean showNotification) {
+        this.showNotification = showNotification;
+        return this;
+    }
+
+    @Override
+    public Item getResult() {
+        return this.resultStack.getItem();
+    }
+
+    @Override
+    public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
+        ShapedRecipePattern pattern = this.ensureValid(id);
         Advancement.Builder builder = recipeOutput.advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
             .rewards(AdvancementRewards.Builder.recipe(id))
@@ -66,10 +125,17 @@ public class ProgrammerRecipeBuilder extends ShapedRecipeBuilder {
         ShapedRecipe shapedrecipe = new ShapedRecipe(
             Objects.requireNonNullElse(this.group, ""),
             RecipeBuilder.determineBookCategory(this.category),
-            shapedrecipepattern,
+            pattern,
             this.resultStack,
             this.showNotification);
         recipeOutput.accept(id, new ProgrammerRecipe(shapedrecipe),
-            builder.build(id.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+            builder.build(id.location().withPrefix("recipes/" + this.category.getFolderName() + "/")));
+    }
+
+    private ShapedRecipePattern ensureValid(ResourceKey<Recipe<?>> id) {
+        if (this.criteria.isEmpty()) {
+            throw new IllegalStateException("No way of obtaining recipe " + id.location());
+        }
+        return ShapedRecipePattern.of(this.key, this.rows);
     }
 }

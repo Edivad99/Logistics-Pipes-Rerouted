@@ -51,7 +51,6 @@ public class ObjModelManager implements PreparableReloadListener {
 
     @Override
     public CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager resourceManager,
-        ProfilerFiller prepareProfiler, ProfilerFiller applyProfiler,
         Executor prepareExecutor, Executor applyExecutor) {
         return CompletableFuture
             .supplyAsync(() -> parseAll(resourceManager), prepareExecutor)

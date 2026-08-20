@@ -45,35 +45,35 @@ public class RoutingUpdateTargetResponse extends ModernPacket {
 	@Override
 	public void processPacket(final Player player) {
 		if (mode == TargetMode.None) {
-			player.sendSystemMessage(Component.literal(ChatColor.RED + "No Target Found"));
+			player.displayClientMessage(Component.literal(ChatColor.RED + "No Target Found"), false);
 		} else if (mode == TargetMode.Block) {
 			int x = additions[0];
 			int y = additions[1];
 			int z = additions[2];
-			player.sendSystemMessage(Component.literal("Checking Block at: x:" + x + " y:" + y + " z:" + z));
+			player.displayClientMessage(Component.literal("Checking Block at: x:" + x + " y:" + y + " z:" + z), false);
 			Block id = player.level().getBlockState(new BlockPos(x, y, z)).getBlock();
-			player.sendSystemMessage(Component.literal("Found Block with Id: " + BuiltInRegistries.BLOCK.getId(id)));
+			player.displayClientMessage(Component.literal("Found Block with Id: " + BuiltInRegistries.BLOCK.getId(id)), false);
 			final BlockEntity tile = player.level().getBlockEntity(new BlockPos(x, y, z));
 			if (tile == null) {
-				player.sendSystemMessage(Component.literal(ChatColor.RED + "No BlockEntity found"));
+				player.displayClientMessage(Component.literal(ChatColor.RED + "No BlockEntity found"), false);
 			} else if (!(tile instanceof LogisticsTileGenericPipe)) {
-				player.sendSystemMessage(Component.literal(ChatColor.RED + "No LogisticsTileGenericPipe found"));
+				player.displayClientMessage(Component.literal(ChatColor.RED + "No LogisticsTileGenericPipe found"), false);
 			} else if (!(((LogisticsTileGenericPipe) tile).pipe instanceof CoreRoutedPipe)) {
-				player.sendSystemMessage(Component.literal(ChatColor.RED + "No CoreRoutedPipe found"));
+				player.displayClientMessage(Component.literal(ChatColor.RED + "No CoreRoutedPipe found"), false);
 			} else {
 				LPChatListener.addTask(() -> {
-					player.sendSystemMessage(Component.literal(ChatColor.GREEN + "Starting RoutingTable debug update."));
+					player.displayClientMessage(Component.literal(ChatColor.GREEN + "Starting RoutingTable debug update."), false);
 					DebugController.instance(player).debug(((ServerRouter) ((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).getRouter()));
 					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 					return true;
 				}, player);
-				player.sendSystemMessage(Component.literal(
+				player.displayClientMessage(Component.literal(
 						ChatColor.AQUA + "Start RoutingTable debug update ? " + ChatColor.RESET + "<" + ChatColor.GREEN + "yes" + ChatColor.RESET + "/"
-								+ ChatColor.RED + "no" + ChatColor.RESET + ">"));
+								+ ChatColor.RED + "no" + ChatColor.RESET + ">"), false);
 				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 			}
 		} else if (mode == TargetMode.Entity) {
-			player.sendSystemMessage(Component.literal(ChatColor.RED + "Entity not allowed"));
+			player.displayClientMessage(Component.literal(ChatColor.RED + "Entity not allowed"), false);
 		}
 	}
 

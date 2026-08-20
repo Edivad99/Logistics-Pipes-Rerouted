@@ -27,11 +27,11 @@ public class ClearCommand implements ICommandHandler {
 	@Override
 	public void executeCommand(Player sender, String[] args) {
 		if (args.length <= 0 || !args[0].equalsIgnoreCase("all")) {
-			sender.sendSystemMessage(Component.literal("%LPSTORESENDMESSAGE%"));
-			sender.sendSystemMessage(Component.literal("%LPCLEARCHAT%"));
-			sender.sendSystemMessage(Component.literal("%LPRESTORESENDMESSAGE%"));
+			sender.displayClientMessage(Component.literal("%LPSTORESENDMESSAGE%"), false);
+			sender.displayClientMessage(Component.literal("%LPCLEARCHAT%"), false);
+			sender.displayClientMessage(Component.literal("%LPRESTORESENDMESSAGE%"), false);
 		} else {
-			sender.sendSystemMessage(Component.literal("%LPCLEARCHAT%"));
+			sender.displayClientMessage(Component.literal("%LPCLEARCHAT%"), false);
 		}
 	}
 }

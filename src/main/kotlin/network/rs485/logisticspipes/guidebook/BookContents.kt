@@ -55,6 +55,7 @@ import java.io.IOException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.MessageFormat
+import net.minecraft.world.item.Items
 
 
 val MISSING_META = YamlPageMetadata("[404] the metadata was not found :P", icon = "logisticspipes:pipe_transport_basic")
@@ -233,13 +234,15 @@ class LoadedPage(override val fileLocation: String, override val language: Strin
             if (LogisticsPipes.isDEBUG()) {
                 try {
                     it.icon.split(":").apply {
-                        val item = BuiltInRegistries.ITEM.get(
+                        val item = BuiltInRegistries.ITEM.getValue(
                             ResourceLocation.fromNamespaceAndPath(
                                 this@apply[0],
                                 this@apply[1],
                             )
                         )
-                        if (item == null) LogisticsPipes.LOG.error("Item does not exist! ${it.icon}")
+                        // BuiltInRegistries.ITEM is defaulted: an unknown key resolves to AIR
+                        // rather than null, so AIR is what "does not exist" looks like now.
+                        if (item === Items.AIR) LogisticsPipes.LOG.error("Item does not exist! ${it.icon}")
                     }
                 } catch (e: Exception) {
                     LogisticsPipes.LOG.warn("Problem while checking if \\\"${it.icon}\\\" exists.")

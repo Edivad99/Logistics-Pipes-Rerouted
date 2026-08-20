@@ -227,7 +227,7 @@ public class LogisticsPipes {
         var fileHelper = event.getExistingFileHelper();
 
         generator.addProvider(event.includeServer(),
-            new LPRecipeProvider(packOutput, lookupProvider));
+            new LPRecipeProvider.Runner(packOutput, lookupProvider));
 
         generator.addProvider(event.includeClient(), new LPParticleProvider(packOutput, fileHelper));
         generator.addProvider(event.includeClient(),

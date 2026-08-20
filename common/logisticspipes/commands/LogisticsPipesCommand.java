@@ -60,18 +60,18 @@ public class LogisticsPipesCommand {
 		Player sender = source.getPlayer();
 		if (sender == null) return;
 		if (arguments.length <= 0) {
-			sender.sendSystemMessage(Component.literal("Type '/logisticspipes help' for help."));
+			sender.displayClientMessage(Component.literal("Type '/logisticspipes help' for help."), false);
 			return;
 		}
 		try {
 			mainCommand.executeCommand(sender, arguments);
 		} catch (LPCommandException e) {
 			if (e instanceof PermissionDeniedException) {
-				sender.sendSystemMessage(Component.literal("You are not allowed to execute that command now."));
+				sender.displayClientMessage(Component.literal("You are not allowed to execute that command now."), false);
 			} else if (e instanceof CommandNotFoundException) {
-				sender.sendSystemMessage(Component.literal("The command was not found"));
+				sender.displayClientMessage(Component.literal("The command was not found"), false);
 			} else {
-				sender.sendSystemMessage(Component.literal("Usage: /logisticspipes help"));
+				sender.displayClientMessage(Component.literal("Usage: /logisticspipes help"), false);
 			}
 		}
 	}

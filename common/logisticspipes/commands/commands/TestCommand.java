@@ -34,7 +34,7 @@ public class TestCommand implements ICommandHandler {
 		try {
 			testClass = Class.forName("network.rs485.logisticspipes.integration.MinecraftTest");
 		} catch (ReflectiveOperationException e) {
-			sender.sendSystemMessage(Component.literal(ChatColor.RED + "Error loading minecraft test class " + e));
+			sender.displayClientMessage(Component.literal(ChatColor.RED + "Error loading minecraft test class " + e), false);
 			return;
 		}
 		final Object minecraftTestInstance;
@@ -42,19 +42,19 @@ public class TestCommand implements ICommandHandler {
 			minecraftTestInstance = testClass.getDeclaredField("INSTANCE").get(null);
 			final Method startTestsMethod = testClass.getDeclaredMethod("startTests", Function1.class);
 			final Job job = (Job) startTestsMethod.invoke(minecraftTestInstance, (Function1<Object, Unit>) msg -> {
-				sender.sendSystemMessage(Component.literal(String.valueOf(msg)));
+				sender.displayClientMessage(Component.literal(String.valueOf(msg)), false);
 				return Unit.INSTANCE;
 			});
 			job.invokeOnCompletion(throwable -> {
 				if (throwable == null) {
-					sender.sendSystemMessage(Component.literal(ChatColor.GREEN + "SUCCESS"));
+					sender.displayClientMessage(Component.literal(ChatColor.GREEN + "SUCCESS"), false);
 				} else {
-					sender.sendSystemMessage(Component.literal(ChatColor.RED + "Tests failed with: " + throwable));
+					sender.displayClientMessage(Component.literal(ChatColor.RED + "Tests failed with: " + throwable), false);
 				}
 				return Unit.INSTANCE;
 			});
 		} catch (ReflectiveOperationException | ClassCastException e) {
-			sender.sendSystemMessage(Component.literal(ChatColor.RED + "Error accessing minecraft test instance " + e));
+			sender.displayClientMessage(Component.literal(ChatColor.RED + "Error accessing minecraft test instance " + e), false);
 		}
 	}
 }

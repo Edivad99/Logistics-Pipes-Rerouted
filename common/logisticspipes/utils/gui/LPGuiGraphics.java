@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -110,7 +111,7 @@ public final class LPGuiGraphics {
         LPGuiGraphics.zLevel = 0;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.depthMask(false);
-        guiGraphics.blit(slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
+        guiGraphics.blit(RenderType::guiTextured, slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
         RenderSystem.depthMask(true);
         // 1-pixel darker inset border so the slot visually separates from the panel on light backgrounds.
         final int borderColor = 0x80373737;
@@ -138,23 +139,23 @@ public final class LPGuiGraphics {
 
     public static void drawBigSlotBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
-        guiGraphics.blit(LPGuiGraphics.BIG_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 26, 26, 26, 26);
+        guiGraphics.blit(RenderType::guiTextured, LPGuiGraphics.BIG_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 26, 26, 26, 26);
     }
 
     public static void drawSmallSlotBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
-        guiGraphics.blit(LPGuiGraphics.SMALL_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 8, 8, 8, 8);
+        guiGraphics.blit(RenderType::guiTextured, LPGuiGraphics.SMALL_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 8, 8, 8, 8);
     }
 
     public static void renderIconAt(GuiGraphics guiGraphics, int x, int y, float zLevel, TextureAtlasSprite icon) {
-        guiGraphics.blit(x, y, 0, 16, 16, icon);
+        guiGraphics.blitSprite(RenderType::guiTextured, icon, x, y, 16, 16);
     }
 
     public static void drawLockBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        guiGraphics.blit(LPGuiGraphics.LOCK_ICON, x, y, 0.0f, 0.0f, 14, 15, 14, 15);
+        guiGraphics.blit(RenderType::guiTextured, LPGuiGraphics.LOCK_ICON, x, y, 0.0f, 0.0f, 14, 15, 14, 15);
         RenderSystem.disableBlend();
     }
 
@@ -162,7 +163,7 @@ public final class LPGuiGraphics {
         LPGuiGraphics.zLevel = 0;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        guiGraphics.blit(tex, x, y, 0.0f, 0.0f, 16, 16, 16, 16);
+        guiGraphics.blit(RenderType::guiTextured, tex, x, y, 0.0f, 0.0f, 16, 16, 16, 16);
         RenderSystem.disableBlend();
     }
 
@@ -225,16 +226,16 @@ public final class LPGuiGraphics {
 
         // Corners
         if (displayTop && displayLeft) {
-            guiGraphics.blit(BACKGROUND_TEXTURE, guiLeft, guiTop, 0.0f, 0.0f, BORDER, BORDER, TEX, TEX);
+            guiGraphics.blit(RenderType::guiTextured, BACKGROUND_TEXTURE, guiLeft, guiTop, 0.0f, 0.0f, BORDER, BORDER, TEX, TEX);
         }
         if (displayTop && displayRight) {
-            guiGraphics.blit(BACKGROUND_TEXTURE, right - BORDER, guiTop, 30.0f, 0.0f, BORDER, BORDER, TEX, TEX);
+            guiGraphics.blit(RenderType::guiTextured, BACKGROUND_TEXTURE, right - BORDER, guiTop, 30.0f, 0.0f, BORDER, BORDER, TEX, TEX);
         }
         if (displayBottom && displayLeft) {
-            guiGraphics.blit(BACKGROUND_TEXTURE, guiLeft, bottom - BORDER, 0.0f, 30.0f, BORDER, BORDER, TEX, TEX);
+            guiGraphics.blit(RenderType::guiTextured, BACKGROUND_TEXTURE, guiLeft, bottom - BORDER, 0.0f, 30.0f, BORDER, BORDER, TEX, TEX);
         }
         if (displayBottom && displayRight) {
-            guiGraphics.blit(BACKGROUND_TEXTURE, right - BORDER, bottom - BORDER, 30.0f, 30.0f, BORDER, BORDER, TEX,
+            guiGraphics.blit(RenderType::guiTextured, BACKGROUND_TEXTURE, right - BORDER, bottom - BORDER, 30.0f, 30.0f, BORDER, BORDER, TEX,
                 TEX);
         }
 
@@ -282,7 +283,7 @@ public final class LPGuiGraphics {
             for (IntIterator intiterator1 = slices(p_283642_, p_282324_); intiterator1.hasNext(); l += i1) {
                 i1 = intiterator1.nextInt();
                 int j1 = (p_282324_ - i1) / 2;
-                guiGraphics.blit(p_283059_, i, l, p_282691_ + k, p_281912_ + j1, j, i1, textureWidth, textureHeight);
+                guiGraphics.blit(RenderType::guiTextured, p_283059_, i, l, p_282691_ + k, p_281912_ + j1, j, i1, textureWidth, textureHeight);
             }
         }
     }

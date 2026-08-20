@@ -113,7 +113,7 @@ public class LogisticsEventListener {
 				if (((LogisticsTileGenericPipe) tile).pipe instanceof CoreRoutedPipe) {
 					if (!((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).canBeDestroyedByPlayer(event.getEntity())) {
 						event.setCanceled(true);
-						event.getEntity().sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+						event.getEntity().displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
 						((LogisticsTileGenericPipe) tile).scheduleNeighborChange();
 						Level level = event.getEntity().level();
 						BlockPos pos = tile.getBlockPos();

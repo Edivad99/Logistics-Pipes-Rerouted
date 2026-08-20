@@ -2,21 +2,11 @@
   "type": "logisticspipes:programmer_recipe",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:logistics_programmer"
-    },
-    "b": {
-      "tag": "c:dusts/redstone"
-    },
-    "c": {
-      "item": "logisticspipes:chip_fpga"
-    },
-    "d": {
-      "tag": "c:ingots/iron"
-    },
-    "e": {
-      "item": "logisticspipes:module_item_sink"
-    }
+    "a": "logisticspipes:logistics_programmer",
+    "b": "#c:dusts/redstone",
+    "c": "logisticspipes:chip_fpga",
+    "d": "#c:ingots/iron",
+    "e": "logisticspipes:module_item_sink"
   },
   "pattern": [
     " a ",

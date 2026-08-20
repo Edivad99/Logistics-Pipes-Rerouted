@@ -18,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
+import net.minecraft.client.renderer.CoreShaders;
 
 @Accessors(chain = true)
 public class PipeFXLaserPowerBeam extends Particle {
@@ -79,7 +80,7 @@ public class PipeFXLaserPowerBeam extends Particle {
 		int ai = 200;
 
 		Tesselator tes = Tesselator.getInstance();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.depthMask(false);

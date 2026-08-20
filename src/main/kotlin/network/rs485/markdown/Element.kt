@@ -77,7 +77,7 @@ class ItemLink(translationKey: String) : Link() {
                 )
             }
           if (BuiltInRegistries.ITEM.containsKey(resourceLocation)) {
-            val item: Item = BuiltInRegistries.ITEM.get(resourceLocation)
+            val item: Item = BuiltInRegistries.ITEM.getValue(resourceLocation)
             ItemStack(item)
           } else {
             LogisticsPipes.LOG.error("Item doesn't exist: $translationKey")

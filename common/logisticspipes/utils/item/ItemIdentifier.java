@@ -59,6 +59,7 @@ import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.WeakInternCache;
+import net.minecraft.resources.ResourceKey;
 
 // net.minecraft.world.item.CreativeModeTab removed — use CreativeModeTab
 
@@ -80,7 +81,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
                 "item is not registered"),
             DataComponentPatch.STREAM_CODEC,
             identifier -> identifier.components,
-            (key, patch) -> ItemIdentifier.get(BuiltInRegistries.ITEM.get(key), patch));
+            (key, patch) -> ItemIdentifier.get(BuiltInRegistries.ITEM.getValue(key), patch));
 
     private static final Predicate<DataComponentType<?>> IS_DAMAGE = t -> t == DataComponents.DAMAGE;
     private static final Predicate<DataComponentType<?>> IS_NOT_DAMAGE = t -> t != DataComponents.DAMAGE;
@@ -223,7 +224,8 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
                 if (tab == null || tab.getType() != CreativeModeTab.Type.CATEGORY) {
                     continue;
                 }
-                ResourceLocation key = BuiltInRegistries.CREATIVE_MODE_TAB.getKeyOrNull(tab);
+                ResourceLocation key = BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(tab)
+                    .map(ResourceKey::location).orElse(null);
                 String tabName = key != null ? key.getPath() : tab.getDisplayName().getString();
                 // The client's creative screen may rebuild tab contents concurrently (integrated
                 // server thread vs render thread), so guard the whole per-tab read.
@@ -450,7 +452,8 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
     public String getModName() {
         if (modName == null) {
-            ResourceLocation rl = BuiltInRegistries.ITEM.getKeyOrNull(item);
+            ResourceLocation rl = BuiltInRegistries.ITEM.getResourceKey(item)
+                .map(ResourceKey::location).orElse(null);
             if (rl != null) {
                 modName = ModList.get().getModContainerById(rl.getNamespace())
                     .map(mc -> mc.getModInfo().getDisplayName())

@@ -48,7 +48,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.level.Level
 import network.rs485.logisticspipes.gui.guidebook.GuiGuideBook
 import network.rs485.logisticspipes.gui.guidebook.IPageData
@@ -109,16 +109,16 @@ class ItemGuideBook(properties: Properties) : LogisticsItem(properties) {
         })
     }
 
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
         if (stack.item is ItemGuideBook && MainProxy.isServer(level)) {
             MainProxy.sendPacketToPlayer(
                 PacketHandler.getPacket(OpenGuideBook::class.java).setHand(hand).setStack(stack),
                 player,
             )
-            return InteractionResultHolder.success(stack)
+            return InteractionResult.SUCCESS_SERVER
         }
-        return InteractionResultHolder.pass(stack)
+        return InteractionResult.PASS
     }
 
     fun saveState(state: GuideBookState) {

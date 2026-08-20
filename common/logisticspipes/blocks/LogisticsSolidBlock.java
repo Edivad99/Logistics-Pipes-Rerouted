@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
 import lombok.Getter;
@@ -57,9 +58,9 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
-        boolean isMoving) {
-        super.neighborChanged(state, level, pos, block, fromPos, isMoving);
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
+        @Nullable Orientation orientation, boolean isMoving) {
+        super.neighborChanged(state, level, pos, block, orientation, isMoving);
         if (level.getBlockEntity(pos) instanceof LogisticsSolidBlockEntity logisticsSolidBlockEntity) {
             logisticsSolidBlockEntity.notifyOfBlockChange();
         }
@@ -75,7 +76,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
                     CoordinatesGuiProvider gp = guiBlockEntity.getGuiProvider();
                     gp.setTilePos(be).open(player);
                 }
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             }
         }
         return InteractionResult.PASS;

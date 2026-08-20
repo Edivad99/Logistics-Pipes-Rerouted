@@ -2,18 +2,10 @@
   "type": "logisticspipes:programmer_recipe",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:logistics_programmer"
-    },
-    "b": {
-      "item": "logisticspipes:chip_basic"
-    },
-    "c": {
-      "item": "logisticspipes:chip_fpga"
-    },
-    "d": {
-      "item": "logisticspipes:pipe_basic"
-    }
+    "a": "logisticspipes:logistics_programmer",
+    "b": "logisticspipes:chip_basic",
+    "c": "logisticspipes:chip_fpga",
+    "d": "logisticspipes:pipe_basic"
   },
   "pattern": [
     " a ",

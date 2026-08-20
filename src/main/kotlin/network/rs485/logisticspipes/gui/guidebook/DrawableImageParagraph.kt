@@ -45,6 +45,7 @@ import logisticspipes.LogisticsPipes
 import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.resources.ResourceLocation
 import java.io.IOException
 
@@ -148,12 +149,13 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
             RenderSystem.enableBlend()
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
             guiGraphics.blit(
+                RenderType::guiTextured,
                 imageResource,
                 absoluteBody.roundedLeft,
                 absoluteBody.roundedTop,
+                0.0f, 0.0f,
                 absoluteBody.roundedWidth,
                 absoluteBody.roundedHeight,
-                0.0f, 0.0f,
                 imageWidth, imageHeight,
                 imageWidth, imageHeight,
             )

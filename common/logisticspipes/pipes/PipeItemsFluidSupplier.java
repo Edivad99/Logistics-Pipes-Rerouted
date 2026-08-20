@@ -116,10 +116,9 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		while (idStack.getStackSize() > 0 && util.fill(liquidId, false) == liquidId.getAmount() && this.useEnergy(5)) {
 			util.fill(liquidId, true);
 			idStack.lowerStackSize(1);
-			Item item = idStack.getItem().item;
-			if (item.hasCraftingRemainingItem()) {
-				Item containerItem = Objects.requireNonNull(item.getCraftingRemainingItem());
-				transport.sendItem(new ItemStack(containerItem, 1));
+			ItemStack remainder = idStack.getItem().makeNormalStack(1).getCraftingRemainder();
+			if (!remainder.isEmpty()) {
+				transport.sendItem(remainder);
 			}
 		}
 	}

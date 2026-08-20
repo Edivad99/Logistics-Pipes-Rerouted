@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "logisticspipes:module_item_sink_mod"
-    }
+    "logisticspipes:module_item_sink_mod"
   ],
   "result": {
     "count": 1,

@@ -9,8 +9,11 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
 
 public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 
@@ -108,8 +111,7 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 				return;
 			}
 		}
-		Explosion explosion = new Explosion(this.getWorld(), null, this.getPipe().getX(), this.getPipe().getY(), this.getPipe().getZ(), 4.0F, false, Explosion.BlockInteraction.DESTROY);
-		explosion.finalizeExplosion(true);
+		spawnMisroutedItemExplosionEffect();
 	}
 
 	@Override
@@ -127,8 +129,7 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 				return;
 			}
 		}
-		Explosion explosion = new Explosion(this.getWorld(), null, this.getPipe().getX(), this.getPipe().getY(), this.getPipe().getZ(), 4.0F, false, Explosion.BlockInteraction.DESTROY);
-		explosion.finalizeExplosion(true);
+		spawnMisroutedItemExplosionEffect();
 	}
 
 	@Override
@@ -155,5 +156,28 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 			return ((LogisticsTileGenericPipe) tile).pipe;
 		}
 		return null;
+	}
+
+	/**
+	 * Plays the sound and particle of an explosion at the pipe, marking an item that reached a tile
+	 * it should never have reached.
+	 *
+	 * <p>This used to build an {@code Explosion} and call {@code finalizeExplosion(true)} on it
+	 * without ever calling {@code explode()}, so the block list stayed empty and the only thing that
+	 * ever happened was the sound and the particle -- no block or entity damage. 1.21.3 turned
+	 * Explosion into an interface implemented by the server-side ServerExplosion, which cannot be
+	 * driven that way, so the two effects are produced directly. The values match what the old
+	 * constructor defaulted to for a radius-4 DESTROY explosion.</p>
+	 */
+	private void spawnMisroutedItemExplosionEffect() {
+		Level level = this.getWorld();
+		double x = this.getPipe().getX();
+		double y = this.getPipe().getY();
+		double z = this.getPipe().getZ();
+		if (level.isClientSide) {
+			level.playLocalSound(x, y, z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 4.0F,
+				(1.0F + (level.random.nextFloat() - level.random.nextFloat()) * 0.2F) * 0.7F, false);
+		}
+		level.addParticle(ParticleTypes.EXPLOSION_EMITTER, x, y, z, 1.0, 0.0, 0.0);
 	}
 }

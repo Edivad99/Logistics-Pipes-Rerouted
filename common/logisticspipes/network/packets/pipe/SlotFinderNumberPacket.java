@@ -66,7 +66,7 @@ public class SlotFinderNumberPacket extends ModuleCoordinatesPacket {
 			}
 		}
 		if (result == null) {
-			player.sendSystemMessage(Component.translatable("lp.chat.slotnotfound"));
+			player.displayClientMessage(Component.translatable("lp.chat.slotnotfound"), false);
 			return;
 		}
 		int resultIndex = -1;
@@ -106,7 +106,7 @@ public class SlotFinderNumberPacket extends ModuleCoordinatesPacket {
 		}
 
 		if (resultIndex == -1) {
-			player.sendSystemMessage(Component.translatable("lp.chat.slotnotfound"));
+			player.displayClientMessage(Component.translatable("lp.chat.slotnotfound"), false);
 		} else {
 			//Copy pipe to coordinates to use the getPipe method
 			setPosX(getPipePosX());

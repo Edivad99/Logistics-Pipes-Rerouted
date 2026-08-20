@@ -31,7 +31,7 @@ public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IReque
 			if (settings == null || settings.openRequest) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.sendSystemMessage(Component.literal("Permission denied"));
+				entityplayer.displayClientMessage(Component.literal("Permission denied"), false);
 			}
 		}
 		return true;

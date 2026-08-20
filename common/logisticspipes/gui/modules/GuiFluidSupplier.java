@@ -12,6 +12,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.modules.ModuleFluidSupplier;
 import logisticspipes.utils.gui.DummyContainer;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 
@@ -51,6 +52,6 @@ public class GuiFluidSupplier extends ModuleBaseGui {
 		// texture: GuiFluidSupplier.TEXTURE
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(GuiFluidSupplier.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, GuiFluidSupplier.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 }

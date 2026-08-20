@@ -892,7 +892,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				if (settings == null || settings.openNetworkMonitor) {
 					NewGuiHandler.getGui(PipeController.class).setTilePos(container).open(entityplayer);
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
 				}
 			}
 			return true;
@@ -929,7 +929,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 					gui.setDim(entityplayer.level().dimension().location());
 					gui.open(entityplayer);
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
 				}
 			}
 			return true;
@@ -945,7 +945,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 						onWrenchClicked(entityplayer);
 					}
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
 				}
 			}
 			SimpleServiceLocator.configToolHandler.wrenchUsed(entityplayer, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND), container);

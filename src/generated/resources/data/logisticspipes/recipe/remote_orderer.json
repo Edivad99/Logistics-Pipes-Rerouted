@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:chip_advanced"
-    },
-    "b": {
-      "tag": "c:ingots/gold"
-    },
-    "c": {
-      "tag": "c:dusts/redstone"
-    },
-    "d": {
-      "tag": "c:gems/lapis"
-    },
-    "e": {
-      "tag": "c:glass_blocks"
-    }
+    "a": "logisticspipes:chip_advanced",
+    "b": "#c:ingots/gold",
+    "c": "#c:dusts/redstone",
+    "d": "#c:gems/lapis",
+    "e": "#c:glass_blocks"
   },
   "pattern": [
     "aba",

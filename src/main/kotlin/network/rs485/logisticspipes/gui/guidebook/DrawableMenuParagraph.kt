@@ -61,7 +61,7 @@ private fun iconStack(icon: String): ItemStack {
     // so treat AIR as "not found" and fall back to LP's broken item (matching LP1's broken-icon look).
     // tryParse instead of the constructor: book pages are data-driven and a malformed identifier
     // (e.g. uppercase) must degrade to the broken item, not throw (1.12's constructor never threw).
-    val item = ResourceLocation.tryParse(icon)?.let { BuiltInRegistries.ITEM.get(it) }
+    val item = ResourceLocation.tryParse(icon)?.let { BuiltInRegistries.ITEM.getValue(it) }
     return if (item == null || item === Items.AIR) LPItems.BROKEN_ITEM.toStack() else ItemStack(item)
 }
 

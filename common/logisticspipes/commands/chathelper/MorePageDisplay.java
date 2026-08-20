@@ -28,7 +28,7 @@ public class MorePageDisplay {
 			this.header = header;
 		}
 		LPChatListener.register(this, name.getName().getString());
-		name.sendSystemMessage(Component.literal("%LPSTORESENDMESSAGE%"));
+		name.displayClientMessage(Component.literal("%LPSTORESENDMESSAGE%"), false);
 	}
 
 	public MorePageDisplay(String[] header, Player name) {
@@ -37,7 +37,7 @@ public class MorePageDisplay {
 			this.header.addAll(Arrays.asList(header));
 		}
 		LPChatListener.register(this, name.getName().getString());
-		name.sendSystemMessage(Component.literal("%LPSTORESENDMESSAGE%"));
+		name.displayClientMessage(Component.literal("%LPSTORESENDMESSAGE%"), false);
 	}
 
 	public int getRow() {
@@ -152,16 +152,16 @@ public class MorePageDisplay {
 		}
 		if (input.equalsIgnoreCase("exit") || input.equalsIgnoreCase("quit") || input.equalsIgnoreCase("q") || input.equalsIgnoreCase("e")) {
 			terminated = true;
-			sender.sendSystemMessage(Component.literal("%LPCLEARCHAT%"));
+			sender.displayClientMessage(Component.literal("%LPCLEARCHAT%"), false);
 			for (Object zeilenobject : header.toArray()) {
 				if (!(zeilenobject instanceof String)) {
 					continue;
 				}
-				sender.sendSystemMessage(Component.literal(replaceMeta((String) zeilenobject, 0, -1)));
+				sender.displayClientMessage(Component.literal(replaceMeta((String) zeilenobject, 0, -1)), false);
 			}
 			clearscreen(sender, 19 - header.size());
-			sender.sendSystemMessage(Component.literal(ChatColor.AQUA + "Pageview: " + ChatColor.RED + "Exit."));
-			sender.sendSystemMessage(Component.literal("%LPRESTORESENDMESSAGE%"));
+			sender.displayClientMessage(Component.literal(ChatColor.AQUA + "Pageview: " + ChatColor.RED + "Exit."), false);
+			sender.displayClientMessage(Component.literal("%LPRESTORESENDMESSAGE%"), false);
 		} else if (input.equalsIgnoreCase("next") || input.equalsIgnoreCase("nex") || input.equalsIgnoreCase("n")) {
 			if (currentpage > (currentpagecount - 1)) {
 				display(sender, 0);
@@ -184,23 +184,23 @@ public class MorePageDisplay {
 				display(sender, MorePageDisplay.toNumber(input));
 			} else {
 				display(sender, currentpage, true);
-				sender.sendSystemMessage(Component.literal(ChatColor.AQUA + "Pageview:" + ChatColor.RED + " Not a valid number."));
+				sender.displayClientMessage(Component.literal(ChatColor.AQUA + "Pageview:" + ChatColor.RED + " Not a valid number."), false);
 			}
 		} else if (input.equalsIgnoreCase("reprint")) {
 			display(sender, currentpage);
 		} else if (input.equalsIgnoreCase("all")) {
 			display(sender, currentpage, false, true, 0);
 		} else if (input.startsWith("save ")) {
-			sender.sendSystemMessage(Component.literal("%LPADDTOSENDMESSAGE%" + input.substring(5)));
+			sender.displayClientMessage(Component.literal("%LPADDTOSENDMESSAGE%" + input.substring(5)), false);
 			display(sender, currentpage, true, false, 1);
-			sender.sendSystemMessage(Component.literal(ChatColor.AQUA + "Added '" + ChatColor.YELLOW + input.substring(5) + ChatColor.AQUA + "' to your chat history."));
+			sender.displayClientMessage(Component.literal(ChatColor.AQUA + "Added '" + ChatColor.YELLOW + input.substring(5) + ChatColor.AQUA + "' to your chat history."), false);
 			printLastLine(sender, false);
 			if (sender instanceof Player) {
 				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), (Player) sender);
 			}
 		} else if (input.equals("save")) {
 			display(sender, currentpage, true, false, 2);
-			sender.sendSystemMessage(Component.literal(ChatColor.AQUA + "Add an command after the '" + ChatColor.YELLOW + "save " + ChatColor.AQUA + "' and it will be added to your chat history."));
+			sender.displayClientMessage(Component.literal(ChatColor.AQUA + "Add an command after the '" + ChatColor.YELLOW + "save " + ChatColor.AQUA + "' and it will be added to your chat history."), false);
 			printLastLine(sender, false);
 			if (sender instanceof Player) {
 				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), (Player) sender);
@@ -235,7 +235,7 @@ public class MorePageDisplay {
 
 	private void clearscreen(Player sender, int count) {
 		for (int i = 0; i < count; i++) {
-			sender.sendSystemMessage(Component.literal(""));
+			sender.displayClientMessage(Component.literal(""), false);
 		}
 	}
 
@@ -248,8 +248,8 @@ public class MorePageDisplay {
 	}
 
 	public void printLastLine(Player sender, boolean flag) {
-		sender.sendSystemMessage(Component.literal((flag ? "! " : "") + ChatColor.AQUA + "Pageview:" + ChatColor.WHITE + " Enter " + ChatColor.RED + "Pre" + ChatColor.WHITE + "/" + ChatColor.GREEN + "Next" + ChatColor.WHITE + ", a " + ChatColor.AQUA + "number" + ChatColor.WHITE + ", " + ChatColor.AQUA + "all"
-				+ ChatColor.WHITE + ", " + ChatColor.AQUA + "reprint" + ChatColor.WHITE + ", " + ChatColor.AQUA + "save" + ChatColor.WHITE + " or " + ChatColor.RED + "exit" + ChatColor.WHITE + (flag ? " !" : ".")));
+		sender.displayClientMessage(Component.literal((flag ? "! " : "") + ChatColor.AQUA + "Pageview:" + ChatColor.WHITE + " Enter " + ChatColor.RED + "Pre" + ChatColor.WHITE + "/" + ChatColor.GREEN + "Next" + ChatColor.WHITE + ", a " + ChatColor.AQUA + "number" + ChatColor.WHITE + ", " + ChatColor.AQUA + "all"
+				+ ChatColor.WHITE + ", " + ChatColor.AQUA + "reprint" + ChatColor.WHITE + ", " + ChatColor.AQUA + "save" + ChatColor.WHITE + " or " + ChatColor.RED + "exit" + ChatColor.WHITE + (flag ? " !" : ".")), false);
 	}
 
 	public int getPageCount(int count) {
@@ -272,7 +272,7 @@ public class MorePageDisplay {
 		if (terminated) {
 			return;
 		}
-		sender.sendSystemMessage(Component.literal("%LPCLEARCHAT%"));
+		sender.displayClientMessage(Component.literal("%LPCLEARCHAT%"), false);
 		int count = row - header.size() - 1 - linesub;
 		page = (page > 0 && !all ? page : 1);
 		currentpage = page;
@@ -284,14 +284,14 @@ public class MorePageDisplay {
 			if (!(zeilenobject instanceof String)) {
 				continue;
 			}
-			sender.sendSystemMessage(Component.literal(replaceMeta((String) zeilenobject, page, count)));
+			sender.displayClientMessage(Component.literal(replaceMeta((String) zeilenobject, page, count)), false);
 		}
 		int currentPage = 0;
 		int lineOnCurentPage = 0;
 		int doneLines = 0;
 		for (int i = 0; i < content.size(); i++, lineOnCurentPage++) {
 			if (all) {
-				sender.sendSystemMessage(Component.literal(content.get(i).content));
+				sender.displayClientMessage(Component.literal(content.get(i).content), false);
 			} else {
 				int I;
 				for (I = i; I < (content.size() - 1) && content.get(I + 1).connected; I++) {
@@ -302,7 +302,7 @@ public class MorePageDisplay {
 					lineOnCurentPage = 0;
 				}
 				if (page == currentPage + 1) {
-					sender.sendSystemMessage(Component.literal(content.get(i).content));
+					sender.displayClientMessage(Component.literal(content.get(i).content), false);
 					doneLines = lineOnCurentPage;
 				}
 			}

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:ingots/iron"
-    },
-    "b": {
-      "tag": "c:dusts/redstone"
-    },
-    "c": {
-      "tag": "c:glass_blocks"
-    }
+    "a": "#c:ingots/iron",
+    "b": "#c:dusts/redstone",
+    "c": "#c:glass_blocks"
   },
   "pattern": [
     "aba",

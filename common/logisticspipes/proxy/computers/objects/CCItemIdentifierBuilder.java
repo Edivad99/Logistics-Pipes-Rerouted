@@ -53,7 +53,7 @@ public class CCItemIdentifierBuilder implements ILPCCTypeHolder {
 	public ItemIdentifier build() {
 		Item item;
 		if (itemIDName != null) {
-			item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemIDName));
+			item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(itemIDName));
 		} else {
 			item = BuiltInRegistries.ITEM.byId(itemID);
 		}

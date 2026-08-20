@@ -191,16 +191,16 @@ public final class PipeQuadBaker {
             shift = 1 - bound;
             stretch = 1 + (shift / LPConstants.PIPE_MIN_POS);
         }
-        double sx = dir.getNormal().getX() != 0 ? stretch : 1;
-        double sy = dir.getNormal().getY() != 0 ? stretch : 1;
-        double sz = dir.getNormal().getZ() != 0 ? stretch : 1;
+        double sx = dir.getStepX() != 0 ? stretch : 1;
+        double sy = dir.getStepY() != 0 ? stretch : 1;
+        double sz = dir.getStepZ() != 0 ? stretch : 1;
 
         // Scale about the mesh's own min corner, then push negative faces back out.
         Matrix4f transform = new Matrix4f(MeshTransforms.translation(minX, minY, minZ))
             .mul(MeshTransforms.translation(
-                dir.getNormal().getX() * shift,
-                dir.getNormal().getY() * shift,
-                dir.getNormal().getZ() * shift))
+                dir.getStepX() * shift,
+                dir.getStepY() * shift,
+                dir.getStepZ() * shift))
             .mul(MeshTransforms.scale(sx, sy, sz))
             .mul(MeshTransforms.translation(-minX, -minY, -minZ));
         return mesh.transform(transform);

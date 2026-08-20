@@ -91,7 +91,7 @@ public class ClientProxy implements IProxy {
 	public void sendBroadCast(String message) {
 		var player = Minecraft.getInstance().player;
 		if (player != null) {
-			player.sendSystemMessage(Component.literal("[LP] Client: " + message));
+			player.displayClientMessage(Component.literal("[LP] Client: " + message), false);
 		}
 	}
 

@@ -46,10 +46,43 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
+import java.util.function.Function;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.Util;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.util.TriState;
 
 public class RenderTickHandler {
 
 	private static final ResourceLocation GHOST_PIPE_TEXTURE = LPConstants.rl("textures/blocks/pipes/white.png");
+
+	/**
+	 * Back-face-culled translucent entity render type for the ghost pipe.
+	 *
+	 * <p>1.21.3 removed {@code RenderType.entityTranslucentCull}. Its surviving sibling
+	 * {@code entityTranslucent} is <em>not</em> a drop-in replacement: the only difference between
+	 * the two was {@code setCullState(NO_CULL)}, so switching to it draws the tube's back faces
+	 * through its front faces and the semi-transparent preview comes out blotchy. This rebuilds the
+	 * culled variant, identical to vanilla's {@code entity_translucent} minus the NO_CULL shard.
+	 * The dedicated {@code entity_translucent_cull} shader program is gone too, but culling is GL
+	 * state rather than anything the program did, so the plain translucent one is the same shader.</p>
+	 */
+	private static final Function<ResourceLocation, RenderType> GHOST_PIPE_RENDER_TYPE = Util.memoize(
+		texture -> RenderType.create(
+			"lp_entity_translucent_cull",
+			DefaultVertexFormat.NEW_ENTITY,
+			VertexFormat.Mode.QUADS,
+			1536,
+			true,
+			true,
+			RenderType.CompositeState.builder()
+				.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+				.setTextureState(new RenderStateShard.TextureStateShard(texture, TriState.FALSE, false))
+				.setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+				.setLightmapState(RenderStateShard.LIGHTMAP)
+				.setOverlayState(RenderStateShard.OVERLAY)
+				.createCompositeState(true)));
 
 	private long renderTicks = 0;
 
@@ -189,7 +222,7 @@ public class RenderTickHandler {
 		double gz = pos.getZ() + (orientation != null ? orientation.getOffset().getZInt() : 0);
 		poseStack.translate(gx - cam.x + 0.001, gy - cam.y + 0.001, gz - cam.z + 0.001);
 
-		VertexConsumer ghostBuffer = bufferSource.getBuffer(RenderType.entityTranslucentCull(GHOST_PIPE_TEXTURE));
+		VertexConsumer ghostBuffer = bufferSource.getBuffer(GHOST_PIPE_RENDER_TYPE.apply(GHOST_PIPE_TEXTURE));
 		// The tube preview tracks the player's facing. The removed legacy branch reached the
 		// same geometry through rotations that CCLProxy converted from radians a second time, so
 		// every orientation of a tube came out nearly identical — a curve did not appear to swing

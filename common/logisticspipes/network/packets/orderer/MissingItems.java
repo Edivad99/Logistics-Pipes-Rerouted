@@ -62,13 +62,13 @@ public class MissingItems extends ModernPacket {
 					.handleRequestAnswer(getItems(), isFlag(), (GuiRequestTable) Minecraft.getInstance().screen, player);
 		} else if (isFlag()) {
 			for (IResource item : items) {
-				player.sendSystemMessage(Component.literal(ChatColor.RED + "Missing: " + item.getDisplayText(ColorCode.MISSING)));
+				player.displayClientMessage(Component.literal(ChatColor.RED + "Missing: " + item.getDisplayText(ColorCode.MISSING)), false);
 			}
 		} else {
 			for (IResource item : items) {
-				player.sendSystemMessage(Component.literal(ChatColor.GREEN + "Requested: " + item.getDisplayText(ColorCode.SUCCESS)));
+				player.displayClientMessage(Component.literal(ChatColor.GREEN + "Requested: " + item.getDisplayText(ColorCode.SUCCESS)), false);
 			}
-			player.sendSystemMessage(Component.literal(ChatColor.GREEN + "Request successful!"));
+			player.displayClientMessage(Component.literal(ChatColor.GREEN + "Request successful!"), false);
 		}
 	}
 

@@ -44,7 +44,7 @@ public class ItemUpgrade extends LogisticsItem {
 
     public static Item getAndCheckUpgrade(ResourceLocation resource) {
         Objects.requireNonNull(resource, "Resource for upgrade is null. Was the upgrade registered?");
-        return Objects.requireNonNull(BuiltInRegistries.ITEM.get(resource),
+        return Objects.requireNonNull(BuiltInRegistries.ITEM.getValue(resource),
             "Upgrade " + resource + " not found in Item registry");
     }
 

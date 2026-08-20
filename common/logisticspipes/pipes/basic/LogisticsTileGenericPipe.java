@@ -72,6 +72,7 @@ import network.rs485.logisticspipes.connection.PipeInventoryConnectionChecker;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
+import net.minecraft.resources.ResourceKey;
 
 public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		implements ILPPipeTile, IPipeInformationProvider, /*IItemDuct,*/
@@ -341,7 +342,8 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		super.saveAdditional(nbt, registries);
 
 		if (pipe != null && pipe.item != null) {
-			ResourceLocation key = BuiltInRegistries.ITEM.getKeyOrNull(pipe.item);
+			ResourceLocation key = BuiltInRegistries.ITEM.getResourceKey(pipe.item)
+				.map(ResourceKey::location).orElse(null);
 			if (key != null) {
 				nbt.putString(NBT_PIPE_ID, key.toString());
 			}
@@ -376,7 +378,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		coreState.pipeIdName = nbt.getString(NBT_PIPE_ID);
 		Item pipeItem = null;
 		if (coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
-			pipeItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(coreState.pipeIdName));
+			pipeItem = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(coreState.pipeIdName));
 		}
 		pipe = LogisticsBlockGenericPipe.createPipe(pipeItem);
 		// load() can run more than once on the client (initial chunk tag + later data packets).
@@ -724,7 +726,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	public void afterStateUpdated() {
 		if (pipe == null && coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
-			Item pipeItem = BuiltInRegistries.ITEM.get(
+			Item pipeItem = BuiltInRegistries.ITEM.getValue(
 				ResourceLocation.parse(coreState.pipeIdName));
 			initialize(LogisticsBlockGenericPipe.createPipe(pipeItem));
 		}

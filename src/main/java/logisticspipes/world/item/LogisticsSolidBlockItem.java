@@ -12,7 +12,7 @@ public class LogisticsSolidBlockItem extends BlockItem {
     private final LogisticsSolidBlock.Type type;
 
     public LogisticsSolidBlockItem(LogisticsSolidBlock block, Properties properties) {
-        super(block, properties);
+        super(block, properties.useBlockDescriptionPrefix());
         type = block.getType();
     }
 }

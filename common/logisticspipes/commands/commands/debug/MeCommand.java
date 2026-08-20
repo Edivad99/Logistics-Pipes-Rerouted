@@ -26,6 +26,6 @@ public class MeCommand implements ICommandHandler {
 	@Override
 	public void executeCommand(Player sender, String[] args) {
 		DebugGuiController.instance().startWatchingOf(sender, (Player) sender);
-		sender.sendSystemMessage(Component.literal("Starting SelfDebugging"));
+		sender.displayClientMessage(Component.literal("Starting SelfDebugging"), false);
 	}
 }

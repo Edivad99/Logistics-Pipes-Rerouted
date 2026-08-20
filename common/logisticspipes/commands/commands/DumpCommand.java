@@ -26,6 +26,6 @@ public class DumpCommand implements ICommandHandler {
 
 	@Override
 	public void executeCommand(Player sender, String[] args) {
-		sender.sendSystemMessage(Component.literal("Dump Created"));
+		sender.displayClientMessage(Component.literal("Dump Created"), false);
 	}
 }

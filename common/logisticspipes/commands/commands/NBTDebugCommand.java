@@ -29,7 +29,7 @@ public class NBTDebugCommand implements ICommandHandler {
 
 	@Override
 	public void executeCommand(Player sender, String[] args) {
-		sender.sendSystemMessage(Component.literal("Trying to Enable NBTDebug"));
+		sender.displayClientMessage(Component.literal("Trying to Enable NBTDebug"), false);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ActivateNBTDebug.class), (Player) sender);
 	}
 }

@@ -54,7 +54,7 @@ public class GuiRequestPopup extends SubGuiScreen {
 		SmallGuiButton logButton = new SmallGuiButton(1, xCenter + 5, bottom - 25, 50, 20, "Log");
 		logButton.setPressListener(b -> {
 			for (String msg : text) {
-				player.sendSystemMessage(Component.literal(msg));
+				player.displayClientMessage(Component.literal(msg), false);
 			}
 			logButton.active = false;
 		});

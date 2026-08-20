@@ -30,22 +30,22 @@ public class PipeCommand implements ICommandHandler {
 	@Override
 	public void executeCommand(Player sender, String[] args) {
 		if (args.length != 1) {
-			sender.sendSystemMessage(Component.literal("Wrong amount of arguments"));
+			sender.displayClientMessage(Component.literal("Wrong amount of arguments"), false);
 			return;
 		}
 		if (args[0].equalsIgnoreCase("help")) {
-			sender.sendSystemMessage(Component.literal("client, server, both or console"));
+			sender.displayClientMessage(Component.literal("client, server, both or console"), false);
 		} else if (args[0].equalsIgnoreCase("both")) {
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugAskForTarget.class).setServer(true), (Player) sender);
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugAskForTarget.class).setServer(false), (Player) sender);
-			sender.sendSystemMessage(Component.literal("Asking for Target."));
+			sender.displayClientMessage(Component.literal("Asking for Target."), false);
 		} else if (args[0].equalsIgnoreCase("console") || args[0].equalsIgnoreCase("c")) {
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugLogAskForTarget.class), (Player) sender);
-			sender.sendSystemMessage(Component.literal("Asking for Target."));
+			sender.displayClientMessage(Component.literal("Asking for Target."), false);
 		} else {
 			boolean isClient = args[0].equalsIgnoreCase("client");
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugAskForTarget.class).setServer(!isClient), (Player) sender);
-			sender.sendSystemMessage(Component.literal("Asking for Target."));
+			sender.displayClientMessage(Component.literal("Asking for Target."), false);
 		}
 	}
 }

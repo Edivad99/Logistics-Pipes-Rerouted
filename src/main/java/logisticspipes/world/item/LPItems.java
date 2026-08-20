@@ -350,14 +350,12 @@ public class LPItems {
     private static DeferredItem<ItemModule> registerModule(String name, Supplier<? extends LogisticsModule> ctor) {
         String regName = "module_" + name;
         LPItems.modules.put(name, LPConstants.rl(regName));
-        Item.Properties properties = new Item.Properties();
-        return deferredRegister.register(regName, () -> ItemModule.of(ctor, properties));
+        return deferredRegister.registerItem(regName, properties -> ItemModule.of(ctor, properties));
     }
 
     private static DeferredItem<ItemUpgrade> registerUpgrade(String name, Supplier<? extends IPipeUpgrade> ctor) {
         String regName = "upgrade_" + name;
         LPItems.upgrades.put(name, LPConstants.rl(regName));
-        Item.Properties properties = new Item.Properties();
-        return deferredRegister.register(regName, () -> ItemUpgrade.of(ctor, properties));
+        return deferredRegister.registerItem(regName, properties -> ItemUpgrade.of(ctor, properties));
     }
 }

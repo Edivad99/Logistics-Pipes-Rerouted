@@ -20,7 +20,7 @@ public class PipeDebugLogResponse extends CoordinatesPacket {
 		LogisticsTileGenericPipe tile = this.getPipe(player.level());
 		if (tile != null) {
 			((CoreRoutedPipe) tile.pipe).debug.openForPlayer(player);
-			player.sendSystemMessage(Component.literal("Debug log enabled."));
+			player.displayClientMessage(Component.literal("Debug log enabled."), false);
 		}
 	}
 

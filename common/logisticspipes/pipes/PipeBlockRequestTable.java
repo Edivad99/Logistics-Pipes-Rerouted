@@ -97,7 +97,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			if (settings == null || settings.openGui) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+				entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
 			}
 		}
 		return true;

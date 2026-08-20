@@ -205,7 +205,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 				break;
 			case 2: //+
 				if (!useEnergy(10)) {
-					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
+					player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
 					return;
 				}
 				if (inv.getIDStackInSlot(0) == null) {
@@ -223,7 +223,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 				break;
 			case 3: //++
 				if (!useEnergy(640)) {
-					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
+					player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
 					return;
 				}
 				ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 64);
@@ -259,7 +259,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 			return LogisticsSecurityTileEntity.allowAll;
 		}
 		if (usePower && !useEnergy(10)) {
-			entityplayer.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
+			entityplayer.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
 			return new SecuritySettings("No Energy");
 		}
 		SecuritySettings setting = settingsList.get(entityplayer.getName().getString());

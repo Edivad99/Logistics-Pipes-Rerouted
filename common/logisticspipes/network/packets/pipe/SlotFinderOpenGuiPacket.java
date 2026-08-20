@@ -98,7 +98,7 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 									player,
 									InteractionHand.MAIN_HAND,
 									blockHit
-							).result();
+							);
 							if (result != InteractionResult.PASS) {
 								MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SlotFinderActivatePacket.class)
 										.setTargetPosX(xCoord)

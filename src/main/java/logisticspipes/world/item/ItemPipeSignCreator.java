@@ -11,7 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -52,11 +51,6 @@ public class ItemPipeSignCreator extends LogisticsItem {
         // Never change this order. It defines the id each signType has.
         ItemPipeSignCreator.signTypes.add(CraftingPipeSign.class);
         ItemPipeSignCreator.signTypes.add(ItemAmountPipeSign.class);
-    }
-
-    @Override
-    public boolean isEnchantable(ItemStack stack) {
-        return false;
     }
 
     @Override
@@ -121,10 +115,10 @@ public class ItemPipeSignCreator extends LogisticsItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(final Level level, final Player player, final InteractionHand hand) {
+    public InteractionResult use(final Level level, final Player player, final InteractionHand hand) {
         ItemStack stack = player.getMainHandItem();
         if (MainProxy.isClient(level)) {
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
         }
         if (player.isCrouching()) {
             stack.update(
@@ -142,6 +136,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
                 }
             );
         }
-        return InteractionResultHolder.success(stack);
+        // SUCCESS_SERVER: the early return above leaves only the server side reaching this.
+        return InteractionResult.SUCCESS_SERVER;
     }
 }

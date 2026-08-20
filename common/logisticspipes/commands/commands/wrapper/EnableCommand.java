@@ -33,7 +33,7 @@ public class EnableCommand implements ICommandHandler {
 	@Override
 	public void executeCommand(Player sender, String[] args) {
 		if (args.length != 1) {
-			sender.sendSystemMessage(Component.literal("Wrong amount of arguments"));
+			sender.displayClientMessage(Component.literal("Wrong amount of arguments"), false);
 			return;
 		}
 		String name = args[0];
@@ -53,12 +53,12 @@ public class EnableCommand implements ICommandHandler {
 			}
 		}
 		if (list.size() > 1) {
-			sender.sendSystemMessage(Component.literal("Possible: "));
+			sender.displayClientMessage(Component.literal("Possible: "), false);
 			for (AbstractWrapper can : list) {
-				sender.sendSystemMessage(Component.literal(can.getName() + can.getTypeName()));
+				sender.displayClientMessage(Component.literal(can.getName() + can.getTypeName()), false);
 			}
 		} else if (list.isEmpty()) {
-			sender.sendSystemMessage(Component.literal("No match found"));
+			sender.displayClientMessage(Component.literal("No match found"), false);
 		} else {
 			AbstractWrapper wrapper = list.get(0);
 			wrapper.reEnable();

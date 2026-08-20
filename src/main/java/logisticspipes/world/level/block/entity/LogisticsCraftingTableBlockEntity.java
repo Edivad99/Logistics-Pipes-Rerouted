@@ -281,7 +281,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
 
                     if (r.value().matches(craftingInput, getWorld()) && FuzzyUtil.INSTANCE
                         .fuzzyMatches(FuzzyUtil.INSTANCE.getter(outputFuzzy()), outStack.getItem(),
-                            ItemIdentifier.get(r.value().getResultItem(getProvider())))) {
+                            ItemIdentifier.get(r.value().assemble(craftingInput, getProvider())))) {
                         recipe = r;
                         break;
                     }

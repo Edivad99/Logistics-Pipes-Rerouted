@@ -30,7 +30,7 @@ public class HandCommand implements ICommandHandler {
 		ItemStack item = player.getInventory().items.get(player.getInventory().selected);
 		if (!item.isEmpty()) {
 			DebugGuiController.instance().startWatchingOf(item, player);
-			sender.sendSystemMessage(Component.literal("Starting HandDebuging"));
+			sender.displayClientMessage(Component.literal("Starting HandDebuging"), false);
 		}
 	}
 }

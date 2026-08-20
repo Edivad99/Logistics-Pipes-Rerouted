@@ -36,7 +36,7 @@ public class LogisticsProgramCompilerBlock extends LogisticsSolidBlock implement
                         serverPlayer.openMenu(blockEntity, pos);
                     });
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }

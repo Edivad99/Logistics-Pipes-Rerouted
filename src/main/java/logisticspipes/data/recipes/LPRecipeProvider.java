@@ -24,42 +24,48 @@ import logisticspipes.data.recipes.builders.ProgrammerRecipeBuilder;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.core.HolderGetter;
 
 public class LPRecipeProvider extends RecipeProvider implements IConditionBuilder {
 
-    public LPRecipeProvider(PackOutput output,
-        CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    private final HolderLookup.RegistryLookup<Item> items;
+
+    public LPRecipeProvider(HolderLookup.Provider registries, RecipeOutput recipeOutput) {
+        super(registries, recipeOutput);
+        this.items = registries.lookupOrThrow(Registries.ITEM);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput recipeOutput) {
-        buildChips(recipeOutput);
-        buildMisc(recipeOutput);
-        buildModules(recipeOutput);
-        buildModulesReset(recipeOutput);
-        buildUpgrades(recipeOutput);
-        buildBlocks(recipeOutput);
-        buildPipe(recipeOutput);
-        buildHighSpeedPipe(recipeOutput);
+    protected void buildRecipes() {
+        buildChips();
+        buildMisc();
+        buildModules();
+        buildModulesReset();
+        buildUpgrades();
+        buildBlocks();
+        buildPipe();
+        buildHighSpeedPipe();
     }
 
-    private void buildChips(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.CHIP_BASIC_RAW, 2)
+    private void buildChips() {
+        shaped(RecipeCategory.MISC, LPItems.CHIP_BASIC_RAW, 2)
             .pattern("ab")
             .pattern("ba")
             .define('a', Tags.Items.SANDS)
             .define('b', Tags.Items.INGOTS_COPPER)
             .unlockedBy(getHasName(Items.COPPER_INGOT), has(Items.COPPER_INGOT))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.CHIP_ADVANCED_RAW, 2)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.CHIP_ADVANCED_RAW, 2)
             .pattern("ab")
             .pattern("ba")
             .define('a', LPItems.CHIP_BASIC_RAW)
             .define('b', Tags.Items.GEMS_DIAMOND)
             .unlockedBy(getHasName(Items.DIAMOND), has(Items.DIAMOND))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.CHIP_FPGA_RAW, 16)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.CHIP_FPGA_RAW, 16)
             .pattern("aca")
             .pattern("bdb")
             .pattern("aea")
@@ -69,18 +75,18 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.DUSTS_REDSTONE)
             .define('e', Tags.Items.GEMS_LAPIS)
             .unlockedBy(getHasName(Items.DIAMOND), has(Items.DIAMOND))
-            .save(recipeOutput);
+            .save(output);
 
-        oreSmelting(recipeOutput, List.of(LPItems.CHIP_BASIC_RAW), RecipeCategory.MISC,
+        oreSmelting(List.of(LPItems.CHIP_BASIC_RAW), RecipeCategory.MISC,
             LPItems.CHIP_BASIC, 0.5F, 200, "chip_basic");
-        oreSmelting(recipeOutput, List.of(LPItems.CHIP_ADVANCED_RAW), RecipeCategory.MISC,
+        oreSmelting(List.of(LPItems.CHIP_ADVANCED_RAW), RecipeCategory.MISC,
             LPItems.CHIP_ADVANCED, 0.7F, 200, "chip_advanced");
-        oreSmelting(recipeOutput, List.of(LPItems.CHIP_FPGA_RAW), RecipeCategory.MISC,
+        oreSmelting(List.of(LPItems.CHIP_FPGA_RAW), RecipeCategory.MISC,
             LPItems.CHIP_FPGA, 1.0F, 200, "chip_fpga");
     }
 
-    private void buildMisc(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_CONTROLLER)
+    private void buildMisc() {
+        shaped(RecipeCategory.MISC, LPItems.PIPE_CONTROLLER)
             .pattern("aba")
             .pattern("ced")
             .pattern("ccd")
@@ -90,8 +96,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.GEMS_LAPIS)
             .define('e', Tags.Items.GLASS_BLOCKS)
             .unlockedBy(getHasName(LPItems.CHIP_BASIC), has(LPItems.CHIP_BASIC))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_MANAGER)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.PIPE_MANAGER)
             .pattern("aba")
             .pattern("ced")
             .pattern("ccd")
@@ -101,8 +107,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.GEMS_LAPIS)
             .define('e', Tags.Items.GLASS_BLOCKS)
             .unlockedBy(getHasName(LPItems.CHIP_BASIC), has(LPItems.CHIP_BASIC))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.LOGISTICS_PROGRAMMER)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.LOGISTICS_PROGRAMMER)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -112,8 +118,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_GOLD)
             .define('e', LPItems.MODULE_BLANK)
             .unlockedBy(getHasName(LPItems.CHIP_FPGA), has(LPItems.CHIP_FPGA))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.DISK)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.DISK)
             .pattern("aba")
             .pattern("bcb")
             .pattern("aba")
@@ -121,8 +127,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('b', Tags.Items.DUSTS_REDSTONE)
             .define('c', Tags.Items.NUGGETS_GOLD)
             .unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.REMOTE_ORDERER)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.REMOTE_ORDERER)
             .pattern("aba")
             .pattern("ced")
             .pattern("ccd")
@@ -132,8 +138,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.GEMS_LAPIS)
             .define('e', Tags.Items.GLASS_BLOCKS)
             .unlockedBy(getHasName(LPItems.CHIP_ADVANCED), has(LPItems.CHIP_ADVANCED))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.SIGN_CREATOR)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.SIGN_CREATOR)
             .pattern("a a")
             .pattern(" b ")
             .pattern(" c ")
@@ -141,11 +147,11 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('b', ItemTags.SIGNS)
             .define('c', LPItems.CHIP_ADVANCED)
             .unlockedBy(getHasName(LPItems.CHIP_ADVANCED), has(LPItems.CHIP_ADVANCED))
-            .save(recipeOutput);
+            .save(output);
     }
 
-    private void buildModules(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_BLANK)
+    private void buildModules() {
+        shaped(RecipeCategory.MISC, LPItems.MODULE_BLANK)
             .pattern("a")
             .pattern("b")
             .pattern("c")
@@ -153,8 +159,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('b', Items.PAPER)
             .define('c', Tags.Items.NUGGETS_GOLD)
             .unlockedBy(getHasName(Items.PAPER), has(Items.PAPER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_ITEM_SINK)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_ITEM_SINK)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -164,8 +170,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', LPItems.MODULE_BLANK)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_PASSIVE_SUPPLIER)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_PASSIVE_SUPPLIER)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -175,8 +181,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', LPItems.MODULE_BLANK)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_EXTRACTOR)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_EXTRACTOR)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -187,8 +193,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', LPItems.MODULE_BLANK)
             .define('f', LPItems.CHIP_FPGA)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_POLYMORPHIC_SINK)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_POLYMORPHIC_SINK)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -198,8 +204,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', LPItems.MODULE_BLANK)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_QUICKSORT)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_QUICKSORT)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -210,8 +216,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', LPItems.MODULE_BLANK)
             .define('f', LPItems.CHIP_FPGA)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_TERMINUS)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_TERMINUS)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -221,8 +227,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', LPItems.MODULE_BLANK)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_EXTRACTOR_ADVANCED)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_EXTRACTOR_ADVANCED)
             .pattern("a")
             .pattern("b")
             .pattern("c")
@@ -230,8 +236,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('b', LPItems.CHIP_FPGA)
             .define('c', LPItems.MODULE_EXTRACTOR)
             .unlockedBy(getHasName(LPItems.MODULE_EXTRACTOR), has(LPItems.MODULE_EXTRACTOR))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_PROVIDER)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_PROVIDER)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -242,8 +248,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', LPItems.MODULE_BLANK)
             .define('f', LPItems.CHIP_FPGA)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_MOD_SINK)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_MOD_SINK)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -253,8 +259,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_GOLD)
             .define('e', LPItems.MODULE_BLANK)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_OREDICT_SINK)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_OREDICT_SINK)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -264,8 +270,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_GOLD)
             .define('e', LPItems.MODULE_BLANK)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_ENCHANTMENT_SINK)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_ENCHANTMENT_SINK)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -275,8 +281,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', LPItems.MODULE_ITEM_SINK)
             .unlockedBy(getHasName(LPItems.MODULE_ITEM_SINK), has(LPItems.MODULE_ITEM_SINK))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_ENCHANTMENT_SINK_MK2)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_ENCHANTMENT_SINK_MK2)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -286,8 +292,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', LPItems.MODULE_ENCHANTMENT_SINK)
             .unlockedBy(getHasName(LPItems.MODULE_ENCHANTMENT_SINK), has(LPItems.MODULE_ENCHANTMENT_SINK))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_CRAFTER)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_CRAFTER)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -298,8 +304,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', LPItems.MODULE_BLANK)
             .define('f', LPItems.CHIP_FPGA)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_ACTIVE_SUPPLIER)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_ACTIVE_SUPPLIER)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -310,8 +316,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', LPItems.MODULE_BLANK)
             .define('f', LPItems.CHIP_BASIC)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.MODULE_CREATIVETAB_SINK)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.MODULE_CREATIVETAB_SINK)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -321,28 +327,29 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_GOLD)
             .define('e', LPItems.MODULE_BLANK)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
+            .save(output);
     }
 
-    private void buildModulesReset(RecipeOutput recipeOutput) {
+    private void buildModulesReset() {
         for (var moduleResource : LPItems.modules.values()) {
-            final Item item = BuiltInRegistries.ITEM.get(moduleResource);
+            final Item item = BuiltInRegistries.ITEM.getValue(moduleResource);
             if (item instanceof ItemModule itemModule) {
                 LogisticsModule module = itemModule.getModuleForItem(new ItemStack(item), null, null, null);
                 if (module == null) {
                     continue;
                 }
                 var moduleName = RecipeProvider.getItemName(item);
-                ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item)
+                shapeless(RecipeCategory.MISC, item)
                     .requires(item)
                     .unlockedBy(getHasName(item), has(item))
-                    .save(recipeOutput, LPConstants.rl("reset_module/" + moduleName));
+                    .save(output, ResourceKey.create(Registries.RECIPE,
+                        LPConstants.rl("reset_module/" + moduleName)));
             }
         }
     }
 
-    private void buildUpgrades(RecipeOutput recipeOutput) {
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_SNEAKY_COMBINATION)
+    private void buildUpgrades() {
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_SNEAKY_COMBINATION)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -353,8 +360,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_SNEAKY)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_SNEAKY)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -365,8 +372,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_SPEED)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_SPEED)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -377,8 +384,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_DISCONNECTION, 8)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_DISCONNECTION, 8)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -389,104 +396,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_SATELLITE_ADVANCED)
-            .pattern("faf")
-            .pattern("bcb")
-            .pattern("ded")
-            .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_IRON)
-            .define('c', LPItems.CHIP_ADVANCED)
-            .define('d', Items.PAPER)
-            .define('e', Tags.Items.NUGGETS_GOLD)
-            .define('f', Tags.Items.DUSTS_REDSTONE)
-            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_FLUID_CRAFTING)
-            .pattern("faf")
-            .pattern("bcb")
-            .pattern("ded")
-            .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_IRON)
-            .define('c', LPItems.CHIP_BASIC)
-            .define('d', Items.PAPER)
-            .define('e', Tags.Items.NUGGETS_GOLD)
-            .define('f', Tags.Items.DUSTS_REDSTONE)
-            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_CRAFTING_BYPRODUCT)
-            .pattern("faf")
-            .pattern("bcb")
-            .pattern("ded")
-            .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_IRON)
-            .define('c', LPItems.CHIP_BASIC)
-            .define('d', Items.PAPER)
-            .define('e', Tags.Items.NUGGETS_GOLD)
-            .define('f', Tags.Items.DUSTS_REDSTONE)
-            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_FUZZY)
-            .pattern("faf")
-            .pattern("bcb")
-            .pattern("ded")
-            .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_IRON)
-            .define('c', LPItems.CHIP_BASIC)
-            .define('d', Items.PAPER)
-            .define('e', Tags.Items.NUGGETS_GOLD)
-            .define('f', Tags.Items.DUSTS_REDSTONE)
-            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_POWER_TRANSPORTATION)
-            .pattern("faf")
-            .pattern("bcb")
-            .pattern("ded")
-            .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_IRON)
-            .define('c', LPItems.CHIP_BASIC)
-            .define('d', Items.PAPER)
-            .define('e', Tags.Items.NUGGETS_GOLD)
-            .define('f', Tags.Items.DUSTS_REDSTONE)
-            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_POWER_RF)
-            .pattern("faf")
-            .pattern("bcb")
-            .pattern("ded")
-            .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_IRON)
-            .define('c', LPItems.CHIP_BASIC)
-            .define('d', Items.PAPER)
-            .define('e', Tags.Items.NUGGETS_GOLD)
-            .define('f', Tags.Items.DUSTS_REDSTONE)
-            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_CRAFTING_MONITORING)
-            .pattern("faf")
-            .pattern("bcb")
-            .pattern("ded")
-            .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_GOLD)
-            .define('c', LPItems.CHIP_ADVANCED)
-            .define('d', Items.PAPER)
-            .define('e', Tags.Items.NUGGETS_GOLD)
-            .define('f', Tags.Items.DUSTS_REDSTONE)
-            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_OPAQUE)
-            .pattern("faf")
-            .pattern("bcb")
-            .pattern("ded")
-            .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_IRON)
-            .define('c', LPItems.CHIP_BASIC)
-            .define('d', Items.PAPER)
-            .define('e', Tags.Items.NUGGETS_GOLD)
-            .define('f', Tags.Items.DUSTS_REDSTONE)
-            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_CRAFTING_CLEANUP)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_SATELLITE_ADVANCED)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -497,8 +408,68 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_MODULE_UPGRADE)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_FLUID_CRAFTING)
+            .pattern("faf")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.LOGISTICS_PROGRAMMER)
+            .define('b', Tags.Items.INGOTS_IRON)
+            .define('c', LPItems.CHIP_BASIC)
+            .define('d', Items.PAPER)
+            .define('e', Tags.Items.NUGGETS_GOLD)
+            .define('f', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_CRAFTING_BYPRODUCT)
+            .pattern("faf")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.LOGISTICS_PROGRAMMER)
+            .define('b', Tags.Items.INGOTS_IRON)
+            .define('c', LPItems.CHIP_BASIC)
+            .define('d', Items.PAPER)
+            .define('e', Tags.Items.NUGGETS_GOLD)
+            .define('f', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_FUZZY)
+            .pattern("faf")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.LOGISTICS_PROGRAMMER)
+            .define('b', Tags.Items.INGOTS_IRON)
+            .define('c', LPItems.CHIP_BASIC)
+            .define('d', Items.PAPER)
+            .define('e', Tags.Items.NUGGETS_GOLD)
+            .define('f', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_POWER_TRANSPORTATION)
+            .pattern("faf")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.LOGISTICS_PROGRAMMER)
+            .define('b', Tags.Items.INGOTS_IRON)
+            .define('c', LPItems.CHIP_BASIC)
+            .define('d', Items.PAPER)
+            .define('e', Tags.Items.NUGGETS_GOLD)
+            .define('f', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_POWER_RF)
+            .pattern("faf")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.LOGISTICS_PROGRAMMER)
+            .define('b', Tags.Items.INGOTS_IRON)
+            .define('c', LPItems.CHIP_BASIC)
+            .define('d', Items.PAPER)
+            .define('e', Tags.Items.NUGGETS_GOLD)
+            .define('f', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_CRAFTING_MONITORING)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -509,32 +480,32 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_ACTION_SPEED)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_OPAQUE)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
             .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_GOLD)
+            .define('b', Tags.Items.INGOTS_IRON)
             .define('c', LPItems.CHIP_BASIC)
             .define('d', Items.PAPER)
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_ITEM_EXTRACTION)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_CRAFTING_CLEANUP)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
             .define('a', LPItems.LOGISTICS_PROGRAMMER)
-            .define('b', Tags.Items.INGOTS_GOLD)
-            .define('c', LPItems.CHIP_BASIC)
+            .define('b', Tags.Items.INGOTS_IRON)
+            .define('c', LPItems.CHIP_ADVANCED)
             .define('d', Items.PAPER)
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.UPGRADE_ITEM_STACK_EXTRACTION)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_MODULE_UPGRADE)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")
@@ -545,11 +516,47 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', Tags.Items.NUGGETS_GOLD)
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_ACTION_SPEED)
+            .pattern("faf")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.LOGISTICS_PROGRAMMER)
+            .define('b', Tags.Items.INGOTS_GOLD)
+            .define('c', LPItems.CHIP_BASIC)
+            .define('d', Items.PAPER)
+            .define('e', Tags.Items.NUGGETS_GOLD)
+            .define('f', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_ITEM_EXTRACTION)
+            .pattern("faf")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.LOGISTICS_PROGRAMMER)
+            .define('b', Tags.Items.INGOTS_GOLD)
+            .define('c', LPItems.CHIP_BASIC)
+            .define('d', Items.PAPER)
+            .define('e', Tags.Items.NUGGETS_GOLD)
+            .define('f', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_ITEM_STACK_EXTRACTION)
+            .pattern("faf")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.LOGISTICS_PROGRAMMER)
+            .define('b', Tags.Items.INGOTS_GOLD)
+            .define('c', LPItems.CHIP_ADVANCED)
+            .define('d', Items.PAPER)
+            .define('e', Tags.Items.NUGGETS_GOLD)
+            .define('f', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
+            .save(output);
     }
 
-    private void buildBlocks(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.ITEM_FRAME)
+    private void buildBlocks() {
+        shaped(RecipeCategory.MISC, LPItems.ITEM_FRAME)
             .pattern("aba")
             .pattern("   ")
             .pattern("c c")
@@ -557,8 +564,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('b', Tags.Items.DUSTS_REDSTONE)
             .define('c', ItemTags.PLANKS)
             .unlockedBy(getHasName(Items.REDSTONE), has(Items.REDSTONE))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.ITEM_POWER_JUNCTION)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.ITEM_POWER_JUNCTION)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -568,8 +575,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', Tags.Items.STORAGE_BLOCKS_REDSTONE)
             .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.ITEM_SECURITY_STATION)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.ITEM_SECURITY_STATION)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("dbd")
@@ -578,8 +585,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('c', LPItems.ITEM_FRAME)
             .define('d', Tags.Items.INGOTS_IRON)
             .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.ITEM_CRAFTER)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.ITEM_CRAFTER)
             .pattern(" a ")
             .pattern("bcb")
             .pattern(" d ")
@@ -588,15 +595,15 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('c', LPItems.ITEM_FRAME)
             .define('d', Items.PISTON)
             .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.ITEM_CRAFTER_FUZZY)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.ITEM_CRAFTER_FUZZY)
             .pattern("a")
             .pattern("b")
             .define('a', LPItems.CHIP_BASIC)
             .define('b', LPItems.ITEM_CRAFTER)
             .unlockedBy(getHasName(LPItems.ITEM_CRAFTER), has(LPItems.ITEM_CRAFTER))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.ITEM_STATISTICS_TABLE)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.ITEM_STATISTICS_TABLE)
             .pattern(" a ")
             .pattern("bcb")
             .pattern(" d ")
@@ -605,8 +612,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('c', LPItems.ITEM_FRAME)
             .define('d', Tags.Items.INGOTS_IRON)
             .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.ITEM_PROGRAM_COMPILER)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.ITEM_PROGRAM_COMPILER)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ede")
@@ -616,8 +623,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', Tags.Items.GEMS_LAPIS)
             .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_REQUEST_TABLE)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.PIPE_REQUEST_TABLE)
             .pattern(" a ")
             .pattern("bcd")
             .pattern(" e ")
@@ -627,11 +634,11 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', LPItems.PIPE_CRAFTING)
             .define('e', Items.CHEST)
             .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
-            .save(recipeOutput);
+            .save(output);
     }
 
-    private void buildPipe(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_UNROUTED, 8)
+    private void buildPipe() {
+        shaped(RecipeCategory.MISC, LPItems.PIPE_UNROUTED, 8)
             .pattern("aba")
             .pattern("c c")
             .pattern("aba")
@@ -639,15 +646,15 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('b', Tags.Items.DUSTS_REDSTONE)
             .define('c', Tags.Items.GLASS_BLOCKS)
             .unlockedBy(getHasName(Items.REDSTONE), has(Items.REDSTONE))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_BASIC)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.PIPE_BASIC)
             .pattern("a")
             .pattern("b")
             .define('a', LPItems.CHIP_FPGA)
             .define('b', LPItems.PIPE_UNROUTED)
             .unlockedBy(getHasName(LPItems.PIPE_UNROUTED), has(LPItems.PIPE_UNROUTED))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_REQUEST)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_REQUEST)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -658,8 +665,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', LPItems.PIPE_BASIC)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_PROVIDER)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_PROVIDER)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -670,8 +677,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', LPItems.PIPE_BASIC)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_SUPPLIER)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_SUPPLIER)
             .pattern(" a ")
             .pattern("bcb")
             .pattern("ded")
@@ -682,8 +689,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', LPItems.PIPE_BASIC)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_CRAFTING)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_CRAFTING)
             .pattern(" a ")
             .pattern("bcb")
             .pattern(" d ")
@@ -693,8 +700,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', LPItems.PIPE_BASIC)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_SATELLITE)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_SATELLITE)
             .pattern(" a ")
             .pattern("bcb")
             .pattern(" d ")
@@ -704,8 +711,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', LPItems.PIPE_BASIC)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK1)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK1)
             .pattern(" a ")
             .pattern(" b ")
             .pattern("cdc")
@@ -715,8 +722,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', LPItems.PIPE_BASIC)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK2)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK2)
             .pattern(" a ")
             .pattern("cbc")
             .pattern("ded")
@@ -726,8 +733,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', Tags.Items.GEMS_LAPIS)
             .unlockedBy(getHasName(LPItems.PIPE_CHASSIS_MK1), has(LPItems.PIPE_CHASSIS_MK1))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK3)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK3)
             .pattern(" a ")
             .pattern("cbc")
             .pattern("ded")
@@ -737,8 +744,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', LPItems.CHIP_ADVANCED)
             .unlockedBy(getHasName(LPItems.PIPE_CHASSIS_MK2), has(LPItems.PIPE_CHASSIS_MK2))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK4)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK4)
             .pattern(" a ")
             .pattern("cbc")
             .pattern("ded")
@@ -748,8 +755,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_GOLD)
             .define('e', LPItems.CHIP_ADVANCED)
             .unlockedBy(getHasName(LPItems.PIPE_CHASSIS_MK3), has(LPItems.PIPE_CHASSIS_MK3))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK5)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_CHASSIS_MK5)
             .pattern(" a ")
             .pattern("cbc")
             .pattern("ded")
@@ -759,8 +766,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.GEMS_DIAMOND)
             .define('e', Items.QUARTZ)
             .unlockedBy(getHasName(LPItems.PIPE_CHASSIS_MK4), has(LPItems.PIPE_CHASSIS_MK4))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_REQUEST_MK2)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_REQUEST_MK2)
             .pattern(" a ")
             .pattern("cbc")
             .pattern("ded")
@@ -770,8 +777,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_GOLD)
             .define('e', LPItems.PIPE_REQUEST)
             .unlockedBy(getHasName(LPItems.PIPE_REQUEST), has(LPItems.PIPE_REQUEST))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_REMOTE_ORDERER)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_REMOTE_ORDERER)
             .pattern(" a ")
             .pattern("cbf")
             .pattern("ded")
@@ -783,8 +790,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_INV_SYS_CONNECTOR)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_INV_SYS_CONNECTOR)
             .pattern(" a ")
             .pattern("cbf")
             .pattern("ded")
@@ -796,8 +803,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_SYSTEM_ENTRANCE)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_SYSTEM_ENTRANCE)
             .pattern(" a ")
             .pattern("cbc")
             .pattern(" d ")
@@ -806,8 +813,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('c', Tags.Items.DUSTS_REDSTONE)
             .define('d', LPItems.PIPE_PROVIDER)
             .unlockedBy(getHasName(LPItems.PIPE_PROVIDER), has(LPItems.PIPE_PROVIDER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_SYSTEM_DESTINATION)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_SYSTEM_DESTINATION)
             .pattern(" a ")
             .pattern("cbc")
             .pattern(" d ")
@@ -816,8 +823,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('c', Tags.Items.DUSTS_REDSTONE)
             .define('d', LPItems.PIPE_PROVIDER)
             .unlockedBy(getHasName(LPItems.PIPE_PROVIDER), has(LPItems.PIPE_PROVIDER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_FIREWALL)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_FIREWALL)
             .pattern(" a ")
             .pattern("cbf")
             .pattern("ded")
@@ -829,9 +836,9 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
+            .save(output);
 
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.FLUID_CONTAINER)
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.FLUID_CONTAINER)
             .pattern(" a ")
             .pattern("cbc")
             .pattern("ded")
@@ -842,8 +849,8 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('e', Items.BUCKET)
             .unlockedBy(getHasName(LPItems.PIPE_BASIC), has(LPItems.PIPE_BASIC))
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
-            .save(recipeOutput);
-        ProgrammerRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_FLUID_SUPPLIER)
+            .save(output);
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.PIPE_FLUID_SUPPLIER)
             .pattern(" a ")
             .pattern("cbc")
             .pattern("ded")
@@ -853,39 +860,61 @@ public class LPRecipeProvider extends RecipeProvider implements IConditionBuilde
             .define('d', Tags.Items.INGOTS_IRON)
             .define('e', LPItems.FLUID_CONTAINER)
             .unlockedBy(getHasName(LPItems.FLUID_CONTAINER), has(LPItems.FLUID_CONTAINER))
-            .save(recipeOutput);
+            .save(output);
     }
 
-    private void buildHighSpeedPipe(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_HS_LINE, 3)
+    private void buildHighSpeedPipe() {
+        shaped(RecipeCategory.MISC, LPItems.PIPE_HS_LINE, 3)
             .pattern("aaa")
             .define('a', LPItems.PIPE_UNROUTED)
             .unlockedBy(getHasName(LPItems.PIPE_UNROUTED), has(LPItems.PIPE_UNROUTED))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_HS_CURVE)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.PIPE_HS_CURVE)
             .pattern("aaa")
             .pattern("a  ")
             .pattern("a  ")
             .define('a', LPItems.PIPE_HS_LINE)
             .unlockedBy(getHasName(LPItems.PIPE_HS_LINE), has(LPItems.PIPE_HS_LINE))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_HS_SPEEDUP)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.PIPE_HS_SPEEDUP)
             .pattern("aaa")
             .define('a', LPItems.PIPE_HS_LINE)
             .unlockedBy(getHasName(LPItems.PIPE_HS_LINE), has(LPItems.PIPE_HS_LINE))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_HS_S_CURVE)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.PIPE_HS_S_CURVE)
             .pattern("aa ")
             .pattern(" aa")
             .define('a', LPItems.PIPE_HS_LINE)
             .unlockedBy(getHasName(LPItems.PIPE_HS_LINE), has(LPItems.PIPE_HS_LINE))
-            .save(recipeOutput);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, LPItems.PIPE_HS_GAIN)
+            .save(output);
+        shaped(RecipeCategory.MISC, LPItems.PIPE_HS_GAIN)
             .pattern("a ")
             .pattern("aa")
             .pattern(" a")
             .define('a', LPItems.PIPE_HS_LINE)
             .unlockedBy(getHasName(LPItems.PIPE_HS_LINE), has(LPItems.PIPE_HS_LINE))
-            .save(recipeOutput);
+            .save(output);
+    }
+
+    /**
+     * The registered {@link net.minecraft.data.DataProvider}. 1.21.3 split recipe generation in
+     * two: {@link RecipeProvider} only holds the builders and is created per run, while this
+     * runner is what the data generator sees.
+     */
+    public static class Runner extends RecipeProvider.Runner {
+
+        public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
+            super(packOutput, registries);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput recipeOutput) {
+            return new LPRecipeProvider(provider, recipeOutput);
+        }
+
+        @Override
+        public String getName() {
+            return "LogisticsPipes Recipes";
+        }
     }
 }

@@ -64,7 +64,7 @@ class BlockPosSelector(val worldBuilder: WorldBuilder) {
     }
 
     fun direction(direction: Direction): BlockPosSelector = this.also {
-        localOffset += direction.getNormal()
+        localOffset += direction.getUnitVec3i()
     }
 
     fun place(placer: Placer): BlockPosSelector = this.also {

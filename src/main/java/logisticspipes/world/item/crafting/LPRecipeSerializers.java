@@ -14,7 +14,7 @@ public class LPRecipeSerializers {
     private static final DeferredRegister<RecipeSerializer<?>> deferredRegister =
         DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, LPConstants.ID);
 
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> PROGRAMMER_RECIPE =
+    public static final DeferredHolder<RecipeSerializer<?>, ProgrammerRecipe.Serializer> PROGRAMMER_RECIPE =
         deferredRegister.register("programmer_recipe", ProgrammerRecipe.Serializer::new);
 
     public static void register(IEventBus modEventBus) {

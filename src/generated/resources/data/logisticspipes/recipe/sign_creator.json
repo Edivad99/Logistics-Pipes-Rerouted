@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:chip_basic"
-    },
-    "b": {
-      "tag": "minecraft:signs"
-    },
-    "c": {
-      "item": "logisticspipes:chip_advanced"
-    }
+    "a": "logisticspipes:chip_basic",
+    "b": "#minecraft:signs",
+    "c": "logisticspipes:chip_advanced"
   },
   "pattern": [
     "a a",

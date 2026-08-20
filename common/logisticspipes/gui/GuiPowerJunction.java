@@ -11,6 +11,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -49,10 +50,10 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(GuiPowerJunction.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, GuiPowerJunction.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 		int level = 100 - junction.getChargeState();
 		int levelPixels = level * 59 / 100;
-		guiGraphics.blit(GuiPowerJunction.TEXTURE, j + 10, k + 11 + levelPixels, 176.0f, levelPixels, 5, 59 - levelPixels, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, GuiPowerJunction.TEXTURE, j + 10, k + 11 + levelPixels, 176.0f, levelPixels, 5, 59 - levelPixels, 256, 256);
 	}
 
 	@Override

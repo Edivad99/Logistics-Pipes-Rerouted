@@ -2,18 +2,10 @@
   "type": "logisticspipes:programmer_recipe",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:logistics_programmer"
-    },
-    "b": {
-      "item": "logisticspipes:chip_fpga"
-    },
-    "c": {
-      "tag": "c:dusts/redstone"
-    },
-    "d": {
-      "item": "logisticspipes:pipe_provider"
-    }
+    "a": "logisticspipes:logistics_programmer",
+    "b": "logisticspipes:chip_fpga",
+    "c": "#c:dusts/redstone",
+    "d": "logisticspipes:pipe_provider"
   },
   "pattern": [
     " a ",

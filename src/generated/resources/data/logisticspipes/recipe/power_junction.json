@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:chip_basic"
-    },
-    "b": {
-      "tag": "c:dusts/redstone"
-    },
-    "c": {
-      "item": "logisticspipes:frame"
-    },
-    "d": {
-      "tag": "c:ingots/iron"
-    },
-    "e": {
-      "tag": "c:storage_blocks/redstone"
-    }
+    "a": "logisticspipes:chip_basic",
+    "b": "#c:dusts/redstone",
+    "c": "logisticspipes:frame",
+    "d": "#c:ingots/iron",
+    "e": "#c:storage_blocks/redstone"
   },
   "pattern": [
     " a ",

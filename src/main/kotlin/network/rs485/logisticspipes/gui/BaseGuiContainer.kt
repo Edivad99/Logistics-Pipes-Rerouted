@@ -46,6 +46,8 @@ import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.LPGuiGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.renderer.RenderType
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.Slot
@@ -105,9 +107,13 @@ abstract class BaseGuiContainer(
      * Re-draws the hover highlight vanilla already drew during [render].
      *
      * The widget layer paints its slot backgrounds from [renderLabels], which
-     * `AbstractContainerScreen#render` calls *after* the highlight, so the flat highlight quad ends
-     * up buried under those backgrounds -- items survive only because they are drawn with depth.
-     * Drawing it once more here, on top, gives these slots the same feedback as every vanilla slot.
+     * `AbstractContainerScreen#render` calls *after* the highlight, so the highlight ends up buried
+     * under those backgrounds -- items survive only because they are drawn with depth. Drawing it
+     * once more here, on top, gives these slots the same feedback as every vanilla slot.
+     *
+     * 1.21.3 split the highlight into a back sprite (drawn under the item) and a front sprite drawn
+     * over it with [RenderType.guiTexturedOverlay]. Only the front one may be repeated on top --
+     * re-blitting the opaque back sprite here would cover the item stack.
      */
     private fun drawHoveredSlotHighlight(guiGraphics: GuiGraphics) {
         val slot = hoveredSlot?.takeIf { it.isActive && it.isHighlightable } ?: return
@@ -115,7 +121,8 @@ abstract class BaseGuiContainer(
         pose.pushPose()
         // Slot.x/y are panel-local, the same coords vanilla renders them at.
         pose.translate(leftPos.toFloat(), topPos.toFloat(), 0f)
-        renderSlotHighlight(guiGraphics, slot.x, slot.y, 0)
+        // Same 24x24 quad, offset by 4, that AbstractContainerScreen#renderSlotHighlightFront uses.
+        guiGraphics.blitSprite(RenderType::guiTexturedOverlay, SLOT_HIGHLIGHT_FRONT_SPRITE, slot.x - 4, slot.y - 4, 24, 24)
         pose.popPose()
     }
 
@@ -164,4 +171,10 @@ abstract class BaseGuiContainer(
      * Returns a list of rectangles that overflow from the main gui area, so that JEI can avoid it.
      */
     abstract fun getExtraGuiAreas(): List<IRectangle>
+
+    companion object {
+        // Private in AbstractContainerScreen, re-declared here for [drawHoveredSlotHighlight].
+        private val SLOT_HIGHLIGHT_FRONT_SPRITE: ResourceLocation =
+            ResourceLocation.withDefaultNamespace("container/slot_highlight_front")
+    }
 }

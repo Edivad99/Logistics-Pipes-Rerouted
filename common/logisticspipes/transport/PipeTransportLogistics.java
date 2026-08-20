@@ -115,9 +115,9 @@ public class PipeTransportLogistics {
 		if (tile != null && chunk != null) {
 			// items are crossing a chunk boundary, mark both chunks modified
 			if (container.getBlockPos().getX() >> 4 != tile.getBlockPos().getX() >> 4 || container.getBlockPos().getZ() >> 4 != tile.getBlockPos().getZ() >> 4) {
-				chunk.setUnsaved(true);
+				chunk.markUnsaved();
 				if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe != null && ((LogisticsTileGenericPipe) tile).pipe.transport != null && ((LogisticsTileGenericPipe) tile).pipe.transport.chunk != null) {
-					((LogisticsTileGenericPipe) tile).pipe.transport.chunk.setUnsaved(true);
+					((LogisticsTileGenericPipe) tile).pipe.transport.chunk.markUnsaved();
 				} else {
 					// Same reasoning as in initialize(): never force-load the neighbour's chunk
 					// just to flag it dirty. If it is not loaded there is nothing to flag.
@@ -125,7 +125,7 @@ public class PipeTransportLogistics {
 							SectionPos.blockToSectionCoord(tile.getBlockPos().getX()),
 							SectionPos.blockToSectionCoord(tile.getBlockPos().getZ()));
 					if (neighbourChunk != null) {
-						neighbourChunk.setUnsaved(true);
+						neighbourChunk.markUnsaved();
 					}
 				}
 			}

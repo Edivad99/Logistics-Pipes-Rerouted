@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:pipe_hs_line"
-    }
+    "a": "logisticspipes:pipe_hs_line"
   },
   "pattern": [
     "aa ",

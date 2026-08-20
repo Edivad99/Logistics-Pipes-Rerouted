@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "logisticspipes:chip_fpga"
-    },
-    "b": {
-      "item": "logisticspipes:pipe_transport_basic"
-    }
+    "a": "logisticspipes:chip_fpga",
+    "b": "logisticspipes:pipe_transport_basic"
   },
   "pattern": [
     "a",

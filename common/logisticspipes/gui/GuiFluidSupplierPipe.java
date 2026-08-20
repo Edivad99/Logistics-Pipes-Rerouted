@@ -15,6 +15,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -64,7 +65,7 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 		// texture: GuiFluidSupplierPipe.SUPPLIER
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(GuiFluidSupplierPipe.SUPPLIER, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderType::guiTextured, GuiFluidSupplierPipe.SUPPLIER, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 
 	@Override

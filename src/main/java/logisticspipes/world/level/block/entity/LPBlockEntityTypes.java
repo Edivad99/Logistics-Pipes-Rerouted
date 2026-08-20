@@ -30,38 +30,30 @@ public class LPBlockEntityTypes {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsPowerJunctionBlockEntity>> POWER_JUNCTION =
         deferredRegister.register("power_junction",
-            () -> BlockEntityType.Builder.of(LogisticsPowerJunctionBlockEntity::new,
-                LPBlocks.POWER_JUNCTION.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsPowerJunctionBlockEntity::new, LPBlocks.POWER_JUNCTION.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsRFPowerProviderTileEntity>> POWER_PROVIDER_RF =
         deferredRegister.register("power_provider_rf",
-            () -> BlockEntityType.Builder.of(LogisticsRFPowerProviderTileEntity::new,
-                LPBlocks.POWER_PROVIDER_RF.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsRFPowerProviderTileEntity::new, LPBlocks.POWER_PROVIDER_RF.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsSecurityTileEntity>> SECURITY_STATION =
         deferredRegister.register("security_station",
-            () -> BlockEntityType.Builder.of(LogisticsSecurityTileEntity::new,
-                LPBlocks.SECURITY_STATION.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsSecurityTileEntity::new, LPBlocks.SECURITY_STATION.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsCraftingTableBlockEntity>> CRAFTING_TABLE =
         deferredRegister.register("logistics_crafting_table",
-            () -> BlockEntityType.Builder.of(LogisticsCraftingTableBlockEntity::new,
-                LPBlocks.CRAFTER.get(), LPBlocks.CRAFTER_FUZZY.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsCraftingTableBlockEntity::new,
+                LPBlocks.CRAFTER.get(), LPBlocks.CRAFTER_FUZZY.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsTileGenericPipe>> PIPE =
         deferredRegister.register("pipe",
-            () -> BlockEntityType.Builder.of(LogisticsTileGenericPipe::new,
-                LPBlocks.PIPE.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsTileGenericPipe::new, LPBlocks.PIPE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsTileGenericSubMultiBlock>> SUB_PIPE =
         deferredRegister.register("sub_pipe",
-            () -> BlockEntityType.Builder.of(LogisticsTileGenericSubMultiBlock::new,
-                LPBlocks.SUB_MULTIBLOCK.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsTileGenericSubMultiBlock::new, LPBlocks.SUB_MULTIBLOCK.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsStatisticsTileEntity>> STATISTICS_TABLE =
         deferredRegister.register("statistics_table",
-            () -> BlockEntityType.Builder.of(LogisticsStatisticsTileEntity::new,
-                LPBlocks.STATISTICS_TABLE.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsStatisticsTileEntity::new, LPBlocks.STATISTICS_TABLE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsProgramCompilerBlockEntity>> PROGRAM_COMPILER =
         deferredRegister.register("program_compiler",
-            () -> BlockEntityType.Builder.of(LogisticsProgramCompilerBlockEntity::new,
-                LPBlocks.PROGRAM_COMPILER.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsProgramCompilerBlockEntity::new, LPBlocks.PROGRAM_COMPILER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsFrameTileEntity>> FRAME =
         deferredRegister.register("frame",
-            () -> BlockEntityType.Builder.of(LogisticsFrameTileEntity::new,
-                LPBlocks.FRAME.get()).build(null));
+            () -> new BlockEntityType<>(LogisticsFrameTileEntity::new, LPBlocks.FRAME.get()));
 }

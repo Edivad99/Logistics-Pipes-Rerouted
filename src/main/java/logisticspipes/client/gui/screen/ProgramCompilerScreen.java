@@ -105,7 +105,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 ResourceLocation sel = getProgramListForSelectionIndex(list).get(index);
 
-                Item selItem = BuiltInRegistries.ITEM.get(sel);
+                Item selItem = BuiltInRegistries.ITEM.getValue(sel);
                 return TextUtil.translate(selItem.getDescriptionId());
             }
 
@@ -265,10 +265,10 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 nbtBase -> LogisticsProgramCompilerBlockEntity.programByCategory.get(
                         ResourceLocation.parse(nbtBase.getAsString()))
                     .stream())
-            .filter(it -> TextUtil.translate(BuiltInRegistries.ITEM.get(it).getDescriptionId()).toLowerCase()
+            .filter(it -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(it).getDescriptionId()).toLowerCase()
                 .contains(search.getValue().toLowerCase()))
-            .sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(BuiltInRegistries.ITEM.get(o)))
-                .thenComparing(o -> TextUtil.translate(BuiltInRegistries.ITEM.get(o).getDescriptionId()).toLowerCase())
+            .sorted(Comparator.<ResourceLocation, Integer>comparing(o -> getSortingClass(BuiltInRegistries.ITEM.getValue(o)))
+                .thenComparing(o -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(o).getDescriptionId()).toLowerCase())
             )
             .collect(Collectors.toList());
     }
@@ -337,7 +337,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         if (compiler.getCurrentTask() != null) {
             guiGraphics.drawString(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0x000000, false);
-            Item item = BuiltInRegistries.ITEM.get(compiler.getCurrentTask());
+            Item item = BuiltInRegistries.ITEM.getValue(compiler.getCurrentTask());
             String name;
             if (!item.equals(Items.AIR)) {
                 name = item.getDescriptionId();

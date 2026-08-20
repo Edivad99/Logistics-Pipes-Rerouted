@@ -25,6 +25,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -129,7 +130,7 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 			// texture: GuiSupplierPipe.TEXTURE
 			int j = leftPos;
 			int k = topPos;
-			guiGraphics.blit(GuiSupplierPipe.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+			guiGraphics.blit(RenderType::guiTextured, GuiSupplierPipe.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 		} else {
 			LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 			for (int i = 0; i < 9; i++) {

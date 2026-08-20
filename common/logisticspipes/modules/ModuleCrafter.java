@@ -825,7 +825,7 @@ public class ModuleCrafter extends LogisticsModule
 						player,
 						InteractionHand.MAIN_HAND,
 						hit
-				).result() != InteractionResult.PASS;
+				) != InteractionResult.PASS;
 			} else {
 				return false;
 			}

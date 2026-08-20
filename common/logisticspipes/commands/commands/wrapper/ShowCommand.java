@@ -33,7 +33,7 @@ public class ShowCommand implements ICommandHandler {
 	@Override
 	public void executeCommand(Player sender, String[] args) {
 		if (args.length != 1) {
-			sender.sendSystemMessage(Component.literal("Wrong amount of arguments"));
+			sender.displayClientMessage(Component.literal("Wrong amount of arguments"), false);
 			return;
 		}
 		String name = args[0];
@@ -53,23 +53,23 @@ public class ShowCommand implements ICommandHandler {
 			}
 		}
 		if (list.size() > 1) {
-			sender.sendSystemMessage(Component.literal("Possible: "));
+			sender.displayClientMessage(Component.literal("Possible: "), false);
 			for (AbstractWrapper can : list) {
-				sender.sendSystemMessage(Component.literal(can.getName() + can.getTypeName()));
+				sender.displayClientMessage(Component.literal(can.getName() + can.getTypeName()), false);
 			}
 		} else if (list.isEmpty()) {
-			sender.sendSystemMessage(Component.literal("No match found"));
+			sender.displayClientMessage(Component.literal("No match found"), false);
 		} else {
 			AbstractWrapper wrapper = list.get(0);
 			Throwable t = wrapper.getReason();
 			if (t == null) {
-				sender.sendSystemMessage(Component.literal("null"));
+				sender.displayClientMessage(Component.literal("null"), false);
 				return;
 			} else {
-				sender.sendSystemMessage(Component.literal("-----------------------------------------------------"));
-				sender.sendSystemMessage(Component.literal(t.toString()));
+				sender.displayClientMessage(Component.literal("-----------------------------------------------------"), false);
+				sender.displayClientMessage(Component.literal(t.toString()), false);
 				for (StackTraceElement s : t.getStackTrace()) {
-					sender.sendSystemMessage(Component.literal(" " + s.toString()));
+					sender.displayClientMessage(Component.literal(" " + s.toString()), false);
 				}
 				t.printStackTrace();
 			}

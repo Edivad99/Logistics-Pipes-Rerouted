@@ -20,12 +20,7 @@ public class ItemLogisticsProgrammer extends LogisticsItem {
     }
 
     @Override
-    public boolean hasCraftingRemainingItem(ItemStack stack) {
-        return true;
-    }
-
-    @Override
-    public ItemStack getCraftingRemainingItem(ItemStack itemStack) {
+    public ItemStack getCraftingRemainder(ItemStack itemStack) {
         ItemStack result = new ItemStack(this);
         result.applyComponents(itemStack.getComponents());
         return result;
@@ -38,7 +33,7 @@ public class ItemLogisticsProgrammer extends LogisticsItem {
             if (stack.has(LPDataComponents.RECIPE_TARGET)) {
                 String target = Objects.requireNonNull(stack.get(LPDataComponents.RECIPE_TARGET));
                 if (!target.isEmpty()) {
-                    Item targetItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(target));
+                    Item targetItem = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(target));
                     if (targetItem instanceof ItemModule) {
                         tooltipComponents.add(Component.literal(TextUtil.translate("tooltip.programmerForModule")));
                         tooltipComponents.add(

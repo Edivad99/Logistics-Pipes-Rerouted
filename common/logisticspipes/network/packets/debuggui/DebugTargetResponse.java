@@ -42,48 +42,48 @@ public class DebugTargetResponse extends ModernPacket {
 	@Override
 	public void processPacket(final Player player) {
 		if (mode == TargetMode.None) {
-			player.sendSystemMessage(Component.literal(ChatColor.RED + "No Target Found"));
+			player.displayClientMessage(Component.literal(ChatColor.RED + "No Target Found"), false);
 		} else if (mode == TargetMode.Block) {
 			int x = additions[0];
 			int y = additions[1];
 			int z = additions[2];
-			player.sendSystemMessage(Component.literal("Checking Block at: x:" + x + " y:" + y + " z:" + z));
+			player.displayClientMessage(Component.literal("Checking Block at: x:" + x + " y:" + y + " z:" + z), false);
 			Block id = player.level().getBlockState(new BlockPos(x, y, z)).getBlock();
-			player.sendSystemMessage(Component.literal("Found Block with Id: " + id.getClass()));
+			player.displayClientMessage(Component.literal("Found Block with Id: " + id.getClass()), false);
 			final BlockEntity tile = player.level().getBlockEntity(new BlockPos(x, y, z));
 			if (tile == null) {
-				player.sendSystemMessage(Component.literal(ChatColor.RED + "No BlockEntity found"));
+				player.displayClientMessage(Component.literal(ChatColor.RED + "No BlockEntity found"), false);
 			} else {
 				LPChatListener.addTask(() -> {
-					player.sendSystemMessage(Component.literal(
-							ChatColor.GREEN + "Starting debuging of BlockEntity: " + ChatColor.BLUE + ChatColor.UNDERLINE + tile.getClass().getSimpleName()));
+					player.displayClientMessage(Component.literal(
+							ChatColor.GREEN + "Starting debuging of BlockEntity: " + ChatColor.BLUE + ChatColor.UNDERLINE + tile.getClass().getSimpleName()), false);
 					DebugGuiController.instance().startWatchingOf(tile, player);
 					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 					return true;
 				}, player);
-				player.sendSystemMessage(Component.literal(
+				player.displayClientMessage(Component.literal(
 						ChatColor.AQUA + "Start debuging of BlockEntity: " + ChatColor.BLUE + ChatColor.UNDERLINE + tile.getClass().getSimpleName()
 								+ ChatColor.AQUA + "? " + ChatColor.RESET + "<" + ChatColor.GREEN + "yes" + ChatColor.RESET + "/" + ChatColor.RED + "no"
-								+ ChatColor.RESET + ">"));
+								+ ChatColor.RESET + ">"), false);
 				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 			}
 		} else if (mode == TargetMode.Entity) {
 			int entityId = additions[0];
 			final Entity entity = player.level().getEntity(entityId);
 			if (entity == null) {
-				player.sendSystemMessage(Component.literal(ChatColor.RED + "No Entity found"));
+				player.displayClientMessage(Component.literal(ChatColor.RED + "No Entity found"), false);
 			} else {
 				LPChatListener.addTask(() -> {
-					player.sendSystemMessage(Component.literal(
-							ChatColor.GREEN + "Starting debuging of Entity: " + ChatColor.BLUE + ChatColor.UNDERLINE + entity.getClass().getSimpleName()));
+					player.displayClientMessage(Component.literal(
+							ChatColor.GREEN + "Starting debuging of Entity: " + ChatColor.BLUE + ChatColor.UNDERLINE + entity.getClass().getSimpleName()), false);
 					DebugGuiController.instance().startWatchingOf(entity, player);
 					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 					return true;
 				}, player);
-				player.sendSystemMessage(Component.literal(
+				player.displayClientMessage(Component.literal(
 						ChatColor.AQUA + "Start debuging of Entity: " + ChatColor.BLUE + ChatColor.UNDERLINE + entity.getClass().getSimpleName()
 								+ ChatColor.AQUA + "? " + ChatColor.RESET + "<" + ChatColor.GREEN + "yes" + ChatColor.RESET + "/" + ChatColor.RED + "no"
-								+ ChatColor.RESET + ">"));
+								+ ChatColor.RESET + ">"), false);
 				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
 			}
 		}
