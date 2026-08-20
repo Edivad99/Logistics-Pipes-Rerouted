@@ -149,7 +149,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
         slot: Int,
         itemIdStack: ItemIdentifierStack,
     ) {
-        val service = module.service ?: return
+        val service = module.pipeService ?: return
         val pointedOrientation = service.pointedOrientation ?: return
         val stack = inventory.getItem(slot)
         if (!itemIdStack.item.equalsWithNBT(stack)) return
@@ -211,7 +211,7 @@ class AsyncExtractorModule(
     internal val serverRouter: ServerRouter?
         get() = service?.router as? ServerRouter
 
-    internal val service: IPipeServiceProvider?
+    internal val pipeService: IPipeServiceProvider?
         get() = service
 
     override val pipeGuiProvider: ModuleCoordinatesGuiProvider
