@@ -40,6 +40,8 @@ package logisticspipes.util
 import network.rs485.logisticspipes.TestBootstrap
 import network.rs485.logisticspipes.util.TestUtil.Companion.getBytesFromInteger
 import network.rs485.util.use
+import logisticspipes.routing.channels.ChannelInformation
+import logisticspipes.utils.PlayerIdentifier
 import logisticspipes.utils.item.ItemIdentifier
 import io.netty.buffer.Unpooled
 import org.junit.jupiter.api.BeforeAll
@@ -51,6 +53,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.CustomData
@@ -840,6 +843,168 @@ class LPDataIOWrapperTest {
 
             assertTrue(array.contentEquals(actual))
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeUUID and readUUID round trip`() {
+        val expected = UUID.randomUUID()
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeUUID(expected) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            assertEquals(expected, input.readUUID())
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeUUID and readUUID with null`() {
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeUUID(null) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            assertNull(input.readUUID())
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeItemIdentifierStack and readItemIdentifierStack with null`() {
+        val registries = testRegistries()
+        val data = LPDataIOWrapper.collectData(registries) { output: LPDataOutput -> output.writeItemIdentifierStack(null) }
+        LPDataIOWrapper.provideData(data, registries) { input: LPDataInput ->
+            assertNull(input.readItemIdentifierStack())
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeIdentifier and readIdentifier round trip`() {
+        val expected = Identifier.parse("logisticspipes:request_table")
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeIdentifier(expected) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            assertEquals(expected, input.readIdentifier())
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeIdentifier and readIdentifier with null`() {
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeIdentifier(null) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            assertNull(input.readIdentifier())
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writePlayerIdentifier and readPlayerIdentifier round trip`() {
+        val expected = PlayerIdentifier.get("Krapht", UUID.randomUUID())
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writePlayerIdentifier(expected) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            // Interned by id, so identity equality is the strongest assertion available.
+            assertSame(expected, input.readPlayerIdentifier())
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writePlayerIdentifier and readPlayerIdentifier without an id`() {
+        // convertFromUsername leaves the id null; the name is what identifies the player then.
+        val expected = PlayerIdentifier.convertFromUsername("OfflinePlayer")
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writePlayerIdentifier(expected) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            val actual = input.readPlayerIdentifier()
+
+            assertEquals("OfflinePlayer", actual.username)
+            assertNull(actual.id)
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writePlayerIdentifier and readPlayerIdentifier without a username`() {
+        val id = UUID.randomUUID()
+        val expected = PlayerIdentifier.get(null, id)
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writePlayerIdentifier(expected) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            val actual = input.readPlayerIdentifier()
+
+            assertNull(actual.username)
+            assertEquals(id, actual.id)
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeChannelInformation and readChannelInformation round trip`() {
+        val expected = ChannelInformation(
+            "Main Channel",
+            UUID.randomUUID(),
+            PlayerIdentifier.get("Krapht", UUID.randomUUID()),
+            ChannelInformation.AccessRights.SECURED,
+            UUID.randomUUID(),
+        )
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeChannelInformation(expected) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            assertEquals(expected, input.readChannelInformation())
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test writeChannelInformation and readChannelInformation with the optional halves null`() {
+        // name and responsibleSecurityID are the only nullable fields; the rest are @NonNull.
+        val expected = ChannelInformation(
+            null,
+            UUID.randomUUID(),
+            PlayerIdentifier.get("Krapht", UUID.randomUUID()),
+            ChannelInformation.AccessRights.PUBLIC,
+            null,
+        )
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeChannelInformation(expected) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            val actual = input.readChannelInformation()
+
+            assertEquals(expected, actual)
+            assertNull(actual.name)
+            assertNull(actual.responsibleSecurityID)
+            assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
+        }
+    }
+
+    @Test
+    fun `test a null channel name survives the round trip`() {
+        // ChannelManager sends a bare channel reference with no name; writing it used to hand a
+        // null to putString.
+        val expected = ChannelInformation(
+            null,
+            UUID.randomUUID(),
+            PlayerIdentifier.get("Krapht", UUID.randomUUID()),
+            ChannelInformation.AccessRights.PRIVATE,
+            null,
+        )
+        val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeChannelInformation(expected) }
+        LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+            val actual = input.readChannelInformation()
+
+            assertNull(actual.name)
+            assertEquals(expected.channelIdentifier, actual.channelIdentifier)
+            assertEquals(expected.rights, actual.rights)
+        }
+    }
+
+    @Test
+    fun `test every AccessRights constant survives the round trip`() {
+        ChannelInformation.AccessRights.entries.forEach { rights ->
+            val expected = ChannelInformation(
+                "Channel",
+                UUID.randomUUID(),
+                PlayerIdentifier.get("Krapht", UUID.randomUUID()),
+                rights,
+                null,
+            )
+            val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeChannelInformation(expected) }
+            LPDataIOWrapper.provideData(data) { input: LPDataInput ->
+                assertEquals(rights, input.readChannelInformation().rights, "round trip of $rights")
+            }
         }
     }
 }

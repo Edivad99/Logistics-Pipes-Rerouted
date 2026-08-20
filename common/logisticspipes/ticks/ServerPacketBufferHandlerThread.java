@@ -112,11 +112,8 @@ public class ServerPacketBufferHandlerThread {
 								LinkedList<ModernPacket> packets = playerPacketEntry.getValue();
 								try {
 									for (ModernPacket packet : packets) {
-										output.writeByteArray(LPDataIOWrapper.collectData(dataOutput -> {
-											dataOutput.writeShort(packet.getId());
-											dataOutput.writeInt(packet.getDebugId());
-											packet.writeData(dataOutput);
-										}));
+										output.writeByteArray(LPDataIOWrapper.collectData(dataOutput ->
+												PacketHandler.writeNamedPacket(dataOutput, packet)));
 									}
 								} finally {
 									packets.clear();

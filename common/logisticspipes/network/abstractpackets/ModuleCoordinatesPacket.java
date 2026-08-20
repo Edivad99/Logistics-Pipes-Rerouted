@@ -4,6 +4,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 
+import org.jspecify.annotations.Nullable;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +26,7 @@ public abstract class ModuleCoordinatesPacket extends CoordinatesPacket {
 
 	@Getter
 	@Setter
-	private ModulePositionType type;
+	private @Nullable ModulePositionType type;
 
 	@Getter
 	@Setter

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.ValueInput;
@@ -21,12 +21,9 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import com.mojang.serialization.Codec;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import static io.netty.buffer.Unpooled.buffer;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -36,56 +33,54 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.util.LPDataIOWrapper;
 import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolverUtil;
 
 /**
  * Central packet registry and dispatcher for LogisticsPipes.
  *
- * All LP packets share a single {@link LPPacketPayload} channel multiplexed by a short ID.
- * Registration happens in {@link LogisticsPipes} via {@code RegisterPayloadsEvent}.
+ * Each LP packet registers as its own named {@link LPPayload} type; see {@link LPPayloadTypes}.
+ * Registration happens in {@link LogisticsPipes} via {@code RegisterPayloadHandlersEvent}.
  */
 public class PacketHandler {
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, event -> {
+            // The packet table has to exist before the payloads can be registered, and this event
+            // fires well before FMLCommonSetup. Building it here is safe: it only scans the
+            // classpath and constructs templates, with no game state involved.
+            initialize();
             var registrar = event.registrar(LPConstants.ID).versioned("1");
-            // Both directions get the handler explicitly. The three-argument playBidirectional only
-            // registers the *server* one and leaves the clientbound side null, which 1.21.8 now
-            // rejects outright: "Some clientbound payloads are missing client-side handlers".
-            // LP multiplexes every packet over this one channel and dispatches by id inside
-            // handlePayload, so the same handler is correct for both.
-            registrar.playBidirectional(
-                    LPPacketPayload.TYPE,
-                    LPPacketPayload.STREAM_CODEC,
-                    PacketHandler::handlePayload,
-                    PacketHandler::handlePayload
-            );
-            registerClientToServer(registrar);
-            registerServerToClient(registrar);
-        });
-    }
-
-    private static void registerClientToServer(PayloadRegistrar registrar) {
-    }
-
-    private static void registerServerToClient(PayloadRegistrar registrar) {
-    }
-
-    private static void handlePayload(LPPacketPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            try {
-                Player player = context.player();
-
-                onPacketData(payload.getData(), player);
-            } finally {
-                payload.release();
+            int registered = 0;
+            for (LPPayloadTypes.Entry entry : LPPayloadTypes.all()) {
+                // Both directions get the handler explicitly. The three-argument playBidirectional
+                // only registers the *server* one and leaves the clientbound side null, which
+                // 1.21.8 now rejects outright: "Some clientbound payloads are missing client-side
+                // handlers". Every LP packet dispatches by its own type, so the same handler is
+                // correct for both.
+                registrar.playBidirectional(
+                        entry.type(),
+                        entry.codec(),
+                        PacketHandler::handlePayload,
+                        PacketHandler::handlePayload
+                );
+                registered++;
             }
+            // Worth a line: a client and a server that registered different counts will fail to
+            // negotiate, and this is the only place that number is visible.
+            LogisticsPipes.LOG.info("Registered {} LogisticsPipes packet payloads", registered);
         });
+    }
+
+    private static void handlePayload(LPPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> onPacketData(payload.packet(), context.player()));
     }
 
     public static final Map<Integer, StackTraceElement[]> debugMap = new HashMap<>();
-    public static List<ModernPacket> packetlist;
-    public static Map<Class<? extends ModernPacket>, ModernPacket> packetmap;
+    /** Null until {@link #initialize()} has run; null slots are packets absent on this side. */
+    public static @Nullable List<@Nullable ModernPacket> packetlist;
+    /** Null until {@link #initialize()} has run. */
+    public static @Nullable Map<Class<? extends ModernPacket>, ModernPacket> packetmap;
     private static int packetDebugID = 1;
 
     // ── Registration ─────────────────────────────────────────────────────────
@@ -104,13 +99,22 @@ public class PacketHandler {
         return packet;
     }
 
-    /** Enumerates all ModernPacket subclasses, assigns IDs, and populates packetlist/packetmap. */
+    /**
+     * Enumerates all ModernPacket subclasses, builds the templates and derives the payload types.
+     *
+     * <p>Idempotent: it runs from {@code RegisterPayloadHandlersEvent}, which needs the table to
+     * register the payloads, and the later call from common setup then finds it already built.
+     */
     public static void initialize() {
+        if (PacketHandler.packetmap != null && !PacketHandler.packetmap.isEmpty()) {
+            return;
+        }
         Set<Class<? extends ModernPacket>> classes = StaticResolverUtil.findClassesByType(ModernPacket.class);
         loadPackets(classes);
         if (PacketHandler.packetmap.isEmpty()) {
             throw new RuntimeException("Cannot load Packet Classes");
         }
+        LPPayloadTypes.build(PacketHandler.packetlist);
     }
 
     private static void loadPackets(Set<Class<? extends ModernPacket>> classesIn) {
@@ -140,24 +144,57 @@ public class PacketHandler {
     // ── Binary serialization ─────────────────────────────────────────────────
 
     /**
-     * Writes a ModernPacket into a raw ByteBuf (short id + int debugId + LP body).
-     * Used both for network sending and for NBT embedding.
+     * Writes a self-describing packet: payload name, debug id, body.
+     *
+     * <p>Used by the buffered/compressed channel, which batches several packets into one blob and
+     * so has to carry its own discriminator. It is a name rather than the old numeric id for the
+     * same reason the payload types are: the number was an index into a classpath scan.
      */
-    public static void fillByteBuf(ModernPacket msg, ByteBuf buffer) {
-        buffer.writeShort(msg.getId());
-        buffer.writeInt(msg.getDebugId());
-        LPDataIOWrapper.writeData(buffer, msg::writeData);
+    public static void writeNamedPacket(LPDataOutput output, ModernPacket packet) {
+        output.writeUTF(LPPayloadTypes.entryFor(packet).name().toString());
+        output.writeInt(packet.getDebugId());
+        packet.writeData(output);
     }
 
+    /**
+     * Reads back what {@link #writeNamedPacket} wrote.
+     *
+     * @return the decoded packet, or null when this side has no packet class under that name --
+     *         which no longer disturbs the packets batched after it, since each one re-announces
+     *         its own name
+     */
+    public static @Nullable ModernPacket readNamedPacket(LPDataInput input) {
+        final Identifier name = Identifier.parse(Objects.requireNonNull(input.readUTF()));
+        final LPPayloadTypes.Entry entry = LPPayloadTypes.entryFor(name);
+        if (entry == null) {
+            LogisticsPipes.LOG.error("Received unknown LP packet {}", name);
+            return null;
+        }
+        final ModernPacket packet = entry.template().template();
+        packet.setDebugId(input.readInt());
+        packet.readData(input);
+        return packet;
+    }
+
+    /** NBT key holding the payload name of an embedded packet. */
+    private static final String NBT_PACKET_NAME = "LogisticsPipes:PacketName";
+    /** NBT key holding the debug id and body of an embedded packet. */
+    private static final String NBT_PACKET_DATA = "LogisticsPipes:PacketData";
+
+    /**
+     * Embeds a packet in a block entity's update tag, the one path that carries an LP packet
+     * outside the payload channel. The packet is named here too, for the same reason it is on the
+     * wire: nothing should depend on a numeric id whose value comes from a classpath scan.
+     *
+     * <p>This rides {@code getUpdateTag}, which is chunk sync and never reaches disk, so the
+     * encoding is free to change with the mod.
+     */
     public static void addPacketToNBT(ModernPacket packet, CompoundTag nbt) {
-        ByteBuf dataBuffer = buffer();
-        PacketHandler.fillByteBuf(packet, dataBuffer);
-
-        byte[] data = new byte[dataBuffer.readableBytes()];
-        dataBuffer.getBytes(0, data);
-        dataBuffer.release();
-
-        nbt.putByteArray("LogisticsPipes:PacketData", data);
+        nbt.putString(NBT_PACKET_NAME, LPPayloadTypes.entryFor(packet).name().toString());
+        nbt.putByteArray(NBT_PACKET_DATA, LPDataIOWrapper.collectData(output -> {
+            output.writeInt(packet.getDebugId());
+            packet.writeData(output);
+        }));
     }
 
     /**
@@ -166,38 +203,42 @@ public class PacketHandler {
      * <p>Takes a {@link ValueInput} because that is what {@code handleUpdateTag} hands out since
      * 1.21.6. It has no byte-array accessor, so the payload comes back through
      * {@code Codec.BYTE_BUFFER}, which NbtOps maps onto the same ByteArrayTag the writer produces.
-     * The key is no longer removed afterwards -- a ValueInput is read-only, and leaving it costs
-     * nothing since the block entity ignores unknown keys.</p>
+     * The keys are no longer removed afterwards -- a ValueInput is read-only, and leaving them
+     * costs nothing since the block entity ignores unknown keys.</p>
      */
     public static void queuePacketFromUpdateTag(ValueInput input) {
-        byte[] data = input.read("LogisticsPipes:PacketData", Codec.BYTE_BUFFER)
+        byte[] data = input.read(NBT_PACKET_DATA, Codec.BYTE_BUFFER)
             .map(buffer -> {
                 byte[] copy = new byte[buffer.remaining()];
                 buffer.duplicate().get(copy);
                 return copy;
             })
             .orElse(new byte[0]);
-        if (data.length > 0) {
-            LPDataIOWrapper.provideData(data, Minecraft.getInstance().getConnection() != null ? Minecraft.getInstance().getConnection().registryAccess() : null, dataInput -> {
-                final int packetID = dataInput.readShort();
-                final ModernPacket packet = PacketHandler.templateForId(packetID);
-                packet.setDebugId(dataInput.readInt());
-                packet.readData(dataInput);
-                Player localPlayer = Minecraft.getInstance().player;
-                SimpleServiceLocator.clientBufferHandler.queuePacket(packet, Objects.requireNonNull(localPlayer));
-            });
+        if (data.length == 0) {
+            return;
         }
+        final Identifier name = Identifier.parse(input.getStringOr(NBT_PACKET_NAME, ""));
+        final LPPayloadTypes.Entry entry = LPPayloadTypes.entryFor(name);
+        if (entry == null) {
+            LogisticsPipes.LOG.error("Update tag carries unknown LP packet {}", name);
+            return;
+        }
+        LPDataIOWrapper.provideData(data, Minecraft.getInstance().getConnection() != null ? Minecraft.getInstance().getConnection().registryAccess() : null, dataInput -> {
+            final ModernPacket packet = entry.template().template();
+            packet.setDebugId(dataInput.readInt());
+            packet.readData(dataInput);
+            Player localPlayer = Minecraft.getInstance().player;
+            SimpleServiceLocator.clientBufferHandler.queuePacket(packet, Objects.requireNonNull(localPlayer));
+        });
     }
 
     // ── Sending ──────────────────────────────────────────────────────────────
 
-    private static LPPacketPayload buildPayload(ModernPacket msg) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        fillByteBuf(msg, buf);
-        return LPPacketPayload.of(buf);
+    private static LPPayload buildPayload(ModernPacket msg) {
+        return LPPayloadTypes.payloadFor(msg);
     }
 
-    public static LPPacketPayload buildPayloadPublic(ModernPacket msg) {
+    public static LPPayload buildPayloadPublic(ModernPacket msg) {
         return buildPayload(msg);
     }
 
@@ -226,39 +267,12 @@ public class PacketHandler {
         );
     }
 
-    /** Resolves a fresh packet template for a received id, guarding the null gaps that
-     *  {@link #loadPackets} leaves for packets unavailable on this side. A non-null result is
-     *  expected in normal play (IDs are index-based and symmetric); a gap means a client/server
-     *  packet-table mismatch. */
-    private static ModernPacket templateForId(int packetID) {
-        ModernPacket tmpl = (packetID >= 0 && packetID < packetlist.size()) ? packetlist.get(packetID) : null;
-        if (tmpl == null) {
-            throw new IllegalStateException("Received LP packet id " + packetID
-                    + " not registered on this side (client/server packet-table mismatch)");
-        }
-        return tmpl.template();
-    }
-
-    // ── Dispatch ──────────────────────────────────────────────────────────────
-
-    /** Decodes and dispatches a raw LP packet from a FriendlyByteBuf. */
-    public static void onPacketData(final FriendlyByteBuf data, final Player player) {
-        LPDataIOWrapper.provideData(data, player.registryAccess(), input -> {
-            final int packetID = input.readShort();
-            final ModernPacket packet = PacketHandler.templateForId(packetID);
-            packet.setDebugId(input.readInt());
-            packet.readData(input);
-            onPacketData(packet, player);
-        });
-    }
-
-    /** Decodes a raw LP packet from an LPDataInput (used by NBT-embedded packets). */
+    /** Decodes one packet of the buffered/compressed channel and dispatches it. */
     public static void onPacketData(final LPDataInput data, final Player player) {
-        final int packetID = data.readShort();
-        final ModernPacket packet = PacketHandler.packetlist.get(packetID).template();
-        packet.setDebugId(data.readInt());
-        packet.readData(data);
-        onPacketData(packet, player);
+        final ModernPacket packet = readNamedPacket(data);
+        if (packet != null) {
+            onPacketData(packet, player);
+        }
     }
 
     /** Processes a fully-decoded ModernPacket on the correct thread. */

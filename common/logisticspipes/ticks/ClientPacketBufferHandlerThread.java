@@ -108,11 +108,8 @@ public class ClientPacketBufferHandlerThread {
 							clearLock.lock();
 							try {
 								for (ModernPacket packet : clientList) {
-									output.writeByteArray(LPDataIOWrapper.collectData(dataOutput -> {
-										dataOutput.writeShort(packet.getId());
-										dataOutput.writeInt(packet.getDebugId());
-										packet.writeData(dataOutput);
-									}));
+									output.writeByteArray(LPDataIOWrapper.collectData(dataOutput ->
+											PacketHandler.writeNamedPacket(dataOutput, packet)));
 								}
 							} finally {
 								clientList.clear();
