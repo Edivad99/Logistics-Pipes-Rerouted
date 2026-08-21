@@ -304,27 +304,28 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
         handleUpdateTag(nbt, lookupProvider);
     }
 
-	// Custom public method — called from crash report hooks; not an override of BlockEntity or IBlockEntityExtension.
-	public void addInfoToCrashReport(CrashReportCategory reportCategory) {
-		if (pipe != null) {
-			reportCategory.setDetail("Pipe", pipe.getClass().getCanonicalName());
-			if (pipe.transport != null) {
-				reportCategory.setDetail("Transport", pipe.transport.getClass().getCanonicalName());
-			} else {
-				reportCategory.setDetail("Transport", "null");
-			}
+    @Override
+    public void fillCrashReportCategory(CrashReportCategory reportCategory) {
+        super.fillCrashReportCategory(reportCategory);
+        if (pipe != null) {
+            reportCategory.setDetail("Pipe", pipe.getClass().getCanonicalName());
+            if (pipe.transport != null) {
+                reportCategory.setDetail("Transport", pipe.transport.getClass().getCanonicalName());
+            } else {
+                reportCategory.setDetail("Transport", "null");
+            }
 
-			if (pipe instanceof CoreRoutedPipe) {
-				try {
-					((CoreRoutedPipe) pipe).addCrashReport(reportCategory);
-				} catch (Exception e) {
-					reportCategory.setDetail("Internal LogisticsPipes Error", e);
-				}
-			}
-		}
-	}
+            if (pipe instanceof CoreRoutedPipe) {
+                try {
+                    ((CoreRoutedPipe) pipe).addCrashReport(reportCategory);
+                } catch (Exception e) {
+                    reportCategory.setDetail("Internal LogisticsPipes Error", e);
+                }
+            }
+        }
+    }
 
-	public void scheduleNeighborChange() {
+    public void scheduleNeighborChange() {
 		if (MainProxy.isServer(level)) {
 			pipe.triggerConnectionCheck();
 		}

@@ -107,8 +107,8 @@ neoForge {
             programArgument '--nogui'
         }
 
-        data {
-            data()
+        clientData {
+            clientData()
             gameDirectory = file('runs/data')
             programArguments.addAll '--mod', modId, '--all',
                 '--output', file('src/generated/resources/').getAbsolutePath(),
@@ -179,9 +179,9 @@ dependencies {
     compileOnly "org.projectlombok:lombok:$lombok_version"
     annotationProcessor "org.projectlombok:lombok:$lombok_version"
 
-    compileOnly "mezz.jei:jei-1.21.1-common-api:$jei_version"
-    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:$jei_version"
-    //localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
+    compileOnly "mezz.jei:jei-$minecraft_version-common-api:$jei_version"
+    compileOnly "mezz.jei:jei-$minecraft_version-neoforge-api:$jei_version"
+    localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
 
     //implementation "curse.maven:jade-api-324717:$jade_id"
 

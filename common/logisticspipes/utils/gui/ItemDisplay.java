@@ -196,7 +196,7 @@ public class ItemDisplay {
 			name = name.substring(0, name.length() - 5);
 			up = false;
 		}
-		name += !up ? " /\\" : " \\/";
+		name += !up ? " ⏶" : " ⏷";
 		guiGraphics.drawString(font, name, x - font.width(name) / 2, y, 0x404040, false);
 	}
 

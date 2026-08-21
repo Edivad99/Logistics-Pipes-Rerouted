@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "logisticspipes:item/pipe_remote_orderer",
+    "model": {
+      "type": "logisticspipes:pipe"
+    }
+  }
+}

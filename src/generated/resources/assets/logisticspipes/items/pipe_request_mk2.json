@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "logisticspipes:item/pipe_request_mk2",
+    "model": {
+      "type": "logisticspipes:pipe"
+    }
+  }
+}

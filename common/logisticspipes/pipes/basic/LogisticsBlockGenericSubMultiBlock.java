@@ -66,25 +66,26 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 		return getShape(state, world, pos, context);
 	}
 
-	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-		BlockEntity tile = level.getBlockEntity(pos);
-		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-			for (LogisticsTileGenericPipe mainPipe : ((LogisticsTileGenericSubMultiBlock) tile).getConnectedMainPipes()) {
-				if (mainPipe.isMultiBlock()) {
-					BlockState mainState = level.getBlockState(mainPipe.getBlockPos());
-					ItemStack pick = LPBlocks.PIPE.get()
-							.getCloneItemStack(mainState, target, level, mainPipe.getBlockPos(), player);
-					if (!pick.isEmpty()) {
-						return pick;
-					}
-				}
-			}
-		}
-		return super.getCloneItemStack(state, target, level, pos, player);
-	}
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData,
+        Player player) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+            for (LogisticsTileGenericPipe mainPipe : multiBlock.getConnectedMainPipes()) {
+                if (mainPipe.isMultiBlock()) {
+                    BlockState mainState = level.getBlockState(mainPipe.getBlockPos());
+                    ItemStack pick = LPBlocks.PIPE.get()
+                        .getCloneItemStack(level, mainPipe.getBlockPos(), mainState, includeData, player);
+                    if (!pick.isEmpty()) {
+                        return pick;
+                    }
+                }
+            }
+        }
+        return super.getCloneItemStack(level, pos, state, includeData, player);
+    }
 
-	@Nullable
+    @Nullable
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		if (LogisticsBlockGenericSubMultiBlock.currentCreatedMultiBlock == null && logisticspipes.proxy.MainProxy.isServer(null)) {

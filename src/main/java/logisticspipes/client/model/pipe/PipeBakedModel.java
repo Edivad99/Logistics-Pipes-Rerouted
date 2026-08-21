@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedOverrides;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -132,11 +131,6 @@ public class PipeBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return false;
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         TextureAtlasSprite sprite = PipeModelStore.sprites().basicPipe();
         return sprite != null ? sprite : fallback.getParticleIcon();
@@ -166,8 +160,4 @@ public class PipeBakedModel implements IDynamicBakedModel {
         return fallback.getTransforms();
     }
 
-    @Override
-    public BakedOverrides overrides() {
-        return BakedOverrides.EMPTY;
-    }
 }

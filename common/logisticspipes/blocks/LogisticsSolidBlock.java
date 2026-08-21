@@ -131,8 +131,13 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         // Types with a BlockEntity are drawn by LogisticsSolidBlockRenderer — suppress the
         // flat cube_all JSON model so only the 3D OBJ geometry is visible. Types without a
         // TE (frame, BC power provider) fall back to the JSON model for now.
+        //
+        // INVISIBLE, not MODEL: 1.21.4 dropped ENTITYBLOCK_ANIMATED, and INVISIBLE is what
+        // BaseEntityBlock returns in its place. MODEL would put the cube back into the chunk
+        // mesh on top of the geometry the renderer draws, which is exactly what suppressing it
+        // is meant to avoid.
         if (type.hasBlockEntity()) {
-            return RenderShape.ENTITYBLOCK_ANIMATED;
+            return RenderShape.INVISIBLE;
         }
         return super.getRenderShape(state);
     }

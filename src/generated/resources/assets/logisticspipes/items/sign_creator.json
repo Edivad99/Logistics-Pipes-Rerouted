@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "entries": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "logisticspipes:item/sign_creator_item_amount"
+        },
+        "threshold": 1.0
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "logisticspipes:item/sign_creator_crafting"
+    },
+    "property": "logisticspipes:creator_mode"
+  }
+}

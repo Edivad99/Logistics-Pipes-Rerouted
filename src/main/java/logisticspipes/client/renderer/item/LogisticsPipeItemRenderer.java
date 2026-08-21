@@ -2,8 +2,9 @@ package logisticspipes.client.renderer.item;
 
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import javax.annotation.Nullable;
+
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -13,6 +14,9 @@ import net.minecraft.world.phys.AABB;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.serialization.MapCodec;
+
+import net.minecraft.client.renderer.special.SpecialModelRenderer;
 
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
@@ -26,25 +30,36 @@ import logisticspipes.renderer.state.PipeRenderState;
 import logisticspipes.world.item.ItemLogisticsPipe;
 
 /**
- * BEWLR that draws a pipe item using the same OBJ geometry pipeline as the in-world
+ * Draws a pipe item using the same OBJ geometry pipeline as the in-world
  * {@link LogisticsRenderPipe}. Built with a fresh all-disconnected {@link PipeRenderState}
  * and the item's dummyPipe, so inventory icons show the 3D pipe body instead of a sprite.
+ *
+ * <p>Was a {@code BlockEntityWithoutLevelRenderer} attached per item through
+ * {@code IClientItemExtensions#getCustomRenderer} until 1.21.4 removed both. The replacement is a
+ * {@link SpecialModelRenderer}, referenced by id from the item's model definition -- see
+ * {@code LPModelProvider}. The vertex work is unchanged: the render state still applies
+ * {@code translate(-0.5, -0.5, -0.5)} before handing over, so every comment below about that
+ * pre-applied centring still holds.</p>
+ *
+ * <p>The renderer no longer receives the {@link ItemStack}: {@link #extractArgument} pulls the
+ * dummy pipe out ahead of time, which is all the geometry ever depended on.</p>
  */
-public class LogisticsPipeItemRenderer extends BlockEntityWithoutLevelRenderer {
+public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnroutedPipe> {
 
-    public static LogisticsPipeItemRenderer INSTANCE = new LogisticsPipeItemRenderer();
+    public static final LogisticsPipeItemRenderer INSTANCE = new LogisticsPipeItemRenderer();
 
     private LogisticsPipeItemRenderer() {
-        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+    }
+
+    @Nullable
+    @Override
+    public CoreUnroutedPipe extractArgument(ItemStack stack) {
+        return stack.getItem() instanceof ItemLogisticsPipe item ? item.getDummyPipe() : null;
     }
 
     @Override
-    public void renderByItem(ItemStack stack, ItemDisplayContext ctx, PoseStack pose, MultiBufferSource buffers,
-        int light, int overlay) {
-        if (!(stack.getItem() instanceof ItemLogisticsPipe item)) {
-            return;
-        }
-        CoreUnroutedPipe dummyPipe = item.getDummyPipe();
+    public void render(@Nullable CoreUnroutedPipe dummyPipe, ItemDisplayContext ctx, PoseStack pose,
+        MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
         if (dummyPipe == null) {
             return;
         }
@@ -137,6 +152,22 @@ public class LogisticsPipeItemRenderer extends BlockEntityWithoutLevelRenderer {
             }
         } finally {
             pose.popPose();
+        }
+    }
+
+    public record Unbaked() implements SpecialModelRenderer.Unbaked {
+
+        public static final Unbaked INSTANCE = new Unbaked();
+        public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(INSTANCE);
+
+        @Override
+        public SpecialModelRenderer<?> bake(EntityModelSet modelSet) {
+            return LogisticsPipeItemRenderer.INSTANCE;
+        }
+
+        @Override
+        public MapCodec<Unbaked> type() {
+            return MAP_CODEC;
         }
     }
 }

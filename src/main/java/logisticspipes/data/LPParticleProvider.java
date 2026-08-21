@@ -2,7 +2,6 @@ package logisticspipes.data;
 
 import net.minecraft.data.PackOutput;
 
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.ParticleDescriptionProvider;
 
 import logisticspipes.LPConstants;
@@ -10,8 +9,8 @@ import logisticspipes.particle.LPParticleTypes;
 
 public class LPParticleProvider extends ParticleDescriptionProvider {
 
-    public LPParticleProvider(PackOutput output, ExistingFileHelper fileHelper) {
-        super(output, fileHelper);
+    public LPParticleProvider(PackOutput output) {
+        super(output);
     }
 
     @Override

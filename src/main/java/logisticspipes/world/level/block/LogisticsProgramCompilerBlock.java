@@ -61,6 +61,8 @@ public class LogisticsProgramCompilerBlock extends LogisticsSolidBlock implement
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+        // Drawn entirely by its BlockEntityRenderer; INVISIBLE keeps the JSON model out of the
+        // chunk mesh. Was ENTITYBLOCK_ANIMATED, which 1.21.4 removed.
+        return RenderShape.INVISIBLE;
     }
 }

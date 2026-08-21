@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "logisticspipes:item/pipe_inventory_system_connector",
+    "model": {
+      "type": "logisticspipes:pipe"
+    }
+  }
+}

@@ -42,7 +42,9 @@ public final class PipeModelRegistration {
 
     @SubscribeEvent
     public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
-        Map<ModelResourceLocation, BakedModel> models = event.getModels();
+        // 1.21.4 replaced ModifyBakingResult#getModels with the whole BakingResult record;
+        // the blockstate models are one of its maps, and still mutable in place.
+        Map<ModelResourceLocation, BakedModel> models = event.getBakingResult().blockStateModels();
 
         // Every blockstate variant has to be replaced, not just one. The pipe block declares
         // rotation, model_type and six connection properties, so the baking result holds one

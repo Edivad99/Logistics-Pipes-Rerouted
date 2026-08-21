@@ -1,40 +1,74 @@
 package logisticspipes.client.renderer.item;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import javax.annotation.Nullable;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.MapCodec;
+
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import logisticspipes.client.renderer.blockentity.LogisticsSolidBlockRenderer;
 import logisticspipes.world.item.LogisticsSolidBlockItem;
+import logisticspipes.blocks.LogisticsSolidBlock;
 
 /**
- * BEWLR that draws an LP solid block item using the same OBJ geometry as
- * {@link LogisticsSolidBlockRenderer}. Vanilla ItemRenderer pre-applies the
- * {@code -0.5,-0.5,-0.5} centring translation before invoking this renderer, so
- * the shared draw path can be used unmodified.
+ * Draws an LP solid block item using the same OBJ geometry as
+ * {@link LogisticsSolidBlockRenderer}.
+ *
+ * <p>Was a {@code BlockEntityWithoutLevelRenderer} attached per item through
+ * {@code IClientItemExtensions#getCustomRenderer} until 1.21.4 removed both. The replacement is a
+ * {@link SpecialModelRenderer}, referenced by id from the item's model definition -- see
+ * {@code LPModelProvider}. The vertex work is unchanged: the render state still applies
+ * {@code translate(-0.5, -0.5, -0.5)} before handing over, so the shared draw path still lands in
+ * the unit cube it expects.</p>
+ *
+ * <p>The renderer no longer receives the {@link ItemStack}: whatever it needs is pulled out ahead of
+ * time by {@link #extractArgument}, which here is the block type driving the geometry.</p>
  */
-public class LogisticsSolidBlockItemRenderer extends BlockEntityWithoutLevelRenderer {
+public class LogisticsSolidBlockItemRenderer implements SpecialModelRenderer<LogisticsSolidBlock.Type> {
 
-    public static LogisticsSolidBlockItemRenderer INSTANCE = new LogisticsSolidBlockItemRenderer();
+    public static final LogisticsSolidBlockItemRenderer INSTANCE = new LogisticsSolidBlockItemRenderer();
 
     private LogisticsSolidBlockItemRenderer() {
-        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+    }
+
+    @Nullable
+    @Override
+    public LogisticsSolidBlock.Type extractArgument(ItemStack stack) {
+        return stack.getItem() instanceof LogisticsSolidBlockItem item ? item.getType() : null;
     }
 
     @Override
-    public void renderByItem(ItemStack stack, ItemDisplayContext ctx, PoseStack pose,
-        MultiBufferSource buffers, int light, int overlay) {
-        if (stack.getItem() instanceof LogisticsSolidBlockItem item) {
-            pose.pushPose();
-            try {
-                LogisticsSolidBlockRenderer.renderSolid(item.getType(), pose, buffers, light, overlay);
-            } finally {
-                pose.popPose();
-            }
+    public void render(@Nullable LogisticsSolidBlock.Type type, ItemDisplayContext ctx, PoseStack pose,
+        MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
+        if (type == null) {
+            return;
+        }
+        pose.pushPose();
+        try {
+            LogisticsSolidBlockRenderer.renderSolid(type, pose, buffers, light, overlay);
+        } finally {
+            pose.popPose();
+        }
+    }
+
+    public record Unbaked() implements SpecialModelRenderer.Unbaked {
+
+        public static final Unbaked INSTANCE = new Unbaked();
+        public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(INSTANCE);
+
+        @Override
+        public SpecialModelRenderer<?> bake(EntityModelSet modelSet) {
+            return LogisticsSolidBlockItemRenderer.INSTANCE;
+        }
+
+        @Override
+        public MapCodec<Unbaked> type() {
+            return MAP_CODEC;
         }
     }
 }

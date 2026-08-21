@@ -1,0 +1,23 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "logisticspipes:item/fluid_container"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "logisticspipes:item/fluid_container_filled",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -1
+        },
+        {
+          "type": "logisticspipes:fluid"
+        }
+      ]
+    },
+    "property": "logisticspipes:has_fluid"
+  }
+}

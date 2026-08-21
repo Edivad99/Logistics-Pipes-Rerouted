@@ -164,8 +164,8 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		addRenderableWidget(macroButton = wire(new SmallGuiButton(18, right - 55, bottom - 60, 50, 10, "Disk"), 18));
 		macroButton.active = false;
 
-		(cycleButtons[0] = addRenderableWidget(wire(new SmallGuiButton(21, leftPos + 124, topPos + 30, 15, 10, "/\\"), 21))).visible = false;
-		(cycleButtons[1] = addRenderableWidget(wire(new SmallGuiButton(22, leftPos + 124, topPos + 42, 15, 10, "\\/"), 22))).visible = false;
+		(cycleButtons[0] = addRenderableWidget(wire(new SmallGuiButton(21, leftPos + 124, topPos + 30, 15, 10, "⏶"), 21))).visible = false;
+		(cycleButtons[1] = addRenderableWidget(wire(new SmallGuiButton(22, leftPos + 124, topPos + 42, 15, 10, "⏷"), 22))).visible = false;
 
 		if (search == null) {
 			search = new InputBar(font, this, leftPos + 205, bottom - 78, 200, 15);

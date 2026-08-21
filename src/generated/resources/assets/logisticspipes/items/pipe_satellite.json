@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "logisticspipes:item/pipe_satellite",
+    "model": {
+      "type": "logisticspipes:pipe"
+    }
+  }
+}

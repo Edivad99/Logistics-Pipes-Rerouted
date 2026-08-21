@@ -33,8 +33,7 @@ import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.chathelper.LPChatListener;
 import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.LPSpriteSourceProvider;
-import logisticspipes.data.models.LPBlockModelProvider;
-import logisticspipes.data.models.LPItemModelProvider;
+import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
@@ -220,20 +219,11 @@ public class LogisticsPipes {
         FluidIdentifier.initFromNeoForge(false);
     }
 
-    private void handleGatherData(GatherDataEvent event) {
-        var generator = event.getGenerator();
-        var packOutput = generator.getPackOutput();
-        var lookupProvider = event.getLookupProvider();
-        var fileHelper = event.getExistingFileHelper();
-
-        generator.addProvider(event.includeServer(),
-            new LPRecipeProvider.Runner(packOutput, lookupProvider));
-
-        generator.addProvider(event.includeClient(), new LPParticleProvider(packOutput, fileHelper));
-        generator.addProvider(event.includeClient(),
-            new LPSpriteSourceProvider(packOutput, lookupProvider, fileHelper));
-        generator.addProvider(event.includeClient(), new LPItemModelProvider(packOutput, fileHelper));
-        generator.addProvider(event.includeClient(), new LPBlockModelProvider(packOutput, fileHelper));
+    private void handleGatherData(GatherDataEvent.Client event) {
+        event.createProvider(LPRecipeProvider.Runner::new);
+        event.createProvider(LPParticleProvider::new);
+        event.createProvider(LPSpriteSourceProvider::new);
+        event.createProvider(LPModelProvider::new);
     }
 
     // NeoForge Events

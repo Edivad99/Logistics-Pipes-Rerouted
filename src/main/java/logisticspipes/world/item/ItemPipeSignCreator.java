@@ -64,7 +64,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Direction facing = context.getClickedFace();
-        if (MainProxy.isClient(level)) {
+        if (level.isClientSide()) {
             return InteractionResult.FAIL;
         }
         ItemStack itemStack = player.getMainHandItem();

@@ -17,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 
 import logisticspipes.LPConstants;
 import logisticspipes.data.recipes.builders.ProgrammerRecipeBuilder;
@@ -29,7 +28,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.core.HolderGetter;
 
-public class LPRecipeProvider extends RecipeProvider implements IConditionBuilder {
+public class LPRecipeProvider extends RecipeProvider {
 
     private final HolderLookup.RegistryLookup<Item> items;
 

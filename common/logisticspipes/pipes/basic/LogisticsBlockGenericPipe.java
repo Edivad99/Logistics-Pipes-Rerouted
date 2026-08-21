@@ -758,15 +758,8 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		}
 	}
 
-	// @Override removed — getItemDropped removed in 1.20.1
-	public Item getItemDropped_DEAD(BlockState state, Random rand, int fortune) {
-		// Returns null to be safe - the id does not depend on the meta
-		return null;
-	}
-
-	@OnlyIn(Dist.CLIENT)
     public ItemStack getPickedResult(BlockState state, HitResult target, LevelReader levelReader, BlockPos pos, Player player) {
-		ItemStack pick = getCloneItemStack(levelReader, pos, state);
+		ItemStack pick = getCloneItemStack(levelReader, pos, state, false, player);
 		if (!pick.isEmpty()) {
 			return pick;
 		}
@@ -785,18 +778,19 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	// Forge's pick-block hook (middle click). Without this the block falls back to its own
 	// (nonexistent) item and the client logs "Picking on: [BLOCK] logisticspipes:pipe gave
 	// null item"; the pipe's actual item lives on the pipe object, not the block.
-	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-		BlockEntity tile = level.getBlockEntity(pos);
-		if (tile instanceof LogisticsTileGenericPipe
-				&& LogisticsBlockGenericPipe.isValid(((LogisticsTileGenericPipe) tile).pipe)
-				&& ((LogisticsTileGenericPipe) tile).pipe.item != null) {
-			return new ItemStack(((LogisticsTileGenericPipe) tile).pipe.item);
-		}
-		return super.getCloneItemStack(state, target, level, pos, player);
-	}
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData,
+        Player player) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof LogisticsTileGenericPipe genericPipe
+            && LogisticsBlockGenericPipe.isValid(genericPipe.pipe)
+            && genericPipe.pipe.item != null) {
+            return new ItemStack(genericPipe.pipe.item);
+        }
+        return super.getCloneItemStack(level, pos, state, includeData, player);
+    }
 
-	/* Wrappers ************************************************************ */
+    /* Wrappers ************************************************************ */
 	@Override
 	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn,
 		@Nullable Orientation orientation, boolean movedByPiston) {

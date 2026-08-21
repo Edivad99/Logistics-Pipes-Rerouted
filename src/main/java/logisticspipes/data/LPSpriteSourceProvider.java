@@ -8,17 +8,14 @@ import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.SpriteSourceProvider;
 
 import logisticspipes.LPConstants;
 
 public class LPSpriteSourceProvider extends SpriteSourceProvider {
 
-    public LPSpriteSourceProvider(PackOutput output,
-        CompletableFuture<HolderLookup.Provider> lookupProvider,
-        ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, LPConstants.ID, existingFileHelper);
+    public LPSpriteSourceProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, LPConstants.ID);
     }
 
     @Override

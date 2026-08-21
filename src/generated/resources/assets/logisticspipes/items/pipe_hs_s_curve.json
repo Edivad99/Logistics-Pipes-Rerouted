@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "logisticspipes:item/pipe_hs_s_curve",
+    "model": {
+      "type": "logisticspipes:pipe"
+    }
+  }
+}
