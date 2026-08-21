@@ -136,11 +136,11 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 		for (Direction direction : Direction.values()) {
 			if (nbttagcompound.contains("tank[" + direction.ordinal() + "]")) {
-				sideTanks[direction.ordinal()].readFromNBT(provider, nbttagcompound.getCompound("tank[" + direction.ordinal() + "]"));
+				sideTanks[direction.ordinal()].readFromNBT(provider, nbttagcompound.getCompoundOrEmpty("tank[" + direction.ordinal() + "]"));
 			}
 		}
 		if (nbttagcompound.contains("tank[middle]")) {
-			internalTank.readFromNBT(provider, nbttagcompound.getCompound("tank[middle]"));
+			internalTank.readFromNBT(provider, nbttagcompound.getCompoundOrEmpty("tank[middle]"));
 		}
 	}
 

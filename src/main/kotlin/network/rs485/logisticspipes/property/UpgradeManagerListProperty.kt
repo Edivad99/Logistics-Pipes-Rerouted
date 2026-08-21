@@ -108,9 +108,7 @@ class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
         parentChassis,
         parentChassis.originalUpgradeManager,
     ).apply {
-        if (tag.contains(key)) {
-            readFromNBT(tag.getCompound(key), provider, "")
-        }
+        tag.getCompound(key).ifPresent { readFromNBT(it, provider, "") }
     }
 
     override fun writeSingleToNBT(

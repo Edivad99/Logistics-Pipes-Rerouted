@@ -58,7 +58,7 @@ class HomeButton(x: Int, y: Int, onClickAction: (Int) -> Boolean) :
         if (!visible) return
         val hovered = isHovered(mouseX, mouseY)
         // Button background.
-        GuideBookGraphics.blitAtlas(guiGraphics, body, homeButtonTexture, MinecraftColor.WHITE.colorCode, blend = true)
+        GuideBookGraphics.blitAtlas(guiGraphics, body, homeButtonTexture, MinecraftColor.WHITE.colorCode)
         // Home icon, shifted down the atlas by the hover state (normal/hovered/disabled).
         val hoverStateOffset = getHoverState(hovered) * homeIconTexture.roundedHeight
         GuideBookGraphics.blitAtlas(
@@ -66,7 +66,6 @@ class HomeButton(x: Int, y: Int, onClickAction: (Int) -> Boolean) :
             homeIconBody.translated(body),
             homeIconTexture.translated(0, hoverStateOffset),
             MinecraftColor.WHITE.colorCode,
-            blend = true,
         )
         if (hovered) {
             drawTooltip(

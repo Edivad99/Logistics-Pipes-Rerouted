@@ -24,16 +24,16 @@ public class SecuritySettings implements IStore {
 	@Override
 	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
 		String prev = name;
-		name = tag.getString("name");
+		name = tag.getStringOr("name", "");
 		if (name.isEmpty()) {
 			name = prev;
 		}
-		openGui = tag.getBoolean("openGui");
-		openRequest = tag.getBoolean("openRequest");
-		openUpgrades = tag.getBoolean("openUpgrades");
-		openNetworkMonitor = tag.getBoolean("openNetworkMonitor");
-		removePipes = tag.getBoolean("removePipes");
-		accessRoutingChannels = tag.getBoolean("accessRoutingChannels");
+		openGui = tag.getBooleanOr("openGui", false);
+		openRequest = tag.getBooleanOr("openRequest", false);
+		openUpgrades = tag.getBooleanOr("openUpgrades", false);
+		openNetworkMonitor = tag.getBooleanOr("openNetworkMonitor", false);
+		removePipes = tag.getBooleanOr("removePipes", false);
+		accessRoutingChannels = tag.getBooleanOr("accessRoutingChannels", false);
 	}
 
 	@Override

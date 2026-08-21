@@ -5,7 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.equipment.ArmorMaterials;
@@ -17,10 +17,10 @@ import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.guis.item.HUDSettingsGui;
 import logisticspipes.proxy.MainProxy;
 
-public class ItemHUDArmor extends ArmorItem implements IHUDArmor {
+public class ItemHUDArmor extends Item implements IHUDArmor {
 
     public ItemHUDArmor(Properties properties) {
-        super(ArmorMaterials.LEATHER, ArmorType.HELMET, properties);
+        super(properties.humanoidArmor(ArmorMaterials.LEATHER, ArmorType.HELMET));
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ItemHUDArmor extends ArmorItem implements IHUDArmor {
     private void useItem(Player player, Level level) {
         if (MainProxy.isServer(level)) {
             NewGuiHandler.getGui(HUDSettingsGui.class)
-                .setSlot(player.getInventory().selected)
+                .setSlot(player.getInventory().getSelectedSlot())
                 .open(player);
         }
     }

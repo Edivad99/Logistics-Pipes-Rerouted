@@ -54,7 +54,6 @@ class SliderButton(
         // Atlas grip is 12px wide at x=96 with four 16px-tall hover states stacked vertically.
         val hoverState = if (dragging) 3 else if (!active) 2 else if (hoveredBar) 1 else 0
         val src = texture.translated(0, hoverState * texture.roundedHeight)
-        RenderSystem.enableBlend()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         // Vertical nine-slice: 2px top/bottom caps from the 12x16 grip region, stretched to grip height.
         val sprite = Minecraft.getInstance()
@@ -71,7 +70,6 @@ class SliderButton(
 //            texture.roundedWidth, texture.roundedHeight,
 //            src.roundedLeft, src.roundedTop,
 //        )
-        RenderSystem.disableBlend()
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {

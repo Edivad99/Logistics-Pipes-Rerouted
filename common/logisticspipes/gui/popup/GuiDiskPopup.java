@@ -62,7 +62,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 				);
 
 				var tag = Objects.requireNonNull(diskProvider.getDisk().get(DataComponents.CUSTOM_DATA)).copyTag();
-				ListTag list = tag.getList("macroList", 10);
+				ListTag list = tag.getListOrEmpty("macroList");
 				return list.size();
 			}
 
@@ -82,9 +82,9 @@ public class GuiDiskPopup extends SubGuiScreen {
 				);
 
 				var tag = Objects.requireNonNull(diskProvider.getDisk().get(DataComponents.CUSTOM_DATA)).copyTag();
-				ListTag list = tag.getList("macroList", 10);
+				ListTag list = tag.getListOrEmpty("macroList");
 				if (index < list.size()) {
-					return list.getCompound(index).getString("name");
+					return list.getCompoundOrEmpty(index).getStringOr("name", "");
 				}
 				return "";
 			}
@@ -194,12 +194,12 @@ public class GuiDiskPopup extends SubGuiScreen {
 						tag.put("macroList", list);
 					}
 
-					ListTag list = tag.getList("macroList", 10);
+					ListTag list = tag.getListOrEmpty("macroList");
 					ListTag newList = new ListTag();
 
 					for (int i = 0; i < list.size(); i++) {
 						if (i != textList.getSelected()) {
-							newList.add(list.getCompound(i));
+							newList.add(list.getCompoundOrEmpty(i));
 						}
 					}
 
@@ -217,10 +217,10 @@ public class GuiDiskPopup extends SubGuiScreen {
 		if (diskProvider.getDisk().has(DataComponents.CUSTOM_DATA)) {
 			CompoundTag nbt = Objects.requireNonNull(diskProvider.getDisk().get(DataComponents.CUSTOM_DATA)).copyTag();
 			if (nbt.contains("macroList")) {
-				ListTag list = nbt.getList("macroList", 10);
+				ListTag list = nbt.getListOrEmpty("macroList");
 				if (textList.getSelected() != -1 && textList.getSelected() < list.size()) {
-					CompoundTag entry = list.getCompound(textList.getSelected());
-					macroName = entry.getString("name");
+					CompoundTag entry = list.getCompoundOrEmpty(textList.getSelected());
+					macroName = entry.getStringOr("name", "");
 				}
 			}
 		}

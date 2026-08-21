@@ -51,7 +51,7 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidBlockEntity imp
 	@Override
 	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
 		super.loadAdditional(tag, registries);
-		int size = tag.getInt("taskSize");
+		int size = tag.getIntOr("taskSize", 0);
 		for (int i = 0; i < size; i++) {
 			CompoundTag subTag = (CompoundTag) tag.get("Task_" + i);
 			TrackingTask task = new TrackingTask();

@@ -100,11 +100,11 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 	@Override
 	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
 		super.readFromNBT(tag, provider);
-		nextSendMax = tag.getIntArray("nextSendMax");
+		nextSendMax = tag.getIntArray("nextSendMax").orElse(new int[0]);
 		if (nextSendMax.length < 6) {
 			nextSendMax = new int[6];
 		}
-		nextSendMin = tag.getIntArray("nextSendMin");
+		nextSendMin = tag.getIntArray("nextSendMin").orElse(new int[0]);
 		if (nextSendMin.length < 6) {
 			nextSendMin = new int[6];
 		}

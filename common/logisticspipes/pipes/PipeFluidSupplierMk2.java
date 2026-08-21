@@ -207,9 +207,9 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.readFromNBT(nbttagcompound, provider);
 		dummyInventory.readFromNBT(nbttagcompound, provider, "");
-		requestPartials = nbttagcompound.getBoolean("requestpartials");
-		amount = nbttagcompound.getInt("amount");
-		bucketMinimum = MinMode.values()[nbttagcompound.getByte("_bucketMinimum")];
+		requestPartials = nbttagcompound.getBooleanOr("requestpartials", false);
+		amount = nbttagcompound.getIntOr("amount", 0);
+		bucketMinimum = MinMode.values()[nbttagcompound.getByteOr("_bucketMinimum", (byte) 0)];
 	}
 
 	@Override

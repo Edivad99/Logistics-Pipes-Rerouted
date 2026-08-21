@@ -87,10 +87,10 @@ public class LogisticsEventListener {
 					DataComponents.CUSTOM_DATA,
 					CustomData.EMPTY
 			).copyTag();
-			for (String key : tag.getAllKeys()) {
+			for (String key : tag.keySet()) {
 				if (key.startsWith("logisticspipes:routingdata")) {
 					ItemRoutingInformation info =
-							ItemRoutingInformation.restoreFromNBT(tag.getCompound(key), event.getLevel().registryAccess());
+							ItemRoutingInformation.restoreFromNBT(tag.getCompoundOrEmpty(key), event.getLevel().registryAccess());
 
 					info.setItemTimedout();
 
@@ -301,10 +301,10 @@ public class LogisticsEventListener {
 				.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
 				.copyTag();
 
-		for (String key : tag.getAllKeys()) {
+		for (String key : tag.keySet()) {
 			if (key.startsWith("logisticspipes:routingdata")) {
 				ItemRoutingInformation info =
-						ItemRoutingInformation.restoreFromNBT(tag.getCompound(key), event.getEntity().registryAccess());
+						ItemRoutingInformation.restoreFromNBT(tag.getCompoundOrEmpty(key), event.getEntity().registryAccess());
 				List<Component> list = event.getToolTip();
 				list.set(0, Component.literal(ChatColor.RED + "!!! " + ChatColor.WHITE)
 						.append(list.get(0))

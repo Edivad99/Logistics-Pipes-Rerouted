@@ -43,7 +43,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
             return 0;
         }
         var tag = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
-        int mode = tag.getInt("CreatorMode");
+        int mode = tag.getIntOr("CreatorMode", 0);
         return Math.min(mode, ItemPipeSignCreator.signTypes.size() - 1);
     }
 
@@ -51,11 +51,6 @@ public class ItemPipeSignCreator extends LogisticsItem {
         // Never change this order. It defines the id each signType has.
         ItemPipeSignCreator.signTypes.add(CraftingPipeSign.class);
         ItemPipeSignCreator.signTypes.add(ItemAmountPipeSign.class);
-    }
-
-    @Override
-    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
-        return false;
     }
 
     @Override
@@ -126,7 +121,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
                 CustomData.EMPTY,
                 customData -> {
                     CompoundTag tag = customData.copyTag();
-                    int mode = tag.getInt("CreatorMode");
+                    int mode = tag.getIntOr("CreatorMode", 0);
                     mode++;
                     if (mode >= ItemPipeSignCreator.signTypes.size()) {
                         mode = 0;
@@ -136,7 +131,6 @@ public class ItemPipeSignCreator extends LogisticsItem {
                 }
             );
         }
-        // SUCCESS_SERVER: the early return above leaves only the server side reaching this.
         return InteractionResult.SUCCESS_SERVER;
     }
 }

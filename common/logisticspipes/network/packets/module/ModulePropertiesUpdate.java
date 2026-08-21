@@ -57,7 +57,7 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 
 		if (!getType().isInWorld() && player.containerMenu instanceof InventoryMenu) {
 			// sync slot in player inventory and mark player inventory dirty
-			ItemModuleInformationManager.saveInformation(player.getInventory().items.get(getPositionInt()), module, registryAccess);
+			ItemModuleInformationManager.saveInformation(player.getInventory().getItem(getPositionInt()), module, registryAccess);
 			player.getInventory().setChanged();
 		}
 

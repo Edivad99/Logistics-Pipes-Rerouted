@@ -7,6 +7,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -37,7 +38,7 @@ public class LogisticsSolidBlockEntity extends BlockEntity implements ITickable,
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        rotation = tag.getInt("rotation");
+        rotation = tag.getIntOr("rotation", 0);
     }
 
     @Override
@@ -67,6 +68,18 @@ public class LogisticsSolidBlockEntity extends BlockEntity implements ITickable,
     }
 
     public void onBlockBreak() {
+    }
+
+    /**
+     * 1.21.5 split block removal in two: {@code BlockBehaviour#onRemove} became
+     * {@code affectNeighborsAfterRemoval}, which runs only to notify neighbours and — crucially —
+     * after the block entity has already been detached, so it can no longer reach it. Everything
+     * that has to touch the block entity moved here, which runs while it is still attached.
+     */
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        onBlockBreak();
+        super.preRemoveSideEffects(pos, state);
     }
 
     @Override

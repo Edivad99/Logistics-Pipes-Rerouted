@@ -209,7 +209,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	@Override
 	public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
 		super.readFromNBT(data, provider);
-		orientation = CurveSOrientation.valueOf(data.getString("orientation"));
+		orientation = CurveSOrientation.valueOf(data.getStringOr("orientation", ""));
 	}
 
 	@Override

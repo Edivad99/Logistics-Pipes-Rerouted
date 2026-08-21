@@ -33,12 +33,12 @@ public class CardManagementInventory implements Container {
 		ItemStack card = inv.getItem(3);
 		if (!card.isEmpty()) {
 			CompoundTag nbt = card.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-			CompoundTag colors = nbt.getCompound("colors");
+			CompoundTag colors = nbt.getCompoundOrEmpty("colors");
 			int slot = i - 4;
 
 			int colorCode;
 			if (colors.contains("color:" + slot)) {
-				colorCode = colors.getInt("color:" + slot);
+				colorCode = colors.getIntOr("color:" + slot, 0);
 			} else {
 				colors.putInt("color:" + slot, 16);
 				colorCode = 16;
@@ -93,7 +93,7 @@ public class CardManagementInventory implements Container {
 		ItemStack card = inv.getItem(3);
 		if (!card.isEmpty()) {
 			CompoundTag nbt = card.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-			CompoundTag colors = nbt.getCompound("colors");
+			CompoundTag colors = nbt.getCompoundOrEmpty("colors");
 			int slot = i - 4;
 			colors.putInt("color:" + slot, MinecraftColor.getColor(itemstack).ordinal());
 			nbt.put("colors", colors);

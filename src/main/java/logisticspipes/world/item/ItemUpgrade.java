@@ -3,6 +3,7 @@ package logisticspipes.world.item;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -13,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -68,9 +70,9 @@ public class ItemUpgrade extends LogisticsItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
-        TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay,
+        Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         IPipeUpgrade upgrade = getUpgradeForItem(stack, null);
         if (upgrade == null) {
             return;
@@ -86,19 +88,19 @@ public class ItemUpgrade extends LogisticsItem {
                 //and {0} modules
                 String base1 = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "both1");
                 String base2 = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "both2");
-                tooltipComponents.add(Component.literal(MessageFormat.format(base1, join(pipe))));
-                tooltipComponents.add(Component.literal(MessageFormat.format(base2, join(module))));
+                tooltipAdder.accept(Component.literal(MessageFormat.format(base1, join(pipe))));
+                tooltipAdder.accept(Component.literal(MessageFormat.format(base2, join(module))));
             } else if (!pipe.isEmpty()) {
                 //Can be applied to {0} pipes
                 String base = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "pipe");
-                tooltipComponents.add(Component.literal(MessageFormat.format(base, join(pipe))));
+                tooltipAdder.accept(Component.literal(MessageFormat.format(base, join(pipe))));
             } else {
                 //Can be applied to {0} modules
                 String base = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "module");
-                tooltipComponents.add(Component.literal(MessageFormat.format(base, join(module))));
+                tooltipAdder.accept(Component.literal(MessageFormat.format(base, join(module))));
             }
         } else {
-            TextUtil.addTooltipInformation(stack, tooltipComponents, false);
+            TextUtil.addTooltipInformation(stack, tooltipAdder, false);
         }
     }
 

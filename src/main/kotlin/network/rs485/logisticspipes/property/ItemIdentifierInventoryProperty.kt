@@ -46,8 +46,11 @@ import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import network.rs485.logisticspipes.inventory.SlotAccess
 import java.util.concurrent.CopyOnWriteArraySet
 
+// Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
+// Collection<ItemIdentifierStack>: the two Iterable parameterisations conflict. The collection-like
+// members below stay as ordinary members; iteration over the identifier stacks is idStacks().
 class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, override val tagKey: String) :
-    InventoryProperty<ItemIdentifierInventory>, IItemIdentifierInventory by inv, Collection<ItemIdentifierStack> {
+    InventoryProperty<ItemIdentifierInventory>, IItemIdentifierInventory by inv {
 
     init {
         require(tagKey.isNotBlank()) { "tagKey must not be blank" }
@@ -61,7 +64,7 @@ class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, 
     override val propertyObservers: CopyOnWriteArraySet<ObserverCallback<ItemIdentifierInventory>> =
         CopyOnWriteArraySet()
 
-    override val size: Int get() = containerSize
+    val size: Int get() = containerSize
 
     override fun removeItem(index: Int, count: Int): ItemStack = inv.removeItem(index, count).alsoIChanged()
 
@@ -92,13 +95,12 @@ class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, 
 
     override fun copyProperty(): ItemIdentifierInventoryProperty = ItemIdentifierInventoryProperty(copyValue(), tagKey)
 
-    override fun contains(element: ItemIdentifierStack): Boolean = inv.itemCount(element.item) >= element.getStackSize()
+    fun contains(element: ItemIdentifierStack): Boolean = inv.itemCount(element.item) >= element.getStackSize()
 
-    override fun containsAll(elements: Collection<ItemIdentifierStack>): Boolean = inv.itemsAndCount.let { items ->
+    fun containsAll(elements: Collection<ItemIdentifierStack>): Boolean = inv.itemsAndCount.let { items ->
         elements.all { items[it.item]?.run { compareTo(it.getStackSize()) >= 0 } ?: false }
     }
 
-    override fun iterator(): Iterator<ItemIdentifierStack> =
-        inv.itemsAndCount.map { it.key.makeStack(it.value) }.iterator()
+    fun idStacks(): List<ItemIdentifierStack> = inv.itemsAndCount.map { it.key.makeStack(it.value) }
 
 }

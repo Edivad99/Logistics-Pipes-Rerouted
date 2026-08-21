@@ -77,7 +77,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
         RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
         return ItemStack.SINGLE_ITEM_CODEC.parse(ops, entry.get("item"))
             .resultOrPartial(error -> LogisticsPipes.LOG.error("Could not read stored item: {}", error))
-            .map(stack -> new ItemIdentifierStack(ItemIdentifier.get(stack), entry.getInt("amount")))
+            .map(stack -> new ItemIdentifierStack(ItemIdentifier.get(stack), entry.getIntOr("amount", 0)))
             .orElse(null);
     }
 

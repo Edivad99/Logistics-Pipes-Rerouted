@@ -86,7 +86,7 @@ public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 	public Direction getSide(ItemStack stack) {
 		if (stack.isEmpty()) return null;
 		CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-		String sideString = tag.getString(SIDE_KEY);
+		String sideString = tag.getStringOr(SIDE_KEY, "");
 		return Arrays.stream(Sides.values())
 				.filter(side -> side.getLpName().equals(sideString))
 				.map(Sides::getDir)

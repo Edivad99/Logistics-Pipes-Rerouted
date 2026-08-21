@@ -71,9 +71,7 @@ internal object GuideBookGraphics {
         dst: IRectangle,
         src: IRectangle,
         color: Int = -1,
-        blend: Boolean = true,
     ) {
-        if (blend) RenderSystem.enableBlend()
         setShaderColor(color)
         guiGraphics.blit(
             RenderType::guiTextured,
@@ -90,7 +88,6 @@ internal object GuideBookGraphics {
             ATLAS_SIZE,
         )
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
-        if (blend) RenderSystem.disableBlend()
     }
 
     /**
@@ -100,7 +97,6 @@ internal object GuideBookGraphics {
      * region. In 1.20.1 the nine-slice is expressed directly via [GuiGraphics.blitNineSliced].
      */
     fun blitGuideBookFrame(guiGraphics: GuiGraphics, frame: IRectangle, slider: IRectangle) {
-        RenderSystem.enableBlend()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         // Frame: source region (0,0)-(64,64) with a 24px border on each edge.
         //Fixme
@@ -129,7 +125,6 @@ internal object GuideBookGraphics {
         guiGraphics.blit(RenderType::guiTextured, GUI_ATLAS, railLeft, railTop + 1, 96f, 65f, railWidth, railHeight - 2, 16, 14, ATLAS_SIZE, ATLAS_SIZE)
         // Bottom cap (1px), stretched horizontally.
         guiGraphics.blit(RenderType::guiTextured, GUI_ATLAS, railLeft, railTop + railHeight - 1, 96f, 79f, railWidth, 1, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
-        RenderSystem.disableBlend()
     }
 
     /**

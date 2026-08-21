@@ -2,7 +2,7 @@ package logisticspipes.client.model.pipe;
 
 import net.minecraft.resources.ResourceLocation;
 
-import net.neoforged.neoforge.client.model.data.ModelProperty;
+import net.neoforged.neoforge.model.data.ModelProperty;
 
 /**
  * Model data keys the pipe block entity passes to {@link PipeBakedModel}.

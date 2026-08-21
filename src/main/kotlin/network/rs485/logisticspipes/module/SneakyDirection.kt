@@ -48,12 +48,9 @@ interface SneakyDirection {
     companion object {
         @JvmStatic
         fun readSneakyDirection(nbt: CompoundTag): Direction? {
-            return if (nbt.contains(SNEAKY_DIRECTION_NBT)) {
-                // will read direction index 6 as null (was ForgeDirection.UNKNOWN)
-                nbt.getInt(SNEAKY_DIRECTION_NBT).let { if (it in Direction.values().indices) Direction.values()[it] else null }
-            } else {
-                null
-            }
+            // will read direction index 6, and a missing tag, as null (was ForgeDirection.UNKNOWN)
+            return nbt.getIntOr(SNEAKY_DIRECTION_NBT, -1)
+                .let { if (it in Direction.entries.toTypedArray().indices) Direction.entries[it] else null }
         }
 
         @JvmStatic

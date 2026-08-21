@@ -47,8 +47,7 @@ class NullableEnumProperty<E : Enum<E>>(
 ) : ValueProperty<E?>(defaultValue) {
 
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(tagKey)) {
-            val ordinalValue = tag.getInt(tagKey)
+        tag.getInt(tagKey).ifPresent { ordinalValue ->
             value = if (ordinalValue == -1) {
                 null
             } else {

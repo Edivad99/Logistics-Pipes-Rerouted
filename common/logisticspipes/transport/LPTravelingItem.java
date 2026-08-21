@@ -198,15 +198,15 @@ public abstract class LPTravelingItem {
 
 		@Override
 		public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
-			setPosition(data.getFloat("position"));
-			setSpeed(data.getFloat("speed"));
+			setPosition(data.getFloatOr("position", 0.0f));
+			setSpeed(data.getFloatOr("speed", 0.0f));
 			if (data.contains("input")) {
-				input = DirectionUtil.getOrientation(data.getInt("input"));
+				input = DirectionUtil.getOrientation(data.getIntOr("input", 0));
 			} else {
 				input = null;
 			}
 			if (data.contains("output")) {
-				output = DirectionUtil.getOrientation(data.getInt("output"));
+				output = DirectionUtil.getOrientation(data.getIntOr("output", 0));
 			} else {
 				output = null;
 			}

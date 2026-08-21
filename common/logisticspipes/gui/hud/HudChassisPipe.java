@@ -222,7 +222,6 @@ public class HudChassisPipe extends BasicHUDGui {
 
 		@Override
 		public void renderButton(GuiGraphics guiGraphics, boolean hover, boolean clicked, boolean shifted) {
-            RenderSystem.enableBlend();
 
 			if (shifted || hover || isSlotSelected(position)) {
 				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1F);
@@ -254,7 +253,6 @@ public class HudChassisPipe extends BasicHUDGui {
 		@Override
 		public void renderAlways(GuiGraphics guiGraphics, boolean shifted) {
 			if (inv.getIDStackInSlot(position) == null && shouldDisplayButton(position)) {
-				RenderSystem.enableBlend();
 				if (shifted) {
 					RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 				} else {

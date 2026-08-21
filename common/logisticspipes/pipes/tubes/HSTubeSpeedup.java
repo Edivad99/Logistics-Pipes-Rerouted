@@ -167,7 +167,7 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 	@Override
 	public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
 		super.readFromNBT(data, provider);
-		orientation = SpeedupDirection.valueOf(data.getString("orientation"));
+		orientation = SpeedupDirection.valueOf(data.getStringOr("orientation", ""));
 	}
 
 	@Override

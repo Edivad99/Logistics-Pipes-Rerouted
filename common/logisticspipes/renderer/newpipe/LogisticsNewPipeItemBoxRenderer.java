@@ -60,7 +60,6 @@ public class LogisticsNewPipeItemBoxRenderer {
 				// TODO: glPushAttrib removed
 				// TODO: GL11.glEnable(GL11.GL_CULL_FACE) → RenderSystem equivalent
 				// GL_LIGHTING removed — use shaders
-				RenderSystem.enableBlend();
 				// TODO: glBlendFunc → RenderSystem.blendFunc()
 
 				// TODO: glCallList removed — use vertex buffer rendering

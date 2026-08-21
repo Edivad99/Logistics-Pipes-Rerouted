@@ -84,7 +84,7 @@ abstract class ListProperty<T>(
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
         if (tag.contains(sizeTagKey(tagKey))) {
             replaceContent(
-                MutableList(tag.getInt(sizeTagKey(tagKey))) { idx ->
+                MutableList(tag.getIntOr(sizeTagKey(tagKey), 0)) { idx ->
                     if (tag.contains(itemTagKey(tagKey, idx))) {
                         readSingleFromNBT(tag, provider, itemTagKey(tagKey, idx))
                     } else defaultValue(idx)
@@ -154,7 +154,7 @@ class IntListProperty : ListProperty<Int> {
     override fun defaultValue(idx: Int): Int = 0
 
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(tagKey)) replaceContent(tag.getIntArray(tagKey))
+        tag.getIntArray(tagKey).ifPresent { replaceContent(it) }
     }
 
     override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = tag.putIntArray(tagKey, list.toIntArray())
@@ -163,7 +163,7 @@ class IntListProperty : ListProperty<Int> {
 
     override fun copyProperty(): IntListProperty = IntListProperty(tagKey = tagKey, list = copyValue())
 
-    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): Int = tag.getInt(key)
+    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): Int = tag.getIntOr(key, 0)
 
     override fun writeSingleToNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String, value: Int) = tag.putInt(key, value)
 
@@ -183,7 +183,7 @@ class StringListProperty : ListProperty<String> {
 
     override fun defaultValue(idx: Int): String = ""
 
-    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): String = tag.getString(key)
+    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): String = tag.getStringOr(key, "")
 
     override fun writeSingleToNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String, value: String) = tag.putString(key, value)
 

@@ -64,7 +64,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import network.rs485.logisticspipes.connection.ConnectionType;
@@ -136,6 +136,18 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		Arrays.stream(Direction.values()).forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));
 		ItemInsertionHandler itemInsertionHandlerNull = new ItemInsertionHandler(this, null);
 		renderState = new PipeRenderState();
+	}
+
+	/**
+	 * Tears the pipe down while the block entity is still attached to the level. Was
+	 * {@code LogisticsBlockGenericPipe#onRemove} until 1.21.5 split block removal into
+	 * {@code BlockEntity#preRemoveSideEffects} (runs first, block entity still present) and
+	 * {@code BlockBehaviour#affectNeighborsAfterRemoval} (runs after it is gone).
+	 */
+	@Override
+	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+		LogisticsBlockGenericPipe.removePipe(pipe);
+		super.preRemoveSideEffects(pos, state);
 	}
 
 	@Override
@@ -376,7 +388,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 		if (!nbt.contains(NBT_PIPE_ID)) return;
 
-		coreState.pipeIdName = nbt.getString(NBT_PIPE_ID);
+		coreState.pipeIdName = nbt.getStringOr(NBT_PIPE_ID, "");
 		Item pipeItem = null;
 		if (coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
 			pipeItem = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(coreState.pipeIdName));
@@ -397,10 +409,10 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		}
 
 		for (int i = 0; i < turtleConnect.length; i++) {
-			turtleConnect[i] = nbt.getBoolean("turtleConnect_" + i);
+			turtleConnect[i] = nbt.getBooleanOr("turtleConnect_" + i, false);
 		}
 
-		logicController.readFromNBT(nbt.getCompound("logicController"), registries);
+		logicController.readFromNBT(nbt.getCompoundOrEmpty("logicController"), registries);
 	}
 
 	public boolean canPipeConnect(BlockEntity with, Direction side) {

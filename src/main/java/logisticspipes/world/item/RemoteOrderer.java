@@ -1,6 +1,7 @@
 package logisticspipes.world.item;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -13,6 +14,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -58,11 +60,11 @@ public class RemoteOrderer extends LogisticsItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
-        TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay,
+        Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (stack.has(LPDataComponents.CONNECTED_PIPE)) {
-            tooltipComponents.add(Component.literal("Has Remote Pipe"));
+            tooltipAdder.accept(Component.literal("Has Remote Pipe"));
         }
     }
 

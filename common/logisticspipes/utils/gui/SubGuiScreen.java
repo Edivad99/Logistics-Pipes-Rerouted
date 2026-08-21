@@ -152,11 +152,9 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
         poseStack.pushPose();
         poseStack.translate(0.0F, 0.0F, SUB_GUI_Z);
 		renderGuiBackground(guiGraphics, mouseX, mouseY);
-		RenderSystem.disableDepthTest();
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		this.renderLabels(guiGraphics, mouseX, mouseY);
-		RenderSystem.enableDepthTest();
 		if (subGui != null) {
 			if (!subGui.hasSubGui()) {
 				// Same intent as in LogisticsBaseGuiScreen: dim what this popup covers, nothing else.

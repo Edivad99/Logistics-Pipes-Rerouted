@@ -235,11 +235,11 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
 		super.loadAdditional(tag, registries);
 		if (tag.get("internalStorage") instanceof FloatTag) { // support for old float
-			internalStorage = tag.getFloat("internalStorage");
+			internalStorage = tag.getFloatOr("internalStorage", 0.0f);
 		} else {
-			internalStorage = tag.getDouble("internalStorage");
+			internalStorage = tag.getDoubleOr("internalStorage", 0.0);
 		}
-		maxMode = tag.getInt("maxMode");
+		maxMode = tag.getIntOr("maxMode", 0);
 	}
 
 	@Override

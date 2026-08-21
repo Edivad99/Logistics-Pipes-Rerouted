@@ -96,7 +96,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
         ItemStack stack = this.getInventory().getItem(DISK_SLOT);
         if (stack.has(DataComponents.CUSTOM_DATA)) {
             CompoundTag nbt = stack.get(DataComponents.CUSTOM_DATA).copyTag();
-            return nbt.getList(key, Tag.TAG_STRING);
+            return nbt.getListOrEmpty(key);
         } else {
             return new ListTag();
         }
@@ -130,7 +130,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
             CustomData.EMPTY,
             customData -> {
                 CompoundTag tag = customData.copyTag();
-                ListTag list = tag.getList(key, Tag.TAG_STRING);
+                ListTag list = tag.getListOrEmpty(key);
                 StringTag string = StringTag.valueOf(value);
                 if (!list.contains(string)) {
                     list.add(string);

@@ -308,7 +308,6 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 				final int posX = slot.x + leftPos;
 				final int posY = slot.y + 17 + topPos;
 				renderAtTheEnd.add(() -> {
-					RenderSystem.disableDepthTest();
 					LPGuiGraphics.drawGuiBackGround(guiGraphics, posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
 					final String PREFIX = "gui.crafting.";
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
@@ -319,7 +318,6 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 							(ignoreNBT ? 0x4040FF : 0x404040), false);
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
 							(useOreCategory ? 0x7F7F40 : 0x404040), false);
-					RenderSystem.enableDepthTest();
 				});
 			}
 		}

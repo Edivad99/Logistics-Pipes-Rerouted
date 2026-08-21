@@ -91,7 +91,7 @@ class BitSetProperty(private val bitset: BitSet, override val tagKey: String) : 
     }
 
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(tagKey)) replaceWith(BitSet.valueOf(tag.getByteArray(tagKey)))
+        tag.getByteArray(tagKey).ifPresent { replaceWith(BitSet.valueOf(it)) }
     }
 
     override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = tag.putByteArray(tagKey, bitset.toByteArray())

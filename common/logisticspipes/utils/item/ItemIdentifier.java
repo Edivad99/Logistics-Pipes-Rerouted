@@ -279,7 +279,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         if (nbt instanceof ByteTag) {
             HashMap<Object, Object> map = new HashMap<>();
             map.put("type", "ByteTag");
-            map.put("value", ((ByteTag) nbt).getAsByte());
+            map.put("value", ((ByteTag) nbt).byteValue());
             return map;
         } else if (nbt instanceof ByteArrayTag) {
             HashMap<Object, Object> map = new HashMap<>();
@@ -289,17 +289,17 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         } else if (nbt instanceof DoubleTag) {
             HashMap<Object, Object> map = new HashMap<>();
             map.put("type", "DoubleTag");
-            map.put("value", ((DoubleTag) nbt).getAsDouble());
+            map.put("value", ((DoubleTag) nbt).doubleValue());
             return map;
         } else if (nbt instanceof FloatTag) {
             HashMap<Object, Object> map = new HashMap<>();
             map.put("type", "FloatTag");
-            map.put("value", ((FloatTag) nbt).getAsFloat());
+            map.put("value", ((FloatTag) nbt).floatValue());
             return map;
         } else if (nbt instanceof IntTag) {
             HashMap<Object, Object> map = new HashMap<>();
             map.put("type", "IntTag");
-            map.put("value", ((IntTag) nbt).getAsInt());
+            map.put("value", ((IntTag) nbt).intValue());
             return map;
         } else if (nbt instanceof IntArrayTag) {
             HashMap<Object, Object> map = new HashMap<>();
@@ -323,7 +323,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
             HashMap<Object, Object> content = new HashMap<>();
             HashMap<Integer, Object> keys = new HashMap<>();
             int i = 1;
-            for (String key : ((CompoundTag) nbt).getAllKeys()) {
+            for (String key : ((CompoundTag) nbt).keySet()) {
                 Tag value = ((CompoundTag) nbt).get(key);
                 content.put(key, ItemIdentifier.getNBTBaseAsMap(value));
                 keys.put(i, key);
@@ -337,17 +337,17 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         } else if (nbt instanceof LongTag) {
             HashMap<Object, Object> map = new HashMap<>();
             map.put("type", "LongTag");
-            map.put("value", ((LongTag) nbt).getAsLong());
+            map.put("value", ((LongTag) nbt).longValue());
             return map;
         } else if (nbt instanceof ShortTag) {
             HashMap<Object, Object> map = new HashMap<>();
             map.put("type", "ShortTag");
-            map.put("value", ((ShortTag) nbt).getAsShort());
+            map.put("value", ((ShortTag) nbt).shortValue());
             return map;
         } else if (nbt instanceof StringTag) {
             HashMap<Object, Object> map = new HashMap<>();
             map.put("type", "StringTag");
-            map.put("value", nbt.getAsString());
+            map.put("value", ((StringTag) nbt).value());
             return map;
         } else {
             throw new UnsupportedOperationException(
@@ -661,19 +661,19 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
             return;
         }
         if (nbt instanceof ByteTag) {
-            sb.append("TagByte(data=").append(((ByteTag) nbt).getAsByte()).append(")");
+            sb.append("TagByte(data=").append(((ByteTag) nbt).byteValue()).append(")");
         } else if (nbt instanceof ShortTag) {
-            sb.append("TagShort(data=").append(((ShortTag) nbt).getAsShort()).append(")");
+            sb.append("TagShort(data=").append(((ShortTag) nbt).shortValue()).append(")");
         } else if (nbt instanceof IntTag) {
-            sb.append("TagInt(data=").append(((IntTag) nbt).getAsInt()).append(")");
+            sb.append("TagInt(data=").append(((IntTag) nbt).intValue()).append(")");
         } else if (nbt instanceof LongTag) {
-            sb.append("TagLong(data=").append(((LongTag) nbt).getAsLong()).append(")");
+            sb.append("TagLong(data=").append(((LongTag) nbt).longValue()).append(")");
         } else if (nbt instanceof FloatTag) {
-            sb.append("TagFloat(data=").append(((FloatTag) nbt).getAsFloat()).append(")");
+            sb.append("TagFloat(data=").append(((FloatTag) nbt).floatValue()).append(")");
         } else if (nbt instanceof DoubleTag) {
-            sb.append("TagDouble(data=").append(((DoubleTag) nbt).getAsDouble()).append(")");
+            sb.append("TagDouble(data=").append(((DoubleTag) nbt).doubleValue()).append(")");
         } else if (nbt instanceof StringTag) {
-            sb.append("TagString(data=\"").append(nbt.getAsString()).append("\")");
+            sb.append("TagString(data=\"").append(nbt.asString().orElse("")).append("\")");
         } else if (nbt instanceof ByteArrayTag) {
             sb.append("TagByteArray(data=");
             for (int i = 0; i < ((ByteArrayTag) nbt).getAsByteArray().length; i++) {
@@ -703,7 +703,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
             sb.append(")");
         } else if (nbt instanceof CompoundTag) {
             sb.append("TagCompound(data=");
-            for (Iterator<String> iter = ((CompoundTag) nbt).getAllKeys().iterator(); iter.hasNext(); ) {
+            for (Iterator<String> iter = ((CompoundTag) nbt).keySet().iterator(); iter.hasNext(); ) {
                 String key = iter.next();
                 Tag value = ((CompoundTag) nbt).get(key);
                 sb.append("\"").append(key).append("\"=");

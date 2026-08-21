@@ -69,12 +69,12 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
 		var compTag = diskProvider.getDisk().getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
 
-		ListTag list = compTag.getList("macroList", 10);
+		ListTag list = compTag.getListOrEmpty("macroList");
 		for (int i = 0; i < list.size(); i++) {
-			CompoundTag tag = list.getCompound(i);
-			String name = tag.getString("name");
+			CompoundTag tag = list.getCompoundOrEmpty(i);
+			String name = tag.getStringOr("name", "");
 			if (name.equals(name1 + name2)) {
-				inventar = tag.getList("inventar", 10);
+				inventar = tag.getListOrEmpty("inventar");
 				break;
 			}
 		}
@@ -82,7 +82,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			return;
 		}
 		for (int i = 0; i < inventar.size(); i++) {
-			ItemIdentifierStack stack = ItemIdentifierStack.loadFromNBT(inventar.getCompound(i), minecraft.level.registryAccess());
+			ItemIdentifierStack stack = ItemIdentifierStack.loadFromNBT(inventar.getCompoundOrEmpty(i), minecraft.level.registryAccess());
 			if (stack != null) {
 				macroItems.add(stack);
 			}
@@ -119,11 +119,11 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			boolean flag = false;
 			var compTag = diskProvider.getDisk().getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
 
-			ListTag list = compTag.getList("macroList", 10);
+			ListTag list = compTag.getListOrEmpty("macroList");
 
 			for (int i = 0; i < list.size(); i++) {
-				CompoundTag tag = list.getCompound(i);
-				String name = tag.getString("name");
+				CompoundTag tag = list.getCompoundOrEmpty(i);
+				String name = tag.getStringOr("name", "");
 				if (name.equals(name1 + name2)) {
 					flag = true;
 					tag.put("inventar", inventar);

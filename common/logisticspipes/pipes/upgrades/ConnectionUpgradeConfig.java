@@ -78,6 +78,6 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 	public Stream<Direction> getSides(ItemStack stack) {
 		if (stack.isEmpty()) return Stream.empty();
 		final CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-		return Arrays.stream(Sides.values()).filter(side -> tag.getBoolean(side.getLpName())).map(Sides::getDir);
+		return Arrays.stream(Sides.values()).filter(side -> tag.getBooleanOr(side.getLpName(), false)).map(Sides::getDir);
 	}
 }

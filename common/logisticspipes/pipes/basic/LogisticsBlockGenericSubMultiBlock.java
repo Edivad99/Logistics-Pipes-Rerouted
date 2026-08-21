@@ -124,31 +124,6 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 	public static DoubleCoordinates currentCreatedMultiBlock;
 
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock() != newState.getBlock()) {
-			if (redirectedToMainPipe) {
-				super.onRemove(state, worldIn, pos, newState, isMoving);
-				return;
-			}
-			BlockEntity tile = worldIn.getBlockEntity(pos);
-			if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-				List<LogisticsTileGenericPipe> mainPipeList = ((LogisticsTileGenericSubMultiBlock) tile).getMainPipe();
-				mainPipeList.stream()
-						.filter(Objects::nonNull)
-						.filter(LogisticsTileGenericPipe::isMultiBlock)
-						.forEach(mainPipe -> {
-							redirectedToMainPipe = true;
-							BlockState mainState = worldIn.getBlockState(mainPipe.getBlockPos());
-							LPBlocks.PIPE.get().onRemove(mainState, worldIn, mainPipe.getBlockPos(), mainState, false);
-							redirectedToMainPipe = false;
-							worldIn.removeBlock(mainPipe.getBlockPos(), false);
-						});
-			}
-		}
-		super.onRemove(state, worldIn, pos, newState, isMoving);
-	}
-
-	@Override
 	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
         @Nullable Orientation orientation, boolean isMoving) {
 		super.neighborChanged(state, level, pos, block, orientation, isMoving);

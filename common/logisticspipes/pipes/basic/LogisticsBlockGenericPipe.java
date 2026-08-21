@@ -720,13 +720,9 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return false; // super.isSideSolid removed
 	}
 
-	@Override
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock() != newState.getBlock()) {
-			LogisticsBlockGenericPipe.removePipe(LogisticsBlockGenericPipe.getPipe(level, pos));
-		}
-		super.onRemove(state, level, pos, newState, isMoving);
-	}
+	// removePipe moved to LogisticsTileGenericPipe#preRemoveSideEffects: 1.21.5 replaced onRemove
+	// with affectNeighborsAfterRemoval, which runs after the block entity has been detached and so
+	// could no longer reach the pipe.
 
 	// @Override removed — dropBlockAsItemWithChance removed in 1.20.1
 	public void dropBlockAsItemWithChance_DEAD(Level level, final BlockPos pos, BlockState state, float chance, int fortune) {
@@ -822,7 +818,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		InteractionResult superResult = super.useWithoutItem(state, level, pos, player, hitResult);
 		if (superResult != InteractionResult.PASS) return superResult;
 
-		ItemStack heldItem = player.getInventory().items.get(player.getInventory().selected);
+		ItemStack heldItem = player.getInventory().getItem(player.getInventory().getSelectedSlot());
 
 		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
 

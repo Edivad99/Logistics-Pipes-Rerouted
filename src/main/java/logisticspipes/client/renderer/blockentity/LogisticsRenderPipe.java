@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -112,7 +113,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
     @Override
     public void render(LogisticsTileGenericPipe blockEntity, float partialTicks, PoseStack poseStack,
-        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+        MultiBufferSource bufferSource, int packedLight, int packedOverlay, Vec3 cameraPos) {
         if (blockEntity.pipe == null) {
             return;
         }

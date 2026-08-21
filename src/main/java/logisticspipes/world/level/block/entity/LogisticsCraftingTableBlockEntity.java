@@ -330,7 +330,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
             fake = MainProxy.getFakePlayer(getWorld());
         }
         result = result.copy();
-        result.onCraftedBy(getWorld(), fake, result.getCount());
+        result.onCraftedBy(fake, result.getCount());
         NonNullList<ItemStack> remaining = recipe.value().getRemainingItems(craftingInput);
         for (int i = 0; i < remaining.size(); i++) {
             ItemStack left = remaining.get(i);
@@ -384,7 +384,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         inv.readFromNBT(tag, registries, "inv_");
         matrix.readFromNBT(tag, registries, "matrix_");
         if (tag.contains("placedBy")) {
-            String name = tag.getString("placedBy");
+            String name = tag.getStringOr("placedBy", "");
             placedBy = PlayerIdentifier.convertFromUsername(name);
         } else {
             placedBy = PlayerIdentifier.readFromNBT(tag, "placedBy");
@@ -392,7 +392,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         fuzzyFlags.readFromNBT(tag, registries);
         if (tag.contains("targetType")) {
             targetType = ItemIdentifier
-                .get(ItemStackLoader.loadAndFixItemStackFromNBT(tag.getCompound("targetType"), registries));
+                .get(ItemStackLoader.loadAndFixItemStackFromNBT(tag.getCompoundOrEmpty("targetType"), registries));
         }
         cacheRecipe();
     }

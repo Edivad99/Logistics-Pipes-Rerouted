@@ -20,7 +20,7 @@ public class DummyModuleContainer extends DummyContainer {
 	public DummyModuleContainer(Player player, int slot) {
 		super(player.getInventory(), null);
 		this.slot = slot;
-		ItemStack moduleStack = player.getInventory().items.get(slot);
+		ItemStack moduleStack = player.getInventory().getItem(slot);
 		if (moduleStack.isEmpty()) throw new IllegalStateException("Module stack is empty");
 		module = ((ItemModule) moduleStack.getItem()).getModuleForItem(moduleStack, null, new DummyLevelProvider(player.level()), null);
 		Objects.requireNonNull(module, "module was null for item " + moduleStack.toString());
@@ -47,7 +47,7 @@ public class DummyModuleContainer extends DummyContainer {
 	@Override
 	public void removed(Player player) {
 		super.removed(player);
-		ItemModuleInformationManager.saveInformation(player.getInventory().items.get(slot), module, player.registryAccess());
+		ItemModuleInformationManager.saveInformation(player.getInventory().getItem(slot), module, player.registryAccess());
 		player.getInventory().setChanged();
 	}
 }

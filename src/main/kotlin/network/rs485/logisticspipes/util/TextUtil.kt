@@ -46,6 +46,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.ChatFormatting
 import java.text.NumberFormat
 import java.util.*
+import java.util.function.Consumer
 
 object TextUtil {
 
@@ -118,17 +119,21 @@ object TextUtil {
         } ?: "NaN"
     }
 
+    /**
+     * Appends the tooltip lines to [tooltip]. Takes a [Consumer] rather than a list since 1.21.5,
+     * which is what `Item.appendHoverText` now hands out.
+     */
     @JvmStatic
-    fun addTooltipInformation(stack: ItemStack, tooltip: MutableList<Component>, extended: Boolean){
+    fun addTooltipInformation(stack: ItemStack, tooltip: Consumer<Component>, extended: Boolean){
         if(extended) {
             var tooltipLine = 1
             while(Language.getInstance().has("${stack.item.descriptionId}.tip$tooltipLine")){
-                tooltip += Component.literal(translate("${stack.item.descriptionId}.tip$tooltipLine"))
+                tooltip.accept(Component.literal(translate("${stack.item.descriptionId}.tip$tooltipLine")))
                 tooltipLine++
             }
         } else {
             if(Language.getInstance().has("${stack.item.descriptionId}.tip1")){
-                tooltip += Component.literal(translate(holdShiftTooltip))
+                tooltip.accept(Component.literal(translate(holdShiftTooltip)))
             }
         }
     }

@@ -28,7 +28,6 @@ public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer
 		super.renderHeadUpDisplay(guiGraphics, distance, day, shifted, minecraft, config);
 		// blit() draws immediately and would write depth over the panel it sits on, which stipples the bar
 		// against the coplanar background. Layer it by draw order instead -- see LPGuiGraphics#drawGuiBackGround.
-		RenderSystem.depthMask(false);
 		try {
 			// Frame (uv 9,10 size 7x61 on 256x256 texture)
 			guiGraphics.blit(RenderType::guiTextured, TEXTURE, -50, -30, 9.0f, 10.0f, 7, 61, 256, 256);
@@ -39,7 +38,6 @@ public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer
 				guiGraphics.blit(RenderType::guiTextured, TEXTURE, -49, -29 + (level * 59 / 100), 176.0f, (float)(level * 59 / 100), 5, filled, 256, 256);
 			}
 		} finally {
-			RenderSystem.depthMask(true);
 		}
 	}
 

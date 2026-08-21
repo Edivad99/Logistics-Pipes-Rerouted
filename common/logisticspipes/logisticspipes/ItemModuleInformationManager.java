@@ -73,7 +73,7 @@ public class ItemModuleInformationManager {
 		if (stack.has(DataComponents.CUSTOM_DATA)) {
 			CompoundTag nbt = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
 			if (nbt.contains("moduleInformation")) {
-				CompoundTag moduleInformation = nbt.getCompound("moduleInformation");
+				CompoundTag moduleInformation = nbt.getCompoundOrEmpty("moduleInformation");
 				module.readFromNBT(moduleInformation, module.getWorld().registryAccess());
 			}
 		}

@@ -84,11 +84,9 @@ public class GuiOverlay {
 
 			for (Slot slot : gui.getMenu().slots) {
 				if (isMouseOverSlot(gui, slot, x, y)) {
-					RenderSystem.disableDepthTest();
 					int k1 = slot.x + guiLeft;
 					int i1 = slot.y + guiTop;
 					SimpleGraphics.drawGradientRect(guiGraphics, k1, i1, k1 + 16, i1 + 16, 0xa0ff0000, 0xa0ff0000, 0.0);
-					RenderSystem.enableDepthTest();
 					if (clicked) {
 						MainProxy.sendPacketToServer(PacketHandler.getPacket(SlotFinderNumberPacket.class)
 								.setInventorySlot(slot.index)

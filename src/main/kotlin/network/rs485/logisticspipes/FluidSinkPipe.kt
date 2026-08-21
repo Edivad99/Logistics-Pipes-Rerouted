@@ -69,7 +69,7 @@ abstract class FluidSinkPipe(
             return null // don't sink when the gui is open
         }
 
-        for (i in sinkInv.indices) {
+        for (i in 0 until sinkInv.size) {
             val identStack = sinkInv.getIDStackInSlot(i) ?: continue
             if (stack.fluid != FluidIdentifier.get(identStack.item)) {
                 continue

@@ -1,6 +1,7 @@
 package logisticspipes.world.item;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -24,27 +26,27 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
-        TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay,
+        Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (stack.has(LPDataComponents.UUID)) {
             UUID uuid = Objects.requireNonNull(stack.get(LPDataComponents.UUID));
             if (stack.getDamageValue() == LogisticsItemCard.FREQ_CARD) {
-                tooltipComponents.add(Component.literal("Freq. Card"));
+                tooltipAdder.accept(Component.literal("Freq. Card"));
             } else if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
-                tooltipComponents.add(Component.literal("Sec. Card"));
+                tooltipAdder.accept(Component.literal("Sec. Card"));
             }
             if (Screen.hasShiftDown()) {
-                tooltipComponents.add(Component.literal("Id: " + uuid));
+                tooltipAdder.accept(Component.literal("Id: " + uuid));
                 if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
-                    tooltipComponents.add(Component.literal(
+                    tooltipAdder.accept(Component.literal(
                         "Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(uuid) ?
                             "Authorized" :
                             "Unauthorized")));
                 }
             }
         } else {
-            tooltipComponents.add(Component.literal(TextUtil.translate("tooltip.logisticsItemCard")));
+            tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.logisticsItemCard")));
         }
     }
 

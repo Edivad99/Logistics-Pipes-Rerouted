@@ -10,13 +10,9 @@ import javax.annotation.Nullable;
 
 import org.joml.Quaternionf;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import logisticspipes.api.IHUDArmor;
 import logisticspipes.LPConfigs;
 import logisticspipes.hud.HUDConfig;
@@ -32,10 +28,14 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+
+import logisticspipes.client.renderer.LPRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -45,7 +45,6 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.minecraft.client.renderer.CoreShaders;
 
 public class LogisticsHUDRenderer {
 
@@ -159,8 +158,10 @@ public class LogisticsHUDRenderer {
 	}
 
 	private boolean playerWearsHUD() {
-		return Minecraft.getInstance().player != null && Minecraft.getInstance().player.getInventory() != null && Minecraft.getInstance().player.getInventory().armor != null && !Minecraft.getInstance().player.getInventory().armor.get(3).isEmpty()
-				&& checkItemStackForHUD(Minecraft.getInstance().player.getInventory().armor.get(3));
+		// Inventory.armor is gone in 1.21.5; equipment is reached per slot instead.
+		LocalPlayer player = Minecraft.getInstance().player;
+		return player != null && !player.getItemBySlot(EquipmentSlot.HEAD).isEmpty()
+				&& checkItemStackForHUD(player.getItemBySlot(EquipmentSlot.HEAD));
 	}
 
 	private boolean checkItemStackForHUD(ItemStack stack) {
@@ -225,7 +226,7 @@ public class LogisticsHUDRenderer {
 		displayCross = false;
 		IHUDConfig config;
 		if (debugHUD == null) {
-			config = new HUDConfig(mc.player.getInventory().armor.get(3));
+			config = new HUDConfig(mc.player.getItemBySlot(EquipmentSlot.HEAD));
 		} else {
 			config = new IHUDConfig() {
 
@@ -311,8 +312,6 @@ public class LogisticsHUDRenderer {
 						}
 					}
 				}
-				RenderSystem.enableBlend();
-				RenderSystem.defaultBlendFunc();
 				if (thisIsLast != renderer) {
 					displayOneView(renderer, config, partialTick, false, poseStack, packedLight);
 				}
@@ -321,11 +320,7 @@ public class LogisticsHUDRenderer {
 		}
 		if (thisIsLast != null) {
 			poseStack.pushPose();
-			RenderSystem.disableBlend();
-			RenderSystem.disableDepthTest();
 			displayOneView(thisIsLast, config, partialTick, true, poseStack, packedLight);
-			RenderSystem.enableBlend();
-			RenderSystem.enableDepthTest();
 			poseStack.popPose();
 		}
 
@@ -346,12 +341,12 @@ public class LogisticsHUDRenderer {
 		poseStack.popPose();
 
 		//Render Laser
-		RenderSystem.disableDepthTest();
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
+		// Drawing over the world without writing depth is declared once by
+		// LPRenderTypes.OVERLAY; 1.21.5 removed RenderSystem.disableDepthTest/enableBlend and
+		// BufferUploader, so the state can no longer be flipped around the draw call.
 		if (!lasers.isEmpty()) {
-			RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-			Tesselator tes = Tesselator.getInstance();
+			MultiBufferSource.BufferSource laserBuffers = Minecraft.getInstance().renderBuffers().bufferSource();
+			VertexConsumer bb = laserBuffers.getBuffer(LPRenderTypes.OVERLAY);
 			// The pose origin is the interpolated camera, not the player's feet as in 1.12.
 			Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
 			for (LaserData data : lasers) {
@@ -370,11 +365,6 @@ public class LogisticsHUDRenderer {
 				}
 				poseStack.scale(0.01F, 0.01F, 0.01F);
 				org.joml.Matrix4f mat = poseStack.last().pose();
-
-				BufferBuilder bb = tes.begin(
-						VertexFormat.Mode.QUADS,
-						DefaultVertexFormat.POSITION_COLOR
-				);
 
 				for (float i = 0; i < 6 * data.getLength(); i += 1.0f) {
 					int[] c = getLaserColor(i, data.getConnectionType());
@@ -416,11 +406,10 @@ public class LogisticsHUDRenderer {
 					bb.addVertex(mat,ex,-3, 3).setColor(c[0],c[1],c[2],c[3]);
 					bb.addVertex(mat,ex,-3,-3).setColor(c[0],c[1],c[2],c[3]);
 				}
-				BufferUploader.drawWithShader(bb.buildOrThrow());
 				poseStack.popPose();
 			}
+			laserBuffers.endBatch(LPRenderTypes.OVERLAY);
 		}
-		RenderSystem.enableDepthTest();
 		last = System.currentTimeMillis();
 	}
 

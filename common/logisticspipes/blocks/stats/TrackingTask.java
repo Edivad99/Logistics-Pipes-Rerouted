@@ -27,15 +27,15 @@ public class TrackingTask {
 	}
 
 	public void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider) {
-		int[] amountRecorded_A = nbt.getIntArray("amountRecorded_A");
-		int[] amountRecorded_B = nbt.getIntArray("amountRecorded_B");
+		int[] amountRecorded_A = nbt.getIntArray("amountRecorded_A").orElse(new int[0]);
+		int[] amountRecorded_B = nbt.getIntArray("amountRecorded_B").orElse(new int[0]);
 		for (int i = 0; i < amountRecorded.length; i++) {
 			if (i >= amountRecorded_A.length || i >= amountRecorded_B.length) {
 				break;
 			}
 			amountRecorded[i] = (((long) amountRecorded_B[i]) << 32) | amountRecorded_A[i];
 		}
-		arrayPos = nbt.getInt("arrayPos");
+		arrayPos = nbt.getIntOr("arrayPos", 0);
 		item = ItemIdentifier.get(ItemStackLoader.loadAndFixItemStackFromNBT(nbt, provider));
 	}
 

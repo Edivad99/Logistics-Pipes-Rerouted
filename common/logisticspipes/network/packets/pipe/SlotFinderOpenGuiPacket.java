@@ -41,13 +41,13 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 	@Override
 	public void processPacket(Player player) {
 		//hack to avoid wrenching blocks
-		int savedEquipped = player.getInventory().selected;
+		int savedEquipped = player.getInventory().getSelectedSlot();
 		boolean foundSlot = false;
 		//try to find a empty slot
 		for (int i = 0; i < 9; i++) {
 			if (player.getInventory().getItem(i).isEmpty()) {
 				foundSlot = true;
-				player.getInventory().selected = i;
+				player.getInventory().setSelectedSlot(i);
 				break;
 			}
 		}
@@ -57,14 +57,14 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 				ItemStack is = player.getInventory().getItem(i);
 				if (!is.isEmpty() && is.getItem() instanceof BlockItem) {
 					foundSlot = true;
-					player.getInventory().selected = i;
+					player.getInventory().setSelectedSlot(i);
 					break;
 				}
 			}
 		}
 		//give up and select whatever is right of the current slot
 		if (!foundSlot) {
-			player.getInventory().selected = (player.getInventory().selected + 1) % 9;
+			player.getInventory().setSelectedSlot((player.getInventory().getSelectedSlot() + 1) % 9);
 		}
 
 		boolean openedGui = false;
@@ -118,7 +118,7 @@ public class SlotFinderOpenGuiPacket extends ModuleCoordinatesPacket {
 			LogisticsPipes.LOG.warn("Ignored SlotFinderOpenGuiPacket from " + player + ", because of failing preconditions");
 		}
 
-		player.getInventory().selected = savedEquipped;
+		player.getInventory().setSelectedSlot(savedEquipped);
 	}
 
 	@Override

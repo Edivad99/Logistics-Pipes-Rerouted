@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -109,7 +110,7 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
 
     @Override
     public void render(T be, float partialTicks, PoseStack pose,
-        MultiBufferSource buffers, int light, int overlay) {
+        MultiBufferSource buffers, int light, int overlay, Vec3 cameraPos) {
         Block block = be.getBlockState().getBlock();
         if (!(block instanceof LogisticsSolidBlock)) {
             return;

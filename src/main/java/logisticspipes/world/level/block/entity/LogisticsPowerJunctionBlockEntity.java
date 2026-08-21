@@ -172,9 +172,9 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        internalStorage = tag.getInt("powerLevel");
+        internalStorage = tag.getIntOr("powerLevel", 0);
         if (tag.contains("needMorePowerTriggerCheck")) {
-            needMorePowerTriggerCheck = tag.getBoolean("needMorePowerTriggerCheck");
+            needMorePowerTriggerCheck = tag.getBooleanOr("needMorePowerTriggerCheck", false);
         }
     }
 

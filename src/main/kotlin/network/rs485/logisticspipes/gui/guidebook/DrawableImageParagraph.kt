@@ -146,7 +146,6 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
                 visibleArea.roundedRight,
                 visibleArea.roundedBottom,
             )
-            RenderSystem.enableBlend()
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
             guiGraphics.blit(
                 RenderType::guiTextured,
@@ -159,7 +158,6 @@ class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
                 imageWidth, imageHeight,
                 imageWidth, imageHeight,
             )
-            RenderSystem.disableBlend()
             guiGraphics.disableScissor()
         } else {
             GuiDrawer.drawOutlineRect(guiGraphics, absoluteBody, MinecraftColor.WHITE.colorCode)

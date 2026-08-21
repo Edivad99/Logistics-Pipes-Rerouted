@@ -1,14 +1,9 @@
 package logisticspipes.pipefxhandlers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -16,8 +11,10 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import net.minecraft.client.renderer.MultiBufferSource;
+
+import logisticspipes.client.renderer.LPRenderTypes;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
-import net.minecraft.client.renderer.CoreShaders;
 
 public class PipeFXLaserPowerBall extends Particle {
 
@@ -60,28 +57,21 @@ public class PipeFXLaserPowerBall extends Particle {
 
 		float s = this.bbWidth * 0.5f;
 
-		Tesselator tes = Tesselator.getInstance();
-		RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
-		RenderSystem.depthMask(false);
+		// Blending and the disabled depth write are declared by LPRenderTypes.GLOW rather than
+		// set here: 1.21.5 removed RenderSystem.enableBlend/depthMask and BufferUploader.
+		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+		VertexConsumer bb = bufferSource.getBuffer(LPRenderTypes.GLOW);
 
 		// Two crossed billboard quads for a glowing ball look
-		BufferBuilder bb = tes.begin(
-				VertexFormat.Mode.QUADS,
-				DefaultVertexFormat.POSITION_COLOR
-		);
 		billboardVertex(bb, px, py, pz, right, up,  s,  s, ri, gi, bi, ai);
 		billboardVertex(bb, px, py, pz, right, up, -s,  s, ri, gi, bi, ai);
 		billboardVertex(bb, px, py, pz, right, up, -s, -s, ri, gi, bi, ai);
 		billboardVertex(bb, px, py, pz, right, up,  s, -s, ri, gi, bi, ai);
-		BufferUploader.drawWithShader(bb.buildOrThrow());
 
-		RenderSystem.depthMask(true);
-		RenderSystem.disableBlend();
+		bufferSource.endBatch(LPRenderTypes.GLOW);
 	}
 
-	private static void billboardVertex(BufferBuilder bb, double cx, double cy, double cz,
+	private static void billboardVertex(VertexConsumer bb, double cx, double cy, double cz,
 			org.joml.Vector3f right, org.joml.Vector3f up, float rs, float us,
 			int r, int g, int b, int a) {
 		bb.addVertex((float) (cx + right.x * rs + up.x * us),

@@ -156,7 +156,7 @@ public class PacketHandler {
 
     @OnlyIn(Dist.CLIENT)
     public static void queueAndRemovePacketFromNBT(CompoundTag nbt) {
-        byte[] data = nbt.getByteArray("LogisticsPipes:PacketData");
+        byte[] data = nbt.getByteArray("LogisticsPipes:PacketData").orElse(new byte[0]);
         if (data.length > 0) {
             LPDataIOWrapper.provideData(data, Minecraft.getInstance().getConnection() != null ? Minecraft.getInstance().getConnection().registryAccess() : null, dataInput -> {
                 final int packetID = dataInput.readShort();

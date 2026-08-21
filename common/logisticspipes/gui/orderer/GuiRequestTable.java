@@ -488,7 +488,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			ArrayList<ItemIdentifierStack> list = new ArrayList<>(9);
 			list.addAll(table.matrix.getItemsAndCount().entrySet().stream()
 					.map(e -> e.getKey().makeStack(e.getValue())).toList());
-			for (Pair<ItemStack, Integer> entry : table.inv) {
+			for (Pair<ItemStack, Integer> entry : table.inv.contents()) {
 				if (entry.getValue1().isEmpty()) continue;
 				int size = entry.getValue1().getCount();
 				ItemIdentifier ident = ItemIdentifier.get(entry.getValue1());

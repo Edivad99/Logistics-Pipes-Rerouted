@@ -48,7 +48,7 @@ fun isZero(uuid: UUID) = uuid == zero
 class UUIDProperty(initialValue: UUID?, override val tagKey: String) : ValueProperty<UUID>(initialValue ?: zero) {
 
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(tagKey)) tag.getString(tagKey).takeUnless(String::isEmpty)?.also { value = UUID.fromString(it) }
+        tag.getStringOr(tagKey, "").takeUnless(String::isEmpty)?.also { value = UUID.fromString(it) }
     }
 
     override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = tag.putString(tagKey, value.toString())
@@ -79,7 +79,8 @@ class UUIDListProperty : ListProperty<UUID> {
 
     override fun defaultValue(idx: Int): UUID = zero
 
-    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): UUID = UUID.fromString(tag.getString(key))
+    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): UUID =
+        tag.getString(key).map(UUID::fromString).orElse(zero)
 
     override fun writeSingleToNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String, value: UUID) = tag.putString(key, value.toString())
 

@@ -172,10 +172,10 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
 		super.readFromNBT(nbttagcompound, provider);
 		if (nbttagcompound.contains("satelliteid")) {
-			int satelliteId = nbttagcompound.getInt("satelliteid");
+			int satelliteId = nbttagcompound.getIntOr("satelliteid", 0);
 			satellitePipeName = Integer.toString(satelliteId);
 		} else {
-			satellitePipeName = nbttagcompound.getString("satellitePipeName");
+			satellitePipeName = nbttagcompound.getStringOr("satellitePipeName", "");
 		}
 		if (MainProxy.isServer(getWorld())) {
 			ensureAllSatelliteStatus();

@@ -165,7 +165,7 @@ class ItemSinkGui private constructor(
     fun importFromInventory(importedItems: List<ItemIdentifier>) {
         if (importedItems.isEmpty()) return
         filterInventoryOverlay.write { filterInventory: ItemIdentifierInventoryProperty ->
-            for (i in filterInventory.indices) {
+            for (i in 0 until filterInventory.size) {
                 if (i < importedItems.size) {
                     filterInventory.setItem(i, importedItems[i].makeStack(1))
                 } else {

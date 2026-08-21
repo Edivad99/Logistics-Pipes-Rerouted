@@ -376,11 +376,11 @@ public class PipeTransportLogistics {
 
 	public void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider) {
 
-		ListTag nbttaglist = nbt.getList("travelingEntities", Tag.TAG_COMPOUND);
+		ListTag nbttaglist = nbt.getListOrEmpty("travelingEntities");
 
 		for (int j = 0; j < nbttaglist.size(); ++j) {
 			try {
-				CompoundTag dataTag = nbttaglist.getCompound(j);
+				CompoundTag dataTag = nbttaglist.getCompoundOrEmpty(j);
 
 				LPTravelingItem item = new LPTravelingItemServer(dataTag);
 
@@ -397,9 +397,9 @@ public class PipeTransportLogistics {
 
 		itemBuffer.clear();
 
-		ListTag nbttaglist2 = nbt.getList("buffercontents", Tag.TAG_COMPOUND);
+		ListTag nbttaglist2 = nbt.getListOrEmpty("buffercontents");
 		for (int i = 0; i < nbttaglist2.size(); i++) {
-			CompoundTag nbttagcompound1 = nbttaglist2.getCompound(i);
+			CompoundTag nbttagcompound1 = nbttaglist2.getCompoundOrEmpty(i);
 			itemBuffer.add(new Triplet<>(ItemIdentifierStack.getFromStack(ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound1, provider)), new Pair<>(bufferTimeOut, 0), null));
 		}
 

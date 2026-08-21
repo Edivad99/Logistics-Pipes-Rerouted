@@ -1,13 +1,9 @@
 package logisticspipes.gui.popup;
 
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexSorting;
+
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Matrix4f;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +15,6 @@ import java.util.List;
 
 import logisticspipes.LPConstants;
 
-import net.minecraft.client.Screenshot;
 import net.minecraft.world.level.block.Block;
 
 import logisticspipes.LogisticsPipes;
@@ -39,7 +34,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 
 import network.rs485.logisticspipes.util.TextUtil;
-import com.mojang.blaze3d.ProjectionType;
 
 public class RequestMonitorPopup extends SubGuiScreen {
 
@@ -207,68 +201,101 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	private void saveTreeToImage() {
-		// Renders the whole request tree into an offscreen framebuffer and saves it as a PNG,
-		// replacing LP1's glReadPixels tile-stitching which is gone in 1.20.1.
-		if (!table.watchedRequests.containsKey(orderId)) {
-			return;
+		// NOT PORTED TO 1.21.5. The 1.21.4 implementation is kept verbatim below.
+		//
+		// It rendered the whole request tree into an offscreen TextureTarget and handed it to
+		// Screenshot.takeScreenshot -- itself already a replacement for LP1's glReadPixels
+		// tile-stitching. 1.21.5 removed RenderTarget#bindWrite, #unbindWrite and #setClearColor: a
+		// draw no longer goes to "whatever target is currently bound", it goes to the target named by
+		// its RenderType's OutputStateShard, resolved at draw time. Every vanilla GUI render type
+		// names RenderStateShard.MAIN_TARGET, whose supplier is a fixed
+		// () -> Minecraft.getInstance().getMainRenderTarget(), and that field is private final --
+		// so there is nothing left to redirect.
+		//
+		// Reviving it needs one of:
+		//  - LP render types carrying their own OutputStateShard for every primitive the tree draws.
+		//    Blits would work (gg.blit already takes a render type factory), but text goes through
+		//    Font's own render types and items through the item renderer's, neither overridable, so
+		//    the image would come out half-empty.
+		//  - or dropping the offscreen buffer and capturing the main target instead, which caps the
+		//    export at the window size and needs the tree scaled to fit.
+		//
+		// Note that creating and reading a TextureTarget still works -- takeScreenshot now takes a
+		// Consumer<NativeImage> and accepts any RenderTarget -- it is only drawing into one that does
+		// not. saveImage below is untouched and is the half that gets reused.
+		//
+		// The TextureTarget, Screenshot, PoseStack, Matrix4f and ProjectionType imports are kept for
+		// the block below; they will read as unused until it comes back. Two calls in it no longer
+		// compile as written even setting the target aside: TextureTarget now takes a label as its
+		// first argument, and Screenshot.takeScreenshot returns nothing and takes a callback.
+		if (minecraft.player != null) {
+			minecraft.player.displayClientMessage(
+				Component.literal("Tree view export has not been ported to this Minecraft version"), false);
 		}
-		LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).getValue2();
-		int imgWidth = Math.max(256, list.getTreeRootSize() * 40 + 160);
-		int imgHeight = Math.max(256, treeDepth(list) * 48 + 140);
-		int anchorX = imgWidth / 2 - 8;
-		int anchorY = 60;
+		LogisticsPipes.LOG.warn("saveTreeToImage is not ported: 1.21.5 removed RenderTarget#bindWrite");
 
-		int oldGuiLeft = guiLeft, oldGuiTop = guiTop, oldXSize = xSize, oldYSize = ySize;
-		//GuiGraphics oldStored = getGuiGraphics();
-        GuiGraphics gg = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
-        PoseStack modelView = gg.pose();
-		TextureTarget target = new TextureTarget(imgWidth, imgHeight, true);
-		try {
-
-            target.setClearColor(0.15F, 0.15F, 0.15F, 1.0F);
-			target.clear();
-			target.bindWrite(true);
-			RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, imgWidth, imgHeight, 0.0F, 1000.0F, 21000.0F),
-					ProjectionType.ORTHOGRAPHIC);
-			modelView.pushPose();
-			modelView.setIdentity();
-			modelView.translate(0.0D, 0.0D, -11000.0D);
-
-			// Widen the clip rect so renderItemAt draws the full tree instead of the popup viewport
-			guiLeft = -1;
-			guiTop = -1;
-			xSize = imgWidth + 17;
-			ySize = imgHeight + 17;
-
-			RenderSystem.disableBlend();
-			if (!list.isEmpty()) {
-				SimpleGraphics.drawVerticalLine(gg, anchorX + 8, anchorY - 17, anchorY, Color.GREEN, 1);
-			}
-			renderLinkedOrderListLines(gg, list, anchorX, anchorY);
-			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
-			String s = Integer.toString(orderId);
-			int badgeY = list.isEmpty() ? anchorY + 18 : anchorY - 40;
-			gg.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, anchorX - 5, badgeY, 0.0f, 202.0f, 26, 26, 256, 256);
-			gg.drawString(minecraft.font, s, anchorX + 9 - minecraft.font.width(s) / 2, badgeY + 10, 16777215, true);
-			renderLinkedOrderListItems(gg, list, anchorX, anchorY, Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2);
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			RenderSystem.enableBlend();
-			gg.flush();
-
-			NativeImage image = Screenshot.takeScreenshot(target);
-			saveImage(image);
-		} catch (Exception e) {
-			LogisticsPipes.LOG.error("Failed to render tree view PNG", e);
-		} finally {
-			guiLeft = oldGuiLeft;
-			guiTop = oldGuiTop;
-			xSize = oldXSize;
-			ySize = oldYSize;
-			//storedGuiGraphics = oldStored;
-			modelView.popPose();
-			target.destroyBuffers();
-			Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
-		}
+		// // Renders the whole request tree into an offscreen framebuffer and saves it as a PNG,
+		// // replacing LP1's glReadPixels tile-stitching which is gone in 1.20.1.
+		// if (!table.watchedRequests.containsKey(orderId)) {
+		// 	return;
+		// }
+		// LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).getValue2();
+		// int imgWidth = Math.max(256, list.getTreeRootSize() * 40 + 160);
+		// int imgHeight = Math.max(256, treeDepth(list) * 48 + 140);
+		// int anchorX = imgWidth / 2 - 8;
+		// int anchorY = 60;
+		//
+		// int oldGuiLeft = guiLeft, oldGuiTop = guiTop, oldXSize = xSize, oldYSize = ySize;
+		// //GuiGraphics oldStored = getGuiGraphics();
+		//         GuiGraphics gg = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
+		//         PoseStack modelView = gg.pose();
+		// TextureTarget target = new TextureTarget(imgWidth, imgHeight, true);
+		// try {
+		//
+		//             target.setClearColor(0.15F, 0.15F, 0.15F, 1.0F);
+		// 	target.clear();
+		// 	target.bindWrite(true);
+		// 	RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, imgWidth, imgHeight, 0.0F, 1000.0F, 21000.0F),
+		// 			ProjectionType.ORTHOGRAPHIC);
+		// 	modelView.pushPose();
+		// 	modelView.setIdentity();
+		// 	modelView.translate(0.0D, 0.0D, -11000.0D);
+		//
+		// 	// Widen the clip rect so renderItemAt draws the full tree instead of the popup viewport
+		// 	guiLeft = -1;
+		// 	guiTop = -1;
+		// 	xSize = imgWidth + 17;
+		// 	ySize = imgHeight + 17;
+		//
+		// 	RenderSystem.disableBlend();
+		// 	if (!list.isEmpty()) {
+		// 		SimpleGraphics.drawVerticalLine(gg, anchorX + 8, anchorY - 17, anchorY, Color.GREEN, 1);
+		// 	}
+		// 	renderLinkedOrderListLines(gg, list, anchorX, anchorY);
+		// 	RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
+		// 	String s = Integer.toString(orderId);
+		// 	int badgeY = list.isEmpty() ? anchorY + 18 : anchorY - 40;
+		// 	gg.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, anchorX - 5, badgeY, 0.0f, 202.0f, 26, 26, 256, 256);
+		// 	gg.drawString(minecraft.font, s, anchorX + 9 - minecraft.font.width(s) / 2, badgeY + 10, 16777215, true);
+		// 	renderLinkedOrderListItems(gg, list, anchorX, anchorY, Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2);
+		// 	RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		// 	RenderSystem.enableBlend();
+		// 	gg.flush();
+		//
+		// 	NativeImage image = Screenshot.takeScreenshot(target);
+		// 	saveImage(image);
+		// } catch (Exception e) {
+		// 	LogisticsPipes.LOG.error("Failed to render tree view PNG", e);
+		// } finally {
+		// 	guiLeft = oldGuiLeft;
+		// 	guiTop = oldGuiTop;
+		// 	xSize = oldXSize;
+		// 	ySize = oldYSize;
+		// 	//storedGuiGraphics = oldStored;
+		// 	modelView.popPose();
+		// 	target.destroyBuffers();
+		// 	Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
+		// }
 	}
 
 	private int treeDepth(LinkedLogisticsOrderList list) {
@@ -324,7 +351,6 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int innerLeftSide = leftSide + 16;
 		int innerTopSide = topSide + 17;
 
-		RenderSystem.disableBlend();
 		LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).getValue2();
 		if (!list.isEmpty()) {
 			SimpleGraphics.drawVerticalLine(guiGraphics, innerLeftSide - mapX + 110, innerTopSide - mapY - 197, innerTopSide - mapY - 180, Color.GREEN, zoom.line);
@@ -345,7 +371,6 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 16777215, true);
 		}
 		renderLinkedOrderListItems(guiGraphics, list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180, par1, par2);
-		RenderSystem.enableBlend();
 
 		guiTop *= zoom.zoom;
 		guiLeft *= zoom.zoom;
@@ -368,8 +393,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			} else {
 				RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			}
-			// GL_LIGHTING removed — use shaders
-			RenderSystem.setShaderTexture(0, RequestMonitorPopup.achievementTextures);
+			// The blit names its own texture; the old setShaderTexture call became redundant when
+			// this moved to RenderType, and in 1.21.5 it takes a GpuTexture rather than a location.
             guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			renderItemAt(guiGraphics, aList.getAsDisplayItem(), startLeft, yPos);

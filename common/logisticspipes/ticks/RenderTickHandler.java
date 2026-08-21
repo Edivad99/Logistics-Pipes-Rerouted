@@ -20,6 +20,8 @@ import logisticspipes.utils.LPPositionSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+
+import logisticspipes.client.renderer.LPRenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,15 +73,12 @@ public class RenderTickHandler {
 	private static final Function<ResourceLocation, RenderType> GHOST_PIPE_RENDER_TYPE = Util.memoize(
 		texture -> RenderType.create(
 			"lp_entity_translucent_cull",
-			DefaultVertexFormat.NEW_ENTITY,
-			VertexFormat.Mode.QUADS,
 			1536,
 			true,
 			true,
+			LPRenderTypes.GHOST_ENTITY_PIPELINE,
 			RenderType.CompositeState.builder()
-				.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
 				.setTextureState(new RenderStateShard.TextureStateShard(texture, TriState.FALSE, false))
-				.setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
 				.setLightmapState(RenderStateShard.LIGHTMAP)
 				.setOverlayState(RenderStateShard.OVERLAY)
 				.createCompositeState(true)));
@@ -160,7 +159,7 @@ public class RenderTickHandler {
 
 		BlockHitResult blockHit = (BlockHitResult) box;
 		Inventory inventory = mc.player.getInventory();
-		ItemStack stack = inventory.items.get(inventory.selected);
+		ItemStack stack = inventory.getItem(inventory.getSelectedSlot());
 		CoreUnroutedPipe pipe = ((ItemLogisticsPipe) stack.getItem()).getDummyPipe();
 		Level level = player.level();
 		Direction side = blockHit.getDirection();
@@ -247,10 +246,10 @@ public class RenderTickHandler {
 
 		Inventory pInventory = player.getInventory();
 
-        NonNullList<ItemStack> inv = pInventory.items;
+        NonNullList<ItemStack> inv = pInventory.getNonEquipmentItems();
 
-        if (inv.size() <= pInventory.selected
-				|| !(inv.get(pInventory.selected).getItem() instanceof ItemLogisticsPipe pipeItem)) {
+        if (inv.size() <= pInventory.getSelectedSlot()
+				|| !(inv.get(pInventory.getSelectedSlot()).getItem() instanceof ItemLogisticsPipe pipeItem)) {
 			return false;
 		}
 

@@ -107,7 +107,6 @@ public final class FluidRenderer {
 		cache.put(fluid, diplayLists);
 
 		// GL_LIGHTING removed — use shaders
-		RenderSystem.disableBlend();
 		// TODO: GL11.glDisable(GL11.GL_CULL_FACE) → RenderSystem equivalent
 
 		for (int s = 0; s < FluidRenderer.DISPLAY_STAGES; ++s) {
@@ -129,7 +128,6 @@ public final class FluidRenderer {
 
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		// TODO: GL11.glEnable(GL11.GL_CULL_FACE) → RenderSystem equivalent
-		RenderSystem.enableBlend();
 		// GL_LIGHTING removed — use shaders
 
 		return diplayLists;

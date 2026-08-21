@@ -32,7 +32,10 @@ import network.rs485.logisticspipes.IStore;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 import org.jetbrains.annotations.NotNull;
 
-public class SimpleStackInventory implements Container, IStore, Iterable<Pair<ItemStack, Integer>> {
+// Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
+// Iterable over its own pair type: the two Iterable parameterisations conflict. The pair
+// iteration is reached through contents() instead.
+public class SimpleStackInventory implements Container, IStore {
 
 	private static final Component TEXT_COMPONENT_EMPTY = Component.literal("");
 
@@ -131,11 +134,11 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 	}
 
 	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider, String prefix) {
-		ListTag nbttaglist = nbttagcompound.getList(prefix + "items", nbttagcompound.getId());
+		ListTag nbttaglist = nbttagcompound.getListOrEmpty(prefix + "items");
 
 		for (int j = 0; j < nbttaglist.size(); ++j) {
-			CompoundTag nbttagcompound2 = nbttaglist.getCompound(j);
-			int index = nbttagcompound2.getInt("index");
+			CompoundTag nbttagcompound2 = nbttaglist.getCompoundOrEmpty(j);
+			int index = nbttagcompound2.getIntOr("index", 0);
 			if (index < stackList.size()) {
 				stackList.set(index, ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2, provider));
 			} else {
@@ -288,8 +291,12 @@ public class SimpleStackInventory implements Container, IStore, Iterable<Pair<It
 		return true;
 	}
 
-	@Override
-	public Iterator<Pair<ItemStack, Integer>> iterator() {
+	/** Pair-wise view of the contents; was the class's own iterator() before 1.21.5. */
+	public Iterable<Pair<ItemStack, Integer>> contents() {
+		return this::pairIterator;
+	}
+
+	private Iterator<Pair<ItemStack, Integer>> pairIterator() {
 		final Iterator<ItemStack> iter = stackList.iterator();
 		return new Iterator<Pair<ItemStack, Integer>>() {
 

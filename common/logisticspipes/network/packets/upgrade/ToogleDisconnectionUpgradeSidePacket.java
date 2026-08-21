@@ -40,7 +40,7 @@ public class ToogleDisconnectionUpgradeSidePacket extends SlotPacket {
 				CustomData.EMPTY,
 				customData -> {
 					CompoundTag tag = customData.copyTag();
-					tag.putBoolean(sideName, tag.getBoolean(sideName));
+					tag.putBoolean(sideName, tag.getBooleanOr(sideName, false));
 					return CustomData.of(tag);
 				}
 		);

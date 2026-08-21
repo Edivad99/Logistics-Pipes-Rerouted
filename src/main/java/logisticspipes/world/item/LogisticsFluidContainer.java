@@ -1,6 +1,7 @@
 package logisticspipes.world.item;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -8,6 +9,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -56,16 +58,16 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
-        TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay,
+        Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (Screen.hasShiftDown()) {
             FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
                 ItemIdentifierStack.getFromStack(stack), Minecraft.getInstance().level.registryAccess());
             if (fluidStack != null) {
-                tooltipComponents.add(
+                tooltipAdder.accept(
                     Component.literal("Type:  " + fluidStack.makeFluidStack().getHoverName().getString()));
-                tooltipComponents.add(Component.literal("Value: " + fluidStack.getAmount() + "mB"));
+                tooltipAdder.accept(Component.literal("Value: " + fluidStack.getAmount() + "mB"));
             }
         }
     }

@@ -2,7 +2,7 @@ package logisticspipes.data;
 
 import net.minecraft.data.PackOutput;
 
-import net.neoforged.neoforge.common.data.ParticleDescriptionProvider;
+import net.neoforged.neoforge.client.data.ParticleDescriptionProvider;
 
 import logisticspipes.LPConstants;
 import logisticspipes.particle.LPParticleTypes;

@@ -1,6 +1,7 @@
 package logisticspipes.world.item;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -55,7 +57,7 @@ public class ItemModule extends LogisticsItem {
 
     @Nullable
     public static LogisticsModule getLogisticsModule(Player player, int invSlot) {
-        ItemStack item = player.getInventory().items.get(invSlot);
+        ItemStack item = player.getInventory().getItem(invSlot);
         if (item.isEmpty() || !(item.getItem() instanceof ItemModule itemModule)) {
             return null;
         }
@@ -71,7 +73,7 @@ public class ItemModule extends LogisticsItem {
     private void openConfigGui(ItemStack stack, Player player, Level level) {
         LogisticsModule module = getModuleForItem(stack, null, new DummyLevelProvider(level), null);
         if (module instanceof Gui && !stack.isEmpty()) {
-            module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().selected);
+            module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().getSelectedSlot());
             ItemModuleInformationManager.readInformation(stack, module);
             Gui.getInHandGuiProvider((Gui) module).open(player);
         }
@@ -154,24 +156,24 @@ public class ItemModule extends LogisticsItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
-        TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay,
+        Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
         ListTag informationList = getInformationList(stack);
         if (informationList == null) {
-            TextUtil.addTooltipInformation(stack, tooltipComponents, Screen.hasShiftDown());
+            TextUtil.addTooltipInformation(stack, tooltipAdder, Screen.hasShiftDown());
             return;
         }
         if (!Screen.hasShiftDown()) {
-            TextUtil.addTooltipInformation(stack, tooltipComponents, false);
+            TextUtil.addTooltipInformation(stack, tooltipAdder, false);
             return;
         }
         for (int i = 0; i < informationList.size(); i++) {
-            String data = informationList.getString(i);
+            String data = informationList.getStringOr(i, "");
             if (data.equals("<inventory>") && i + 1 < informationList.size()) {
                 // The filter contents are drawn as an item grid, see getTooltipImage.
                 i++;
             } else {
-                tooltipComponents.add(Component.literal(data));
+                tooltipAdder.accept(Component.literal(data));
             }
         }
     }
@@ -193,7 +195,7 @@ public class ItemModule extends LogisticsItem {
         if (!nbt.contains("informationList")) {
             return null;
         }
-        return nbt.getList("informationList", Tag.TAG_STRING);
+        return nbt.getListOrEmpty("informationList");
     }
 
     /**
@@ -207,8 +209,8 @@ public class ItemModule extends LogisticsItem {
 
     private static int findInventoryEntry(ListTag informationList) {
         for (int i = 0; i + 1 < informationList.size(); i++) {
-            if (informationList.getString(i).equals("<inventory>")
-                && informationList.getString(i + 1).startsWith("<that>")) {
+            if (informationList.getStringOr(i, "").equals("<inventory>")
+                && informationList.getStringOr(i + 1, "").startsWith("<that>")) {
                 return i;
             }
         }
@@ -225,12 +227,12 @@ public class ItemModule extends LogisticsItem {
         if (entry < 0) {
             return null;
         }
-        String prefix = informationList.getString(entry + 1).substring("<that>".length());
+        String prefix = informationList.getStringOr(entry + 1, "").substring("<that>".length());
         CompoundTag nbt = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
-        CompoundTag moduleInformation = nbt.getCompound("moduleInformation");
+        CompoundTag moduleInformation = nbt.getCompoundOrEmpty("moduleInformation");
         int size = moduleInformation.contains(prefix + "itemsCount")
-            ? moduleInformation.getInt(prefix + "itemsCount")
-            : moduleInformation.getList(prefix + "items", Tag.TAG_COMPOUND).size();
+            ? moduleInformation.getIntOr(prefix + "itemsCount", 0)
+            : moduleInformation.getListOrEmpty(prefix + "items").size();
         if (size <= 0) {
             return null;
         }

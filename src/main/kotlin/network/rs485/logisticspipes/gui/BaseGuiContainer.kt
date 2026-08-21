@@ -49,7 +49,6 @@ import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.network.chat.Component
-import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.Slot
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 
@@ -62,7 +61,7 @@ abstract class BaseGuiContainer(
     private val widgetScreen: WidgetScreen,
 ) : AbstractContainerScreen<LPBaseContainer<LogisticsModule>>(
     baseContainer,
-    Inventory(Minecraft.getInstance().player!!),
+    Minecraft.getInstance().player!!.inventory,
     Component.empty(),
 ), Drawable by widgetScreen {
 

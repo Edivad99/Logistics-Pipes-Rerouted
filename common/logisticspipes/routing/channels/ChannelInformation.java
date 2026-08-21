@@ -1,5 +1,6 @@
 package logisticspipes.routing.channels;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -7,9 +8,12 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Data;
@@ -20,19 +24,32 @@ import logisticspipes.utils.PlayerIdentifier;
 @Data
 public class ChannelInformation {
 
+    public static final Codec<ChannelInformation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.STRING.optionalFieldOf("name").forGetter(channel -> Optional.ofNullable(channel.getName())),
+        UUIDUtil.STRING_CODEC.fieldOf("channelIdentifier").forGetter(ChannelInformation::getChannelIdentifier),
+        PlayerIdentifier.CODEC.fieldOf("owner").forGetter(ChannelInformation::getOwner),
+        AccessRights.CODEC.fieldOf("rights").forGetter(ChannelInformation::getRights),
+        UUIDUtil.STRING_CODEC.optionalFieldOf("responsibleSecurityID")
+            .forGetter(channel -> Optional.ofNullable(channel.getResponsibleSecurityID()))
+    ).apply(instance, (name, identifier, owner, rights, securityId) ->
+        new ChannelInformation(name.orElse(null), identifier, owner, rights, securityId.orElse(null))));
+
     public static final StreamCodec<ByteBuf, ChannelInformation> STREAM_CODEC =
         StreamCodec.composite(
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), channel -> Optional.ofNullable(channel.getName()),
             UUIDUtil.STREAM_CODEC, ChannelInformation::getChannelIdentifier,
             PlayerIdentifier.STREAM_CODEC, ChannelInformation::getOwner,
-            ByteBufCodecs.idMapper(id -> AccessRights.values()[id], AccessRights::ordinal), ChannelInformation::getRights,
-            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), channel -> Optional.ofNullable(channel.getResponsibleSecurityID()),
+            ByteBufCodecs.idMapper(id -> AccessRights.values()[id], AccessRights::ordinal),
+            ChannelInformation::getRights,
+            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
+            channel -> Optional.ofNullable(channel.getResponsibleSecurityID()),
             (name, identifier, owner, rights, securityId) ->
                 new ChannelInformation(name.orElse(null), identifier, owner, rights, securityId.orElse(null)));
-
-    /** Null for a channel sent as a bare reference, see {@code ChannelManager.removeChannel}. */
-    private @Nullable String name;
     private final @NonNull UUID channelIdentifier;
+    /**
+     * Null for a channel sent as a bare reference, see {@code ChannelManager.removeChannel}.
+     */
+    private @Nullable String name;
     private @NonNull PlayerIdentifier owner;
     private @NonNull AccessRights rights;
     private @Nullable UUID responsibleSecurityID;
@@ -48,38 +65,16 @@ public class ChannelInformation {
         this.responsibleSecurityID = securityId;
     }
 
-    public ChannelInformation(CompoundTag tag) {
-        this(
-            tag.contains("name") ? tag.getString("name") : null,
-            UUID.fromString(tag.getString("channelIdentifier")),
-            PlayerIdentifier.readFromNBT(tag, "owner"),
-            AccessRights.values()[tag.getInt("rights")],
-            readOptionalUUID(tag, "responsibleSecurityID"));
-    }
-
-    @Nullable
-    private static UUID readOptionalUUID(CompoundTag tag, String key) {
-        return tag.contains(key) ? UUID.fromString(tag.getString(key)) : null;
-    }
-
-    public CompoundTag writeToNBT(CompoundTag tag) {
-        // An absent key rather than an empty string, so that a null name survives the round trip
-        // instead of coming back as "" -- and so that putString is never handed a null.
-        if (name != null) {
-            tag.putString("name", name);
-        }
-        tag.putString("channelIdentifier", channelIdentifier.toString());
-        owner.writeToNBT(tag, "owner");
-        tag.putInt("rights", rights.ordinal());
-        if (responsibleSecurityID != null) {
-            tag.putString("responsibleSecurityID", responsibleSecurityID.toString());
-        }
-        return tag;
-    }
-
-    public enum AccessRights {
+    public enum AccessRights implements StringRepresentable {
         PRIVATE,
         SECURED,
-        PUBLIC
+        PUBLIC;
+
+        public static final Codec<AccessRights> CODEC = StringRepresentable.fromEnum(AccessRights::values);
+
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase(Locale.ROOT);
+        }
     }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import logisticspipes.interfaces.ITickable;
@@ -48,6 +49,29 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 			mainPipePos.add(pos);
 		}
 		mainPipe = null;
+	}
+
+	/**
+	 * Removing a sub block takes its main pipes down with it. Was
+	 * {@code LogisticsBlockGenericSubMultiBlock#onRemove} before 1.21.5 split block removal into
+	 * {@code preRemoveSideEffects} (block entity still attached) and
+	 * {@code affectNeighborsAfterRemoval} (block entity already gone).
+	 *
+	 * <p>The old body also called {@code onRemove} on the pipe block with the same state for both
+	 * the old and the new state, which its own {@code state.getBlock() != newState.getBlock()}
+	 * guard always rejected; that call did nothing and has not been carried over. Re-entrancy is
+	 * still handled by {@code redirectedToMainPipe}, which
+	 * {@code LogisticsBlockGenericPipe#removePipe} raises while it clears sub blocks.</p>
+	 */
+	@Override
+	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+		if (!LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe && level != null) {
+			getMainPipe().stream()
+					.filter(Objects::nonNull)
+					.filter(LogisticsTileGenericPipe::isMultiBlock)
+					.forEach(mainPipe -> level.removeBlock(mainPipe.getBlockPos(), false));
+		}
+		super.preRemoveSideEffects(pos, state);
 	}
 
 	public List<LogisticsTileGenericPipe> getMainPipe() {
@@ -124,19 +148,19 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 			}
 		}
 		if (tag.contains("MainPipePosList")) {
-			ListTag list = tag.getList("MainPipePosList", Tag.TAG_COMPOUND);
+			ListTag list = tag.getListOrEmpty("MainPipePosList");
 			for (int i = 0; i < list.size(); i++) {
-				DoubleCoordinates pos = DoubleCoordinates.readFromNBT("MainPipePos_", list.getCompound(i));
+				DoubleCoordinates pos = DoubleCoordinates.readFromNBT("MainPipePos_", list.getCompoundOrEmpty(i));
 				if (pos != null) {
 					mainPipePos.add(pos);
 				}
 			}
 		}
 		if (tag.contains("SubTypeList")) {
-			ListTag list = tag.getList("SubTypeList", Tag.TAG_STRING);
+			ListTag list = tag.getListOrEmpty("SubTypeList");
 			subTypes.clear();
 			for (int i = 0; i < list.size(); i++) {
-				String name = list.getString(i);
+				String name = list.getStringOr(i, "");
 				CoreMultiBlockPipe.SubBlockTypeForShare type = CoreMultiBlockPipe.SubBlockTypeForShare.valueOf(name);
 				if (type != null) {
 					subTypes.add(type);

@@ -122,7 +122,7 @@ class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsync
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
         super.readFromNBT(tag, provider)
         quicksort.readFromNBT(tag, provider)
-        timeout = tag.getInt("Timeout")
+        timeout = tag.getIntOr("Timeout", timeout)
     }
 
     override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) {

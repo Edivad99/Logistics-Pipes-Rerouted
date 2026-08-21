@@ -95,16 +95,6 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         }
     }
 
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.getBlock() != newState.getBlock()) {
-            if (level.getBlockEntity(pos) instanceof LogisticsSolidBlockEntity solidBlockEntity) {
-                solidBlockEntity.onBlockBreak();
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
-    }
-
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

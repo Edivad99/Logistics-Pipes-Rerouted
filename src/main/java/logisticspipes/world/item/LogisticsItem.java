@@ -8,13 +8,14 @@
 
 package logisticspipes.world.item;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -31,11 +32,11 @@ public class LogisticsItem extends Item {
      * shows full tooltip, without it, you just get the first line.
      */
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
-        TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay,
+        Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (addShiftInfo()) {
-            TextUtil.addTooltipInformation(stack, tooltipComponents, Screen.hasShiftDown());
+            TextUtil.addTooltipInformation(stack, tooltipAdder, Screen.hasShiftDown());
         }
     }
 

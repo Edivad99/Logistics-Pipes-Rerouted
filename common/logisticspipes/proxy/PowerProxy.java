@@ -21,7 +21,7 @@ public class PowerProxy implements IPowerProxy {
 		}
 
 		public void readFromNBT(CompoundTag nbt) {
-			this.energy = nbt.getInt("Energy");
+			this.energy = nbt.getIntOr("Energy", 0);
 
 			if (energy > capacity) {
 				energy = capacity;

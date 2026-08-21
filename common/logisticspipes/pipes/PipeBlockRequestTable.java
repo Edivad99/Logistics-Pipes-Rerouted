@@ -194,7 +194,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		if (!diskInv.getItem(0).isEmpty()) {
 			if (!entityplayer.getMainHandItem().isEmpty() && entityplayer.getMainHandItem().getItem().equals(LPItems.DISK.get())) {
 				diskInv.setItem(0, entityplayer.getMainHandItem());
-				entityplayer.getInventory().setItem(entityplayer.getInventory().selected, ItemStack.EMPTY);
+				entityplayer.getInventory().setItem(entityplayer.getInventory().getSelectedSlot(), ItemStack.EMPTY);
 				flag = false;
 			}
 		}
@@ -521,7 +521,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		matrix.readFromNBT(par1nbtTagCompound, provider, "matrix");
 		toSortInv.readFromNBT(par1nbtTagCompound, provider, "toSortInv");
 		diskInv.readFromNBT(par1nbtTagCompound, provider, "diskInv");
-		rotation = par1nbtTagCompound.getInt("blockRotation");
+		rotation = par1nbtTagCompound.getIntOr("blockRotation", 0);
 		// cacheRecipe() skipped here — world/registry not available during NBT load; cache is rebuilt lazily on first use
 		//cacheRecipe();
 	}

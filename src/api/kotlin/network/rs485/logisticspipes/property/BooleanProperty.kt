@@ -42,7 +42,7 @@ import net.minecraft.nbt.CompoundTag
 
 class BooleanProperty(initialValue: Boolean, override val tagKey: String) : ValueProperty<Boolean>(initialValue) {
     override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(tagKey)) value = tag.getBoolean(tagKey)
+        value = tag.getBooleanOr(tagKey, value)
     }
 
     override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = tag.putBoolean(tagKey, value)

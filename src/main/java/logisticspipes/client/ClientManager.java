@@ -25,6 +25,7 @@ import logisticspipes.client.gui.tooltip.ModuleTooltipPlacement;
 import logisticspipes.client.model.ObjModelManager;
 import logisticspipes.client.model.pipe.PipeModelRegistration;
 import logisticspipes.client.particle.SparkParticle;
+import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
 import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
 import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
@@ -51,6 +52,7 @@ public class ClientManager {
         modEventBus.addListener(ClientManager::handleClientSetup);
         modEventBus.addListener(ClientManager::handleRegisterRenderers);
         modEventBus.addListener(ClientManager::handleParticleRegistration);
+        modEventBus.addListener(LPRenderTypes::register);
         modEventBus.addListener(ClientManager::handleRegisterSpecialModelRenderers);
         modEventBus.addListener(ClientManager::handleRegisterMenuScreens);
         modEventBus.addListener(ClientManager::handleRegisterReloadListeners);

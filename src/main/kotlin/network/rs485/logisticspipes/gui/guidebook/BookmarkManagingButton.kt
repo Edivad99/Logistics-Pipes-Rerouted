@@ -76,7 +76,6 @@ class BookmarkManagingButton(
             body,
             baseTexture.translated(0, yOffset),
             MinecraftColor.WHITE.colorCode,
-            blend = true,
         )
         if (hovered) {
             drawTooltip(

@@ -85,7 +85,6 @@ class TabButton(
             body.translated(0, yOffset),
             buttonTextureArea,
             color = if (whisky.isPageActive()) 0xFFFFFFFF.toInt() else tabColor,
-            blend = true,
         )
     }
 
@@ -94,8 +93,8 @@ class TabButton(
     fun renderForeground(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
         if (!isInactive) {
             val tabColor: Int = (MinecraftColor.values()[whisky.getColor()].colorCode and 0x00FFFFFF) or 0xFF000000.toInt()
-            GuideBookGraphics.blitAtlas(guiGraphics, body, buttonTextureArea, color = -1, blend = true)
-            GuideBookGraphics.blitAtlas(guiGraphics, circleArea.translated(body), circleAreaTexture, color = tabColor, blend = true)
+            GuideBookGraphics.blitAtlas(guiGraphics, body, buttonTextureArea, color = -1)
+            GuideBookGraphics.blitAtlas(guiGraphics, circleArea.translated(body), circleAreaTexture, color = tabColor)
         }
         if (visible && isHovered(mouseX, mouseY)) {
             drawTooltip(

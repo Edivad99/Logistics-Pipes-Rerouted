@@ -147,10 +147,10 @@ public class RequestHandler {
 			player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
 			return;
 		}
-		ListTag list = itemlist.getList("inventar", 10);
+		ListTag list = itemlist.getListOrEmpty("inventar");
 		final List<ItemIdentifierStack> transaction = new ArrayList<>(list.size());
 		for (int i = 0; i < list.size(); i++) {
-			ItemIdentifierStack stack = ItemIdentifierStack.loadFromNBT(list.getCompound(i), player.registryAccess());
+			ItemIdentifierStack stack = ItemIdentifierStack.loadFromNBT(list.getCompoundOrEmpty(i), player.registryAccess());
 			if (stack != null) {
 				transaction.add(stack);
 			}

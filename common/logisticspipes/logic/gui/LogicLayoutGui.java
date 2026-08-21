@@ -138,9 +138,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		leftSide *= 1 / zoom.zoom;
 		topSide *= 1 / zoom.zoom;
 
-		RenderSystem.disableBlend();
 		RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
-		RenderSystem.enableBlend();
 
 		topPos = (int) (topPos * zoom.zoom);
 		leftPos = (int) (leftPos * zoom.zoom);
@@ -163,8 +161,8 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 			} else {
 				RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			}
-			// GL_LIGHTING removed — use shaders
-			RenderSystem.setShaderTexture(0, LogicLayoutGui.achievementTextures);
+			// The blit names its own texture; the old setShaderTexture call became redundant when
+			// this moved to RenderType, and in 1.21.5 it takes a GpuTexture rather than a location.
 			guiGraphics.blit(RenderType::guiTextured, LogicLayoutGui.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
 			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 			//renderItemAt(aList.getAsDisplayItem(), startLeft, yPos);

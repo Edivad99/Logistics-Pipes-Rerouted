@@ -813,36 +813,36 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		super.readFromNBT(nbttagcompound, provider);
 
 		synchronized (routerIdLock) {
-			routerId = nbttagcompound.getString("routerId");
+			routerId = nbttagcompound.getStringOr("routerId", "");
 		}
 
-		stat_lifetime_sent = nbttagcompound.getLong("stat_lifetime_sent");
-		stat_lifetime_received = nbttagcompound.getLong("stat_lifetime_received");
-		stat_lifetime_relayed = nbttagcompound.getLong("stat_lifetime_relayed");
+		stat_lifetime_sent = nbttagcompound.getLongOr("stat_lifetime_sent", 0L);
+		stat_lifetime_received = nbttagcompound.getLongOr("stat_lifetime_received", 0L);
+		stat_lifetime_relayed = nbttagcompound.getLongOr("stat_lifetime_relayed", 0L);
 		if (getLogisticsModule() != null) {
 			getLogisticsModule().readFromNBT(nbttagcompound, provider);
 		}
-		upgradeManager.readFromNBT(nbttagcompound.getCompound("upgradeManager"), provider);
-		powerHandler.readFromNBT(nbttagcompound.getCompound("powerHandler"));
+		upgradeManager.readFromNBT(nbttagcompound.getCompoundOrEmpty("upgradeManager"), provider);
+		powerHandler.readFromNBT(nbttagcompound.getCompoundOrEmpty("powerHandler"));
 
 		sendQueue.clear();
-		ListTag sendqueue = nbttagcompound.getList("sendqueue", nbttagcompound.getId());
+		ListTag sendqueue = nbttagcompound.getListOrEmpty("sendqueue");
 		for (int i = 0; i < sendqueue.size(); i++) {
-			CompoundTag tagentry = sendqueue.getCompound(i);
-			CompoundTag tagentityitem = tagentry.getCompound("entityitem");
+			CompoundTag tagentry = sendqueue.getCompoundOrEmpty(i);
+			CompoundTag tagentityitem = tagentry.getCompoundOrEmpty("entityitem");
 			LPTravelingItemServer item = new LPTravelingItemServer(tagentityitem);
-			Direction from = Direction.values()[tagentry.getByte("from")];
-			ItemSendMode mode = ItemSendMode.values()[tagentry.getByte("mode")];
+			Direction from = Direction.values()[tagentry.getByteOr("from", (byte) 0)];
+			ItemSendMode mode = ItemSendMode.values()[tagentry.getByteOr("mode", (byte) 0)];
 			sendQueue.add(new Triplet<>(item, from, mode));
 		}
 		for (int i = 0; i < 6; i++) {
-			if (nbttagcompound.getBoolean("PipeSign_" + i)) {
-				int type = nbttagcompound.getInt("PipeSign_" + i + "_type");
+			if (nbttagcompound.getBooleanOr("PipeSign_" + i, false)) {
+				int type = nbttagcompound.getIntOr("PipeSign_" + i + "_type", 0);
 				Class<? extends IPipeSign> typeClass = ItemPipeSignCreator.signTypes.get(type);
 				try {
 					signItem[i] = typeClass.newInstance();
 					signItem[i].init(this, DirectionUtil.getOrientation(i));
-					signItem[i].readFromNBT(nbttagcompound.getCompound("PipeSign_" + i + "_tags"), provider);
+					signItem[i].readFromNBT(nbttagcompound.getCompoundOrEmpty("PipeSign_" + i + "_tags"), provider);
 				} catch (InstantiationException | IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}

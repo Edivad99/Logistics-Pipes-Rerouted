@@ -48,10 +48,10 @@ public class DiskMacroRequestPacket extends IntegerCoordinatesPacket {
 				ListTag list = new ListTag();
 				nbt.put("macroList", list);
 			}
-			ListTag list = nbt.getList("macroList", 10);
+			ListTag list = nbt.getListOrEmpty("macroList");
 			for (int i = 0; i < list.size(); i++) {
 				if (i == getInteger()) {
-					CompoundTag itemlist = list.getCompound(i);
+					CompoundTag itemlist = list.getCompoundOrEmpty(i);
 					RequestHandler.requestMacrolist(itemlist, pipeItemsRequestLogisticsMk2, player);
 					break;
 				}
@@ -72,10 +72,10 @@ public class DiskMacroRequestPacket extends IntegerCoordinatesPacket {
 				ListTag list = new ListTag();
 				nbt.put("macroList", list);
 			}
-			ListTag list = nbt.getList("macroList", 10);
+			ListTag list = nbt.getListOrEmpty("macroList");
 			for (int i = 0; i < list.size(); i++) {
 				if (i == getInteger()) {
-					CompoundTag itemlist = list.getCompound(i);
+					CompoundTag itemlist = list.getCompoundOrEmpty(i);
 					RequestHandler.requestMacrolist(itemlist, pipeBlockRequestTable, player);
 					break;
 				}

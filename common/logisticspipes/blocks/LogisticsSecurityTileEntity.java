@@ -145,26 +145,26 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
 		super.loadAdditional(tag, registries);
 		if (tag.contains("UUID")) {
-			secId = UUID.fromString(tag.getString("UUID"));
+			secId = UUID.fromString(tag.getStringOr("UUID", ""));
 		}
-		allowCC = tag.getBoolean("allowCC");
-		allowAutoDestroy = tag.getBoolean("allowAutoDestroy");
+		allowCC = tag.getBooleanOr("allowCC", false);
+		allowAutoDestroy = tag.getBooleanOr("allowAutoDestroy", false);
 		inv.readFromNBT(tag, registries);
 		settingsList.clear();
-		ListTag list = tag.getList("settings", 10);
+		ListTag list = tag.getListOrEmpty("settings");
 		while (!list.isEmpty()) {
 			Tag base = list.remove(0);
-			String name = ((CompoundTag) base).getString("name");
-			CompoundTag value = ((CompoundTag) base).getCompound("content");
+			String name = ((CompoundTag) base).getStringOr("name", "");
+			CompoundTag value = ((CompoundTag) base).getCompoundOrEmpty("content");
 			SecuritySettings settings = new SecuritySettings(name);
 			settings.readFromNBT(value, registries);
 			settingsList.put(name, settings);
 		}
 		excludedCC.clear();
-		list = tag.getList("excludedCC", 3);
+		list = tag.getListOrEmpty("excludedCC");
 		while (!list.isEmpty()) {
 			Tag base = list.remove(0);
-			excludedCC.add(((IntTag) base).getAsInt());
+			excludedCC.add(((IntTag) base).intValue());
 		}
 	}
 
@@ -246,10 +246,10 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	}
 
 	public void saveNewSecuritySettings(CompoundTag tag, HolderLookup.Provider provider) {
-		SecuritySettings setting = settingsList.get(tag.getString("name"));
+		SecuritySettings setting = settingsList.get(tag.getStringOr("name", ""));
 		if (setting == null) {
-			setting = new SecuritySettings(tag.getString("name"));
-			settingsList.put(tag.getString("name"), setting);
+			setting = new SecuritySettings(tag.getStringOr("name", ""));
+			settingsList.put(tag.getStringOr("name", ""), setting);
 		}
 		setting.readFromNBT(tag, provider);
 	}
@@ -304,10 +304,10 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 
 	public void handleListPacket(CompoundTag tag) {
 		excludedCC.clear();
-		ListTag list = tag.getList("list", 3);
+		ListTag list = tag.getListOrEmpty("list");
 		while (list.size() > 0) {
 			Tag base = list.remove(0);
-			excludedCC.add(((IntTag) base).getAsInt());
+			excludedCC.add(((IntTag) base).intValue());
 		}
 	}
 

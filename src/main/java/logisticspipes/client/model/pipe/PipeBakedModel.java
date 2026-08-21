@@ -5,21 +5,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.model.IDynamicBakedModel;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
+import net.neoforged.neoforge.model.data.ModelData;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -36,9 +37,15 @@ import com.google.common.cache.CacheBuilder;
  * {@code LogisticsTileGenericPipe.getModelData()} snapshots on the main thread. The key is
  * also the cache key: a whole base typically resolves to a handful of distinct
  * configurations, so the quads are built once and shared.</p>
+ *
+ * <p>1.21.5 removed {@code BakedModel} and split it per use site; a block model is now a
+ * {@link BlockStateModel} handing out {@link BlockModelPart}s. The NeoForge-added
+ * {@code collectParts} overload is what replaces {@code IDynamicBakedModel#getQuads}: instead
+ * of the model data being pushed in as an argument, the model pulls it off the level with
+ * {@code level.getModelData(pos)}.</p>
  */
 @OnlyIn(Dist.CLIENT)
-public class PipeBakedModel implements IDynamicBakedModel {
+public class PipeBakedModel implements DynamicBlockStateModel {
 
     /**
      * Bounded because the key space is large in principle — the neighbour bounds are
@@ -46,7 +53,7 @@ public class PipeBakedModel implements IDynamicBakedModel {
      */
     private static final int CACHE_SIZE = 512;
 
-    private final BakedModel fallback;
+    private final BlockStateModel fallback;
     private final Cache<PipeGeometryKey, List<BakedQuad>> quadCache = CacheBuilder.newBuilder()
         .maximumSize(CACHE_SIZE)
         .build();
@@ -57,10 +64,10 @@ public class PipeBakedModel implements IDynamicBakedModel {
     private final AtomicInteger cachedGeneration = new AtomicInteger(-1);
 
     /**
-     * @param fallback the JSON model this replaces, kept for the particle sprite and the item
-     *                 transforms so held and dropped pipes still behave
+     * @param fallback the JSON model this replaces, kept for the particle sprite so pipes
+     *                 whose own sprites have not been stitched yet still break visibly
      */
-    public PipeBakedModel(BakedModel fallback) {
+    public PipeBakedModel(BlockStateModel fallback) {
         this.fallback = fallback;
     }
 
@@ -71,18 +78,22 @@ public class PipeBakedModel implements IDynamicBakedModel {
         quadCache.invalidateAll();
     }
 
+    /**
+     * Lets the chunk builder reuse geometry between pipes that resolve to the same
+     * configuration: the geometry key is exactly the cache key the quads are built against.
+     */
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
-        RandomSource random, ModelData modelData, @Nullable RenderType renderType) {
-        // Side-specific queries are for face culling against neighbours; pipe geometry is not
-        // flush with the block faces, so all of it lives in the null-side bucket.
-        if (side != null) {
-            return List.of();
-        }
+    @Nullable
+    public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random) {
+        return level.getModelData(pos).get(PipeModelProperties.GEOMETRY);
+    }
 
-        PipeGeometryKey key = modelData.get(PipeModelProperties.GEOMETRY);
+    @Override
+    public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
+        List<BlockModelPart> parts) {
+        PipeGeometryKey key = level.getModelData(pos).get(PipeModelProperties.GEOMETRY);
         if (key == null || !PipeModelStore.isReady()) {
-            return List.of();
+            return;
         }
 
         int generation = PipeModelStore.generation();
@@ -90,50 +101,20 @@ public class PipeBakedModel implements IDynamicBakedModel {
             quadCache.invalidateAll();
         }
 
-        List<BakedQuad> cached = quadCache.getIfPresent(key);
-        if (cached != null) {
-            return cached;
+        List<BakedQuad> quads = quadCache.getIfPresent(key);
+        if (quads == null) {
+            quads = PipeQuadBaker.bake(PipeModelStore.parts(), PipeModelStore.sprites(), key);
+            quadCache.put(key, quads);
         }
-
-        List<BakedQuad> baked = PipeQuadBaker.bake(PipeModelStore.parts(), PipeModelStore.sprites(), key);
-        quadCache.put(key, baked);
-        return baked;
+        if (!quads.isEmpty()) {
+            parts.add(new Part(quads, particleIcon()));
+        }
     }
 
     @Override
-    public boolean useAmbientOcclusion() {
-        // This selects which of two lighting paths the chunk builder uses, and neither is a
-        // good fit for geometry suspended inside the block rather than flush with its faces:
-        //
-        //  - false takes ModelBlockRenderer.tesselateWithoutAO, which for the side == null
-        //    bucket recomputes light per quad from pos.relative(quad.getDirection()). A quad
-        //    facing down samples the block underneath — the ground — and comes out dark even
-        //    with air all around the pipe.
-        //  - true takes tesselateWithAO, which blends light per vertex from the surrounding
-        //    blocks. Smoother, but still derived from neighbours the pipe does not touch.
-        //
-        // The immediate-mode renderer sidestepped the question entirely by passing one
-        // packedLight for the whole pipe, taken at its own position. Off, because AO visibly
-        // banded the joints; the per-quad neighbour sampling that leaves is steered back onto
-        // the pipe's own position by MeshBaker.lightSampleFace, which reproduces the single
-        // uniform light level of the immediate-mode path.
-        return false;
-    }
-
-    @Override
-    public boolean isGui3d() {
-        return true;
-    }
-
-    @Override
-    public boolean usesBlockLight() {
-        return true;
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon() {
+    public TextureAtlasSprite particleIcon() {
         TextureAtlasSprite sprite = PipeModelStore.sprites().basicPipe();
-        return sprite != null ? sprite : fallback.getParticleIcon();
+        return sprite != null ? sprite : fallback.particleIcon();
     }
 
     /**
@@ -142,8 +123,8 @@ public class PipeBakedModel implements IDynamicBakedModel {
      * {@link PipeModelProperties#PARTICLE_SPRITE}.
      */
     @Override
-    public TextureAtlasSprite getParticleIcon(ModelData modelData) {
-        ResourceLocation name = modelData.get(PipeModelProperties.PARTICLE_SPRITE);
+    public TextureAtlasSprite particleIcon(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+        ResourceLocation name = level.getModelData(pos).get(PipeModelProperties.PARTICLE_SPRITE);
         if (name != null) {
             TextureAtlasSprite sprite = Minecraft.getInstance()
                 .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
@@ -152,12 +133,44 @@ public class PipeBakedModel implements IDynamicBakedModel {
                 return sprite;
             }
         }
-        return getParticleIcon();
+        return particleIcon();
     }
 
-    @Override
-    public ItemTransforms getTransforms() {
-        return fallback.getTransforms();
-    }
+    /**
+     * The single part every pipe renders as.
+     *
+     * <p>{@code useAmbientOcclusion} being false selects which of two lighting paths the
+     * chunk builder uses, and neither is a good fit for geometry suspended inside the block
+     * rather than flush with its faces:
+     *
+     * <ul>
+     *   <li>false takes {@code ModelBlockRenderer.tesselateWithoutAO}, which for the
+     *   {@code side == null} bucket recomputes light per quad from
+     *   {@code pos.relative(quad.getDirection())}. A quad facing down samples the block
+     *   underneath — the ground — and comes out dark even with air all around the pipe.</li>
+     *   <li>true takes {@code tesselateWithAO}, which blends light per vertex from the
+     *   surrounding blocks. Smoother, but still derived from neighbours the pipe does not
+     *   touch.</li>
+     * </ul>
+     *
+     * <p>The immediate-mode renderer sidestepped the question entirely by passing one
+     * packedLight for the whole pipe, taken at its own position. Off, because AO visibly
+     * banded the joints; the per-quad neighbour sampling that leaves is steered back onto the
+     * pipe's own position by {@code MeshBaker.lightSampleFace}, which reproduces the single
+     * uniform light level of the immediate-mode path.</p>
+     */
+    private record Part(List<BakedQuad> quads, TextureAtlasSprite particleIcon) implements BlockModelPart {
 
+        @Override
+        public List<BakedQuad> getQuads(@Nullable Direction side) {
+            // Side-specific queries are for face culling against neighbours; pipe geometry is
+            // not flush with the block faces, so all of it lives in the null-side bucket.
+            return side == null ? quads : List.of();
+        }
+
+        @Override
+        public boolean useAmbientOcclusion() {
+            return false;
+        }
+    }
 }

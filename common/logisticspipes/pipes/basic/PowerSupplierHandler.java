@@ -39,14 +39,14 @@ public class PowerSupplierHandler {
 
 	public void readFromNBT(CompoundTag nbttagcompound) {
 		if (nbttagcompound.get("bufferRF") instanceof FloatTag) { // support for old float
-			internalBufferRF = nbttagcompound.getFloat("bufferRF");
+			internalBufferRF = nbttagcompound.getFloatOr("bufferRF", 0.0f);
 		} else {
-			internalBufferRF = nbttagcompound.getDouble("bufferRF");
+			internalBufferRF = nbttagcompound.getDoubleOr("bufferRF", 0.0);
 		}
 		if (nbttagcompound.get("bufferEU") instanceof FloatTag) { // support for old float
-			internalBufferIC2 = nbttagcompound.getFloat("bufferEU");
+			internalBufferIC2 = nbttagcompound.getFloatOr("bufferEU", 0.0f);
 		} else {
-			internalBufferIC2 = nbttagcompound.getDouble("bufferEU");
+			internalBufferIC2 = nbttagcompound.getDoubleOr("bufferEU", 0.0);
 		}
 	}
 

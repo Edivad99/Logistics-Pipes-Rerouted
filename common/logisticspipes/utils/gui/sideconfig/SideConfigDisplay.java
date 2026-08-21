@@ -7,16 +7,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.utils.LPPositionSet;
@@ -26,10 +20,10 @@ import logisticspipes.utils.math.Matrix4d;
 import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.math.Vertex;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
@@ -46,10 +40,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
-import net.minecraft.client.renderer.CoreShaders;
 import com.mojang.blaze3d.ProjectionType;
 
 //Based on: https://github.com/SleepyTrousers/EnderIO/blob/master/src/main/java/crazypants/enderio/machine/gui/GuiOverlayIoConfig.java
@@ -245,22 +238,19 @@ public abstract class SideConfigDisplay {
 		TextureAtlasSprite icon = (TextureAtlasSprite) Textures.LOGISTICS_SIDE_SELECTION;
 		List<Vertex> corners = bb.getCornersWithUvForFace(selection.face, icon.getU0(), icon.getU1(), icon.getV0(), icon.getV1());
 
-		RenderSystem.disableDepthTest();
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
-		RenderUtil.bindBlockTexture();
-		RenderSystem.setShader(CoreShaders.POSITION_TEX);
-
-		Tesselator tes = Tesselator.getInstance();
-		BufferBuilder buf = tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		// The block atlas, the translucent blend and the disabled depth test are all carried by
+		// the render type now; 1.21.5 removed setShader/enableBlend/disableDepthTest and
+		// BufferUploader. guiTexturedOverlay is the vanilla POSITION_TEX_COLOR type with the
+		// depth test off, so the highlight still paints over the blocks behind it.
+		RenderType renderType = RenderType.guiTexturedOverlay(RenderUtil.BLOCK_TEX);
+		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+		VertexConsumer buf = bufferSource.getBuffer(renderType);
 		for (Vertex v : corners) {
 			buf.addVertex((float) (v.x() - origin.x), (float) (v.y() - origin.y), (float) (v.z() - origin.z))
-				.setUv(v.u(), v.v());
+				.setUv(v.u(), v.v())
+				.setColor(0xFFFFFFFF);
 		}
-		BufferUploader.drawWithShader(buf.buildOrThrow());
-
-		RenderSystem.disableBlend();
-		RenderSystem.enableDepthTest();
+		bufferSource.endBatch(renderType);
 	}
 
 	private void renderOverlay(int mx, int my) {
@@ -270,9 +260,10 @@ public abstract class SideConfigDisplay {
 //		RenderSystem.applyModelViewMatrix();
 //		// Restore projection matrix backed up in applyCamera
 //		RenderSystem.restoreProjectionMatrix();
-		// Restore full-screen viewport
-		Window win = Minecraft.getInstance().getWindow();
-		RenderSystem.viewport(0, 0, win.getWidth(), win.getHeight());
+		// Restore the full-screen draw area. RenderSystem.viewport is gone in 1.21.5 -- the
+		// viewport belongs to the RenderPass now -- so the scene rectangle is clipped with a
+		// scissor instead, which is what has to be lifted here.
+		RenderSystem.disableScissor();
 		// restore projection vanilla
 		RenderSystem.setProjectionMatrix(
 				Minecraft.getInstance().gameRenderer.getProjectionMatrix(70.0f),
@@ -281,9 +272,6 @@ public abstract class SideConfigDisplay {
 	}
 
 	private void renderScene() {
-		RenderSystem.enableCull();
-		RenderSystem.enableDepthTest();
-
 		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 		PoseStack poseStack = new PoseStack();
@@ -306,23 +294,17 @@ public abstract class SideConfigDisplay {
 		if (state.isAir()) return;
 		poseStack.pushPose();
 		poseStack.translate(pos.getX() - origin.x, pos.getY() - origin.y, pos.getZ() - origin.z);
+		// Blending comes with RenderType.translucent(); there is no global blend switch left.
 		RenderType renderType = transparent ? RenderType.translucent() : RenderType.solid();
-		if (transparent) {
-			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();
-		}
 		try {
+			// 1.21.5 collects the geometry up front instead of letting the dispatcher pull it
+			// from a model plus a RandomSource: renderBatched now takes the baked parts.
+			List<BlockModelPart> parts = blockRenderer.getBlockModel(state)
+				.collectParts(level, pos, state, level.getRandom());
 			blockRenderer.renderBatched(state, pos, level, poseStack,
-				bufferSource.getBuffer(renderType), false, level.getRandom(), ModelData.EMPTY, null);
+				bufferSource.getBuffer(renderType), false, parts);
 		} catch (Exception ignored) {}
 		poseStack.popPose();
-		if (transparent) {
-			RenderSystem.disableBlend();
-		}
-	}
-
-	public void renderBlock(BlockState state, BlockPos pos, BlockGetter blockAccess, BufferBuilder worldRendererIn) {
-		// no-op: block rendering now handled via renderBlockAt / BlockRenderDispatcher
 	}
 
 	private boolean updateCamera(float partialTick, int vpx, int vpy, int vpw, int vph) {
@@ -342,11 +324,14 @@ public abstract class SideConfigDisplay {
 
 	private void applyCamera(float partialTick) {
 		Rectangle vp = camera.getViewport();
-		// Set sub-viewport for the 3D scene rectangle
-		RenderSystem.viewport(vp.x, vp.y, vp.width, vp.height);
-		// Clear the depth buffer so blocks render over the GUI background
-		GlStateManager._clearDepth(1.0);
-		GlStateManager._clear(0x00000100 /* GL_DEPTH_BUFFER_BIT */);
+		// Clip drawing to the 3D scene rectangle. RenderSystem.viewport no longer exists in
+		// 1.21.5 (the viewport is a property of the RenderPass), so this is a scissor; the
+		// projection matrix set below is what actually maps the scene into the rectangle.
+		RenderSystem.enableScissor(vp.x, vp.y, vp.width, vp.height);
+		// Clear the depth buffer so blocks render over the GUI background. GlStateManager is
+		// no longer reachable from here either; clears go through the GPU command encoder.
+		RenderSystem.getDevice().createCommandEncoder()
+			.clearDepthTexture(Minecraft.getInstance().getMainRenderTarget().getDepthTexture(), 1.0);
 		// Swap in custom perspective projection matrix
 //		RenderSystem.backupProjectionMatrix();
 //		RenderSystem.setProjectionMatrix(toJoml(camera.getProjectionMatrix()), ProjectionType.PERSPECTIVE);
@@ -442,9 +427,5 @@ public abstract class SideConfigDisplay {
 		public static final Vector3d UP_V = new Vector3d(0, 1, 0);
 		public static final Vector3d ZERO_V = new Vector3d(0, 0, 0);
 		public static final ResourceLocation BLOCK_TEX = TextureAtlas.LOCATION_BLOCKS;
-
-		public static void bindBlockTexture() {
-			RenderSystem.setShaderTexture(0, BLOCK_TEX);
-		}
 	}
 }

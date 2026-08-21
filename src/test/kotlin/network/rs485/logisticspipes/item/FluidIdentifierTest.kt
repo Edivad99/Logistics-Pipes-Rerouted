@@ -104,7 +104,7 @@ class FluidIdentifierTest {
         val stack = ident.makeFluidStack(250)
 
         assertEquals(250, stack.amount)
-        assertEquals(7, stack.get(DataComponents.CUSTOM_DATA)!!.copyTag().getInt("lp_test"))
+        assertEquals(7, stack.get(DataComponents.CUSTOM_DATA)!!.copyTag().getIntOr("lp_test", 0))
     }
 
     // ── Identity ──────────────────────────────────────────────────────────────

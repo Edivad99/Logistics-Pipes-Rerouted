@@ -42,8 +42,11 @@ import network.rs485.logisticspipes.util.items.ItemStackLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+// Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
+// Iterable over its own pair type: the two Iterable parameterisations conflict. The pair
+// iteration is reached through contents() instead.
 public class ItemIdentifierInventory
-		implements IStore, Iterable<Pair<ItemIdentifierStack, Integer>>, IItemIdentifierInventory {
+		implements IStore, IItemIdentifierInventory {
 
 	private final Object[] ccTypeHolder = new Object[1];
 	private final ItemIdentifierStack[] contents;
@@ -225,12 +228,12 @@ public class ItemIdentifierInventory
 	}
 
 	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider, String prefix) {
-		ListTag listtag = tag.getList(prefix + "items", Tag.TAG_COMPOUND);
+		ListTag listtag = tag.getListOrEmpty(prefix + "items");
 
 		Arrays.fill(contents, null);
 		for (int j = 0; j < listtag.size(); ++j) {
-			CompoundTag compoundTag = listtag.getCompound(j);
-			int index = compoundTag.getInt("index");
+			CompoundTag compoundTag = listtag.getCompoundOrEmpty(j);
+			int index = compoundTag.getIntOr("index", 0);
 			if (index >= 0 && index < contents.length) {
 				ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(compoundTag, provider);
 				ItemIdentifierStack itemstack = ItemIdentifierStack.getFromStack(stack);
@@ -501,8 +504,7 @@ public class ItemIdentifierInventory
 		return true;
 	}
 
-	@Override
-    public Iterator<Pair<ItemIdentifierStack, Integer>> iterator() {
+    private Iterator<Pair<ItemIdentifierStack, Integer>> pairIterator() {
 		final Iterator<ItemIdentifierStack> iter = Arrays.asList(contents).iterator();
 		return new Iterator<>() {
 
@@ -553,7 +555,7 @@ public class ItemIdentifierInventory
 
 	@Override
 	public Iterable<Pair<ItemIdentifierStack, Integer>> contents() {
-		return this;
+		return this::pairIterator;
 	}
 
 	@Override

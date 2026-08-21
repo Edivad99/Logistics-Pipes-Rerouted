@@ -60,7 +60,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 }
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 return (int) LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.getAsString().equals(it.toString())))
+                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                     .count();
             }
 
@@ -72,7 +72,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 return TextUtil.translate(
                     "gui.compiler." + LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                        .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.getAsString().equals(it.toString())))
+                        .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                         .skip(index)
                         .findFirst()
                         .map(it -> String.format("%s.%s", it.getNamespace(), it.getPath()))
@@ -119,7 +119,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
 
                 ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
                 return listPrograms.stream()
-                    .anyMatch(it -> ResourceLocation.parse(it.getAsString()).equals(sel))
+                    .anyMatch(it -> ResourceLocation.parse(it.asString().orElse("")).equals(sel))
                     ? 0xAAFFAA : 0xFFAAAA;
             }
         };
@@ -142,7 +142,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
             if (categoryList.getSelected() != -1) {
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.getAsString().equals(it.toString())))
+                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                     .skip(categoryList.getSelected())
                     .findFirst()
                     .ifPresent(it -> MainProxy.sendPacketToServer(
@@ -183,7 +183,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 ResourceLocation sel = getProgramListForSelectionIndex(list).get(selIndex);
                 ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
                 boolean flag = listPrograms.stream()
-                    .anyMatch(it -> ResourceLocation.parse(it.getAsString()).equals(sel));
+                    .anyMatch(it -> ResourceLocation.parse(it.asString().orElse("")).equals(sel));
                 MainProxy.sendPacketToServer(PacketHandler.getPacket(CompilerTriggerTaskPacket.class).setCategory(sel)
                     .setType(flag ? "flash" : "program").setTilePos(compiler));
             }
@@ -248,7 +248,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 ResourceLocation sel = getProgramListForSelectionIndex(list).get(selIndex);
 
                 ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
-                if (listPrograms.stream().anyMatch(it -> ResourceLocation.parse(it.getAsString()).equals(sel))) {
+                if (listPrograms.stream().anyMatch(it -> ResourceLocation.parse(it.asString().orElse("")).equals(sel))) {
                     programmerButton.setMessage(Component.literal("Flash"));
                     programmerButton.active = !compiler.getInventory().getItem(1).isEmpty();
                 } else {
@@ -263,7 +263,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
         return list.stream()
             .flatMap(
                 nbtBase -> LogisticsProgramCompilerBlockEntity.programByCategory.get(
-                        ResourceLocation.parse(nbtBase.getAsString()))
+                        ResourceLocation.parse(nbtBase.asString().orElse("")))
                     .stream())
             .filter(it -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(it).getDescriptionId()).toLowerCase()
                 .contains(search.getValue().toLowerCase()))

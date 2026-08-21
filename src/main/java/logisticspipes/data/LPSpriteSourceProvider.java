@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 
-import net.neoforged.neoforge.common.data.SpriteSourceProvider;
+import net.neoforged.neoforge.client.data.SpriteSourceProvider;
 
 import logisticspipes.LPConstants;
 

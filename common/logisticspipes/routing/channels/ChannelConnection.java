@@ -9,6 +9,6 @@ import lombok.Data;
 @Data
 public class ChannelConnection {
 
-	public Set<Integer> routers = new HashSet<>();
-	public UUID identifier;
+    public Set<Integer> routers = new HashSet<>();
+    public UUID identifier;
 }

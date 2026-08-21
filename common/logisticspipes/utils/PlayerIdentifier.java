@@ -13,6 +13,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -20,6 +23,11 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(chain = true)
 public class PlayerIdentifier {
+
+    public static final Codec<PlayerIdentifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.STRING.optionalFieldOf("username").forGetter(identifier -> Optional.ofNullable(identifier.getUsername())),
+        UUIDUtil.STRING_CODEC.optionalFieldOf("id").forGetter(identifier -> Optional.ofNullable(identifier.getId()))
+    ).apply(instance, (username, id) -> PlayerIdentifier.get(username.orElse(null), id.orElse(null))));
 
     public static final StreamCodec<ByteBuf, PlayerIdentifier> STREAM_CODEC =
         StreamCodec.composite(
@@ -66,13 +74,13 @@ public class PlayerIdentifier {
     public static PlayerIdentifier readFromNBT(CompoundTag nbt, String prefix) {
         UUID id = null;
         if (nbt.contains(prefix + "_id")) {
-            String tmp = nbt.getString(prefix + "_id");
+            String tmp = nbt.getStringOr(prefix + "_id", "");
             try {
                 id = UUID.fromString(tmp);
             } catch (Exception ignored) {
             }
         }
-        String username = nbt.getString(prefix + "_name");
+        String username = nbt.getStringOr(prefix + "_name", "");
         return PlayerIdentifier.get(username, id);
     }
 
