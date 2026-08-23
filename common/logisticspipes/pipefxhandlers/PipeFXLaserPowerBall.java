@@ -3,27 +3,21 @@ package logisticspipes.pipefxhandlers;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.minecraft.client.renderer.MultiBufferSource;
-
-import logisticspipes.client.renderer.LPRenderTypes;
+import logisticspipes.client.particle.GlowGeometryParticle;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
-public class PipeFXLaserPowerBall extends Particle {
+public class PipeFXLaserPowerBall extends GlowGeometryParticle {
 
 	private final float r;
 	private final float g;
 	private final float b;
 
 	public PipeFXLaserPowerBall(ClientLevel level, DoubleCoordinates pos, int color, BlockEntity tile) {
-		super(level, pos.getXCoord() + 0.5D, pos.getYCoord() + 0.5D, pos.getZCoord() + 0.5D, 0.0D, 0.0D, 0.0D);
+		super(level, pos.getXCoord() + 0.5D, pos.getYCoord() + 0.5D, pos.getZCoord() + 0.5D);
 		this.r = ((color >> 16) & 0xFF) / 255.0f;
 		this.g = ((color >> 8) & 0xFF) / 255.0f;
 		this.b = (color & 0xFF) / 255.0f;
@@ -34,12 +28,7 @@ public class PipeFXLaserPowerBall extends Particle {
 	}
 
 	@Override
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-	}
-
-	@Override
-	public void render(VertexConsumer ignored, Camera camera, float partialTicks) {
+	public void emit(VertexConsumer bb, Camera camera, float partialTicks) {
 		double px = Mth.lerp(partialTicks, xo, x) - camera.getPosition().x;
 		double py = Mth.lerp(partialTicks, yo, y) - camera.getPosition().y;
 		double pz = Mth.lerp(partialTicks, zo, z) - camera.getPosition().z;
@@ -57,18 +46,11 @@ public class PipeFXLaserPowerBall extends Particle {
 
 		float s = this.bbWidth * 0.5f;
 
-		// Blending and the disabled depth write are declared by LPRenderTypes.GLOW rather than
-		// set here: 1.21.5 removed RenderSystem.enableBlend/depthMask and BufferUploader.
-		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-		VertexConsumer bb = bufferSource.getBuffer(LPRenderTypes.GLOW);
-
 		// Two crossed billboard quads for a glowing ball look
 		billboardVertex(bb, px, py, pz, right, up,  s,  s, ri, gi, bi, ai);
 		billboardVertex(bb, px, py, pz, right, up, -s,  s, ri, gi, bi, ai);
 		billboardVertex(bb, px, py, pz, right, up, -s, -s, ri, gi, bi, ai);
 		billboardVertex(bb, px, py, pz, right, up,  s, -s, ri, gi, bi, ai);
-
-		bufferSource.endBatch(LPRenderTypes.GLOW);
 	}
 
 	private static void billboardVertex(VertexConsumer bb, double cx, double cy, double cz,

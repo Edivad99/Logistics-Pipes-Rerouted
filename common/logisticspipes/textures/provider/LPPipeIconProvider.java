@@ -11,7 +11,7 @@ public class LPPipeIconProvider implements IIconProvider {
 	private ArrayList<TextureAtlasSprite> icons;
 
 	public LPPipeIconProvider() {
-		if (FMLEnvironment.dist == Dist.CLIENT) {
+		if (FMLEnvironment.getDist() == Dist.CLIENT) {
 			icons = new ArrayList<>();
 		}
 	}

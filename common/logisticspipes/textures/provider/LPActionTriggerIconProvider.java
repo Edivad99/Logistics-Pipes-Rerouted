@@ -18,7 +18,7 @@ public class LPActionTriggerIconProvider implements IIconProvider {
 	private TextureAtlasSprite[] icons;
 
 	public LPActionTriggerIconProvider() {
-		if (FMLEnvironment.dist == Dist.CLIENT) {
+		if (FMLEnvironment.getDist() == Dist.CLIENT) {
 			icons = new TextureAtlasSprite[7];
 		}
 	}

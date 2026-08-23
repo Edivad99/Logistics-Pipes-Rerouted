@@ -62,7 +62,6 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
-import net.neoforged.neoforge.items.IItemHandler;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.PlayerConfiguration;
 import network.rs485.logisticspipes.module.AsyncQuicksortModule;
@@ -75,7 +74,7 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void onEntitySpawn(EntityJoinLevelEvent event) {
-		if (event.getEntity() instanceof ItemEntity itemEntity && !event.getLevel().isClientSide) {
+		if (event.getEntity() instanceof ItemEntity itemEntity && !event.getLevel().isClientSide()) {
 			ItemStack stack = itemEntity.getItem();
 			if (!stack.isEmpty() &&
 					stack.getItem() instanceof IItemAdvancedExistance itemAdvancedExistence &&
@@ -138,7 +137,7 @@ public class LogisticsEventListener {
 		BlockEntity te = level.getBlockEntity(pos);
 		if (te == null) return;
 		// Only act on blocks that expose an item handler (chests, barrels, etc.)
-		IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+		var itemHandler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
 		if (itemHandler == null) return;
 
 		Player player = event.getEntity();
@@ -338,7 +337,7 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void onItemCrafting(PlayerEvent.ItemCraftedEvent event) {
-		if (!event.getEntity().level().isClientSide && !event.getCrafting().isEmpty()) {
+		if (!event.getEntity().level().isClientSide() && !event.getCrafting().isEmpty()) {
 			if (BuiltInRegistries.ITEM.getKey(event.getCrafting().getItem()).getNamespace().equals(LPConstants.ID)) {
 				PlayerIdentifier identifier = PlayerIdentifier.get(event.getEntity());
 				PlayerConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(identifier);

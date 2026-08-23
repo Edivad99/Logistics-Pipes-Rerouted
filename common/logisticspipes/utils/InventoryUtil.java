@@ -16,15 +16,18 @@ import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import logisticspipes.utils.transfer.ItemHandlers;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 
-	protected final IItemHandler inventory;
+	protected final ResourceHandler<ItemResource> inventory;
 	private final ProviderMode mode;
 
-	public InventoryUtil(IItemHandler inventory, ProviderMode mode) {
+	public InventoryUtil(ResourceHandler<ItemResource> inventory, ProviderMode mode) {
 		this.inventory = inventory;
 		this.mode = mode;
 	}
@@ -33,8 +36,8 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 	public int itemCount(ItemIdentifier item) {
 		int count = 0;
 		boolean first = true;
-		for (int i = mode.getCropStart(); i < inventory.getSlots() - mode.getCropEnd(); i++) {
-			ItemStack stack = inventory.getStackInSlot(i);
+		for (int i = mode.getCropStart(); i < inventory.size() - mode.getCropEnd(); i++) {
+			ItemStack stack = ItemUtil.getStack(inventory, i);
 			if (stack.isEmpty() || !ItemIdentifier.get(stack).equals(item)) {
 				continue;
 			}
@@ -51,8 +54,8 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 	@Override
     public Map<ItemIdentifier, Integer> getItemsAndCount() {
 		Map<ItemIdentifier, Integer> items = new LinkedHashMap<>();
-		for (int i = mode.getCropStart(); i < inventory.getSlots() - mode.getCropEnd(); i++) {
-			ItemStack stack = inventory.getStackInSlot(i);
+		for (int i = mode.getCropStart(); i < inventory.size() - mode.getCropEnd(); i++) {
+			ItemStack stack = ItemUtil.getStack(inventory, i);
 			if (stack.isEmpty()) {
 				continue;
 			}
@@ -71,8 +74,8 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 	@Override
     public Set<ItemIdentifier> getItems() {
 		Set<ItemIdentifier> items = new TreeSet<>();
-		for (int i = mode.getCropStart(); i < inventory.getSlots() - mode.getCropEnd(); i++) {
-			ItemStack stack = inventory.getStackInSlot(i);
+		for (int i = mode.getCropStart(); i < inventory.size() - mode.getCropEnd(); i++) {
+			ItemStack stack = ItemUtil.getStack(inventory, i);
 			if (stack.isEmpty()) {
 				continue;
 			}
@@ -94,8 +97,8 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 		ItemStack outputStack = ItemStack.EMPTY;
 		boolean first = true;
 
-		for (int i = mode.getCropStart(); i < inventory.getSlots() - mode.getCropEnd() && count > 0; i++) {
-			ItemStack stack = inventory.getStackInSlot(i);
+		for (int i = mode.getCropStart(); i < inventory.size() - mode.getCropEnd() && count > 0; i++) {
+			ItemStack stack = ItemUtil.getStack(inventory, i);
 			if (stack.isEmpty() || (stack.getCount() == 1 && mode.getHideOnePerStack()) || !ItemIdentifier.get(stack).equals(item)) {
 				continue;
 			}
@@ -104,7 +107,7 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 			if (itemsToSplit == 0) {
 				continue;
 			}
-			ItemStack removed = inventory.extractItem(i, itemsToSplit, false);
+			ItemStack removed = ItemHandlers.extractItem(inventory, i, itemsToSplit, false);
 			if (outputStack.isEmpty()) {
 				outputStack = removed;
 			} else {
@@ -118,8 +121,8 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 	//Ignores slot/item hiding
 	@Override
 	public boolean containsUndamagedItem(ItemIdentifier item) {
-		for (int i = 0; i < inventory.getSlots(); i++) {
-			ItemStack stack = inventory.getStackInSlot(i);
+		for (int i = 0; i < inventory.size(); i++) {
+			ItemStack stack = ItemUtil.getStack(inventory, i);
 			if (stack.isEmpty()) {
 				continue;
 			}
@@ -133,8 +136,8 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 	@Override
 	public int roomForItem(ItemStack stack) {
 		// Special casing for "unlimited" storage items
-		if (inventory.getSlots() == 1 && inventory.getSlotLimit(0) == Integer.MAX_VALUE) {
-			ItemStack content = inventory.extractItem(0, Integer.MAX_VALUE, true);
+		if (inventory.size() == 1 && ItemHandlers.slotLimit(inventory, 0) == Integer.MAX_VALUE) {
+			ItemStack content = ItemHandlers.extractItem(inventory, 0, Integer.MAX_VALUE, true);
 			if (content.isEmpty()) {
 				return Integer.MAX_VALUE;
 			}
@@ -142,10 +145,10 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 		}
 
 		int totalRoom = 0;
-		for (int i = 0; i < inventory.getSlots() && stack.getCount() > totalRoom; i++) {
+		for (int i = 0; i < inventory.size() && stack.getCount() > totalRoom; i++) {
 			// stack.copy() because other TileEntities might modify stack.
 			// "This must not be modified by the item handler." lol
-			ItemStack leftover = inventory.insertItem(i, stack.copy(), true);
+			ItemStack leftover = ItemUtil.insertItemReturnRemaining(inventory, i, stack.copy(), true, null);
 			totalRoom += stack.getCount() - leftover.getCount();
 		}
 		return totalRoom;
@@ -153,23 +156,23 @@ public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 
 	@Override
 	public int getContainerSize() {
-		return inventory.getSlots();
+		return inventory.size();
 	}
 
 	@Override
     public ItemStack getItem(int i) {
-		return inventory.getStackInSlot(i);
+		return ItemUtil.getStack(inventory, i);
 	}
 
 	@Override
     public ItemStack removeItem(int i, int j) {
-		return inventory.extractItem(i, j, false);
+		return ItemHandlers.extractItem(inventory, i, j, false);
 	}
 
 	@Override
 	public int addToSlot(ItemStack stack, int slot) {
 		int wanted = stack.getCount();
-		ItemStack rest = inventory.insertItem(slot, stack.copy(), false);
+		ItemStack rest = ItemUtil.insertItemReturnRemaining(inventory, slot, stack.copy(), false, null);
 		return wanted - rest.getCount();
 	}
 }

@@ -1,16 +1,23 @@
 package logisticspipes.client.renderer.blockentity;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
+import net.minecraft.data.AtlasIds;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -35,7 +42,7 @@ import network.rs485.logisticspipes.world.DoubleCoordinates;
  * <p>Each {@link LogisticsSolidBlock.Type} maps to a sprite at
  * {@code logisticspipes:solid_block/<name>} which is used as the plate texture.</p>
  */
-public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
+public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements BlockEntityRenderer<T, SolidBlockRenderState> {
 
     private static final Map<LogisticsSolidBlock.Type, TextureAtlasSprite> SPRITE_CACHE =
         new EnumMap<>(LogisticsSolidBlock.Type.class);
@@ -74,8 +81,9 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
         }
         String name = textureNameFor(type) + (useActive ? "_active" : "");
         TextureAtlasSprite sprite = Minecraft.getInstance()
-            .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-            .apply(LPConstants.rl("solid_block/" + name));
+            .getAtlasManager()
+            .getAtlasOrThrow(AtlasIds.BLOCKS)
+            .getSprite(LPConstants.rl("solid_block/" + name));
         cache.put(type, sprite);
         return sprite;
     }
@@ -86,68 +94,97 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
     }
 
     /**
-     * Shared draw path used by both the in-world BER and the item BEWLR.
+     * Shared draw path used by both the in-world BER and the item renderer.
+     *
+     * <p>Both go through {@code submitCustomGeometry}, which is 1.21.9's replacement for pulling a
+     * buffer out of a {@code MultiBufferSource} and writing to it: the collector snapshots the
+     * current pose and calls back at draw time with it and the vertex consumer for the render
+     * type. LP's mesh emitter already worked against a {@code PoseStack.Pose}, so the callback
+     * hands it straight through.</p>
      */
-    public static void renderSolid(LogisticsSolidBlock.Type type, PoseStack pose,
-        MultiBufferSource buffers, int light, int overlay) {
-        SolidBlockModelParts parts = PipeModelStore.solidBlock();
+    public static void submitSolid(LogisticsSolidBlock.Type type, PoseStack poseStack,
+        SubmitNodeCollector collector, int light, int overlay) {
         TextureAtlasSprite icon = getIcon(type);
+        // The frame draws no cover plates in the inventory render; mirror that.
+        EnumSet<SolidBlockModelParts.CoverSide> plates = type == LogisticsSolidBlock.Type.LOGISTICS_BLOCK_FRAME
+            ? EnumSet.noneOf(SolidBlockModelParts.CoverSide.class)
+            : EnumSet.allOf(SolidBlockModelParts.CoverSide.class);
+        submit(poseStack, collector, icon, 0, plates, light, overlay);
+    }
+
+    private static void submit(PoseStack poseStack, SubmitNodeCollector collector,
+        @Nullable TextureAtlasSprite icon, int rotation,
+        EnumSet<SolidBlockModelParts.CoverSide> plates, int light, int overlay) {
+        SolidBlockModelParts parts = PipeModelStore.solidBlock();
         if (parts.isEmpty() || icon == null) {
             return;
         }
-
-        VertexConsumer buffer = buffers.getBuffer(RenderType.cutoutMipped());
-        MeshRenderer.emit(buffer, pose.last(), parts.body(0), icon, light, overlay);
-
-        // The frame draws no cover plates in the inventory render; mirror that.
-        if (type != LogisticsSolidBlock.Type.LOGISTICS_BLOCK_FRAME) {
-            for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
-                MeshRenderer.emit(buffer, pose.last(), parts.outerPlate(side, 0), icon, light, overlay);
-                MeshRenderer.emit(buffer, pose.last(), parts.innerPlate(side, 0), icon, light, overlay);
+        collector.submitCustomGeometry(poseStack, RenderType.cutoutMipped(), (pose, buffer) -> {
+            MeshRenderer.emit(buffer, pose, parts.body(rotation), icon, light, overlay);
+            for (SolidBlockModelParts.CoverSide side : plates) {
+                MeshRenderer.emit(buffer, pose, parts.outerPlate(side, rotation), icon, light, overlay);
+                MeshRenderer.emit(buffer, pose, parts.innerPlate(side, rotation), icon, light, overlay);
             }
-        }
+        });
     }
 
     @Override
-    public void render(T be, float partialTicks, PoseStack pose,
-        MultiBufferSource buffers, int light, int overlay, Vec3 cameraPos) {
+    public SolidBlockRenderState createRenderState() {
+        return new SolidBlockRenderState();
+    }
+
+    @Override
+    public void extractRenderState(T be, SolidBlockRenderState state, float partialTicks, Vec3 cameraPos,
+        @Nullable ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPos, breakProgress);
+        state.type = null;
+        state.icon = null;
+        state.rotation = 0;
+        state.plates.clear();
+
         Block block = be.getBlockState().getBlock();
-        if (!(block instanceof LogisticsSolidBlock)) {
+        if (!(block instanceof LogisticsSolidBlock solidBlock)) {
             return;
         }
-        LogisticsSolidBlock.Type type = ((LogisticsSolidBlock) block).getType();
+        LogisticsSolidBlock.Type type = solidBlock.getType();
+        state.type = type;
+
         if (!(be instanceof LogisticsSolidBlockEntity tile) || be.getLevel() == null) {
-            renderSolid(type, pose, buffers, light, overlay);
+            // No tile to ask: fall back to the inventory look, all plates on.
+            state.icon = getIcon(type);
+            if (type != LogisticsSolidBlock.Type.LOGISTICS_BLOCK_FRAME) {
+                state.plates.addAll(EnumSet.allOf(SolidBlockModelParts.CoverSide.class));
+            }
             return;
         }
 
-        SolidBlockModelParts parts = PipeModelStore.solidBlock();
-        TextureAtlasSprite icon = getIcon(type, tile.isActive());
-        if (parts.isEmpty() || icon == null) {
-            return;
-        }
-
+        state.icon = getIcon(type, tile.isActive());
         int rotation = tile.getRotation();
-        if (rotation < 0 || rotation > 3) {
-            rotation = 0;
-        }
-
-        VertexConsumer buffer = buffers.getBuffer(RenderType.cutoutMipped());
-        MeshRenderer.emit(buffer, pose.last(), parts.body(rotation), icon, light, overlay);
+        state.rotation = rotation < 0 || rotation > 3 ? 0 : rotation;
 
         // LP1 hid the cover plates on sides where an adjacent LP pipe connects into this
         // block, so the pipe visually enters the machine.
         DoubleCoordinates pos = new DoubleCoordinates(tile);
         for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
-            DoubleCoordinates newPos = CoordinateUtils.sum(pos, side.facing(rotation));
+            Direction facing = side.facing(state.rotation);
+            DoubleCoordinates newPos = CoordinateUtils.sum(pos, facing);
             BlockEntity sideTile = newPos.getTileEntity(tile.getLevel());
             if (sideTile instanceof LogisticsTileGenericPipe tilePipe
                 && tilePipe.renderState != null
-                && tilePipe.renderState.pipeConnectionMatrix.isConnected(side.facing(rotation).getOpposite())) {
+                && tilePipe.renderState.pipeConnectionMatrix.isConnected(facing.getOpposite())) {
                 continue;
             }
-            MeshRenderer.emit(buffer, pose.last(), parts.outerPlate(side, rotation), icon, light, overlay);
-            MeshRenderer.emit(buffer, pose.last(), parts.innerPlate(side, rotation), icon, light, overlay);
+            state.plates.add(side);
         }
+    }
+
+    @Override
+    public void submit(SolidBlockRenderState state, PoseStack poseStack, SubmitNodeCollector collector,
+        CameraRenderState cameraState) {
+        if (state.type == null) {
+            return;
+        }
+        submit(poseStack, collector, state.icon, state.rotation, state.plates,
+            state.lightCoords, OverlayTexture.NO_OVERLAY);
     }
 }

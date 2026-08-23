@@ -13,10 +13,14 @@ import javax.annotation.Nullable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
@@ -64,8 +68,8 @@ public class InventoryUtilFactory {
 			// block entity up on the level, and that goes through getChunk() — a *blocking chunk load*.
 			// Called from the pipe adjacency scan, which also runs while a chunk is being unloaded, it
 			// would start a chunk generation task the server can no longer finish and hang the save.
-			IItemHandler handler = tile.getLevel().getCapability(
-					Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), tile.getBlockState(), tile, direction);
+			var handler = tile.getLevel().getCapability(
+					Capabilities.Item.BLOCK, tile.getBlockPos(), tile.getBlockState(), tile, direction);
 			if (handler != null) {
 				return new InventoryUtil(handler, mode);
 			}

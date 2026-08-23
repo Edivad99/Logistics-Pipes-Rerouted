@@ -34,6 +34,9 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -193,10 +196,13 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	public boolean mouseClicked(double i, double j, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double i = event.x();
+		double j = event.y();
+		int k = event.button();
 		itemDisplay.handleClick((int) i, (int) j, k);
 		search.handleClick((int) i, (int) j, k);
-		return super.mouseClicked(i, j, k);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
@@ -281,12 +287,14 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		if (search.isFocused()) {
 			if (!search.isEmpty() && search.handleKey(c, i)) {
 				return true;
 			}
-		} else if (Screen.hasAltDown() && StringUtil.isAllowedChatCharacter(c)) {
+		} else if (Minecraft.getInstance().hasAltDown() && StringUtil.isAllowedChatCharacter(c)) {
 			itemDisplay.setFocused(false);
 			search.setFocused(true);
 			search.setValue("");
@@ -296,7 +304,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		if (!itemDisplay.keyTyped(c, i)) {
 			// Track everything except Escape when in search bar
 			if (i == 1 || !search.handleKey(c, i)) {
-				return super.charTyped(c, i);
+				return super.charTyped(event);
 			}
 		}
 		return false;

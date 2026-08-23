@@ -55,7 +55,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 		AtomicInteger attemptedAmount = new AtomicInteger();
 		amountToSend.set(Math.min(order.getAmount(), 5000));
 		attemptedAmount.set(Math.min(order.getAmount(), 5000));
-		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.getAdjacentTanks(this, false)) {
 			if (amountToSend.get() <= 0) {
 				break;
 			}
@@ -129,7 +129,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 	@Override
 	public Map<FluidIdentifier, Integer> getAvailableFluids() {
 		Map<FluidIdentifier, Integer> map = new HashMap<>();
-		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.getAdjacentTanks(this, false)) {
 			boolean fallback = true;
 			if (pair.getValue2() instanceof ISpecialTankUtil) {
 				final ISpecialTankUtil util = (ISpecialTankUtil) pair.getValue2();
@@ -193,7 +193,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 		}
 		FluidIdentifier fluid = ((FluidResource) tree.getRequestType()).getFluid();
 		AtomicInteger containedAmount = new AtomicInteger(0);
-		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.getAdjacentTanks(this, false)) {
 			boolean fallback = true;
 			if (pair.getValue2() instanceof ISpecialTankUtil) {
 				final ISpecialTankUtil util = (ISpecialTankUtil) pair.getValue2();
@@ -251,7 +251,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 	@Override
 	//work in progress, currently not active code.
 	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
-		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+		for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.getAdjacentTanks(this, false)) {
 			boolean fallback = true;
 			if (pair.getValue2() instanceof ISpecialTankUtil) {
 				final ISpecialTankUtil util = (ISpecialTankUtil) pair.getValue2();

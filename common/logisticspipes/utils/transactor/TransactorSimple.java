@@ -5,20 +5,23 @@ import java.util.List;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import logisticspipes.utils.transfer.ItemHandlers;
 
 public class TransactorSimple extends Transactor {
 
-	protected IItemHandler inventory;
+	protected ResourceHandler<ItemResource> inventory;
 
-	public TransactorSimple(IItemHandler inventory) {
+	public TransactorSimple(ResourceHandler<ItemResource> inventory) {
 		this.inventory = inventory;
 	}
 
 	@Override
 	public int inject(ItemStack stack, Direction orientation, boolean doAdd) {
-		List<IInvSlot> filledSlots = new ArrayList<>(inventory.getSlots());
-		List<IInvSlot> emptySlots = new ArrayList<>(inventory.getSlots());
+		List<IInvSlot> filledSlots = new ArrayList<>(inventory.size());
+		List<IInvSlot> emptySlots = new ArrayList<>(inventory.size());
 		for (IInvSlot slot : InventoryIterator.getIterable(inventory, orientation)) {
 			if (slot.canPutStackInSlot(stack)) {
 				if (slot.getItem().isEmpty()) {

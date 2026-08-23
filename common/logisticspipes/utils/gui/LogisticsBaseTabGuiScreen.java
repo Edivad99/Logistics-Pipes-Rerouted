@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -73,7 +75,10 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double par1, double par2, int par3) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double par1 = event.x();
+		double par2 = event.y();
+		int par3 = event.button();
 		if (par3 == 0 && par1 > leftPos && par1 < leftPos + 220 && par2 > topPos && par2 < topPos + 20) {
 			par1 -= leftPos + 3;
 			int select = Math.max(0, Math.min((int)(par1 / 25), tabList.size() - 1));
@@ -91,12 +96,14 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 					}
 				}
 			}
-			return super.mouseClicked(par1, par2, par3);
+			return super.mouseClicked(event, doubleClick);
 		}
 	}
 
 	@Override
-	public boolean charTyped(char p_73869_1_, int p_73869_2_) {
+	public boolean charTyped(CharacterEvent event) {
+		char p_73869_1_ = (char) event.codepoint();
+		int p_73869_2_ = event.modifiers();
 		for (int i = 0; i < tabList.size(); i++) {
 			if (current_Tab == i) {
 				if (tabList.get(i).handleKey(p_73869_2_, p_73869_1_)) {
@@ -107,7 +114,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 		if (p_73869_2_ == 1) {
 			tabList.forEach(TabSubGui::guiClose);
 		}
-		return super.charTyped(p_73869_1_, p_73869_2_);
+		return super.charTyped(event);
 	}
 
 	@Override

@@ -4,21 +4,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.client.renderer.MultiBufferSource;
 
-import logisticspipes.client.renderer.LPRenderTypes;
+import logisticspipes.client.particle.GlowGeometryParticle;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 @Accessors(chain = true)
-public class PipeFXLaserPowerBeam extends Particle {
+public class PipeFXLaserPowerBeam extends GlowGeometryParticle {
 
 	@Setter
 	private boolean reverse = false;
@@ -30,7 +25,7 @@ public class PipeFXLaserPowerBeam extends Particle {
 	private final float b;
 
 	public PipeFXLaserPowerBeam(ClientLevel level, DoubleCoordinates pos, float length, Direction dir, int color, BlockEntity tile) {
-		super(level, pos.getXCoord() + 0.5D, pos.getYCoord() + 0.5D, pos.getZCoord() + 0.5D, 0.0D, 0.0D, 0.0D);
+		super(level, pos.getXCoord() + 0.5D, pos.getYCoord() + 0.5D, pos.getZCoord() + 0.5D);
 		this.length = length;
 		this.dir = dir;
 		this.r = ((color >> 16) & 0xFF) / 255.0f;
@@ -41,12 +36,7 @@ public class PipeFXLaserPowerBeam extends Particle {
 	}
 
 	@Override
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-	}
-
-	@Override
-	public void render(VertexConsumer ignored, Camera camera, float partialTicks) {
+	public void emit(VertexConsumer bb, Camera camera, float partialTicks) {
 		double px = Mth.lerp(partialTicks, xo, x) - camera.getPosition().x;
 		double py = Mth.lerp(partialTicks, yo, y) - camera.getPosition().y;
 		double pz = Mth.lerp(partialTicks, zo, z) - camera.getPosition().z;
@@ -76,16 +66,9 @@ public class PipeFXLaserPowerBeam extends Particle {
 		int bi = (int) (b * 255);
 		int ai = 200;
 
-		// Blending and the disabled depth write are declared by LPRenderTypes.GLOW rather than
-		// set here: 1.21.5 removed RenderSystem.enableBlend/depthMask and BufferUploader.
-		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-		VertexConsumer bb = bufferSource.getBuffer(LPRenderTypes.GLOW);
-
 		// Two crossed quads along the beam axis for a 3D beam look
 		beamQuad(bb, px, py, pz, ax, ay, az, length, p1x, p1y, p1z, ri, gi, bi, ai);
 		beamQuad(bb, px, py, pz, ax, ay, az, length, p2x, p2y, p2z, ri, gi, bi, ai);
-
-		bufferSource.endBatch(LPRenderTypes.GLOW);
 	}
 
 	/** Render one flat quad along the beam axis, offset by ±perp. */

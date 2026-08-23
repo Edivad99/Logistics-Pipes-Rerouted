@@ -20,7 +20,6 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -306,8 +305,8 @@ public class ItemDisplay {
 	}
 
 	public void handleMouse(double scrollY) {
-		boolean isShift = Screen.hasShiftDown();
-		boolean isControl = Screen.hasControlDown();
+		boolean isShift = Minecraft.getInstance().hasShiftDown();
+		boolean isControl = Minecraft.getInstance().hasControlDown();
 		int wheel = (int)(scrollY);
 		if (wheel == 0) {
 			return;
@@ -492,10 +491,10 @@ public class ItemDisplay {
 
 	public boolean keyTyped(char c, int i) {
 		if (!requestCountBar.handleKey(c, i)) {
-			if (i == 30 && Screen.hasControlDown()) { //Ctrl-a
+			if (i == 30 && Minecraft.getInstance().hasControlDown()) { //Ctrl-a
 				setMaxAmount();
 				return true;
-			} else if (i == 32 && Screen.hasControlDown()) { //Ctrl-d
+			} else if (i == 32 && Minecraft.getInstance().hasControlDown()) { //Ctrl-d
 				resetAmount();
 				return true;
 			} else if (i == 201) { //PgUp

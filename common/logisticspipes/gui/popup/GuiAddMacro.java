@@ -17,9 +17,10 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -148,7 +149,10 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	public boolean mouseClicked(double i, double j, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double i = event.x();
+		double j = event.y();
+		int k = event.button();
 		mousePosX = (int) i;
 		mousePosY = (int) j;
 		mouseButton = k;
@@ -164,7 +168,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			editSearch = false;
 			editName = false;
 		}
-		return super.mouseClicked(i, j, k);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	// Deferred: scroll wheel handling not wired
@@ -455,12 +459,14 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		if (editName) {
 			if (c == 13) {
 				editName = false;
 				return true;
-			} else if (i == 47 && Screen.hasControlDown()) {
+			} else if (i == 47 && Minecraft.getInstance().hasControlDown()) {
 				name1 = name1 + Minecraft.getInstance().keyboardHandler.getClipboard();
 			} else if (c == 8) {
 				if (name1.length() > 0) {
@@ -501,7 +507,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			if (c == 13) {
 				editSearch = false;
 				return true;
-			} else if (i == 47 && Screen.hasControlDown()) {
+			} else if (i == 47 && Minecraft.getInstance().hasControlDown()) {
 				Search1 = Search1 + Minecraft.getInstance().keyboardHandler.getClipboard();
 			} else if (c == 8) {
 				if (Search1.length() > 0) {
@@ -539,7 +545,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 				}
 			}
 		} else {
-			return super.charTyped(c, i);
+			return super.charTyped(event);
 		}
 		return false;
 	}

@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
@@ -67,8 +68,8 @@ open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) :
     // LP1 routed clicks through GuiScreen.mouseClicked -> mousePressed -> actionPerformed ->
     // click(0). In the 1.20.1 Screen model each widget receives mouseClicked itself; hit-test
     // against the body rectangle (not the vanilla widget x/y) like LP1's mousePressed did.
-    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (button != 0 || !isHovered(mouseX.toInt(), mouseY.toInt())) return false
+    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        if (event.button() != 0 || !isHovered(event.x.toInt(), event.y.toInt())) return false
         return click(0).also { if (it) playDownSound(Minecraft.getInstance().soundManager) }
     }
 

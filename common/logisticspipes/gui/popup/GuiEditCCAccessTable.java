@@ -10,9 +10,10 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiEditCCAccessTable extends SubGuiScreen {
@@ -129,10 +130,13 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double i, double j, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double i = event.x();
+		double j = event.y();
+		int k = event.button();
 		clickWasButton = false;
 		editSearchB = true;
-		boolean result = super.mouseClicked(i, j, k);
+		boolean result = super.mouseClicked(event, doubleClick);
 		if ((!clickWasButton && i >= guiLeft + 10 && i < right - 10 && j >= guiTop + 18 && j < bottom - 10) || editSearch) {
 			if (!editSearchB) {
 				editSearch = false;
@@ -220,12 +224,14 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		if (editSearch) {
 			if (c == 13) {
 				editSearch = false;
 				return true;
-			} else if (i == 47 && Screen.hasControlDown()) {
+			} else if (i == 47 && Minecraft.getInstance().hasControlDown()) {
 				try {
 					String clip = Minecraft.getInstance().keyboardHandler.getClipboard();
 					Integer.valueOf(clip);
@@ -269,7 +275,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 				}
 			}
 		} else {
-			return super.charTyped(c, i);
+			return super.charTyped(event);
 		}
 		return false;
 	}

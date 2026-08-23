@@ -7,6 +7,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -128,10 +129,10 @@ public class CardManagementInventory implements Container {
 	public void setChanged() {}
 
 	@Override
-	public void startOpen(Player player) {}
+	public void startOpen(ContainerUser containerUser) {}
 
 	@Override
-	public void stopOpen(Player player) {}
+	public void stopOpen(ContainerUser containerUser) {}
 
 	@Override
 	public boolean canPlaceItem(int i, ItemStack itemstack) {

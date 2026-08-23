@@ -32,7 +32,7 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
 	@Override
 	public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
 		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
-			if (!entityplayer.level().isClientSide) {
+			if (!entityplayer.level().isClientSide()) {
                 MutableComponent resp;
 				if (settings == null || settings.openRequest) {
 					ItemStack orderer = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);

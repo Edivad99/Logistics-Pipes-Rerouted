@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -80,7 +80,7 @@ public class ItemUpgrade extends LogisticsItem {
         if (pipe.isEmpty() && module.isEmpty()) {
             return;
         }
-        if (Screen.hasShiftDown()) {
+        if (Minecraft.getInstance().hasShiftDown()) {
             if (!pipe.isEmpty() && !module.isEmpty()) {
                 //Can be applied to {0} pipes
                 //and {0} modules

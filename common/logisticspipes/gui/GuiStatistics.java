@@ -32,6 +32,8 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.math.Vec2;
 import logisticspipes.utils.string.StringUtils;
 
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -83,11 +85,14 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int clickedMouseButton, double deltaX, double deltaY) {
+	public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int clickedMouseButton = event.button();
 		getActiveTab().onMouseDrag((int)mouseX, (int)mouseY, (int)(mouseX - prevMouseDragX), (int)(mouseY - prevMouseDragY));
 		prevMouseDragX = (int)mouseX;
 		prevMouseDragY = (int)mouseY;
-		return super.mouseDragged(mouseX, mouseY, clickedMouseButton, deltaX, deltaY);
+		return super.mouseDragged(event, deltaX, deltaY);
 	}
 
 	@Override
@@ -121,13 +126,18 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		getActiveTab().charTyped(c, i);
-		return super.charTyped(c, i);
+		return super.charTyped(event);
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int mouseButton = event.button();
 		prevMouseDragX = (int)mouseX;
 		prevMouseDragY = (int)mouseY;
 
@@ -136,7 +146,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 			currentTab = max(0, min((int)(tabX / 25), tabs.size() - 1));
 		} else {
 			getActiveTab().handleClick((int)mouseX, (int)mouseY, mouseButton);
-			return super.mouseClicked(mouseX, mouseY, mouseButton);
+			return super.mouseClicked(event, doubleClick);
 		}
 		return true;
 	}

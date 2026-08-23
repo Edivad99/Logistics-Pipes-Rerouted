@@ -5,19 +5,25 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import net.minecraft.data.AtlasIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.util.Unit;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -53,7 +59,7 @@ import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
-public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGenericPipe> {
+public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGenericPipe, PipeRenderState> {
 
     private static final int LIQUID_STAGES = 40;
     private static final int MAX_ITEMS_TO_RENDER = 10;
@@ -68,11 +74,14 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     @Nullable
     private static TextureAtlasSprite requestTableSprite = null;
 
-    private final Model signModel;
+    private final Model.Simple signModel;
+    /** Resolves a {@link Material} to its stitched sprite; 1.21.9 hands one to every BER. */
+    private final MaterialSet materials;
 
     public LogisticsRenderPipe(BlockEntityRendererProvider.Context context) {
         // A pipe sign hangs on the pipe, so it never has the standing sign's post.
-        signModel = SignRenderer.createSignModel(context.getModelSet(), TYPE, false);
+        signModel = SignRenderer.createSignModel(context.entityModelSet(), TYPE, false);
+        materials = context.materials();
     }
 
     /**
@@ -80,12 +89,12 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * {@code blocks/} directory source. Looked up lazily because the atlas does not exist yet
      * when this class is loaded.
      */
-    @Nullable
     private static TextureAtlasSprite requestTableSprite() {
         if (requestTableSprite == null) {
             requestTableSprite = Minecraft.getInstance()
-                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .apply(LPConstants.rl("blocks/requesttable/requesttexture"));
+                .getAtlasManager()
+                .getAtlasOrThrow(AtlasIds.BLOCKS)
+                .getSprite(LPConstants.rl("blocks/requesttable/requesttexture"));
         }
         return requestTableSprite;
     }
@@ -95,7 +104,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * unrotated and with every cover plate present. Without this the item falls back to the pipe
      * geometry of {@link LogisticsPipeItemRenderer} and shows up as an ordinary pipe.
      */
-    public static void renderRequestTableItem(PoseStack poseStack, MultiBufferSource bufferSource,
+    public static void submitRequestTableItem(PoseStack poseStack, SubmitNodeCollector collector,
         int packedLight, int packedOverlay) {
         SolidBlockModelParts parts = PipeModelStore.solidBlock();
         TextureAtlasSprite sprite = requestTableSprite();
@@ -103,28 +112,42 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             return;
         }
 
-        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
-        MeshRenderer.emit(buffer, poseStack.last(), parts.body(0), sprite, packedLight, packedOverlay);
-        for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
-            MeshRenderer.emit(buffer, poseStack.last(), parts.outerPlate(side, 0), sprite, packedLight, packedOverlay);
-            MeshRenderer.emit(buffer, poseStack.last(), parts.innerPlate(side, 0), sprite, packedLight, packedOverlay);
-        }
+        collector.submitCustomGeometry(poseStack, RenderType.cutoutMipped(), (pose, buffer) -> {
+            MeshRenderer.emit(buffer, pose, parts.body(0), sprite, packedLight, packedOverlay);
+            for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
+                MeshRenderer.emit(buffer, pose, parts.outerPlate(side, 0), sprite, packedLight, packedOverlay);
+                MeshRenderer.emit(buffer, pose, parts.innerPlate(side, 0), sprite, packedLight, packedOverlay);
+            }
+        });
     }
 
     @Override
-    public void render(LogisticsTileGenericPipe blockEntity, float partialTicks, PoseStack poseStack,
-        MultiBufferSource bufferSource, int packedLight, int packedOverlay, Vec3 cameraPos) {
-        if (blockEntity.pipe == null) {
+    public PipeRenderState createRenderState() {
+        return new PipeRenderState();
+    }
+
+    @Override
+    public void extractRenderState(LogisticsTileGenericPipe blockEntity, PipeRenderState state, float partialTicks,
+        Vec3 cameraPos, @Nullable ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPos, breakProgress);
+        state.blockEntity = blockEntity.pipe == null ? null : blockEntity;
+        state.partialTicks = partialTicks;
+    }
+
+    @Override
+    public void submit(PipeRenderState state, PoseStack poseStack, SubmitNodeCollector collector,
+        CameraRenderState cameraState) {
+        if (state.blockEntity == null) {
             return;
         }
 
-        // renderInternal draws what genuinely varies per frame: pipe signs, traveling items and
+        // submitInternal draws what genuinely varies per frame: pipe signs, traveling items and
         // their transport boxes, the request table body and fluid overlays. The pipe frame
         // itself now lives in the chunk mesh, supplied by PipeBakedModel.
         poseStack.pushPose();
         try {
-            renderInternal(blockEntity, 0, 0, 0, partialTicks, poseStack, bufferSource, packedLight,
-                packedOverlay);
+            submitInternal(state.blockEntity, 0, 0, 0, state.partialTicks, poseStack, collector, state.lightCoords,
+                OverlayTexture.NO_OVERLAY);
         } finally {
             poseStack.popPose();
         }
@@ -138,9 +161,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * to the table's facing. Texture is LP1's {@code blocks/requesttable/requesttexture}
      * (stitched into the block atlas by the {@code blocks/} directory source).
      */
-    private void renderRequestTableBlock(PipeBlockRequestTable table, LogisticsTileGenericPipe pipeTile,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        renderRequestTableBaked(table, pipeTile, poseStack, bufferSource, packedLight, packedOverlay);
+    private void submitRequestTableBlock(PipeBlockRequestTable table, LogisticsTileGenericPipe pipeTile,
+        PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
+        submitRequestTableBaked(table, pipeTile, poseStack, collector, packedLight, packedOverlay);
     }
 
     /**
@@ -151,16 +174,15 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * {@code BakedQuad} can only reference an atlas sprite. So tubes keep immediate-mode
      * rendering — but on the mesh engine, with no shared render state.</p>
      */
-    private void renderTubeGeometry(LogisticsTileGenericPipe blockEntity, PoseStack poseStack,
-        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    private void submitTubeGeometry(LogisticsTileGenericPipe blockEntity, PoseStack poseStack,
+        SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         TubeMeshes.TubeGeometry tube = TubeMeshes.forPipe(blockEntity.pipe);
         if (tube.isEmpty()) {
             return;
         }
 
-        VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(tube.texture()));
-        MeshRenderer.emitRaw(buffer, poseStack.last(),
-            tube.mesh(), 0xFFFFFFFF, packedLight, packedOverlay);
+        collector.submitCustomGeometry(poseStack, RenderType.entityCutoutNoCull(tube.texture()),
+            (pose, buffer) -> MeshRenderer.emitRaw(buffer, pose, tube.mesh(), 0xFFFFFFFF, packedLight, packedOverlay));
     }
 
     /**
@@ -170,8 +192,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * What changes here is that nothing is read from or written to a shared render state —
      * buffer, matrices, light and sprite are all arguments.
      */
-    private void renderRequestTableBaked(PipeBlockRequestTable table, LogisticsTileGenericPipe pipeTile,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    private void submitRequestTableBaked(PipeBlockRequestTable table, LogisticsTileGenericPipe pipeTile,
+        PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         SolidBlockModelParts parts = PipeModelStore.solidBlock();
         if (parts.isEmpty()) {
             return;
@@ -187,25 +209,23 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             rotation = 0;
         }
 
-        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
-        MeshRenderer.emit(buffer, poseStack.last(),
-            parts.body(rotation), sprite, packedLight, packedOverlay);
-
-        for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
-            // Plates are skipped where a pipe connects, so adjacent pipes visually enter the
-            // table rather than butting against a cover.
-            if (pipeTile.renderState.pipeConnectionMatrix.isConnected(side.facing(rotation))) {
-                continue;
+        final int rot = rotation;
+        collector.submitCustomGeometry(poseStack, RenderType.cutoutMipped(), (pose, buffer) -> {
+            MeshRenderer.emit(buffer, pose, parts.body(rot), sprite, packedLight, packedOverlay);
+            for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
+                // Plates are skipped where a pipe connects, so adjacent pipes visually enter the
+                // table rather than butting against a cover.
+                if (pipeTile.renderState.pipeConnectionMatrix.isConnected(side.facing(rot))) {
+                    continue;
+                }
+                MeshRenderer.emit(buffer, pose, parts.outerPlate(side, rot), sprite, packedLight, packedOverlay);
+                MeshRenderer.emit(buffer, pose, parts.innerPlate(side, rot), sprite, packedLight, packedOverlay);
             }
-            MeshRenderer.emit(buffer, poseStack.last(),
-                parts.outerPlate(side, rotation), sprite, packedLight, packedOverlay);
-            MeshRenderer.emit(buffer, poseStack.last(),
-                parts.innerPlate(side, rotation), sprite, packedLight, packedOverlay);
-        }
+        });
     }
 
-    private void renderInternal(@Nullable LogisticsTileGenericPipe blockEntity, double x, double y, double z,
-        float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    private void submitInternal(@Nullable LogisticsTileGenericPipe blockEntity, double x, double y, double z,
+        float partialTicks, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         // In 1.20.1 the BER PoseStack is pre-translated, so we always pass (0,0,0).
         // Use blockEntity==null as the sole in-hand signal instead.
         boolean inHand = (blockEntity == null);
@@ -221,7 +241,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.pushPose();
         try {
             if (!inHand && blockEntity.pipe instanceof CoreRoutedPipe) {
-                renderPipeSigns((CoreRoutedPipe) blockEntity.pipe, x, y, z, poseStack, bufferSource,
+                submitPipeSigns((CoreRoutedPipe) blockEntity.pipe, x, y, z, poseStack, collector,
                     packedLight);
             }
 
@@ -229,19 +249,19 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             // geometry for it and the 1.12 ISimpleBlockRenderingHandler that drew its block
             // body was never ported: without this branch the table is invisible.
             if (!inHand && blockEntity.pipe instanceof PipeBlockRequestTable) {
-                renderRequestTableBlock((PipeBlockRequestTable) blockEntity.pipe, blockEntity, poseStack, bufferSource,
+                submitRequestTableBlock((PipeBlockRequestTable) blockEntity.pipe, blockEntity, poseStack, collector,
                     packedLight, packedOverlay);
             }
             // The pipe frame comes from PipeBakedModel via the chunk mesh; only the tube
             // bodies still need emitting here, because their textures are standalone PNGs
             // rather than atlas sprites and so cannot be baked.
             if (!inHand) {
-                renderTubeGeometry(blockEntity, poseStack, bufferSource, packedLight, packedOverlay);
+                submitTubeGeometry(blockEntity, poseStack, collector, packedLight, packedOverlay);
             }
 
             if (!inHand && !blockEntity.isOpaque()) {
                 if (blockEntity.pipe.transport != null) {
-                    renderSolids(blockEntity.pipe, x, y, z, partialTicks, poseStack, bufferSource, packedLight,
+                    submitSolids(blockEntity.pipe, x, y, z, partialTicks, poseStack, collector, packedLight,
                         packedOverlay);
                 }
             }
@@ -251,8 +271,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         // MCMP special renderer removed — MCMultiPart has no 1.20.1 port (former dummy was a no-op).
     }
 
-    private void renderSolids(CoreUnroutedPipe pipe, double x, double y, double z, float partialTickTime,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    private void submitSolids(CoreUnroutedPipe pipe, double x, double y, double z, float partialTickTime,
+        PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         poseStack.pushPose();
 
         float light = 1.0F; // full-bright; actual lighting applied via packedLight parameter
@@ -309,7 +329,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             ItemStack stack = item.getItemIdentifierStack().makeNormalStack();
             doRenderItem(stack, pipe.container.getWorld(), lX + pos.getXCoord(), lY + pos.getYCoord(),
                 lZ + pos.getZCoord(), light, 0.75F, boxScale, itemYaw, itemPitch, itemYawForPitch, partialTickTime,
-                poseStack, bufferSource, packedLight, packedOverlay);
+                poseStack, collector, packedLight, packedOverlay);
             count++;
         }
 
@@ -325,7 +345,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             }
             ItemStack stack = item.getValue1().makeNormalStack();
             doRenderItem(stack, pipe.container.getWorld(), x + pos.getXCoord(), y + pos.getYCoord(),
-                z + pos.getZCoord(), light, 0.25F, 0, 0, 0, 0, partialTickTime, poseStack, bufferSource, packedLight,
+                z + pos.getZCoord(), light, 0.25F, 0, 0, 0, 0, partialTickTime, poseStack, collector, packedLight,
                 packedOverlay);
             count++;
             if (count >= 27) {
@@ -347,9 +367,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
     public void doRenderItem(ItemStack itemstack, @Nullable Level level, double x, double y, double z, float light,
         float renderScale, double boxScale, double yaw, double pitch, double yawForPitch, float partialTickTime,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+        PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         LogisticsRenderPipe.boxRenderer.doRenderItem(itemstack, light, x, y, z, boxScale, yaw, pitch, yawForPitch,
-            poseStack, bufferSource, packedLight, packedOverlay);
+            poseStack, collector, packedLight, packedOverlay);
 
         poseStack.pushPose();
         poseStack.translate(x, y, z);
@@ -363,7 +383,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         // In 1.12.2 the -0.35 offset compensated for EntityItem's foot-to-center gap; in 1.20.1
         // ir.renderStatic(GROUND) has no such offset, so we leave the item centred in the pipe.
         itemRenderer.setItemstack(itemstack).setLevel(level).setPartialTickTime(partialTickTime);
-        itemRenderer.renderInWorld(poseStack, bufferSource, packedLight, packedOverlay);
+        itemRenderer.renderInWorld(poseStack, collector, packedLight, packedOverlay);
         poseStack.popPose();
     }
 
@@ -401,8 +421,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         return result;
     }
 
-    private void renderPipeSigns(CoreRoutedPipe pipe, double x, double y, double z,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+    private void submitPipeSigns(CoreRoutedPipe pipe, double x, double y, double z,
+        PoseStack poseStack, SubmitNodeCollector collector, int packedLight) {
         List<Pair<Direction, IPipeSign>> pipeSigns = pipe.getPipeSigns();
         if (pipe.container != null && !pipeSigns.isEmpty()) {
             for (Pair<Direction, IPipeSign> pair : pipeSigns) {
@@ -444,13 +464,13 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
                         break;
                     default:
                 }
-                renderSign(pipe, pair.getValue2(), poseStack, bufferSource, packedLight);
+                submitSign(pipe, pair.getValue2(), poseStack, collector, packedLight);
                 poseStack.popPose();
             }
         }
     }
 
-    private void renderSign(CoreRoutedPipe pipe, IPipeSign type, PoseStack poseStack, MultiBufferSource bufferSource,
+    private void submitSign(CoreRoutedPipe pipe, IPipeSign type, PoseStack poseStack, SubmitNodeCollector collector,
         int packedLight) {
         final float signScale = 2 / 3.0F;
 
@@ -460,8 +480,12 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.pushPose();
         try {
             poseStack.scale(signScale, -signScale, -signScale);
-            VertexConsumer buffer = Sheets.getSignMaterial(TYPE).buffer(bufferSource, signModel::renderType);
-            signModel.root().render(poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY);
+            // Models are submitted whole now instead of being rendered into a buffer picked from
+            // the material; the material only supplies the render type and the stitched sprite.
+            Material material = Sheets.getSignMaterial(TYPE);
+            collector.submitModel(signModel, Unit.INSTANCE, poseStack,
+                material.renderType(signModel::renderType), packedLight, OverlayTexture.NO_OVERLAY,
+                -1, materials.get(material), 0, null);
         } finally {
             poseStack.popPose();
         }
@@ -469,10 +493,10 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         // Onto the front face of the board just drawn; the sign type positions its own text and
         // items from there.
         poseStack.translate(-0.32F, 0.5F * signScale + 0.08F, 0.07F * signScale);
-        type.render(pipe, this, poseStack, bufferSource, packedLight);
+        type.render(pipe, this, poseStack, collector, packedLight);
     }
 
-    public void renderItemStackOnSign(ItemStack itemstack, PoseStack poseStack, MultiBufferSource bufferSource,
+    public void renderItemStackOnSign(ItemStack itemstack, PoseStack poseStack, SubmitNodeCollector collector,
         int packedLight) {
         if (itemstack.isEmpty()) {
             return;
@@ -487,16 +511,12 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         // plane of the sign. Not zero: the faces still need distinct depths to sort against
         // each other, they just need a thickness nobody can see.
         poseStack.scale(0.25F, 0.25F, 0.25F * FLAT_ITEM_DEPTH);
-        Level level = Minecraft.getInstance().level;
-        Minecraft.getInstance().getItemRenderer().renderStatic(
-            itemstack,
-            ItemDisplayContext.GUI,
-            packedLight,
-            OverlayTexture.NO_OVERLAY,
-            poseStack,
-            bufferSource,
-            level,
-            0);
+        // renderStatic is gone: resolve the stack to a render state and submit it.
+        Minecraft minecraft = Minecraft.getInstance();
+        ItemStackRenderState renderState = new ItemStackRenderState();
+        minecraft.getItemModelResolver()
+            .updateForTopItem(renderState, itemstack, ItemDisplayContext.GUI, minecraft.level, null, 0);
+        renderState.submit(poseStack, collector, packedLight, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
     }
 

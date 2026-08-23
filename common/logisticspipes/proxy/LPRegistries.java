@@ -50,7 +50,7 @@ public final class LPRegistries {
 		if (server != null) {
 			return server.registryAccess();
 		}
-		if (!FMLEnvironment.dist.isClient()) {
+		if (!FMLEnvironment.getDist().isClient()) {
 			return null;
 		}
 		return ClientHolder.access();

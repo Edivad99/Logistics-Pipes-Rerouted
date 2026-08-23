@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -160,10 +160,10 @@ public class ItemModule extends LogisticsItem {
         Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
         ListTag informationList = getInformationList(stack);
         if (informationList == null) {
-            TextUtil.addTooltipInformation(stack, tooltipAdder, Screen.hasShiftDown());
+            TextUtil.addTooltipInformation(stack, tooltipAdder, Minecraft.getInstance().hasShiftDown());
             return;
         }
-        if (!Screen.hasShiftDown()) {
+        if (!Minecraft.getInstance().hasShiftDown()) {
             TextUtil.addTooltipInformation(stack, tooltipAdder, false);
             return;
         }
@@ -180,7 +180,7 @@ public class ItemModule extends LogisticsItem {
 
     @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
-        if (!Screen.hasShiftDown()) {
+        if (!Minecraft.getInstance().hasShiftDown()) {
             return Optional.empty();
         }
         return Optional.ofNullable(getInventoryTooltip(stack));

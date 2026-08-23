@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.data.PackOutput;
 
 import net.neoforged.neoforge.client.data.SpriteSourceProvider;
@@ -20,7 +21,7 @@ public class LPSpriteSourceProvider extends SpriteSourceProvider {
 
     @Override
     protected void gather() {
-        atlas(SpriteSourceProvider.BLOCKS_ATLAS)
+        atlas(AtlasIds.BLOCKS)
             .addSource(new DirectoryLister("blocks/pipes/new_texture", "blocks/pipes/new_texture/"))
             .addSource(new DirectoryLister("blocks/pipes/status_overlay", "blocks/pipes/status_overlay/"))
             .addSource(new DirectoryLister("blocks/pipes/overlay_gen", "blocks/pipes/overlay_gen/"))
@@ -44,11 +45,11 @@ public class LPSpriteSourceProvider extends SpriteSourceProvider {
             .addSource(singleFile("items/parts/3"));
 
         for (int i = 0; i <= 16; i++) {
-            atlas(SpriteSourceProvider.BLOCKS_ATLAS)
+            atlas(AtlasIds.BLOCKS)
                 .addSource(singleFile("items/remote_orderer/" + i));
         }
 
-        atlas(SpriteSourceProvider.BLOCKS_ATLAS)
+        atlas(AtlasIds.BLOCKS)
             .addSource(singleFile("solid_block/crafting_table"))
             .addSource(singleFile("solid_block/crafting_table_fuzzy"))
             .addSource(singleFile("solid_block/frame"))

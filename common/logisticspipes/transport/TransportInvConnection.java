@@ -32,7 +32,7 @@ public class TransportInvConnection extends PipeTransportLogistics {
 		var level = tile.getLevel();
 		if (level != null)
 		{
-			var itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), orientationOfTilewithTile.getOpposite());
+			var itemHandler = level.getCapability(Capabilities.Item.BLOCK, tile.getBlockPos(), orientationOfTilewithTile.getOpposite());
 			if (itemHandler != null)
 			{
 				((PipeItemsInvSysConnector) container.pipe).handleItemEnterInv(info, tile);

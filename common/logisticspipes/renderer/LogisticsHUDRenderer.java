@@ -30,7 +30,6 @@ import logisticspipes.utils.tuples.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 
@@ -300,7 +299,7 @@ public class LogisticsHUDRenderer {
 					if (pos.length == 2) {
 						if (renderer.getRenderer().cursorOnWindow(pos[0], pos[1])) {
 							renderer.getRenderer().handleCursor(pos[0], pos[1]);
-							if (Screen.hasShiftDown()) { //if(Minecraft.getInstance().player.isCrouching()) {
+							if (Minecraft.getInstance().hasShiftDown()) { //if(Minecraft.getInstance().player.isCrouching()) {
 								thisIsLast = renderer;
 								displayCross = true;
 							}
@@ -323,7 +322,7 @@ public class LogisticsHUDRenderer {
 		poseStack.pushPose();
 		HitResult box = mc.hitResult;
 		if (box != null && box.getType() == HitResult.Type.BLOCK) {
-			if (Screen.hasControlDown()) {
+			if (Minecraft.getInstance().hasControlDown()) {
 				progress = Math.min(progress + (2 * Math.max(1, (int) Math.floor((System.currentTimeMillis() - last) / 50.0D))), 100);
 			} else {
 				progress = Math.max(progress - (2 * Math.max(1, (int) Math.floor((System.currentTimeMillis() - last) / 50.0D))), 0);
@@ -331,7 +330,7 @@ public class LogisticsHUDRenderer {
 			if (progress != 0) {
 				// HUD world-space info panel — requires NEI/info provider not yet ported to 1.20.1
 			}
-		} else if (!Screen.hasControlDown()) {
+		} else if (!Minecraft.getInstance().hasControlDown()) {
 			progress = 0;
 		}
 		poseStack.popPose();

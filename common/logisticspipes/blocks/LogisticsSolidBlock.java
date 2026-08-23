@@ -72,7 +72,7 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         if (!player.isCrouching()) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof IGuiTileEntity guiBlockEntity) {
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     CoordinatesGuiProvider gp = guiBlockEntity.getGuiProvider();
                     gp.setTilePos(be).open(player);
                 }

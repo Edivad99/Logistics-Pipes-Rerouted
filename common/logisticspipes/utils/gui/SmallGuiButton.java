@@ -14,6 +14,7 @@ import logisticspipes.utils.Color;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
@@ -45,7 +46,7 @@ public class SmallGuiButton extends AbstractButton {
 	}
 
     @Override
-	public void onPress() {
+	public void onPress(InputWithModifiers input) {
 		pressListener.accept(this);
 	}
 

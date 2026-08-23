@@ -6,16 +6,14 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
@@ -72,8 +70,8 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
     }
 
     @Override
-    public void render(@Nullable CoreUnroutedPipe dummyPipe, ItemDisplayContext ctx, PoseStack pose,
-        MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
+    public void submit(@Nullable CoreUnroutedPipe dummyPipe, ItemDisplayContext ctx, PoseStack pose,
+        SubmitNodeCollector collector, int light, int overlay, boolean hasFoil, int outlineColor) {
         if (dummyPipe == null) {
             return;
         }
@@ -83,7 +81,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
         if (dummyPipe instanceof PipeBlockRequestTable) {
             pose.pushPose();
             try {
-                LogisticsRenderPipe.renderRequestTableItem(pose, buffers, light, overlay);
+                LogisticsRenderPipe.submitRequestTableItem(pose, collector, light, overlay);
             } finally {
                 pose.popPose();
             }
@@ -93,10 +91,10 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
         // standalone texture, so they get their own path rather than the frame quads below.
         TubeMeshes.TubeGeometry tube = TubeMeshes.forItem(dummyPipe);
         if (!tube.isEmpty()) {
-            renderTube(tube, pose, buffers, light, overlay);
+            submitTube(tube, pose, collector, light, overlay);
             return;
         }
-        renderBaked(dummyPipe, pose, buffers, light, overlay);
+        submitBaked(dummyPipe, pose, collector, light, overlay);
     }
 
     /**
@@ -108,7 +106,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
      * and it is the whole difference between this and {@code renderTubeGeometry} in
      * {@link LogisticsRenderPipe}.</p>
      */
-    private void renderTube(TubeMeshes.TubeGeometry tube, PoseStack pose, MultiBufferSource buffers,
+    private void submitTube(TubeMeshes.TubeGeometry tube, PoseStack pose, SubmitNodeCollector collector,
         int light, int overlay) {
         AABB bounds = tube.mesh().bounds();
         double extent = Math.max(bounds.getXsize(), Math.max(bounds.getYsize(), bounds.getZsize()));
@@ -125,8 +123,8 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
             pose.scale(scale, scale, scale);
             pose.translate(-bounds.getCenter().x, -bounds.getCenter().y, -bounds.getCenter().z);
 
-            VertexConsumer buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(tube.texture()));
-            MeshRenderer.emitRaw(buffer, pose.last(), tube.mesh(), 0xFFFFFFFF, light, overlay);
+            collector.submitCustomGeometry(pose, RenderType.entityCutoutNoCull(tube.texture()),
+                (snapshot, buffer) -> MeshRenderer.emitRaw(buffer, snapshot, tube.mesh(), 0xFFFFFFFF, light, overlay));
         } finally {
             pose.popPose();
         }
@@ -140,7 +138,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
      * what a pipe looks like. The quads are emitted here rather than baked into an item model
      * because {@code getDummyPipe()} state is per item type, not per block state.</p>
      */
-    private void renderBaked(CoreUnroutedPipe dummyPipe, PoseStack pose, MultiBufferSource buffers,
+    private void submitBaked(CoreUnroutedPipe dummyPipe, PoseStack pose, SubmitNodeCollector collector,
         int light, int overlay) {
         if (!PipeModelStore.isReady()) {
             return;
@@ -160,10 +158,14 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
         try {
             // Vanilla ItemRenderer.render already applied translate(-0.5, -0.5, -0.5), which
             // centres the [0,1] pipe geometry; the display transform handles rotation and scale.
-            VertexConsumer buffer = buffers.getBuffer(RenderType.cutoutMipped());
-            for (BakedQuad quad : quads) {
-                buffer.putBulkData(pose.last(), quad, 1.0f, 1.0f, 1.0f, 1.0f, light, overlay);
-            }
+            // Not submitItem: that path drives tint indices off an int[] the caller supplies, and
+            // these quads carry whatever tint index the baker gave them. Emitting them untinted is
+            // what the item has always done.
+            collector.submitCustomGeometry(pose, RenderType.cutoutMipped(), (snapshot, buffer) -> {
+                for (BakedQuad quad : quads) {
+                    buffer.putBulkData(snapshot, quad, 1.0f, 1.0f, 1.0f, 1.0f, light, overlay);
+                }
+            });
         } finally {
             pose.popPose();
         }
@@ -175,7 +177,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
         public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(INSTANCE);
 
         @Override
-        public SpecialModelRenderer<?> bake(EntityModelSet modelSet) {
+        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
             return LogisticsPipeItemRenderer.INSTANCE;
         }
 

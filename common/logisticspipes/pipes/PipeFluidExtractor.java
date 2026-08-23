@@ -30,7 +30,7 @@ public class PipeFluidExtractor extends PipeFluidInsertion {
 		if (!isNthTick(10)) {
 			return;
 		}
-		PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)
+		PipeFluidUtil.getAdjacentTanks(this, false)
 				.forEach(tankData -> extractFrom(tankData.getValue2(), tankData.getValue1().getDirection()));
 	}
 

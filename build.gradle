@@ -163,16 +163,12 @@ configurations {
 }
 
 dependencies {
-    // Kotlin runtime.
-    // jarJar puts them in the built jar, additionalRuntimeClasspath puts them on the
-    // dev run classpath (jarJar is not applied to dev runs).
     [
         "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines",
         "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization",
         "org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization",
     ].each { lib ->
-        additionalRuntimeClasspath lib
         jarJar(implementation(lib))
     }
 

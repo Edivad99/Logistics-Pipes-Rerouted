@@ -3,14 +3,17 @@ package logisticspipes.utils.transactor;
 import java.util.Iterator;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import logisticspipes.utils.transfer.ItemHandlers;
 
 
 class InventoryIteratorSimple implements Iterable<IInvSlot> {
 
-	private final IItemHandler inv;
+	private final ResourceHandler<ItemResource> inv;
 
-	InventoryIteratorSimple(IItemHandler inv) {
+	InventoryIteratorSimple(ResourceHandler<ItemResource> inv) {
 		this.inv = inv;
 	}
 
@@ -22,7 +25,7 @@ class InventoryIteratorSimple implements Iterable<IInvSlot> {
 
 			@Override
 			public boolean hasNext() {
-				return slot < inv.getSlots();
+				return slot < inv.size();
 			}
 
 			@Override
@@ -43,29 +46,29 @@ class InventoryIteratorSimple implements Iterable<IInvSlot> {
 
 		@Override
 		public ItemStack getItem() {
-			return inv.getStackInSlot(slot);
+			return ItemUtil.getStack(inv, slot);
 		}
 
 		@Override
 		public ItemStack insertItem(ItemStack stack, boolean simulate) {
-			return inv.insertItem(slot, stack.copy(), simulate);
+			return ItemUtil.insertItemReturnRemaining(inv, slot, stack.copy(), simulate, null);
 		}
 
 		@Override
 		public ItemStack extractItem(int amount, boolean simulate) {
-			return inv.extractItem(slot, amount, simulate);
+			return ItemHandlers.extractItem(inv, slot, amount, simulate);
 		}
 
 		@Override
 		public int getSlotLimit() {
-			return inv.getSlotLimit(slot);
+			return ItemHandlers.slotLimit(inv, slot);
 		}
 
 		@Override
 		public boolean canPutStackInSlot(ItemStack stack) {
 			ItemStack toTest = stack.copy();
 			toTest.setCount(1);
-			return inv.insertItem(slot, toTest, true).isEmpty();
+			return ItemUtil.insertItemReturnRemaining(inv, slot, toTest, true, null).isEmpty();
 		}
 	}
 }

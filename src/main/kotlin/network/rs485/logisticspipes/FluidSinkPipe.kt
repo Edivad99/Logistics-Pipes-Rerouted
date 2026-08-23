@@ -42,7 +42,7 @@ import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty
 import network.rs485.logisticspipes.property.Property
 import network.rs485.logisticspipes.property.PropertyHolder
 import logisticspipes.interfaces.routing.IFluidSink
-import logisticspipes.pipes.PipeFluidUtil.getAdjacentTanks
+import logisticspipes.pipes.PipeFluidUtil
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe
 import logisticspipes.transport.PipeFluidTransportLogistics
 import logisticspipes.utils.FluidIdentifier
@@ -77,9 +77,9 @@ abstract class FluidSinkPipe(
             }
             val onTheWay: Int = this.countOnRoute(stack.fluid)
             var freeSpace = -onTheWay.toLong()
-            for (pair in getAdjacentTanks(true)) {
+            for (pair in PipeFluidUtil.getAdjacentTanks(this, true)) {
                 val dir = pair.component1().direction
-                val tank = (transport as PipeFluidTransportLogistics).getIFluidHandler(dir)
+                val tank = (transport as PipeFluidTransportLogistics).getFluidResourceHandler(dir)
                 freeSpace += pair.component2().getFreeSpaceInsideTank(stack.fluid).toLong()
                 freeSpace += stack.fluid.getFreeSpaceInsideTank(tank).toLong()
                 if (freeSpace >= stack.amount) {

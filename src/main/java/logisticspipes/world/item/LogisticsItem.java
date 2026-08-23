@@ -10,7 +10,7 @@ package logisticspipes.world.item;
 
 import java.util.function.Consumer;
 
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +36,7 @@ public class LogisticsItem extends Item {
         Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (addShiftInfo()) {
-            TextUtil.addTooltipInformation(stack, tooltipAdder, Screen.hasShiftDown());
+            TextUtil.addTooltipInformation(stack, tooltipAdder, Minecraft.getInstance().hasShiftDown());
         }
     }
 

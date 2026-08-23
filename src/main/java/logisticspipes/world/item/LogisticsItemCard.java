@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import java.util.Objects;
 import java.util.UUID;
 
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -36,7 +36,7 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
             } else if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
                 tooltipAdder.accept(Component.literal("Sec. Card"));
             }
-            if (Screen.hasShiftDown()) {
+            if (Minecraft.getInstance().hasShiftDown()) {
                 tooltipAdder.accept(Component.literal("Id: " + uuid));
                 if (stack.getDamageValue() == LogisticsItemCard.SEC_CARD) {
                     tooltipAdder.accept(Component.literal(

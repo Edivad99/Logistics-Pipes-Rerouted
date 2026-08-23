@@ -22,13 +22,13 @@ public class OpenChatGui extends ModernPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		if (FMLEnvironment.dist == Dist.CLIENT) {
+		if (FMLEnvironment.getDist() == Dist.CLIENT) {
 			openChatScreen();
 		}
 	}
 
     private void openChatScreen() {
-		Minecraft.getInstance().setScreen(new ChatScreen(""));
+		Minecraft.getInstance().setScreen(new ChatScreen("", false));
 	}
 
 	@Override

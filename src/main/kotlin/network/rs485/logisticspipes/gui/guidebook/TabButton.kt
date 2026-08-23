@@ -37,10 +37,10 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.input.MouseButtonEvent
 import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.screens.Screen
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
@@ -120,18 +120,18 @@ class TabButton(
     // LP1 dispatched via GuiGuideBook.mouseClicked -> mousePressed -> actionPerformed/rightClick:
     // left-click on an INACTIVE tab switches to its page, right-click on the active tab cycles
     // its color (shift inverts, ctrl+shift removes the bookmark).
-    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
         if (!visible || !active) return false
         val hit = bodyTrigger
             .translated(body)
             .translated(0, if (whisky.isPageActive()) -3 else 0)
-            .contains(mouseX.toInt(), mouseY.toInt())
+            .contains(event.x.toInt(), event.y.toInt())
         if (!hit) return false
-        val handled = when (button) {
+        val handled = when (event.button()) {
             0 -> onLeftClick()
             1 -> onRightClick(
-                shiftClick = Screen.hasShiftDown(),
-                ctrlClick = Screen.hasControlDown(),
+                shiftClick = Minecraft.getInstance().hasShiftDown(),
+                ctrlClick = Minecraft.getInstance().hasControlDown(),
             )
             else -> false
         }

@@ -1,5 +1,9 @@
 package logisticspipes.utils.gui;
 
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 
 import net.minecraft.client.gui.components.EditBox;
@@ -66,7 +70,7 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
 
     @Override
     public boolean onKeyboardInput() {
-        return (isFocused() || Screen.hasAltDown()) && StringUtil.isAllowedChatCharacter(' ');
+        return (isFocused() || Minecraft.getInstance().hasAltDown()) && StringUtil.isAllowedChatCharacter(' ');
     }
 
     /**
@@ -81,7 +85,9 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
             if (k == 1) {
                 setValue("");
             } else {
-                mouseClicked(x, y, k);
+                // handleClick is LP's own entry point, called from screens that have already
+                // consumed the click; EditBox now wants the 1.21.9 event, so build one here.
+                mouseClicked(new MouseButtonEvent(x, y, new MouseButtonInfo(k, 0)), false);
             }
         }
         return inside;
@@ -91,7 +97,7 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
      * @return Boolean, true if key was handled.
      */
     public boolean handleKey(char c, int i) {
-        return charTyped(c, 0); // was: textboxKeyTyped(c, i) in 1.12.2
+        return charTyped(new CharacterEvent(c, 0)); // was: textboxKeyTyped(c, i) in 1.12.2
     }
 
     public void setInteger(int newValue) {

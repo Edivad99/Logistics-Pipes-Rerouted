@@ -3,14 +3,15 @@ package logisticspipes.utils;
 import logisticspipes.interfaces.ISpecialTankAccessHandler;
 import logisticspipes.interfaces.ISpecialTankUtil;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 public class SpecialTankUtil extends TankUtil implements ISpecialTankUtil {
 
 	private BlockEntity tile;
 	private ISpecialTankAccessHandler handler;
 
-	public SpecialTankUtil(IFluidHandler fluid, BlockEntity tile, ISpecialTankAccessHandler handler) {
+	public SpecialTankUtil(ResourceHandler<FluidResource> fluid, BlockEntity tile, ISpecialTankAccessHandler handler) {
 		super(fluid);
 		this.tile = tile;
 		this.handler = handler;

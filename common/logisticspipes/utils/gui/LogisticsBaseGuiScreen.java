@@ -36,6 +36,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -408,10 +411,13 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
     @Override
-	public boolean mouseClicked(double par1, double par2, int par3) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double par1 = event.x();
+		double par2 = event.y();
+		int par3 = event.button();
 		// Popups are modal: route all input to the innermost sub-GUI (LP1 parity)
 		if (subGui != null) {
-			return subGui.mouseClicked(par1, par2, par3);
+			return subGui.mouseClicked(event, doubleClick);
 		}
 		for (IRenderSlot slot : slots) {
 			int mouseX = (int) par1 - leftPos;
@@ -458,7 +464,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		}
 		// Button presses are handled by AbstractContainerScreen/Screen's own widget dispatch
 		// (addRenderableWidget wires SmallGuiButton/GuiCheckBox press listeners in this class).
-		return super.mouseClicked(par1, par2, par3);
+		return super.mouseClicked(event, doubleClick);
 	}
 
     @Override
@@ -470,28 +476,28 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
     }
 
     @Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		if (subGui != null) {
-			return subGui.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+			return subGui.mouseDragged(event, dragX, dragY);
 		}
-		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+		return super.mouseDragged(event, dragX, dragY);
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent event) {
 		if (subGui != null) {
-			return subGui.keyPressed(keyCode, scanCode, modifiers);
+			return subGui.keyPressed(event);
 		}
 		// While a text field has the focus, swallow the key so the inventory hotkey ('e' by default)
 		// types into the field instead of closing the GUI. ESC still closes, like vanilla does.
-		if (keyCode != GLFW.GLFW_KEY_ESCAPE) {
+		if (event.key() != GLFW.GLFW_KEY_ESCAPE) {
 			EditBox editing = getEditingTextField();
 			if (editing != null) {
-				editing.keyPressed(keyCode, scanCode, modifiers);
+				editing.keyPressed(event);
 				return true;
 			}
 		}
-		return super.keyPressed(keyCode, scanCode, modifiers);
+		return super.keyPressed(event);
 	}
 
 	@Nullable
@@ -509,26 +515,26 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	@Override
-	public boolean charTyped(char c, int modifiers) {
+	public boolean charTyped(CharacterEvent event) {
 		if (subGui != null) {
-			return subGui.charTyped(c, modifiers);
+			return subGui.charTyped(event);
 		}
-		return super.charTyped(c, modifiers);
+		return super.charTyped(event);
 	}
 
 	@Override
-	public boolean mouseReleased(double par1, double par2, int par3) {
+	public boolean mouseReleased(MouseButtonEvent event) {
 		if (subGui != null) {
-			return subGui.mouseReleased(par1, par2, par3);
+			return subGui.mouseReleased(event);
 		}
-		if (selectedButton != null && par3 == 0) {
-			selectedButton.mouseReleased(par1, par2, 0);
+		if (selectedButton != null && event.button() == 0) {
+			selectedButton.mouseReleased(event);
 			selectedButton = null;
 			return true;
-		} else if (isMouseInFuzzyPanel((int)(par1 - leftPos), (int)(par2 - topPos))) {
+		} else if (isMouseInFuzzyPanel((int) (event.x() - leftPos), (int) (event.y() - topPos))) {
 			return false;
 		} else {
-			return super.mouseReleased(par1, par2, par3);
+			return super.mouseReleased(event);
 		}
 	}
 

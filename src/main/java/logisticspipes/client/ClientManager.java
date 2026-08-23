@@ -12,6 +12,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleGroupsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
@@ -25,6 +26,8 @@ import logisticspipes.client.gui.tooltip.ClientModuleInventoryTooltip;
 import logisticspipes.client.gui.tooltip.ModuleTooltipPlacement;
 import logisticspipes.client.model.ObjModelManager;
 import logisticspipes.client.model.pipe.PipeModelRegistration;
+import logisticspipes.client.particle.GlowGeometryParticle;
+import logisticspipes.client.particle.GlowParticleGroup;
 import logisticspipes.client.particle.SparkParticle;
 import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
@@ -53,6 +56,7 @@ public class ClientManager {
         modEventBus.addListener(ClientManager::handleClientSetup);
         modEventBus.addListener(ClientManager::handleRegisterRenderers);
         modEventBus.addListener(ClientManager::handleParticleRegistration);
+        modEventBus.addListener(ClientManager::handleRegisterParticleGroups);
         modEventBus.addListener(LPRenderTypes::register);
         modEventBus.addListener(ClientManager::handleRegisterSpecialModelRenderers);
         modEventBus.addListener(ClientManager::handleRegisterMenuScreens);
@@ -98,6 +102,15 @@ public class ClientManager {
 
     private static void handleParticleRegistration(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(LPParticleTypes.SPARKLE.get(), SparkParticle.Provider::new);
+    }
+
+    /**
+     * LP's laser effects draw untextured geometry, which the textured-quad group an unregistered
+     * render type falls back to cannot express; registering here also places them in the frame's
+     * particle draw order.
+     */
+    private static void handleRegisterParticleGroups(RegisterParticleGroupsEvent event) {
+        event.register(GlowGeometryParticle.GROUP, GlowParticleGroup::new);
     }
 
     private static void handleRegisterSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {

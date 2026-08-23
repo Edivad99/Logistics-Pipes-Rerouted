@@ -51,6 +51,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.network.chat.Component
 import net.minecraft.world.inventory.Slot
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.client.input.MouseButtonEvent
 
 // TODO: Rendering deferred — full 1.20.1 rendering migration (PoseStack, AbstractContainerScreen API) pending.
 
@@ -139,12 +140,12 @@ abstract class BaseGuiContainer(
         pose.popMatrix()
     }
 
-    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        val hovered = widgetScreen.widgetContainer.getHovered(mouseX.toFloat(), mouseY.toFloat())
+    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        val hovered = widgetScreen.widgetContainer.getHovered(event.x.toFloat(), event.y.toFloat())
         if (hovered is MouseInteractable) {
-            if (hovered.mouseClicked(mouseX.toFloat(), mouseY.toFloat(), button)) return true
+            if (hovered.mouseClicked(event.x.toFloat(), event.y.toFloat(), event.button())) return true
         }
-        return super.mouseClicked(mouseX, mouseY, button)
+        return super.mouseClicked(event, doubleClick)
     }
 
     override fun renderBg(

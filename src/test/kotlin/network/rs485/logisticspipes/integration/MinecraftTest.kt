@@ -46,8 +46,10 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.core.BlockPos
+import net.minecraft.core.GlobalPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.storage.LevelData
 import java.lang.management.ManagementFactory
 import java.time.Duration
 import kotlinx.coroutines.*
@@ -78,7 +80,7 @@ object MinecraftTest {
             if (watchdog != null) error("Watchdog already running! Set max-tick-time to 0, please restart the server!")
 
             // set rules for spawning players without annoying stuff
-            level.setDefaultSpawnPos(firstBlockPos, 0f)
+            level.setRespawnData(LevelData.RespawnData(GlobalPos.of(level.dimension(), firstBlockPos), 0f, 0f))
             level.gameRules.getRule(GameRules.RULE_SPAWN_RADIUS).set(0, serverInstance)
             level.gameRules.getRule(GameRules.RULE_DAYLIGHT).set(false, serverInstance)
             level.gameRules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverInstance)
@@ -102,7 +104,9 @@ object MinecraftTest {
             logger("[STARTING LOGISTICSPIPES TESTS]")
             withTimeout(Duration.ofMinutes(3)) {
                 testBlockBuilder = TestWorldBuilder(level, firstBlockPos)
-                level.setDefaultSpawnPos(testBlockBuilder.buildSpawnPlatform(), 0f)
+                level.setRespawnData(
+                    LevelData.RespawnData(GlobalPos.of(level.dimension(), testBlockBuilder.buildSpawnPlatform()), 0f, 0f)
+                )
                 listOf(
                     async {
                         CraftingTest.`test single fuzzy ingredient crafting fails multi-request with mixed OreDict input`(

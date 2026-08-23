@@ -22,8 +22,10 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.input.MouseButtonEvent
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
+import net.minecraft.data.AtlasIds
 import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
@@ -55,8 +57,11 @@ class SliderButton(
         val hoverState = if (dragging) 3 else if (!active) 2 else if (hoveredBar) 1 else 0
         val src = texture.translated(0, hoverState * texture.roundedHeight)
         // Vertical nine-slice: 2px top/bottom caps from the 12x16 grip region, stretched to grip height.
+        // 1.21.9 dropped GuiSpriteManager: the GUI sprites are an ordinary atlas now, reached
+        // through the AtlasManager under AtlasIds.GUI.
         val sprite = Minecraft.getInstance()
-            .guiSprites
+            .atlasManager
+            .getAtlasOrThrow(AtlasIds.GUI)
             .getSprite(GuideBookGraphics.GUI_ATLAS)
         //TODO: Fix me
 //        guiGraphics.blitNineSlicedSprite(
@@ -71,26 +76,26 @@ class SliderButton(
 //        )
     }
 
-    override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
+    override fun mouseReleased(event: MouseButtonEvent): Boolean {
         if (dragging) {
             dragging = false
-            setProgressI((mouseY.toInt() - body.roundedY) - initialMouseYOffset)
+            setProgressI((event.y.toInt() - body.roundedY) - initialMouseYOffset)
             initialMouseYOffset = 0
             setProgressCallback(progress)
         }
-        return super.mouseReleased(mouseX, mouseY, button)
+        return super.mouseReleased(event)
     }
 
-    override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean {
+    override fun mouseDragged(event: MouseButtonEvent, dragX: Double, dragY: Double): Boolean {
         if (dragging) {
-            setProgressI((mouseY.toInt() - body.roundedY) - initialMouseYOffset)
+            setProgressI((event.y.toInt() - body.roundedY) - initialMouseYOffset)
             setProgressCallback(progress)
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY)
+        return super.mouseDragged(event, dragX, dragY)
     }
 
-    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        val mouseXi = mouseX.toInt(); val mouseYi = mouseY.toInt()
+    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        val mouseXi = event.x.toInt(); val mouseYi = event.y.toInt()
         hoveredBar = sliderButton.translated(body).contains(mouseXi, mouseYi)
         if (visible && isActive) {
             if (hoveredBar) {

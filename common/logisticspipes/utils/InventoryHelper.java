@@ -21,7 +21,7 @@ public class InventoryHelper {
 			// NeoForge 1.20.1: BlockCapability queried via static method
 			var level = tile.getLevel();
 			if (level != null) {
-				var handler = level.getCapability(Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), dir);
+				var handler = level.getCapability(Capabilities.Item.BLOCK, tile.getBlockPos(), dir);
 				if (handler != null) {
 					return new TransactorSimple(handler);
 				}

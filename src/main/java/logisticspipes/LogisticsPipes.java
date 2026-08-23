@@ -86,7 +86,7 @@ import network.rs485.util.SystemUtilKt;
 public class LogisticsPipes {
 
     @Getter
-    private static final boolean DEBUG = !FMLEnvironment.production;
+    private static final boolean DEBUG = !FMLEnvironment.isProduction();
     public static final Logger LOG = LogUtils.getLogger();
 
     @Nullable
@@ -126,17 +126,17 @@ public class LogisticsPipes {
 
     // Mod Events
     private void handleRegisterCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK,
+        event.registerBlockEntity(Capabilities.Item.BLOCK,
             LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getItemCap);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK,
+        event.registerBlockEntity(Capabilities.Item.BLOCK,
             LPBlockEntityTypes.CRAFTING_TABLE.get(), LogisticsCraftingTableBlockEntity::getItemCap);
 
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK,
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK,
             LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getFluidCap);
 
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
+        event.registerBlockEntity(Capabilities.Energy.BLOCK,
             LPBlockEntityTypes.POWER_JUNCTION.get(), LogisticsPowerJunctionBlockEntity::getEnergyStorageCap);
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
+        event.registerBlockEntity(Capabilities.Energy.BLOCK,
             LPBlockEntityTypes.POWER_PROVIDER_RF.get(), LogisticsRFPowerProviderTileEntity::getEnergyStorageCap);
     }
 
@@ -247,7 +247,7 @@ public class LogisticsPipes {
         PipeItemsSatelliteLogistics.cleanup();
         PipeFluidSatellite.cleanup();
         ServerRouter.cleanup();
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             LogisticsHUDRenderer.instance().clear();
         }
         ServerTickDispatcher.INSTANCE.cleanup();

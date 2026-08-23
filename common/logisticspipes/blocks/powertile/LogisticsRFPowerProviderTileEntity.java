@@ -7,7 +7,6 @@ import logisticspipes.LPConfigs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.interfaces.ICoFHEnergyStorage;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -19,8 +18,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.DelegatingEnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTileEntity {
 
@@ -28,44 +31,29 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	public static final int MAX_MAXMODE = 8;
 	public static final int MAX_PROVIDE_PER_TICK = 10000; //TODO
 
-    private IEnergyStorage energyInterface = new IEnergyStorage() {
+	/**
+	 * The RF buffer this provider fills from its neighbours and drains into the LP network.
+	 *
+	 * <p>Was LP's own {@code ICoFHEnergyStorage} over NeoForge's {@code EnergyStorage}, both now
+	 * removed with the 21.9 transfer rework. {@link SimpleEnergyHandler} is the drop-in: same
+	 * capacity/insert/extract model, already transactional, and already a
+	 * {@code ValueIOSerializable} -- which is every method the old LP interface declared.</p>
+	 *
+	 * <p>Exposed to neighbours through {@link #energyInterface}, which is the same buffer with
+	 * extraction closed off: LP hands its power to the network itself rather than letting anything
+	 * pull it back out.</p>
+	 */
+	private final SimpleEnergyHandler storage = new SimpleEnergyHandler(10000);
 
+	private final EnergyHandler energyInterface = new DelegatingEnergyHandler(() -> storage) {
 		@Override
-		public int receiveEnergy(int maxReceive, boolean simulate) {
-			return storage.receiveEnergy(maxReceive, simulate);
-		}
-
-		@Override
-		public int extractEnergy(int maxExtract, boolean simulate) {
+		public int extract(int amount, TransactionContext transaction) {
 			return 0;
-		}
-
-		@Override
-		public int getEnergyStored() {
-			return storage.getEnergyStored();
-		}
-
-		@Override
-		public int getMaxEnergyStored() {
-			return storage.getMaxEnergyStored();
-		}
-
-		@Override
-		public boolean canExtract() {
-			return false;
-		}
-
-		@Override
-		public boolean canReceive() {
-			return true;
 		}
 	};
 
-	private ICoFHEnergyStorage storage;
-
 	public LogisticsRFPowerProviderTileEntity(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.POWER_PROVIDER_RF.get(), pos, state);
-		storage = SimpleServiceLocator.powerProxy.getEnergyStorage(10000);
 	}
 
 	private void addEnergy(double amount) {
@@ -83,10 +71,13 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 
 	private void addStoredRF() {
 		int space = freeSpace();
-		int available = (storage.extractEnergy(space, true));
-		if (available > 0) {
-			if (storage.extractEnergy(available, false) == available) {
+		// One transaction instead of the old simulate-then-execute pair: extract, and keep it only
+		// if the buffer really gave up what it offered.
+		try (Transaction transaction = Transaction.openRoot()) {
+			int available = storage.extract(space, transaction);
+			if (available > 0) {
 				addEnergy(available);
+				transaction.commit();
 			}
 		}
 	}
@@ -106,16 +97,22 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 
 	private int pullFromNeighbor(Level level, Direction dir, int remaining) {
 		BlockEntity neighbor = level.getBlockEntity(getBlockPos().relative(dir));
-		if (neighbor == null) return remaining;
-		IEnergyStorage neighborStorage = level.getCapability(Capabilities.EnergyStorage.BLOCK, neighbor.getBlockPos(), dir.getOpposite());
-		if (neighborStorage == null) return remaining;
-		if (!neighborStorage.canExtract()) return remaining;
-		int extracted = neighborStorage.extractEnergy(remaining, false);
-		if (extracted > 0) {
+		if (neighbor == null) {
+            return remaining;
+        }
+		EnergyHandler neighborStorage = level.getCapability(Capabilities.Energy.BLOCK, neighbor.getBlockPos(), dir.getOpposite());
+		if (neighborStorage == null) {
+            return remaining;
+        }
+		try (Transaction transaction = Transaction.openRoot()) {
+			int extracted = neighborStorage.extract(remaining, transaction);
+			if (extracted <= 0) {
+				return remaining;
+			}
 			addEnergy(extracted);
+			transaction.commit();
 			return remaining - extracted;
 		}
-		return remaining;
 	}
 
 	public int freeSpace() {
@@ -175,7 +172,7 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	}
 
 	@Nullable
-	public IEnergyStorage getEnergyStorageCap(@Nullable Direction side) {
+	public EnergyHandler getEnergyStorageCap(@Nullable Direction side) {
 		return energyInterface;
 	}
 }

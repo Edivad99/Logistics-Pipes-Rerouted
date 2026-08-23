@@ -10,6 +10,7 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.sideconfig.SideConfigDisplay;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -71,7 +72,10 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (button == 0 && bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
 			int vpx = bounds.x * (int) Minecraft.getInstance().getWindow().getGuiScale();
 			int vpy = (bounds.y + 10) * (int) Minecraft.getInstance().getWindow().getGuiScale();
@@ -80,16 +84,19 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
 			configDisplay.onMouseClicked((int) mouseX, (int) mouseY, new Rectangle(vpx, vpy, w, h));
 			return true;
 		}
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
 			configDisplay.onMouseDragged(dx, dy, button);
 			return true;
 		}
-		return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+		return super.mouseDragged(event, dx, dy);
 	}
 
 	@Override

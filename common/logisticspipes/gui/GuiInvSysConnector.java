@@ -24,8 +24,10 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -70,7 +72,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 		b2.setPressListener(b -> refreshPacket());
 		addRenderableWidget(b2);
 		SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 80, topPos + 55, 10, 10, "<");
-		b3.setPressListener(b -> resistanceCountBar.setInteger(resistanceCountBar.getInteger() - (Screen.hasControlDown() ? 10 : 1)));
+		b3.setPressListener(b -> resistanceCountBar.setInteger(resistanceCountBar.getInteger() - (Minecraft.getInstance().hasControlDown() ? 10 : 1)));
 		addRenderableWidget(b3);
 		SmallGuiButton b4 = new SmallGuiButton(4, leftPos + 120, topPos + 55, 10, 10, ">");
 		b4.setPressListener(b -> resistanceCountBar.setInteger(resistanceCountBar.getInteger() + 1));
@@ -170,17 +172,22 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	@Override
-	public boolean mouseClicked(double x, double y, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double x = event.x();
+		double y = event.y();
+		int k = event.button();
 		if (!resistanceCountBar.handleClick(x, y, k)) {
-			return super.mouseClicked(x, y, k);
+			return super.mouseClicked(event, doubleClick);
 		}
 		return true;
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		if (!resistanceCountBar.handleKey(c, i)) {
-			return super.charTyped(c, i);
+			return super.charTyped(event);
 		}
 		return true;
 	}

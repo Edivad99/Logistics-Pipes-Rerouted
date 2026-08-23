@@ -7,8 +7,7 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
 
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -57,14 +56,14 @@ public class LogisticsSolidBlockItemRenderer implements SpecialModelRenderer<Log
     }
 
     @Override
-    public void render(@Nullable LogisticsSolidBlock.Type type, ItemDisplayContext ctx, PoseStack pose,
-        MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
+    public void submit(@Nullable LogisticsSolidBlock.Type type, ItemDisplayContext ctx, PoseStack pose,
+        SubmitNodeCollector collector, int light, int overlay, boolean hasFoil, int outlineColor) {
         if (type == null) {
             return;
         }
         pose.pushPose();
         try {
-            LogisticsSolidBlockRenderer.renderSolid(type, pose, buffers, light, overlay);
+            LogisticsSolidBlockRenderer.submitSolid(type, pose, collector, light, overlay);
         } finally {
             pose.popPose();
         }
@@ -76,7 +75,7 @@ public class LogisticsSolidBlockItemRenderer implements SpecialModelRenderer<Log
         public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(INSTANCE);
 
         @Override
-        public SpecialModelRenderer<?> bake(EntityModelSet modelSet) {
+        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
             return LogisticsSolidBlockItemRenderer.INSTANCE;
         }
 

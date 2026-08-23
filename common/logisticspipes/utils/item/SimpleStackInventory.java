@@ -7,6 +7,7 @@
 
 package logisticspipes.utils.item;
 
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import java.util.Collections;
@@ -124,11 +125,11 @@ public class SimpleStackInventory implements Container, ValueIOSerializable {
 		return false;
 	}
 
-	@Override
-	public void startOpen(Player player) {}
+    @Override
+    public void startOpen(ContainerUser containerUser) {}
 
-	@Override
-	public void stopOpen(Player player) {}
+    @Override
+	public void stopOpen(ContainerUser containerUser) {}
 
 	@Override
 	public void deserialize(ValueInput input) {

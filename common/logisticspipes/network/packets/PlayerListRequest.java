@@ -33,7 +33,7 @@ public class PlayerListRequest extends ModernPacket {
 				: Stream.empty();
 		Stream<Player> allPlayerEntities = allPlayers.filter(o -> o instanceof Player).map(o -> (Player) o);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PlayerList.class)
-				.setStringList(allPlayerEntities.map(entityPlayer -> entityPlayer.getGameProfile().getName()).collect(Collectors.toList())), player);
+				.setStringList(allPlayerEntities.map(entityPlayer -> entityPlayer.getGameProfile().name()).collect(Collectors.toList())), player);
 	}
 
 	@Override

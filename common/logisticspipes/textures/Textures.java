@@ -301,7 +301,7 @@ public class Textures {
 
 	private int registerSingleTexture(Object par1IIconRegister, String fileName) {
 		int texture = index++;
-		if (FMLEnvironment.dist == Dist.CLIENT) {
+		if (FMLEnvironment.getDist() == Dist.CLIENT) {
 			MainProxy.getProxy(true).addLogisticsPipesOverride(par1IIconRegister, texture, fileName, Textures.LOGISTICSPIPE_UN_OVERLAY_TEXTURE_FILE, true);
 		}
 		return texture;

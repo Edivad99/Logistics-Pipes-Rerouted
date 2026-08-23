@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ListTag;
@@ -283,19 +285,24 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
     }
 
     @Override
-    public boolean charTyped(char typedChar, int keyCode) {
+    public boolean charTyped(CharacterEvent event) {
+        char typedChar = (char) event.codepoint();
+        int keyCode = event.modifiers();
         if (compiler.getCurrentTask() == null) {
             if (!search.handleKey(typedChar, keyCode)) {
-                return super.charTyped(typedChar, keyCode);
+                return super.charTyped(event);
             }
             return true;
         } else {
-            return super.charTyped(typedChar, keyCode);
+            return super.charTyped(event);
         }
     }
 
     @Override
-    public boolean mouseClicked(double par1, double par2, int par3) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double par1 = event.x();
+        double par2 = event.y();
+        int par3 = event.button();
         if (compiler.getCurrentTask() == null) {
             search.handleClick(par1, par2, par3);
             if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {
@@ -305,7 +312,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 programList.mouseClicked(par1, par2, par3);
             }
         }
-        return super.mouseClicked(par1, par2, par3);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override

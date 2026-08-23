@@ -174,7 +174,7 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 		double x = this.getPipe().getX();
 		double y = this.getPipe().getY();
 		double z = this.getPipe().getZ();
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			level.playLocalSound(x, y, z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 4.0F,
 				(1.0F + (level.random.nextFloat() - level.random.nextFloat()) * 0.2F) * 0.7F, false);
 		}

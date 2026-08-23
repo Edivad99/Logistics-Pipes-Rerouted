@@ -28,7 +28,7 @@ import logisticspipes.utils.tuples.Pair;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,6 +41,12 @@ import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandler {
+
+	/**
+	 * Opaque black. These calls used to pass a bare 0: Font#drawInBatch forced a zero alpha
+	 * byte to opaque, so 0 meant black. 1.21.6 removed that fixup and 0 now means invisible.
+	 */
+	private static final int SIGN_TEXT_COLOR = 0xFF000000;
 
 	public ItemIdentifierInventory itemTypeInv = new ItemIdentifierInventory(1, "", 1);
 	public int amount = 100;
@@ -157,7 +163,7 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
     @Override
-	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, SubmitNodeCollector collector, int packedLight) {
 		Font font = Minecraft.getInstance().font;
 		if (pipe != null) {
 			String name = "";
@@ -166,7 +172,7 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 			if (itemTypeInv != null && itemTypeInv.getIDStackInSlot(0) != null) {
 				ItemStack itemstack = itemTypeInv.getIDStackInSlot(0).makeNormalStack();
 
-				renderer.renderItemStackOnSign(itemstack, poseStack, bufferSource, packedLight);
+				renderer.renderItemStackOnSign(itemstack, poseStack, collector, packedLight);
 				Item item = itemstack.getItem();
 
 				poseStack.pushPose();
@@ -193,20 +199,24 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 			}
 
 			if (!idStr.isEmpty()) {
-				font.drawInBatch(Component.literal(idStr), -font.width(idStr) / 2.0F, 0 * 10 - 4 * 5, 0,
-						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+				collector.submitText(poseStack, -font.width(idStr) / 2.0F, 0 * 10 - 4 * 5,
+					Component.literal(idStr).getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+					packedLight, SIGN_TEXT_COLOR, 0, 0);
 			}
 			if (displayAmount != null) {
-				font.drawInBatch(Component.literal("Amount:"), -font.width("Amount:") / 2.0F, 1 * 10 - 4 * 5, 0,
-						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
-				font.drawInBatch(Component.literal(displayAmount), -font.width(displayAmount) / 2.0F, 2 * 10 - 4 * 5, 0,
-						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+				collector.submitText(poseStack, -font.width("Amount:") / 2.0F, 1 * 10 - 4 * 5,
+					Component.literal("Amount:").getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+					packedLight, SIGN_TEXT_COLOR, 0, 0);
+				collector.submitText(poseStack, -font.width(displayAmount) / 2.0F, 2 * 10 - 4 * 5,
+					Component.literal(displayAmount).getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+					packedLight, SIGN_TEXT_COLOR, 0, 0);
 			}
 
 			name = renderer.cut(name, font);
 
-			font.drawInBatch(Component.literal(name), -font.width(name) / 2.0F - 15, 3 * 10 - 4 * 5, 0,
-					false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+			collector.submitText(poseStack, -font.width(name) / 2.0F - 15, 3 * 10 - 4 * 5,
+					Component.literal(name).getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+					packedLight, SIGN_TEXT_COLOR, 0, 0);
 
 			poseStack.popPose();
 		}

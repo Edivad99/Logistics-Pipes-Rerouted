@@ -28,6 +28,8 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -213,7 +215,10 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	}
 
 	@Override
-	public boolean mouseClicked(double i, double j, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double i = event.x();
+		double j = event.y();
+		int k = event.button();
 		if ((i >= leftPos + 5 && i < right - 5 + addition && j >= topPos + 5 && j < bottom - 5) && !searchBar.isFocused()) {
 			lastClickedX = (int)i;
 			lastClickedY = (int)j;
@@ -222,11 +227,13 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		if (searchBar.handleClick(i, j, k)) {
 			return true;
 		}
-		return super.mouseClicked(i, j, k);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		if (searchBar.isFocused()) {
 			if ((c == 13) || (i == 1) || (i == 28)) {
 				searchBar.setFocused(false);
@@ -236,7 +243,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 				return true;
 			}
 		}
-		return super.charTyped(c, i);
+		return super.charTyped(event);
 	}
 
 	@Override

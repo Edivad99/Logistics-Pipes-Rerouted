@@ -51,9 +51,9 @@ public class MainProxy {
 	 * Side-specific proxy: ClientProxy on client dist, ServerProxy on dedicated server.
 	 * Replaces 1.12.2 {@code @SidedProxy} annotation.
 	 */
-	// NeoForge 1.20.1: DistExecutor removed — use FMLEnvironment.dist check
+	// NeoForge 1.20.1: DistExecutor removed — use FMLEnvironment.getDist() check
     @Deprecated(forRemoval = true)
-	public static IProxy proxy = FMLEnvironment.dist.isClient()
+	public static IProxy proxy = FMLEnvironment.getDist().isClient()
 			? new logisticspipes.proxy.side.ClientProxy()
 			: new logisticspipes.proxy.side.ServerProxy();
 
@@ -125,14 +125,14 @@ public class MainProxy {
 		if (level == null) {
             return MainProxy.getEffectiveSide() == LogicalSide.CLIENT;
         }
-		return level.isClientSide;
+		return level.isClientSide();
 	}
 
 	public static boolean isServer(@Nullable Level level) {
 		if (level == null) {
             return MainProxy.getEffectiveSide() == LogicalSide.SERVER;
         }
-		return !level.isClientSide;
+		return !level.isClientSide();
 	}
 
 	/**
@@ -141,14 +141,14 @@ public class MainProxy {
 	 */
 	public static boolean isServer(@Nullable LevelAccessor levelAccessor) {
 		if (levelAccessor instanceof Level level) {
-			return !level.isClientSide;
+			return !level.isClientSide();
 		}
 		return MainProxy.isServer();
 	}
 
 	public static boolean isClient(@Nullable LevelAccessor levelAccessor) {
 		if (levelAccessor instanceof Level level) {
-			return level.isClientSide;
+			return level.isClientSide();
 		}
 		return MainProxy.isClient();
 	}

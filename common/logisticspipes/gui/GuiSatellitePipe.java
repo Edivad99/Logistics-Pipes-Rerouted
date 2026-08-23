@@ -18,6 +18,8 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -75,17 +77,22 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double x, double y, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double x = event.x();
+		double y = event.y();
+		int k = event.button();
 		if (!input.handleClick(x, y, k)) {
-			return super.mouseClicked(x, y, k);
+			return super.mouseClicked(event, doubleClick);
 		}
 		return true;
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		if (!input.handleKey(c, i)) {
-			return super.charTyped(c, i);
+			return super.charTyped(event);
 		}
 		return true;
 	}

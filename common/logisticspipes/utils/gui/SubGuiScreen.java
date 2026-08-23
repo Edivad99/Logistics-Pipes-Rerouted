@@ -8,6 +8,9 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 public abstract class SubGuiScreen extends Screen implements ISubGuiController, IGuiAccess {
@@ -63,51 +66,51 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 	}
 
 	@Override
-	public boolean charTyped(char par1, int par2) {
+	public boolean charTyped(CharacterEvent event) {
 		if (subGui != null) {
-			return subGui.charTyped(par1, par2);
+			return subGui.charTyped(event);
 		}
 		// Legacy 1.12 keyTyped port: keyCode 1 was ESC; kept for callers passing it through
-		if (par2 == 1) {
+		if (event.modifiers() == 1) {
 			exitGui();
 		}
 		return false;
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent event) {
 		if (subGui != null) {
-			return subGui.keyPressed(keyCode, scanCode, modifiers);
+			return subGui.keyPressed(event);
 		}
-		if (keyCode == 256) { // GLFW_KEY_ESCAPE: close only this popup, not the whole GUI
+		if (event.isEscape()) { // close only this popup, not the whole GUI
 			exitGui();
 			return true;
 		}
-		return super.keyPressed(keyCode, scanCode, modifiers);
+		return super.keyPressed(event);
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		if (subGui != null) {
-			return subGui.mouseClicked(mouseX, mouseY, button);
+			return subGui.mouseClicked(event, doubleClick);
 		}
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean mouseReleased(MouseButtonEvent event) {
 		if (subGui != null) {
-			return subGui.mouseReleased(mouseX, mouseY, button);
+			return subGui.mouseReleased(event);
 		}
-		return super.mouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(event);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		if (subGui != null) {
-			return subGui.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+			return subGui.mouseDragged(event, dragX, dragY);
 		}
-		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+		return super.mouseDragged(event, dragX, dragY);
 	}
 
     @Override

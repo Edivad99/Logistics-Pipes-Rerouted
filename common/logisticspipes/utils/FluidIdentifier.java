@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nullable;
 
@@ -26,10 +25,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 import logisticspipes.proxy.LPRegistries;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -148,31 +148,19 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	}
 
 	/**
-	 * The fluid held by a container item, looked up through LP's own container registry first, then
-	 * the item's fluid-handler capability, then {@link FluidUtil}.
+	 * The fluid held by a container item, looked up through LP's own container registry first and
+	 * then through the item's fluid capability.
 	 */
 	@Nullable
 	public static FluidIdentifier get(ItemIdentifierStack stack) {
-		FluidStack f = null;
 		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack, LPRegistries.access());
 		if (fstack != null) {
-			f = fstack.makeFluidStack();
+			return FluidIdentifier.get(fstack.makeFluidStack());
 		}
-		if (f == null) {
-			ItemStack itemStack = stack.makeNormalStack();
-			var capability = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
-			if (capability != null) {
-				f = IntStream.range(0, capability.getTanks())
-						.mapToObj(capability::getFluidInTank)
-						.filter(s -> !s.isEmpty())
-						.findFirst()
-						.orElse(null);
-			}
-		}
-		if (f == null) {
-			f = FluidUtil.getFluidContained(stack.makeNormalStack()).orElse(null);
-		}
-		return FluidIdentifier.get(f);
+		// Was two steps -- walk the item's fluid handler by hand, then fall back to the deprecated
+		// FluidUtil. The transfer API's own FluidUtil is that same walk, so both collapse into it.
+		FluidStack contained = FluidUtil.getFirstStackContained(stack.makeNormalStack());
+		return contained.isEmpty() ? null : FluidIdentifier.get(contained);
 	}
 
 	/* Accessors */
@@ -220,13 +208,13 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1), LPRegistries.access()).getItem();
 	}
 
-	public int getFreeSpaceInsideTank(IFluidHandler tank) {
-		FluidStack liquid = tank.getFluidInTank(0);
-		if (liquid == null || liquid.isEmpty()) {
-			return tank.getTankCapacity(0);
+	public int getFreeSpaceInsideTank(ResourceHandler<FluidResource> tank) {
+		FluidResource held = tank.getResource(0);
+		if (held.isEmpty()) {
+			return tank.getCapacityAsInt(0, FluidResource.of(makeFluidStack(1)));
 		}
-		if (this.equals(FluidIdentifier.get(liquid))) {
-			return tank.getTankCapacity(0) - liquid.getAmount();
+		if (this.equals(FluidIdentifier.get(held.toStack(1)))) {
+			return tank.getCapacityAsInt(0, held) - tank.getAmountAsInt(0);
 		}
 		return 0;
 	}

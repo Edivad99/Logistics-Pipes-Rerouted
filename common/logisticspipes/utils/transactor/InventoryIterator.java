@@ -1,7 +1,10 @@
 package logisticspipes.utils.transactor;
 
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import logisticspipes.utils.transfer.ItemHandlers;
 
 
 public final class InventoryIterator {
@@ -18,7 +21,7 @@ public final class InventoryIterator {
 	 * @param side
 	 * @return Iterable
 	 */
-	public static Iterable<IInvSlot> getIterable(IItemHandler inv, Direction side) {
+	public static Iterable<IInvSlot> getIterable(ResourceHandler<ItemResource> inv, Direction side) {
 
 		return new InventoryIteratorSimple(inv);
 	}

@@ -115,7 +115,7 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 
 	private void updateInv(boolean force) {
 		itemList.clear();
-		itemList.addAll(PipeFluidUtil.INSTANCE.fluidsToItemList(this));
+		itemList.addAll(PipeFluidUtil.fluidsToItemList(this));
 
 		if (!itemList.equals(oldList) || force) {
 			oldList.clear();

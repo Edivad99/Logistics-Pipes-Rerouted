@@ -19,6 +19,8 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -124,14 +126,19 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	public boolean mouseClicked(double i, double j, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double i = event.x();
+		double j = event.y();
+		int k = event.button();
 		itemDisplay.handleClick((int) i, (int) j, k);
 		search.handleClick((int) i, (int) j, k);
-		return super.mouseClicked(i, j, k);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		if (i == 201) { //PgUp
 			itemDisplay.prevPage();
 		} else if (i == 209) { //PgDn
@@ -139,7 +146,7 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 		} else {
 			// Track everything except Escape when in search bar
 			if (i == 1 || !search.handleKey(c, i)) {
-				return super.charTyped(c, i);
+				return super.charTyped(event);
 			}
 		}
 		return true;

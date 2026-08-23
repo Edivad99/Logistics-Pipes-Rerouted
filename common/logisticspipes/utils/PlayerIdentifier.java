@@ -49,7 +49,7 @@ public class PlayerIdentifier {
     }
 
     public static PlayerIdentifier get(Player player) {
-        return PlayerIdentifier.get(player.getGameProfile().getName(), player.getGameProfile().getId());
+        return PlayerIdentifier.get(player.getGameProfile().name(), player.getGameProfile().id());
     }
 
     public static PlayerIdentifier get(@Nullable String username, @Nullable UUID id) {

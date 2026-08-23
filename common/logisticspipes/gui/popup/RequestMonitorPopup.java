@@ -2,6 +2,7 @@ package logisticspipes.gui.popup;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.ARGB;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -119,14 +120,17 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		double mx = event.x();
+		double my = event.y();
+		int button = event.button();
 		int k = (width - xSize) / 2;
 		int l = (height - ySize) / 2;
 		if (mx >= k + 8 && mx < k + 8 + 224 && my >= l + 17 && my < l + 17 + 155) {
 			guiMapX -= dx / zoom.zoom;
 			guiMapY -= dy / zoom.zoom;
 		}
-		return super.mouseDragged(mx, my, button, dx, dy);
+		return super.mouseDragged(event, dx, dy);
 	}
 
 	@Override

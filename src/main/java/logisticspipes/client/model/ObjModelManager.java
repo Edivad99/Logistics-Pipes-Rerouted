@@ -47,8 +47,9 @@ public class ObjModelManager implements PreparableReloadListener {
     private static final float MODEL_SCALE = 1 / 100f;
 
     @Override
-    public CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager resourceManager,
-        Executor prepareExecutor, Executor applyExecutor) {
+    public CompletableFuture<Void> reload(SharedState sharedState, Executor prepareExecutor,
+        PreparationBarrier barrier, Executor applyExecutor) {
+        ResourceManager resourceManager = sharedState.resourceManager();
         return CompletableFuture
             .supplyAsync(() -> parseAll(resourceManager), prepareExecutor)
             .thenCompose(barrier::wait)

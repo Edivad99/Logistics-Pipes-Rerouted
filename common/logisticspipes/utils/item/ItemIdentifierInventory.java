@@ -8,6 +8,7 @@
 
 package logisticspipes.utils.item;
 
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import java.util.Arrays;
@@ -219,10 +220,10 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void startOpen(Player player) {}
+	public void startOpen(ContainerUser containerUser) {}
 
 	@Override
-	public void stopOpen(Player player) {}
+	public void stopOpen(ContainerUser containerUser) {}
 
 	@Override
 	public void deserialize(ValueInput input) {

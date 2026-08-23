@@ -22,7 +22,8 @@ import lombok.experimental.Accessors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -228,11 +229,12 @@ public class ItemStackRenderer {
 		// context and only run under the CCL-activated branch (currently dormant).
 	}
 
-	public void renderInWorld(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+	public void renderInWorld(PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
 		if (itemstack.isEmpty()) return;
 		Minecraft mc = Minecraft.getInstance();
-		ItemRenderer ir = mc.getItemRenderer();
-		ir.renderStatic(itemstack, ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, mc.level, 0);
+		ItemStackRenderState renderState = new ItemStackRenderState();
+		mc.getItemModelResolver().updateForTopItem(renderState, itemstack, ItemDisplayContext.GROUND, mc.level, null, 0);
+		renderState.submit(poseStack, collector, packedLight, packedOverlay, 0);
 	}
 
 	public void renderItemInGui(GuiGraphics gg, float x, float y, Item item, float zLevel, float scale) {

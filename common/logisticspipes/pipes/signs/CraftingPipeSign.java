@@ -20,7 +20,7 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -29,6 +29,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
 public class CraftingPipeSign implements IPipeSign {
+
+	/**
+	 * Opaque black. These calls used to pass a bare 0: Font#drawInBatch forced a zero alpha
+	 * byte to opaque, so 0 meant black. 1.21.6 removed that fixup and 0 now means invisible.
+	 */
+	private static final int SIGN_TEXT_COLOR = 0xFF000000;
 
 	public CoreRoutedPipe pipe;
 	public Direction dir;
@@ -78,7 +84,7 @@ public class CraftingPipeSign implements IPipeSign {
 	public void activate(Player player) {}
 
     @Override
-	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, SubmitNodeCollector collector, int packedLight) {
 		PipeItemsCraftingLogistics cpipe = (PipeItemsCraftingLogistics) pipe;
 		Font font = Minecraft.getInstance().font;
 		oldRenderedStack = null;
@@ -90,7 +96,7 @@ public class CraftingPipeSign implements IPipeSign {
 				ItemIdentifierStack itemstack = craftables.get(0);
 				oldRenderedStack = itemstack;
 
-				renderer.renderItemStackOnSign(itemstack.makeNormalStack(), poseStack, bufferSource, packedLight);
+				renderer.renderItemStackOnSign(itemstack.makeNormalStack(), poseStack, collector, packedLight);
 				Item item = itemstack.getItem().item;
 
 				poseStack.pushPose();
@@ -107,14 +113,16 @@ public class CraftingPipeSign implements IPipeSign {
 				}
 
 				String idStr = String.format("ID: %d", BuiltInRegistries.ITEM.getId(item));
-				font.drawInBatch(Component.literal(idStr), -font.width(idStr) / 2.0F, 0 * 10 - 4 * 5, 0,
-						false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+				collector.submitText(poseStack, -font.width(idStr) / 2.0F, 0 * 10 - 4 * 5,
+					Component.literal(idStr).getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+					packedLight, SIGN_TEXT_COLOR, 0, 0);
 				ModuleCrafter logisticsMod = cpipe.getLogisticsModule();
 				oldSatelliteName = logisticsMod.clientSideSatelliteNames.satelliteName;
 				if (!oldSatelliteName.isEmpty()) {
 					String sat = "Sat: " + oldSatelliteName;
-					font.drawInBatch(Component.literal(sat), -font.width(sat) / 2.0F, 1 * 10 - 4 * 5, 0,
-							false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+					collector.submitText(poseStack, -font.width(sat) / 2.0F, 1 * 10 - 4 * 5,
+					Component.literal(sat).getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+					packedLight, SIGN_TEXT_COLOR, 0, 0);
 				}
 			} else {
 				poseStack.pushPose();
@@ -126,8 +134,9 @@ public class CraftingPipeSign implements IPipeSign {
 
 			name = renderer.cut(name, font);
 
-			font.drawInBatch(Component.literal(name), -font.width(name) / 2.0F - 15, 3 * 10 - 4 * 5, 0,
-					false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+			collector.submitText(poseStack, -font.width(name) / 2.0F - 15, 3 * 10 - 4 * 5,
+					Component.literal(name).getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+					packedLight, SIGN_TEXT_COLOR, 0, 0);
 
 			poseStack.popPose();
 		}

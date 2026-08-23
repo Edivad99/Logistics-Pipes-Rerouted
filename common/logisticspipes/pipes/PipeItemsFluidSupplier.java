@@ -34,12 +34,18 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport {
+
+	/** The transfer API reports "no fluid" as an empty stack; the callers below expect null. */
+	@Nullable
+	private static FluidStack nullIfEmpty(FluidStack stack) {
+		return stack.isEmpty() ? null : stack;
+	}
 
 	private boolean lastRequestFailed = false;
 	private boolean requestPartials = false;
@@ -59,7 +65,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 				if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
 					return false;
 				}
-				ITankUtil tank = PipeFluidUtil.INSTANCE.getTankUtilForTE(tile, dir.getOpposite());
+				ITankUtil tank = PipeFluidUtil.getTankUtilForTE(tile, dir.getOpposite());
 				return tank != null && tank.containsTanks();
 			}
 		}, item);
@@ -100,7 +106,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		if (getOriginalUpgradeManager().hasSneakyUpgrade()) {
 			orientation = getOriginalUpgradeManager().getSneakyOrientation();
 		}
-		ITankUtil util = PipeFluidUtil.INSTANCE.getTankUtilForTE(tile, orientation);
+		ITankUtil util = PipeFluidUtil.getTankUtilForTE(tile, orientation);
 		if (util == null) {
 			return;
 		}
@@ -111,7 +117,8 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		if (idStack == null) {
 			return;
 		}
-		FluidIdentifierStack liquidId = FluidUtil.getFluidContained(idStack.makeNormalStack()).map(FluidIdentifierStack::getFromStack).orElse(null);
+		FluidStack liquidStackOf = FluidUtil.getFirstStackContained(idStack.makeNormalStack());
+		FluidIdentifierStack liquidId = liquidStackOf.isEmpty() ? null : FluidIdentifierStack.getFromStack(liquidStackOf);
 		if (liquidId == null) {
 			return;
 		}
@@ -152,7 +159,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			HashMap<FluidIdentifier, Integer> wantFluids = new HashMap<>();
 			for (Entry<ItemIdentifier, Integer> item : wantContainers.entrySet()) {
 				ItemStack wantItem = item.getKey().makeNormalStack(1);
-				FluidStack liquidStack = FluidUtil.getFluidContained(wantItem).orElse(null);
+				FluidStack liquidStack = nullIfEmpty(FluidUtil.getFirstStackContained(wantItem));
 				if (liquidStack == null) {
 					continue;
 				}
@@ -181,7 +188,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			}
 			for (Entry<ItemIdentifier, Integer> requestedItem : requestedItems.entrySet()) {
 				ItemStack wantItem = requestedItem.getKey().makeNormalStack(1);
-				FluidStack requestedFluidId = FluidUtil.getFluidContained(wantItem).orElse(null);
+				FluidStack requestedFluidId = nullIfEmpty(FluidUtil.getFirstStackContained(wantItem));
 				if (requestedFluidId == null) {
 					continue;
 				}
@@ -197,7 +204,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 			//Make request
 
 			for (ItemIdentifier need : wantContainers.keySet()) {
-				FluidStack requestedFluidId = FluidUtil.getFluidContained(need.makeNormalStack(1)).orElse(null);
+				FluidStack requestedFluidId = nullIfEmpty(FluidUtil.getFirstStackContained(need.makeNormalStack(1)));
 				if (requestedFluidId == null) {
 					continue;
 				}

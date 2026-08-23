@@ -8,7 +8,8 @@ import logisticspipes.blocks.powertile.LogisticsPowerProviderTileEntity;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.interfaces.ICoFHEnergyReceiver;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -63,8 +64,12 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 		for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
 			if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection())) {
 				if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
-					ICoFHEnergyReceiver energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection());
-					globalNeed += need[i] = (energyReceiver.getMaxEnergyStored() - energyReceiver.getEnergyStored());
+					EnergyHandler energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection());
+					// Null when the neighbour has the capability but will not take energy -- a
+					// generator's output buffer, say. It used to be filtered by canReceive().
+					if (energyReceiver != null) {
+						globalNeed += need[i] = (energyReceiver.getCapacityAsLong() - energyReceiver.getAmountAsLong());
+					}
 				}
 			}
 			++i;
@@ -77,11 +82,19 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 				if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection())) {
 					if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
 						Direction oppositeDir = adjacent.getOurDirection();
-						ICoFHEnergyReceiver energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getTileEntity(), oppositeDir);
+						EnergyHandler energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getTileEntity(), oppositeDir);
+						if (energyReceiver == null) {
+							++i;
+							continue;
+						}
 						if (internalBufferRF + 1 < need[i] * fullfillable) {
 							return true;
 						}
-						int used = energyReceiver.receiveEnergy(oppositeDir, (int) (need[i] * fullfillable), false);
+						int used;
+						try (Transaction transaction = Transaction.openRoot()) {
+							used = energyReceiver.insert((int) (need[i] * fullfillable), transaction);
+							transaction.commit();
+						}
 						if (used > 0) {
 							pipe.container.addLaser(adjacent.getDirection(), 0.5F, LogisticsPowerProviderTileEntity.RF_COLOR, false, true);
 							internalBufferRF -= used;

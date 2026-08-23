@@ -10,6 +10,8 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -98,17 +100,22 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean charTyped(char par1, int par2) {
+	public boolean charTyped(CharacterEvent event) {
+		char par1 = (char) event.codepoint();
+		int par2 = event.modifiers();
 		if (!this.textInput.handleKey(par1, par2)) {
-			return super.charTyped(par1, par2);
+			return super.charTyped(event);
 		}
 		return true;
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int mouseButton = event.button();
 		if (!this.textInput.handleClick((int) mouseX, (int) mouseY, mouseButton)) {
-			return super.mouseClicked(mouseX, mouseY, mouseButton);
+			return super.mouseClicked(event, doubleClick);
 		}
 		return true;
 	}

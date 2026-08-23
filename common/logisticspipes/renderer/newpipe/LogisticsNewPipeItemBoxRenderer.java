@@ -14,7 +14,7 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -29,7 +29,7 @@ public class LogisticsNewPipeItemBoxRenderer {
 	private static final ResourceLocation BLOCKS = ResourceLocation.withDefaultNamespace("textures/atlas/blocks.png");
 	private static final Map<FluidIdentifier, int[]> renderLists = new HashMap<>();
 
-	public void doRenderItem(ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+	public void doRenderItem(ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
 		poseStack.pushPose();
 
 		poseStack.translate(x, y, z);
@@ -40,13 +40,12 @@ public class LogisticsNewPipeItemBoxRenderer {
 		poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
 		poseStack.translate(-0.5, -0.5, -0.5);
 
-		VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
 		// Everything the emitter needs is passed in, so there is no bound render state to go stale.
-		MeshRenderer.emit(
-			buffer, poseStack.last(),
+		collector.submitCustomGeometry(poseStack, RenderType.cutoutMipped(), (pose, buffer) -> MeshRenderer.emit(
+			buffer, pose,
 			PipeModelStore.parts().innerTransportBox(),
 			PipeModelStore.sprites().innerBox(),
-			packedLight, packedOverlay);
+			packedLight, packedOverlay));
 
 		if (!itemstack.isEmpty() && itemstack.getItem() instanceof LogisticsFluidContainer) {
 			FluidIdentifierStack f = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(ItemIdentifierStack.getFromStack(itemstack), Minecraft.getInstance().level.registryAccess());

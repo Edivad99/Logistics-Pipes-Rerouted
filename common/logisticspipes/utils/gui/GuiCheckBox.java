@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LPConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -27,7 +28,7 @@ public class GuiCheckBox extends AbstractButton {
 	}
 
 	@Override
-	public void onPress() {
+	public void onPress(InputWithModifiers input) {
 		// State is owned by the press listener (they call change()/setState themselves);
 		// toggling here too made every click a double flip, i.e. a no-op.
 		pressListener.accept(this);

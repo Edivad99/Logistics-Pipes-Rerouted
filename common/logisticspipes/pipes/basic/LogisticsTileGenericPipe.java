@@ -62,9 +62,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.model.data.ModelData;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
 import network.rs485.logisticspipes.connection.ConnectionType;
 import network.rs485.logisticspipes.connection.PipeInventoryConnectionChecker;
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -204,7 +205,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			sendInitPacket = false;
 			getRenderController().sendInit();
 		}
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			if (deletePipe) {
 				level.removeBlock(getBlockPos(), false);
 			}
@@ -226,7 +227,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 		pipe.updateEntity();
 
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			debug.end();
 			return;
 		}
@@ -714,7 +715,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		// the description packet — otherwise the initial chunk-send (via getUpdateTag)
 		// transmits a default state and every pipe on the client renders with
 		// textureIndex=0 and zero connections.
-		if (pipe != null && level != null && !level.isClientSide) {
+		if (pipe != null && level != null && !level.isClientSide()) {
 			computeConnections();
 			refreshRenderState();
 		}
@@ -867,7 +868,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	/** Used by RegisterCapabilitiesEvent wiring in LPRegistries. */
 	@Nullable
-	public IItemHandler getItemHandlerForSide(@Nullable Direction side) {
+	public ItemInsertionHandler getItemHandlerForSide(@Nullable Direction side) {
 		return itemInsertionHandlers != null ? itemInsertionHandlers.get(side) : null;
 	}
 
@@ -961,7 +962,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	}
 
 	@Nullable
-	public IItemHandler getItemCap(@Nullable Direction side) {
+	public ResourceHandler<ItemResource> getItemCap(@Nullable Direction side) {
 		if (side != null) {
 			return getItemHandlerForSide(side);
 		}
@@ -969,9 +970,9 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	}
 
 	@Nullable
-	public IFluidHandler getFluidCap(@Nullable Direction side) {
+	public ResourceHandler<FluidResource> getFluidCap(@Nullable Direction side) {
 		if (side != null && pipe != null && pipe.transport instanceof PipeFluidTransportLogistics fluidTransport) {
-			return fluidTransport.getIFluidHandler(side);
+			return fluidTransport.getFluidResourceHandler(side);
 		}
 		return null;
 	}

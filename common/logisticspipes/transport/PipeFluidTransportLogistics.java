@@ -2,6 +2,7 @@ package logisticspipes.transport;
 
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
+import logisticspipes.utils.transfer.LPFluidTank;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.pipe.PipeFluidUpdate;
@@ -14,26 +15,43 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
-	public FluidTank[] sideTanks = new FluidTank[Direction.values().length];
-	public FluidTank internalTank = new FluidTank(getInnerCapacity());
+	public LPFluidTank[] sideTanks = new LPFluidTank[Direction.values().length];
+	public LPFluidTank internalTank = new LPFluidTank(getInnerCapacity());
 
 	public FluidStack[] renderCache = new FluidStack[7];
 
 	public PipeFluidTransportLogistics() {
 		super(true);
 		for (Direction dir : Direction.values()) {
-			sideTanks[dir.ordinal()] = new FluidTank(getSideCapacity());
+			sideTanks[dir.ordinal()] = new LPFluidTank(getSideCapacity());
 		}
 	}
 
-	public IFluidHandler getIFluidHandler(Direction face) {
-		return new FluidHandler(face);
+	/**
+	 * The fluid capability for one side.
+	 *
+	 * <p>The tank is already a {@code ResourceHandler}, so there is nothing to adapt -- the only
+	 * reason for a wrapper is the pipe's own rule that fluid may not be pushed in while the pipe
+	 * refuses it. Everything else delegates.</p>
+	 */
+	public ResourceHandler<FluidResource> getFluidResourceHandler(Direction face) {
+		if (face.ordinal() >= sideTanks.length) {
+			return null;
+		}
+		return new DelegatingResourceHandler<>(sideTanks[face.ordinal()]) {
+			@Override
+			public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+				return getFluidPipe().canReceiveFluid() ? super.insert(index, resource, amount, transaction) : 0;
+			}
+		};
 	}
 
 	private FluidRoutedPipe getFluidPipe() {
@@ -48,8 +66,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 	public int fill(Direction from, FluidStack resource, boolean doFill) {
 		if (from.ordinal() < Direction.values().length && getFluidPipe().canReceiveFluid()) {
-			return sideTanks[from.ordinal()].fill(resource,
-					doFill ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE);
+			return sideTanks[from.ordinal()].fill(resource, doFill);
 		} else {
 			return 0;
 		}
@@ -57,8 +74,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 	public FluidStack drain(Direction from, int maxDrain, boolean doDrain) {
 		if (from.ordinal() < Direction.values().length) {
-			return sideTanks[from.ordinal()].drain(maxDrain,
-					doDrain ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE);
+			return sideTanks[from.ordinal()].drain(maxDrain, doDrain);
 		} else {
 			return null;
 		}
@@ -69,67 +85,6 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 			return new FluidStack(resource.getFluid(), 0);
 		}
 		return drain(from, resource.getAmount(), doDrain);
-	}
-
-	public class FluidHandler implements IFluidHandler {
-
-		private final Direction from;
-
-		FluidHandler(Direction from) {
-			this.from = from;
-		}
-
-		@Override
-		public int getTanks() {
-			return 1;
-		}
-
-		@Override
-		public FluidStack getFluidInTank(int tank) {
-			if (from.ordinal() < Direction.values().length) {
-				return sideTanks[from.ordinal()].getFluid();
-			}
-			return FluidStack.EMPTY;
-		}
-
-		@Override
-		public int getTankCapacity(int tank) {
-			if (from.ordinal() < Direction.values().length) {
-				return sideTanks[from.ordinal()].getCapacity();
-			}
-			return 0;
-		}
-
-		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
-			return true;
-		}
-
-		@Override
-		public int fill(FluidStack resource, FluidAction action) {
-			if (from.ordinal() < Direction.values().length && getFluidPipe().canReceiveFluid()) {
-				return sideTanks[from.ordinal()].fill(resource, action);
-			} else {
-				return 0;
-			}
-		}
-
-		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
-			if (from.ordinal() < Direction.values().length) {
-				return sideTanks[from.ordinal()].drain(maxDrain, action);
-			} else {
-				return FluidStack.EMPTY;
-			}
-		}
-
-		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
-			if (sideTanks[from.ordinal()].getFluid() == null || !(FluidStack.isSameFluidSameComponents(sideTanks[from.ordinal()].getFluid(), resource))) {
-				return new FluidStack(resource.getFluid(), 0);
-			}
-			return drain(resource.getAmount(), action);
-		}
 	}
 
 	@Override
@@ -170,7 +125,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 					FluidStack stack = sideTanks[direction.ordinal()].getFluid();
 					if (stack != null && !stack.isEmpty()) {
 						sideTanks[direction.ordinal()].setFluid(FluidStack.EMPTY);
-						internalTank.fill(stack, IFluidHandler.FluidAction.EXECUTE);
+						internalTank.fill(stack, true);
 					}
 				}
 				if (renderCache[direction.ordinal()] != null) {

@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -28,7 +28,7 @@ public interface IPipeSign extends ValueIOSerializable {
 
 	void updateServerSide();
 
-	void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight);
+	void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, SubmitNodeCollector collector, int packedLight);
 
 	RenderTarget getMCFrameBufferForSign(); // was Framebuffer
 

@@ -21,7 +21,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class PipeFluidInsertion extends FluidRoutedPipe {
 
@@ -81,7 +80,7 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 				continue;
 			}
 
-			FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.getValue2().getSinkAmountInt(), IFluidHandler.FluidAction.EXECUTE);
+			FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.getValue2().getSinkAmountInt(), true);
 			ItemIdentifierStack liquidContainer = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(FluidIdentifierStack.getFromStack(toSend), getWorld().registryAccess());
 			IRoutedItem routed = SimpleServiceLocator.routedItemHelper.createNewTravelItem(liquidContainer);
 			routed.setDestination(result.getValue1());

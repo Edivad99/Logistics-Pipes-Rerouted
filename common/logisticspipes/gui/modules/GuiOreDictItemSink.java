@@ -12,6 +12,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -83,14 +84,17 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	}
 
 	@Override
-	public boolean mouseClicked(double i, double j, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double i = event.x();
+		double j = event.y();
+		int k = event.button();
 		int x = (int) i - leftPos;
 		int y = (int) j - topPos;
 		if (0 < x && x < 175 && 0 < y && y < 208) {
 			mouseX = x;
 			mouseY = y;
 		}
-		return super.mouseClicked(i, j, k);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override

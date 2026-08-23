@@ -13,7 +13,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.ILogisticsPowerProvider;
@@ -50,51 +52,76 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     private final PlayerCollectionList guiListener = new PlayerCollectionList();
     private final PlayerCollectionList watcherList = new PlayerCollectionList();
     private final IHeadUpDisplayRenderer HUD;
-    private final IEnergyStorage energyStorage = new IEnergyStorage() {
+    private final EnergyHandler energyStorage = new JunctionEnergyHandler();
+
+    /**
+     * The junction's energy capability: FE in, nothing out.
+     *
+     * <p>Cannot be one of NeoForge's ready-made handlers, {@link net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler}
+     * included, because it does not own its storage -- it is a view onto the block's LP-unit
+     * {@code internalStorage} plus {@code internalFEBuffer}, the sub-LP remainder, converted through
+     * {@link #FE_DIVISOR}.</p>
+     *
+     * <p>The old {@code IEnergyStorage} had a {@code simulate} flag; the transfer API has
+     * transactions instead, so the two fields are snapshotted before the first write of each
+     * transaction depth and restored if it aborts. That is strictly better than a simulate flag:
+     * the accounting is written once rather than duplicated across a dry run and a real one.</p>
+     */
+    private class JunctionEnergyHandler extends SnapshotJournal<JunctionEnergyHandler.State> implements EnergyHandler {
+
+        /** Everything {@link #addEnergy} touches, so that an abort leaves no trace at all. */
+        private record State(int storage, int feBuffer, boolean needMorePower) {
+        }
 
         @Override
-        public int receiveEnergy(int maxReceive, boolean simulate) {
-            if (freeSpace() < 1) {
+        protected State createSnapshot() {
+            return new State(internalStorage, internalFEBuffer, needMorePowerTriggerCheck);
+        }
+
+        @Override
+        protected void revertToSnapshot(State snapshot) {
+            internalStorage = snapshot.storage();
+            internalFEBuffer = snapshot.feBuffer();
+            needMorePowerTriggerCheck = snapshot.needMorePower();
+        }
+
+        @Override
+        public long getAmountAsLong() {
+            return (long) internalStorage * LogisticsPowerJunctionBlockEntity.FE_DIVISOR + internalFEBuffer;
+        }
+
+        @Override
+        public long getCapacityAsLong() {
+            return (long) LogisticsPowerJunctionBlockEntity.MAX_STORAGE * LogisticsPowerJunctionBlockEntity.FE_DIVISOR;
+        }
+
+        @Override
+        public int insert(int amount, TransactionContext transaction) {
+            if (amount <= 0 || freeSpace() < 1) {
                 return 0;
             }
-            final int FE_Space = freeSpace() * LogisticsPowerJunctionBlockEntity.FE_DIVISOR - internalFEBuffer;
-            final int FE_ToTake = Math.min(maxReceive, FE_Space);
-            if (!simulate) {
-                addEnergy(FE_ToTake / LogisticsPowerJunctionBlockEntity.FE_DIVISOR);
-                internalFEBuffer += FE_ToTake % LogisticsPowerJunctionBlockEntity.FE_DIVISOR;
-                if (internalFEBuffer >= LogisticsPowerJunctionBlockEntity.FE_DIVISOR) {
-                    addEnergy(1);
-                    internalFEBuffer -= LogisticsPowerJunctionBlockEntity.FE_DIVISOR;
-                }
+            final int feSpace = freeSpace() * LogisticsPowerJunctionBlockEntity.FE_DIVISOR - internalFEBuffer;
+            final int feToTake = Math.min(amount, feSpace);
+            if (feToTake <= 0) {
+                return 0;
             }
-            return FE_ToTake;
+            updateSnapshots(transaction);
+            addEnergy(feToTake / LogisticsPowerJunctionBlockEntity.FE_DIVISOR);
+            internalFEBuffer += feToTake % LogisticsPowerJunctionBlockEntity.FE_DIVISOR;
+            if (internalFEBuffer >= LogisticsPowerJunctionBlockEntity.FE_DIVISOR) {
+                addEnergy(1);
+                internalFEBuffer -= LogisticsPowerJunctionBlockEntity.FE_DIVISOR;
+            }
+            return feToTake;
         }
 
         @Override
-        public int extractEnergy(int maxExtract, boolean simulate) {
+        public int extract(int amount, TransactionContext transaction) {
+            // The junction hands its power to the LP network, never back out through the capability.
             return 0;
         }
+    }
 
-        @Override
-        public int getEnergyStored() {
-            return internalStorage * LogisticsPowerJunctionBlockEntity.FE_DIVISOR + internalFEBuffer;
-        }
-
-        @Override
-        public int getMaxEnergyStored() {
-            return LogisticsPowerJunctionBlockEntity.MAX_STORAGE * LogisticsPowerJunctionBlockEntity.FE_DIVISOR;
-        }
-
-        @Override
-        public boolean canExtract() {
-            return false;
-        }
-
-        @Override
-        public boolean canReceive() {
-            return true;
-        }
-    };
 
     // true if it needs more power, turns off at full, turns on at 50%.
     public boolean needMorePowerTriggerCheck = true;
@@ -326,7 +353,7 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
         return NewGuiHandler.getGui(PowerJunctionGui.class);
     }
 
-    public IEnergyStorage getEnergyStorageCap(@Nullable Direction direction) {
-        return this.energyStorage;
+    public EnergyHandler getEnergyStorageCap(@Nullable Direction direction) {
+        return energyStorage;
     }
 }

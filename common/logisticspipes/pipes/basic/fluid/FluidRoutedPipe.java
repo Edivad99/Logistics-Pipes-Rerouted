@@ -32,8 +32,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import logisticspipes.utils.transfer.LPFluidTank;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 
@@ -52,7 +51,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 
 	@Override
 	public boolean logisticsIsPipeConnected(BlockEntity tile, Direction dir) {
-		ITankUtil tank = PipeFluidUtil.INSTANCE.getTankUtilForTE(tile, dir.getOpposite());
+		ITankUtil tank = PipeFluidUtil.getTankUtilForTE(tile, dir.getOpposite());
 		return (tank != null && tank.containsTanks()) || tile instanceof LogisticsTileGenericPipe;
 	}
 
@@ -104,13 +103,10 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		boolean fluidTile = SimpleServiceLocator.specialTankHandler.hasSpecialTankUtilFor(tile, dir.getOpposite());
 		if (tile != null && tile.getLevel() != null) {
 			Level level = tile.getLevel();
-			IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, tile.getBlockPos(), dir);
+			var fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, tile.getBlockPos(), dir);
 			if (fluidHandler != null) {
 				fluidTile = true;
 			}
-		}
-		if (tile instanceof IFluidHandler) {
-			fluidTile = true;
 		}
 		if (!fluidTile) {
 			return false;
@@ -125,7 +121,11 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 			if (!flag) {
 				return false;
 			}
-			if (((LogisticsTileGenericPipe) tile).pipe == null || !(((LogisticsTileGenericPipe) tile).pipe.transport instanceof IFluidHandler)) {
+			// Was `transport instanceof IFluidHandler`, which no LP transport has ever satisfied --
+			// the handler was an inner class of PipeFluidTransportLogistics, never the transport
+			// itself, so this always said "not a fluid pipe". Naming the transport type is what the
+			// check was reaching for, and lands on the same answer for every pipe that exists.
+			if (((LogisticsTileGenericPipe) tile).pipe == null || !(((LogisticsTileGenericPipe) tile).pipe.transport instanceof PipeFluidTransportLogistics)) {
 				return false;
 			}
 		}
@@ -138,14 +138,14 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		if (canInsertFromSideToTanks()) {
 			int validDirections = 0;
 			final List<Pair<NeighborTileEntity<BlockEntity>, ITankUtil>> list =
-					PipeFluidUtil.INSTANCE.getAdjacentTanks(this, true);
+					PipeFluidUtil.getAdjacentTanks(this, true);
 			for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : list) {
 				if (pair.getValue2() instanceof LogisticsTileGenericPipe) {
 					if (((LogisticsTileGenericPipe) pair.getValue2()).pipe instanceof CoreRoutedPipe) {
 						continue;
 					}
 				}
-				FluidTank internalTank = ((PipeFluidTransportLogistics) transport).sideTanks[pair.getValue1().getDirection().ordinal()];
+				LPFluidTank internalTank = ((PipeFluidTransportLogistics) transport).sideTanks[pair.getValue1().getDirection().ordinal()];
 				validDirections++;
 				if (internalTank.getFluid().isEmpty()) {
 					continue;
@@ -154,7 +154,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 				if (filled == 0) {
 					continue;
 				}
-				FluidStack drain = internalTank.drain(filled, IFluidHandler.FluidAction.EXECUTE);
+				FluidStack drain = internalTank.drain(filled, true);
 				if (drain == null || filled != drain.getAmount()) {
 					if (LogisticsPipes.isDEBUG()) {
 						throw new UnsupportedOperationException("Fluid Multiplication");
@@ -164,7 +164,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 			if (validDirections == 0) {
 				return;
 			}
-			FluidTank tank = ((PipeFluidTransportLogistics) transport).internalTank;
+			LPFluidTank tank = ((PipeFluidTransportLogistics) transport).internalTank;
 			FluidStack stack = tank.getFluid();
 			if (stack.isEmpty()) {
 				return;
@@ -175,17 +175,17 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 						continue;
 					}
 				}
-				FluidTank tankSide = ((PipeFluidTransportLogistics) transport).sideTanks[pair.getValue1().getDirection().ordinal()];
+				LPFluidTank tankSide = ((PipeFluidTransportLogistics) transport).sideTanks[pair.getValue1().getDirection().ordinal()];
 				stack = tank.getFluid();
 				if (stack.isEmpty()) {
 					continue;
 				}
 				stack = stack.copy();
-				int filled = tankSide.fill(stack, IFluidHandler.FluidAction.EXECUTE);
+				int filled = tankSide.fill(stack, true);
 				if (filled == 0) {
 					continue;
 				}
-				FluidStack drain = tank.drain(filled, IFluidHandler.FluidAction.EXECUTE);
+				FluidStack drain = tank.drain(filled, true);
 				if (drain == null || filled != drain.getAmount()) {
 					if (LogisticsPipes.isDEBUG()) {
 						throw new UnsupportedOperationException("Fluid Multiplication");
@@ -228,7 +228,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 			FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(arrivingItem.getItemIdentifierStack(), getWorld().registryAccess());
 			if (isConnectableTank(tile, arrivingItem.output, false)) {
 				//Try to put liquid into all adjacent tanks.
-				for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> util : PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false)) {
+				for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> util : PipeFluidUtil.getAdjacentTanks(this, false)) {
 					filled = util.getValue2().fill(liquid, true);
 					liquid.lowerAmount(filled);
 					if (liquid.getAmount() != 0) {
@@ -237,14 +237,14 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 					return true;
 				}
 				//Try inserting the liquid into the pipe side tank
-				filled = ((PipeFluidTransportLogistics) transport).sideTanks[arrivingItem.output.ordinal()].fill(liquid.makeFluidStack(), IFluidHandler.FluidAction.EXECUTE);
+				filled = ((PipeFluidTransportLogistics) transport).sideTanks[arrivingItem.output.ordinal()].fill(liquid.makeFluidStack(), true);
 				if (filled == liquid.getAmount()) {
 					return true;
 				}
 				liquid.lowerAmount(filled);
 			}
 			//Try inserting the liquid into the pipe internal tank
-			filled = ((PipeFluidTransportLogistics) transport).internalTank.fill(liquid.makeFluidStack(), IFluidHandler.FluidAction.EXECUTE);
+			filled = ((PipeFluidTransportLogistics) transport).internalTank.fill(liquid.makeFluidStack(), true);
 			if (filled == liquid.getAmount()) {
 				return true;
 			}
@@ -291,8 +291,8 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		if (!(other instanceof FluidRoutedPipe)) {
 			return false;
 		}
-		List<BlockEntity> theirs = PipeFluidUtil.INSTANCE.getAllTankTiles((FluidRoutedPipe) other);
-		for (BlockEntity tile : PipeFluidUtil.INSTANCE.getAllTankTiles(this)) {
+		List<BlockEntity> theirs = PipeFluidUtil.getAllTankTiles((FluidRoutedPipe) other);
+		for (BlockEntity tile : PipeFluidUtil.getAllTankTiles(this)) {
 			if (theirs.contains(tile)) {
 				return true;
 			}

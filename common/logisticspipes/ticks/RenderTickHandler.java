@@ -126,7 +126,7 @@ public class RenderTickHandler {
 	@SubscribeEvent
 	public void renderWorldLast(RenderLevelStageEvent.AfterParticles worldEvent) {
 		PoseStack poseStack = worldEvent.getPoseStack();
-		float partialTick = worldEvent.getPartialTick().getGameTimeDeltaPartialTick(false);
+		float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 		int packedLight = 0xF000F0;
 

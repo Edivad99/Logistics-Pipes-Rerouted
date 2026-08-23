@@ -15,6 +15,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -25,8 +26,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.IRoutedPowerProvider;
@@ -56,7 +58,6 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenControler {
 
     public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
-    private final InvWrapper invWrapper = new InvWrapper(this);
     private final PlayerCollectionList guiWatcher = new PlayerCollectionList();
     public ItemIdentifierInventory inv = new ItemIdentifierInventory(18, "Crafting Resources", 64);
     public ItemIdentifierInventory matrix = new ItemIdentifierInventory(9, "Crafting Matrix", 1);
@@ -409,8 +410,8 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Nullable
-    public IItemHandler getItemCap(@Nullable Direction side) {
-        return invWrapper;
+    public ResourceHandler<ItemResource> getItemCap(@Nullable Direction side) {
+        return VanillaContainerWrapper.of(this);
     }
 
     @Override
@@ -454,11 +455,11 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    public void startOpen(Player player) {
+    public void startOpen(ContainerUser containerUser) {
     }
 
     @Override
-    public void stopOpen(Player player) {
+    public void stopOpen(ContainerUser containerUser) {
     }
 
     @Override

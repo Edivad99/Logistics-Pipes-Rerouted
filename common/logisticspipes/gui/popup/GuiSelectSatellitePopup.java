@@ -12,6 +12,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.utils.tuples.Pair;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -86,9 +87,12 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double i, double j, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double i = event.x();
+		double j = event.y();
+		int k = event.button();
 		textList.mouseClicked(i, j, k);
-		return super.mouseClicked(i, j, k);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	// Deferred: scroll wheel handling not wired

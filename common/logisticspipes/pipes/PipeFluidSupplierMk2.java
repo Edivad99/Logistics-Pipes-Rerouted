@@ -26,7 +26,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import logisticspipes.utils.transfer.LPFluidTank;
 
 public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFluid, IRequireReliableFluidTransport {
 
@@ -113,7 +113,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 			return;
 		}
 
-		PipeFluidUtil.INSTANCE.getAdjacentTanks(this, false).forEach(fluidHandlerDirectionPair -> {
+		PipeFluidUtil.getAdjacentTanks(this, false).forEach(fluidHandlerDirectionPair -> {
 			if (!fluidHandlerDirectionPair.getValue2().containsTanks()) {
 				return;
 			}
@@ -137,14 +137,14 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 			//What does our sided internal tank have
 			int directionOrdinal = fluidHandlerDirectionPair.getValue1().getDirection().ordinal();
 			if (directionOrdinal < ((PipeFluidTransportLogistics) transport).sideTanks.length) {
-				FluidTank sideTank = ((PipeFluidTransportLogistics) transport).sideTanks[directionOrdinal];
+				LPFluidTank sideTank = ((PipeFluidTransportLogistics) transport).sideTanks[directionOrdinal];
 				if (sideTank != null && sideTank.getFluid() != null && wantFluids.containsKey(FluidIdentifier.get(sideTank.getFluid()))) {
 					haveFluids.merge(FluidIdentifier.get(sideTank.getFluid()), sideTank.getFluid().getAmount(), Integer::sum);
 				}
 			}
 
 			//What does our center internal tank have
-			FluidTank centerTank = ((PipeFluidTransportLogistics) transport).internalTank;
+			LPFluidTank centerTank = ((PipeFluidTransportLogistics) transport).internalTank;
 			if (centerTank != null && centerTank.getFluid() != null && wantFluids.containsKey(FluidIdentifier.get(centerTank.getFluid()))) {
 				haveFluids.merge(FluidIdentifier.get(centerTank.getFluid()), centerTank.getFluid().getAmount(), Integer::sum);
 			}

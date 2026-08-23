@@ -10,6 +10,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.ARGB;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -103,14 +104,17 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		int k = (width - imageWidth) / 2;
 		int l = (height - imageHeight) / 2;
 		if (mouseX >= k + 8 && mouseX < k + 8 + 224 && mouseY >= l + 17 && mouseY < l + 17 + 155) {
 			guiMapX -= dx / zoom.zoom;
 			guiMapY -= dy / zoom.zoom;
 		}
-		return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+		return super.mouseDragged(event, dx, dy);
 	}
 
 	@Override

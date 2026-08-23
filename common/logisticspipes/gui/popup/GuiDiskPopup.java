@@ -12,9 +12,10 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -97,7 +98,10 @@ public class GuiDiskPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double i, double j, int k) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double i = event.x();
+		double j = event.y();
+		int k = event.button();
 		int x = (int) i - guiLeft;
 		int y = (int) j - guiTop;
 		textList.mouseClicked(i, j, k);
@@ -107,10 +111,10 @@ public class GuiDiskPopup extends SubGuiScreen {
 			} else if (editName) {
 				writeDiskName();
 			} else {
-				return super.mouseClicked(i, j, k);
+				return super.mouseClicked(event, doubleClick);
 			}
 		} else {
-			return super.mouseClicked(i, j, k);
+			return super.mouseClicked(event, doubleClick);
 		}
 		return true;
 	}
@@ -228,12 +232,14 @@ public class GuiDiskPopup extends SubGuiScreen {
 	}
 
 	@Override
-	public boolean charTyped(char c, int i) {
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = event.modifiers();
 		if (editName) {
 			if (c == 13) {
 				writeDiskName();
 				return true;
-			} else if (i == 47 && Screen.hasControlDown()) {
+			} else if (i == 47 && Minecraft.getInstance().hasControlDown()) {
 				name1 = name1 + Minecraft.getInstance().keyboardHandler.getClipboard();
 			} else if (c == 8) {
 				if (name1.length() > 0) {
@@ -270,12 +276,12 @@ public class GuiDiskPopup extends SubGuiScreen {
 					name2 = name2.substring(1);
 				}
 			}
-			//		} else if (Screen.hasShiftDown()){
-			//			return super.charTyped(c, i);
-			//		} else if (Screen.hasControlDown()){
-			//			return super.charTyped(c, i);
+			//		} else if (Minecraft.getInstance().hasShiftDown()){
+			//			return super.charTyped(event);
+			//		} else if (Minecraft.getInstance().hasControlDown()){
+			//			return super.charTyped(event);
 		} else {
-			return super.charTyped(c, i);
+			return super.charTyped(event);
 		}
 		return false;
 	}

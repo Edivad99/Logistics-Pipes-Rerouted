@@ -298,7 +298,7 @@ public class DummyContainer extends AbstractContainerMenu {
 		if (LogisticsPipes.isDEBUG() && slot != null) {
 			ItemStack stack = slot.getItem();
 			if (!stack.isEmpty()) {
-				ItemIdentifier.get(stack).debugDumpData(player.level().isClientSide);
+				ItemIdentifier.get(stack).debugDumpData(player.level().isClientSide());
 			}
 		}
 		if (slot == null) return;

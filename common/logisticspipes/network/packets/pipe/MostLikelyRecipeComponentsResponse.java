@@ -36,7 +36,7 @@ public class MostLikelyRecipeComponentsResponse extends ModernPacket {
 
 	@Override
 	public void processPacket(Player player) {
-		if (FMLEnvironment.dist == Dist.CLIENT) {
+		if (FMLEnvironment.getDist() == Dist.CLIENT) {
 			handleClient();
 		}
 	}

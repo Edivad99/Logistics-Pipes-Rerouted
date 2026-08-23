@@ -7,6 +7,7 @@ import logisticspipes.network.packets.gui.GuiOpenChassis;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import lombok.Getter;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public abstract class ModuleBaseGui extends LogisticsBaseGuiScreen {
@@ -20,16 +21,18 @@ public abstract class ModuleBaseGui extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public boolean charTyped(char typedChar, int keyCode) {
+	public boolean charTyped(CharacterEvent event) {
+		char typedChar = (char) event.codepoint();
+		int keyCode = event.modifiers();
 		if (module == null) {
-			return super.charTyped(typedChar, keyCode);
+			return super.charTyped(event);
 		}
 		if (keyCode == 1 || typedChar == 'e') {
 			if (module.getSlot() == ModulePositionType.SLOT) {
 				MainProxy.sendPacketToServer(PacketHandler.getPacket(GuiOpenChassis.class).setBlockPos(module.getBlockPos()));
 			}
-			return super.charTyped(typedChar, keyCode);
+			return super.charTyped(event);
 		}
-		return super.charTyped(typedChar, keyCode);
+		return super.charTyped(event);
 	}
 }

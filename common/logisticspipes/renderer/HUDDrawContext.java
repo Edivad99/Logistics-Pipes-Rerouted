@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Matrix4f;
 
+import logisticspipes.client.renderer.ImmediateSubmitCollector;
 import logisticspipes.client.renderer.LPRenderTypes;
 
 /**
@@ -211,7 +212,11 @@ public class HUDDrawContext {
         // set is restored afterwards for the rest of the world pass.
         Lighting lighting = minecraft.gameRenderer.getLighting();
         lighting.setupFor(flat ? Lighting.Entry.ITEMS_FLAT : Lighting.Entry.ITEMS_3D);
-        renderState.render(poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY);
+        // 1.21.9 routes item drawing through a SubmitNodeCollector, which a level-stage listener
+        // has no way to obtain; ImmediateSubmitCollector adapts back onto the buffer source we do
+        // have, and the drawing itself is still vanilla's ItemRenderer.
+        renderState.submit(poseStack, new ImmediateSubmitCollector(bufferSource), packedLight,
+            OverlayTexture.NO_OVERLAY, 0);
         bufferSource.endBatch();
         lighting.setupFor(Lighting.Entry.LEVEL);
         poseStack.popPose();

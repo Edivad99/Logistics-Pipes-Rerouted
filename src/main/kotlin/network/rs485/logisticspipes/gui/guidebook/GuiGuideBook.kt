@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
+import net.minecraft.client.input.MouseButtonEvent
 import logisticspipes.world.item.LPItems
 import logisticspipes.LogisticsPipes
 import logisticspipes.integrations.jei.JEIPluginLoader
@@ -312,16 +313,16 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
 
     override fun isPauseScreen(): Boolean = false
 
-    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
         // LP1 dispatched button clicks first (mousePressed -> actionPerformed/rightClick) and only
         // then forwarded the click to the page content. The widgets (slider, home, bookmark
         // manager, tabs) handle their own actions in their mouseClicked overrides.
-        if (super.mouseClicked(mouseX, mouseY, button)) {
+        if (super.mouseClicked(event, doubleClick)) {
             updateButtonVisibility()
             return true
         }
-        if (visibleArea.contains(mouseX.toInt(), mouseY.toInt())) {
-            state.currentPage.mouseClicked(mouseX.toFloat(), mouseY.toFloat(), button, visibleArea, actionListener)
+        if (visibleArea.contains(event.x.toInt(), event.y.toInt())) {
+            state.currentPage.mouseClicked(event.x.toFloat(), event.y.toFloat(), event.button(), visibleArea, actionListener)
             return true
         }
         return false

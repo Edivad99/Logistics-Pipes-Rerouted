@@ -13,6 +13,8 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -104,20 +106,25 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	// Deferred: scroll wheel handling not wired
 
 	@Override
-	public boolean charTyped(char par1, int par2) {
+	public boolean charTyped(CharacterEvent event) {
+		char par1 = (char) event.codepoint();
+		int par2 = event.modifiers();
 		if (!itemDisplay.keyTyped(par1, par2)) {
 			if (par2 == 1 || !search.handleKey(par1, par2)) {
-				return super.charTyped(par1, par2);
+				return super.charTyped(event);
 			}
 		}
 		return true;
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (itemDisplay.handleClick((int) mouseX, (int) mouseY, button)) return true;
 		if (search.handleClick((int) mouseX, (int) mouseY, button)) return true;
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public class TEControl {
      */
     public static void validate(final BlockEntity be) {
         final Level level = be.getLevel();
-        if (level == null || level.isClientSide) {
+        if (level == null || level.isClientSide()) {
             return;
         }
         if (be.getClass().getName().startsWith("net.minecraft.world.level.block.entity")) {
@@ -99,7 +99,7 @@ public class TEControl {
      */
     public static void invalidate(final BlockEntity be) {
         final Level level = be.getLevel();
-        if (level == null || level.isClientSide) {
+        if (level == null || level.isClientSide()) {
             return;
         }
         if (be instanceof LogisticsTileGenericPipe logisticsTileGenericPipe

@@ -265,7 +265,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		BlockState oldBlockState = level.getBlockState(blockPos);
 		boolean placed = level.setBlock(blockPos, block.defaultBlockState(), 3);
 
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			return placed;
 		}
 
@@ -703,7 +703,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	// @Override removed — dropBlockAsItemWithChance removed in 1.20.1
 	public void dropBlockAsItemWithChance_DEAD(Level level, final BlockPos pos, BlockState state, float chance, int fortune) {
 
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			return;
 		}
 

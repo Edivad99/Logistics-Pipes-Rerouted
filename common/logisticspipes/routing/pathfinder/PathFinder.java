@@ -258,7 +258,7 @@ public class PathFinder {
 
 			if (!SimpleServiceLocator.pipeInformationManager.isPipe(tile) &&
 					tile.getLevel() != null &&
-					tile.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, tile.getBlockPos(), direction.getOpposite()) != null &&
+					tile.getLevel().getCapability(Capabilities.Item.BLOCK, tile.getBlockPos(), direction.getOpposite()) != null &&
 					startPipe.isRoutingPipe() &&
 					startPipe.getRoutingPipe() instanceof IChannelRoutingConnection &&
 					startPipe.canConnect(tile, direction, false)) {

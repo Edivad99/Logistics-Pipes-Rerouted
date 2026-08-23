@@ -4,19 +4,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.util.RandomSource;
 
 import logisticspipes.particle.SparkleParticleOptions;
 
-public class SparkParticle extends TextureSheetParticle {
+public class SparkParticle extends SingleQuadParticle {
 
     private final SpriteSet sprites;
 
     protected SparkParticle(ClientLevel level, double x, double y, double z, float scale,
         float red, float green, float blue, int multiplier, SpriteSet sprites) {
-        super(level, x, y, z, 0, 0, 0);
+        // 1.21.9 merged TextureSheetParticle into SingleQuadParticle, which wants the first sprite
+        // up front instead of letting the subclass set it afterwards.
+        super(level, x, y, z, 0, 0, 0, sprites.get(0, 1));
         this.rCol = red;
         this.gCol = green;
         this.bCol = blue;
@@ -65,8 +67,8 @@ public class SparkParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return SparkParticleRenderType.SPARK_PARTICLE_RENDER_TYPE;
+    protected SingleQuadParticle.Layer getLayer() {
+        return SparkParticleRenderType.SPARK_LAYER;
     }
 
     public static class Provider implements ParticleProvider<SparkleParticleOptions> {
@@ -79,7 +81,7 @@ public class SparkParticle extends TextureSheetParticle {
 
         @Override
         public Particle createParticle(SparkleParticleOptions options, ClientLevel level,
-            double x, double y, double z, double dx, double dy, double dz) {
+            double x, double y, double z, double dx, double dy, double dz, RandomSource random) {
 
             float boundary = 0.4F;
             int pipeWidth = 1;
