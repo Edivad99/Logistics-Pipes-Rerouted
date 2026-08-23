@@ -21,6 +21,9 @@ import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.math.Vertex;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import logisticspipes.client.renderer.LPRenderTypes;
+import net.minecraft.client.renderer.PerspectiveProjectionMatrixBuffer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
@@ -38,16 +41,17 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.model.data.ModelData;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import com.mojang.blaze3d.ProjectionType;
 
 //Based on: https://github.com/SleepyTrousers/EnderIO/blob/master/src/main/java/crazypants/enderio/machine/gui/GuiOverlayIoConfig.java
-@OnlyIn(Dist.CLIENT)
 public abstract class SideConfigDisplay {
+
+	/** Owns the GPU-side projection uniform this display uploads its own matrices through. */
+	private final PerspectiveProjectionMatrixBuffer projectionBuffer =
+			new PerspectiveProjectionMatrixBuffer("logisticspipes:side_config");
 
 	private boolean draggingRotate = false;
 	private boolean draggingMove = false;
@@ -239,10 +243,10 @@ public abstract class SideConfigDisplay {
 		List<Vertex> corners = bb.getCornersWithUvForFace(selection.face, icon.getU0(), icon.getU1(), icon.getV0(), icon.getV1());
 
 		// The block atlas, the translucent blend and the disabled depth test are all carried by
-		// the render type now; 1.21.5 removed setShader/enableBlend/disableDepthTest and
-		// BufferUploader. guiTexturedOverlay is the vanilla POSITION_TEX_COLOR type with the
+		// the render type. 1.21.6 removed every RenderType.gui* factory, so what used to be
+		// guiTexturedOverlay is now LP's own equivalent -- same POSITION_TEX_COLOR format with the
 		// depth test off, so the highlight still paints over the blocks behind it.
-		RenderType renderType = RenderType.guiTexturedOverlay(RenderUtil.BLOCK_TEX);
+		RenderType renderType = LPRenderTypes.TEXTURED_OVERLAY.apply(RenderUtil.BLOCK_TEX);
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 		VertexConsumer buf = bufferSource.getBuffer(renderType);
 		for (Vertex v : corners) {
@@ -260,13 +264,16 @@ public abstract class SideConfigDisplay {
 //		RenderSystem.applyModelViewMatrix();
 //		// Restore projection matrix backed up in applyCamera
 //		RenderSystem.restoreProjectionMatrix();
-		// Restore the full-screen draw area. RenderSystem.viewport is gone in 1.21.5 -- the
+		// Restore the full-screen draw area. RenderSystem.viewport is gone since 1.21.5 -- the
 		// viewport belongs to the RenderPass now -- so the scene rectangle is clipped with a
-		// scissor instead, which is what has to be lifted here.
-		RenderSystem.disableScissor();
+		// scissor instead, which is what has to be lifted here. 1.21.6 moved the generic scissor
+		// state out of the pipeline code, leaving only the render-type-draw variant.
+		RenderSystem.disableScissorForRenderTypeDraws();
 		// restore projection vanilla
+		// 1.21.6 uploads the projection through a uniform buffer: setProjectionMatrix takes a
+		// GpuBufferSlice, which PerspectiveProjectionMatrixBuffer produces from a Matrix4f.
 		RenderSystem.setProjectionMatrix(
-				Minecraft.getInstance().gameRenderer.getProjectionMatrix(70.0f),
+				projectionBuffer.getBuffer(Minecraft.getInstance().gameRenderer.getProjectionMatrix(70.0f)),
 				ProjectionType.PERSPECTIVE
 		);
 	}
@@ -294,8 +301,12 @@ public abstract class SideConfigDisplay {
 		if (state.isAir()) return;
 		poseStack.pushPose();
 		poseStack.translate(pos.getX() - origin.x, pos.getY() - origin.y, pos.getZ() - origin.z);
-		// Blending comes with RenderType.translucent(); there is no global blend switch left.
-		RenderType renderType = transparent ? RenderType.translucent() : RenderType.solid();
+		// RenderType.translucent() went with the chunk-layer rework in 1.21.6; the supported way to
+		// draw a block outside a chunk is getMovingBlockRenderType, which picks the layer the block
+		// actually declares. That means the `transparent` neighbours no longer get a translucent
+		// layer -- but they never actually looked translucent either, since the block textures are
+		// opaque and the enableBlend that once wrapped this call had already become a no-op.
+		RenderType renderType = ItemBlockRenderTypes.getMovingBlockRenderType(state);
 		try {
 			// 1.21.5 collects the geometry up front instead of letting the dispatcher pull it
 			// from a model plus a RandomSource: renderBatched now takes the baked parts.
@@ -327,7 +338,7 @@ public abstract class SideConfigDisplay {
 		// Clip drawing to the 3D scene rectangle. RenderSystem.viewport no longer exists in
 		// 1.21.5 (the viewport is a property of the RenderPass), so this is a scissor; the
 		// projection matrix set below is what actually maps the scene into the rectangle.
-		RenderSystem.enableScissor(vp.x, vp.y, vp.width, vp.height);
+		RenderSystem.enableScissorForRenderTypeDraws(vp.x, vp.y, vp.width, vp.height);
 		// Clear the depth buffer so blocks render over the GUI background. GlStateManager is
 		// no longer reachable from here either; clears go through the GPU command encoder.
 		RenderSystem.getDevice().createCommandEncoder()
@@ -342,7 +353,7 @@ public abstract class SideConfigDisplay {
 //		RenderSystem.applyModelViewMatrix();
 
 		RenderSystem.setProjectionMatrix(
-				toJoml(camera.getProjectionMatrix()),
+				projectionBuffer.getBuffer(toJoml(camera.getProjectionMatrix())),
 				ProjectionType.PERSPECTIVE
 		);
 	}

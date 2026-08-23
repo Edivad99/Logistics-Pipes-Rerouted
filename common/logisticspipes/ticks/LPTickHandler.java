@@ -14,8 +14,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -28,7 +26,6 @@ public class LPTickHandler {
 	public static int adjChecksDone = 0;
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public void clientTick(ClientTickEvent.Post event) {
 		FluidIdentifier.initFromNeoForge(true);
 		SimpleServiceLocator.clientBufferHandler.clientTick();

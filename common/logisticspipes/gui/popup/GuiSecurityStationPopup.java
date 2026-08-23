@@ -1,5 +1,7 @@
 package logisticspipes.gui.popup;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueOutput;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.SaveSecurityPlayerPacket;
@@ -56,21 +58,23 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
 	}
 
 	private void sendSettings() {
-		CompoundTag nbt = new CompoundTag();
-		activeSetting.writeToNBT(nbt, tile.getLevel().registryAccess());
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(SaveSecurityPlayerPacket.class).put(nbt).setBlockPos(tile.getBlockPos()));
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING,
+			tile.getLevel().registryAccess());
+		activeSetting.serialize(output);
+		MainProxy.sendPacketToServer(PacketHandler.getPacket(SaveSecurityPlayerPacket.class)
+			.put(output.buildResult()).setBlockPos(tile.getBlockPos()));
 	}
 
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "Player") + ": " + activeSetting.name, guiLeft + 10, guiTop + 10, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "ConfigureSettings") + ": ", guiLeft + 10, guiTop + 30, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "ActiveRequesting") + ": ", guiLeft + 10, guiTop + 45, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "UpgradePipes") + ": ", guiLeft + 10, guiTop + 60, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "CheckNetwork") + ": ", guiLeft + 10, guiTop + 75, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "RemovePipes") + ": ", guiLeft + 10, guiTop + 90, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "AccessRoutingChannels") + ": ", guiLeft + 10, guiTop + 105, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "Player") + ": " + activeSetting.name, guiLeft + 10, guiTop + 10, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "ConfigureSettings") + ": ", guiLeft + 10, guiTop + 30, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "ActiveRequesting") + ": ", guiLeft + 10, guiTop + 45, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "UpgradePipes") + ": ", guiLeft + 10, guiTop + 60, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "CheckNetwork") + ": ", guiLeft + 10, guiTop + 75, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "RemovePipes") + ": ", guiLeft + 10, guiTop + 90, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "AccessRoutingChannels") + ": ", guiLeft + 10, guiTop + 105, 0xFF404040, false);
 	}
 
 	public void refreshCheckBoxes() {

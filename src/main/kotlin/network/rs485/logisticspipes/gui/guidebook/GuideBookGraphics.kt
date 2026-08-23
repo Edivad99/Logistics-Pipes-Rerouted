@@ -41,7 +41,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import logisticspipes.LPConstants
 import network.rs485.logisticspipes.util.IRectangle
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.resources.ResourceLocation
 
 /**
@@ -63,8 +63,8 @@ internal object GuideBookGraphics {
     /**
      * Blits a region of the guide book atlas. The destination rectangle is screen-space; the texture
      * rectangle is the source region within the atlas (in atlas pixels). Mirrors LP1's
-     * `drawGuiTexturedRect(rect, text, blend, color)` including the optional color tint, which 1.20.1
-     * expresses through [RenderSystem.setShaderColor].
+     * `drawGuiTexturedRect(rect, text, blend, color)` including the optional color tint. 1.21.6 removed
+     * [RenderSystem.setShaderColor]; the tint is now the trailing ARGB argument of the blit itself.
      */
     fun blitAtlas(
         guiGraphics: GuiGraphics,
@@ -72,9 +72,8 @@ internal object GuideBookGraphics {
         src: IRectangle,
         color: Int = -1,
     ) {
-        setShaderColor(color)
         guiGraphics.blit(
-            RenderType::guiTextured,
+            RenderPipelines.GUI_TEXTURED,
             GUI_ATLAS,
             dst.roundedLeft,
             dst.roundedTop,
@@ -86,8 +85,8 @@ internal object GuideBookGraphics {
             src.roundedHeight,
             ATLAS_SIZE,
             ATLAS_SIZE,
+            color,
         )
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
     }
 
     /**
@@ -97,7 +96,6 @@ internal object GuideBookGraphics {
      * region. In 1.20.1 the nine-slice is expressed directly via [GuiGraphics.blitNineSliced].
      */
     fun blitGuideBookFrame(guiGraphics: GuiGraphics, frame: IRectangle, slider: IRectangle) {
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         // Frame: source region (0,0)-(64,64) with a 24px border on each edge.
         //Fixme
 //        guiGraphics.blitNineSliced(
@@ -120,11 +118,11 @@ internal object GuideBookGraphics {
         val railWidth = slider.roundedWidth
         val railHeight = slider.roundedHeight
         // Top cap (1px), stretched horizontally.
-        guiGraphics.blit(RenderType::guiTextured, GUI_ATLAS, railLeft, railTop, 96f, 64f, railWidth, 1, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_ATLAS, railLeft, railTop, 96f, 64f, railWidth, 1, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
         // Middle, stretched both ways.
-        guiGraphics.blit(RenderType::guiTextured, GUI_ATLAS, railLeft, railTop + 1, 96f, 65f, railWidth, railHeight - 2, 16, 14, ATLAS_SIZE, ATLAS_SIZE)
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_ATLAS, railLeft, railTop + 1, 96f, 65f, railWidth, railHeight - 2, 16, 14, ATLAS_SIZE, ATLAS_SIZE)
         // Bottom cap (1px), stretched horizontally.
-        guiGraphics.blit(RenderType::guiTextured, GUI_ATLAS, railLeft, railTop + railHeight - 1, 96f, 79f, railWidth, 1, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_ATLAS, railLeft, railTop + railHeight - 1, 96f, 79f, railWidth, 1, 16, 1, ATLAS_SIZE, ATLAS_SIZE)
     }
 
     /**
@@ -133,7 +131,6 @@ internal object GuideBookGraphics {
      * tiled by repeated 64x64 blits clipped to [dst].
      */
     fun blitDarkPatternTiled(guiGraphics: GuiGraphics, dst: IRectangle) {
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         val tile = 64
         val left = dst.roundedLeft
         val top = dst.roundedTop
@@ -145,18 +142,10 @@ internal object GuideBookGraphics {
             val w = minOf(tile, right - x)
             while (y < bottom) {
                 val h = minOf(tile, bottom - y)
-                guiGraphics.blit(RenderType::guiTextured, GUI_DARK_PATTERN, x, y, 0.0f, 0.0f, w, h, tile, tile)
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_DARK_PATTERN, x, y, 0.0f, 0.0f, w, h, tile, tile)
                 y += tile
             }
             x += tile
         }
-    }
-
-    private fun setShaderColor(color: Int) {
-        val a = (color ushr 24 and 0xFF) / 255.0f
-        val r = (color ushr 16 and 0xFF) / 255.0f
-        val g = (color ushr 8 and 0xFF) / 255.0f
-        val b = (color and 0xFF) / 255.0f
-        RenderSystem.setShaderColor(r, g, b, a)
     }
 }

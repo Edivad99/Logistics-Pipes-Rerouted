@@ -8,8 +8,6 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 @StaticResolve
 public class SecurityStationCC extends IntegerCoordinatesPacket {
@@ -36,7 +34,6 @@ public class SecurityStationCC extends IntegerCoordinatesPacket {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void handleClientSide(Player player) {
 		if (Minecraft.getInstance().screen instanceof GuiSecurityStation) {
 			((GuiSecurityStation) Minecraft.getInstance().screen).refreshCheckBoxes();

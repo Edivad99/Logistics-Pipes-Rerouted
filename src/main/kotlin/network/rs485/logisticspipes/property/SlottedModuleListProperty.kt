@@ -37,41 +37,37 @@
 
 package network.rs485.logisticspipes.property
 
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
 import logisticspipes.world.item.LPItems
 import logisticspipes.world.item.ItemModule
 import logisticspipes.modules.LogisticsModule
-import net.minecraft.core.HolderLookup
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.nbt.CompoundTag
 
 class SlottedModuleListProperty(slots: Int, override val tagKey: String) :
     ListProperty<SlottedModule>(MutableList(slots) { SlottedModule(it, null) }) {
 
     override fun defaultValue(idx: Int): SlottedModule = SlottedModule(idx, null)
 
-    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): SlottedModule {
-        val slottedModuleTag = tag.getCompoundOrEmpty(key)
-        val slot = slottedModuleTag.getIntOr(SLOT_INDEX_KEY, 0)
-        val moduleName = if (slottedModuleTag.contains(MODULE_NAME_KEY)) {
-            slottedModuleTag.getStringOr(MODULE_NAME_KEY, "")
-        } else null
+    override fun readSingleFromNBT(input: ValueInput, key: String): SlottedModule {
+        val slottedModuleInput = input.childOrEmpty(key)
+        val slot = slottedModuleInput.getIntOr(SLOT_INDEX_KEY, 0)
+        val moduleName = slottedModuleInput.getString(MODULE_NAME_KEY).orElse(null)
         val moduleResource = moduleName?.let { LPItems.modules[it] }
         val itemModule = moduleResource?.let { BuiltInRegistries.ITEM.getValue(moduleResource) as? ItemModule }
-        // FIXME: move module creation to before readFromNBT
+        // FIXME: move module creation to before deserialize
         val logisticsModule = itemModule?.getModule(null, null, null)
         return logisticsModule?.let { module ->
-            module.readFromNBT(slottedModuleTag, provider)
+            module.deserialize(slottedModuleInput)
             SlottedModule(slot = slot, module = module).also { list[slot] = it }
         } ?: list[slot]
     }
 
-    override fun writeSingleToNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String, value: SlottedModule) {
-        tag.put(key, CompoundTag()
-            .also { value.module?.writeToNBT(it, provider) }
-            .apply {
-                putInt(SLOT_INDEX_KEY, value.slot)
-                value.module?.also { putString(MODULE_NAME_KEY, it.lpName) }
-            })
+    override fun writeSingleToNBT(output: ValueOutput, key: String, value: SlottedModule) {
+        val slottedModuleOutput = output.child(key)
+        value.module?.serialize(slottedModuleOutput)
+        slottedModuleOutput.putInt(SLOT_INDEX_KEY, value.slot)
+        value.module?.also { slottedModuleOutput.putString(MODULE_NAME_KEY, it.lpName) }
     }
 
     override fun copyValue(obj: SlottedModule): SlottedModule = obj.copy(slot = obj.slot, module = null)

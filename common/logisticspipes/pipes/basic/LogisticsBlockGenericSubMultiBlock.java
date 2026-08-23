@@ -116,7 +116,6 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 
 	// TODO: getIcon(IBlockAccess, int, int, int, int) removed in 1.20.1 — rendering rewrite needed (deferred)
 	// @Override
-	@OnlyIn(Dist.CLIENT)
 	@SuppressWarnings({ "all" })
 	// getIcon_DEAD — stub removed; IBlockAccess and TextureAtlasSprite-based getIcon removed in 1.20.1
 	*/

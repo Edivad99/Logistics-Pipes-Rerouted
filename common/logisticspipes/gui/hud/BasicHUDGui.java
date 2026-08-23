@@ -1,12 +1,12 @@
 package logisticspipes.gui.hud;
 
+import logisticspipes.renderer.HUDDrawContext;
 import java.util.ArrayList;
 import java.util.List;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 
@@ -17,11 +17,11 @@ public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(GuiGraphics guiGraphics, double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
+	public void renderHeadUpDisplay(HUDDrawContext context, double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
 		for (IHUDButton button : buttons) {
-			button.renderAlways(guiGraphics, shifted);
+			button.renderAlways(context, shifted);
 			if (button.shouldRenderButton()) {
-				button.renderButton(guiGraphics, button.isFocused(), button.isblockFocused(), shifted);
+				button.renderButton(context, button.isFocused(), button.isblockFocused(), shifted);
 			}
 		}
 	}

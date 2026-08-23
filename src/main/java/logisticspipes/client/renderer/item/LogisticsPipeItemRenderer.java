@@ -1,5 +1,7 @@
 package logisticspipes.client.renderer.item;
 
+import org.joml.Vector3f;
+import java.util.Set;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -55,6 +57,18 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
     @Override
     public CoreUnroutedPipe extractArgument(ItemStack stack) {
         return stack.getItem() instanceof ItemLogisticsPipe item ? item.getDummyPipe() : null;
+    }
+
+    /**
+     * Corners of the volume the model occupies, in the item's own space. New in 1.21.6: the GUI
+     * item renderer uses it to size the render target when the model is oversized. Both renderers
+     * draw within the standard unit block that the render state has already centred on the origin,
+     * so the eight corners of that cube are the extents.
+     */
+    @Override
+    public void getExtents(Set<Vector3f> extents) {
+        extents.add(new Vector3f(-0.5f, -0.5f, -0.5f));
+        extents.add(new Vector3f(0.5f, 0.5f, 0.5f));
     }
 
     @Override

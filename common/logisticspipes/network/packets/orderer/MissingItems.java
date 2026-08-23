@@ -17,7 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLEnvironment;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
@@ -49,10 +48,6 @@ public class MissingItems extends ModernPacket {
 		}
 	}
 
-	// See OpenChatGui: the client refs (Minecraft/LP GUI screens) live in this @OnlyIn helper so they
-	// are stripped before verification on the dedicated server, letting the packet class link and be
-	// sent server-side. processPacket stays free of client classes.
-	@OnlyIn(Dist.CLIENT)
 	private void handleClient(Player player) {
 		if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && Minecraft.getInstance().screen instanceof GuiOrderer) {
 			((GuiOrderer) Minecraft.getInstance().screen)

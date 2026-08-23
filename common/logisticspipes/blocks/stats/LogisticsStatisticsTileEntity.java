@@ -15,6 +15,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
@@ -48,28 +51,22 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidBlockEntity imp
 		}
 	}
 
-	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
-		int size = tag.getIntOr("taskSize", 0);
-		for (int i = 0; i < size; i++) {
-			CompoundTag subTag = (CompoundTag) tag.get("Task_" + i);
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+		for (ValueInput entry : input.childrenListOrEmpty("Tasks")) {
 			TrackingTask task = new TrackingTask();
-			task.readFromNBT(subTag, registries);
+			task.deserialize(entry);
 			tasks.add(task);
 		}
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
-		tag.putInt("taskSize", tasks.size());
-		int count = 0;
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+		ValueOutput.ValueOutputList list = output.childrenList("Tasks");
 		for (TrackingTask task : tasks) {
-			CompoundTag subtag = new CompoundTag();
-			task.writeToNBT(subtag, registries);
-			tag.put("Task_" + count, subtag);
-			count++;
+			task.serialize(list.addChild());
 		}
 	}
 

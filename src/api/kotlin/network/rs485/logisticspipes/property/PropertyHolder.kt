@@ -37,22 +37,22 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.core.HolderLookup
-import network.rs485.logisticspipes.IStore
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
+import net.neoforged.neoforge.common.util.ValueIOSerializable
 
 /**
- * Holds a [properties] list and can read and write [NBT][CompoundTag] via [IStore].
+ * Holds a [properties] list and serialises them through [ValueIOSerializable].
  */
 interface PropertyHolder {
     val properties: List<Property<*>>
 
     companion object {
         @JvmStatic
-        fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, holder: PropertyHolder) = holder.properties.readFromNBT(tag, provider)
+        fun deserialize(input: ValueInput, holder: PropertyHolder) = holder.properties.deserialize(input)
 
         @JvmStatic
-        fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider, holder: PropertyHolder) = holder.properties.writeToNBT(tag, provider)
+        fun serialize(output: ValueOutput, holder: PropertyHolder) = holder.properties.serialize(output)
     }
 
 }

@@ -43,11 +43,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.FloatTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
@@ -232,21 +233,17 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
-		if (tag.get("internalStorage") instanceof FloatTag) { // support for old float
-			internalStorage = tag.getFloatOr("internalStorage", 0.0f);
-		} else {
-			internalStorage = tag.getDoubleOr("internalStorage", 0.0);
-		}
-		maxMode = tag.getIntOr("maxMode", 0);
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
+		internalStorage = input.getDoubleOr("internalStorage", 0.0);
+		maxMode = input.getIntOr("maxMode", 0);
 	}
 
-	@Override
-	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
-		tag.putDouble("internalStorageDouble", internalStorage);
-		tag.putInt("maxMode", maxMode);
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putDouble("internalStorageDouble", internalStorage);
+        output.putInt("maxMode", maxMode);
 	}
 
 	@Override

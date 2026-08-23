@@ -12,8 +12,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {

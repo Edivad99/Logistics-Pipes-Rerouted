@@ -4,8 +4,13 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 
+import java.util.function.Function;
+
+import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
@@ -77,6 +82,41 @@ public final class LPRenderTypes {
         .withBlend(BlendFunction.TRANSLUCENT)
         .build();
 
+    /**
+     * Textured, translucent, drawn over whatever is already there. Replaces
+     * {@code RenderType.guiTexturedOverlay}, which 1.21.6 removed along with every other
+     * {@code RenderType.gui*}: the side-config preview needs it outside a GuiGraphics, so LP has to
+     * declare the pipeline itself.
+     */
+    public static final RenderPipeline TEXTURED_OVERLAY_PIPELINE = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
+        .withLocation(LPConstants.rl("pipeline/textured_overlay"))
+        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+        .withDepthWrite(false)
+        .build();
+
+    /**
+     * Flat coloured geometry for the world-space HUD panels: translucent, depth-tested so the world
+     * still occludes them, but not depth-writing. The panels stack many coplanar layers within a
+     * fraction of a block, and letting each one write depth makes the next fail the LEQUAL test and
+     * come out stippled -- the problem the old GuiGraphics path worked around by spreading the
+     * layers apart in z.
+     */
+    public static final RenderPipeline HUD_FILL_PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+        .withLocation(LPConstants.rl("pipeline/hud_fill"))
+        .withBlend(BlendFunction.TRANSLUCENT)
+        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+        .withDepthWrite(false)
+        .withCull(false)
+        .build();
+
+    /** As {@link #HUD_FILL_PIPELINE}, textured. */
+    public static final RenderPipeline HUD_TEXTURED_PIPELINE = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
+        .withLocation(LPConstants.rl("pipeline/hud_textured"))
+        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+        .withDepthWrite(false)
+        .withCull(false)
+        .build();
+
     private static final int BUFFER_SIZE = 1536;
 
     public static final RenderType GLOW = RenderType.create(
@@ -95,10 +135,39 @@ public final class LPRenderTypes {
      * Pipelines have to be handed to the pipeline registry before anything can draw through
      * them; wired up from {@code ClientManager}.
      */
+    public static final RenderType HUD_FILL = RenderType.create(
+        LPConstants.ID + ":hud_fill",
+        BUFFER_SIZE,
+        HUD_FILL_PIPELINE,
+        RenderType.CompositeState.builder().createCompositeState(false));
+
+    /** Textured HUD geometry bound to a given texture; memoized so each texture keeps one type. */
+    public static final Function<ResourceLocation, RenderType> HUD_TEXTURED = Util.memoize(
+        texture -> RenderType.create(
+            LPConstants.ID + ":hud_textured",
+            BUFFER_SIZE,
+            HUD_TEXTURED_PIPELINE,
+            RenderType.CompositeState.builder()
+                .setTextureState(new RenderStateShard.TextureStateShard(texture, false))
+                .createCompositeState(false)));
+
+    /** Textured overlay bound to a given texture; memoized so each texture keeps one type. */
+    public static final Function<ResourceLocation, RenderType> TEXTURED_OVERLAY = Util.memoize(
+        texture -> RenderType.create(
+            LPConstants.ID + ":textured_overlay",
+            BUFFER_SIZE,
+            TEXTURED_OVERLAY_PIPELINE,
+            RenderType.CompositeState.builder()
+                .setTextureState(new RenderStateShard.TextureStateShard(texture, false))
+                .createCompositeState(false)));
+
     public static void register(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(GLOW_PIPELINE);
         event.registerPipeline(OVERLAY_PIPELINE);
         event.registerPipeline(ADDITIVE_PARTICLE_PIPELINE);
         event.registerPipeline(GHOST_ENTITY_PIPELINE);
+        event.registerPipeline(TEXTURED_OVERLAY_PIPELINE);
+        event.registerPipeline(HUD_FILL_PIPELINE);
+        event.registerPipeline(HUD_TEXTURED_PIPELINE);
     }
 }

@@ -17,7 +17,7 @@ import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -79,19 +79,18 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 
 		super.renderLabels(guiGraphics, mouseX, mouseY);
 
-		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0xFF404040, false);
 	}
 
 	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/sneaky.png");
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		// texture: GuiSneakyConfigurator.TEXTURE
 		int j = leftPos;
 		int k = topPos;
 		//guiGraphics.fill(width/2 - imageWidth / 2, height / 2 - imageHeight /2, width/2 + imageWidth / 2, height / 2 + imageHeight /2, 0xFF404040);
-		guiGraphics.blit(RenderType::guiTextured, GuiSneakyConfigurator.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiSneakyConfigurator.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 
 	private String getButtonOrientationString(Direction orientation) {

@@ -11,7 +11,7 @@ public class ThermalDynamicsHooks {
 //	public static void travelingItemToNBT(Object /* TravelingItem */ travelingItem, CompoundTag paramCompoundTag) {
 //		if (((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition() != null) {
 //			CompoundTag save = new CompoundTag();
-//			((ItemRoutingInformation) ((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition()).writeToNBT(save);
+//			((ItemRoutingInformation) ((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition()).serialize(save);
 //			paramCompoundTag.put("LPRoutingInformation", save);
 //		}
 //	}
@@ -21,7 +21,7 @@ public class ThermalDynamicsHooks {
 //			return;
 //		}
 //		((ILPTravelingItemInfo) travelingItem).setLPRoutingInfoAddition(new ItemRoutingInformation());
-//		((ItemRoutingInformation) ((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition()).readFromNBT(paramCompoundTag.getCompound("LPRoutingInformation"));
+//		((ItemRoutingInformation) ((ILPTravelingItemInfo) travelingItem).getLPRoutingInfoAddition()).deserialize(paramCompoundTag.getCompound("LPRoutingInformation"));
 //	}
 
 	public static void renderItemTransportBox(Object /* TravelingItem */ item) {

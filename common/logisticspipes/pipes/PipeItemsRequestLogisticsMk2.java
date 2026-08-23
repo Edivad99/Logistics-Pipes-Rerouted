@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import javax.annotation.Nullable;
 
 import logisticspipes.world.item.LPItems;
@@ -59,21 +61,15 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
-		if (!disk.isEmpty()) {
-			CompoundTag itemNBT = new CompoundTag();
-			nbttagcompound.put("Disk", disk.save(provider, itemNBT));
-		}
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		ItemStackLoader.saveItemStack(output, "Disk", disk);
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
-		if (nbttagcompound.contains("Disk")) {
-			CompoundTag item = nbttagcompound.getCompoundOrEmpty("Disk");
-			disk = ItemStackLoader.loadAndFixItemStackFromNBT(item, provider);
-		}
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		disk = ItemStackLoader.loadItemStack(input, "Disk");
 	}
 
 	@Override

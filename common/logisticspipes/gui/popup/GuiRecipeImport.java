@@ -129,7 +129,7 @@ public class GuiRecipeImport extends SubGuiScreen {
 			int sy = guiTop + 19 + gy * 18;
 			if (mouseX >= sx && mouseX < sx + 16 && mouseY >= sy && mouseY < sy + 16) {
 				ItemStack stack = c.order.get(c.pos % c.order.size()).makeNormalStack();
-                guiGraphics.renderTooltip(font, stack, mouseX, mouseY);
+                guiGraphics.setTooltipForNextFrame(font, stack, mouseX, mouseY);
 				return;
 			}
 		}
@@ -141,7 +141,7 @@ public class GuiRecipeImport extends SubGuiScreen {
 			if (candidate.order != null && !candidate.order.isEmpty()
 					&& mouseX >= sx && mouseX < sx + 16 && mouseY >= sy && mouseY < sy + 16) {
 				ItemStack stack = candidate.order.get(candidate.pos % candidate.order.size()).makeNormalStack();
-                guiGraphics.renderTooltip(font, stack, mouseX, mouseY);
+                guiGraphics.setTooltipForNextFrame(font, stack, mouseX, mouseY);
 				return;
 			}
 			x++;
@@ -151,7 +151,7 @@ public class GuiRecipeImport extends SubGuiScreen {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0x404040, false);
+		guiGraphics.drawString(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0xFF404040, false);
 		// Render items in 3×3 crafting grid preview
 		for (int i = 0; i < 9; i++) {
 			Candidates c = grid[i];
@@ -176,7 +176,7 @@ public class GuiRecipeImport extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0x404040, false);
+        guiGraphics.drawString(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0xFF404040, false);
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
 				LPGuiGraphics.drawSlotBackground(guiGraphics, guiLeft + 44 + x * 18, guiTop + 19 + y * 18);

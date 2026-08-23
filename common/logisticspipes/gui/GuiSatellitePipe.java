@@ -58,14 +58,14 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
-		drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0x404040);
+		drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0xFF404040);
 		String name = TextUtil.getTrimmedString(satellitePipe.getSatellitePipeName(), 100, minecraft.font, "...");
 		int yOffset = 0;
 		if (!response.isEmpty()) {
-			drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.naming_result." + response), imageWidth / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
+			drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.naming_result." + response), imageWidth / 2, 30, response.equals("success") ? 0xFF404040 : 0xFF5c1111);
 			yOffset = 4;
 		}
-		drawCenteredString(guiGraphics, name, imageWidth / 2, 24 - yOffset, 0x404040);
+		drawCenteredString(guiGraphics, name, imageWidth / 2, 24 - yOffset, 0xFF404040);
 	}
 
 	@Override

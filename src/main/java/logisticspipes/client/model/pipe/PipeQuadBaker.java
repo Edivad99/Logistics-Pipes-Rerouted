@@ -15,8 +15,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import org.joml.Matrix4f;
 
@@ -38,7 +36,6 @@ import logisticspipes.client.model.mesh.UvTransform;
  * surrounding world now comes from the key, so this class is pure and can run on the chunk
  * build threads.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class PipeQuadBaker {
 
     private PipeQuadBaker() {

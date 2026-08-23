@@ -1,5 +1,8 @@
 package logisticspipes.modules;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -141,8 +144,8 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-		super.readFromNBT(tag, provider);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
 		oreItemIdMap = null;
 	}
 
@@ -170,8 +173,9 @@ public class ModuleOreDictItemSink extends LogisticsModule
 	@Override
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		CompoundTag nbt = new CompoundTag();
-		writeToNBT(nbt, player.registryAccess());
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.registryAccess());
+		serialize(moduleOutput);
+		CompoundTag nbt = moduleOutput.buildResult();
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this), player);
 	}
 
@@ -182,12 +186,14 @@ public class ModuleOreDictItemSink extends LogisticsModule
 
 	public void OreListChanged() {
 		if (MainProxy.isServer(getWorld())) {
-			CompoundTag nbt = new CompoundTag();
-			writeToNBT(nbt, getWorld().registryAccess());
+			TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, getWorld().registryAccess());
+			serialize(moduleOutput);
+			CompoundTag nbt = moduleOutput.buildResult();
 			MainProxy.sendToPlayerList(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this), localModeWatchers);
 		} else {
-			CompoundTag nbt = new CompoundTag();
-			writeToNBT(nbt, getWorld().registryAccess());
+			TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, getWorld().registryAccess());
+			serialize(moduleOutput);
+			CompoundTag nbt = moduleOutput.buildResult();
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(OreDictItemSinkList.class).setTag(nbt).setModulePos(this));
 		}
 	}
@@ -219,8 +225,9 @@ public class ModuleOreDictItemSink extends LogisticsModule
 
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		CompoundTag nbt = new CompoundTag();
-		writeToNBT(nbt, getWorld().registryAccess());
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, getWorld().registryAccess());
+		serialize(moduleOutput);
+		CompoundTag nbt = moduleOutput.buildResult();
 		return NewGuiHandler.getGui(OreDictItemSinkModuleSlot.class).setNbt(nbt);
 	}
 

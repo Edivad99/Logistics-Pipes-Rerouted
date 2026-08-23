@@ -1,5 +1,8 @@
 package logisticspipes.network.packets.pipe;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
 import java.util.Objects;
 
 import logisticspipes.network.PacketHandler;
@@ -49,7 +52,7 @@ public class PipePropertiesUpdate extends CoordinatesPacket {
 		}
 
 		// sync updated properties
-		tile.pipe.readFromNBT(tag, player.registryAccess());
+		tile.pipe.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, player.registryAccess(), tag));
 
 		MainProxy.runOnServer(player.level(), () -> () -> {
 			// resync client; always
@@ -59,7 +62,9 @@ public class PipePropertiesUpdate extends CoordinatesPacket {
 
 	public static PipePropertiesUpdate fromPropertyHolder(PropertyHolder holder, HolderLookup.Provider provider) {
 		final PipePropertiesUpdate packet = PacketHandler.getPacket(PipePropertiesUpdate.class);
-		PropertyHolder.writeToNBT(packet.tag, provider, holder);
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+		PropertyHolder.serialize(output, holder);
+		packet.tag = output.buildResult();
 		return packet;
 	}
 

@@ -1,5 +1,7 @@
 package logisticspipes.network.guis.module.inpipe;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import logisticspipes.gui.modules.GuiStringBasedItemSink;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.modules.LogisticsModule;
@@ -23,7 +25,8 @@ public class StringBasedItemSinkModuleGuiSlot extends NBTModuleCoordinatesGuiPro
 		if (!(module instanceof IStringBasedModule)) {
 			return null;
 		}
-		module.readFromNBT(getNbt(), player.level().registryAccess());
+		module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
+			player.level().registryAccess(), getNbt()));
 		return new GuiStringBasedItemSink(player.getInventory(), module);
 	}
 

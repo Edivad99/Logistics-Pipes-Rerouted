@@ -16,7 +16,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.property.BooleanProperty;
@@ -77,17 +77,16 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, advancedExtractor.getFilterInventory().getName(), 8, 6, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, advancedExtractor.getFilterInventory().getName(), 8, 6, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0xFF404040, false);
 	}
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		// texture: LogisticsBaseGuiScreen.ITEMSINK
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(RenderType::guiTextured, LogisticsBaseGuiScreen.ITEMSINK, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LogisticsBaseGuiScreen.ITEMSINK, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 
 }

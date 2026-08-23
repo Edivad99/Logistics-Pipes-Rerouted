@@ -54,10 +54,10 @@ typealias FuzzyFlagger = (flag: FuzzyFlag) -> Boolean
 
 object FuzzyUtil {
 
-    fun readFromNBT(fuzzyBitSet: IBitSet, tag: CompoundTag) =
+    fun deserialize(fuzzyBitSet: IBitSet, tag: CompoundTag) =
         FuzzyFlag.values().forEach { fuzzyBitSet[it.bit] = tag.getBooleanOr(it.nbtName, false) }
 
-//    fun writeToNBT(fuzzyBitSet: IBitSet, tag: CompoundTag) =
+//    fun serialize(fuzzyBitSet: IBitSet, tag: CompoundTag) =
 //        FuzzyFlag.values().forEach { tag.putBoolean(it.nbtName, fuzzyBitSet[it.bit]) }
 
     fun set(fuzzyBitSet: IBitSet, flag: FuzzyFlag, value: Boolean) = fuzzyBitSet.set(flag.bit, value)

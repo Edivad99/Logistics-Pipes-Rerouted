@@ -7,8 +7,6 @@ import java.util.Map;
 
 import net.minecraft.resources.ResourceLocation;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +35,6 @@ import logisticspipes.client.model.mesh.ObjModel;
  * restores CodeChickenLib's contract, which is what the 1.12.2 models were authored
  * against.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class TubeModels {
 
     private static final Logger LOGGER = LogManager.getLogger(TubeModels.class);

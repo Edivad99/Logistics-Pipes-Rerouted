@@ -1,5 +1,8 @@
 package logisticspipes.pipes.upgrades;
 
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.UUID;
@@ -30,7 +33,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
-public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgradeManager, IPipeUpgradeManager {
+public class UpgradeManager
+		implements ISimpleInventoryEventHandler, ISlotUpgradeManager, IPipeUpgradeManager, ValueIOSerializable {
 
 	public final SimpleStackInventory inv = new SimpleStackInventory(9, "UpgradeInventory", 16);
 	public final SimpleStackInventory sneakyInv = new SimpleStackInventory(9, "SneakyUpgradeInventory", 1);
@@ -78,10 +82,10 @@ public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgrad
 		secInv.addListener(this);
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		inv.readFromNBT(nbttagcompound, provider, "UpgradeInventory_");
-		sneakyInv.readFromNBT(nbttagcompound, provider, "SneakyUpgradeInventory_");
-		secInv.readFromNBT(nbttagcompound, provider, "SecurityInventory_");
+	public void deserialize(ValueInput input) {
+		inv.deserialize(input, "UpgradeInventory_");
+		sneakyInv.deserialize(input, "SneakyUpgradeInventory_");
+		secInv.deserialize(input, "SecurityInventory_");
 
 		if (!sneakyInv.getItem(8).isEmpty()) {
 			if (sneakyInv.getItem(8).getItem() == LPItems.ITEM_CARD.get() && sneakyInv.getItem(8).getDamageValue() == LogisticsItemCard.SEC_CARD) {
@@ -93,10 +97,10 @@ public class UpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgrad
 		InventoryChanged(inv);
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		inv.writeToNBT(nbttagcompound, provider, "UpgradeInventory_");
-		sneakyInv.writeToNBT(nbttagcompound, provider, "SneakyUpgradeInventory_");
-		secInv.writeToNBT(nbttagcompound, provider, "SecurityInventory_");
+	public void serialize(ValueOutput output) {
+		inv.serialize(output, "UpgradeInventory_");
+		sneakyInv.serialize(output, "SneakyUpgradeInventory_");
+		secInv.serialize(output, "SecurityInventory_");
 		InventoryChanged(inv);
 	}
 

@@ -1,5 +1,8 @@
 package logisticspipes.logisticspipes;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -21,9 +24,12 @@ public class ItemModuleInformationManager {
 		if (module == null) {
 			return;
 		}
-		CompoundTag nbt = new CompoundTag();
-		module.writeToNBT(nbt, provider);
-		if (nbt.equals(new CompoundTag())) {
+		// The module writes through a ValueOutput; this path stores the result on an ItemStack as a
+		// raw tag, so TagValueOutput is the adapter between the two.
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+		module.serialize(moduleOutput);
+		CompoundTag nbt = moduleOutput.buildResult();
+		if (nbt.isEmpty()) {
 			return;
 		}
 		if (MainProxy.isClient()) {
@@ -74,7 +80,8 @@ public class ItemModuleInformationManager {
 			CompoundTag nbt = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
 			if (nbt.contains("moduleInformation")) {
 				CompoundTag moduleInformation = nbt.getCompoundOrEmpty("moduleInformation");
-				module.readFromNBT(moduleInformation, module.getWorld().registryAccess());
+				module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
+					module.getWorld().registryAccess(), moduleInformation));
 			}
 		}
 	}

@@ -47,14 +47,14 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv"), imageWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv")) / 2, 6, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Inventory"), 15, imageHeight - 95, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Fluid") + ":", 25, 22, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Partial") + ":", imageWidth - 176, imageHeight - 109, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "minMode") + ":", imageWidth - 108, imageHeight - 109, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, Integer.toString(logic.getAmount()), imageWidth / 2, 22, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "+", 32, 39, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "-", 32, 50, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv"), imageWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv")) / 2, 6, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Inventory"), 15, imageHeight - 95, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Fluid") + ":", 25, 22, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Partial") + ":", imageWidth - 176, imageHeight - 109, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "minMode") + ":", imageWidth - 108, imageHeight - 109, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, Integer.toString(logic.getAmount()), imageWidth / 2, 22, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, "+", 32, 39, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, "-", 32, 50, 0xFF404040, false);
 	}
 
 	@Override

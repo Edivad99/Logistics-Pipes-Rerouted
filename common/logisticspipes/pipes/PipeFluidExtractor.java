@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import logisticspipes.interfaces.ITankUtil;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
@@ -52,15 +54,15 @@ public class PipeFluidExtractor extends PipeFluidInsertion {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
-		nbttagcompound.putIntArray("liquidToExtract", liquidToExtract);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		output.putIntArray("liquidToExtract", liquidToExtract);
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
-		liquidToExtract = nbttagcompound.getIntArray("liquidToExtract").orElse(new int[0]);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		liquidToExtract = input.getIntArray("liquidToExtract").orElse(new int[0]);
 		if (liquidToExtract.length < 6) {
 			liquidToExtract = new int[6];
 		}

@@ -53,7 +53,7 @@ public class ActionChoicePopup extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(minecraft.font, message, xCenter - minecraft.font.width(message) / 2, guiTop + 6, 0xFFFFFF, true);
+        guiGraphics.drawString(minecraft.font, message, xCenter - minecraft.font.width(message) / 2, guiTop + 6, 0xFFFFFFFF, true);
 	}
 
 }

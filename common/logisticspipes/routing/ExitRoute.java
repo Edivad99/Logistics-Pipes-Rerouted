@@ -22,8 +22,6 @@ import logisticspipes.routing.debug.ExitRouteDebug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.util.LPFinalSerializable;
@@ -69,7 +67,6 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 		this.blockDistance = blockDistance;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public ExitRoute(LPDataInput input) {
 		if (!input.readBoolean()) {
 			throw new RuntimeException("Cannot read an ExitRoute without destination");
@@ -117,7 +114,6 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 		filters = Collections.unmodifiableList(filter);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private IRouter readRouter(LPDataInput input) {
 		DoubleCoordinates pos = new DoubleCoordinates(input);
 		BlockEntity tile = pos.getTileEntity(Minecraft.getInstance().level);

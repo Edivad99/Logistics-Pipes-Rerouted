@@ -1,5 +1,7 @@
 package logisticspipes.client.gui.tooltip;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -55,7 +57,8 @@ public class ClientModuleInventoryTooltip implements ClientTooltipComponent {
         HolderLookup.Provider registries = level.registryAccess();
         ItemIdentifierInventory inventory =
             new ItemIdentifierInventory(tooltip.size(), "InformationTempInventory", Integer.MAX_VALUE);
-        inventory.readFromNBT(tooltip.moduleInformation(), registries, tooltip.prefix());
+        inventory.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries,
+            tooltip.moduleInformation()), tooltip.prefix());
         List<ItemStack> stacks = new ArrayList<>(inventory.getContainerSize());
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             stacks.add(inventory.getItem(slot));
@@ -83,11 +86,11 @@ public class ClientModuleInventoryTooltip implements ClientTooltipComponent {
 
     @Override
     public void renderImage(Font font, int x, int y, int tooltipWidth, int tooltipHeight, GuiGraphics guiGraphics) {
-        guiGraphics.blitSprite(RenderType::guiTextured, BACKGROUND_SPRITE, x, y, backgroundWidth(), backgroundHeight());
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_SPRITE, x, y, backgroundWidth(), backgroundHeight());
         for (int index = 0; index < items.size(); index++) {
             int slotX = x + index % columns * SLOT_WIDTH + BORDER_WIDTH;
             int slotY = y + index / columns * SLOT_HEIGHT + BORDER_WIDTH;
-            guiGraphics.blitSprite(RenderType::guiTextured, SLOT_SPRITE, slotX, slotY, SLOT_WIDTH, SLOT_HEIGHT);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, slotX, slotY, SLOT_WIDTH, SLOT_HEIGHT);
             ItemStack stack = items.get(index);
             if (!stack.isEmpty()) {
                 guiGraphics.renderItem(stack, slotX + 1, slotY + 1, index);

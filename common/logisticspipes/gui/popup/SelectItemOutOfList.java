@@ -83,7 +83,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
 		ItemTooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
 		if (tip != null) {
-			guiGraphics.renderTooltip(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
+			guiGraphics.setTooltipForNextFrame(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
 		}
 	}
 
@@ -93,7 +93,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(font, TextUtil.translate("misc.selectType"), guiLeft + 8, guiTop + 6, 0x404040, false);
+        guiGraphics.drawString(font, TextUtil.translate("misc.selectType"), guiLeft + 8, guiTop + 6, 0xFF404040, false);
 
 		itemDisplay.renderPageNumber(guiGraphics, right - 47, guiTop + 6);
 

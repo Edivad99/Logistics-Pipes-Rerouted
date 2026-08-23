@@ -37,11 +37,11 @@
 
 package network.rs485.logisticspipes.property
 
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
 import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
-import net.minecraft.core.HolderLookup
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import network.rs485.logisticspipes.inventory.SlotAccess
 import java.util.concurrent.CopyOnWriteArraySet
@@ -85,11 +85,11 @@ class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, 
 
     override fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 
-    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(tagKey + "items")) inv.readFromNBT(tag, provider, tagKey).alsoIChanged()
+    override fun deserialize(input: ValueInput) {
+        inv.deserialize(input, tagKey).alsoIChanged()
     }
 
-    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.writeToNBT(tag, provider,tagKey)
+    override fun serialize(output: ValueOutput) = inv.serialize(output, tagKey)
 
     override fun copyValue(): ItemIdentifierInventory = ItemIdentifierInventory(inv)
 

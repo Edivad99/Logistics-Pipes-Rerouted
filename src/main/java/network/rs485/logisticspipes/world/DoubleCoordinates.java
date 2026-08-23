@@ -37,6 +37,9 @@
 
 package network.rs485.logisticspipes.world;
 
+import javax.annotation.Nullable;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -106,11 +109,16 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 		this(pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public static DoubleCoordinates readFromNBT(String prefix, CompoundTag nbt) {
-		if (nbt.contains(prefix + "xPos") && nbt.contains(prefix + "yPos") && nbt.contains(prefix + "zPos")) {
-			return new DoubleCoordinates(nbt.getDoubleOr(prefix + "xPos", 0.0), nbt.getDoubleOr(prefix + "yPos", 0.0), nbt.getDoubleOr(prefix + "zPos", 0.0));
+	@Nullable
+	public static DoubleCoordinates deserialize(String prefix, ValueInput input) {
+		double sentinel = Double.NaN;
+		double x = input.getDoubleOr(prefix + "xPos", sentinel);
+		double y = input.getDoubleOr(prefix + "yPos", sentinel);
+		double z = input.getDoubleOr(prefix + "zPos", sentinel);
+		if (Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(z)) {
+			return null;
 		}
-		return null;
+		return new DoubleCoordinates(x, y, z);
 	}
 
 	@Override
@@ -181,10 +189,10 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 		return this;
 	}
 
-	public void writeToNBT(String prefix, CompoundTag nbt) {
-		nbt.putDouble(prefix + "xPos", xCoord);
-		nbt.putDouble(prefix + "yPos", yCoord);
-		nbt.putDouble(prefix + "zPos", zCoord);
+	public void serialize(String prefix, ValueOutput output) {
+		output.putDouble(prefix + "xPos", xCoord);
+		output.putDouble(prefix + "yPos", yCoord);
+		output.putDouble(prefix + "zPos", zCoord);
 	}
 
 	public DoubleCoordinates add(DoubleCoordinates toAdd) {

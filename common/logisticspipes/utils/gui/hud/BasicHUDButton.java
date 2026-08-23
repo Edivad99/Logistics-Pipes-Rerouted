@@ -4,6 +4,7 @@ package logisticspipes.utils.gui.hud;
 
 
 
+import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.utils.Color;
 import net.minecraft.client.Minecraft;
@@ -86,21 +87,17 @@ public abstract class BasicHUDButton implements IHUDButton {
 	}
 
 	@Override
-	public void renderButton(GuiGraphics gg, boolean hover, boolean clicked, boolean shifted) {
+	public void renderButton(HUDDrawContext gg, boolean hover, boolean clicked, boolean shifted) {
 		int bg = clicked ? 0xaa333333 : hover ? 0xaa555555 : 0xaa444444;
-		gg.pose().pushPose();
-		gg.pose().translate(0.0F, 0.0F, BUTTON_Z);
 		gg.fill(posX, posY, posX + sizeX, posY + sizeY, bg);
 		gg.fill(posX, posY, posX + sizeX, posY + 1, 0xffaaaaaa);
 		gg.fill(posX, posY + sizeY - 1, posX + sizeX, posY + sizeY, 0xff333333);
-		gg.pose().translate(0.0F, 0.0F, BUTTON_LABEL_Z);
 		gg.drawCenteredString(Minecraft.getInstance().font, label,
-			posX + sizeX / 2, posY + (sizeY - 8) / 2, Color.getValue(Color.LIGHTER_GREY));
-		gg.pose().popPose();
+			posX + sizeX / 2, posY + (sizeY - 8) / 2, Color.getValue(Color.LIGHTER_GREY), true);
 	}
 
 	@Override
-	public void renderAlways(GuiGraphics guiGraphics, boolean shifted) {
+	public void renderAlways(HUDDrawContext guiGraphics, boolean shifted) {
 
 	}
 }

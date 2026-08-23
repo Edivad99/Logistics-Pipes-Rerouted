@@ -61,8 +61,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -495,29 +493,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 		return shape;
 	}
 
-	// getSelectedBoundingBox removed in 1.20.1 — replaced by getShape(state, level, pos, context)
-	// Renamed to avoid @Override on non-existent method; logic preserved for reference
-	@OnlyIn(Dist.CLIENT)
-	public AABB getSelectedBoundingBox_DEAD(BlockState state, Level level, BlockPos pos) {
-		BlockEntity tile = level.getBlockEntity(pos);
-		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).isPipeBlock()) {
-			return new AABB((double) pos.getX() + 0, (double) pos.getY() + 0, (double) pos.getZ() + 0,
-					(double) pos.getX() + 1, (double) pos.getY() + 1, (double) pos.getZ() + 1);
-		}
-		InternalRayTraceResult rayTraceResult = doRayTrace(level, pos, Minecraft.getInstance().player);
-
-		if (rayTraceResult != null && rayTraceResult.boundingBox != null) {
-			AABB box = rayTraceResult.boundingBox;
-			if (rayTraceResult.hitPart == Part.PIPE) {
-				float scale = 0.001F;
-				box = box.inflate(scale, scale, scale);
-			}
-			return box.move(pos.getX(), pos.getY(), pos.getZ());
-		}
-		return new AABB(pos); // fallback
-	}
-
-	// collisionRayTrace removed in 1.20.1 — migrated to getShape(BlockState, BlockGetter, BlockPos, CollisionContext)
+// collisionRayTrace removed in 1.20.1 — migrated to getShape(BlockState, BlockGetter, BlockPos, CollisionContext)
 	// The entire ray-trace API (AABB.calculateIntercept, new HitResult(hitVec, side, pos), Block.FULL_BLOCK_AABB) is gone.
 	// @Override
 	// public HitResult collisionRayTrace(BlockState state, Level world, BlockPos pos, Vec3 start, Vec3 end) { ... }
@@ -844,12 +820,12 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	}
 
 	// TODO: addHitEffects rendering — migrate to NeoForge IBlockExtension.addHitEffects with ParticleEngine (deferred)
-	// @OnlyIn(Dist.CLIENT)
+	// 
 	// @Override
 	// public boolean addHitEffects(BlockState state, Level world, HitResult target, ParticleEngine effectRenderer) { ... }
 
 	// TODO: addDestroyEffects rendering — migrate to NeoForge IBlockExtension.addDestroyEffects with ParticleEngine (deferred)
-	// @OnlyIn(Dist.CLIENT)
+	// 
 	// @Override
 	// public boolean addDestroyEffects(BlockState state, Level world, BlockPos pos, ParticleEngine effectRenderer) { ... }
 

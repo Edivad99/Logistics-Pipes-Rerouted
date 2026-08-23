@@ -1,5 +1,6 @@
 package logisticspipes.interfaces;
 
+import net.minecraft.world.level.storage.ValueInput;
 import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -13,5 +14,5 @@ public interface IStringBasedModule {
 
 	void listChanged();
 
-	void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider);
+	void deserialize(ValueInput input);
 }

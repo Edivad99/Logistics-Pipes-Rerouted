@@ -1,5 +1,7 @@
 package logisticspipes.pipes.upgrades;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -181,12 +183,12 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 		}
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider, String prefix) {
-		internalInv.readFromNBT(nbttagcompound, provider, "ModuleUpgradeInventory_" + prefix);
+	public void deserialize(ValueInput input, String prefix) {
+		internalInv.deserialize(input, "ModuleUpgradeInventory_" + prefix);
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider, String prefix) {
-		internalInv.writeToNBT(nbttagcompound, provider, "ModuleUpgradeInventory_" + prefix);
+	public void serialize(ValueOutput output, String prefix) {
+		internalInv.serialize(output, "ModuleUpgradeInventory_" + prefix);
 		InventoryChanged(inv);
 	}
 

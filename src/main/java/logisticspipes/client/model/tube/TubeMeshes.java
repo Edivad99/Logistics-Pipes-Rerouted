@@ -4,8 +4,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.resources.ResourceLocation;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import logisticspipes.client.model.mesh.ObjMesh;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -23,7 +21,6 @@ import logisticspipes.pipes.tubes.HSTubeSpeedup;
  * <p>The dispatch lives here rather than on {@code ISpecialPipeRenderer} so the interface —
  * which is common code — does not gain a dependency on the client-only mesh classes.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class TubeMeshes {
 
     private static final TubeGeometry NONE = new TubeGeometry(ObjMesh.empty(), null);

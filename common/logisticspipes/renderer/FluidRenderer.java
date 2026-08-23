@@ -74,10 +74,9 @@ public final class FluidRenderer {
 	}
 
 	private static void setGLColorFromInt(int color) {
-		float red = (color >> 16 & 255) / 255.0F;
-		float green = (color >> 8 & 255) / 255.0F;
-		float blue = (color & 255) / 255.0F;
-		RenderSystem.setShaderColor(red, green, blue, 1.0F);
+		// No-op. This used to call RenderSystem.setShaderColor, which 1.21.6 removed; the fluid
+		// tint now belongs on whatever draws the fluid, and the display-list renderer that used
+		// to consume it is commented out further down anyway.
 	}
 
 	public static int[] getFluidDisplayLists(FluidStack fluidStack, Level world, boolean flowing) {
@@ -126,7 +125,6 @@ public final class FluidRenderer {
 			// TODO: glEndList removed
 		}
 
-		RenderSystem.setShaderColor(1, 1, 1, 1);
 		// TODO: GL11.glEnable(GL11.GL_CULL_FACE) → RenderSystem equivalent
 		// GL_LIGHTING removed — use shaders
 

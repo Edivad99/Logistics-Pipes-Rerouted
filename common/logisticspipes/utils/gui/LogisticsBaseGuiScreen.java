@@ -311,13 +311,13 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 					LPGuiGraphics.drawGuiBackGround(guiGraphics, posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
 					final String PREFIX = "gui.crafting.";
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
-							(useOreDict ? 0xFF4040 : 0x404040), false);
+							(useOreDict ? 0xFFFF4040 : 0x404040), false);
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "IgnDamage"), posX + 5, posY + 15,
-							(ignoreDamage ? 0x40FF40 : 0x404040), false);
+							(ignoreDamage ? 0xFF40FF40 : 0x404040), false);
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "IgnNBT"), posX + 5, posY + 25,
-							(ignoreNBT ? 0x4040FF : 0x404040), false);
+							(ignoreNBT ? 0xFF4040FF : 0x404040), false);
 					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
-							(useOreCategory ? 0x7F7F40 : 0x404040), false);
+							(useOreCategory ? 0xFF7F7F40 : 0x404040), false);
 				});
 			}
 		}

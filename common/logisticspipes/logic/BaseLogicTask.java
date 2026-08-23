@@ -1,11 +1,13 @@
 package logisticspipes.logic;
 
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.UUID;
 import lombok.Getter;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public abstract class BaseLogicTask {
+public abstract class BaseLogicTask implements ValueIOSerializable {
 
 	//Graphical Interface
 	@Getter
@@ -21,12 +23,12 @@ public abstract class BaseLogicTask {
 	@Getter
 	protected UUID uuid;
 
-	public BaseLogicTask(CompoundTag nbt) {
-		posX = nbt.getIntOr("posX", 0);
-		posY = nbt.getIntOr("posY", 0);
-		name = nbt.getStringOr("name", "");
-		comment = nbt.getStringOr("comment", "");
-		uuid = UUID.fromString(nbt.getStringOr("uuid", ""));
+	public BaseLogicTask(ValueInput input) {
+		posX = input.getIntOr("posX", 0);
+		posY = input.getIntOr("posY", 0);
+		name = input.getStringOr("name", "");
+		comment = input.getStringOr("comment", "");
+		uuid = UUID.fromString(input.getStringOr("uuid", ""));
 	}
 
 	public BaseLogicTask(int posX, int posY) {
@@ -35,18 +37,17 @@ public abstract class BaseLogicTask {
 		uuid = UUID.randomUUID();
 	}
 
-	public final CompoundTag getCompoundTag() {
-		CompoundTag nbt = new CompoundTag();
-		addToNBT(nbt);
-		return nbt;
+	@Override
+	public void serialize(ValueOutput output) {
+		output.putInt("posX", posX);
+		output.putInt("posY", posY);
+		output.putString("name", name);
+		output.putString("comment", comment);
+		output.putString("uuid", uuid.toString());
 	}
 
-	protected void addToNBT(CompoundTag nbt) {
-		nbt.putInt("posX", posX);
-		nbt.putInt("posY", posY);
-		nbt.putString("name", name);
-		nbt.putString("comment", comment);
-		nbt.putString("uuid", uuid.toString());
+	@Override
+	public void deserialize(ValueInput input) {
 	}
 
 	public abstract int getAmountOfInput();

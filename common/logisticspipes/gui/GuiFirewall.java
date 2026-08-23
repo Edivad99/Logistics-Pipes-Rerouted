@@ -58,12 +58,12 @@ public class GuiFirewall extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Firewall"), 45, 8, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filter") + ":", 14, 28, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filtereditemsare") + ":", 125, 8, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Providing") + ":", 144, 41, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Crafting") + ":", 146, 74, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Sorting") + ":", 150, 107, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Powerflow") + ":", 142, 141, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Firewall"), 45, 8, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filter") + ":", 14, 28, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filtereditemsare") + ":", 125, 8, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Providing") + ":", 144, 41, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Crafting") + ":", 146, 74, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Sorting") + ":", 150, 107, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Powerflow") + ":", 142, 141, 0xFF404040, false);
 	}
 }

@@ -37,8 +37,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
@@ -49,11 +48,9 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 import java.util.function.Function;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.util.TriState;
 
 public class RenderTickHandler {
 
@@ -78,7 +75,7 @@ public class RenderTickHandler {
 			true,
 			LPRenderTypes.GHOST_ENTITY_PIPELINE,
 			RenderType.CompositeState.builder()
-				.setTextureState(new RenderStateShard.TextureStateShard(texture, TriState.FALSE, false))
+				.setTextureState(new RenderStateShard.TextureStateShard(texture, false))
 				.setLightmapState(RenderStateShard.LIGHTMAP)
 				.setOverlayState(RenderStateShard.OVERLAY)
 				.createCompositeState(true)));
@@ -105,7 +102,6 @@ public class RenderTickHandler {
 	 *  render event: that is the one that carries the {@link net.minecraft.client.gui.GuiGraphics} to draw
 	 *  into. RenderFrameEvent.Post, where this used to live, provides none. */
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public void screenRender(ScreenEvent.Render.Post event) {
 		if (GuiOverlay.getInstance().isCompatibleGui()) {
 			GuiOverlay.getInstance().renderOverGui(event.getGuiGraphics());
@@ -116,7 +112,6 @@ public class RenderTickHandler {
 	 *  overlay Post event only fires when the crosshair actually rendered, matching
 	 *  LP1's {@code GuiIngameForge.renderCrosshairs} check. */
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public void renderGuiLayer(RenderGuiLayerEvent.Post event) {
 		if (!event.getName().equals(VanillaGuiLayers.CROSSHAIR)) {
 			return;
@@ -129,13 +124,7 @@ public class RenderTickHandler {
 	}
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
-	public void renderWorldLast(RenderLevelStageEvent worldEvent) {
-		// Only render once per frame, at the AFTER_PARTICLES stage.
-		if (worldEvent.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            return;
-        }
-
+	public void renderWorldLast(RenderLevelStageEvent.AfterParticles worldEvent) {
 		PoseStack poseStack = worldEvent.getPoseStack();
 		float partialTick = worldEvent.getPartialTick().getGameTimeDeltaPartialTick(false);
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();

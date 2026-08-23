@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.TriState;
 
 import logisticspipes.client.renderer.LPRenderTypes;
 
@@ -38,7 +37,7 @@ public final class SparkParticleRenderType {
             false,
             LPRenderTypes.ADDITIVE_PARTICLE_PIPELINE,
             RenderType.CompositeState.builder()
-                .setTextureState(new RenderStateShard.TextureStateShard(texture, TriState.FALSE, false))
+                .setTextureState(new RenderStateShard.TextureStateShard(texture, false))
                 .setOutputState(RenderStateShard.PARTICLES_TARGET)
                 .setLightmapState(RenderStateShard.LIGHTMAP)
                 .createCompositeState(false)));

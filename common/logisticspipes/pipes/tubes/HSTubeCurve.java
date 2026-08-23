@@ -1,5 +1,7 @@
 package logisticspipes.pipes.tubes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -23,8 +25,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -195,15 +195,15 @@ public class HSTubeCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag data, HolderLookup.Provider provider) {
-		super.writeToNBT(data, provider);
-		data.putString("orientation", orientation.name());
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		output.putString("orientation", orientation.name());
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
-		super.readFromNBT(data, provider);
-		orientation = CurveOrientation.valueOf(data.getStringOr("orientation", ""));
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		orientation = CurveOrientation.valueOf(input.getStringOr("orientation", ""));
 	}
 
 	@Override

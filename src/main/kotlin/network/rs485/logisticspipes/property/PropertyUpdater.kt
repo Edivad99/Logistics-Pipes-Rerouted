@@ -37,6 +37,8 @@
 
 package network.rs485.logisticspipes.property
 
+import net.minecraft.world.level.storage.TagValueOutput
+import net.minecraft.util.ProblemReporter
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.packets.module.ModulePropertiesUpdate
@@ -70,7 +72,9 @@ class PropertyUpdater(
         if (shouldUpdate && !weakPlayer.isEnqueued) {
             val player = weakPlayer.get() ?: return
             val packet = PacketHandler.getPacket(ModulePropertiesUpdate::class.java)
-            changedProperties.writeToNBT(packet.tag, player.level().registryAccess())
+            val output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.level().registryAccess())
+            changedProperties.serialize(output)
+            packet.tag = output.buildResult()
             changedProperties.clear()
             MainProxy.sendPacketToPlayer(packet.setModulePos(module), player)
             shouldUpdate = false

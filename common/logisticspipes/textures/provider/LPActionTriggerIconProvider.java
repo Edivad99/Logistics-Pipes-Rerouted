@@ -3,7 +3,6 @@ package logisticspipes.textures.provider;
 import logisticspipes.renderer.IIconProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLEnvironment;
 
 public class LPActionTriggerIconProvider implements IIconProvider {
@@ -16,7 +15,6 @@ public class LPActionTriggerIconProvider implements IIconProvider {
 	public static int triggerHasDestinationIconIndex = 5;
 	public static int actionRobotRoutingIconIndex = 6;
 
-	@OnlyIn(Dist.CLIENT)
 	private TextureAtlasSprite[] icons;
 
 	public LPActionTriggerIconProvider() {
@@ -26,7 +24,6 @@ public class LPActionTriggerIconProvider implements IIconProvider {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public TextureAtlasSprite getIcon(int iconIndex) {
 		if (iconIndex > 6) {
 			return null;
@@ -35,7 +32,6 @@ public class LPActionTriggerIconProvider implements IIconProvider {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void registerIcons(Object icon) {
 		// TextureAtlas.registerSprite removed in 1.20.1 — BuildCraft integration not ported
 	}

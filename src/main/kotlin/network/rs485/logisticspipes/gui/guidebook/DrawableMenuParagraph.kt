@@ -207,11 +207,11 @@ class DrawableMenuTile(private val linkedPage: String, private val pageName: Str
         if (visibleArea.intersects(itemRect)) {
             // renderItem draws at native 16x16; scale the pose by iconScale around the icon origin.
             val pose = guiGraphics.pose()
-            pose.pushPose()
-            pose.translate(itemRect.left, itemRect.top, 0.0f)
-            pose.scale(iconScale, iconScale, 1.0f)
+            pose.pushMatrix()
+            pose.translate(itemRect.left, itemRect.top)
+            pose.scale(iconScale, iconScale)
             guiGraphics.renderItem(iconStack(icon), 0, 0)
-            pose.popPose()
+            pose.popMatrix()
         }
     }
 

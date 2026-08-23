@@ -35,29 +35,37 @@
  * SOFTWARE.
  */
 
-package logisticspipes.pipes
+package logisticspipes.pipes;
 
-import logisticspipes.network.NewGuiHandler
-import logisticspipes.network.guis.pipe.FluidBasicGui
-import logisticspipes.textures.Textures
-import logisticspipes.utils.FluidSinkReply.FixedFluidPriority
-import net.minecraft.core.HolderLookup
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
-import network.rs485.logisticspipes.FluidSinkPipe
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
-class PipeFluidBasic(item: Item) : FluidSinkPipe(item, "Fluids to sink", 1) {
+import logisticspipes.network.NewGuiHandler;
+import logisticspipes.network.guis.pipe.FluidBasicGui;
+import logisticspipes.textures.Textures;
+import logisticspipes.utils.FluidSinkReply.FixedFluidPriority;
+import network.rs485.logisticspipes.FluidSinkPipe;
 
-    override val priority: FixedFluidPriority = FixedFluidPriority.FLUID_SINK
+public class PipeFluidBasic extends FluidSinkPipe {
 
-    override fun getCenterTexture(): Textures.TextureType = Textures.LOGISTICSPIPE_LIQUID_BASIC
-
-    override fun onWrenchClicked(entityplayer: Player) {
-        NewGuiHandler.openGui(NewGuiHandler.getGui(FluidBasicGui::class.java).setPosX(x).setPosY(y).setPosZ(z), entityplayer)
+    public PipeFluidBasic(Item item) {
+        super(item, "Fluids to sink", 1);
     }
 
-    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        TODO("Not yet implemented")
+    @Override
+    public FixedFluidPriority getPriority() {
+        return FixedFluidPriority.FLUID_SINK;
+    }
+
+    @Override
+    public Textures.TextureType getCenterTexture() {
+        return Textures.LOGISTICSPIPE_LIQUID_BASIC;
+    }
+
+    @Override
+    public void onWrenchClicked(Player entityplayer) {
+        NewGuiHandler.openGui(
+            NewGuiHandler.getGui(FluidBasicGui.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()),
+            entityplayer);
     }
 }

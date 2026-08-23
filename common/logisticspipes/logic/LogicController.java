@@ -1,5 +1,8 @@
 package logisticspipes.logic;
 
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,21 +13,19 @@ import java.util.function.Function;
 import logisticspipes.utils.item.SimpleStackInventory;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class LogicController {
+public class LogicController implements ValueIOSerializable {
 
 	/**
 	 * Registry of task type names to factory functions.
 	 * Concrete BaseLogicTask subclasses register themselves here so that
-	 * readFromNBT() can reconstruct the right class from a saved type name.
+	 * deserialize() can reconstruct the right class from a saved type name.
 	 */
-	private static final Map<String, Function<CompoundTag, BaseLogicTask>> TASK_TYPES = new HashMap<>();
+	private static final Map<String, Function<ValueInput, BaseLogicTask>> TASK_TYPES = new HashMap<>();
 
-	public static void registerTaskType(String typeName, Function<CompoundTag, BaseLogicTask> factory) {
+	public static void registerTaskType(String typeName, Function<ValueInput, BaseLogicTask> factory) {
 		TASK_TYPES.put(typeName, factory);
 	}
 
@@ -95,37 +96,34 @@ public class LogicController {
 		//*/
 	}
 
-	public void writeToNBT(CompoundTag nbt, HolderLookup.Provider provider) {
-		diskInv.writeToNBT(nbt, provider, "LogicDiskInv");
-		writeTasks(nbt);
-		writeConnections(nbt);
+	public void serialize(ValueOutput output) {
+		diskInv.serialize(output, "LogicDiskInv");
+		writeTasks(output);
+		writeConnections(output);
 	}
 
-	public void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider) {
-		diskInv.readFromNBT(nbt, provider, "LogicDiskInv");
-		readTasks(nbt);
-		readConnections(nbt);
+	public void deserialize(ValueInput input) {
+		diskInv.deserialize(input, "LogicDiskInv");
+		readTasks(input);
+		readConnections(input);
 	}
 
 	// ── Tasks ─────────────────────────────────────────────────────────────────
 
-	private void writeTasks(CompoundTag nbt) {
-		ListTag list = new ListTag();
+	private void writeTasks(ValueOutput output) {
+		ValueOutput.ValueOutputList list = output.childrenList("LogicTasks");
 		for (BaseLogicTask task : tasks) {
-			CompoundTag entry = task.getCompoundTag();
+			ValueOutput entry = list.addChild();
+			task.serialize(entry);
 			entry.putString("taskType", task.getTypeName());
-			list.add(entry);
 		}
-		nbt.put("LogicTasks", list);
 	}
 
-	private void readTasks(CompoundTag nbt) {
+	private void readTasks(ValueInput input) {
 		tasks.clear();
-		ListTag list = nbt.getListOrEmpty("LogicTasks");
-		for (int i = 0; i < list.size(); i++) {
-			CompoundTag entry = list.getCompoundOrEmpty(i);
+		for (ValueInput entry : input.childrenListOrEmpty("LogicTasks")) {
 			String typeName = entry.getStringOr("taskType", "");
-			Function<CompoundTag, BaseLogicTask> factory = TASK_TYPES.get(typeName);
+			Function<ValueInput, BaseLogicTask> factory = TASK_TYPES.get(typeName);
 			if (factory != null) {
 				tasks.add(factory.apply(entry));
 			}
@@ -135,21 +133,19 @@ public class LogicController {
 
 	// ── Connections ───────────────────────────────────────────────────────────
 
-	private void writeConnections(CompoundTag nbt) {
-		ListTag list = new ListTag();
+	private void writeConnections(ValueOutput output) {
+		ValueOutput.ValueOutputList list = output.childrenList("LogicConnections");
 		for (BaseLogicConnection conn : connections) {
-			CompoundTag entry = new CompoundTag();
+			ValueOutput entry = list.addChild();
 			entry.putString("sourceUUID",  conn.getSource().getUuid().toString());
 			entry.putInt   ("sourceIndex", conn.getSourceIndex());
 			entry.putString("targetUUID",  conn.getTarget().getUuid().toString());
 			entry.putInt   ("targetIndex", conn.getTargetIndex());
 			entry.putString("type",        conn.getType().name());
-			list.add(entry);
 		}
-		nbt.put("LogicConnections", list);
 	}
 
-	private void readConnections(CompoundTag nbt) {
+	private void readConnections(ValueInput input) {
 		connections.clear();
 		if (tasks.isEmpty()) return; // nothing to wire
 
@@ -159,9 +155,7 @@ public class LogicController {
 			byUUID.put(task.getUuid(), task);
 		}
 
-		ListTag list = nbt.getListOrEmpty("LogicConnections");
-		for (int i = 0; i < list.size(); i++) {
-			CompoundTag entry = list.getCompoundOrEmpty(i);
+		for (ValueInput entry : input.childrenListOrEmpty("LogicConnections")) {
 			try {
 				UUID sourceUUID = UUID.fromString(entry.getStringOr("sourceUUID", ""));
 				UUID targetUUID = UUID.fromString(entry.getStringOr("targetUUID", ""));

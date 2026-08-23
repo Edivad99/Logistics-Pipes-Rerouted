@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.core.HolderLookup
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
 
 class EnumProperty<E : Enum<E>>(
     private val defaultValue: E,
@@ -46,11 +46,11 @@ class EnumProperty<E : Enum<E>>(
     private val enumValues: Array<E>,
 ) : ValueProperty<E>(defaultValue) {
 
-    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        value = enumValues.getOrNull(tag.getIntOr(tagKey, value.ordinal)) ?: defaultValue
+    override fun deserialize(input: ValueInput) {
+        value = enumValues.getOrNull(input.getIntOr(tagKey, value.ordinal)) ?: defaultValue
     }
 
-    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = tag.putInt(tagKey, value.ordinal)
+    override fun serialize(output: ValueOutput) = output.putInt(tagKey, value.ordinal)
 
     override fun copyValue(): E = value
 

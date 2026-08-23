@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.core.HolderLookup
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.function.UnaryOperator
 
@@ -47,8 +47,8 @@ interface IListProperty<T> : MutableList<T>, Property<MutableList<T>> {
     fun ensureSize(size: Int): Unit?
     fun replaceContent(col: Collection<T>): Boolean?
     fun replaceContent(arr: Array<T>): Boolean?
-    fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): T
-    fun writeSingleToNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String, value: T)
+    fun readSingleFromNBT(input: ValueInput, key: String): T
+    fun writeSingleToNBT(output: ValueOutput, key: String, value: T)
     fun copyValue(obj: T): T
 }
 
@@ -81,21 +81,19 @@ abstract class ListProperty<T>(
 
     abstract fun defaultValue(idx: Int): T
 
-    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(sizeTagKey(tagKey))) {
+    // The entries stay flat, one key per index, rather than moving to a ValueOutput list: the
+    // element readers are per-key and a ValueInputList is iterable but not indexable.
+    override fun deserialize(input: ValueInput) {
+        input.getInt(sizeTagKey(tagKey)).ifPresent { size ->
             replaceContent(
-                MutableList(tag.getIntOr(sizeTagKey(tagKey), 0)) { idx ->
-                    if (tag.contains(itemTagKey(tagKey, idx))) {
-                        readSingleFromNBT(tag, provider, itemTagKey(tagKey, idx))
-                    } else defaultValue(idx)
-                }
+                MutableList(size) { idx -> readSingleFromNBT(input, itemTagKey(tagKey, idx)) }
             )
         }
     }
 
-    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        tag.putInt(sizeTagKey(tagKey), list.size)
-        list.withIndex().forEach { writeSingleToNBT(tag, provider, itemTagKey(tagKey, it.index), it.value) }
+    override fun serialize(output: ValueOutput) {
+        output.putInt(sizeTagKey(tagKey), list.size)
+        list.withIndex().forEach { writeSingleToNBT(output, itemTagKey(tagKey, it.index), it.value) }
     }
 
     override fun copyValue(): MutableList<T> = MutableList(list.size) { idx -> copyValue(list[idx]) }
@@ -153,19 +151,19 @@ class IntListProperty : ListProperty<Int> {
 
     override fun defaultValue(idx: Int): Int = 0
 
-    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        tag.getIntArray(tagKey).ifPresent { replaceContent(it) }
+    override fun deserialize(input: ValueInput) {
+        input.getIntArray(tagKey).ifPresent { replaceContent(it) }
     }
 
-    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = tag.putIntArray(tagKey, list.toIntArray())
+    override fun serialize(output: ValueOutput) = output.putIntArray(tagKey, list.toIntArray())
 
     override fun copyValue(obj: Int): Int = obj
 
     override fun copyProperty(): IntListProperty = IntListProperty(tagKey = tagKey, list = copyValue())
 
-    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): Int = tag.getIntOr(key, 0)
+    override fun readSingleFromNBT(input: ValueInput, key: String): Int = input.getIntOr(key, 0)
 
-    override fun writeSingleToNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String, value: Int) = tag.putInt(key, value)
+    override fun writeSingleToNBT(output: ValueOutput, key: String, value: Int) = output.putInt(key, value)
 
 }
 
@@ -183,9 +181,9 @@ class StringListProperty : ListProperty<String> {
 
     override fun defaultValue(idx: Int): String = ""
 
-    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): String = tag.getStringOr(key, "")
+    override fun readSingleFromNBT(input: ValueInput, key: String): String = input.getStringOr(key, "")
 
-    override fun writeSingleToNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String, value: String) = tag.putString(key, value)
+    override fun writeSingleToNBT(output: ValueOutput, key: String, value: String) = output.putString(key, value)
 
     override fun copyValue(obj: String): String = obj
 

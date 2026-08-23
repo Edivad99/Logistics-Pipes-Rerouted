@@ -1,7 +1,7 @@
 package logisticspipes.interfaces;
 
+import logisticspipes.renderer.HUDDrawContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 
 public interface IHeadUpDisplayRenderer {
 
@@ -10,7 +10,7 @@ public interface IHeadUpDisplayRenderer {
 	 *                    pose. Passed down by the caller instead of being read from a global, so the HUD
 	 *                    render path carries no dependency on ambient state.
 	 */
-	void renderHeadUpDisplay(GuiGraphics guiGraphics, double d, boolean day, boolean shifted, Minecraft mc, IHUDConfig config);
+	void renderHeadUpDisplay(HUDDrawContext context, double d, boolean day, boolean shifted, Minecraft mc, IHUDConfig config);
 
 	boolean display(IHUDConfig config);
 

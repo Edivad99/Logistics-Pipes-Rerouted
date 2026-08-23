@@ -7,8 +7,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
@@ -26,7 +24,6 @@ import logisticspipes.world.level.block.LPBlocks;
  * and {@code TextureRegistrar} has already bound the sprites during the stitch. The 1.12.2
  * path had no equivalent hook — it read the OBJ files at mod init, long before either.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class PipeModelRegistration {
 
     private static final Logger LOGGER = LogManager.getLogger(PipeModelRegistration.class);

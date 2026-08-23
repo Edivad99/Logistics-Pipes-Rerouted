@@ -2,6 +2,7 @@ package logisticspipes.gui.popup;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.util.ARGB;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -29,6 +30,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -141,7 +143,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	@Override
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
 		if (tooltip != null) {
-			guiGraphics.renderComponentTooltip(minecraft.font,
+			guiGraphics.setComponentTooltipForNextFrame(minecraft.font,
 					tooltip.lines().stream().map(Component::literal).collect(java.util.stream.Collectors.toList()),
 					tooltip.x(), tooltip.y());
 		}
@@ -275,8 +277,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		// 	RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 		// 	String s = Integer.toString(orderId);
 		// 	int badgeY = list.isEmpty() ? anchorY + 18 : anchorY - 40;
-		// 	gg.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, anchorX - 5, badgeY, 0.0f, 202.0f, 26, 26, 256, 256);
-		// 	gg.drawString(minecraft.font, s, anchorX + 9 - minecraft.font.width(s) / 2, badgeY + 10, 16777215, true);
+		// 	gg.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, anchorX - 5, badgeY, 0.0f, 202.0f, 26, 26, 256, 256);
+		// 	gg.drawString(minecraft.font, s, anchorX + 9 - minecraft.font.width(s) / 2, badgeY + 10, 0xFFFFFFFF, true);
 		// 	renderLinkedOrderListItems(gg, list, anchorX, anchorY, Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2);
 		// 	RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		// 	RenderSystem.enableBlend();
@@ -336,8 +338,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int leftSide = ((width - xSize) / 2);
 		int topSide = ((height - ySize) / 2);
 
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 
 		guiTop *= 1 / zoom.zoom;
 		guiLeft *= 1 / zoom.zoom;
@@ -361,14 +362,13 @@ public class RequestMonitorPopup extends SubGuiScreen {
 			drawProgressPoint(guiGraphics, innerLeftSide - mapX + 110, innerTopSide - mapY - 197 + pos, 0xff00ff00);
 		}
 
-		RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
 		String s = Integer.toString(orderId);
 		if (!list.isEmpty()) {
-			guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0.0f, 202.0f, 26, 26, 256, 256);
-			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 210, 16777215, true);
+			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0.0f, 202.0f, 26, 26, 256, 256, ARGB.colorFromFloat(1.0F, 0.7F, 0.7F, 0.7F));
+			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 210, 0xFFFFFFFF, true);
 		} else {
-			guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0.0f, 202.0f, 26, 26, 256, 256);
-			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 16777215, true);
+			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0.0f, 202.0f, 26, 26, 256, 256, ARGB.colorFromFloat(1.0F, 0.7F, 0.7F, 0.7F));
+			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 0xFFFFFFFF, true);
 		}
 		renderLinkedOrderListItems(guiGraphics, list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180, par1, par2);
 
@@ -379,8 +379,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		leftSide *= zoom.zoom;
 		topSide *= zoom.zoom;
 
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 	}
 
 	private void renderLinkedOrderListItems(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
@@ -388,15 +387,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		int startLeft = -(size - 1) * (30 / 2) + xPos;
 		yPos += 13;
 		for (IOrderInfoProvider aList : list) {
-			if (aList.isInProgress()) {
-				RenderSystem.setShaderColor(0.1F, 0.9F, 0.1F, 1.0F);
-			} else {
-				RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
-			}
-			// The blit names its own texture; the old setShaderTexture call became redundant when
-			// this moved to RenderType, and in 1.21.5 it takes a GpuTexture rather than a location.
-            guiGraphics.blit(RenderType::guiTextured, RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
-			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
+			int badgeTint = aList.isInProgress() ? ARGB.colorFromFloat(1.0F, 0.1F, 0.9F, 0.1F) : ARGB.colorFromFloat(1.0F, 0.7F, 0.7F, 0.7F);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256, badgeTint);
 			renderItemAt(guiGraphics, aList.getAsDisplayItem(), startLeft, yPos);
 			if (aList.isInProgress() && aList.getMachineProgress() != 0) {
 				guiGraphics.fill(startLeft - 4, yPos + 20, startLeft + 20, yPos + 24, 0xff000000);
@@ -509,7 +501,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
                 guiGraphics.renderItem(stack, x, y);
 			}
 			String s = TextUtil.getThreeDigitFormattedNumber(item.getStackSize(), false);
-            guiGraphics.drawString(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 16777215, true);
+            guiGraphics.drawString(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 0xFFFFFFFF, true);
 		}
 	}
 

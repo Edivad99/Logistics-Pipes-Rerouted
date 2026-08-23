@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -204,21 +206,21 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
-		dummyInventory.readFromNBT(nbttagcompound, provider, "");
-		requestPartials = nbttagcompound.getBooleanOr("requestpartials", false);
-		amount = nbttagcompound.getIntOr("amount", 0);
-		bucketMinimum = MinMode.values()[nbttagcompound.getByteOr("_bucketMinimum", (byte) 0)];
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		dummyInventory.deserialize(input, "");
+		requestPartials = input.getBooleanOr("requestpartials", false);
+		amount = input.getIntOr("amount", 0);
+		bucketMinimum = MinMode.values()[input.getByteOr("_bucketMinimum", (byte) 0)];
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
-		dummyInventory.writeToNBT(nbttagcompound, provider, "");
-		nbttagcompound.putBoolean("requestpartials", requestPartials);
-		nbttagcompound.putInt("amount", amount);
-		nbttagcompound.putByte("_bucketMinimum", (byte) bucketMinimum.ordinal());
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		dummyInventory.serialize(output, "");
+		output.putBoolean("requestpartials", requestPartials);
+		output.putInt("amount", amount);
+		output.putByte("_bucketMinimum", (byte) bucketMinimum.ordinal());
 	}
 
 	private void decreaseRequested(FluidIdentifier liquid, int remaining) {

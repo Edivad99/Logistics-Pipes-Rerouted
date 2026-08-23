@@ -148,7 +148,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(minecraft.font, "Disk", xCenter - (minecraft.font.width("Disk") / 2), guiTop + 10, 0xFFFFFF, true);
+        guiGraphics.drawString(minecraft.font, "Disk", xCenter - (minecraft.font.width("Disk") / 2), guiTop + 10, 0xFFFFFFFF, true);
 
 		//NameInput
 		if (editName) {
@@ -159,7 +159,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 		}
         guiGraphics.fill(guiLeft + 12, guiTop + 30, right - 12, guiTop + 43, Color.getValue(Color.DARKER_GREY));
 
-        guiGraphics.drawString(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFF, false);
+        guiGraphics.drawString(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFFFF, false);
 
 		//guiGraphics.fill(guiLeft + 6, guiTop + 46, right - 6, bottom - 30, Color.getValue(Color.GREY));
 

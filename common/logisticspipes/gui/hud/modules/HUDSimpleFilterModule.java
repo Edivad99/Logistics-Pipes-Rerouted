@@ -1,5 +1,6 @@
 package logisticspipes.gui.hud.modules;
 
+import logisticspipes.renderer.HUDDrawContext;
 import java.util.List;
 
 import logisticspipes.gui.hud.HudChassisPipe;
@@ -20,8 +21,8 @@ public class HUDSimpleFilterModule implements IHUDModuleRenderer {
     }
 
     @Override
-    public void renderContent(GuiGraphics guiGraphics, boolean shifted) {
-        ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics,
+    public void renderContent(HUDDrawContext context, boolean shifted) {
+        ItemStackRenderer.renderItemIdentifierStackListIntoHud(context,
             ItemIdentifierStack.getListFromInventory(filter.getFilterInventory()), null, 0, HudChassisPipe.MODULE_CONTENT_LEFT, -32, 3, 9, 18, 18, 100.0F, DisplayAmount.NEVER, false, shifted);
     }
 

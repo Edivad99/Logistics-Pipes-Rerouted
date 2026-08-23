@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import logisticspipes.gui.hud.HUDSatellite;
@@ -166,23 +169,20 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
-		if (nbttagcompound.contains("satelliteid")) {
-			int satelliteId = nbttagcompound.getIntOr("satelliteid", 0);
-			satellitePipeName = Integer.toString(satelliteId);
-		} else {
-			satellitePipeName = nbttagcompound.getStringOr("satellitePipeName", "");
-		}
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+        satellitePipeName = input.getInt("satelliteid")
+            .map(integer -> Integer.toString(integer))
+            .orElseGet(() -> input.getStringOr("satellitePipeName", ""));
 		if (MainProxy.isServer(getWorld())) {
 			ensureAllSatelliteStatus();
 		}
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		nbttagcompound.putString("satellitePipeName", satellitePipeName);
-		super.writeToNBT(nbttagcompound, provider);
+	public void serialize(ValueOutput output) {
+		output.putString("satellitePipeName", satellitePipeName);
+		super.serialize(output);
 	}
 
 	public void ensureAllSatelliteStatus() {

@@ -46,7 +46,7 @@ import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.LPGuiGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.network.chat.Component
 import net.minecraft.world.inventory.Slot
@@ -117,12 +117,12 @@ abstract class BaseGuiContainer(
     private fun drawHoveredSlotHighlight(guiGraphics: GuiGraphics) {
         val slot = hoveredSlot?.takeIf { it.isActive && it.isHighlightable } ?: return
         val pose = guiGraphics.pose()
-        pose.pushPose()
+        pose.pushMatrix()
         // Slot.x/y are panel-local, the same coords vanilla renders them at.
-        pose.translate(leftPos.toFloat(), topPos.toFloat(), 0f)
+        pose.translate(leftPos.toFloat(), topPos.toFloat())
         // Same 24x24 quad, offset by 4, that AbstractContainerScreen#renderSlotHighlightFront uses.
-        guiGraphics.blitSprite(RenderType::guiTexturedOverlay, SLOT_HIGHLIGHT_FRONT_SPRITE, slot.x - 4, slot.y - 4, 24, 24)
-        pose.popPose()
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, slot.x - 4, slot.y - 4, 24, 24)
+        pose.popMatrix()
     }
 
     override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
@@ -130,13 +130,13 @@ abstract class BaseGuiContainer(
         // for widget GUIs — widget layout handles its own labels.
         // Pose is translated by (leftPos, topPos); counter-translate so widget absolute coords work.
         val pose = guiGraphics.pose()
-        pose.pushPose()
-        pose.translate(-leftPos.toFloat(), -topPos.toFloat(), 0f)
+        pose.pushMatrix()
+        pose.translate(-leftPos.toFloat(), -topPos.toFloat())
         val rect = widgetScreen.relativeBody
         drawBackgroundLayer(mouseX, mouseY, lastPartialTick)
         widgetScreen.widgetContainer.draw(guiGraphics, mouseX.toFloat(), mouseY.toFloat(), lastPartialTick, rect)
         drawForegroundLayer(mouseX.toFloat(), mouseY.toFloat(), lastPartialTick)
-        pose.popPose()
+        pose.popMatrix()
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {

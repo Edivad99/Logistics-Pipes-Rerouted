@@ -112,11 +112,11 @@ class LPFontRenderer(private val fontName: String) {
             guiGraphics.drawString(font, formatted, x.toInt(), y.toInt(), color, shadow)
         } else {
             val pose = guiGraphics.pose()
-            pose.pushPose()
-            pose.translate(x, y, 0f)
-            pose.scale(scale, scale, 1f)
+            pose.pushMatrix()
+            pose.translate(x, y)
+            pose.scale(scale, scale)
             guiGraphics.drawString(font, formatted, 0, 0, color, shadow)
-            pose.popPose()
+            pose.popMatrix()
         }
         return getStringWidth(string, format, scale)
     }

@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.BitSet;
 import javax.annotation.Nullable;
 import logisticspipes.interfaces.routing.IFilter;
@@ -49,27 +51,25 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
-		inv.writeToNBT(nbttagcompound, provider);
-		nbttagcompound.putBoolean("blockProvider", blockProvider);
-		nbttagcompound.putBoolean("blockCrafer", blockCrafter);
-		nbttagcompound.putBoolean("blockSorting", blockSorting);
-		nbttagcompound.putBoolean("blockPower", blockPower);
-		nbttagcompound.putBoolean("isBlocking", isBlocking);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		inv.serialize(output);
+		output.putBoolean("blockProvider", blockProvider);
+		output.putBoolean("blockCrafer", blockCrafter);
+		output.putBoolean("blockSorting", blockSorting);
+		output.putBoolean("blockPower", blockPower);
+		output.putBoolean("isBlocking", isBlocking);
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
-		inv.readFromNBT(nbttagcompound, provider);
-		blockProvider = nbttagcompound.getBooleanOr("blockProvider", false);
-		blockCrafter = nbttagcompound.getBooleanOr("blockCrafer", false);
-		blockSorting = nbttagcompound.getBooleanOr("blockSorting", false);
-		if (nbttagcompound.contains("blockPower")) {
-			blockPower = nbttagcompound.getBooleanOr("blockPower", false);
-		}
-		isBlocking = nbttagcompound.getBooleanOr("isBlocking", false);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		inv.deserialize(input);
+		blockProvider = input.getBooleanOr("blockProvider", false);
+		blockCrafter = input.getBooleanOr("blockCrafer", false);
+		blockSorting = input.getBooleanOr("blockSorting", false);
+		blockPower = input.getBooleanOr("blockPower", blockPower);
+		isBlocking = input.getBooleanOr("isBlocking", false);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package logisticspipes.pipes.signs;
 
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import com.mojang.blaze3d.pipeline.RenderTarget; // was net.minecraft.client.shader.Framebuffer
 import com.mojang.blaze3d.vertex.PoseStack;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -10,20 +11,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-public interface IPipeSign {
+public interface IPipeSign extends ValueIOSerializable {
 
 	// Methods used when assigning a sign
 	boolean isAllowedFor(CoreRoutedPipe pipe);
 
 	void addSignTo(CoreRoutedPipe pipe, Direction dir, Player player);
 
-	// For Final Pipe
-	void readFromNBT(CompoundTag tag, HolderLookup.Provider provider);
-
-	void writeToNBT(CompoundTag tag, HolderLookup.Provider provider);
 
 	void init(CoreRoutedPipe pipe, Direction dir);
 
@@ -33,12 +28,9 @@ public interface IPipeSign {
 
 	void updateServerSide();
 
-    @OnlyIn(Dist.CLIENT)
 	void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight);
 
-	@OnlyIn(Dist.CLIENT)
 	RenderTarget getMCFrameBufferForSign(); // was Framebuffer
 
-	@OnlyIn(Dist.CLIENT)
 	boolean doesFrameBufferNeedUpdating(CoreRoutedPipe pipe, LogisticsRenderPipe renderer);
 }

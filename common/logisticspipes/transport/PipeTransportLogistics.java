@@ -7,6 +7,8 @@
 
 package logisticspipes.transport;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -374,14 +376,10 @@ public class PipeTransportLogistics {
 		return new RoutingResult(value, true);
 	}
 
-	public void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+	public void deserialize(ValueInput input) {
 
-		ListTag nbttaglist = nbt.getListOrEmpty("travelingEntities");
-
-		for (int j = 0; j < nbttaglist.size(); ++j) {
+		for (ValueInput dataTag : input.childrenListOrEmpty("travelingEntities")) {
 			try {
-				CompoundTag dataTag = nbttaglist.getCompoundOrEmpty(j);
-
 				LPTravelingItem item = new LPTravelingItemServer(dataTag);
 
 				if (item.isCorrupted()) {
@@ -397,37 +395,26 @@ public class PipeTransportLogistics {
 
 		itemBuffer.clear();
 
-		ListTag nbttaglist2 = nbt.getListOrEmpty("buffercontents");
-		for (int i = 0; i < nbttaglist2.size(); i++) {
-			CompoundTag nbttagcompound1 = nbttaglist2.getCompoundOrEmpty(i);
-			itemBuffer.add(new Triplet<>(ItemIdentifierStack.getFromStack(ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound1, provider)), new Pair<>(bufferTimeOut, 0), null));
+		for (ValueInput bufferEntry : input.childrenListOrEmpty("buffercontents")) {
+			ItemStack stack = ItemStackLoader.loadItemStack(bufferEntry);
+			itemBuffer.add(new Triplet<>(ItemIdentifierStack.getFromStack(stack), new Pair<>(bufferTimeOut, 0), null));
 		}
 
 	}
 
-	public void writeToNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+	public void serialize(ValueOutput output) {
 
-		{
-			ListTag nbttaglist = new ListTag();
-
-			for (LPTravelingItem item : items) {
-				if (item instanceof LPTravelingItemServer) {
-					CompoundTag dataTag = new CompoundTag();
-					nbttaglist.add(dataTag);
-					((LPTravelingItemServer) item).writeToNBT(dataTag, provider);
-				}
+		ValueOutput.ValueOutputList travelingEntities = output.childrenList("travelingEntities");
+		for (LPTravelingItem item : items) {
+			if (item instanceof LPTravelingItemServer) {
+				((LPTravelingItemServer) item).serialize(travelingEntities.addChild());
 			}
-
-			nbt.put("travelingEntities", nbttaglist);
 		}
 
-		ListTag nbttaglist2 = new ListTag();
-
+		ValueOutput.ValueOutputList bufferContents = output.childrenList("buffercontents");
 		for (Pair<ItemIdentifierStack, Pair<Integer, Integer>> stack : itemBuffer) {
-			CompoundTag nbttagcompound1 = new CompoundTag();
-			nbttaglist2.add(stack.getValue1().makeNormalStack().save(provider, nbttagcompound1));
+			ItemStackLoader.saveItemStack(bufferContents.addChild(), stack.getValue1().makeNormalStack());
 		}
-		nbt.put("buffercontents", nbttaglist2);
 
 	}
 

@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -58,4 +59,10 @@ public class LPDataComponents {
                 .networkSynchronized(ByteBufCodecs.STRING_UTF8)
                 .build()
         );
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SimpleFluidContent>> FLUID =
+        deferredRegister.registerComponentType("simple_fluid_content", builder ->
+            builder
+                .persistent(SimpleFluidContent.CODEC)
+                .networkSynchronized(SimpleFluidContent.STREAM_CODEC));
 }

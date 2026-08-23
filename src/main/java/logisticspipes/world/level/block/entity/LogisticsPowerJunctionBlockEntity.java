@@ -10,6 +10,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -170,19 +172,17 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        internalStorage = tag.getIntOr("powerLevel", 0);
-        if (tag.contains("needMorePowerTriggerCheck")) {
-            needMorePowerTriggerCheck = tag.getBooleanOr("needMorePowerTriggerCheck", false);
-        }
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        internalStorage = input.getIntOr("powerLevel", 0);
+        needMorePowerTriggerCheck = input.getBooleanOr("needMorePowerTriggerCheck", needMorePowerTriggerCheck);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("powerLevel", internalStorage);
-        tag.putBoolean("needMorePowerTriggerCheck", needMorePowerTriggerCheck);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("powerLevel", internalStorage);
+        output.putBoolean("needMorePowerTriggerCheck", needMorePowerTriggerCheck);
     }
 
     @Override

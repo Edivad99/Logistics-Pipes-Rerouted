@@ -31,10 +31,14 @@ object WidgetScreenHudSuppressor {
         VanillaGuiLayers.PLAYER_HEALTH.toString(),
         VanillaGuiLayers.FOOD_LEVEL.toString(),
         VanillaGuiLayers.ARMOR_LEVEL.toString(),
-        VanillaGuiLayers.EXPERIENCE_BAR.toString(),
         VanillaGuiLayers.AIR_LEVEL.toString(),
         VanillaGuiLayers.VEHICLE_HEALTH.toString(),
-        VanillaGuiLayers.JUMP_METER.toString(),
+        // 1.21.6 folded the experience bar and the horse jump meter into the contextual bar
+        // system, so EXPERIENCE_BAR and JUMP_METER no longer exist as separate layers. Note that
+        // EXPERIENCE_LEVEL -- the number above the bar -- is a layer of its own and, as before, is
+        // deliberately left visible.
+        VanillaGuiLayers.CONTEXTUAL_INFO_BAR_BACKGROUND.toString(),
+        VanillaGuiLayers.CONTEXTUAL_INFO_BAR.toString(),
         VanillaGuiLayers.CHAT.toString(),
     )
 

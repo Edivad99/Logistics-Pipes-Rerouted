@@ -28,7 +28,6 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -36,6 +35,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 
 import logisticspipes.client.renderer.LPRenderTypes;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -43,8 +43,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class LogisticsHUDRenderer {
 
@@ -158,8 +156,7 @@ public class LogisticsHUDRenderer {
 	}
 
 	private boolean playerWearsHUD() {
-		// Inventory.armor is gone in 1.21.5; equipment is reached per slot instead.
-		LocalPlayer player = Minecraft.getInstance().player;
+		Player player = Minecraft.getInstance().player;
 		return player != null && !player.getItemBySlot(EquipmentSlot.HEAD).isEmpty()
 				&& checkItemStackForHUD(player.getItemBySlot(EquipmentSlot.HEAD));
 	}
@@ -203,13 +200,12 @@ public class LogisticsHUDRenderer {
 			if (mc.gui != null && guiGraphics != null) {
 				// LP1 redrew the vanilla crosshair tinted black to mark a HUD target lock.
 				// GuiGraphics.setColor is gone in 1.21.3 -- the tint is an ARGB blit argument now.
-				guiGraphics.blit(RenderType::guiTextured, TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f, 16, 16,
+				guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f, 16, 16,
 					256, 256, 0xFF000000);
 			}
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void renderWorldRelative(long renderTicks, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		if (!displayRenderer()) {
 			return;
@@ -440,28 +436,27 @@ public class LogisticsHUDRenderer {
 		double x = renderer.getX() + 0.5 - cam.x;
 		double y = renderer.getY() + 0.5 - cam.y;
 		double z = renderer.getZ() + 0.5 - cam.z;
-		// The GuiGraphics is handed down through IHeadUpDisplayRenderer/IHUDButton/IHUDModuleRenderer,
-		// so nothing in the HUD render path depends on ambient state.
-		// The public 2-arg GuiGraphics ctor creates its own internal PoseStack, so we apply the
-		// HUD billboard transforms to guiGraphics.pose() rather than the external poseStack.
-		GuiGraphics guiGraphics = new GuiGraphics(mc, hudBufferSource);
-		PoseStack ggPose = guiGraphics.pose();
-		ggPose.pushPose();
-		// Compose the camera orientation from the level renderer; guiGraphics.pose() starts at identity.
-		ggPose.mulPose(poseStack.last().pose());
-		ggPose.translate((float) x, (float) y, (float) z);
-		ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
-		ggPose.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
+		// The context is handed down through IHeadUpDisplayRenderer/IHUDButton/IHUDModuleRenderer,
+		// so nothing in the HUD render path depends on ambient state. The billboard transforms are
+		// applied to the level stage's own PoseStack now: 1.21.6 made the GuiGraphics pose 2D, so
+		// this could no longer be expressed through a GuiGraphics at all.
+		poseStack.pushPose();
+		poseStack.translate((float) x, (float) y, (float) z);
+		poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
+		poseStack.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
 		// y is camera relative and therefore already eye relative; LP1 subtracted the eye height here.
-		ggPose.mulPose(new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y) + 180)));
-		ggPose.translate(0.0F, 0.0F, -PANEL_OFFSET);
-		ggPose.scale(PANEL_SCALE, PANEL_SCALE, PANEL_LAYER_SCALE);
+		poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y) + 180)));
+		poseStack.translate(0.0F, 0.0F, -PANEL_OFFSET);
+		// Panels are drawn back to front in one pass with depth writes off, so the z spreading that
+		// PANEL_LAYER_SCALE used to provide is no longer needed: draw order is the layering.
+		poseStack.scale(PANEL_SCALE, PANEL_SCALE, PANEL_SCALE);
+		HUDDrawContext context = new HUDDrawContext(poseStack, hudBufferSource, packedLight, mc.font);
 		try {
-			renderer.getRenderer().renderHeadUpDisplay(guiGraphics, Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
+			renderer.getRenderer().renderHeadUpDisplay(context, Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
 		} finally {
-			// Draw this panel's batches now, while the pose and the RenderSystem state still belong to it.
-			guiGraphics.flush();
-			ggPose.popPose();
+			// Draw this panel's batches now, while the pose still belongs to it.
+			context.flush();
+			poseStack.popPose();
 		}
 	}
 

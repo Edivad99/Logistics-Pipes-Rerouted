@@ -16,8 +16,6 @@ import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.event.ServerChatEvent;
@@ -72,7 +70,6 @@ public class LPChatListener {
 	}
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public void clientChat(ClientChatReceivedEvent event) {
 		Component message = event.getMessage();
 		if (message != null) {
@@ -109,17 +106,14 @@ public class LPChatListener {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void clearChat() {
 		Minecraft.getInstance().gui.getChat().clearMessages(true);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void storeSendMessages() {
 		sendChatMessages = new ArrayList<>(Minecraft.getInstance().gui.getChat().getRecentChat());
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void restoreSendMessages() {
 		if (sendChatMessages != null) {
 			ChatComponent chat = Minecraft.getInstance().gui.getChat();
@@ -130,7 +124,6 @@ public class LPChatListener {
 		sendChatMessages = null;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void addSendMessages(String substring) {
 		Minecraft.getInstance().gui.getChat().addRecentChat(substring);
 	}

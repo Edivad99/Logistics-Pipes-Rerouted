@@ -58,7 +58,7 @@ public class MainProxy {
 			: new logisticspipes.proxy.side.ServerProxy();
 
     /**
-     * ClientProxy is {@code @OnlyIn(Dist.CLIENT)}, so the RuntimeDistCleaner refuses to load it
+     * ClientProxy is {@code }, so the RuntimeDistCleaner refuses to load it
      * on a dedicated server. Holding it in a nested class defers that load until the first
      * {@code getProxy(true)} call, which only ever happens in client-side code.
      */

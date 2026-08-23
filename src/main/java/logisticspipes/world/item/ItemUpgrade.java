@@ -16,8 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -104,7 +102,6 @@ public class ItemUpgrade extends LogisticsItem {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     private String join(List<String> join) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < join.size() - 2; i++) {

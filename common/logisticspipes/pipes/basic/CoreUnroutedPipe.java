@@ -1,5 +1,7 @@
 package logisticspipes.pipes.basic;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.List;
 import javax.annotation.Nullable;
 import logisticspipes.api.ILPPipe;
@@ -28,8 +30,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -95,7 +95,6 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 	 *
 	 * @return An array of icons
 	 */
-	@OnlyIn(Dist.CLIENT)
 	public IIconProvider getIconProvider() {
 		return Textures.LPpipeIconProvider;
 	}
@@ -114,12 +113,12 @@ public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTy
 		transport.updateEntity();
 	}
 
-	public void writeToNBT(CompoundTag data, HolderLookup.Provider provider) {
-		transport.writeToNBT(data, provider);
+	public void serialize(ValueOutput output) {
+		transport.serialize(output);
 	}
 
-	public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
-		transport.readFromNBT(data, provider);
+	public void deserialize(ValueInput input) {
+		transport.deserialize(input);
 	}
 
 	public boolean needsInit() {

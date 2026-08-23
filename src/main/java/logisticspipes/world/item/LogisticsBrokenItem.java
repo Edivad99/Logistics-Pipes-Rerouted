@@ -23,7 +23,7 @@ public class LogisticsBrokenItem extends LogisticsItem implements IItemAdvancedE
     }
 
     //	@Override
-    //	@OnlyIn(Dist.CLIENT)
+    //	
     //	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
     //		tooltip.add(net.minecraft.network.chat.Component.literal(" - " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "1")));
     //		tooltip.add(net.minecraft.network.chat.Component.literal(" - " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "2")));

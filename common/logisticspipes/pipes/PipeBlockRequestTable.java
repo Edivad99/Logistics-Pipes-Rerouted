@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -515,25 +517,25 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag par1nbtTagCompound, HolderLookup.Provider provider) {
-		super.readFromNBT(par1nbtTagCompound, provider);
-		inv.readFromNBT(par1nbtTagCompound, provider, "inv");
-		matrix.readFromNBT(par1nbtTagCompound, provider, "matrix");
-		toSortInv.readFromNBT(par1nbtTagCompound, provider, "toSortInv");
-		diskInv.readFromNBT(par1nbtTagCompound, provider, "diskInv");
-		rotation = par1nbtTagCompound.getIntOr("blockRotation", 0);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		inv.deserialize(input, "inv");
+		matrix.deserialize(input, "matrix");
+		toSortInv.deserialize(input, "toSortInv");
+		diskInv.deserialize(input, "diskInv");
+		rotation = input.getIntOr("blockRotation", 0);
 		// cacheRecipe() skipped here — world/registry not available during NBT load; cache is rebuilt lazily on first use
 		//cacheRecipe();
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag par1nbtTagCompound, HolderLookup.Provider provider) {
-		super.writeToNBT(par1nbtTagCompound, provider);
-		inv.writeToNBT(par1nbtTagCompound, provider, "inv");
-		matrix.writeToNBT(par1nbtTagCompound, provider, "matrix");
-		toSortInv.writeToNBT(par1nbtTagCompound, provider, "toSortInv");
-		diskInv.writeToNBT(par1nbtTagCompound, provider, "diskInv");
-		par1nbtTagCompound.putInt("blockRotation", rotation);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		inv.serialize(output, "inv");
+		matrix.serialize(output, "matrix");
+		toSortInv.serialize(output, "toSortInv");
+		diskInv.serialize(output, "diskInv");
+		output.putInt("blockRotation", rotation);
 	}
 
 	@Override

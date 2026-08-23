@@ -37,14 +37,13 @@
 
 package network.rs485.logisticspipes.property
 
+import com.mojang.serialization.Codec
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
 import network.rs485.logisticspipes.connection.*
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.utils.DirectionUtil
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
-import net.minecraft.nbt.StringTag
 import net.minecraft.core.Direction
-import net.minecraft.core.HolderLookup
 
 class AdjacentProperty @JvmOverloads constructor(
     defaultValue: Adjacent = NoAdjacent,
@@ -56,15 +55,15 @@ class AdjacentProperty @JvmOverloads constructor(
 
     override fun copyProperty(): AdjacentProperty = AdjacentProperty(value, pipe, tagKey)
 
-    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        if (tag.contains(tagKey)) {
-            val adjacentConnectionsTagList = tag.getListOrEmpty(tagKey)
-            assert(adjacentConnectionsTagList.size in 0..6)
-            if (adjacentConnectionsTagList.size == 0) {
+    override fun deserialize(input: ValueInput) {
+        input.list(tagKey, Codec.STRING).ifPresent { storedConnections ->
+            val stored = storedConnections.toList()
+            assert(stored.size in 0..6)
+            if (stored.isEmpty()) {
                 value = NoAdjacent
-                return
+                return@ifPresent
             }
-            val adjacentConnections = (0..5).map { idx -> adjacentConnectionsTagList.getStringOr(idx, "") }
+            val adjacentConnections = (0..5).map { idx -> stored.getOrElse(idx) { "" } }
             val activeConnections = adjacentConnections.withIndex().filter { it.value.isNotBlank() }
             value = when (activeConnections.size) {
                 0 -> NoAdjacent
@@ -83,13 +82,12 @@ class AdjacentProperty @JvmOverloads constructor(
         }
     }
 
-    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) {
-        tag.put(tagKey, ListTag().also { list ->
-            if (value == NoAdjacent) {
-                return@also
-            }
-            Direction.values().map { dir -> StringTag.valueOf(value[dir]?.name ?: "") }.forEach { list.add(it) }
-        })
+    override fun serialize(output: ValueOutput) {
+        val list = output.list(tagKey, Codec.STRING)
+        if (value == NoAdjacent) {
+            return
+        }
+        Direction.entries.forEach { dir -> list.add(value[dir]?.name ?: "") }
     }
 
     fun getDirectionOrNull(): Direction? = (value as? SingleAdjacent)?.dir

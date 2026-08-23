@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import com.mojang.math.Axis
 import network.rs485.logisticspipes.util.TextUtil
 import net.minecraft.client.gui.GuiGraphics
 
@@ -50,14 +49,16 @@ class VerticalLabel(fullText: String, x: Int, y: Int, maxLength: Int, textColor:
         val rect = if (hovered) fullRect else trimmedRect
         val text = if (hovered) fullText else trimmedText
         val pose = guiGraphics.pose()
-        pose.pushPose()
-        pose.translate(rect.x0, rect.y0 + rect.height, 0f)
-        pose.mulPose(Axis.ZP.rotationDegrees(-90f))
+        pose.pushMatrix()
+        pose.translate(rect.x0, rect.y0 + rect.height)
+        // The 2D stack rotates about z by radians; the old Axis.ZP.rotationDegrees(-90f) quaternion
+        // has no counterpart now that the pose is a Matrix3x2f.
+        pose.rotate(-Math.PI.toFloat() / 2f)
         if (backgroundColor != 0) {
             guiGraphics.fill(-1, -1, fontRenderer.width(text) + 1, fontRenderer.lineHeight + 1, backgroundColor)
         }
         guiGraphics.drawString(fontRenderer, text, 0, 0, textColor, false)
-        pose.popPose()
+        pose.popMatrix()
     }
 
     override fun setText(newFullText: String) {

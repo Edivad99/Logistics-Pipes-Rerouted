@@ -4,12 +4,9 @@ import java.util.List;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import lombok.Getter;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
-@OnlyIn(Dist.CLIENT)
 public class ClientSideOrderInfo implements IOrderInfoProvider {
 
 	@Getter

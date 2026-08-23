@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.module
 
+import logisticspipes.renderer.HUDDrawContext
 import network.rs485.logisticspipes.logistics.LogisticsManager
 import network.rs485.logisticspipes.property.NullableEnumProperty
 import network.rs485.logisticspipes.property.Property
@@ -64,7 +65,6 @@ import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
@@ -308,11 +308,12 @@ class AsyncExtractorModule(
     }
 
     class HUDAsyncExtractor(private val module: AsyncExtractorModule) : IHUDModuleRenderer {
-        override fun renderContent(guiGraphics: GuiGraphics, shifted: Boolean) {
+        override fun renderContent(context: HUDDrawContext, shifted: Boolean) {
             val mc = Minecraft.getInstance()
 
             val d: Direction? = module.sneakyDirection
-            // TODO: deferred — migrate Font.drawString to GuiGraphics.drawString in 1.20.1
+            // TODO: deferred -- this panel has never drawn anything; the sneaky direction still
+            // needs a line of text through context.drawString.
         }
 
         override fun getButtons(): MutableList<IHUDButton>? = null

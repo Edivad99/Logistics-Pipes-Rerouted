@@ -1,5 +1,7 @@
 package logisticspipes.network;
 
+import net.minecraft.world.level.storage.ValueInput;
+import com.mojang.serialization.Codec;
 import static io.netty.buffer.Unpooled.buffer;
 
 import java.util.ArrayList;
@@ -22,17 +24,14 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolverUtil;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import network.rs485.logisticspipes.util.LPDataIOWrapper;
@@ -49,9 +48,15 @@ public class PacketHandler {
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, event -> {
             var registrar = event.registrar(LPConstants.ID).versioned("1");
+            // Both directions get the handler explicitly. The three-argument playBidirectional only
+            // registers the *server* one and leaves the clientbound side null, which 1.21.8 now
+            // rejects outright: "Some clientbound payloads are missing client-side handlers".
+            // LP multiplexes every packet over this one channel and dispatches by id inside
+            // handlePayload, so the same handler is correct for both.
             registrar.playBidirectional(
                     LPPacketPayload.TYPE,
                     LPPacketPayload.STREAM_CODEC,
+                    PacketHandler::handlePayload,
                     PacketHandler::handlePayload
             );
             registerClientToServer(registrar);
@@ -154,20 +159,33 @@ public class PacketHandler {
         nbt.putByteArray("LogisticsPipes:PacketData", data);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static void queueAndRemovePacketFromNBT(CompoundTag nbt) {
-        byte[] data = nbt.getByteArray("LogisticsPipes:PacketData").orElse(new byte[0]);
+    /**
+     * Reads back the packet {@link #addPacketToNBT} embedded in an update tag and queues it.
+     *
+     * <p>Takes a {@link ValueInput} because that is what {@code handleUpdateTag} hands out since
+     * 1.21.6. It has no byte-array accessor, so the payload comes back through
+     * {@code Codec.BYTE_BUFFER}, which NbtOps maps onto the same ByteArrayTag the writer produces.
+     * The key is no longer removed afterwards -- a ValueInput is read-only, and leaving it costs
+     * nothing since the block entity ignores unknown keys.</p>
+     */
+    public static void queuePacketFromUpdateTag(ValueInput input) {
+        byte[] data = input.read("LogisticsPipes:PacketData", Codec.BYTE_BUFFER)
+            .map(buffer -> {
+                byte[] copy = new byte[buffer.remaining()];
+                buffer.duplicate().get(copy);
+                return copy;
+            })
+            .orElse(new byte[0]);
         if (data.length > 0) {
             LPDataIOWrapper.provideData(data, Minecraft.getInstance().getConnection() != null ? Minecraft.getInstance().getConnection().registryAccess() : null, dataInput -> {
                 final int packetID = dataInput.readShort();
                 final ModernPacket packet = PacketHandler.templateForId(packetID);
                 packet.setDebugId(dataInput.readInt());
                 packet.readData(dataInput);
-                LocalPlayer localPlayer = Minecraft.getInstance().player;
+                Player localPlayer = Minecraft.getInstance().player;
                 SimpleServiceLocator.clientBufferHandler.queuePacket(packet, Objects.requireNonNull(localPlayer));
             });
         }
-        nbt.remove("LogisticsPipes:PacketData");
     }
 
     // ── Sending ──────────────────────────────────────────────────────────────
@@ -183,9 +201,8 @@ public class PacketHandler {
     }
 
     /** Sends a packet from the client to the server. Must only be called client-side. */
-    @OnlyIn(Dist.CLIENT)
     public static void sendToServer(ModernPacket msg) {
-        PacketDistributor.sendToServer(buildPayload(msg));
+        ClientPacketDistributor.sendToServer(buildPayload(msg));
     }
 
     /** Sends a packet from the server to a specific player. Must only be called server-side. */

@@ -1,5 +1,7 @@
 package logisticspipes.utils;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -8,7 +10,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
@@ -71,16 +72,23 @@ public class PlayerIdentifier {
         return ident;
     }
 
-    public static PlayerIdentifier readFromNBT(CompoundTag nbt, String prefix) {
-        UUID id = null;
-        if (nbt.contains(prefix + "_id")) {
-            String tmp = nbt.getStringOr(prefix + "_id", "");
+    /**
+     * Reads the identifier stored under {@code key}.
+     *
+     * <p>The two fields used to be flattened into the parent tag as {@code <prefix>_id} and
+     * {@code <prefix>_name}. A {@link ValueInput} addresses children by key rather than by string
+     * concatenation, so they are nested under one child now.</p>
+     */
+    public static PlayerIdentifier deserialize(ValueInput input, String key) {
+        ValueInput child = input.childOrEmpty(key);
+        UUID id = child.getString("id").map(raw -> {
             try {
-                id = UUID.fromString(tmp);
-            } catch (Exception ignored) {
+                return UUID.fromString(raw);
+            } catch (IllegalArgumentException ignored) {
+                return null;
             }
-        }
-        String username = nbt.getStringOr(prefix + "_name", "");
+        }).orElse(null);
+        String username = child.getStringOr("name", "");
         return PlayerIdentifier.get(username, id);
     }
 
@@ -88,11 +96,14 @@ public class PlayerIdentifier {
         return PlayerIdentifier.get(name, null);
     }
 
-    public void writeToNBT(CompoundTag nbt, String prefix) {
+    public void serialize(ValueOutput output, String key) {
+        ValueOutput child = output.child(key);
         if (id != null) {
-            nbt.putString(prefix + "_id", id.toString());
+            child.putString("id", id.toString());
         }
-        nbt.putString(prefix + "_name", username);
+        if (username != null) {
+            child.putString("name", username);
+        }
     }
 
     public PlayerIdentifier setUsername(@Nullable String string) {

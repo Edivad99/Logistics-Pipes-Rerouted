@@ -8,8 +8,6 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Turns an {@link ObjMesh} into {@link BakedQuad}s so pipe geometry can live in the chunk
@@ -19,7 +17,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * returned an empty list with a TODO, so everything had to go through the immediate-mode
  * {@code render()} path.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class MeshBaker {
 
     private MeshBaker() {

@@ -14,8 +14,6 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +37,6 @@ import logisticspipes.client.model.pipe.PipeModelStore;
  * the reload, which is what the old {@code ClientManager.safeLoadModels} try/catch was
  * standing in for.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public class ObjModelManager implements PreparableReloadListener {
 
     private static final Logger LOGGER = LogManager.getLogger(ObjModelManager.class);

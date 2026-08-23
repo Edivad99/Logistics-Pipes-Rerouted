@@ -1,12 +1,12 @@
 package logisticspipes.interfaces;
 
+import logisticspipes.renderer.HUDDrawContext;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiGraphics;
 
 public interface IHUDModuleRenderer {
 
-	void renderContent(GuiGraphics guiGraphics, boolean shifted);
+	void renderContent(HUDDrawContext context, boolean shifted);
 
 	List<IHUDButton> getButtons();
 }

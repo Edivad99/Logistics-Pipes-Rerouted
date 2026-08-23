@@ -1,5 +1,7 @@
 package logisticspipes.modules;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +30,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import network.rs485.logisticspipes.IStore;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
@@ -36,7 +38,7 @@ import network.rs485.logisticspipes.property.UtilKt;
 import org.jetbrains.annotations.NotNull;
 
 @CCType(name = "LogisticsModule")
-public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, PropertyHolder {
+public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeHolder, PropertyHolder {
 
 	private final Object[] ccTypeHolder = new Object[1];
 	@Nullable
@@ -106,13 +108,13 @@ public abstract class LogisticsModule implements IStore, ILPCCTypeHolder, Proper
 	}
 
     @Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-		PropertyHolder.readFromNBT(tag, provider, this);
+	public void deserialize(@NotNull ValueInput input) {
+		PropertyHolder.deserialize(input, this);
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-		PropertyHolder.writeToNBT(tag, provider, this);
+	public void serialize(@NotNull ValueOutput output) {
+		PropertyHolder.serialize(output, this);
 	}
 
 	/**

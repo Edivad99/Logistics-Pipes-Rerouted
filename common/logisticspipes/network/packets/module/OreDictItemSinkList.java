@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.module;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.NBTModuleCoordinatesPacket;
@@ -25,7 +27,8 @@ public class OreDictItemSinkList extends NBTModuleCoordinatesPacket {
 		if (module == null) {
 			return;
 		}
-		module.readFromNBT(getTag(), player.level().registryAccess());
+		module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
+			player.level().registryAccess(), getTag()));
 		if (MainProxy.isServer(player.level()) && getType().isInWorld()) {
 			module.OreListChanged();
 		}

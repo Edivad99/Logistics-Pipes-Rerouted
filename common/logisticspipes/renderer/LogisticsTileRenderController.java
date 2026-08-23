@@ -17,8 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsTileRenderController {
@@ -70,7 +68,6 @@ public class LogisticsTileRenderController {
 		}
 
 		@Getter
-		@OnlyIn(Dist.CLIENT)
 		final PipeFXLaserPowerBeam entity;
 
 		@Override
@@ -125,7 +122,6 @@ public class LogisticsTileRenderController {
 		}
 
 		@Getter
-		@OnlyIn(Dist.CLIENT)
 		final PipeFXLaserPowerBall entity;
 
 		@Override

@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -263,23 +265,19 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
-		nbttagcompound.putInt("resistance", resistance);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		output.putInt("resistance", resistance);
 		if (connectedChannel != null) {
-			nbttagcompound.putString("connectedChannel", connectedChannel.toString());
+			output.putString("connectedChannel", connectedChannel.toString());
 		}
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
-		resistance = nbttagcompound.getIntOr("resistance", 0);
-		if (nbttagcompound.contains("connectedChannel")) {
-			connectedChannel = UUID.fromString(nbttagcompound.getStringOr("connectedChannel", ""));
-		} else {
-			connectedChannel = null;
-		}
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		resistance = input.getIntOr("resistance", 0);
+		connectedChannel = input.getString("connectedChannel").map(UUID::fromString).orElse(null);
 	}
 
 	private boolean hasRemoteConnection() {

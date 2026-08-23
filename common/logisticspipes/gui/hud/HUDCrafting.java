@@ -1,5 +1,6 @@
 package logisticspipes.gui.hud;
 
+import logisticspipes.renderer.HUDDrawContext;
 import java.util.ArrayList;
 import java.util.List;
 import logisticspipes.interfaces.IHUDConfig;
@@ -9,7 +10,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 
 public class HUDCrafting extends BasicHUDGui {
 
@@ -20,19 +20,19 @@ public class HUDCrafting extends BasicHUDGui {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(GuiGraphics guiGraphics, double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
+	public void renderHeadUpDisplay(HUDDrawContext context, double d, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
         if (!pipe.displayList.isEmpty()) {
-			LPGuiGraphics.drawGuiBackGround(guiGraphics, -50, -28, 50, 30, 0, false);
+			LPGuiGraphics.drawGuiBackGround(context, -50, -28, 50, 30, 0, false);
 		} else {
-			LPGuiGraphics.drawGuiBackGround(guiGraphics, -30, -22, 30, 25, 0, false);
+			LPGuiGraphics.drawGuiBackGround(context, -30, -22, 30, 25, 0, false);
 		}
-		super.renderHeadUpDisplay(guiGraphics, d, day, shifted, minecraft, config);
+		super.renderHeadUpDisplay(context, d, day, shifted, minecraft, config);
 		int textColor = day ? 0xff404040 : 0xff7f7f7f;
 		if (!pipe.displayList.isEmpty()) {
-			guiGraphics.drawString(minecraft.font, "Result:", -20, -25, textColor, false);
-			guiGraphics.drawString(minecraft.font, "Todo:", -20, 0, textColor, false);
+			context.drawString(minecraft.font, "Result:", -20, -25, textColor, false);
+			context.drawString(minecraft.font, "Todo:", -20, 0, textColor, false);
 		} else {
-			guiGraphics.drawString(minecraft.font, "Result:", -25, -18, textColor, false);
+			context.drawString(minecraft.font, "Result:", -25, -18, textColor, false);
 		}
 		List<ItemIdentifierStack> list = new ArrayList<>();
 		List<ItemIdentifierStack> craftables = pipe.getCraftedItems();
@@ -41,10 +41,10 @@ public class HUDCrafting extends BasicHUDGui {
 			list.add(craftables.get(0));
 		}
 		if (!pipe.displayList.isEmpty()) {
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, list, null, 0, 11, -18, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, pipe.displayList, null, 0, 13, 3, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+			ItemStackRenderer.renderItemIdentifierStackListIntoHud(context, list, null, 0, 11, -18, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+			ItemStackRenderer.renderItemIdentifierStackListIntoHud(context, pipe.displayList, null, 0, 13, 3, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 		} else {
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, list, null, 0, -9, -1, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+			ItemStackRenderer.renderItemIdentifierStackListIntoHud(context, list, null, 0, -9, -1, 1, 1, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 		}
 	}
 

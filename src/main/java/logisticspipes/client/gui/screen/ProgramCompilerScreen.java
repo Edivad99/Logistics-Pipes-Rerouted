@@ -336,7 +336,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         if (compiler.getCurrentTask() != null) {
-            guiGraphics.drawString(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0x000000, false);
+            guiGraphics.drawString(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0xFF000000, false);
             Item item = BuiltInRegistries.ITEM.getValue(compiler.getCurrentTask());
             String name;
             if (!item.equals(Items.AIR)) {
@@ -345,10 +345,10 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 name = "gui.compiler." + compiler.getCurrentTask().toString().replace(':', '.');
             }
             String text = TextUtil.getTrimmedString(TextUtil.translate(name), 160, font, "...");
-            guiGraphics.drawString(font, text, 10, 70, 0x000000, false);
+            guiGraphics.drawString(font, text, 10, 70, 0xFF000000, false);
             if (!compiler.isWasAbleToConsumePower()) {
-                guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.1"), 68, 10, 0x000000, false);
-                guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.2"), 35, 20, 0x000000, false);
+                guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.1"), 68, 10, 0xFF000000, false);
+                guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.2"), 35, 20, 0xFF000000, false);
             }
         } else {
             if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {

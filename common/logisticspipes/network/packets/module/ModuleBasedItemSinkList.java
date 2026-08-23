@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.module;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
@@ -34,7 +36,7 @@ public class ModuleBasedItemSinkList extends ModuleCoordinatesPacket {
 		if (module == null) {
 			return;
 		}
-		module.readFromNBT(nbt, player.registryAccess());
+		module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, player.registryAccess(), nbt));
 		if (MainProxy.isServer(player.level()) && getType().isInWorld()) {
 			module.listChanged();
 		}

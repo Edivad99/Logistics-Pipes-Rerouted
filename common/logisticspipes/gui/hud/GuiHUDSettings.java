@@ -69,11 +69,11 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, "HUD Chassis Pipe", 50, 13, 0x4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD Crafting Pipe", 50, 33, 0x4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD InvSysCon Pipe", 50, 53, 0x4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD Power Junction", 50, 73, 0x4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD Provider Pipe", 50, 93, 0x4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD Satellite Pipe", 50, 113, 0x4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Chassis Pipe", 50, 13, 0xFF4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Crafting Pipe", 50, 33, 0xFF4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD InvSysCon Pipe", 50, 53, 0xFF4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Power Junction", 50, 73, 0xFF4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Provider Pipe", 50, 93, 0xFF4c4c4c, false);
+		guiGraphics.drawString(minecraft.font, "HUD Satellite Pipe", 50, 113, 0xFF4c4c4c, false);
 	}
 }

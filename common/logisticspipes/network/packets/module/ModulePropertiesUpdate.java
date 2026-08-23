@@ -1,5 +1,8 @@
 package logisticspipes.network.packets.module;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
 import java.util.Objects;
 
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
@@ -53,7 +56,7 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 
 		// sync updated properties
 		RegistryAccess registryAccess = player.level().registryAccess();
-		module.readFromNBT(tag, registryAccess);
+		module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registryAccess, tag));
 
 		if (!getType().isInWorld() && player.containerMenu instanceof InventoryMenu) {
 			// sync slot in player inventory and mark player inventory dirty
@@ -69,7 +72,9 @@ public class ModulePropertiesUpdate extends ModuleCoordinatesPacket {
 
 	public static ModuleCoordinatesPacket fromPropertyHolder(PropertyHolder holder, HolderLookup.Provider provider) {
 		final ModulePropertiesUpdate packet = PacketHandler.getPacket(ModulePropertiesUpdate.class);
-		PropertyHolder.writeToNBT(packet.tag, provider, holder);
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+		PropertyHolder.serialize(output, holder);
+		packet.tag = output.buildResult();
 		return packet;
 	}
 

@@ -8,6 +8,8 @@
 
 package logisticspipes.utils.item;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,7 +37,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import network.rs485.logisticspipes.IStore;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.SlotAccess;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
@@ -46,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
 // Iterable over its own pair type: the two Iterable parameterisations conflict. The pair
 // iteration is reached through contents() instead.
 public class ItemIdentifierInventory
-		implements IStore, IItemIdentifierInventory {
+		implements ValueIOSerializable, IItemIdentifierInventory {
 
 	private final Object[] ccTypeHolder = new Object[1];
 	private final ItemIdentifierStack[] contents;
@@ -223,19 +225,17 @@ public class ItemIdentifierInventory
 	public void stopOpen(Player player) {}
 
 	@Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-		readFromNBT(tag, provider, "");
+	public void deserialize(ValueInput input) {
+		deserialize(input, "");
 	}
 
-	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider, String prefix) {
-		ListTag listtag = tag.getListOrEmpty(prefix + "items");
-
+	public void deserialize(ValueInput input, String prefix) {
 		Arrays.fill(contents, null);
-		for (int j = 0; j < listtag.size(); ++j) {
-			CompoundTag compoundTag = listtag.getCompoundOrEmpty(j);
-			int index = compoundTag.getIntOr("index", 0);
+		// Entries carry their own slot index, so iterating the list in order is enough.
+		for (ValueInput entry : input.childrenListOrEmpty(prefix + "items")) {
+			int index = entry.getIntOr("index", 0);
 			if (index >= 0 && index < contents.length) {
-				ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(compoundTag, provider);
+				ItemStack stack = ItemStackLoader.loadItemStack(entry);
 				ItemIdentifierStack itemstack = ItemIdentifierStack.getFromStack(stack);
 				if (isValidStack(itemstack)) {
 					contents[index] = itemstack;
@@ -249,21 +249,20 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-		writeToNBT(tag, provider, "");
+	public void serialize(ValueOutput output) {
+		serialize(output, "");
 	}
 
-	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider, String prefix) {
-		ListTag listTag = new ListTag();
+	public void serialize(ValueOutput output, String prefix) {
+		ValueOutput.ValueOutputList list = output.childrenList(prefix + "items");
 		for (int i = 0; i < contents.length; ++i) {
 			if (contents[i] != null && contents[i].getStackSize() > 0) {
-				CompoundTag stackTag = new CompoundTag();
-				stackTag.putInt("index", i);
-				listTag.add(contents[i].makeNormalStack().save(provider, stackTag));
+				ValueOutput entry = list.addChild();
+				entry.putInt("index", i);
+				ItemStackLoader.saveItemStack(entry, contents[i].makeNormalStack());
 			}
 		}
-		tag.put(prefix + "items", listTag);
-		tag.putInt(prefix + "itemsCount", contents.length);
+		output.putInt(prefix + "itemsCount", contents.length);
 	}
 
 	public void dropContents(Level level, BlockPos pos) {

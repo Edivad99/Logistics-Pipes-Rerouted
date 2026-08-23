@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -60,15 +62,15 @@ public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
-		inv.writeToNBT(nbttagcompound, provider);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		inv.serialize(output);
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
-		inv.readFromNBT(nbttagcompound, provider);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		inv.deserialize(input);
 	}
 
 	private void dropFreqCard() {

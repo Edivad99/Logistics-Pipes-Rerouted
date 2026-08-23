@@ -8,6 +8,7 @@
 
 package logisticspipes.utils.gui;
 
+import logisticspipes.renderer.HUDDrawContext;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -16,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -23,8 +25,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Divisor;
@@ -36,7 +36,6 @@ import logisticspipes.utils.Color;
 /**
  * Utils class for GUI-related drawing methods.
  */
-@OnlyIn(Dist.CLIENT)
 public final class LPGuiGraphics {
 
     public static final ResourceLocation WIDGETS_TEXTURE = ResourceLocation.withDefaultNamespace(
@@ -70,7 +69,7 @@ public final class LPGuiGraphics {
                 line = "\u00a77" + line;
             }
 
-            guiGraphics.renderComponentTooltip(
+            guiGraphics.setComponentTooltipForNextFrame(
                 Minecraft.getInstance().font,
                 List.of(Component.literal(line)),
                 posX,
@@ -109,8 +108,7 @@ public final class LPGuiGraphics {
 
     private static void doDrawSlotBackground(GuiGraphics guiGraphics, int x, int y, ResourceLocation slotDiskTexture) {
         LPGuiGraphics.zLevel = 0;
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(RenderType::guiTextured, slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
         // 1-pixel darker inset border so the slot visually separates from the panel on light backgrounds.
         final int borderColor = 0x80373737;
         guiGraphics.fill(x, y, x + 18, y + 1, borderColor);
@@ -137,28 +135,26 @@ public final class LPGuiGraphics {
 
     public static void drawBigSlotBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
-        guiGraphics.blit(RenderType::guiTextured, LPGuiGraphics.BIG_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 26, 26, 26, 26);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LPGuiGraphics.BIG_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 26, 26, 26, 26);
     }
 
     public static void drawSmallSlotBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
-        guiGraphics.blit(RenderType::guiTextured, LPGuiGraphics.SMALL_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 8, 8, 8, 8);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LPGuiGraphics.SMALL_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 8, 8, 8, 8);
     }
 
     public static void renderIconAt(GuiGraphics guiGraphics, int x, int y, float zLevel, TextureAtlasSprite icon) {
-        guiGraphics.blitSprite(RenderType::guiTextured, icon, x, y, 16, 16);
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, icon, x, y, 16, 16);
     }
 
     public static void drawLockBackground(GuiGraphics guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(RenderType::guiTextured, LPGuiGraphics.LOCK_ICON, x, y, 0.0f, 0.0f, 14, 15, 14, 15);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LPGuiGraphics.LOCK_ICON, x, y, 0.0f, 0.0f, 14, 15, 14, 15);
     }
 
     private static void drawTexture16by16(GuiGraphics guiGraphics, int x, int y, ResourceLocation tex) {
         LPGuiGraphics.zLevel = 0;
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(RenderType::guiTextured, tex, x, y, 0.0f, 0.0f, 16, 16, 16, 16);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, tex, x, y, 0.0f, 0.0f, 16, 16, 16, 16);
     }
 
     public static void drawLinesBackground(GuiGraphics guiGraphics, int x, int y) {
@@ -179,7 +175,6 @@ public final class LPGuiGraphics {
         int bottom, float zLevel, boolean resetColor, boolean displayTop, boolean displayLeft, boolean displayBottom,
         boolean displayRight) {
         if (resetColor) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
         if (guiGraphics == null) {
             return;
@@ -197,13 +192,42 @@ public final class LPGuiGraphics {
         // LEQUAL test and come out stippled. A background never has to occlude what is drawn after it, so run
         // it with depth writes off and let draw order decide the layering, exactly as a GUI does.
         try {
-            drawGuiBackGroundLayers(guiGraphics, guiLeft, guiTop, right, bottom, displayTop, displayLeft,
-                displayBottom, displayRight);
+            drawGuiBackGroundLayers(
+                (texture, x, y, u, v, w, h, texW, texH) ->
+                    guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, u, v, w, h, texW, texH),
+                guiLeft, guiTop, right, bottom, displayTop, displayLeft, displayBottom, displayRight);
         } finally {
         }
     }
 
-    private static void drawGuiBackGroundLayers(GuiGraphics guiGraphics, int guiLeft, int guiTop, int right,
+    /**
+     * The one drawing operation the nine-slice needs. The GUI and the world-space HUD reach it
+     * through different objects -- {@link GuiGraphics} and {@link HUDDrawContext} -- so the routine
+     * is written against this instead of against either of them.
+     */
+    @FunctionalInterface
+    public interface Blitter {
+        void blit(ResourceLocation texture, int x, int y, float u, float v, int width, int height, int texWidth,
+            int texHeight);
+    }
+
+    /** Nine-slices the panel background onto the world-space HUD. */
+    public static void drawGuiBackGround(HUDDrawContext context, int guiLeft, int guiTop, int right, int bottom,
+        float zLevel, boolean resetColor) {
+        drawGuiBackGround(context, guiLeft, guiTop, right, bottom, zLevel, resetColor, true, true, true, true);
+    }
+
+    public static void drawGuiBackGround(HUDDrawContext context, int guiLeft, int guiTop, int right, int bottom,
+        float zLevel, boolean resetColor, boolean displayTop, boolean displayLeft, boolean displayBottom,
+        boolean displayRight) {
+        if (right - guiLeft <= 0 || bottom - guiTop <= 0) {
+            return;
+        }
+        drawGuiBackGroundLayers(context::blit, guiLeft, guiTop, right, bottom, displayTop, displayLeft, displayBottom,
+            displayRight);
+    }
+
+    private static void drawGuiBackGroundLayers(Blitter blitter, int guiLeft, int guiTop, int right,
         int bottom, boolean displayTop, boolean displayLeft, boolean displayBottom, boolean displayRight) {
 
         // 9-slice the 45×45 background texture (15px borders).
@@ -218,49 +242,49 @@ public final class LPGuiGraphics {
 
         // Corners
         if (displayTop && displayLeft) {
-            guiGraphics.blit(RenderType::guiTextured, BACKGROUND_TEXTURE, guiLeft, guiTop, 0.0f, 0.0f, BORDER, BORDER, TEX, TEX);
+            blitter.blit(BACKGROUND_TEXTURE, guiLeft, guiTop, 0.0f, 0.0f, BORDER, BORDER, TEX, TEX);
         }
         if (displayTop && displayRight) {
-            guiGraphics.blit(RenderType::guiTextured, BACKGROUND_TEXTURE, right - BORDER, guiTop, 30.0f, 0.0f, BORDER, BORDER, TEX, TEX);
+            blitter.blit(BACKGROUND_TEXTURE, right - BORDER, guiTop, 30.0f, 0.0f, BORDER, BORDER, TEX, TEX);
         }
         if (displayBottom && displayLeft) {
-            guiGraphics.blit(RenderType::guiTextured, BACKGROUND_TEXTURE, guiLeft, bottom - BORDER, 0.0f, 30.0f, BORDER, BORDER, TEX, TEX);
+            blitter.blit(BACKGROUND_TEXTURE, guiLeft, bottom - BORDER, 0.0f, 30.0f, BORDER, BORDER, TEX, TEX);
         }
         if (displayBottom && displayRight) {
-            guiGraphics.blit(RenderType::guiTextured, BACKGROUND_TEXTURE, right - BORDER, bottom - BORDER, 30.0f, 30.0f, BORDER, BORDER, TEX,
+            blitter.blit(BACKGROUND_TEXTURE, right - BORDER, bottom - BORDER, 30.0f, 30.0f, BORDER, BORDER, TEX,
                 TEX);
         }
 
         // Edges (tiled)
         if (innerW > 0) {
             if (displayTop) {
-                blitRepeating(guiGraphics, BACKGROUND_TEXTURE, innerX, guiTop, innerW, BORDER, BORDER, 0, BORDER,
+                blitRepeating(blitter, BACKGROUND_TEXTURE, innerX, guiTop, innerW, BORDER, BORDER, 0, BORDER,
                     BORDER, TEX, TEX);
             }
             if (displayBottom) {
-                blitRepeating(guiGraphics, BACKGROUND_TEXTURE, innerX, bottom - BORDER, innerW, BORDER, BORDER, 30,
+                blitRepeating(blitter, BACKGROUND_TEXTURE, innerX, bottom - BORDER, innerW, BORDER, BORDER, 30,
                     BORDER, BORDER, TEX, TEX);
             }
         }
         if (innerH > 0) {
             if (displayLeft) {
-                blitRepeating(guiGraphics, BACKGROUND_TEXTURE, guiLeft, innerY, BORDER, innerH, 0, BORDER, BORDER,
+                blitRepeating(blitter, BACKGROUND_TEXTURE, guiLeft, innerY, BORDER, innerH, 0, BORDER, BORDER,
                     BORDER, TEX, TEX);
             }
             if (displayRight) {
-                blitRepeating(guiGraphics, BACKGROUND_TEXTURE, right - BORDER, innerY, BORDER, innerH, 30, BORDER,
+                blitRepeating(blitter, BACKGROUND_TEXTURE, right - BORDER, innerY, BORDER, innerH, 30, BORDER,
                     BORDER, BORDER, TEX, TEX);
             }
         }
 
         // Center (always drawn)
         if (innerW > 0 && innerH > 0) {
-            blitRepeating(guiGraphics, BACKGROUND_TEXTURE, innerX, innerY, innerW, innerH, BORDER, BORDER, BORDER,
+            blitRepeating(blitter, BACKGROUND_TEXTURE, innerX, innerY, innerW, innerH, BORDER, BORDER, BORDER,
                 BORDER, TEX, TEX);
         }
     }
 
-    private static void blitRepeating(GuiGraphics guiGraphics, ResourceLocation p_283059_, int p_283575_, int p_283192_,
+    private static void blitRepeating(Blitter blitter, ResourceLocation p_283059_, int p_283575_, int p_283192_,
         int p_281790_, int p_283642_, int p_282691_, int p_281912_, int p_281728_, int p_282324_, int textureWidth,
         int textureHeight) {
         int i = p_283575_;
@@ -275,7 +299,7 @@ public final class LPGuiGraphics {
             for (IntIterator intiterator1 = slices(p_283642_, p_282324_); intiterator1.hasNext(); l += i1) {
                 i1 = intiterator1.nextInt();
                 int j1 = (p_282324_ - i1) / 2;
-                guiGraphics.blit(RenderType::guiTextured, p_283059_, i, l, p_282691_ + k, p_281912_ + j1, j, i1, textureWidth, textureHeight);
+                blitter.blit(p_283059_, i, l, p_282691_ + k, p_281912_ + j1, j, i1, textureWidth, textureHeight);
             }
         }
     }

@@ -1,5 +1,8 @@
 package logisticspipes.routing;
 
+import java.util.Optional;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -65,27 +68,22 @@ public class ItemRoutingInformation {
 	@Setter
 	private ItemIdentifierStack item;
 
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		if (nbttagcompound.contains("destinationUUID")) {
-			destinationUUID = UUID.fromString(nbttagcompound.getStringOr("destinationUUID", ""));
-		}
-		arrived = nbttagcompound.getBooleanOr("arrived", false);
-		bufferCounter = nbttagcompound.getIntOr("bufferCounter", 0);
-		transportMode = TransportMode.values()[nbttagcompound.getIntOr("transportMode", 0)];
-		ItemStack stack = ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound.getCompoundOrEmpty("Item"), provider);
-		setItem(ItemIdentifierStack.getFromStack(stack));
+	public void deserialize(ValueInput input) {
+		input.getString("destinationUUID").ifPresent(raw -> destinationUUID = UUID.fromString(raw));
+		arrived = input.getBooleanOr("arrived", false);
+		bufferCounter = input.getIntOr("bufferCounter", 0);
+		transportMode = TransportMode.values()[input.getIntOr("transportMode", 0)];
+		setItem(ItemIdentifierStack.getFromStack(ItemStackLoader.loadItemStack(input, "Item")));
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
+	public void serialize(ValueOutput output) {
 		if (destinationUUID != null) {
-			nbttagcompound.putString("destinationUUID", destinationUUID.toString());
+			output.putString("destinationUUID", destinationUUID.toString());
 		}
-		nbttagcompound.putBoolean("arrived", arrived);
-		nbttagcompound.putInt("bufferCounter", bufferCounter);
-		nbttagcompound.putInt("transportMode", transportMode.ordinal());
-
-		CompoundTag nbttagcompound2 = new CompoundTag();
-		nbttagcompound.put("Item", getItem().makeNormalStack().save(provider, nbttagcompound2));
+		output.putBoolean("arrived", arrived);
+		output.putInt("bufferCounter", bufferCounter);
+		output.putInt("transportMode", transportMode.ordinal());
+		ItemStackLoader.saveItemStack(output, "Item", getItem().makeNormalStack());
 	}
 
 	// the global LP tick in which getTickToTimeOut returns 0.
@@ -117,24 +115,20 @@ public class ItemRoutingInformation {
 		return String.format("(%s, %d, %s, %s, %s, %d, %s)", item, destinationint, destinationUUID, transportMode, jamlist, delay, tracker);
 	}
 
-	public void storeToNBT(CompoundTag nbtTagCompound, HolderLookup.Provider provider) {
+	public void storeToNBT(ValueOutput output) {
 		UUID uuid = UUID.randomUUID();
-		nbtTagCompound.putString("StoreUUID", uuid.toString());
-		this.writeToNBT(nbtTagCompound, provider);
+		output.putString("StoreUUID", uuid.toString());
+		this.serialize(output);
 		storeMap.put(uuid, this);
 	}
 
-	public static ItemRoutingInformation restoreFromNBT(CompoundTag nbtTagCompound, HolderLookup.Provider provider) {
-		if (nbtTagCompound.contains("StoreUUID")) {
-			UUID uuid = UUID.fromString(nbtTagCompound.getStringOr("StoreUUID", ""));
-			if (storeMap.containsKey(uuid)) {
-				ItemRoutingInformation result = storeMap.get(uuid);
-				storeMap.remove(uuid);
-				return result;
-			}
+	public static ItemRoutingInformation restoreFromNBT(ValueInput input) {
+		Optional<UUID> stored = input.getString("StoreUUID").map(UUID::fromString);
+		if (stored.isPresent() && storeMap.containsKey(stored.get())) {
+			return storeMap.remove(stored.get());
 		}
 		ItemRoutingInformation info = new ItemRoutingInformation();
-		info.readFromNBT(nbtTagCompound, provider);
+		info.deserialize(input);
 		return info;
 	}
 

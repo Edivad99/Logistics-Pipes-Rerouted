@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.core.HolderLookup
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
 
 typealias ObserverCallback<V> = (Property<V>) -> Unit
 
@@ -48,10 +48,10 @@ fun Collection<Property<*>>.addObserver(callback: ObserverCallback<*>) =
 fun Collection<Property<*>>.removeObserver(callback: ObserverCallback<*>) =
     forEach { prop -> prop.propertyObservers.remove(callback) }
 
-fun Collection<Property<*>>.readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) = forEach { prop ->
-    prop.readFromNBT(tag, provider)
+fun Collection<Property<*>>.deserialize(input: ValueInput) = forEach { prop ->
+    prop.deserialize(input)
 }
 
-fun Collection<Property<*>>.writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = forEach { prop ->
-    prop.writeToNBT(tag, provider)
+fun Collection<Property<*>>.serialize(output: ValueOutput) = forEach { prop ->
+    prop.serialize(output)
 }

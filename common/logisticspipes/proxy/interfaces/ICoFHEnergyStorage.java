@@ -1,5 +1,7 @@
 package logisticspipes.proxy.interfaces;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.nbt.CompoundTag;
 
 /**
@@ -16,7 +18,7 @@ public interface ICoFHEnergyStorage {
 
 	int getMaxEnergyStored();
 
-	void readFromNBT(CompoundTag nbt);
+	void deserialize(ValueInput input);
 
-	void writeToNBT(CompoundTag nbt);
+	void serialize(ValueOutput output);
 }

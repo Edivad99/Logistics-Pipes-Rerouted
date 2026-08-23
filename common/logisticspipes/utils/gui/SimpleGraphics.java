@@ -12,15 +12,12 @@ package logisticspipes.utils.gui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import logisticspipes.utils.Color;
 
 /**
  * Utils class for simple drawing methods.
  */
-@OnlyIn(Dist.CLIENT)
 public final class SimpleGraphics {
 
     private SimpleGraphics() {
@@ -181,16 +178,16 @@ public final class SimpleGraphics {
      */
     public static int drawStringWithTranslatedShadow(GuiGraphics guiGraphics, Font font, String s, int x, int y,
         int color) {
-        int endX;
-
         // make color gray-ish and draw shadow
         int grayColor = (color & 16579836) >> 2 | color & -16777216;
-        endX = guiGraphics.drawString(font, s, x + 1, y + 1, grayColor, false);
+        guiGraphics.drawString(font, s, x + 1, y + 1, grayColor, false);
 
         // move to foreground and draw actual string
-        endX = Math.max(endX, guiGraphics.drawString(font, s, x, y, color, false));
+        guiGraphics.drawString(font, s, x, y, color, false);
 
-        return endX;
+        // drawString returns void since 1.21.6; the shadow copy is the wider of the two, so the
+        // end x is its origin plus the string width.
+        return x + 1 + font.width(s);
     }
 
     /**

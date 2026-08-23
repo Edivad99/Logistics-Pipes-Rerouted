@@ -32,30 +32,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
     @Nullable
 	private SubGuiScreen subGui;
 
-	/**
-	 * How far a popup lifts itself above the screen it covers, in GUI z units.
-	 * <p>
-	 * The parent screen has already drawn itself by the time a popup renders, and its content writes depth, so
-	 * a popup sharing the parent's z loses the LEQUAL test wherever the parent drew something in front. The
-	 * value has to clear the highest z the parent can reach, which is further out than it looks because
-	 * {@code AbstractContainerScreen.renderSlot} wraps every slot in a {@code translate(0, 0, 100)} baseline:
-	 * <ul>
-	 * <li>slot item icon: 100 + 150 = 250</li>
-	 * <li>slot stack-count label: 100 + 200 = 300</li>
-	 * <li>tooltip layer: 400</li>
-	 * <li>carried item's count label: {@code renderFloatingItem}'s 232 + 200 = 432</li>
-	 * </ul>
-	 * Hence 500. At exactly 300 the count labels tied with the panel and won the tie, because a shadowed
-	 * string draws its main glyph pass 0.03 in front of the shadow -- so the digits survived while everything
-	 * else was covered.
-	 * <p>
-	 * {@link RenderSystem#disableDepthTest()} is not an alternative here: {@code blit} draws immediately and
-	 * does obey it, but {@code fill} and {@code drawString} batch through RenderTypes that re-apply their own
-	 * depth state when the batch is drawn, and the popups use a mix of all three.
-	 */
-	private static final float SUB_GUI_Z = 500.0F;
-
-	public SubGuiScreen(int xSize, int ySize, int xOffset, int yOffset) {
+    public SubGuiScreen(int xSize, int ySize, int xOffset, int yOffset) {
 		super(Component.empty());
 		this.xSize = xSize;
 		this.ySize = ySize;
@@ -148,12 +125,13 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 
 	@Override
 	public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(0.0F, 0.0F, SUB_GUI_Z);
+        // The popup used to lift itself above the screen underneath by translating z by SUB_GUI_Z.
+        // 1.21.6 made the GUI pose 2D, and depth is now a property of the render state: a stratum
+        // renders entirely after every stratum before it, which is exactly what this needs -- and
+        // it nests correctly for popups on top of popups, since each one opens its own.
+        guiGraphics.nextStratum();
 		renderGuiBackground(guiGraphics, mouseX, mouseY);
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		this.renderLabels(guiGraphics, mouseX, mouseY);
 		if (subGui != null) {
 			if (!subGui.hasSubGui()) {
@@ -164,7 +142,6 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
 		}
 		renderToolTips(guiGraphics, mouseX, mouseY, partialTicks);
-		poseStack.popPose();
 	}
 
 	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {}

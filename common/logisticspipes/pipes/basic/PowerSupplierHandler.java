@@ -1,5 +1,8 @@
 package logisticspipes.pipes.basic;
 
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.List;
 import logisticspipes.blocks.powertile.LogisticsPowerProviderTileEntity;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
@@ -9,13 +12,12 @@ import logisticspipes.proxy.interfaces.ICoFHEnergyReceiver;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.FloatTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntity;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
-public class PowerSupplierHandler {
+public class PowerSupplierHandler implements ValueIOSerializable {
 
 	private static final double INTERNAL_RF_BUFFER_MAX = 10000;
 
@@ -28,26 +30,18 @@ public class PowerSupplierHandler {
 		this.pipe = pipe;
 	}
 
-	public void writeToNBT(CompoundTag nbttagcompound) {
+	public void serialize(ValueOutput output) {
 		if (internalBufferRF > 0) {
-			nbttagcompound.putDouble("bufferRF", internalBufferRF);
+			output.putDouble("bufferRF", internalBufferRF);
 		}
 		if (internalBufferIC2 > 0) {
-			nbttagcompound.putDouble("bufferEU", internalBufferIC2);
+			output.putDouble("bufferEU", internalBufferIC2);
 		}
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound) {
-		if (nbttagcompound.get("bufferRF") instanceof FloatTag) { // support for old float
-			internalBufferRF = nbttagcompound.getFloatOr("bufferRF", 0.0f);
-		} else {
-			internalBufferRF = nbttagcompound.getDoubleOr("bufferRF", 0.0);
-		}
-		if (nbttagcompound.get("bufferEU") instanceof FloatTag) { // support for old float
-			internalBufferIC2 = nbttagcompound.getFloatOr("bufferEU", 0.0f);
-		} else {
-			internalBufferIC2 = nbttagcompound.getDoubleOr("bufferEU", 0.0);
-		}
+	public void deserialize(ValueInput input) {
+		internalBufferRF = input.getDoubleOr("bufferRF", 0.0);
+		internalBufferIC2 = input.getDoubleOr("bufferEU", 0.0);
 	}
 
 	public void update() {

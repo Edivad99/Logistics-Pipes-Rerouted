@@ -11,7 +11,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLEnvironment;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
@@ -33,10 +32,6 @@ public class RoutingUpdateAskForTarget extends ModernPacket {
 		}
 	}
 
-	// See OpenChatGui: the client refs (Minecraft/HitResult/BlockHitResult/EntityHitResult) live in
-	// this @OnlyIn helper so they are stripped before verification on the dedicated server, letting
-	// the packet class link and be sent server-side. processPacket stays free of client classes.
-	@OnlyIn(Dist.CLIENT)
 	private void handleClient() {
 		HitResult box = Minecraft.getInstance().hitResult;
 		if (box == null) {

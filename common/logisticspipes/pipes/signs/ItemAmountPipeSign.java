@@ -1,5 +1,7 @@
 package logisticspipes.pipes.signs;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +38,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandler {
@@ -48,7 +48,6 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	public Direction dir;
 	private boolean hasUpdated = false;
 
-	@OnlyIn(Dist.CLIENT)
 	private RenderTarget fbo;
 
 	public ItemAmountPipeSign() {
@@ -71,13 +70,13 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
-		itemTypeInv.readFromNBT(tag, provider);
+	public void deserialize(ValueInput input) {
+		itemTypeInv.deserialize(input);
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {
-		itemTypeInv.writeToNBT(tag, provider);
+	public void serialize(ValueOutput output) {
+		itemTypeInv.serialize(output);
 	}
 
 	@Override
@@ -158,7 +157,6 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
     @Override
-	@OnlyIn(Dist.CLIENT)
 	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		Font font = Minecraft.getInstance().font;
 		if (pipe != null) {
@@ -215,7 +213,6 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public RenderTarget getMCFrameBufferForSign() {
 		// OpenGlHelper.isFramebufferEnabled() removed in 1.20.1 — FBOs are always available
 		if(fbo == null) {
@@ -225,7 +222,6 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public boolean doesFrameBufferNeedUpdating(CoreRoutedPipe pipe, LogisticsRenderPipe renderer) {
 		return fbo == null;
 	}

@@ -37,12 +37,12 @@
 
 package network.rs485.logisticspipes.property
 
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
 import logisticspipes.utils.item.SimpleStackInventory
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.BlockPos
-import net.minecraft.core.HolderLookup
 import net.minecraft.world.level.Level
 import network.rs485.logisticspipes.util.cycleMinecraftColorId
 import java.util.concurrent.CopyOnWriteArraySet
@@ -58,9 +58,9 @@ class SimpleInventoryProperty(private val inv: SimpleStackInventory, override va
 
     override fun copyProperty(): Property<SimpleStackInventory> = SimpleInventoryProperty(copyValue(), tagKey)
 
-    override fun readFromNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.readFromNBT(tag, provider, tagKey)
+    override fun deserialize(input: ValueInput) = inv.deserialize(input, tagKey)
 
-    override fun writeToNBT(tag: CompoundTag, provider: HolderLookup.Provider) = inv.writeToNBT(tag, provider, tagKey)
+    override fun serialize(output: ValueOutput) = inv.serialize(output, tagKey)
 
     fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
 

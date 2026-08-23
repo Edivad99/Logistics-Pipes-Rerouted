@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * The atlas sprites the pipe frame is textured with, resolved once per atlas stitch.
@@ -25,7 +23,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * @param indexedIcon per-pipe-type body texture, looked up by
  *                    {@code TextureMatrix.getTextureIndex()}
  */
-@OnlyIn(Dist.CLIENT)
 public record PipeSprites(
     @Nullable TextureAtlasSprite basicPipe,
     @Nullable TextureAtlasSprite inactive,

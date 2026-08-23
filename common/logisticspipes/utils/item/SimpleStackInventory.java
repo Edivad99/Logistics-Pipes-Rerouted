@@ -7,6 +7,8 @@
 
 package logisticspipes.utils.item;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -28,14 +30,14 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import network.rs485.logisticspipes.IStore;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 import org.jetbrains.annotations.NotNull;
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Iterable over its own pair type: the two Iterable parameterisations conflict. The pair
 // iteration is reached through contents() instead.
-public class SimpleStackInventory implements Container, IStore {
+public class SimpleStackInventory implements Container, ValueIOSerializable {
 
 	private static final Component TEXT_COMPONENT_EMPTY = Component.literal("");
 
@@ -129,18 +131,17 @@ public class SimpleStackInventory implements Container, IStore {
 	public void stopOpen(Player player) {}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
-		readFromNBT(nbttagcompound, provider, "");
+	public void deserialize(ValueInput input) {
+		deserialize(input, "");
 	}
 
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider, String prefix) {
-		ListTag nbttaglist = nbttagcompound.getListOrEmpty(prefix + "items");
-
-		for (int j = 0; j < nbttaglist.size(); ++j) {
-			CompoundTag nbttagcompound2 = nbttaglist.getCompoundOrEmpty(j);
-			int index = nbttagcompound2.getIntOr("index", 0);
+	public void deserialize(ValueInput input, String prefix) {
+		// Each entry carries its own slot index, so the list stays sparse and order-independent --
+		// which is why a ValueInputList being iterable but not indexable costs nothing here.
+		for (ValueInput entry : input.childrenListOrEmpty(prefix + "items")) {
+			int index = entry.getIntOr("index", 0);
 			if (index < stackList.size()) {
-				stackList.set(index, ItemStackLoader.loadAndFixItemStackFromNBT(nbttagcompound2, provider));
+				stackList.set(index, ItemStackLoader.loadItemStack(entry));
 			} else {
 				LogisticsPipes.LOG.error("SimpleInventory: java.lang.ArrayIndexOutOfBoundsException: " + index + " of " + stackList.size());
 			}
@@ -148,22 +149,21 @@ public class SimpleStackInventory implements Container, IStore {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.@NotNull Provider provider) {
-		writeToNBT(nbttagcompound, provider, "");
+	public void serialize(ValueOutput output) {
+		serialize(output, "");
 	}
 
-	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider, String prefix) {
-		ListTag listTag = new ListTag();
+	public void serialize(ValueOutput output, String prefix) {
+		ValueOutput.ValueOutputList list = output.childrenList(prefix + "items");
 		for (int i = 0; i < stackList.size(); ++i) {
 			ItemStack stack = stackList.get(i);
 			if (!stack.isEmpty()) {
-				CompoundTag stackTag = new CompoundTag();
-				stackTag.putInt("index", i);
-				listTag.add(stack.save(provider, stackTag));
+				ValueOutput entry = list.addChild();
+				entry.putInt("index", i);
+				ItemStackLoader.saveItemStack(entry, stack);
 			}
 		}
-		tag.put(prefix + "items", listTag);
-		tag.putInt(prefix + "itemsCount", stackList.size());
+		output.putInt(prefix + "itemsCount", stackList.size());
 	}
 
 	public void dropContents(Level level, BlockPos pos) {

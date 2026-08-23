@@ -1,5 +1,7 @@
 package logisticspipes.modules;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -111,8 +113,9 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	@Override
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		CompoundTag nbt = new CompoundTag();
-		writeToNBT(nbt, player.registryAccess());
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.registryAccess());
+		serialize(moduleOutput);
+		CompoundTag nbt = moduleOutput.buildResult();
 		MainProxy.sendPacketToPlayer(
 				PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this), player);
 	}
@@ -127,14 +130,16 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 		final IWorldProvider worldProvider = this.worldProvider;
 		if (worldProvider == null) return;
 		if (MainProxy.isServer(worldProvider.getWorld())) {
-			CompoundTag nbt = new CompoundTag();
-			writeToNBT(nbt, worldProvider.getWorld().registryAccess());
+			TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, worldProvider.getWorld().registryAccess());
+			serialize(moduleOutput);
+			CompoundTag nbt = moduleOutput.buildResult();
 			MainProxy.sendToPlayerList(
 					PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this),
 					localModeWatchers);
 		} else {
-			CompoundTag nbt = new CompoundTag();
-			writeToNBT(nbt, worldProvider.getWorld().registryAccess());
+			TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, worldProvider.getWorld().registryAccess());
+			serialize(moduleOutput);
+			CompoundTag nbt = moduleOutput.buildResult();
 			MainProxy.sendPacketToServer(
 					PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this));
 		}
@@ -177,8 +182,9 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 
 	@Override
 	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		CompoundTag nbt = new CompoundTag();
-		writeToNBT(nbt, getWorld().registryAccess());
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, getWorld().registryAccess());
+		serialize(moduleOutput);
+		CompoundTag nbt = moduleOutput.buildResult();
 		return NewGuiHandler.getGui(StringBasedItemSinkModuleGuiSlot.class).setNbt(nbt);
 	}
 

@@ -1,5 +1,7 @@
 package logisticspipes.proxy;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import logisticspipes.proxy.interfaces.ICoFHEnergyReceiver;
 import logisticspipes.proxy.interfaces.ICoFHEnergyStorage;
 import logisticspipes.proxy.interfaces.IPowerProxy;
@@ -20,20 +22,19 @@ public class PowerProxy implements IPowerProxy {
 			super(capacity);
 		}
 
-		public void readFromNBT(CompoundTag nbt) {
-			this.energy = nbt.getIntOr("Energy", 0);
+		public void deserialize(ValueInput input) {
+			this.energy = input.getIntOr("Energy", 0);
 
 			if (energy > capacity) {
 				energy = capacity;
 			}
 		}
 
-		public CompoundTag writeToNBT(CompoundTag nbt) {
+		public void serialize(ValueOutput output) {
 			if (energy < 0) {
 				energy = 0;
 			}
-			nbt.putInt("Energy", energy);
-			return nbt;
+			output.putInt("Energy", energy);
 		}
 	}
 
@@ -102,13 +103,13 @@ public class PowerProxy implements IPowerProxy {
 			}
 
 			@Override
-			public void readFromNBT(CompoundTag nbt) {
-				energy.readFromNBT(nbt);
+			public void deserialize(ValueInput input) {
+				energy.deserialize(input);
 			}
 
 			@Override
-			public void writeToNBT(CompoundTag nbt) {
-				energy.writeToNBT(nbt);
+			public void serialize(ValueOutput output) {
+				energy.serialize(output);
 			}
 
 		};

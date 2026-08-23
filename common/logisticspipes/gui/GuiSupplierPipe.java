@@ -25,7 +25,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -110,13 +110,13 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 		} else {
 			name = TextUtil.translate(GuiSupplierPipe.PREFIX + "TargetInv");
 		}
-		guiGraphics.drawString(minecraft.font, name, imageWidth / 2 - minecraft.font.width(name) / 2, 6, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "Inventory"), 18, imageHeight - 102, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "RequestMode"), imageWidth - 140, imageHeight - 112, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, name, imageWidth / 2 - minecraft.font.width(name) / 2, 6, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "Inventory"), 18, imageHeight - 102, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "RequestMode"), imageWidth - 140, imageHeight - 112, 0xFF404040, false);
 		if (hasPatternUpgrade) {
 			slotAssignmentPatternOverlay.read((slotAssignments) -> {
 				for (int i = 0; i < slotAssignments.size(); i++) {
-					guiGraphics.drawString(minecraft.font, Integer.toString(slotAssignments.get(i)), 22 + i * 18, 55, 0x404040, false);
+					guiGraphics.drawString(minecraft.font, Integer.toString(slotAssignments.get(i)), 22 + i * 18, 55, 0xFF404040, false);
 				}
 				return null;
 			});
@@ -126,11 +126,10 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
 		if (!hasPatternUpgrade) {
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			// texture: GuiSupplierPipe.TEXTURE
 			int j = leftPos;
 			int k = topPos;
-			guiGraphics.blit(RenderType::guiTextured, GuiSupplierPipe.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiSupplierPipe.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 		} else {
 			LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 			for (int i = 0; i < 9; i++) {

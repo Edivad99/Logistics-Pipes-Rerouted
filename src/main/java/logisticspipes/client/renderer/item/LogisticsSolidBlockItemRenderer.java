@@ -1,5 +1,7 @@
 package logisticspipes.client.renderer.item;
 
+import org.joml.Vector3f;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -40,6 +42,18 @@ public class LogisticsSolidBlockItemRenderer implements SpecialModelRenderer<Log
     @Override
     public LogisticsSolidBlock.Type extractArgument(ItemStack stack) {
         return stack.getItem() instanceof LogisticsSolidBlockItem item ? item.getType() : null;
+    }
+
+    /**
+     * Corners of the volume the model occupies, in the item's own space. New in 1.21.6: the GUI
+     * item renderer uses it to size the render target when the model is oversized. Both renderers
+     * draw within the standard unit block that the render state has already centred on the origin,
+     * so the eight corners of that cube are the extents.
+     */
+    @Override
+    public void getExtents(Set<Vector3f> extents) {
+        extents.add(new Vector3f(-0.5f, -0.5f, -0.5f));
+        extents.add(new Vector3f(0.5f, 0.5f, 0.5f));
     }
 
     @Override

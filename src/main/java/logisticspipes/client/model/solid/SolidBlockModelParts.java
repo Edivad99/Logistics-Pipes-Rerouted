@@ -7,8 +7,6 @@ import java.util.Map;
 
 import net.minecraft.core.Direction;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +25,6 @@ import logisticspipes.client.model.mesh.UvTransform;
  * {@code computeRotated}. Same geometry, on the immutable mesh engine and without the
  * shared render state.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class SolidBlockModelParts {
 
     private static final Logger LOGGER = LogManager.getLogger(SolidBlockModelParts.class);

@@ -1,5 +1,6 @@
 package logisticspipes.world.level.block.entity;
 
+import logisticspipes.proxy.LPRegistries;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -21,6 +22,8 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
@@ -77,11 +80,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         if (getWorld() != null) {
             return getWorld().registryAccess();
         }
-        var level = Minecraft.getInstance().level;
-        if (level != null) {
-            return level.registryAccess();
-        }
-        return null;
+        return LPRegistries.accessOrNull();
     }
 
     public void cacheRecipe() {
@@ -379,38 +378,33 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        inv.readFromNBT(tag, registries, "inv_");
-        matrix.readFromNBT(tag, registries, "matrix_");
-        if (tag.contains("placedBy")) {
-            String name = tag.getStringOr("placedBy", "");
-            placedBy = PlayerIdentifier.convertFromUsername(name);
-        } else {
-            placedBy = PlayerIdentifier.readFromNBT(tag, "placedBy");
-        }
-        fuzzyFlags.readFromNBT(tag, registries);
-        if (tag.contains("targetType")) {
-            targetType = ItemIdentifier
-                .get(ItemStackLoader.loadAndFixItemStackFromNBT(tag.getCompoundOrEmpty("targetType"), registries));
-        }
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        inv.deserialize(input, "inv_");
+        matrix.deserialize(input, "matrix_");
+        // The bare-username branch that used to sit here read a pre-PlayerIdentifier format where
+        // "placedBy" was a plain string. PlayerIdentifier nests its fields under that key now, so
+        // the string form can never match and the branch was dead.
+        placedBy = PlayerIdentifier.deserialize(input, "placedBy");
+        fuzzyFlags.deserialize(input);
+        input.child("targetType").ifPresent(child ->
+            targetType = ItemIdentifier.get(ItemStackLoader.loadItemStack(child)));
         cacheRecipe();
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        inv.writeToNBT(tag, registries, "inv_");
-        matrix.writeToNBT(tag, registries, "matrix_");
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        inv.serialize(output, "inv_");
+        matrix.serialize(output, "matrix_");
         if (placedBy != null) {
-            placedBy.writeToNBT(tag, "placedBy");
+            placedBy.serialize(output, "placedBy");
         }
-        fuzzyFlags.writeToNBT(tag, registries);
+        fuzzyFlags.serialize(output);
+        // No explicit removal branch: a ValueOutput starts empty every save, so simply not writing
+        // the key is what the old tag.remove call was for.
         if (targetType != null) {
-            CompoundTag type = new CompoundTag();
-            tag.put("targetType", targetType.makeNormalStack(1).save(registries, type));
-        } else {
-            tag.remove("targetType");
+            ItemStackLoader.saveItemStack(output.child("targetType"), targetType.makeNormalStack(1));
         }
     }
 

@@ -4,8 +4,6 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public abstract class GuiPacket extends ModernPacket {
 
@@ -13,7 +11,6 @@ public abstract class GuiPacket extends ModernPacket {
 		super(id);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	protected <T> T getGui(Class<T> guiClass) {
 		Screen currentScreen = Minecraft.getInstance().screen;
 		if (currentScreen == null) {

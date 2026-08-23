@@ -10,6 +10,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
@@ -36,18 +38,16 @@ public class LogisticsSolidBlockEntity extends BlockEntity implements ITickable,
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        rotation = tag.getIntOr("rotation", 0);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        rotation = input.getIntOr("rotation", 0);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("rotation", rotation);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("rotation", rotation);
     }
-
-    // onChunkUnload() removed in 1.20.1 — handled by level unload events if needed
 
     @Override
     public void update() {

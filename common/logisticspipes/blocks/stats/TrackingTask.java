@@ -1,5 +1,7 @@
 package logisticspipes.blocks.stats;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -26,30 +28,30 @@ public class TrackingTask {
 		}
 	}
 
-	public void readFromNBT(CompoundTag nbt, HolderLookup.Provider provider) {
-		int[] amountRecorded_A = nbt.getIntArray("amountRecorded_A").orElse(new int[0]);
-		int[] amountRecorded_B = nbt.getIntArray("amountRecorded_B").orElse(new int[0]);
+	public void deserialize(ValueInput input) {
+		int[] amountRecorded_A = input.getIntArray("amountRecorded_A").orElse(new int[0]);
+		int[] amountRecorded_B = input.getIntArray("amountRecorded_B").orElse(new int[0]);
 		for (int i = 0; i < amountRecorded.length; i++) {
 			if (i >= amountRecorded_A.length || i >= amountRecorded_B.length) {
 				break;
 			}
 			amountRecorded[i] = (((long) amountRecorded_B[i]) << 32) | amountRecorded_A[i];
 		}
-		arrayPos = nbt.getIntOr("arrayPos", 0);
-		item = ItemIdentifier.get(ItemStackLoader.loadAndFixItemStackFromNBT(nbt, provider));
+		arrayPos = input.getIntOr("arrayPos", 0);
+		item = ItemIdentifier.get(ItemStackLoader.loadItemStack(input));
 	}
 
-	public void writeToNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+	public void serialize(ValueOutput output) {
 		int[] amountRecorded_A = new int[amountRecorded.length];
 		int[] amountRecorded_B = new int[amountRecorded.length];
 		for (int i = 0; i < amountRecorded.length; i++) {
 			amountRecorded_A[i] = (int) amountRecorded[i];
 			amountRecorded_B[i] = (int) (amountRecorded[i] >> 32);
 		}
-		nbt.putIntArray("amountRecorded_A", amountRecorded_A);
-		nbt.putIntArray("amountRecorded_B", amountRecorded_B);
-		nbt.putInt("arrayPos", arrayPos);
-		item.makeNormalStack(1).save(provider, nbt);
+		output.putIntArray("amountRecorded_A", amountRecorded_A);
+		output.putIntArray("amountRecorded_B", amountRecorded_B);
+		output.putInt("arrayPos", arrayPos);
+		ItemStackLoader.saveItemStack(output, item.makeNormalStack(1));
 	}
 
 	public void writeToLPData(LPDataOutput output) {

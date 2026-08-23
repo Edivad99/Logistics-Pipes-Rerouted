@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -237,17 +239,17 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
-		dummyInventory.readFromNBT(nbttagcompound, provider, "");
-		requestPartials = nbttagcompound.getBooleanOr("requestpartials", false);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		dummyInventory.deserialize(input, "");
+		requestPartials = input.getBooleanOr("requestpartials", false);
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
-		dummyInventory.writeToNBT(nbttagcompound, provider, "");
-		nbttagcompound.putBoolean("requestpartials", requestPartials);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		dummyInventory.serialize(output, "");
+		output.putBoolean("requestpartials", requestPartials);
 	}
 
 	private void decreaseRequested(ItemIdentifierStack item) {

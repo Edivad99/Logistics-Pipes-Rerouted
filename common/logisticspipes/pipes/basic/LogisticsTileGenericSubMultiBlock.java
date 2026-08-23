@@ -1,5 +1,6 @@
 package logisticspipes.pipes.basic;
 
+import com.mojang.serialization.Codec;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,6 +29,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -137,55 +140,41 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 		}
 	}
 
-	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
-		if (tag.contains("MainPipePos_xPos")) {
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+		DoubleCoordinates single = DoubleCoordinates.deserialize("MainPipePos_", input);
+		if (single != null) {
 			mainPipePos.clear();
-			DoubleCoordinates pos = DoubleCoordinates.readFromNBT("MainPipePos_", tag);
+			mainPipePos.add(single);
+		}
+		for (ValueInput entry : input.childrenListOrEmpty("MainPipePosList")) {
+			DoubleCoordinates pos = DoubleCoordinates.deserialize("MainPipePos_", entry);
 			if (pos != null) {
 				mainPipePos.add(pos);
 			}
 		}
-		if (tag.contains("MainPipePosList")) {
-			ListTag list = tag.getListOrEmpty("MainPipePosList");
-			for (int i = 0; i < list.size(); i++) {
-				DoubleCoordinates pos = DoubleCoordinates.readFromNBT("MainPipePos_", list.getCompoundOrEmpty(i));
-				if (pos != null) {
-					mainPipePos.add(pos);
-				}
-			}
-		}
-		if (tag.contains("SubTypeList")) {
-			ListTag list = tag.getListOrEmpty("SubTypeList");
+		input.list("SubTypeList", Codec.STRING).ifPresent(names -> {
 			subTypes.clear();
-			for (int i = 0; i < list.size(); i++) {
-				String name = list.getStringOr(i, "");
-				CoreMultiBlockPipe.SubBlockTypeForShare type = CoreMultiBlockPipe.SubBlockTypeForShare.valueOf(name);
-				if (type != null) {
-					subTypes.add(type);
-				}
+			for (String name : names) {
+				subTypes.add(CoreMultiBlockPipe.SubBlockTypeForShare.valueOf(name));
 			}
-		}
+		});
 		mainPipe = null;
 	}
 
-	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
-		ListTag nbtList = new ListTag();
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+		ValueOutput.ValueOutputList posList = output.childrenList("MainPipePosList");
 		for (DoubleCoordinates pos : mainPipePos) {
-			CompoundTag compound = new CompoundTag();
-			pos.writeToNBT("MainPipePos_", compound);
-			nbtList.add(compound);
+			pos.serialize("MainPipePos_", posList.addChild());
 		}
-		tag.put("MainPipePosList", nbtList);
-		ListTag nbtTypeList = new ListTag();
+		ValueOutput.TypedOutputList<String> typeList = output.list("SubTypeList", Codec.STRING);
 		for (CoreMultiBlockPipe.SubBlockTypeForShare type : subTypes) {
 			if (type == null) continue;
-			nbtTypeList.add(StringTag.valueOf(type.name()));
+			typeList.add(type.name());
 		}
-		tag.put("SubTypeList", nbtTypeList);
 	}
 
 	@Override
@@ -199,23 +188,21 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 		return nbt;
 	}
 
-	@Override
-	public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-		PacketHandler.queueAndRemovePacketFromNBT(tag);
-		super.handleUpdateTag(tag, lookupProvider);
-	}
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        PacketHandler.queuePacketFromUpdateTag(input);
+        super.handleUpdateTag(input);
+    }
 
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
 		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
-	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-		if (pkt.getTag() != null) {
-			PacketHandler.queueAndRemovePacketFromNBT(pkt.getTag());
-		}
-	}
+    @Override
+    public void onDataPacket(Connection net, ValueInput input) {
+        PacketHandler.queuePacketFromUpdateTag(input);
+    }
 
 	public ModernPacket getLPDescriptionPacket() {
 		MultiBlockCoordinatesPacket packet = PacketHandler.getPacket(MultiBlockCoordinatesPacket.class);

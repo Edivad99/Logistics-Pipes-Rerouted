@@ -1,5 +1,7 @@
 package logisticspipes.pipes.signs;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -25,8 +27,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class CraftingPipeSign implements IPipeSign {
 
@@ -49,10 +49,10 @@ public class CraftingPipeSign implements IPipeSign {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {}
+	public void deserialize(ValueInput input) {}
 
 	@Override
-	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {}
+	public void serialize(ValueOutput output) {}
 
 	@Override
 	public ModernPacket getPacket() {
@@ -78,7 +78,6 @@ public class CraftingPipeSign implements IPipeSign {
 	public void activate(Player player) {}
 
     @Override
-	@OnlyIn(Dist.CLIENT)
 	public void render(CoreRoutedPipe pipe, LogisticsRenderPipe renderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 		PipeItemsCraftingLogistics cpipe = (PipeItemsCraftingLogistics) pipe;
 		Font font = Minecraft.getInstance().font;
@@ -135,7 +134,6 @@ public class CraftingPipeSign implements IPipeSign {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public RenderTarget getMCFrameBufferForSign() {
 		// OpenGlHelper.isFramebufferEnabled() removed in 1.20.1 — FBOs are always available
 		if(fbo == null) {
@@ -145,7 +143,6 @@ public class CraftingPipeSign implements IPipeSign {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public boolean doesFrameBufferNeedUpdating(CoreRoutedPipe pipe, LogisticsRenderPipe renderer) {
 		ItemIdentifierStack itemstack = getItemIdentifierStack((PipeItemsCraftingLogistics) pipe);
 		if (itemstack != null && oldRenderedStack != null) {

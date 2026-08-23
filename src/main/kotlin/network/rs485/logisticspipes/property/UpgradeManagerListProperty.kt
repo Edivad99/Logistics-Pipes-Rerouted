@@ -37,10 +37,10 @@
 
 package network.rs485.logisticspipes.property
 
+import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.level.storage.ValueInput
 import logisticspipes.pipes.PipeLogisticsChassis
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager
-import net.minecraft.core.HolderLookup
-import net.minecraft.nbt.CompoundTag
 
 class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
     override val tagKey: String
@@ -104,22 +104,15 @@ class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
         parentChassis.originalUpgradeManager,
     )
 
-    override fun readSingleFromNBT(tag: CompoundTag, provider: HolderLookup.Provider, key: String): ModuleUpgradeManager = ModuleUpgradeManager(
+    override fun readSingleFromNBT(input: ValueInput, key: String): ModuleUpgradeManager = ModuleUpgradeManager(
         parentChassis,
         parentChassis.originalUpgradeManager,
     ).apply {
-        tag.getCompound(key).ifPresent { readFromNBT(it, provider, "") }
+        input.child(key).ifPresent { deserialize(it, "") }
     }
 
-    override fun writeSingleToNBT(
-        tag: CompoundTag,
-        provider: HolderLookup.Provider,
-        key: String,
-        value: ModuleUpgradeManager
-    ) {
-        tag.put(key, CompoundTag().also {
-            value.writeToNBT(it, provider,"")
-        })
+    override fun writeSingleToNBT(output: ValueOutput, key: String, value: ModuleUpgradeManager) {
+        value.serialize(output.child(key), "")
     }
 
     override fun copyProperty(): Property<out MutableList<ModuleUpgradeManager>> =

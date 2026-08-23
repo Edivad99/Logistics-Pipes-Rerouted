@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.block;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.NBTCoordinatesPacket;
@@ -8,8 +10,6 @@ import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.StaticResolve;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 @StaticResolve
 public class SecurityStationOpenPlayer extends NBTCoordinatesPacket {
@@ -32,11 +32,11 @@ public class SecurityStationOpenPlayer extends NBTCoordinatesPacket {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void handleClientSide(Player player) {
 		if (Minecraft.getInstance().screen instanceof GuiSecurityStation) {
 			SecuritySettings setting = new SecuritySettings(null);
-			setting.readFromNBT(getTag(), player.level().registryAccess());
+			setting.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
+				player.level().registryAccess(), getTag()));
 			((GuiSecurityStation) Minecraft.getInstance().screen).handlePlayerSecurityOpen(setting);
 		}
 	}

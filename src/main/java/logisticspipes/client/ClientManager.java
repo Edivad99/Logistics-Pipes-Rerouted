@@ -3,6 +3,7 @@ package logisticspipes.client;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.RenderType;
 
 import net.neoforged.bus.api.IEventBus;
@@ -80,9 +81,10 @@ public class ClientManager {
         // BlockEntityRenderer for the pipe BE is registered via
         // EntityRenderersEvent.RegisterRenderers (see registerRenderers below).
         event.enqueueWork(() -> {
+            // 1.21.6 replaced the RenderType-keyed chunk layers with the ChunkSectionLayer enum.
             ItemBlockRenderTypes.setRenderLayer(
                 LPBlocks.PIPE.get(),
-                RenderType.cutout());
+                ChunkSectionLayer.CUTOUT);
         });
     }
 

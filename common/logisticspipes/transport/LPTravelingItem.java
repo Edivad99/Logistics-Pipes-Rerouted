@@ -1,5 +1,7 @@
 package logisticspipes.transport;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -181,10 +183,10 @@ public abstract class LPTravelingItem {
 			this.info = info;
 		}
 
-		public LPTravelingItemServer(CompoundTag data) {
+		public LPTravelingItemServer(ValueInput data) {
 			super();
 			info = new ItemRoutingInformation();
-			readFromNBT(data, getContainer().getLevel().registryAccess());
+			deserialize(data);
 		}
 
 		@Override
@@ -197,33 +199,25 @@ public abstract class LPTravelingItem {
 		}
 
 		@Override
-		public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
-			setPosition(data.getFloatOr("position", 0.0f));
-			setSpeed(data.getFloatOr("speed", 0.0f));
-			if (data.contains("input")) {
-				input = DirectionUtil.getOrientation(data.getIntOr("input", 0));
-			} else {
-				input = null;
-			}
-			if (data.contains("output")) {
-				output = DirectionUtil.getOrientation(data.getIntOr("output", 0));
-			} else {
-				output = null;
-			}
-			info.readFromNBT(data, provider);
+		public void deserialize(ValueInput input) {
+			setPosition(input.getFloatOr("position", 0.0f));
+			setSpeed(input.getFloatOr("speed", 0.0f));
+			this.input = input.getInt("input").map(DirectionUtil::getOrientation).orElse(null);
+			this.output = input.getInt("output").map(DirectionUtil::getOrientation).orElse(null);
+			info.deserialize(input);
 		}
 
 		@Override
-		public void writeToNBT(CompoundTag data, HolderLookup.Provider provider) {
-			data.putFloat("position", getPosition());
-			data.putFloat("speed", getSpeed());
-			if (input != null) {
-				data.putInt("input", input.ordinal());
+		public void serialize(ValueOutput output) {
+			output.putFloat("position", getPosition());
+			output.putFloat("speed", getSpeed());
+			if (this.input != null) {
+				output.putInt("input", this.input.ordinal());
 			}
-			if (output != null) {
-				data.putInt("output", output.ordinal());
+			if (this.output != null) {
+				output.putInt("output", this.output.ordinal());
 			}
-			info.writeToNBT(data, provider);
+			info.serialize(output);
 		}
 
         @Nullable

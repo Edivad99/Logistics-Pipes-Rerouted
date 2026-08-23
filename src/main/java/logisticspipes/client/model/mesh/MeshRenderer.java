@@ -4,8 +4,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -19,7 +17,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
  * bind beforehand. Everything is a parameter here, so there is no cross-caller state to
  * corrupt and nothing to rebind when a buffer is drained mid-frame.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class MeshRenderer {
 
     private MeshRenderer() {

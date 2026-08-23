@@ -35,28 +35,42 @@
  * SOFTWARE.
  */
 
-package logisticspipes.pipes
+package logisticspipes.pipes;
 
-import logisticspipes.network.NewGuiHandler
-import logisticspipes.network.guis.pipe.FluidTerminusGui
-import logisticspipes.network.packets.pipe.PipePropertiesUpdate
-import logisticspipes.proxy.MainProxy
-import logisticspipes.textures.Textures
-import logisticspipes.utils.FluidSinkReply.FixedFluidPriority
-import net.minecraft.core.HolderLookup
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
-import network.rs485.logisticspipes.FluidSinkPipe
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
-class PipeFluidTerminus(item: Item) : FluidSinkPipe(item, "Fluids to terminate", 9) {
+import logisticspipes.network.NewGuiHandler;
+import logisticspipes.network.guis.pipe.FluidTerminusGui;
+import logisticspipes.network.packets.pipe.PipePropertiesUpdate;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.textures.Textures;
+import logisticspipes.utils.FluidSinkReply.FixedFluidPriority;
+import network.rs485.logisticspipes.FluidSinkPipe;
 
-    override val priority: FixedFluidPriority = FixedFluidPriority.TERMINUS
+public class PipeFluidTerminus extends FluidSinkPipe {
 
-    override fun getCenterTexture(): Textures.TextureType = Textures.LOGISTICSPIPE_LIQUID_TERMINUS
+    public PipeFluidTerminus(Item item) {
+        super(item, "Fluids to terminate", 9);
+    }
 
-    override fun onWrenchClicked(entityplayer: Player) {
-        MainProxy.sendPacketToPlayer(PipePropertiesUpdate.fromPropertyHolder(this, entityplayer.registryAccess()).setBlockPos(pos), entityplayer)
-        NewGuiHandler.openGui(NewGuiHandler.getGui(FluidTerminusGui::class.java).setPosX(x).setPosY(y).setPosZ(z), entityplayer)
+    @Override
+    public FixedFluidPriority getPriority() {
+        return FixedFluidPriority.TERMINUS;
+    }
+
+    @Override
+    public Textures.TextureType getCenterTexture() {
+        return Textures.LOGISTICSPIPE_LIQUID_TERMINUS;
+    }
+
+    @Override
+    public void onWrenchClicked(Player entityplayer) {
+        MainProxy.sendPacketToPlayer(
+            PipePropertiesUpdate.fromPropertyHolder(this, entityplayer.registryAccess()).setBlockPos(getPos()),
+            entityplayer);
+        NewGuiHandler.openGui(
+            NewGuiHandler.getGui(FluidTerminusGui.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()),
+            entityplayer);
     }
 }

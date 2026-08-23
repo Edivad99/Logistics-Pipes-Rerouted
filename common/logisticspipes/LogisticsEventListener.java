@@ -1,5 +1,7 @@
 package logisticspipes;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,8 +56,6 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -90,7 +90,8 @@ public class LogisticsEventListener {
 			for (String key : tag.keySet()) {
 				if (key.startsWith("logisticspipes:routingdata")) {
 					ItemRoutingInformation info =
-							ItemRoutingInformation.restoreFromNBT(tag.getCompoundOrEmpty(key), event.getLevel().registryAccess());
+							ItemRoutingInformation.restoreFromNBT(TagValueInput.create(ProblemReporter.DISCARDING,
+									event.getLevel().registryAccess(), tag.getCompoundOrEmpty(key)));
 
 					info.setItemTimedout();
 
@@ -246,7 +247,6 @@ public class LogisticsEventListener {
 
 	// Handle GuiReopen — Opening event (screen becoming visible)
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public void onGuiOpen(ScreenEvent.Opening event) {
 		// Guard: no server connection (e.g. main menu) — nothing to notify
 		if (Minecraft.getInstance().getConnection() == null) {
@@ -266,7 +266,6 @@ public class LogisticsEventListener {
 
 	// Handle GuiReopen — Closing event (screen being dismissed without a replacement)
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public void onGuiClose(ScreenEvent.Closing event) {
 		// Guard: no server connection (e.g. main menu) — nothing to notify
 		if (Minecraft.getInstance().getConnection() == null) {
@@ -283,19 +282,16 @@ public class LogisticsEventListener {
 		GuiOverlay.getInstance().setOverlaySlotActive(false);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static void addGuiToReopen(int xCoord, int yCoord, int zCoord, int guiID) {
 		LogisticsEventListener.getGuiPos().add(new GuiEntry(xCoord, yCoord, zCoord, guiID, false));
 	}
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public void clientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
 		SimpleServiceLocator.clientBufferHandler.clear();
 	}
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public void onItemStackToolTip(ItemTooltipEvent event) {
 		CompoundTag tag = event.getItemStack()
 				.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
@@ -304,7 +300,8 @@ public class LogisticsEventListener {
 		for (String key : tag.keySet()) {
 			if (key.startsWith("logisticspipes:routingdata")) {
 				ItemRoutingInformation info =
-						ItemRoutingInformation.restoreFromNBT(tag.getCompoundOrEmpty(key), event.getEntity().registryAccess());
+						ItemRoutingInformation.restoreFromNBT(TagValueInput.create(ProblemReporter.DISCARDING,
+							event.getEntity().registryAccess(), tag.getCompoundOrEmpty(key)));
 				List<Component> list = event.getToolTip();
 				list.set(0, Component.literal(ChatColor.RED + "!!! " + ChatColor.WHITE)
 						.append(list.get(0))

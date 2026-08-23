@@ -1,5 +1,6 @@
 package logisticspipes.logistics;
 
+import net.minecraft.nbt.NbtOps;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +27,16 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.item.component.LPDataComponents;
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.SimpleFluidContent;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class LogisticsFluidManager implements ILogisticsFluidManager {
 
@@ -64,11 +69,9 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 		ItemStack item = new ItemStack(LPItems.FLUID_CONTAINER.get(), 1);
         FluidStack fluidStack = stack.makeFluidStack();
         if (!fluidStack.isEmpty()) {
-            CompoundTag nbt = new CompoundTag();
-            nbt.put("fluidStack", fluidStack.save(provider, new CompoundTag()));
             item.set(
-                DataComponents.CUSTOM_DATA,
-                CustomData.of(nbt)
+                LPDataComponents.FLUID,
+                SimpleFluidContent.copyOf(fluidStack)
             );
         }
 		return ItemIdentifierStack.getFromStack(item);
@@ -79,14 +82,10 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 	public FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack, HolderLookup.Provider provider) {
 		ItemStack itemStack = stack.makeNormalStack();
 		if (itemStack.getItem() instanceof LogisticsFluidContainer) {
-			CompoundTag tag = itemStack
-					.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
-					.copyTag();
-			if (!tag.isEmpty() && tag.contains("fluidStack")) {
-				return FluidIdentifierStack.getFromStack(
-						FluidStack.parse(provider, Objects.requireNonNull(tag.get("fluidStack"))).orElse(FluidStack.EMPTY)
-				);
-			}
+            if (itemStack.has(LPDataComponents.FLUID)) {
+                return FluidIdentifierStack.getFromStack(
+                    itemStack.getOrDefault(LPDataComponents.FLUID, SimpleFluidContent.EMPTY).copy());
+            }
 		}
 		return null;
 	}

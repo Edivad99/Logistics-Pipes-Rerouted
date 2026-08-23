@@ -1,5 +1,7 @@
 package logisticspipes.pipes.tubes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -159,15 +161,15 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag data, HolderLookup.Provider provider) {
-		super.writeToNBT(data, provider);
-		data.putString("orientation", orientation.name());
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		output.putString("orientation", orientation.name());
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag data, HolderLookup.Provider provider) {
-		super.readFromNBT(data, provider);
-		orientation = SpeedupDirection.valueOf(data.getStringOr("orientation", ""));
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		orientation = SpeedupDirection.valueOf(input.getStringOr("orientation", ""));
 	}
 
 	@Override

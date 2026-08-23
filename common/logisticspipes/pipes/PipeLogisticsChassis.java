@@ -7,6 +7,8 @@
 
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -287,9 +289,9 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
-		super.readFromNBT(tag, provider);
-		moduleInventory.readFromNBT(tag, provider, "chassi");
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		moduleInventory.deserialize(input, "chassi");
 
 
 		// register slotted modules
@@ -304,10 +306,13 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {
-		super.writeToNBT(tag, provider);
-		updateModuleInventory(provider);
-		moduleInventory.writeToNBT(tag, provider, "chassi");
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		// updateModuleInventory still needs a registry provider for the module payloads, and the
+		// ValueOutput no longer carries one; the pipe's own world is the same access it uses on the
+		// other call paths.
+		updateModuleInventory(getWorld().registryAccess());
+		moduleInventory.serialize(output, "chassi");
 	}
 
 	@Override

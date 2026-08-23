@@ -7,6 +7,8 @@
 
 package logisticspipes.pipes.basic;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -742,8 +744,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
 
 		synchronized (routerIdLock) {
 			if (routerId == null || routerId.isEmpty()) {
@@ -754,38 +756,27 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				}
 			}
 		}
-		nbttagcompound.putString("routerId", routerId);
-		nbttagcompound.putLong("stat_lifetime_sent", stat_lifetime_sent);
-		nbttagcompound.putLong("stat_lifetime_received", stat_lifetime_received);
-		nbttagcompound.putLong("stat_lifetime_relayed", stat_lifetime_relayed);
+		output.putString("routerId", routerId);
+		output.putLong("stat_lifetime_sent", stat_lifetime_sent);
+		output.putLong("stat_lifetime_received", stat_lifetime_received);
+		output.putLong("stat_lifetime_relayed", stat_lifetime_relayed);
 		if (getLogisticsModule() != null) {
-			getLogisticsModule().writeToNBT(nbttagcompound, provider);
+			getLogisticsModule().serialize(output);
 		}
-		CompoundTag upgradeNBT = new CompoundTag();
-		upgradeManager.writeToNBT(upgradeNBT, provider);
-		nbttagcompound.put("upgradeManager", upgradeNBT);
+		output.putChild("upgradeManager", upgradeManager);
+		output.putChild("powerHandler", powerHandler);
 
-		CompoundTag powerNBT = new CompoundTag();
-		powerHandler.writeToNBT(powerNBT);
-		if (!powerNBT.isEmpty()) {
-			nbttagcompound.put("powerHandler", powerNBT);
-		}
-
-		ListTag sendqueue = new ListTag();
+		ValueOutput.ValueOutputList sendqueue = output.childrenList("sendqueue");
 		for (Triplet<IRoutedItem, Direction, ItemSendMode> p : sendQueue) {
-			CompoundTag tagentry = new CompoundTag();
-			CompoundTag tagentityitem = new CompoundTag();
-			p.getValue1().writeToNBT(tagentityitem, provider);
-			tagentry.put("entityitem", tagentityitem);
+			ValueOutput tagentry = sendqueue.addChild();
+			p.getValue1().serialize(tagentry.child("entityitem"));
 			tagentry.putByte("from", (byte) (p.getValue2().ordinal()));
 			tagentry.putByte("mode", (byte) (p.getValue3().ordinal()));
-			sendqueue.add(tagentry);
 		}
-		nbttagcompound.put("sendqueue", sendqueue);
 
 		for (int i = 0; i < 6; i++) {
 			if (signItem[i] != null) {
-				nbttagcompound.putBoolean("PipeSign_" + i, true);
+				output.putBoolean("PipeSign_" + i, true);
 				int signType = -1;
 				List<Class<? extends IPipeSign>> typeClasses = ItemPipeSignCreator.signTypes;
 				for (int j = 0; j < typeClasses.size(); j++) {
@@ -794,55 +785,50 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 						break;
 					}
 				}
-				nbttagcompound.putInt("PipeSign_" + i + "_type", signType);
-				CompoundTag tag = new CompoundTag();
-				signItem[i].writeToNBT(tag, provider);
-				nbttagcompound.put("PipeSign_" + i + "_tags", tag);
+				output.putInt("PipeSign_" + i + "_type", signType);
+				output.putChild("PipeSign_" + i + "_tags", signItem[i]);
 			} else {
-				nbttagcompound.putBoolean("PipeSign_" + i, false);
+				output.putBoolean("PipeSign_" + i, false);
 			}
 		}
 
 		if (this instanceof PropertyHolder) {
-			PropertyHolder.writeToNBT(nbttagcompound, provider, (PropertyHolder) this);
+			PropertyHolder.serialize(output, (PropertyHolder) this);
 		}
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
 
 		synchronized (routerIdLock) {
-			routerId = nbttagcompound.getStringOr("routerId", "");
+			routerId = input.getStringOr("routerId", "");
 		}
 
-		stat_lifetime_sent = nbttagcompound.getLongOr("stat_lifetime_sent", 0L);
-		stat_lifetime_received = nbttagcompound.getLongOr("stat_lifetime_received", 0L);
-		stat_lifetime_relayed = nbttagcompound.getLongOr("stat_lifetime_relayed", 0L);
+		stat_lifetime_sent = input.getLongOr("stat_lifetime_sent", 0L);
+		stat_lifetime_received = input.getLongOr("stat_lifetime_received", 0L);
+		stat_lifetime_relayed = input.getLongOr("stat_lifetime_relayed", 0L);
 		if (getLogisticsModule() != null) {
-			getLogisticsModule().readFromNBT(nbttagcompound, provider);
+			getLogisticsModule().deserialize(input);
 		}
-		upgradeManager.readFromNBT(nbttagcompound.getCompoundOrEmpty("upgradeManager"), provider);
-		powerHandler.readFromNBT(nbttagcompound.getCompoundOrEmpty("powerHandler"));
+		upgradeManager.deserialize(input.childOrEmpty("upgradeManager"));
+		powerHandler.deserialize(input.childOrEmpty("powerHandler"));
 
 		sendQueue.clear();
-		ListTag sendqueue = nbttagcompound.getListOrEmpty("sendqueue");
-		for (int i = 0; i < sendqueue.size(); i++) {
-			CompoundTag tagentry = sendqueue.getCompoundOrEmpty(i);
-			CompoundTag tagentityitem = tagentry.getCompoundOrEmpty("entityitem");
-			LPTravelingItemServer item = new LPTravelingItemServer(tagentityitem);
+		for (ValueInput tagentry : input.childrenListOrEmpty("sendqueue")) {
+			LPTravelingItemServer item = new LPTravelingItemServer(tagentry.childOrEmpty("entityitem"));
 			Direction from = Direction.values()[tagentry.getByteOr("from", (byte) 0)];
 			ItemSendMode mode = ItemSendMode.values()[tagentry.getByteOr("mode", (byte) 0)];
 			sendQueue.add(new Triplet<>(item, from, mode));
 		}
 		for (int i = 0; i < 6; i++) {
-			if (nbttagcompound.getBooleanOr("PipeSign_" + i, false)) {
-				int type = nbttagcompound.getIntOr("PipeSign_" + i + "_type", 0);
+			if (input.getBooleanOr("PipeSign_" + i, false)) {
+				int type = input.getIntOr("PipeSign_" + i + "_type", 0);
 				Class<? extends IPipeSign> typeClass = ItemPipeSignCreator.signTypes.get(type);
 				try {
 					signItem[i] = typeClass.newInstance();
 					signItem[i].init(this, DirectionUtil.getOrientation(i));
-					signItem[i].readFromNBT(nbttagcompound.getCompoundOrEmpty("PipeSign_" + i + "_tags"), provider);
+					signItem[i].deserialize(input.childOrEmpty("PipeSign_" + i + "_tags"));
 				} catch (InstantiationException | IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}
@@ -850,7 +836,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		}
 
 		if (this instanceof PropertyHolder) {
-			PropertyHolder.readFromNBT(nbttagcompound, provider, (PropertyHolder) this);
+			PropertyHolder.deserialize(input, (PropertyHolder) this);
 		}
 	}
 

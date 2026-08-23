@@ -11,7 +11,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.utils.gui.DummyContainer;
+import logisticspipes.utils.item.ItemIdentifierInventory;
+
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -43,18 +46,17 @@ public class GuiSimpleFilter extends ModuleBaseGui {
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) filter.getFilterInventory()).getName(), 8, 6, 0x404040, false);
-		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0x404040, false);
+		guiGraphics.drawString(minecraft.font, ((ItemIdentifierInventory) filter.getFilterInventory()).getName(), 8, 6, 0xFF404040, false);
+		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0xFF404040, false);
 	}
 
 	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/itemsink.png");
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		// texture: GuiSimpleFilter.TEXTURE
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(RenderType::guiTextured, GuiSimpleFilter.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiSimpleFilter.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
 	}
 }

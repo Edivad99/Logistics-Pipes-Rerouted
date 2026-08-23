@@ -62,8 +62,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -73,6 +71,8 @@ import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		implements ILPPipeTile, IPipeInformationProvider, /*IItemDuct,*/
@@ -299,10 +299,9 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-		PacketHandler.queueAndRemovePacketFromNBT(tag);
-		super.handleUpdateTag(tag, lookupProvider);
+	public void handleUpdateTag(ValueInput input) {
+		PacketHandler.queuePacketFromUpdateTag(input);
+		super.handleUpdateTag(input);
 	}
 
 	@Override
@@ -311,10 +310,9 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	}
 
 	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider lookupProvider) {
-		CompoundTag nbt = packet.getTag();
-        handleUpdateTag(nbt, lookupProvider);
-    }
+	public void onDataPacket(Connection net, ValueInput input) {
+		handleUpdateTag(input);
+	}
 
     @Override
     public void fillCrashReportCategory(CrashReportCategory reportCategory) {
@@ -350,32 +348,29 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	/* IPipeInformationProvider */
 
-	@Override
-	public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-		super.saveAdditional(nbt, registries);
-
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
 		if (pipe != null && pipe.item != null) {
 			ResourceLocation key = BuiltInRegistries.ITEM.getResourceKey(pipe.item)
 				.map(ResourceKey::location).orElse(null);
 			if (key != null) {
-				nbt.putString(NBT_PIPE_ID, key.toString());
+				output.putString(NBT_PIPE_ID, key.toString());
 			}
-			pipe.writeToNBT(nbt, registries);
+			pipe.serialize(output);
 		} else if (coreState.pipeIdName != null) {
-			nbt.putString(NBT_PIPE_ID, coreState.pipeIdName);
+			output.putString(NBT_PIPE_ID, coreState.pipeIdName);
 		}
 
 		for (int i = 0; i < turtleConnect.length; i++) {
-			nbt.putBoolean("turtleConnect_" + i, turtleConnect[i]);
+			output.putBoolean("turtleConnect_" + i, turtleConnect[i]);
 		}
 
-		CompoundTag logicNBT = new CompoundTag();
-		logicController.writeToNBT(logicNBT, registries);
-		nbt.put("logicController", logicNBT);
+		output.putChild("logicController", logicController);
 	}
 
-	@Override
-	protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+    @Override
+    protected void loadAdditional(ValueInput input) {
 		if (pipe != null) {
 			StackTraceElement[] trace = Thread.currentThread().getStackTrace();
 			if (trace.length > 2 && trace[2].getMethodName().equals("handle") && trace[2].getClassName()
@@ -384,11 +379,11 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 				return;
 			}
 		}
-		super.loadAdditional(nbt, registries);
+		super.loadAdditional(input);
 
-		if (!nbt.contains(NBT_PIPE_ID)) return;
+		if (input.getString(NBT_PIPE_ID).isEmpty()) return;
 
-		coreState.pipeIdName = nbt.getStringOr(NBT_PIPE_ID, "");
+		coreState.pipeIdName = input.getStringOr(NBT_PIPE_ID, "");
 		Item pipeItem = null;
 		if (coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
 			pipeItem = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(coreState.pipeIdName));
@@ -401,7 +396,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		bindPipe();
 
 		if (pipe != null) {
-			pipe.readFromNBT(nbt, registries);
+			pipe.deserialize(input);
 			pipe.finishInit();
 		} else {
 			LogisticsPipes.LOG.warn("Pipe failed to load from NBT at {}", getBlockPos());
@@ -409,10 +404,10 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		}
 
 		for (int i = 0; i < turtleConnect.length; i++) {
-			turtleConnect[i] = nbt.getBooleanOr("turtleConnect_" + i, false);
+			turtleConnect[i] = input.getBooleanOr("turtleConnect_" + i, false);
 		}
 
-		logicController.readFromNBT(nbt.getCompoundOrEmpty("logicController"), registries);
+		logicController.deserialize(input.childOrEmpty("logicController"));
 	}
 
 	public boolean canPipeConnect(BlockEntity with, Direction side) {
@@ -663,7 +658,6 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	@ModDependentMethod(modId = LPConstants.openComputersModID)
 	public boolean canConnect(Direction side) {
 		return !(this.getTile(side) instanceof LogisticsTileGenericPipe) && !(this.getTile(side) instanceof LogisticsSolidBlockEntity);
@@ -881,7 +875,6 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		refreshRenderState = true;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public IIconProvider getPipeIcons() {
 		if (pipe == null) {
 			return null;
@@ -889,7 +882,6 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		return pipe.getIconProvider();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public double getViewDistance() {
 		return 64 * 4;
 	}

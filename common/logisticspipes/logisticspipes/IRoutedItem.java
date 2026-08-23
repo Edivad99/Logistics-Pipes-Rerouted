@@ -7,6 +7,8 @@
 
 package logisticspipes.logisticspipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.List;
 import java.util.UUID;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
@@ -67,9 +69,9 @@ public interface IRoutedItem {
 
 	ItemIdentifierStack getItemIdentifierStack();
 
-	void readFromNBT(CompoundTag data, HolderLookup.Provider provider);
+	void deserialize(ValueInput input);
 
-	void writeToNBT(CompoundTag tagEntityItem, HolderLookup.Provider provider);
+	void serialize(ValueOutput output);
 
 	void setDistanceTracker(IDistanceTracker tracker);
 

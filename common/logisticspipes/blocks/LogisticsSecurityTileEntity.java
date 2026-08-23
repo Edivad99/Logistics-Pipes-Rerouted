@@ -1,5 +1,8 @@
 package logisticspipes.blocks;
 
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +49,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IGuiOpenControler, ISecurityProvider, IGuiTileEntity {
 
@@ -142,57 +147,42 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
-		if (tag.contains("UUID")) {
-			secId = UUID.fromString(tag.getStringOr("UUID", ""));
-		}
-		allowCC = tag.getBooleanOr("allowCC", false);
-		allowAutoDestroy = tag.getBooleanOr("allowAutoDestroy", false);
-		inv.readFromNBT(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+		input.getString("UUID").ifPresent(raw -> secId = UUID.fromString(raw));
+		allowCC = input.getBooleanOr("allowCC", false);
+		allowAutoDestroy = input.getBooleanOr("allowAutoDestroy", false);
+		inv.deserialize(input);
 		settingsList.clear();
-		ListTag list = tag.getListOrEmpty("settings");
-		while (!list.isEmpty()) {
-			Tag base = list.remove(0);
-			String name = ((CompoundTag) base).getStringOr("name", "");
-			CompoundTag value = ((CompoundTag) base).getCompoundOrEmpty("content");
+		for (ValueInput entry : input.childrenListOrEmpty("settings")) {
+			String name = entry.getStringOr("name", "");
 			SecuritySettings settings = new SecuritySettings(name);
-			settings.readFromNBT(value, registries);
+			settings.deserialize(entry.childOrEmpty("content"));
 			settingsList.put(name, settings);
 		}
 		excludedCC.clear();
-		list = tag.getListOrEmpty("excludedCC");
-		while (!list.isEmpty()) {
-			Tag base = list.remove(0);
-			excludedCC.add(((IntTag) base).intValue());
+		for (int id : input.getIntArray("excludedCC").orElse(new int[0])) {
+			excludedCC.add(id);
 		}
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         UUID secId = getSecId();
         if (secId != null) {
-            tag.putString("UUID", secId.toString());
+            output.putString("UUID", secId.toString());
         }
-		tag.putBoolean("allowCC", allowCC);
-		tag.putBoolean("allowAutoDestroy", allowAutoDestroy);
-		inv.writeToNBT(tag, registries);
-		ListTag list = new ListTag();
+        output.putBoolean("allowCC", allowCC);
+        output.putBoolean("allowAutoDestroy", allowAutoDestroy);
+		inv.serialize(output);
+		ValueOutput.ValueOutputList list = output.childrenList("settings");
 		for (Entry<String, SecuritySettings> entry : settingsList.entrySet()) {
-			CompoundTag nbt = new CompoundTag();
-			nbt.putString("name", entry.getKey());
-			CompoundTag value = new CompoundTag();
-			entry.getValue().writeToNBT(value, registries);
-			nbt.put("content", value);
-			list.add(nbt);
+			ValueOutput settingsEntry = list.addChild();
+			settingsEntry.putString("name", entry.getKey());
+			settingsEntry.putChild("content", entry.getValue());
 		}
-		tag.put("settings", list);
-		list = new ListTag();
-		for (Integer i : excludedCC) {
-			list.add(IntTag.valueOf(i));
-		}
-		tag.put("excludedCC", list);
+		output.putIntArray("excludedCC", excludedCC.stream().mapToInt(Integer::intValue).toArray());
 	}
 
 	public void buttonFreqCard(int integer, Player player) {
@@ -240,9 +230,13 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 			setting = new SecuritySettings(string);
 			settingsList.put(string, setting);
 		}
-		CompoundTag nbt = new CompoundTag();
-		setting.writeToNBT(nbt, player.level().registryAccess());
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationOpenPlayer.class).put(nbt), player);
+		// The packet carries a raw CompoundTag while SecuritySettings serialises to a
+		// ValueOutput; TagValueOutput is the adapter vanilla itself uses at that boundary.
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING,
+			player.level().registryAccess());
+		setting.serialize(output);
+		MainProxy.sendPacketToPlayer(
+			PacketHandler.getPacket(SecurityStationOpenPlayer.class).put(output.buildResult()), player);
 	}
 
 	public void saveNewSecuritySettings(CompoundTag tag, HolderLookup.Provider provider) {
@@ -251,7 +245,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 			setting = new SecuritySettings(tag.getStringOr("name", ""));
 			settingsList.put(tag.getStringOr("name", ""), setting);
 		}
-		setting.readFromNBT(tag, provider);
+		setting.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, provider, tag));
 	}
 
 	public SecuritySettings getSecuritySettingsForPlayer(Player entityplayer, boolean usePower) {

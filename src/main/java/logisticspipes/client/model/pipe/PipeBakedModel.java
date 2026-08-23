@@ -17,8 +17,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
 import net.neoforged.neoforge.model.data.ModelData;
 
@@ -44,7 +42,6 @@ import com.google.common.cache.CacheBuilder;
  * of the model data being pushed in as an argument, the model pulls it off the level with
  * {@code level.getModelData(pos)}.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public class PipeBakedModel implements DynamicBlockStateModel {
 
     /**

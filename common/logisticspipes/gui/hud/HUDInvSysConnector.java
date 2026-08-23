@@ -1,12 +1,12 @@
 package logisticspipes.gui.hud;
 
+import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 
 public class HUDInvSysConnector extends BasicHUDGui {
 
@@ -18,12 +18,12 @@ public class HUDInvSysConnector extends BasicHUDGui {
 	}
 
 	@Override
-	public void renderHeadUpDisplay(GuiGraphics guiGraphics, double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
-        LPGuiGraphics.drawGuiBackGround(guiGraphics, -50, -50, 50, 50, 0, false);
-		super.renderHeadUpDisplay(guiGraphics, distance, day, shifted, minecraft, config);
+	public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
+        LPGuiGraphics.drawGuiBackGround(context, -50, -50, 50, 50, 0, false);
+		super.renderHeadUpDisplay(context, distance, day, shifted, minecraft, config);
 		int textColor = day ? 0xff404040 : 0xff7f7f7f;
-		guiGraphics.drawString(minecraft.font, "Expected:", -28, -25, textColor, false);
-		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, pipe.displayList, null, 0, -37, -18, 3, 9, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
+		context.drawString(minecraft.font, "Expected:", -28, -25, textColor, false);
+		ItemStackRenderer.renderItemIdentifierStackListIntoHud(context, pipe.displayList, null, 0, -37, -18, 3, 9, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 	}
 
 	@Override

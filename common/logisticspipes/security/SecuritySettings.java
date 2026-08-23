@@ -1,13 +1,15 @@
 package logisticspipes.security;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
-import network.rs485.logisticspipes.IStore;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SecuritySettings implements IStore {
+public class SecuritySettings implements ValueIOSerializable {
 
 	public @Nullable String name;
 	public boolean openGui = false;
@@ -22,31 +24,31 @@ public class SecuritySettings implements IStore {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+	public void deserialize(ValueInput input) {
 		String prev = name;
-		name = tag.getStringOr("name", "");
+		name = input.getStringOr("name", "");
 		if (name.isEmpty()) {
 			name = prev;
 		}
-		openGui = tag.getBooleanOr("openGui", false);
-		openRequest = tag.getBooleanOr("openRequest", false);
-		openUpgrades = tag.getBooleanOr("openUpgrades", false);
-		openNetworkMonitor = tag.getBooleanOr("openNetworkMonitor", false);
-		removePipes = tag.getBooleanOr("removePipes", false);
-		accessRoutingChannels = tag.getBooleanOr("accessRoutingChannels", false);
+		openGui = input.getBooleanOr("openGui", false);
+		openRequest = input.getBooleanOr("openRequest", false);
+		openUpgrades = input.getBooleanOr("openUpgrades", false);
+		openNetworkMonitor = input.getBooleanOr("openNetworkMonitor", false);
+		removePipes = input.getBooleanOr("removePipes", false);
+		accessRoutingChannels = input.getBooleanOr("accessRoutingChannels", false);
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+	public void serialize(ValueOutput output) {
 		if (name == null || name.isEmpty()) {
 			return;
 		}
-		tag.putString("name", name);
-		tag.putBoolean("openGui", openGui);
-		tag.putBoolean("openRequest", openRequest);
-		tag.putBoolean("openUpgrades", openUpgrades);
-		tag.putBoolean("openNetworkMonitor", openNetworkMonitor);
-		tag.putBoolean("removePipes", removePipes);
-		tag.putBoolean("accessRoutingChannels", accessRoutingChannels);
+		output.putString("name", name);
+		output.putBoolean("openGui", openGui);
+		output.putBoolean("openRequest", openRequest);
+		output.putBoolean("openUpgrades", openUpgrades);
+		output.putBoolean("openNetworkMonitor", openNetworkMonitor);
+		output.putBoolean("removePipes", removePipes);
+		output.putBoolean("accessRoutingChannels", accessRoutingChannels);
 	}
 }

@@ -50,8 +50,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
-import net.neoforged.api.distmarker.Dist
-import net.neoforged.api.distmarker.OnlyIn
 import java.util.*
 import kotlin.math.min
 
@@ -345,7 +343,6 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Abstrac
         } ?: slot?.set(stack)
     }
 
-    @OnlyIn(Dist.CLIENT)
     fun setAll(slotStacks: MutableList<ItemStack>) {
         for (slotIdx in slotStacks.indices) {
             putStackInSlot(slotIdx, slotStacks[slotIdx])

@@ -8,6 +8,8 @@
 
 package logisticspipes.utils.item;
 
+import logisticspipes.renderer.HUDDrawContext;
+import org.joml.Matrix3x2fStack;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -28,14 +30,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import network.rs485.logisticspipes.util.TextUtil;
 
 @Data
 @Accessors(chain = true)
-@OnlyIn(Dist.CLIENT)
 public class ItemStackRenderer {
 
 	private TextureManager texManager;
@@ -77,10 +76,57 @@ public class ItemStackRenderer {
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, zLevel, displayAmount, true, false);
 	}
 
+	public static void renderItemIdentifierStackListIntoHud(HUDDrawContext context, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount, boolean renderEffect, boolean ignoreDepth) {
+		ItemStackRenderer itemStackRenderer = new ItemStackRenderer(0, 0, zLevel, renderEffect, ignoreDepth)
+			.setDisplayAmount(displayAmount);
+		renderItemIdentifierStackListIntoHud(context, allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, itemStackRenderer);
+	}
+
 	public static void renderItemIdentifierStackListIntoGui(GuiGraphics guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount, boolean renderEffect, boolean ignoreDepth) {
 		ItemStackRenderer itemStackRenderer = new ItemStackRenderer(0, 0, zLevel, renderEffect, ignoreDepth);
 		itemStackRenderer.setDisplayAmount(displayAmount);
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, itemStackRenderer);
+	}
+
+	/** Layout twin of the GUI version, drawing through the world-space HUD context. */
+	public static void renderItemIdentifierStackListIntoHud(HUDDrawContext context, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, ItemStackRenderer itemStackRenderer) {
+		int ppi = 0;
+		int column = 0;
+		int row = 0;
+
+		for (ItemIdentifierStack identifierStack : allItems) {
+			if (identifierStack == null) {
+				column++;
+				if (column >= columns) {
+					row++;
+					column = 0;
+				}
+				ppi++;
+				continue;
+			}
+			ItemIdentifier item = identifierStack.getItem();
+			if (IItemSearch != null && !IItemSearch.itemSearched(item)) {
+				continue;
+			}
+			ppi++;
+			if (ppi <= items * page || ppi > items * (page + 1)) {
+				continue;
+			}
+			ItemStack itemstack = identifierStack.makeNormalStack();
+			int x = left + xSize * column;
+			int y = top + ySize * row + 1;
+
+			if (!itemstack.isEmpty()) {
+				itemStackRenderer.setItemstack(itemstack).setPosX(x).setPosY(y);
+				itemStackRenderer.renderInHud(context);
+			}
+
+			column++;
+			if (column >= columns) {
+				row++;
+				column = 0;
+			}
+		}
 	}
 
 	public static void renderItemIdentifierStackListIntoGui(GuiGraphics guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, ItemStackRenderer itemStackRenderer) {
@@ -125,6 +171,27 @@ public class ItemStackRenderer {
 				column = 0;
 			}
 		}
+	}
+
+	/** The world-space HUD counterpart of {@link #renderInGui(GuiGraphics)}. */
+	public void renderInHud(@Nullable HUDDrawContext context) {
+		if (context == null) {
+			return;
+		}
+		ItemStack stack = itemstack;
+		if (stack.isEmpty() && itemIdentStack != null) {
+			stack = itemIdentStack.getItem().makeNormalStack(1);
+		}
+		if (stack.isEmpty()) {
+			return;
+		}
+		context.renderItem(stack, posX, posY);
+		String countLabel = null;
+		if (displayAmount != DisplayAmount.NEVER) {
+			long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
+			countLabel = TextUtil.getThreeDigitFormattedNumber(count, displayAmount == DisplayAmount.ALWAYS);
+		}
+		context.renderItemDecorations(font, stack, posX, posY, countLabel);
 	}
 
 	public void renderInGui(@Nullable GuiGraphics guiGraphics) {
@@ -172,12 +239,12 @@ public class ItemStackRenderer {
 		if (gg == null || item == null) return;
 		ItemStack stack = new ItemStack(item);
 		if (stack.isEmpty()) return;
-		PoseStack pose = gg.pose();
-		pose.pushPose();
-		pose.translate(x, y, zLevel);
-		pose.scale(scale, scale, 1.0F);
+		Matrix3x2fStack pose = gg.pose();
+		pose.pushMatrix();
+		pose.translate(x, y);
+		pose.scale(scale, scale);
 		gg.renderItem(stack, 0, 0);
-		pose.popPose();
+		pose.popMatrix();
 	}
 
 	public enum DisplayAmount {

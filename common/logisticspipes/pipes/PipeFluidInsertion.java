@@ -1,5 +1,7 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,20 +93,20 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {
-		super.writeToNBT(tag, provider);
-		tag.putIntArray("nextSendMax", nextSendMax);
-		tag.putIntArray("nextSendMin", nextSendMin);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		output.putIntArray("nextSendMax", nextSendMax);
+		output.putIntArray("nextSendMin", nextSendMin);
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
-		super.readFromNBT(tag, provider);
-		nextSendMax = tag.getIntArray("nextSendMax").orElse(new int[0]);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
+		nextSendMax = input.getIntArray("nextSendMax").orElse(new int[0]);
 		if (nextSendMax.length < 6) {
 			nextSendMax = new int[6];
 		}
-		nextSendMin = tag.getIntArray("nextSendMin").orElse(new int[0]);
+		nextSendMin = input.getIntArray("nextSendMin").orElse(new int[0]);
 		if (nextSendMin.length < 6) {
 			nextSendMin = new int[6];
 		}

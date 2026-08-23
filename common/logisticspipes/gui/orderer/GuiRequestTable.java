@@ -271,7 +271,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 							s = "List";
 						}
 						// Draw number
-						guiGraphics.drawString(minecraft.font, s, left + 22 - minecraft.font.width(s), top + 14, 16777215, true);
+						guiGraphics.drawString(minecraft.font, s, left + 22 - minecraft.font.width(s), top + 14, 0xFFFFFFFF, true);
 						if (isFullyExtended()) {
 							if (localControlledButton == null || orderIdForButton != entry.getKey()) {
 								if (localControlledButton != null) {
@@ -284,7 +284,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 							List<IOrderInfoProvider> list = entry.getValue().getValue2().getList();
 							calculateSize(left, top, list);
 							String ident = String.format("ID: %d", entry.getKey());
-							guiGraphics.drawString(minecraft.font, ident, left + 25, top + 7, 16777215, true);
+							guiGraphics.drawString(minecraft.font, ident, left + 25, top + 7, 0xFFFFFFFF, true);
 							int x = left + 6;
 							int y = top + 25;
 							for (IOrderInfoProvider order : list) {
@@ -295,7 +295,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 								guiGraphics.renderItem(stack, x, y);
 								s = TextUtil.getThreeDigitFormattedNumber(stack.getCount(), false);
 								// Draw number
-								guiGraphics.drawString(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 16777215, true);
+								guiGraphics.drawString(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 0xFFFFFFFF, true);
 								ordererPosition.put(new Pair<>(x, y), order);
 								x += 18;
 								if (x > left + getFinalWidth() - 18) {
@@ -366,10 +366,10 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 								list.add(ChatColor.BLUE + "Request Type: " + ChatColor.YELLOW + order.getType().name());
 								list.add(ChatColor.BLUE + "Send to Router ID: " + ChatColor.YELLOW + order
 										.getRouterId());
-								guiGraphics.renderComponentTooltip(font, list.stream().map(Component::literal).collect(Collectors.toList()), xPos, yPos);
+								guiGraphics.setComponentTooltipForNextFrame(font, list.stream().map(Component::literal).collect(Collectors.toList()), xPos, yPos);
 							});
 						} else if (entry.getValue() != null && entry.getValue().getValue1() != null && entry.getValue().getValue1().getDisplayItem() != null) {
-							guiGraphics.renderTooltip(font, entry.getValue().getValue1().getDisplayItem().makeNormalStack(), xPos, yPos);
+							guiGraphics.setTooltipForNextFrame(font, entry.getValue().getValue1().getDisplayItem().makeNormalStack(), xPos, yPos);
 						}
 					}
 				});
@@ -538,7 +538,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		}
 		ItemTooltip tip = itemDisplay.getToolTip();
 		if (tip != null) {
-			guiGraphics.renderTooltip(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
+			guiGraphics.setTooltipForNextFrame(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
 		}
 	}
 
@@ -549,11 +549,11 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			return;
 		}
 		macroButton.active = !table.diskInv.getItem(0).isEmpty() && table.diskInv.getItem(0).getItem().equals(LPItems.DISK.get());
-		guiGraphics.drawString(minecraft.font, "Sort:", 136, 55, 0xffffff, false);
+		guiGraphics.drawString(minecraft.font, "Sort:", 136, 55, 0xFFffffff, false);
 		if (showRequest) {
-			guiGraphics.drawString(minecraft.font, title, 180 + minecraft.font.width(title) / 2, 6, 0x404040, false);
+			guiGraphics.drawString(minecraft.font, title, 180 + minecraft.font.width(title) / 2, 6, 0xFF404040, false);
 			if (popupCheck != null && popupCheck.getState()) {
-				guiGraphics.drawString(minecraft.font, "Popup", 225, bottom - topPos - 56, 0x404040, false);
+				guiGraphics.drawString(minecraft.font, "Popup", 225, bottom - topPos - 56, 0xFF404040, false);
 			} else {
 				guiGraphics.drawString(minecraft.font, "Popup", 225, bottom - topPos - 56, Color.getValue(Color.GREY), false);
 			}

@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes
 
+import net.neoforged.neoforge.common.util.ValueIOSerializable
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty
 import network.rs485.logisticspipes.property.Property
 import network.rs485.logisticspipes.property.PropertyHolder
@@ -54,7 +55,7 @@ import net.minecraft.world.item.Item
 
 abstract class FluidSinkPipe(
     item: Item, inventoryName: String, inventorySize: Int
-) : FluidRoutedPipe(item), IFluidSink, PropertyHolder, IStore {
+) : FluidRoutedPipe(item), IFluidSink, PropertyHolder, ValueIOSerializable {
 
     private val guiOpenedBy = PlayerCollectionList()
 

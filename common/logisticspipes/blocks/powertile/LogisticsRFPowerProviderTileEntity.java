@@ -1,5 +1,6 @@
 package logisticspipes.blocks.powertile;
 
+import net.minecraft.world.level.storage.ValueOutput;
 import javax.annotation.Nullable;
 
 import logisticspipes.LPConfigs;
@@ -16,6 +17,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -140,15 +143,15 @@ public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTi
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
-		storage.readFromNBT(tag);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+		storage.deserialize(input);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
-		storage.writeToNBT(tag);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		storage.serialize(output);
 	}
 
 	@Override

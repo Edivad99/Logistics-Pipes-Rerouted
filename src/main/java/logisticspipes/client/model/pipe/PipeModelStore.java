@@ -3,8 +3,6 @@ package logisticspipes.client.model.pipe;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +26,6 @@ import logisticspipes.client.model.tube.TubeModels;
  * {@link #markDirty()}, and the first reader afterwards does the work. {@link #generation()}
  * lets {@link PipeBakedModel} notice its cached quads are stale.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class PipeModelStore {
 
     private static final Logger LOGGER = LogManager.getLogger(PipeModelStore.class);

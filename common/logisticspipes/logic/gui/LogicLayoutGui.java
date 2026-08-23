@@ -10,8 +10,10 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
+import net.minecraft.util.ARGB;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -128,8 +130,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		int leftSide = ((width - imageWidth) / 2);
 		int topSide = ((height - imageHeight) / 2);
 
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		guiGraphics.blit(RenderType::guiTextured, LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256, ARGB.colorFromFloat(1.0F, 0.7F, 0.7F, 0.7F));
 
 		topPos = (int) (topPos * 1 / zoom.zoom);
 		leftPos = (int) (leftPos * 1 / zoom.zoom);
@@ -138,8 +139,6 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		leftSide *= 1 / zoom.zoom;
 		topSide *= 1 / zoom.zoom;
 
-		RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
-
 		topPos = (int) (topPos * zoom.zoom);
 		leftPos = (int) (leftPos * zoom.zoom);
 		imageWidth = (int) (imageWidth * zoom.zoom);
@@ -147,8 +146,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		leftSide *= zoom.zoom;
 		topSide *= zoom.zoom;
 
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		guiGraphics.blit(RenderType::guiTextured, LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
 	}
 
 	private void renderLinkedOrderListItems(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
@@ -156,15 +154,8 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		int startLeft = -(size - 1) * (30 / 2) + xPos;
 		yPos += 13;
 		for (IOrderInfoProvider aList : list) {
-			if (aList.isInProgress()) {
-				RenderSystem.setShaderColor(0.1F, 0.9F, 0.1F, 1.0F);
-			} else {
-				RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
-			}
-			// The blit names its own texture; the old setShaderTexture call became redundant when
-			// this moved to RenderType, and in 1.21.5 it takes a GpuTexture rather than a location.
-			guiGraphics.blit(RenderType::guiTextured, LogicLayoutGui.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256);
-			RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 1.0F);
+			int badgeTint = aList.isInProgress() ? ARGB.colorFromFloat(1.0F, 0.1F, 0.9F, 0.1F) : ARGB.colorFromFloat(1.0F, 0.7F, 0.7F, 0.7F);
+			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LogicLayoutGui.achievementTextures, startLeft - 5, yPos - 5, 0.0f, 202.0f, 26, 26, 256, 256, badgeTint);
 			//renderItemAt(aList.getAsDisplayItem(), startLeft, yPos);
 			if (aList.isInProgress() && aList.getMachineProgress() != 0) {
 				guiGraphics.fill(startLeft - 4, yPos + 20, startLeft + 20, yPos + 24, 0xff000000);

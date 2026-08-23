@@ -65,7 +65,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 	@Override
 	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(minecraft.font, "(" + (page + 1) + "/" + ((int) ((tile.excludedCC.size() / 9D) + 1 - (tile.excludedCC.size() % 9 == 0 && tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0x4F4F4F, false);
+        guiGraphics.drawString(minecraft.font, "(" + (page + 1) + "/" + ((int) ((tile.excludedCC.size() / 9D) + 1 - (tile.excludedCC.size() % 9 == 0 && tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0xFF4F4F4F, false);
 
 		boolean dark = true;
 		for (int i = 0; i < 9; i++) {
@@ -75,7 +75,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 		dark = true;
 		for (int i = 0; i < 9 && i + (page * 9) < tile.excludedCC.size(); i++) {
 			Integer id = tile.excludedCC.get(i + (page * 9));
-            guiGraphics.drawString(minecraft.font, Integer.toString(id), guiLeft + 75 - (minecraft.font.width(Integer.toString(id)) / 2), guiTop + 16 + (i * 10), dark ? 0xFFFFFF : 0x000000, false);
+            guiGraphics.drawString(minecraft.font, Integer.toString(id), guiLeft + 75 - (minecraft.font.width(Integer.toString(id)) / 2), guiTop + 16 + (i * 10), dark ? 0xFFFFFFFF : 0xFF000000, false);
 			dark = !dark;
 			if (lastClickedX >= guiLeft + 10 && lastClickedX < right - 10 && lastClickedY >= guiTop + 15 + (i * 10) && lastClickedY < guiTop + 25 + (i * 10)) {
 				lastClickedX = -10000000;
@@ -94,7 +94,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 		}
         guiGraphics.fill(guiLeft + 42, bottom - 28, right - 42, bottom - 15, Color.getValue(Color.DARKER_GREY));
 
-        guiGraphics.drawString(minecraft.font, searchInput1 + searchInput2, guiLeft + 75 - (minecraft.font.width(searchInput1 + searchInput2) / 2), bottom - 25, 0xFFFFFF, false);
+        guiGraphics.drawString(minecraft.font, searchInput1 + searchInput2, guiLeft + 75 - (minecraft.font.width(searchInput1 + searchInput2) / 2), bottom - 25, 0xFFFFFFFF, false);
 		if (editSearch) {
 			int lineX = guiLeft + 75 + minecraft.font.width(searchInput1) - (minecraft.font.width(searchInput1 + searchInput2) / 2);
 			if (System.currentTimeMillis() - oldSystemTime > 500) {

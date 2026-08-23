@@ -1,5 +1,6 @@
 package logisticspipes.gui.hud.modules;
 
+import logisticspipes.renderer.HUDDrawContext;
 import java.util.ArrayList;
 import java.util.List;
 import logisticspipes.gui.hud.HudChassisPipe;
@@ -29,17 +30,17 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 	}
 
 	@Override
-	public void renderContent(GuiGraphics gg, boolean shifted) {
+	public void renderContent(HUDDrawContext context, boolean shifted) {
 		Minecraft mc = Minecraft.getInstance();
 		if (selected == 0) {
 			Direction d = module.getSneakyDirection();
 			String label = "Sneaky: " + (d == null ? "Default" : d.getName());
-			gg.drawString(mc.font, label, -mc.font.width(label) / 2, -30, 0xff404040, false);
+			context.drawString(mc.font, label, -mc.font.width(label) / 2, -30, 0xff404040, false);
 		} else {
-			ItemStackRenderer.renderItemIdentifierStackListIntoGui(gg,
+			ItemStackRenderer.renderItemIdentifierStackListIntoHud(context,
 					ItemIdentifierStack.getListFromInventory(module.getFilterInventory()), null, 0, HudChassisPipe.MODULE_CONTENT_LEFT, -32, 3, 9, 18,
 					18, 100.0F, DisplayAmount.NEVER, false, shifted);
-			gg.drawString(mc.font, "Filter", -mc.font.width("Filter") / 2, 25, 0xff404040, false);
+			context.drawString(mc.font, "Filter", -mc.font.width("Filter") / 2, 25, 0xff404040, false);
 		}
 	}
 
@@ -63,12 +64,12 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 		}
 
 		@Override
-		public void renderButton(GuiGraphics gg, boolean hover, boolean clicked, boolean shifted) {
+		public void renderButton(HUDDrawContext context, boolean hover, boolean clicked, boolean shifted) {
 			Minecraft mc = Minecraft.getInstance();
-			gg.pose().pushPose();
-			gg.pose().translate(0.0F, 0.0F, BUTTON_Z);
+			context.pose().pushPose();
+			context.pose().translate(0.0F, 0.0F, 0.0F);
 			LPGuiGraphics.drawGuiBackGround(
-                    gg,
+                    context,
                     posX * 2,
 					posY * 2,
 					(posX + sizeX) * 2,
@@ -88,11 +89,11 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 			} else {
 				color = Color.getValue(Color.DARK_GREY);
 			}
-			gg.pose().translate(0.0F, 0.0F, BUTTON_LABEL_Z);
+			context.pose().translate(0.0F, 0.0F, 0.0F);
 			int tx = -(mc.font.width(label) / 2) + posX + sizeX / 2;
 			int ty = posY + (sizeY - 8) / 2 + 2;
-			gg.drawString(mc.font, label, tx, ty, color, false);
-			gg.pose().popPose();
+			context.drawString(mc.font, label, tx, ty, color, false);
+			context.pose().popPose();
 		}
 
 		@Override

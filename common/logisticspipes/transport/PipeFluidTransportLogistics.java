@@ -1,5 +1,7 @@
 package logisticspipes.transport;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.pipe.PipeFluidUpdate;
@@ -131,31 +133,23 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.readFromNBT(nbttagcompound, provider);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
 
 		for (Direction direction : Direction.values()) {
-			if (nbttagcompound.contains("tank[" + direction.ordinal() + "]")) {
-				sideTanks[direction.ordinal()].readFromNBT(provider, nbttagcompound.getCompoundOrEmpty("tank[" + direction.ordinal() + "]"));
-			}
+			sideTanks[direction.ordinal()].deserialize(input.childOrEmpty("tank[" + direction.ordinal() + "]"));
 		}
-		if (nbttagcompound.contains("tank[middle]")) {
-			internalTank.readFromNBT(provider, nbttagcompound.getCompoundOrEmpty("tank[middle]"));
-		}
+		internalTank.deserialize(input.childOrEmpty("tank[middle]"));
 	}
 
 	@Override
-	public void writeToNBT(CompoundTag nbttagcompound, HolderLookup.Provider provider) {
-		super.writeToNBT(nbttagcompound, provider);
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
 
 		for (Direction direction : Direction.values()) {
-			CompoundTag subTag = new CompoundTag();
-			sideTanks[direction.ordinal()].writeToNBT(provider, subTag);
-			nbttagcompound.put("tank[" + direction.ordinal() + "]", subTag);
+			output.putChild("tank[" + direction.ordinal() + "]", sideTanks[direction.ordinal()]);
 		}
-		CompoundTag subTag = new CompoundTag();
-		internalTank.writeToNBT(provider, subTag);
-		nbttagcompound.put("tank[middle]", subTag);
+		output.putChild("tank[middle]", internalTank);
 	}
 
 	public int getInnerCapacity() {

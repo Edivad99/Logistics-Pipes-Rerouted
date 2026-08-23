@@ -41,9 +41,9 @@ public class GuiFluidBasic extends LogisticsBaseGuiScreen {
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
 		if (getMenu().getSlot(0).getItem().is(Items.AIR)) {
-			guiGraphics.drawString(minecraft.font, TextUtil.translate("gui.fluidbasic.Empty"), 50, 18, 0x404040, false);
+			guiGraphics.drawString(minecraft.font, TextUtil.translate("gui.fluidbasic.Empty"), 50, 18, 0xFF404040, false);
 		} else {
-			guiGraphics.drawString(minecraft.font, ItemIdentifier.get(getMenu().getSlot(0).getItem()).getFriendlyName(), 50, 18, 0x404040, false);
+			guiGraphics.drawString(minecraft.font, ItemIdentifier.get(getMenu().getSlot(0).getItem()).getFriendlyName(), 50, 18, 0xFF404040, false);
 		}
 	}
 }

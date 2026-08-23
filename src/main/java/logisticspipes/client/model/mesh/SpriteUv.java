@@ -2,8 +2,6 @@ package logisticspipes.client.model.mesh;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Maps normalized 0..1 UVs onto a sprite's rectangle in the texture atlas.
@@ -12,7 +10,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * geometry sample identically. Carried over from {@code LPTextureTransformationImpl}, whose
  * half-texel inset exists to stop mipmapped sampling bleeding into neighbouring sprites.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public final class SpriteUv {
 
     private SpriteUv() {

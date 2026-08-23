@@ -188,25 +188,25 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityStation"), 105, 10, 0x404040, false);
-		guiGraphics.drawString(font, tile.getSecId() == null ? "null" : tile.getSecId().toString(), 32, 25, 0x404040, false);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityStation"), 105, 10, 0xFF404040, false);
+		guiGraphics.drawString(font, tile.getSecId() == null ? "null" : tile.getSecId().toString(), 32, 25, 0xFF404040, false);
 		if (LogisticsPipes.isDEBUG()) {
-			guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "allowCCAccess") + ":", 10, 46, 0x404040, false);
-			guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "excludeIDs") + ":", 10, 61, 0x404040, false);
+			guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "allowCCAccess") + ":", 10, 46, 0xFF404040, false);
+			guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "excludeIDs") + ":", 10, 61, 0xFF404040, false);
 		}
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "pipeRemove") + ":", 10, 78, 0x404040, false);
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Player") + ":", 180, 127, 0x404040, false);
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityCards") + ":", 10, 127, 0x404040, false);
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Inventory") + ":", 10, 163, 0x404040, false);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "pipeRemove") + ":", 10, 78, 0xFF404040, false);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Player") + ":", 180, 127, 0xFF404040, false);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityCards") + ":", 10, 127, 0xFF404040, false);
+		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Inventory") + ":", 10, 163, 0xFF404040, false);
 
 		int pos = bottom - topPos - 95;
 		for (String player : players) {
 			if (player.contains(searchBar.getValue())) {
-				guiGraphics.drawString(font, player, 180, pos, 0x404040, false);
+				guiGraphics.drawString(font, player, 180, pos, 0xFF404040, false);
 				pos += 11;
 			}
 			if (pos > bottom - topPos - 12) {
-				guiGraphics.drawString(font, "...", 180, pos - 5, 0x404040, false);
+				guiGraphics.drawString(font, "...", 180, pos - 5, 0xFF404040, false);
 				break;
 			}
 		}

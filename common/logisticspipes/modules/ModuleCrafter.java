@@ -1,5 +1,6 @@
 package logisticspipes.modules;
 
+import net.minecraft.world.level.storage.ValueInput;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -616,8 +617,8 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public void readFromNBT(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-		super.readFromNBT(tag, provider);
+	public void deserialize(ValueInput input) {
+		super.deserialize(input);
 
 	}
 
@@ -762,11 +763,7 @@ public class ModuleCrafter extends LogisticsModule
 	 */
 	public boolean openAttachedGui(Player player) {
 		if (MainProxy.isClient(player.level())) {
-			if (player instanceof ServerPlayer) {
-				player.closeContainer();
-			} else if (player instanceof LocalPlayer) {
-				player.closeContainer();
-			}
+			player.closeContainer();
 			MainProxy.sendPacketToServer(
 					PacketHandler.getPacket(CraftingPipeOpenConnectedGuiPacket.class).setModulePos(this));
 			return false;
