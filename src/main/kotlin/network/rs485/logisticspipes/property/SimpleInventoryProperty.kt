@@ -37,14 +37,13 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.world.level.storage.ValueOutput
-import net.minecraft.world.level.storage.ValueInput
 import logisticspipes.utils.item.SimpleStackInventory
+import net.minecraft.core.BlockPos
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
-import network.rs485.logisticspipes.util.cycleMinecraftColorId
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.stream.Stream
 

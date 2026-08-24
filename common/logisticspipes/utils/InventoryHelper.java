@@ -1,12 +1,15 @@
 package logisticspipes.utils;
 
-import javax.annotation.Nullable;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import net.neoforged.neoforge.capabilities.Capabilities;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.transactor.ITransactor;
 import logisticspipes.utils.transactor.TransactorSimple;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public class InventoryHelper {

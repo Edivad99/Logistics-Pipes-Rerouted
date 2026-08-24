@@ -1,19 +1,17 @@
 package logisticspipes.renderer;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.client.fluid.FluidTintSource;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
@@ -24,14 +22,14 @@ import logisticspipes.utils.FluidIdentifier;
  *
  * <p>The item model switches to {@code fluid_container_filled} (via the
  * {@code logisticspipes:fluid} predicate registered here) when the stack holds a
- * fluid; that model's layer1 is LP1's window stencil, tinted by the item colour
+ * fluid; that model's layer1 is LP1's window stencil, tinted by the item color
  * handler below. LP1 drew the actual fluid sprite through the stencil; tinting the
- * stencil with the fluid's dominant colour (average of its still texture multiplied
- * by the fluid's tint colour) reads the same at item scale.</p>
+ * stencil with the fluid's dominant color (average of its still texture multiplied
+ * by the fluid's tint color) reads the same at item scale.</p>
  */
 public class FluidContainerRenderer {
 
-    private static final Map<Fluid, Integer> COLOR_CACHE = new HashMap<>();
+    private static final Map<Fluid, Integer> SPRITE_AVERAGE_CACHE = new HashMap<>();
 
     public static int getFluidColor(ItemStack stack) {
         FluidIdentifier ident = FluidIdentifier.get(stack);
@@ -39,30 +37,35 @@ public class FluidContainerRenderer {
             return 0xFFFFFFFF;
         }
         Fluid fluid = ident.getFluid();
-        Integer cached = COLOR_CACHE.get(fluid);
-        if (cached != null) {
-            return cached;
-        }
-        int color = 0xFFFFFFFF;
         try {
-            FluidStack fluidStack = ident.makeFluidStack(1000);
-            IClientFluidTypeExtensions ext = IClientFluidTypeExtensions.of(fluid);
-            color = multiplyColors(ext.getTintColor(fluidStack), averageTextureColor(ext.getStillTexture(fluidStack)));
+            FluidState state = fluid.defaultFluidState();
+            FluidModel model = Minecraft.getInstance().getModelManager()
+                .getFluidStateModelSet().get(state);
+            int color = SPRITE_AVERAGE_CACHE.computeIfAbsent(fluid,
+                ignored -> averageSpriteColor(model.stillMaterial().sprite()));
+            FluidTintSource tint = model.fluidTintSource();
+            if (tint != null) {
+                color = multiplyColors(color, tintColor(tint, state));
+            }
+            return color;
         } catch (Exception ignored) {
             // Defensive: a broken third-party fluid must not crash item rendering.
-        }
-        COLOR_CACHE.put(fluid, color);
-        return color;
-    }
-
-    private static int averageTextureColor(Identifier spriteName) {
-        Identifier file = Identifier.fromNamespaceAndPath(spriteName.getNamespace(),
-            "textures/" + spriteName.getPath() + ".png");
-        Resource resource = Minecraft.getInstance().getResourceManager().getResource(file).orElse(null);
-        if (resource == null) {
             return 0xFFFFFFFF;
         }
-        try (InputStream in = resource.open(); NativeImage image = NativeImage.read(in)) {
+    }
+
+    private static int tintColor(FluidTintSource tint, FluidState state) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level != null && minecraft.player != null) {
+            return tint.colorInWorld(state.createLegacyBlock(), minecraft.level,
+                minecraft.player.blockPosition());
+        }
+        return tint.color(state);
+    }
+
+    private static int averageSpriteColor(TextureAtlasSprite sprite) {
+        NativeImage image = sprite.contents().getOriginalImage();
+        try {
             long r = 0, g = 0, b = 0, n = 0;
             for (int y = 0; y < image.getHeight(); y++) {
                 for (int x = 0; x < image.getWidth(); x++) {
@@ -80,7 +83,7 @@ public class FluidContainerRenderer {
                 return 0xFFFFFFFF;
             }
             return 0xFF000000 | ((int) (r / n) << 16) | ((int) (g / n) << 8) | (int) (b / n);
-        } catch (IOException e) {
+        } catch (Exception e) {
             return 0xFFFFFFFF;
         }
     }

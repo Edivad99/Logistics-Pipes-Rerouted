@@ -1,18 +1,19 @@
 package logisticspipes.routing.debug;
 
-import logisticspipes.renderer.HUDDrawContext;
+import net.minecraft.client.Minecraft;
+
 import logisticspipes.gui.hud.BasicHUDGui;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateUntrace;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.debug.ClientViewController.DebugInformation;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
-import net.minecraft.client.Minecraft;
 
 public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDisplayRenderer {
 

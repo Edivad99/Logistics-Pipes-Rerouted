@@ -37,12 +37,12 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.world.level.storage.ValueOutput
-import net.minecraft.world.level.storage.ValueInput
-import logisticspipes.world.item.LPItems
-import logisticspipes.world.item.ItemModule
 import logisticspipes.modules.LogisticsModule
+import logisticspipes.world.item.ItemModule
+import logisticspipes.world.item.LPItems
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
 class SlottedModuleListProperty(slots: Int, override val tagKey: String) :
     ListProperty<SlottedModule>(MutableList(slots) { SlottedModule(it, null) }) {

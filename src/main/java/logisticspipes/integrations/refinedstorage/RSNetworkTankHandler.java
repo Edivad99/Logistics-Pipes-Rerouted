@@ -1,7 +1,6 @@
 package logisticspipes.integrations.refinedstorage;
 
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,6 +11,7 @@ import com.refinedmods.refinedstorage.api.core.Action;
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
 import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ISpecialTankUtilProvider;
 import logisticspipes.interfaces.ITankUtil;

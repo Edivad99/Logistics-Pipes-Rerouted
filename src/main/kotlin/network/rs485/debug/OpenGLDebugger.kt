@@ -37,8 +37,8 @@
 
 package network.rs485.debug
 
-import com.google.common.reflect.Reflection
 import logisticspipes.LogisticsPipes
+import com.google.common.reflect.Reflection
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL31
 import org.lwjgl.opengl.GL32

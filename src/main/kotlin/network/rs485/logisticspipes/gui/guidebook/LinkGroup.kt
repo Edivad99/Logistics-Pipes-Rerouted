@@ -37,11 +37,10 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.utils.MinecraftColor
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.markdown.*
-import logisticspipes.utils.gui.LPGuiGraphics
-import net.minecraft.client.gui.GuiGraphics
+import logisticspipes.utils.MinecraftColor
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 interface LinkInteractable : GuideBookMouseInteractable {
     /**
@@ -57,7 +56,7 @@ interface LinkInteractable : GuideBookMouseInteractable {
     /**
      * Update mouse state for any state changes.
      */
-    fun updateState(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, visibleArea: IRectangle)
+    fun updateState(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, visibleArea: IRectangle)
 
 }
 
@@ -86,7 +85,7 @@ class LinkGroup(private val link: Link) : LinkInteractable {
                 it.isMouseHovering(mouseX, mouseY)
             }
 
-    override fun updateState(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, visibleArea: IRectangle) =
+    override fun updateState(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, visibleArea: IRectangle) =
             isMouseHovering(mouseX, mouseY).let { hovered = it }
 
     override fun inBookMouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int, guideActionListener: GuiGuideBook.ActionListener?): Boolean {

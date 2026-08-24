@@ -3,12 +3,13 @@ package logisticspipes.ticks;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.transport.LPTravelingItem;
-import logisticspipes.utils.tuples.Pair;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
+import logisticspipes.LogisticsPipes;
+import logisticspipes.transport.LPTravelingItem;
+import logisticspipes.utils.tuples.Pair;
 
 public class QueuedTasks {
 

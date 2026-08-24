@@ -3,8 +3,8 @@ package logisticspipes.world.item;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
@@ -15,7 +15,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
-
 
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import network.rs485.logisticspipes.util.TextUtil;

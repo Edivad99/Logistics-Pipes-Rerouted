@@ -9,6 +9,10 @@ package logisticspipes.gui;
 
 import java.io.IOException;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
 import logisticspipes.pipes.SatelliteNamingResult;
@@ -18,9 +22,6 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -34,8 +35,8 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 
 	public GuiSatellitePipe(SatellitePipe satellitePipe) {
 		super(new DummyContainer(null, null));
-		imageWidth = 116;
-		imageHeight = 77;
+		panelWidth = 116;
+		panelHeight = 77;
 		this.satellitePipe = satellitePipe;
 	}
 
@@ -58,21 +59,21 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 		drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0xFF404040);
 		String name = TextUtil.getTrimmedString(satellitePipe.getSatellitePipeName(), 100, minecraft.font, "...");
 		int yOffset = 0;
 		if (!response.isEmpty()) {
-			drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.naming_result." + response), imageWidth / 2, 30, response.equals("success") ? 0xFF404040 : 0xFF5c1111);
+			drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.naming_result." + response), panelWidth / 2, 30, response.equals("success") ? 0xFF404040 : 0xFF5c1111);
 			yOffset = 4;
 		}
-		drawCenteredString(guiGraphics, name, imageWidth / 2, 24 - yOffset, 0xFF404040);
+		drawCenteredString(guiGraphics, name, panelWidth / 2, 24 - yOffset, 0xFF404040);
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		super.renderBg(guiGraphics, f, x, y);
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int x, int y, float f) {
+		super.extractGuiBackground(guiGraphics, x, y, f);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 	}
 
@@ -90,7 +91,7 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (!input.handleKey(c, i)) {
 			return super.charTyped(event);
 		}

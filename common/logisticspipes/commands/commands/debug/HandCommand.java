@@ -2,10 +2,11 @@ package logisticspipes.commands.commands.debug;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
-import logisticspipes.commands.abstracts.ICommandHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import logisticspipes.commands.abstracts.ICommandHandler;
 
 public class HandCommand implements ICommandHandler {
 
@@ -30,7 +31,7 @@ public class HandCommand implements ICommandHandler {
 		ItemStack item = player.getInventory().getItem(player.getInventory().getSelectedSlot());
 		if (!item.isEmpty()) {
 			DebugGuiController.instance().startWatchingOf(item, player);
-			sender.displayClientMessage(Component.literal("Starting HandDebuging"), false);
+			sender.sendSystemMessage(Component.literal("Starting HandDebuging"));
 		}
 	}
 }

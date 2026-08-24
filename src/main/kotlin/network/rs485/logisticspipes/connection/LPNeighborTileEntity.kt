@@ -45,22 +45,16 @@ import logisticspipes.proxy.SimpleServiceLocator
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.entity.BlockEntity
 import java.util.*
-import javax.annotation.Nonnull
-import javax.annotation.Nullable
 
-@Nullable
 fun <T : BlockEntity> NeighborTileEntity<T>.getInventoryUtil(): IInventoryUtil? =
     SimpleServiceLocator.inventoryUtilFactory.getInventoryUtil(tileEntity, getOurDirection())
 
-@Nullable
 fun <T : BlockEntity> NeighborTileEntity<T>.getTankUtil(): ITankUtil? =
     PipeFluidUtil.getTankUtilForTE(tileEntity, getOurDirection())
 
-@Nonnull
 fun <T : BlockEntity> NeighborTileEntity<T>.sneakyInsertion(): LPNeighborTileEntitySneakyInsertion<T> =
     LPNeighborTileEntitySneakyInsertion(tileEntity, direction)
 
-@Nonnull
 fun <T : BlockEntity, C : T> NeighborTileEntity<T>.optionalIs(clazz: Class<C>): Optional<LPNeighborTileEntity<C>> =
     if (clazz.isInstance(tileEntity)) {
         Optional.of(LPNeighborTileEntity(clazz.cast(tileEntity), direction))

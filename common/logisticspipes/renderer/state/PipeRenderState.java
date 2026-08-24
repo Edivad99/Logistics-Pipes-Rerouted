@@ -2,16 +2,18 @@ package logisticspipes.renderer.state;
 
 import java.util.Arrays;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import logisticspipes.interfaces.IClientState;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter; // was BlockGetter
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
+import logisticspipes.interfaces.IClientState;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.CoordinateUtils;

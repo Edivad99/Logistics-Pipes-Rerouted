@@ -37,17 +37,6 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import net.minecraft.client.input.MouseButtonEvent
-import logisticspipes.world.item.LPItems
-import logisticspipes.LogisticsPipes
-import logisticspipes.integrations.jei.JEIPluginLoader
-import logisticspipes.utils.MinecraftColor
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.screens.ConfirmLinkScreen
-import net.minecraft.client.gui.screens.Screen
-import net.minecraft.network.chat.Component
-import net.minecraft.world.item.ItemStack
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
@@ -59,6 +48,16 @@ import network.rs485.logisticspipes.guidebook.ItemGuideBook
 import network.rs485.logisticspipes.util.cycleMinecraftColorId
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import network.rs485.markdown.TextFormat
+import logisticspipes.LogisticsPipes
+import logisticspipes.integrations.jei.JEIPluginLoader
+import logisticspipes.utils.MinecraftColor
+import logisticspipes.world.item.LPItems
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.gui.screens.ConfirmLinkScreen
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.network.chat.Component
+import net.minecraft.world.item.ItemStack
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.*
@@ -249,9 +248,11 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
         }
     }
 
-    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        // Darken the world behind the book (equivalent of LP1's drawDefaultBackground).
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick)
+    // 26.1.2 renamed the whole GUI draw path from render* to extract*: a screen no longer paints,
+    // it extracts render states that the GUI renderer submits later. The darkening behind the book
+    // is gone from here too -- Screen#extractRenderStateWithTooltipAndSubtitles calls
+    // extractBackground before this, so calling it by hand would draw it twice.
+    override fun extractRenderState(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
 
         // Background panel (equivalent of LP1's GuiDrawer.drawGuideBookBackground): a tiled dark
         // pattern inset 16px from the outer rectangle, so it sits behind the 24px frame border.
@@ -267,13 +268,13 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
         }
 
         // Inactive bookmark tab bodies render under the frame (LP1 drew them before the frame).
-        tabButtons.forEach { it.render(guiGraphics, mouseX, mouseY, partialTick) }
+        tabButtons.forEach { it.extractRenderState(guiGraphics, mouseX, mouseY, partialTick) }
 
         // Frame and slider rail.
         GuideBookGraphics.blitGuideBookFrame(guiGraphics, outerGui, sliderSeparator)
 
         // Remaining registered widgets (slider, home, add/remove bookmark) render over the frame.
-        renderables.forEach { it.render(guiGraphics, mouseX, mouseY, partialTick) }
+        renderables.forEach { it.extractRenderState(guiGraphics, mouseX, mouseY, partialTick) }
 
         // Foreground pass over the frame (LP1's drawButtonForegroundLayer, in reversed order):
         // the active tab's body + colored circle and the tab tooltips, which must not be
@@ -299,7 +300,7 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
         drawTitle(guiGraphics)
     }
 
-    private fun drawTitle(guiGraphics: GuiGraphics) {
+    private fun drawTitle(guiGraphics: GuiGraphicsExtractor) {
         GuiDrawer.lpFontRenderer.drawCenteredString(
             guiGraphics,
             state.currentPage.title,

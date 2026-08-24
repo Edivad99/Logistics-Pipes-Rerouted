@@ -1,8 +1,8 @@
 package logisticspipes.client.renderer.blockentity;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 

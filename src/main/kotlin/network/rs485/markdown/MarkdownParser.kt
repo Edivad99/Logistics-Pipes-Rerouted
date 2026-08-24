@@ -44,7 +44,6 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.stream.IntStream
-import kotlin.collections.ArrayList
 
 typealias WordCreator = (String) -> Word?
 typealias TextToElements = (CharSequence) -> List<InlineElement>

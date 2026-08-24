@@ -8,19 +8,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.PopupGuiProvider;
 import logisticspipes.network.packets.gui.OpenGUIPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolverUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import network.rs485.logisticspipes.util.LPDataIOWrapper;
 
 public class NewGuiHandler {

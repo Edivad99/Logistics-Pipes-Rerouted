@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.world
 
+import network.rs485.logisticspipes.connection.LPNeighborTileEntity
 import logisticspipes.LogisticsPipes
 import logisticspipes.proxy.MainProxy
 import logisticspipes.proxy.SimpleServiceLocator
@@ -44,7 +45,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
-import network.rs485.logisticspipes.connection.LPNeighborTileEntity
 
 data class WorldCoordinatesWrapper(private val level: Level, private val pos: BlockPos) {
     constructor(tileEntity: BlockEntity) : this(tileEntity.level!!, tileEntity.blockPos)

@@ -2,6 +2,17 @@ package logisticspipes.network.packets.orderer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.orderer.GuiOrderer;
 import logisticspipes.gui.orderer.GuiRequestTable;
@@ -11,13 +22,6 @@ import logisticspipes.request.resources.IResource.ColorCode;
 import logisticspipes.request.resources.ResourceNetwork;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.string.ChatColor;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -57,13 +61,13 @@ public class MissingItems extends ModernPacket {
 					.handleRequestAnswer(getItems(), isFlag(), (GuiRequestTable) Minecraft.getInstance().screen, player);
 		} else if (isFlag()) {
 			for (IResource item : items) {
-				player.displayClientMessage(Component.literal(ChatColor.RED + "Missing: " + item.getDisplayText(ColorCode.MISSING)), false);
+				player.sendSystemMessage(Component.literal(ChatColor.RED + "Missing: " + item.getDisplayText(ColorCode.MISSING)));
 			}
 		} else {
 			for (IResource item : items) {
-				player.displayClientMessage(Component.literal(ChatColor.GREEN + "Requested: " + item.getDisplayText(ColorCode.SUCCESS)), false);
+				player.sendSystemMessage(Component.literal(ChatColor.GREEN + "Requested: " + item.getDisplayText(ColorCode.SUCCESS)));
 			}
-			player.displayClientMessage(Component.literal(ChatColor.GREEN + "Request successful!"), false);
+			player.sendSystemMessage(Component.literal(ChatColor.GREEN + "Request successful!"));
 		}
 	}
 

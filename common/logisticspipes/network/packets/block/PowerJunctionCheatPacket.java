@@ -1,11 +1,12 @@
 package logisticspipes.network.packets.block;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.LogisticsPipes;
-import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 
 @StaticResolve
 public class PowerJunctionCheatPacket extends CoordinatesPacket {

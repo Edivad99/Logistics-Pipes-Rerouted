@@ -2,12 +2,11 @@ package logisticspipes.network.guis.pipe;
 
 import java.util.Objects;
 import java.util.UUID;
-import logisticspipes.world.item.LPItems;
-import logisticspipes.world.item.component.LPDataComponents;
+
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.gui.GuiPipeController;
 import logisticspipes.interfaces.IGuiOpenControler;
-import logisticspipes.world.item.ItemUpgrade;
-import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -17,7 +16,10 @@ import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.item.ItemUpgrade;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.LogisticsItemCard;
+import logisticspipes.world.item.component.LPDataComponents;
 
 @StaticResolve
 public class PipeController extends CoordinatesGuiProvider {

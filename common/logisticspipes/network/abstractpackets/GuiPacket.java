@@ -1,9 +1,10 @@
 package logisticspipes.network.abstractpackets;
 
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import logisticspipes.utils.gui.SubGuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+
+import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.utils.gui.SubGuiScreen;
 
 public abstract class GuiPacket extends ModernPacket {
 

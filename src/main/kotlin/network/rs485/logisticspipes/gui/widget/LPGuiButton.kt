@@ -37,11 +37,11 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.gui.guidebook.MouseInteractable
 import network.rs485.logisticspipes.util.IRectangle
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 abstract class LPGuiButton(
     parent: Drawable,
@@ -75,7 +75,7 @@ abstract class LPGuiButton(
         setSize(minWidth, minHeight)
     }
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
         if (visible) {
             helper.drawBorderedTile(

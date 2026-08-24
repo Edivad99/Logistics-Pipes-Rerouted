@@ -2,9 +2,9 @@ package logisticspipes.interfaces;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import org.jspecify.annotations.Nullable;
 
 public interface ISpecialTankHandler {
 

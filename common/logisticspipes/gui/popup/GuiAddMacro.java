@@ -3,6 +3,18 @@ package logisticspipes.gui.popup;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.orderer.DiscContent;
@@ -17,16 +29,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 
 public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 
@@ -174,14 +176,14 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	// Deferred: scroll wheel handling not wired
 
 	@Override
-	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float par3) {
 		if (tooltip != null) {
 			guiGraphics.setTooltipForNextFrame(minecraft.font, tooltip.stack(), tooltip.screenX(), tooltip.screenY());
 		}
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		int panelXSize = 20;
 		int panelYSize = 20;
 
@@ -316,9 +318,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, false);
-		guiGraphics.drawString(minecraft.font, "Add Macro", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +6, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, "Add Macro", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +6, 0xFF404040, false);
 
 		maxPageAll = (int) Math.floor((getSearchedItemNumber(diskProvider.getItemDisplay().allItems) - 1) / 45F);
 		if (maxPageAll == -1) {
@@ -329,9 +331,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 		}
 
 		String pageString1 = "Page " + (pageAll + 1) + " / " + (maxPageAll + 1);
-        guiGraphics.drawString(minecraft.font, pageString1, right - 47 - minecraft.font.width(pageString1) / 2, guiTop +6, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, pageString1, right - 47 - minecraft.font.width(pageString1) / 2, guiTop +6, 0xFF404040, false);
 
-        guiGraphics.drawString(minecraft.font, "Macro Items", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +136, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, "Macro Items", guiLeft +minecraft.font.width("Add Macro") / 2, guiTop +136, 0xFF404040, false);
 
 		maxPageMacro = (int) Math.floor((getSearchedItemNumber(macroItems) - 1) / 9F);
 		if (maxPageMacro == -1) {
@@ -342,9 +344,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 		}
 
 		String pageString2 = "Page " + (pageMacro + 1) + " / " + (maxPageMacro + 1);
-        guiGraphics.drawString(minecraft.font, pageString2, right - 47 - minecraft.font.width(pageString2) / 2, guiTop +136, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, pageString2, right - 47 - minecraft.font.width(pageString2) / 2, guiTop +136, 0xFF404040, false);
 
-        guiGraphics.drawString(minecraft.font, "Search:", guiLeft +8, guiTop +122, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, "Search:", guiLeft +8, guiTop +122, 0xFF404040, false);
 
 		if (editSearch) {
             guiGraphics.fill(guiLeft +50, bottom - 66, right - 10, bottom - 83, Color.getValue(Color.BLACK));
@@ -354,7 +356,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 		}
         guiGraphics.fill(guiLeft +52, bottom - 68, right - 12, bottom - 81, Color.getValue(Color.DARKER_GREY));
 
-        guiGraphics.drawString(minecraft.font, Search1 + Search2, guiLeft +55, guiTop +122, 0xFFFFFFFF, false);
+        guiGraphics.text(minecraft.font, Search1 + Search2, guiLeft +55, guiTop +122, 0xFFFFFFFF, false);
 
 		if (editSearch) {
 			int lineX = guiLeft +55 + minecraft.font.width(Search1);
@@ -367,7 +369,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			}
 		}
 
-        guiGraphics.drawString(minecraft.font, "Name:", guiLeft +8, bottom - 20, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, "Name:", guiLeft +8, bottom - 20, 0xFF404040, false);
 
 		if (editName) {
 			guiGraphics.fill(guiLeft +36, bottom - 8, right - 40, bottom - 25, Color.getValue(Color.BLACK));
@@ -377,7 +379,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 		}
         guiGraphics.fill(guiLeft +38, bottom - 10, right - 42, bottom - 23, Color.getValue(Color.DARKER_GREY));
 
-        guiGraphics.drawString(minecraft.font, name1 + name2, guiLeft +41, bottom - 20, 0xFFFFFFFF, false);
+        guiGraphics.text(minecraft.font, name1 + name2, guiLeft +41, bottom - 20, 0xFFFFFFFF, false);
 
 		if (editName) {
 			int lineX = guiLeft +41 + minecraft.font.width(name1);
@@ -461,7 +463,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (editName) {
 			if (c == 13) {
 				editName = false;

@@ -1,15 +1,14 @@
 package logisticspipes.gui.hud;
 
-import logisticspipes.renderer.HUDDrawContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IPowerLevelDisplay;
+import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.gui.LPGuiGraphics;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
 
 public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer {
 

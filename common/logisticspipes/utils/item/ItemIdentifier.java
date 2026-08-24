@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
 
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentPatch;
@@ -42,6 +41,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.CreativeModeTab;
@@ -53,13 +53,13 @@ import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
 
 import com.mojang.serialization.Codec;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.WeakInternCache;
-import net.minecraft.resources.ResourceKey;
+import logisticspipes.world.item.LogisticsFluidContainer;
 
 // net.minecraft.world.item.CreativeModeTab removed — use CreativeModeTab
 
@@ -378,12 +378,12 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
      * component; this accessor exists so consumers do not have to reach into the patch themselves.
      */
     public int getDamageValue() {
-        Optional<? extends Integer> damage = components.get(DataComponents.DAMAGE);
+        Optional<? extends Integer> damage = components.getPatch(DataComponents.DAMAGE);
         return damage != null && damage.isPresent() ? damage.get() : 0;
     }
 
     public boolean hasCustomData() {
-        Optional<? extends CustomData> data = components.get(DataComponents.CUSTOM_DATA);
+        Optional<? extends CustomData> data = components.getPatch(DataComponents.CUSTOM_DATA);
         return data != null && data.isPresent();
     }
 
@@ -393,7 +393,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
      */
     @Nullable
     public CompoundTag getCustomDataTag() {
-        Optional<? extends CustomData> data = components.get(DataComponents.CUSTOM_DATA);
+        Optional<? extends CustomData> data = components.getPatch(DataComponents.CUSTOM_DATA);
         return data != null && data.isPresent() ? data.get().copyTag() : null;
     }
 

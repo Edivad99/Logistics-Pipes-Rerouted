@@ -1,7 +1,5 @@
 package logisticspipes.integrations.ae2;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -12,6 +10,7 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.storage.IStorageService;
 import appeng.api.storage.MEStorage;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Finds the Applied Energistics network behind a block, shared by the item and fluid handlers.

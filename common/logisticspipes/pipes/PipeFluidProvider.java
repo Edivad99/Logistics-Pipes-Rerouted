@@ -7,6 +7,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import net.neoforged.neoforge.fluids.FluidStack;
+
 import logisticspipes.interfaces.ISpecialTankAccessHandler;
 import logisticspipes.interfaces.ISpecialTankUtil;
 import logisticspipes.interfaces.ITankUtil;
@@ -32,9 +37,6 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.fluids.FluidStack;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 
 public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids {

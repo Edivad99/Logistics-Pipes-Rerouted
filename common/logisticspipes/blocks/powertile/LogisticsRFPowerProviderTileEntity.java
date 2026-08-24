@@ -1,29 +1,26 @@
 package logisticspipes.blocks.powertile;
 
-import net.minecraft.world.level.storage.ValueOutput;
-import javax.annotation.Nullable;
-
-import logisticspipes.LPConfigs;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.energy.DelegatingEnergyHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LPConfigs;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
 public class LogisticsRFPowerProviderTileEntity extends LogisticsPowerProviderTileEntity {
 

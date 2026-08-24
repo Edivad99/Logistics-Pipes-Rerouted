@@ -7,8 +7,6 @@
 
 package logisticspipes.pipes;
 
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,12 +18,28 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 
-import logisticspipes.particle.Particles;
-import logisticspipes.world.item.LPItems;
-import logisticspipes.LogisticsPipes;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.LPConfigs;
+import logisticspipes.LogisticsPipes;
 import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IBufferItems;
@@ -42,7 +56,6 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
-import logisticspipes.world.item.ItemModule;
 import logisticspipes.logisticspipes.ChassisTransportLayer;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.logisticspipes.TransportLayer;
@@ -56,6 +69,7 @@ import logisticspipes.network.packets.pipe.ChassisOrientationPacket;
 import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
 import logisticspipes.network.packets.pipe.RequestChassisOrientationPacket;
 import logisticspipes.network.packets.pipe.SendQueueContent;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.proxy.MainProxy;
@@ -82,29 +96,19 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import lombok.Getter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import network.rs485.logisticspipes.connection.*;
+import logisticspipes.world.item.ItemModule;
+import logisticspipes.world.item.LPItems;
+import network.rs485.logisticspipes.connection.Adjacent;
+import network.rs485.logisticspipes.connection.ConnectionType;
+import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import network.rs485.logisticspipes.connection.NoAdjacent;
+import network.rs485.logisticspipes.connection.SingleAdjacent;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.AdjacentProperty;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
 import network.rs485.logisticspipes.property.SlottedModule;
-import org.jetbrains.annotations.NotNull;
 
 @CCType(name = "LogisticsChassiePipe")
 public abstract class PipeLogisticsChassis extends CoreRoutedPipe
@@ -254,7 +258,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-    public Container getModuleInventory(HolderLookup.@NotNull Provider provider) {
+    public Container getModuleInventory(HolderLookup.Provider provider) {
 		updateModuleInventory(provider);
 		return moduleInventory;
 	}
@@ -480,7 +484,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				if (settings == null || settings.openGui) {
 					((PipeLogisticsChassis) container.pipe).nextOrientation();
 				} else {
-					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
+					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			SimpleServiceLocator.configToolHandler.wrenchUsed(entityplayer, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND), container);
@@ -492,7 +496,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				if (settings == null || settings.openGui) {
 					return tryInsertingModule(entityplayer);
 				} else {
-					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
+					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			return true;

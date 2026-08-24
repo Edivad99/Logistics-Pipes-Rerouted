@@ -37,10 +37,10 @@
 
 package network.rs485.grow
 
-import kotlinx.coroutines.*
 import logisticspipes.LogisticsPipes
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.*
 
 object ServerTickDispatcher : CoroutineDispatcher() {
     private val coroutineQueue = ConcurrentLinkedQueue<Runnable>()

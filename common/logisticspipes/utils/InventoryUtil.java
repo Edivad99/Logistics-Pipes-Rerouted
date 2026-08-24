@@ -12,13 +12,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import logisticspipes.interfaces.IInventoryUtil;
-import logisticspipes.interfaces.ISpecialInsertion;
-import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.world.item.ItemStack;
+
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
+
+import logisticspipes.interfaces.IInventoryUtil;
+import logisticspipes.interfaces.ISpecialInsertion;
+import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.transfer.ItemHandlers;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 

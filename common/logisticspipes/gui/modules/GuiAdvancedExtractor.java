@@ -7,7 +7,10 @@
 
 package logisticspipes.gui.modules;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.world.Container;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.module.AdvancedExtractorSneakyGuiPacket;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
@@ -15,9 +18,6 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
@@ -37,8 +37,8 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 
 		itemsIncludedOverlay = propertyLayer.overlay(this.advancedExtractor.getItemsIncluded());
 
-		imageWidth = 175;
-		imageHeight = 142;
+		panelWidth = 175;
+		panelHeight = 142;
 	}
 	private static DummyContainer buildDummy(Container playerInventory, AsyncAdvancedExtractor advancedExtractor) {
 		DummyContainer dummy = new DummyContainer(playerInventory, advancedExtractor.getFilterInventory());
@@ -76,17 +76,17 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, advancedExtractor.getFilterInventory().getName(), 8, 6, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		guiGraphics.text(minecraft.font, advancedExtractor.getFilterInventory().getName(), 8, 6, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, "Inventory", 8, panelHeight - 92, 0xFF404040, false);
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int x, int y, float f) {
 		// texture: LogisticsBaseGuiScreen.ITEMSINK
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LogisticsBaseGuiScreen.ITEMSINK, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LogisticsBaseGuiScreen.ITEMSINK, j, k, 0.0f, 0.0f, panelWidth, panelHeight, 256, 256);
 	}
 
 }

@@ -89,8 +89,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
                         sign.addSignTo(pipe, facing, player);
                         return InteractionResult.SUCCESS;
                     } else {
-                        player.displayClientMessage(Component.literal("This sign type can't be placed on this pipe."),
-                            true);
+                        player.sendOverlayMessage(Component.literal("This sign type can't be placed on this pipe."));
                         return InteractionResult.FAIL;
                     }
                 } catch (InstantiationException | IllegalAccessException e) {

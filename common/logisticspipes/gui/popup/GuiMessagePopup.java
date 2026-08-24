@@ -2,7 +2,7 @@ package logisticspipes.gui.popup;
 
 
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -37,7 +37,7 @@ public class GuiMessagePopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		if (mWidth == 0) {
 			int lWidth = 0;
 			for (String msg : text) {
@@ -56,7 +56,7 @@ public class GuiMessagePopup extends SubGuiScreen {
 			}
 			String msg = TextUtil.getTrimmedString(text[i], mWidth - 10, font, "");
 			int stringWidth = minecraft.font.width(msg);
-            guiGraphics.drawString(minecraft.font, msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0xFF404040, false);
+            guiGraphics.text(minecraft.font, msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0xFF404040, false);
 		}
 	}
 

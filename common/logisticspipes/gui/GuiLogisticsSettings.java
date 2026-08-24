@@ -1,5 +1,8 @@
 package logisticspipes.gui;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.PacketHandler;
@@ -9,10 +12,6 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -46,15 +45,15 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 
 			ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 			if (renderDistance == null) {
-				renderDistance = new InputBar(font, getBaseScreen(), getGuiLeft() + 15, getGuiTop() + 75, 30, 15, false, true, InputBar.Align.RIGHT);
+				renderDistance = new InputBar(font, getBaseScreen(), getLeftPos() + 15, getTopPos() + 75, 30, 15, false, true, InputBar.Align.RIGHT);
 				renderDistance.setInteger(config.getRenderPipeDistance());
 			}
-			renderDistance.reposition(getGuiLeft() + 15, getGuiTop() + 80, 30, 15);
+			renderDistance.reposition(getLeftPos() + 15, getTopPos() + 80, 30, 15);
 			if (contentRenderDistance == null) {
-				contentRenderDistance = new InputBar(font, getBaseScreen(), getGuiLeft() + 15, getGuiTop() + 105, 30, 15, false, true, InputBar.Align.RIGHT);
+				contentRenderDistance = new InputBar(font, getBaseScreen(), getLeftPos() + 15, getTopPos() + 105, 30, 15, false, true, InputBar.Align.RIGHT);
 				contentRenderDistance.setInteger(config.getRenderPipeContentDistance());
 			}
-			contentRenderDistance.reposition(getGuiLeft() + 15, getGuiTop() + 110, 30, 15);
+			contentRenderDistance.reposition(getLeftPos() + 15, getTopPos() + 110, 30, 15);
             GuiLogisticsSettings.this.addRenderableWidget(renderDistance);
             GuiLogisticsSettings.this.addRenderableWidget(contentRenderDistance);
 			//useNewRendererButton = (GuiCheckBox) addRenderableWidget(new GuiCheckBox(0, leftPos + 15, topPos + 30, 16, 16, config.isUseNewRenderer()));
@@ -62,12 +61,12 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
 			// Deferred: tab icon requires an LP item texture selection; left blank for now.
 		}
 
 		@Override
-		public void renderBackgroundContent(GuiGraphics guiGraphics) {}
+		public void renderBackgroundContent(GuiGraphicsExtractor guiGraphics) {}
 
 		@Override
 		public void buttonClicked(AbstractButton button) {
@@ -80,11 +79,11 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderForegroundContent(GuiGraphics guiGraphics) {
-			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0xFF404040, false);
-			//guiGraphics.drawString(font, StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0xFF404040, false);
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 70, 0xFF404040, false);
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 100, 0xFF404040, false);
+		public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
+			//guiGraphics.text(font, StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0xFF404040, false);
+			//guiGraphics.text(font, StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0xFF404040, false);
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 70, 0xFF404040, false);
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 100, 0xFF404040, false);
 		}
 
 		@Override

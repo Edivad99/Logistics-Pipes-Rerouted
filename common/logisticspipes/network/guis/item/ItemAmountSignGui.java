@@ -1,19 +1,22 @@
 package logisticspipes.network.guis.item;
 
 import java.util.Objects;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.gui.ItemAmountSignCreationGui;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.network.abstractguis.GuiProvider;
+import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.signs.ItemAmountPipeSign;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

@@ -37,9 +37,9 @@
 
 package network.rs485.logisticspipes.connection
 
+import net.neoforged.fml.ModList
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.HopperBlockEntity
-import net.neoforged.fml.ModList
 
 class PipeInventoryConnectionChecker {
     private val allowedConnectionClasses = mutableSetOf<Class<*>>()

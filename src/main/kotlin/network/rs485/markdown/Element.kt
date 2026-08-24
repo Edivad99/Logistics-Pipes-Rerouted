@@ -37,15 +37,15 @@
 
 package network.rs485.markdown
 
-import logisticspipes.world.item.LPItems
+import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.MinecraftColor
+import logisticspipes.world.item.LPItems
 import com.google.common.collect.ImmutableSet
-import logisticspipes.LPConstants
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.resources.Identifier
 import java.util.*
 
 data class InlineDrawableState(var format: Set<TextFormat>, var color: Int, var link: Link?)

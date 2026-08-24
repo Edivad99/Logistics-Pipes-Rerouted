@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.BooleanCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -16,7 +19,6 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class RequestSatellitePipeListPacket extends BooleanCoordinatesPacket {

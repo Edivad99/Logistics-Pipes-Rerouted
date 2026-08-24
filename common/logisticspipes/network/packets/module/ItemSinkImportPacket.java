@@ -2,7 +2,14 @@ package logisticspipes.network.packets.module;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -10,10 +17,6 @@ import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifier;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.gui.module.ItemSinkGui;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;

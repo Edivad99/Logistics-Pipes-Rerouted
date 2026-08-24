@@ -10,7 +10,7 @@ package logisticspipes.utils.gui;
 
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 
 import logisticspipes.utils.Color;
@@ -27,7 +27,7 @@ public final class SimpleGraphics {
      * Takes colors as enum values from {@link Color}.
      *
      */
-    public static void drawHorizontalLine(GuiGraphics guiGraphics, int x1, int x2, int y, Color color, int thickness) {
+    public static void drawHorizontalLine(GuiGraphicsExtractor guiGraphics, int x1, int x2, int y, Color color, int thickness) {
         SimpleGraphics.drawHorizontalLine(guiGraphics, x1, x2, y, Color.getValue(color), thickness);
     }
 
@@ -40,7 +40,7 @@ public final class SimpleGraphics {
      * @param color     the color, which the line will have
      * @param thickness the thickness, which the line will have
      */
-    public static void drawHorizontalLine(GuiGraphics guiGraphics, int x1, int x2, int y, int color, int thickness) {
+    public static void drawHorizontalLine(GuiGraphicsExtractor guiGraphics, int x1, int x2, int y, int color, int thickness) {
         if (x2 < x1) {
             int temp = x1;
             x1 = x2;
@@ -54,7 +54,7 @@ public final class SimpleGraphics {
      * Takes colors as enum values from {@link Color}.
      *
      */
-    public static void drawVerticalLine(GuiGraphics guiGraphics, int x, int y1, int y2, Color color, int thickness) {
+    public static void drawVerticalLine(GuiGraphicsExtractor guiGraphics, int x, int y1, int y2, Color color, int thickness) {
         SimpleGraphics.drawVerticalLine(guiGraphics, x, y1, y2, Color.getValue(color), thickness);
     }
 
@@ -67,7 +67,7 @@ public final class SimpleGraphics {
      * @param color     the color, which the line will have
      * @param thickness the thickness, which the line will have
      */
-    public static void drawVerticalLine(GuiGraphics guiGraphics, int x, int y1, int y2, int color, int thickness) {
+    public static void drawVerticalLine(GuiGraphicsExtractor guiGraphics, int x, int y1, int y2, int color, int thickness) {
         if (y2 < y1) {
             int temp = y1;
             y1 = y2;
@@ -80,9 +80,9 @@ public final class SimpleGraphics {
     /**
      * Takes colors as enum values from {@link Color}.
      *
-     * @see #drawRectNoBlend(GuiGraphics, int, int, int, int, int, double)
+     * @see #drawRectNoBlend(GuiGraphicsExtractor, int, int, int, int, int, double)
      */
-    public static void drawRectNoBlend(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, Color color,
+    public static void drawRectNoBlend(GuiGraphicsExtractor guiGraphics, int x1, int y1, int x2, int y2, Color color,
         double zLevel) {
         SimpleGraphics.drawRectNoBlend(guiGraphics, x1, y1, x2, y2, Color.getValue(color), zLevel);
     }
@@ -98,7 +98,7 @@ public final class SimpleGraphics {
      * @param color  the color of the rectangle
      * @param zLevel the z-level of the graphic
      */
-    public static void drawRectNoBlend(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int color,
+    public static void drawRectNoBlend(GuiGraphicsExtractor guiGraphics, int x1, int y1, int x2, int y2, int color,
         double zLevel) {
         int temp;
 
@@ -120,9 +120,9 @@ public final class SimpleGraphics {
     /**
      * Takes colors as enum values from {@link Color}.
      *
-     * @see #drawGradientRect(GuiGraphics, int, int, int, int, int, int, double)
+     * @see #drawGradientRect(GuiGraphicsExtractor, int, int, int, int, int, int, double)
      */
-    public static void drawGradientRect(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, Color colorA,
+    public static void drawGradientRect(GuiGraphicsExtractor guiGraphics, int x1, int y1, int x2, int y2, Color colorA,
         Color colorB, double zLevel) {
         SimpleGraphics.drawGradientRect(guiGraphics, x1, y1, x2, y2, Color.getValue(colorA), Color.getValue(colorB),
             zLevel);
@@ -139,7 +139,7 @@ public final class SimpleGraphics {
      * @param colorB the second color, ending in y2
      * @param zLevel the z-level of the graphic
      */
-    public static void drawGradientRect(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int colorA, int colorB,
+    public static void drawGradientRect(GuiGraphicsExtractor guiGraphics, int x1, int y1, int x2, int y2, int colorA, int colorB,
         double zLevel) {
         guiGraphics.fillGradient(x1, y1, x2, y2, colorA, colorB);
     }
@@ -163,7 +163,7 @@ public final class SimpleGraphics {
      */
     @Deprecated
     public static void drawTexturedModalRect(int x, int y, int u, int v, int width, int height, double zLevel) {
-        // no-op: texture binding is callsite-specific in 1.20.1; see GuiGraphics.blit
+        // no-op: texture binding is callsite-specific in 1.20.1; see GuiGraphicsExtractor.blit
     }
 
     /**
@@ -176,14 +176,14 @@ public final class SimpleGraphics {
      * @param color the color of the string
      * @return the stop x-coordinate of the drawn string
      */
-    public static int drawStringWithTranslatedShadow(GuiGraphics guiGraphics, Font font, String s, int x, int y,
+    public static int drawStringWithTranslatedShadow(GuiGraphicsExtractor guiGraphics, Font font, String s, int x, int y,
         int color) {
         // make color gray-ish and draw shadow
         int grayColor = (color & 16579836) >> 2 | color & -16777216;
-        guiGraphics.drawString(font, s, x + 1, y + 1, grayColor, false);
+        guiGraphics.text(font, s, x + 1, y + 1, grayColor, false);
 
         // move to foreground and draw actual string
-        guiGraphics.drawString(font, s, x, y, color, false);
+        guiGraphics.text(font, s, x, y, color, false);
 
         // drawString returns void since 1.21.6; the shadow copy is the wider of the two, so the
         // end x is its origin plus the string width.
@@ -193,9 +193,9 @@ public final class SimpleGraphics {
     /**
      * Takes colors as enum values from {@link Color}.
      *
-     * @see #drawQuad(GuiGraphics, Object, int, int, int, int, int, double)
+     * @see #drawQuad(GuiGraphicsExtractor, Object, int, int, int, int, int, double)
      */
-    public static void drawQuad(GuiGraphics guiGraphics, Object tessellator, int x, int y, int width, int height,
+    public static void drawQuad(GuiGraphicsExtractor guiGraphics, Object tessellator, int x, int y, int width, int height,
         Color color, double zLevel) {
         SimpleGraphics.drawQuad(guiGraphics, tessellator, x, y, width, height, Color.getValue(color), zLevel);
     }
@@ -203,9 +203,9 @@ public final class SimpleGraphics {
     /**
      * Draws a solid-color rectangle. The {@code tessellator} parameter is kept for
      * source compatibility with 1.12.2 call sites and is ignored; the rectangle is
-     * painted via {@link net.minecraft.client.gui.GuiGraphics#fill}.
+     * painted via {@link net.minecraft.client.gui.GuiGraphicsExtractor#fill}.
      */
-    public static void drawQuad(GuiGraphics guiGraphics, Object tessellator, int x, int y, int width, int height,
+    public static void drawQuad(GuiGraphicsExtractor guiGraphics, Object tessellator, int x, int y, int width, int height,
         int color, double zLevel) {
         guiGraphics.fill(x, y, x + width, y + height, color);
     }

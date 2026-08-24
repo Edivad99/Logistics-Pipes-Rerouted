@@ -1,11 +1,11 @@
 package logisticspipes.pipefxhandlers;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
-
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import logisticspipes.client.particle.GlowGeometryParticle;
 import network.rs485.logisticspipes.world.DoubleCoordinates;

@@ -1,15 +1,18 @@
 package logisticspipes.routing.pathfinder.changedetection;
 
-import logisticspipes.asm.te.ILPTEInformation;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.ticks.QueuedTasks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+
+import logisticspipes.asm.te.ILPTEInformation;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.ticks.QueuedTasks;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -46,7 +49,7 @@ public class BlockChangeListener {
      * pipes notice the neighbour is gone on the next tick.
      */
     @SubscribeEvent
-    public void onBlockBroken(BlockEvent.BreakEvent event) {
+    public void onBlockBroken(BreakBlockEvent event) {
         if (!(event.getLevel() instanceof Level level)) return;
         if (!MainProxy.isServer(level)) return;
         final BlockPos pos = event.getPos();

@@ -3,12 +3,13 @@ package logisticspipes.world.item.crafting;
 import java.util.List;
 import java.util.Optional;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
@@ -18,8 +19,9 @@ public abstract class WrappedShapedRecipe extends ShapedRecipe {
     private final ShapedRecipe internal;
 
     protected WrappedShapedRecipe(ShapedRecipe internal) {
-        super(internal.group(), internal.category(), internal.pattern, internal.result,
-            internal.showNotification());
+        super(new Recipe.CommonInfo(internal.showNotification()),
+            new CraftingRecipe.CraftingBookInfo(internal.category(), internal.group()),
+            internal.pattern, internal.result);
         this.internal = internal;
     }
 
@@ -28,11 +30,11 @@ public abstract class WrappedShapedRecipe extends ShapedRecipe {
     }
 
     @Override
-    public abstract ItemStack assemble(CraftingInput input, HolderLookup.Provider provider);
+    public abstract ItemStack assemble(CraftingInput input);
 
     @Override
     public boolean matches(CraftingInput input, Level level) {
-        return this.internal.matches(input, level) && !this.assemble(input, level.registryAccess()).isEmpty();
+        return this.internal.matches(input, level) && !this.assemble(input).isEmpty();
     }
 
     @Override
@@ -46,7 +48,7 @@ public abstract class WrappedShapedRecipe extends ShapedRecipe {
     }
 
     @Override
-    public PlacementInfo placementInfo() {
+    protected PlacementInfo createPlacementInfo() {
         return this.internal.placementInfo();
     }
 

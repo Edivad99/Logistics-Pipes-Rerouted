@@ -1,12 +1,13 @@
 package logisticspipes.utils.transfer;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.world.item.ItemStack;
+
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * The two slot operations LP needs that the transfer API does not already spell out.

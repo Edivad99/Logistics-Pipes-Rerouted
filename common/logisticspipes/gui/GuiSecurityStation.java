@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.popup.GuiEditCCAccessTable;
@@ -28,11 +34,6 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSecurityStation extends LogisticsBaseGuiScreen implements PlayerListReciver {
@@ -158,7 +159,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 175);
 		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 81, topPos + 140);
@@ -166,7 +167,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		addition = (minecraft.font.width(searchBar.getValue()) - 82);
 		if (addition < 0) addition = 0;
 
-        // Click detection for player list (drawing happens in renderLabels)
+        // Click detection for player list (drawing happens in extractLabels)
 		int pos = bottom - 95;
 		for (String player : players) {
 			if (player.contains(searchBar.getValue())) {
@@ -188,27 +189,27 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityStation"), 105, 10, 0xFF404040, false);
-		guiGraphics.drawString(font, tile.getSecId() == null ? "null" : tile.getSecId().toString(), 32, 25, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
+		guiGraphics.text(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityStation"), 105, 10, 0xFF404040, false);
+		guiGraphics.text(font, tile.getSecId() == null ? "null" : tile.getSecId().toString(), 32, 25, 0xFF404040, false);
 		if (LogisticsPipes.isDEBUG()) {
-			guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "allowCCAccess") + ":", 10, 46, 0xFF404040, false);
-			guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "excludeIDs") + ":", 10, 61, 0xFF404040, false);
+			guiGraphics.text(font, TextUtil.translate(GuiSecurityStation.PREFIX + "allowCCAccess") + ":", 10, 46, 0xFF404040, false);
+			guiGraphics.text(font, TextUtil.translate(GuiSecurityStation.PREFIX + "excludeIDs") + ":", 10, 61, 0xFF404040, false);
 		}
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "pipeRemove") + ":", 10, 78, 0xFF404040, false);
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Player") + ":", 180, 127, 0xFF404040, false);
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityCards") + ":", 10, 127, 0xFF404040, false);
-		guiGraphics.drawString(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Inventory") + ":", 10, 163, 0xFF404040, false);
+		guiGraphics.text(font, TextUtil.translate(GuiSecurityStation.PREFIX + "pipeRemove") + ":", 10, 78, 0xFF404040, false);
+		guiGraphics.text(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Player") + ":", 180, 127, 0xFF404040, false);
+		guiGraphics.text(font, TextUtil.translate(GuiSecurityStation.PREFIX + "SecurityCards") + ":", 10, 127, 0xFF404040, false);
+		guiGraphics.text(font, TextUtil.translate(GuiSecurityStation.PREFIX + "Inventory") + ":", 10, 163, 0xFF404040, false);
 
 		int pos = bottom - topPos - 95;
 		for (String player : players) {
 			if (player.contains(searchBar.getValue())) {
-				guiGraphics.drawString(font, player, 180, pos, 0xFF404040, false);
+				guiGraphics.text(font, player, 180, pos, 0xFF404040, false);
 				pos += 11;
 			}
 			if (pos > bottom - topPos - 12) {
-				guiGraphics.drawString(font, "...", 180, pos - 5, 0xFF404040, false);
+				guiGraphics.text(font, "...", 180, pos - 5, 0xFF404040, false);
 				break;
 			}
 		}
@@ -233,7 +234,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (searchBar.isFocused()) {
 			if ((c == 13) || (i == 1) || (i == 28)) {
 				searchBar.setFocused(false);

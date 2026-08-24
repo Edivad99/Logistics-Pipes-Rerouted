@@ -43,16 +43,17 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import io.netty.buffer.ByteBuf;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.network.IReadListObject;
 import logisticspipes.routing.channels.ChannelInformation;

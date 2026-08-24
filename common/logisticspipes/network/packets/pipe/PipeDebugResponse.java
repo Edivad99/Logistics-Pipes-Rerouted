@@ -1,11 +1,12 @@
 package logisticspipes.network.packets.pipe;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class PipeDebugResponse extends CoordinatesPacket {
@@ -20,9 +21,9 @@ public class PipeDebugResponse extends CoordinatesPacket {
 		if (pipe != null && pipe.isInitialized()) {
 			pipe.pipe.debug.debugThisPipe = !pipe.pipe.debug.debugThisPipe;
 			if (pipe.pipe.debug.debugThisPipe) {
-				player.displayClientMessage(Component.literal("Debug enabled on Server"), false);
+				player.sendSystemMessage(Component.literal("Debug enabled on Server"));
 			} else {
-				player.displayClientMessage(Component.literal("Debug disabled on Server"), false);
+				player.sendSystemMessage(Component.literal("Debug disabled on Server"));
 			}
 		}
 	}

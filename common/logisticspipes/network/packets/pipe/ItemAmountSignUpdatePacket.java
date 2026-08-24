@@ -1,5 +1,11 @@
 package logisticspipes.network.packets.pipe;
 
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.network.abstractpackets.Integer2CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -8,10 +14,6 @@ import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.signs.ItemAmountPipeSign;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

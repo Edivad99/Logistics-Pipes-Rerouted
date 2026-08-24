@@ -1,17 +1,19 @@
 package logisticspipes.network.packets.routingdebug;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateTargetResponse.TargetMode;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.StaticResolve;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+
+import logisticspipes.network.PacketHandler;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.packets.routingdebug.RoutingUpdateTargetResponse.TargetMode;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

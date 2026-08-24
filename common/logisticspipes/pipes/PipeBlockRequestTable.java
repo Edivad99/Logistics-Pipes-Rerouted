@@ -1,7 +1,5 @@
 package logisticspipes.pipes;
 
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,12 +7,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ResultContainer;
+import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.particle.Particles;
-import logisticspipes.world.item.LPItems;
-import logisticspipes.world.level.block.entity.AutoCraftingContainer;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
@@ -25,6 +42,7 @@ import logisticspipes.network.packets.block.CraftingSetType;
 import logisticspipes.network.packets.block.RequestRotationPacket;
 import logisticspipes.network.packets.orderer.OrderWatchRemovePacket;
 import logisticspipes.network.packets.orderer.OrdererWatchPacket;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -42,26 +60,8 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ResultContainer;
-import net.minecraft.world.inventory.ResultSlot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.level.block.entity.AutoCraftingContainer;
 
 public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements ISimpleInventoryEventHandler, IRequestWatcher, IGuiOpenControler, IRotationProvider {
 
@@ -99,7 +99,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			if (settings == null || settings.openGui) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
+				entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 			}
 		}
 		return true;
@@ -286,7 +286,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 		if (list.size() == 1) {
 			cache = list.get(0);
-			resultInv.setItem(0, cache.value().assemble(craftingInput, getWorld().registryAccess()));
+			resultInv.setItem(0, cache.value().assemble(craftingInput));
 			targetType = null;
 		} else if (list.size() > 1) {
 			if (targetType != null) {
@@ -296,7 +296,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 						craftInv.setItem(i, matrix.getItem(i));
 					}
 					craftingInput = CraftingInput.of(3,3, craftInv.getItems());
-					ItemStack result = recipe.value().assemble(craftingInput, getWorld().registryAccess());
+					ItemStack result = recipe.value().assemble(craftingInput);
 					if (targetType == ItemIdentifier.get(result)) {
 						resultInv.setItem(0, result);
 						cache = recipe;
@@ -306,7 +306,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			}
 			if (cache == null) {
 				cache = list.get(0);
-				ItemStack result = cache.value().assemble(craftingInput, getWorld().registryAccess());
+				ItemStack result = cache.value().assemble(craftingInput);
 				resultInv.setItem(0, result);
 				targetType = ItemIdentifier.get(result);
 			}
@@ -348,7 +348,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 					craftInv.setItem(i, matrix.getItem(i));
 				}
 				craftingInput = CraftingInput.of(3,3, craftInv.getItems());
-				if (targetType == ItemIdentifier.get(recipe.value().assemble(craftingInput, getWorld().registryAccess()))) {
+				if (targetType == ItemIdentifier.get(recipe.value().assemble(craftingInput))) {
 					if (down) {
 						found = true;
 					} else {
@@ -370,7 +370,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				craftInv.setItem(i, matrix.getItem(i));
 			}
 			craftingInput = CraftingInput.of(3,3, craftInv.getItems());
-			targetType = ItemIdentifier.get(cache.value().assemble(craftingInput, getWorld().registryAccess()));
+			targetType = ItemIdentifier.get(cache.value().assemble(craftingInput));
 		}
 		if (!localGuiWatcher.isEmpty() && getWorld() != null && MainProxy.isServer(getWorld())) {
 			MainProxy.sendToPlayerList(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), localGuiWatcher);
@@ -436,7 +436,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		if (!cache.value().matches(craftingInput, getWorld())) {
 			return ItemStack.EMPTY; //Fix MystCraft
 		}
-		ItemStack result = cache.value().assemble(craftingInput, getWorld().registryAccess());
+		ItemStack result = cache.value().assemble(craftingInput);
 		if (result.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
@@ -451,7 +451,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			}
 		}
 		craftingInput = CraftingInput.of(3,3, crafter.getItems());
-		result = cache.value().assemble(craftingInput, getWorld().registryAccess());
+		result = cache.value().assemble(craftingInput);
 		if (fake == null) {
 			fake = MainProxy.getFakePlayer(getWorld());
 		}

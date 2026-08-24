@@ -1,5 +1,10 @@
 package logisticspipes.network.packets;
 
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packetcontent.IntegerContent;
 import logisticspipes.network.packetcontent.ItemStackContent;
@@ -7,10 +12,6 @@ import logisticspipes.network.packetcontent.PacketContentBuilder;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummySlot;
 import logisticspipes.utils.gui.FluidSlot;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 
 @StaticResolve
 public class SetGhostItemPacket extends ModernPacket {

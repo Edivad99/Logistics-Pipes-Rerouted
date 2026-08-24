@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import net.minecraft.nbt.Tag;
 
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCQueued;
@@ -29,7 +30,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Quartet;
 import logisticspipes.utils.tuples.Triplet;
-import net.minecraft.nbt.Tag;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 public class CCObjectWrapper {

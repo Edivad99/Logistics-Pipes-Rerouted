@@ -1,6 +1,5 @@
 package logisticspipes.world.item;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;

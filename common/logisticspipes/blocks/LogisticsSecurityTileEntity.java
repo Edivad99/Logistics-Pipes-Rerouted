@@ -1,8 +1,5 @@
 package logisticspipes.blocks;
 
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.TagValueOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,10 +8,26 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
-import logisticspipes.world.item.LPItems;
-import logisticspipes.world.item.component.LPDataComponents;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.api.IRoutedPowerProvider;
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IGuiTileEntity;
@@ -34,23 +47,10 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 
 public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IGuiOpenControler, ISecurityProvider, IGuiTileEntity {
 
@@ -195,7 +195,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 				break;
 			case 2: //+
 				if (!useEnergy(10)) {
-					player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
+					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 					return;
 				}
 				if (inv.getIDStackInSlot(0) == null) {
@@ -213,7 +213,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 				break;
 			case 3: //++
 				if (!useEnergy(640)) {
-					player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
+					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 					return;
 				}
 				ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 64);
@@ -253,7 +253,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 			return LogisticsSecurityTileEntity.allowAll;
 		}
 		if (usePower && !useEnergy(10)) {
-			entityplayer.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
+			entityplayer.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return new SecuritySettings("No Energy");
 		}
 		SecuritySettings setting = settingsList.get(entityplayer.getName().getString());

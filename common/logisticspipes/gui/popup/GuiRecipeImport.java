@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.NEISetCraftingRecipe;
 import logisticspipes.network.packets.pipe.FindMostLikelyRecipeComponents;
@@ -12,11 +19,6 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiRecipeImport extends SubGuiScreen {
@@ -119,7 +121,7 @@ public class GuiRecipeImport extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float par3) {
 		// Grid items (3×3)
 		for (int i = 0; i < 9; i++) {
 			Candidates c = grid[i];
@@ -151,8 +153,8 @@ public class GuiRecipeImport extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		guiGraphics.text(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0xFF404040, false);
 		// Render items in 3×3 crafting grid preview
 		for (int i = 0; i < 9; i++) {
 			Candidates c = grid[i];
@@ -160,14 +162,14 @@ public class GuiRecipeImport extends SubGuiScreen {
 			int gx = i % 3;
 			int gy = i / 3;
 			ItemStack stack = c.order.get(c.pos % c.order.size()).makeNormalStack();
-			guiGraphics.renderItem(stack, guiLeft + 45 + gx * 18, guiTop + 20 + gy * 18);
+			guiGraphics.item(stack, guiLeft + 45 + gx * 18, guiTop + 20 + gy * 18);
 		}
 		// Render current selection for each candidate group
 		int x = 0, y = 0;
 		for (Candidates candidate : list) {
 			if (candidate.order != null && !candidate.order.isEmpty()) {
 				ItemStack stack = candidate.order.get(candidate.pos % candidate.order.size()).makeNormalStack();
-				guiGraphics.renderItem(stack, guiLeft + 20 + x * 40, guiTop + 90 + y * 40);
+				guiGraphics.item(stack, guiLeft + 20 + x * 40, guiTop + 90 + y * 40);
 			}
 			x++;
 			if (x > 2) { x = 0; y++; }
@@ -175,9 +177,9 @@ public class GuiRecipeImport extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0xFF404040, false);
+        guiGraphics.text(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0xFF404040, false);
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
 				LPGuiGraphics.drawSlotBackground(guiGraphics, guiLeft + 44 + x * 18, guiTop + 19 + y * 18);

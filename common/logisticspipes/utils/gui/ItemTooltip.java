@@ -7,8 +7,8 @@ import net.minecraft.world.item.ItemStack;
  * hovered.
  *
  * @param screenX the cursor position in <b>screen</b> coordinates, ready to hand to
- * {@code GuiGraphics#renderTooltip}. Render from a {@code renderToolTips} override, which both
- * screen bases call outside any pose translation; drawing from {@code renderLabels} instead runs
+ * {@code GuiGraphicsExtractor#renderTooltip}. Render from a {@code renderToolTips} override, which both
+ * screen bases call outside any pose translation; drawing from {@code extractLabels} instead runs
  * inside a pose already translated by (leftPos, topPos) and offsets the tooltip by the gui origin.
  * @param screenY see {@code screenX}.
  * @param stack the hovered stack.

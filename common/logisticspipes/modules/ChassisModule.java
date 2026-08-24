@@ -3,8 +3,12 @@ package logisticspipes.modules;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+
+import net.minecraft.world.item.ItemStack;
+
 import com.google.common.collect.ImmutableList;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.network.NewGuiHandler;
@@ -18,7 +22,6 @@ import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.Property;

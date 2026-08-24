@@ -1,6 +1,12 @@
 package logisticspipes.gui.popup;
 
 import java.util.Collections;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.SecurityAddCCIdPacket;
@@ -10,10 +16,6 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiEditCCAccessTable extends SubGuiScreen {
@@ -64,9 +66,9 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(minecraft.font, "(" + (page + 1) + "/" + ((int) ((tile.excludedCC.size() / 9D) + 1 - (tile.excludedCC.size() % 9 == 0 && tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0xFF4F4F4F, false);
+        guiGraphics.text(minecraft.font, "(" + (page + 1) + "/" + ((int) ((tile.excludedCC.size() / 9D) + 1 - (tile.excludedCC.size() % 9 == 0 && tile.excludedCC.size() != 0 ? 1 : 0))) + ")", guiLeft + 100, guiTop + 5, 0xFF4F4F4F, false);
 
 		boolean dark = true;
 		for (int i = 0; i < 9; i++) {
@@ -76,7 +78,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 		dark = true;
 		for (int i = 0; i < 9 && i + (page * 9) < tile.excludedCC.size(); i++) {
 			Integer id = tile.excludedCC.get(i + (page * 9));
-            guiGraphics.drawString(minecraft.font, Integer.toString(id), guiLeft + 75 - (minecraft.font.width(Integer.toString(id)) / 2), guiTop + 16 + (i * 10), dark ? 0xFFFFFFFF : 0xFF000000, false);
+            guiGraphics.text(minecraft.font, Integer.toString(id), guiLeft + 75 - (minecraft.font.width(Integer.toString(id)) / 2), guiTop + 16 + (i * 10), dark ? 0xFFFFFFFF : 0xFF000000, false);
 			dark = !dark;
 			if (lastClickedX >= guiLeft + 10 && lastClickedX < right - 10 && lastClickedY >= guiTop + 15 + (i * 10) && lastClickedY < guiTop + 25 + (i * 10)) {
 				lastClickedX = -10000000;
@@ -95,7 +97,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 		}
         guiGraphics.fill(guiLeft + 42, bottom - 28, right - 42, bottom - 15, Color.getValue(Color.DARKER_GREY));
 
-        guiGraphics.drawString(minecraft.font, searchInput1 + searchInput2, guiLeft + 75 - (minecraft.font.width(searchInput1 + searchInput2) / 2), bottom - 25, 0xFFFFFFFF, false);
+        guiGraphics.text(minecraft.font, searchInput1 + searchInput2, guiLeft + 75 - (minecraft.font.width(searchInput1 + searchInput2) / 2), bottom - 25, 0xFFFFFFFF, false);
 		if (editSearch) {
 			int lineX = guiLeft + 75 + minecraft.font.width(searchInput1) - (minecraft.font.width(searchInput1 + searchInput2) / 2);
 			if (System.currentTimeMillis() - oldSystemTime > 500) {
@@ -226,7 +228,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (editSearch) {
 			if (c == 13) {
 				editSearch = false;
@@ -280,7 +282,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 		return false;
 	}
 
-	public void fillColor(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, Color color) {
+	public void fillColor(GuiGraphicsExtractor guiGraphics, int x1, int y1, int x2, int y2, Color color) {
 		guiGraphics.fill(x1, y1, x2, y2, Color.getValue(color));
 	}
 }

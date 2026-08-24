@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.integration
 
+// BlockPlanks removed — planks are a vanilla Block
 import network.rs485.logisticspipes.integration.MinecraftTest.TIMEOUT_MODIFIER
 import network.rs485.logisticspipes.integration.MinecraftTest.regularTest
 import network.rs485.logisticspipes.integration.MinecraftTest.skippedTest
@@ -46,7 +47,6 @@ import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.configurator
 import logisticspipes.blocks.LogisticsSolidBlock
-import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity
 import logisticspipes.pipes.PipeItemsBasicLogistics
 import logisticspipes.pipes.PipeItemsCraftingLogistics
 import logisticspipes.pipes.PipeItemsRequestLogistics
@@ -55,13 +55,13 @@ import logisticspipes.pipes.upgrades.UpgradeManager
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.world.item.LPItems
 import logisticspipes.world.level.block.LPBlocks
-import net.minecraft.world.level.block.Block
-// BlockPlanks removed — planks are a vanilla Block
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.entity.ChestBlockEntity
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.entity.ChestBlockEntity
 import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

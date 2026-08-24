@@ -1,7 +1,6 @@
 package logisticspipes.integrations.ae2;
 
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,6 +13,7 @@ import appeng.api.stacks.AEFluidKey;
 import appeng.api.stacks.AEKey;
 import appeng.api.storage.MEStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ISpecialTankUtilProvider;
 import logisticspipes.interfaces.ITankUtil;

@@ -37,13 +37,13 @@
 
 package network.rs485.logisticspipes.util
 
+import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
 import net.minecraft.client.resources.language.I18n
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
-import net.minecraft.ChatFormatting
 import java.text.NumberFormat
 import java.util.*
 import java.util.function.Consumer

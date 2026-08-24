@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.gui;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.SlotPacket;
@@ -7,7 +9,6 @@ import logisticspipes.pipes.upgrades.IConfigPipeUpgrade;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.UpgradeSlot;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class OpenUpgradePacket extends SlotPacket {

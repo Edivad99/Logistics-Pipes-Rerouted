@@ -1,26 +1,25 @@
 package logisticspipes.routing;
 
-import java.util.Optional;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.Nullable;
+
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.IDistanceTracker;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 public class ItemRoutingInformation {

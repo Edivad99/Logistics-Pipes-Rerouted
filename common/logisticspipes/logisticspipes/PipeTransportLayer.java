@@ -2,10 +2,11 @@ package logisticspipes.logisticspipes;
 
 import java.util.LinkedList;
 
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.routing.IRouter;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.routing.IRouter;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 

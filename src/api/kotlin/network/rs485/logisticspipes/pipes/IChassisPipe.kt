@@ -37,9 +37,9 @@
 
 package network.rs485.logisticspipes.pipes
 
-import net.minecraft.world.Container
 import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
+import net.minecraft.world.Container
 
 interface IChassisPipe {
     fun nextOrientation()

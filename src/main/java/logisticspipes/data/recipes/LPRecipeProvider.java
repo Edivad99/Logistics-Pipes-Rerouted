@@ -5,28 +5,23 @@ import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 
 import net.neoforged.neoforge.common.Tags;
 
 import logisticspipes.LPConstants;
 import logisticspipes.data.recipes.builders.ProgrammerRecipeBuilder;
-import logisticspipes.modules.LogisticsModule;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.core.HolderGetter;
 
 public class LPRecipeProvider extends RecipeProvider {
 
@@ -76,11 +71,11 @@ public class LPRecipeProvider extends RecipeProvider {
             .unlockedBy(getHasName(Items.DIAMOND), has(Items.DIAMOND))
             .save(output);
 
-        oreSmelting(List.of(LPItems.CHIP_BASIC_RAW), RecipeCategory.MISC,
+        oreSmelting(List.of(LPItems.CHIP_BASIC_RAW), RecipeCategory.MISC, CookingBookCategory.MISC,
             LPItems.CHIP_BASIC, 0.5F, 200, "chip_basic");
-        oreSmelting(List.of(LPItems.CHIP_ADVANCED_RAW), RecipeCategory.MISC,
+        oreSmelting(List.of(LPItems.CHIP_ADVANCED_RAW), RecipeCategory.MISC, CookingBookCategory.MISC,
             LPItems.CHIP_ADVANCED, 0.7F, 200, "chip_advanced");
-        oreSmelting(List.of(LPItems.CHIP_FPGA_RAW), RecipeCategory.MISC,
+        oreSmelting(List.of(LPItems.CHIP_FPGA_RAW), RecipeCategory.MISC, CookingBookCategory.MISC,
             LPItems.CHIP_FPGA, 1.0F, 200, "chip_fpga");
     }
 
@@ -332,11 +327,7 @@ public class LPRecipeProvider extends RecipeProvider {
     private void buildModulesReset() {
         for (var moduleResource : LPItems.modules.values()) {
             final Item item = BuiltInRegistries.ITEM.getValue(moduleResource);
-            if (item instanceof ItemModule itemModule) {
-                LogisticsModule module = itemModule.getModuleForItem(new ItemStack(item), null, null, null);
-                if (module == null) {
-                    continue;
-                }
+            if (item instanceof ItemModule) {
                 var moduleName = RecipeProvider.getItemName(item);
                 shapeless(RecipeCategory.MISC, item)
                     .requires(item)

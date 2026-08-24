@@ -1,18 +1,13 @@
 package logisticspipes.world.level.block.entity;
 
-import logisticspipes.proxy.LPRegistries;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.ContainerUser;
@@ -29,6 +24,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.IRoutedPowerProvider;
@@ -76,14 +73,6 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         matrix.addListener(this);
     }
 
-    @Nullable
-    private HolderLookup.Provider getProvider() {
-        if (getWorld() != null) {
-            return getWorld().registryAccess();
-        }
-        return LPRegistries.accessOrNull();
-    }
-
     public void cacheRecipe() {
         ItemIdentifier oldTargetType = targetType;
         cache = null;
@@ -103,7 +92,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
         if (list.size() == 1) {
             cache = list.getFirst();
-            resultInv.setItem(0, cache.value().assemble(craftingInput, getProvider()));
+            resultInv.setItem(0, cache.value().assemble(craftingInput));
             targetType = null;
         } else if (list.size() > 1) {
             if (targetType != null) {
@@ -113,7 +102,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
                         craftInv.setItem(i, matrix.getItem(i));
                     }
                     craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
-                    ItemStack result = recipe.value().assemble(craftingInput, getProvider());
+                    ItemStack result = recipe.value().assemble(craftingInput);
                     if (!result.isEmpty() && targetType.equals(ItemIdentifier.get(result))) {
                         resultInv.setItem(0, result);
                         cache = recipe;
@@ -123,7 +112,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
             }
             if (cache == null) {
                 for (RecipeHolder<CraftingRecipe> r : list) {
-                    ItemStack result = r.value().assemble(craftingInput, getProvider());
+                    ItemStack result = r.value().assemble(craftingInput);
                     if (!result.isEmpty()) {
                         cache = r;
                         resultInv.setItem(0, result);
@@ -177,7 +166,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
                 }
                 craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
                 if (targetType != null && targetType.equals(
-                    ItemIdentifier.get(recipe.value().assemble(craftingInput, getProvider())))) {
+                    ItemIdentifier.get(recipe.value().assemble(craftingInput)))) {
                     if (down) {
                         found = true;
                     } else {
@@ -203,7 +192,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
             craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
 
             if (cache != null) {
-                targetType = ItemIdentifier.get(cache.value().assemble(craftingInput, getProvider()));
+                targetType = ItemIdentifier.get(cache.value().assemble(craftingInput));
             }
         }
 
@@ -281,7 +270,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
 
                     if (r.value().matches(craftingInput, getWorld()) && FuzzyUtil.INSTANCE
                         .fuzzyMatches(FuzzyUtil.INSTANCE.getter(outputFuzzy()), outStack.getItem(),
-                            ItemIdentifier.get(r.value().assemble(craftingInput, getProvider())))) {
+                            ItemIdentifier.get(r.value().assemble(craftingInput)))) {
                         recipe = r;
                         break;
                     }
@@ -293,7 +282,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
                 return ItemStack.EMPTY; //Fix MystCraft
             }
         }
-        ItemStack result = recipe.value().assemble(craftingInput, getProvider());
+        ItemStack result = recipe.value().assemble(craftingInput);
         if (result.isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -325,7 +314,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
             }
         }
         craftingInput = CraftingInput.of(3, 3, crafter.getItems());
-        result = recipe.value().assemble(craftingInput, getWorld().registryAccess());
+        result = recipe.value().assemble(craftingInput);
         if (fake == null) {
             fake = MainProxy.getFakePlayer(getWorld());
         }

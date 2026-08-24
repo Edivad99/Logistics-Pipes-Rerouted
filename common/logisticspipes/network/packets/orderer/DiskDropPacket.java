@@ -1,6 +1,10 @@
 package logisticspipes.network.packets.orderer;
 
-import logisticspipes.world.item.LPItems;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -8,10 +12,7 @@ import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
+import logisticspipes.world.item.LPItems;
 
 @StaticResolve
 public class DiskDropPacket extends CoordinatesPacket {

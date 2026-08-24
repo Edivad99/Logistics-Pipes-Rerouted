@@ -2,13 +2,13 @@ package logisticspipes.routing.channels;
 
 import java.lang.ref.WeakReference;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.world.level.Level;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.interfaces.routing.IChannelManagerProvider;

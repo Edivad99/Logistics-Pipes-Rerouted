@@ -5,8 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,10 +12,9 @@ import net.minecraft.util.StringRepresentable;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import io.netty.buffer.ByteBuf;
 import lombok.Data;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.utils.PlayerIdentifier;
 
@@ -45,13 +42,13 @@ public class ChannelInformation {
             channel -> Optional.ofNullable(channel.getResponsibleSecurityID()),
             (name, identifier, owner, rights, securityId) ->
                 new ChannelInformation(name.orElse(null), identifier, owner, rights, securityId.orElse(null)));
-    private final @NonNull UUID channelIdentifier;
+    private final UUID channelIdentifier;
     /**
      * Null for a channel sent as a bare reference, see {@code ChannelManager.removeChannel}.
      */
     private @Nullable String name;
-    private @NonNull PlayerIdentifier owner;
-    private @NonNull AccessRights rights;
+    private PlayerIdentifier owner;
+    private AccessRights rights;
     private @Nullable UUID responsibleSecurityID;
 
     public ChannelInformation(@Nullable String name, UUID identifier, PlayerIdentifier owner,

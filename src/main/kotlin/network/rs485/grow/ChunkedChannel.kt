@@ -37,9 +37,9 @@
 
 package network.rs485.grow
 
+import java.util.function.Supplier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.trySendBlocking
-import java.util.function.Supplier
 
 abstract class ChunkedChannel<T, O>(val channel: Channel<T>) : Supplier<Boolean> {
 

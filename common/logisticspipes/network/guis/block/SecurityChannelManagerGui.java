@@ -1,11 +1,12 @@
 package logisticspipes.network.guis.block;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.popup.GuiManageChannelPopup;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractpackets.ChannelInformationListCoordinatesPopupGuiProvider;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class SecurityChannelManagerGui extends ChannelInformationListCoordinatesPopupGuiProvider {

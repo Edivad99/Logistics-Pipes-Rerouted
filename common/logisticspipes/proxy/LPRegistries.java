@@ -1,13 +1,14 @@
 package logisticspipes.proxy;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
+
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Resolves a {@link RegistryAccess} for code that has no world, player or connection in hand.

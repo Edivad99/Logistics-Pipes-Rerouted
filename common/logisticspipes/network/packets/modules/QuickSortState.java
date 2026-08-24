@@ -1,10 +1,11 @@
 package logisticspipes.network.packets.modules;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.IntegerModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class QuickSortState extends IntegerModuleCoordinatesPacket {

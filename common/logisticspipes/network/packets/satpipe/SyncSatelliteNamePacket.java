@@ -1,10 +1,11 @@
 package logisticspipes.network.packets.satpipe;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;

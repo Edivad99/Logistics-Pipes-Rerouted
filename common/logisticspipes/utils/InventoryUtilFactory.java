@@ -9,18 +9,17 @@ package logisticspipes.utils;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import javax.annotation.Nullable;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.interfaces.IInventoryUtil;
-import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.capabilities.Capabilities;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LogisticsPipes;
+import logisticspipes.interfaces.IInventoryUtil;
+import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 

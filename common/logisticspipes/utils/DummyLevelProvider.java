@@ -1,7 +1,8 @@
 package logisticspipes.utils;
 
-import logisticspipes.interfaces.IWorldProvider;
 import net.minecraft.world.level.Level;
+
+import logisticspipes.interfaces.IWorldProvider;
 
 public class DummyLevelProvider implements IWorldProvider {
 

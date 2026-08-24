@@ -2,8 +2,10 @@ package logisticspipes.utils;
 
 import java.util.Collection;
 import java.util.HashMap;
-import logisticspipes.utils.tuples.Quartet;
+
 import lombok.Getter;
+
+import logisticspipes.utils.tuples.Quartet;
 
 public class QuickSortChestMarkerStorage {
 

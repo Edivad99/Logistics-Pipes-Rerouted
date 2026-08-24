@@ -2,12 +2,13 @@ package logisticspipes.commands.commands.debug;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.debuggui.DebugAskForTarget;
 import logisticspipes.proxy.MainProxy;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 public class TargetCommand implements ICommandHandler {
 
@@ -29,6 +30,6 @@ public class TargetCommand implements ICommandHandler {
 	@Override
 	public void executeCommand(Player sender, String[] args) {
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DebugAskForTarget.class), (Player) sender);
-		sender.displayClientMessage(Component.literal("Asking for Target."), false);
+		sender.sendSystemMessage(Component.literal("Asking for Target."));
 	}
 }

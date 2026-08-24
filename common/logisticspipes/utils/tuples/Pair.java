@@ -4,8 +4,10 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
+
 import lombok.Data;
+
+import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 
 @Data
 public class Pair<T1, T2> implements ILPCCTypeHolder {

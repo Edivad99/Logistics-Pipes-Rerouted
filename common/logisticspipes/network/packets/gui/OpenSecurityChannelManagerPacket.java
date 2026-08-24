@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.gui;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.network.NewGuiHandler;
@@ -8,7 +10,6 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.guis.block.SecurityChannelManagerGui;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class OpenSecurityChannelManagerPacket extends CoordinatesPacket {

@@ -1,7 +1,17 @@
 package logisticspipes.pipes.basic.fluid;
 
 import java.util.List;
-import javax.annotation.Nullable;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITankUtil;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
@@ -25,14 +35,8 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
 import logisticspipes.utils.transfer.LPFluidTank;
+import logisticspipes.utils.tuples.Pair;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 

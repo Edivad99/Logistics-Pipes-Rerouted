@@ -1,9 +1,9 @@
 package logisticspipes.interfaces;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Supplies an {@link ITankUtil} for a block that holds fluids in a way {@code IFluidHandler} cannot

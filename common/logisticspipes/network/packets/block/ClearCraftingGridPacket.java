@@ -1,13 +1,14 @@
 package logisticspipes.network.packets.block;
 
-import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 
 @StaticResolve
 public class ClearCraftingGridPacket extends CoordinatesPacket {

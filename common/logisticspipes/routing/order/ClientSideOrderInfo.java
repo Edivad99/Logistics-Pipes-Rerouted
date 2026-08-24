@@ -1,9 +1,11 @@
 package logisticspipes.routing.order;
 
 import java.util.List;
+
+import lombok.Getter;
+
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import lombok.Getter;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 

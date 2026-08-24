@@ -6,7 +6,12 @@
 
 package logisticspipes.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
+
 import logisticspipes.LPConstants;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.FluidSupplierMode;
@@ -14,11 +19,6 @@ import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
@@ -31,8 +31,8 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 		super(buildDummy(playerInventory, dummyInventory, logic));
 
 		this.logic = logic;
-		imageWidth = 194;
-		imageHeight = 186;
+		panelWidth = 194;
+		panelHeight = 186;
 	}
 	private static DummyContainer buildDummy(Container playerInventory, Container dummyInventory, PipeItemsFluidSupplier logic) {
 		DummyContainer dummy = new DummyContainer(playerInventory, dummyInventory);
@@ -51,20 +51,20 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "TargetInv"), imageWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "TargetInv")) / 2, 6, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Inventory"), 18, imageHeight - 102, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Partialrequests") + ":", imageWidth - 140, imageHeight - 112, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "TargetInv"), panelWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "TargetInv")) / 2, 6, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Inventory"), 18, panelHeight - 102, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Partialrequests") + ":", panelWidth - 140, panelHeight - 112, 0xFF404040, false);
 	}
 
 	protected static final Identifier SUPPLIER = LPConstants.rl("textures/gui/supplier.png");
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int x, int y, float f) {
 		// texture: GuiFluidSupplierPipe.SUPPLIER
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiFluidSupplierPipe.SUPPLIER, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiFluidSupplierPipe.SUPPLIER, j, k, 0.0f, 0.0f, panelWidth, panelHeight, 256, 256);
 	}
 
 	@Override

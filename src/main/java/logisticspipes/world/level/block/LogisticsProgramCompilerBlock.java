@@ -1,7 +1,5 @@
 package logisticspipes.world.level.block;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -14,6 +12,8 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.blocks.LogisticsSolidBlock;
 import logisticspipes.interfaces.ITickable;

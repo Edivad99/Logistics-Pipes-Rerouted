@@ -2,7 +2,15 @@ package logisticspipes.proxy.side;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.gui.popup.SelectItemOutOfList;
 import logisticspipes.modules.LogisticsModule;
@@ -16,13 +24,6 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-
 
 public class ClientProxy implements IProxy {
 
@@ -88,7 +89,7 @@ public class ClientProxy implements IProxy {
 	public void sendBroadCast(String message) {
 		var player = Minecraft.getInstance().player;
 		if (player != null) {
-			player.displayClientMessage(Component.literal("[LP] Client: " + message), false);
+			player.sendSystemMessage(Component.literal("[LP] Client: " + message));
 		}
 	}
 

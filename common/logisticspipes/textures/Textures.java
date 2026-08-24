@@ -1,12 +1,13 @@
 package logisticspipes.textures;
 
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.renderer.IIconProvider;
 import logisticspipes.textures.provider.LPActionTriggerIconProvider;
 import logisticspipes.textures.provider.LPPipeIconProvider;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
 
 public class Textures {
 

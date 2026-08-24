@@ -10,8 +10,14 @@ package logisticspipes.gui;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+
 import logisticspipes.LPConfigs;
-import logisticspipes.world.item.ItemModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.guis.pipe.ChassisGuiProvider;
@@ -26,12 +32,7 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.string.StringUtils;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import logisticspipes.world.item.ItemModule;
 import network.rs485.logisticspipes.module.Gui;
 
 public class GuiChassisPipe extends LogisticsBaseGuiScreen {
@@ -56,8 +57,8 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 		int playerInventoryWidth = 162;
 		int playerInventoryHeight = 76;
 
-		imageWidth = playerInventoryWidth + 26;
-		imageHeight = playerInventoryHeight + 14 + (20 * chassisPipe.getChassisSize());
+		panelWidth = playerInventoryWidth + 26;
+		panelHeight = playerInventoryHeight + 14 + (20 * chassisPipe.getChassisSize());
 
         this.upgradeConfig = new AbstractButton[chassisPipe.getChassisSize() * 2];
     }
@@ -85,8 +86,8 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	public void init() {
 		super.init();
 
-		int left = width / 2 - imageWidth / 2;
-		int top = height / 2 - imageHeight / 2;
+		int left = width / 2 - panelWidth / 2;
+		int top = height / 2 - panelHeight / 2;
 
 		moduleConfigButtons.clear();
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++) {
@@ -137,8 +138,8 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++) {
 			updateModuleConfigButtonVisibility(i);
 		}
@@ -148,7 +149,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 			}
 		}
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++)
-			guiGraphics.drawString(minecraft.font, getModuleName(i), 40, 14 + 20 * i, 0xFF404040, false);
+			guiGraphics.text(minecraft.font, getModuleName(i), 40, 14 + 20 * i, 0xFF404040, false);
 	}
 
 	private String getModuleName(int slot) {
@@ -169,7 +170,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int x, int y, float f) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		for (int i = 0; i < chassisPipe.getChassisSize(); i++)
 			LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 17, topPos + 8 + 20 * i);

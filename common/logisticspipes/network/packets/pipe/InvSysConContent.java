@@ -1,11 +1,12 @@
 package logisticspipes.network.packets.pipe;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.gui.GuiInvSysConnector;
 import logisticspipes.network.abstractpackets.InventoryModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class InvSysConContent extends InventoryModuleCoordinatesPacket {

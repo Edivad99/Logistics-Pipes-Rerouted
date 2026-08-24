@@ -1,6 +1,11 @@
 
 package logisticspipes.gui.orderer;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
 import logisticspipes.gui.popup.GuiDiskPopup;
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
@@ -12,10 +17,6 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvider {
 
@@ -41,14 +42,14 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 	}
 
 	@Override
-	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-		super.renderBg(guiGraphics, f, i, j);
+	public void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int i, int j, float f) {
+		super.extractGuiBackground(guiGraphics, i, j, f);
 
 		guiGraphics.fill(right - 39, bottom - 47, right - 19, bottom - 27, Color.getValue(Color.BLACK));
 		guiGraphics.fill(right - 37, bottom - 45, right - 21, bottom - 29, Color.getValue(Color.DARKER_GREY));
 
 		if (!pipe.getDisk().isEmpty()) {
-			guiGraphics.renderItem(pipe.getDisk(), right - 36, bottom - 44);
+			guiGraphics.item(pipe.getDisk(), right - 36, bottom - 44);
 			macroButton.active = true;
 		} else {
 			macroButton.active = false;

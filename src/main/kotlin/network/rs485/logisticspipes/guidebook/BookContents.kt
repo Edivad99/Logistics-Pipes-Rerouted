@@ -37,12 +37,6 @@
 
 package network.rs485.logisticspipes.guidebook
 
-import kotlinx.serialization.Serializable
-import logisticspipes.LPConstants
-import logisticspipes.LogisticsPipes
-import net.minecraft.client.Minecraft
-import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.Identifier
 import network.rs485.logisticspipes.gui.guidebook.DrawablePage
 import network.rs485.logisticspipes.gui.guidebook.DrawablePageFactory
 import network.rs485.logisticspipes.util.TextUtil
@@ -50,12 +44,18 @@ import network.rs485.markdown.HeaderParagraph
 import network.rs485.markdown.ImageParagraph
 import network.rs485.markdown.MarkdownParser
 import network.rs485.markdown.Paragraph
+import logisticspipes.LPConstants
+import logisticspipes.LogisticsPipes
 import org.apache.commons.io.FilenameUtils
+import net.minecraft.client.Minecraft
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.Identifier
+import net.minecraft.world.item.Items
 import java.io.IOException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.MessageFormat
-import net.minecraft.world.item.Items
+import kotlinx.serialization.Serializable
 
 
 val MISSING_META = YamlPageMetadata("[404] the metadata was not found :P", icon = "logisticspipes:pipe_transport_basic")

@@ -2,7 +2,11 @@ package logisticspipes.gui.hud;
 
 import java.io.IOException;
 
-import logisticspipes.world.item.LPItems;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.entity.player.Player;
+
+import lombok.SneakyThrows;
+
 import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.network.PacketHandler;
@@ -12,9 +16,7 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import lombok.SneakyThrows;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.item.LPItems;
 
 public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 
@@ -57,7 +59,7 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
 		if (player.getInventory().getItem(slot).isEmpty() || player.getInventory().getItem(slot).getItem() != LPItems.HUD_GLASSES.get()) {
 			minecraft.player.closeContainer();
 		}
@@ -67,13 +69,13 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, "HUD Chassis Pipe", 50, 13, 0xFF4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD Crafting Pipe", 50, 33, 0xFF4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD InvSysCon Pipe", 50, 53, 0xFF4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD Power Junction", 50, 73, 0xFF4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD Provider Pipe", 50, 93, 0xFF4c4c4c, false);
-		guiGraphics.drawString(minecraft.font, "HUD Satellite Pipe", 50, 113, 0xFF4c4c4c, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
+		guiGraphics.text(minecraft.font, "HUD Chassis Pipe", 50, 13, 0xFF4c4c4c, false);
+		guiGraphics.text(minecraft.font, "HUD Crafting Pipe", 50, 33, 0xFF4c4c4c, false);
+		guiGraphics.text(minecraft.font, "HUD InvSysCon Pipe", 50, 53, 0xFF4c4c4c, false);
+		guiGraphics.text(minecraft.font, "HUD Power Junction", 50, 73, 0xFF4c4c4c, false);
+		guiGraphics.text(minecraft.font, "HUD Provider Pipe", 50, 93, 0xFF4c4c4c, false);
+		guiGraphics.text(minecraft.font, "HUD Satellite Pipe", 50, 113, 0xFF4c4c4c, false);
 	}
 }

@@ -48,7 +48,7 @@ import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import logisticspipes.utils.Color
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import java.util.*
 
 class FuzzySelectionWidget(
@@ -94,7 +94,7 @@ class FuzzySelectionWidget(
 
     private fun calculateHeight(flags: Set<FuzzyFlag>): Int = flags.size * 10 + border * 2
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (active) {
             if ((isMouseHovering(
                     mouseX,
@@ -112,7 +112,7 @@ class FuzzySelectionWidget(
                             Color.TEXT_DARK.value
                         }
                         val label = TextUtil.translate("$flagPrefix${flag.name.lowercase()}")
-                        guiGraphics.drawString(
+                        guiGraphics.text(
                             GuiDrawer.mcFontRenderer,
                             label,
                             relativeBody.roundedLeft + border,

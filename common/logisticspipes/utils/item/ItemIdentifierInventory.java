@@ -8,9 +8,6 @@
 
 package logisticspipes.utils.item;
 
-import net.minecraft.world.entity.ContainerUser;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,28 +19,28 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.ContainerUser;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.SlotAccess;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Iterable over its own pair type: the two Iterable parameterisations conflict. The pair

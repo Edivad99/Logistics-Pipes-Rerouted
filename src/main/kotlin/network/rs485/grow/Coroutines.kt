@@ -37,10 +37,10 @@
 
 package network.rs485.grow
 
+import net.neoforged.neoforge.server.ServerLifecycleHooks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.neoforged.neoforge.server.ServerLifecycleHooks
 
 object Coroutines {
     val io = Dispatchers.IO

@@ -1,14 +1,16 @@
 package logisticspipes.network.guis.module.inpipe;
 
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.utils.StaticResolve;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.gui.module.ProviderGui;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 import network.rs485.logisticspipes.inventory.container.ProviderContainer;

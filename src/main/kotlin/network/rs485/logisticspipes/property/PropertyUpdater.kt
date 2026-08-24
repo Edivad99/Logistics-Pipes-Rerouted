@@ -37,14 +37,14 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.world.level.storage.TagValueOutput
-import net.minecraft.util.ProblemReporter
+import network.rs485.grow.Coroutines.scheduleServerTask
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.packets.module.ModulePropertiesUpdate
 import logisticspipes.proxy.MainProxy
+import net.minecraft.util.ProblemReporter
 import net.minecraft.world.entity.player.Player
-import network.rs485.grow.Coroutines.scheduleServerTask
+import net.minecraft.world.level.storage.TagValueOutput
 import java.lang.ref.WeakReference
 import java.util.function.Consumer
 

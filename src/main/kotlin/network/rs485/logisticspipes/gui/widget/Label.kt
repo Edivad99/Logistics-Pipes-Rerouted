@@ -37,10 +37,10 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import net.minecraft.client.Minecraft
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 open class Label(fullText: String, internal val x: Int, internal val y: Int, internal val maxLength: Int, internal val textColor: Int, internal val backgroundColor: Int) {
 
@@ -59,14 +59,14 @@ open class Label(fullText: String, internal val x: Int, internal val y: Int, int
         setText(fullText)
     }
 
-    open fun draw(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
+    open fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
         hovered = hovered(mouseX, mouseY)
         val rect = if (hovered) fullRect else trimmedRect
         val text = if (hovered) fullText else trimmedText
         if (backgroundColor != 0) {
             guiGraphics.fill(rect.roundedLeft - 1, rect.roundedTop - 1, rect.roundedRight + 1, rect.roundedBottom + 1, backgroundColor)
         }
-        guiGraphics.drawString(fontRenderer, text, rect.roundedLeft, rect.roundedTop, textColor, false)
+        guiGraphics.text(fontRenderer, text, rect.roundedLeft, rect.roundedTop, textColor, false)
     }
 
     open fun setText(newFullText: String) {

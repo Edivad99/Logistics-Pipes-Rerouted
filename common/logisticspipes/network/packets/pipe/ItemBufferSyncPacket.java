@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.pipe;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.ListSyncPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
@@ -7,7 +9,6 @@ import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

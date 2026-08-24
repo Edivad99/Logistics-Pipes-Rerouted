@@ -37,15 +37,15 @@
 
 package network.rs485.logisticspipes.integration
 
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe
-import logisticspipes.pipes.unrouted.PipeItemsBasicTransport
-import net.minecraft.core.BlockPos
-import net.minecraft.server.level.ServerLevel
 import network.rs485.minecraft.Configurator
 import network.rs485.minecraft.Placer
 import network.rs485.minecraft.configurator
+import logisticspipes.pipes.basic.LogisticsBlockGenericPipe
+import logisticspipes.pipes.unrouted.PipeItemsBasicTransport
 import logisticspipes.world.item.LPItems
 import logisticspipes.world.level.block.LPBlocks
+import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
 import kotlin.test.assertTrue
 
 object UnroutedPipePlacer : Placer {

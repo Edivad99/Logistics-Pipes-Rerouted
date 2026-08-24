@@ -5,10 +5,9 @@ import java.util.List;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemUtil;
-import logisticspipes.utils.transfer.ItemHandlers;
 
 public class TransactorSimple extends Transactor {
 

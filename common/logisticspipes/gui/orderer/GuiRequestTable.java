@@ -11,8 +11,24 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import logisticspipes.world.item.LPItems;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.popup.GuiDiskPopup;
 import logisticspipes.gui.popup.GuiRequestPopup;
@@ -50,21 +66,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.StringUtil;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
+import logisticspipes.world.item.LPItems;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer, IDiskProvider {
@@ -128,7 +130,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		boolean reHide = false;
 		if (!showRequest) {
 			leftPos = startLeft;
-			imageWidth = startXSize;
+			panelWidth = startXSize;
 			showRequest = true;
 			reHide = true;
 		}
@@ -176,15 +178,15 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		addRenderableWidget(hideWhileSmall.addChain(search));
 
 		if (itemDisplay == null) {
-			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 205, topPos + 18, 200, imageHeight - 100, right - 104, bottom - 24, 36, new int[] { 1, 10, 64, 64 }, true);
+			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 205, topPos + 18, 200, panelHeight - 100, right - 104, bottom - 24, 36, new int[] { 1, 10, 64, 64 }, true);
 		}
-		itemDisplay.reposition(leftPos + 205, topPos + 18, 200, imageHeight - 100, right - 104, bottom - 24);
+		itemDisplay.reposition(leftPos + 205, topPos + 18, 200, panelHeight - 100, right - 104, bottom - 24);
 
 		startLeft = leftPos;
-		startXSize = imageWidth;
+		startXSize = panelWidth;
 		if (reHide) {
 			showRequest = false;
-			imageWidth = startXSize - 210;
+			panelWidth = startXSize - 210;
 			leftPos = startLeft + 105;
 			for (AbstractWidget widget : moveWhileSmall) {
                 widget.setX(widget.getX() + 105);
@@ -199,7 +201,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
-	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
+	public void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int i, int j, float f) {
 		for (AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = table.targetType != null;
 		}
@@ -250,7 +252,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 					private AbstractButton localControlledButton;
 
 					@Override
-					public void renderForeground(GuiGraphics guiGraphics, int left, int top) {
+					public void renderForeground(GuiGraphicsExtractor guiGraphics, int left, int top) {
 						if (!table.watchedRequests.containsKey(entry.getKey())) {
 							extensionControllerLeft.removeExtension(this);
 							if (isFullyExtended() && localControlledButton != null) {
@@ -266,14 +268,14 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 						String s;
 						if (resource != null) {
 							stack = resource.getDisplayItem().makeNormalStack();
-							guiGraphics.renderItem(stack, left + 4, top + 4);
+							guiGraphics.item(stack, left + 4, top + 4);
 							s = TextUtil.getThreeDigitFormattedNumber(stack.getCount(), false);
 						} else {
 							stack = ItemStack.EMPTY;
 							s = "List";
 						}
 						// Draw number
-						guiGraphics.drawString(minecraft.font, s, left + 22 - minecraft.font.width(s), top + 14, 0xFFFFFFFF, true);
+						guiGraphics.text(minecraft.font, s, left + 22 - minecraft.font.width(s), top + 14, 0xFFFFFFFF, true);
 						if (isFullyExtended()) {
 							if (localControlledButton == null || orderIdForButton != entry.getKey()) {
 								if (localControlledButton != null) {
@@ -286,7 +288,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 							List<IOrderInfoProvider> list = entry.getValue().getValue2().getList();
 							calculateSize(left, top, list);
 							String ident = String.format("ID: %d", entry.getKey());
-							guiGraphics.drawString(minecraft.font, ident, left + 25, top + 7, 0xFFFFFFFF, true);
+							guiGraphics.text(minecraft.font, ident, left + 25, top + 7, 0xFFFFFFFF, true);
 							int x = left + 6;
 							int y = top + 25;
 							for (IOrderInfoProvider order : list) {
@@ -294,10 +296,10 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 								if (stack.getCount() <= 0) {
 									continue;
 								}
-								guiGraphics.renderItem(stack, x, y);
+								guiGraphics.item(stack, x, y);
 								s = TextUtil.getThreeDigitFormattedNumber(stack.getCount(), false);
 								// Draw number
-								guiGraphics.drawString(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 0xFFFFFFFF, true);
+								guiGraphics.text(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 0xFFFFFFFF, true);
 								ordererPosition.put(new Pair<>(x, y), order);
 								x += 18;
 								if (x > left + getFinalWidth() - 18) {
@@ -453,14 +455,14 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			// moveWhileSmall
 			showRequest = !showRequest;
 			if (showRequest) {
-				imageWidth = startXSize;
+				panelWidth = startXSize;
 				leftPos = startLeft;
 				for (AbstractWidget widget : moveWhileSmall) {
 					widget.setX(widget.getX() - 105);
 				}
 				hideShowButton.setX(hideShowButton.getX() - 90);
 			} else {
-				imageWidth = startXSize - 210;
+				panelWidth = startXSize - 210;
 				leftPos = startLeft + 105;
 				for (AbstractWidget widget : moveWhileSmall) {
                     widget.setX(widget.getX() + 105);
@@ -531,7 +533,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
-	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		// Guarded on showRequest because renderItemArea is what refreshes the hovered item, and it
 		// only runs while the request panel is open -- without this the last hovered item would
 		// linger as a tooltip after the panel is collapsed.
@@ -545,19 +547,19 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
-	public void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+	public void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 		if (super.hasSubGui()) {
 			return;
 		}
 		macroButton.active = !table.diskInv.getItem(0).isEmpty() && table.diskInv.getItem(0).getItem().equals(LPItems.DISK.get());
-		guiGraphics.drawString(minecraft.font, "Sort:", 136, 55, 0xFFffffff, false);
+		guiGraphics.text(minecraft.font, "Sort:", 136, 55, 0xFFffffff, false);
 		if (showRequest) {
-			guiGraphics.drawString(minecraft.font, title, 180 + minecraft.font.width(title) / 2, 6, 0xFF404040, false);
+			guiGraphics.text(minecraft.font, title, 180 + minecraft.font.width(title) / 2, 6, 0xFF404040, false);
 			if (popupCheck != null && popupCheck.getState()) {
-				guiGraphics.drawString(minecraft.font, "Popup", 225, bottom - topPos - 56, 0xFF404040, false);
+				guiGraphics.text(minecraft.font, "Popup", 225, bottom - topPos - 56, 0xFF404040, false);
 			} else {
-				guiGraphics.drawString(minecraft.font, "Popup", 225, bottom - topPos - 56, Color.getValue(Color.GREY), false);
+				guiGraphics.text(minecraft.font, "Popup", 225, bottom - topPos - 56, Color.getValue(Color.GREY), false);
 			}
 		}
 	}
@@ -640,7 +642,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (search.isFocused()) {
 			if (!search.isEmpty() && search.handleKey(c, i))
 				return true;

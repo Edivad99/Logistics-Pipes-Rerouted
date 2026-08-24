@@ -3,8 +3,6 @@ package logisticspipes.data.recipes.builders;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -18,12 +16,14 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.level.ItemLike;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.world.item.crafting.ProgrammerRecipe;
 
@@ -39,7 +39,7 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
 
     private final HolderGetter<Item> items;
     private final RecipeCategory category;
-    private final ItemStack resultStack;
+    private final ItemStackTemplate resultStack;
     private final List<String> rows = new java.util.ArrayList<>();
     private final Map<Character, Ingredient> key = new LinkedHashMap<>();
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
@@ -47,7 +47,7 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
     private String group;
     private boolean showNotification = true;
 
-    private ProgrammerRecipeBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+    private ProgrammerRecipeBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStackTemplate result) {
         this.items = items;
         this.category = category;
         this.resultStack = result;
@@ -59,10 +59,11 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
 
     public static ProgrammerRecipeBuilder shaped(HolderGetter<Item> items, RecipeCategory category, ItemLike result,
         int count) {
-        return new ProgrammerRecipeBuilder(items, category, new ItemStack(result, count));
+        return new ProgrammerRecipeBuilder(items, category, new ItemStackTemplate(result.asItem(), count));
     }
 
-    public static ProgrammerRecipeBuilder shaped(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+    public static ProgrammerRecipeBuilder shaped(HolderGetter<Item> items, RecipeCategory category,
+        ItemStackTemplate result) {
         return new ProgrammerRecipeBuilder(items, category, result);
     }
 
@@ -110,8 +111,8 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public Item getResult() {
-        return this.resultStack.getItem();
+    public ResourceKey<Recipe<?>> defaultId() {
+        return RecipeBuilder.getDefaultRecipeId(this.resultStack);
     }
 
     @Override
@@ -123,11 +124,10 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
             .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(builder::addCriterion);
         ShapedRecipe shapedrecipe = new ShapedRecipe(
-            Objects.requireNonNullElse(this.group, ""),
-            RecipeBuilder.determineBookCategory(this.category),
+            RecipeBuilder.createCraftingCommonInfo(this.showNotification),
+            RecipeBuilder.createCraftingBookInfo(this.category, this.group),
             pattern,
-            this.resultStack,
-            this.showNotification);
+            this.resultStack);
         recipeOutput.accept(id, new ProgrammerRecipe(shapedrecipe),
             builder.build(id.identifier().withPrefix("recipes/" + this.category.getFolderName() + "/")));
     }

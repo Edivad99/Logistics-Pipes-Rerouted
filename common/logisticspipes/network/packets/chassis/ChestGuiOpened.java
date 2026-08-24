@@ -2,12 +2,14 @@ package logisticspipes.network.packets.chassis;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.LogisticsEventListener;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.module.AsyncQuicksortModule;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;

@@ -1,14 +1,13 @@
 package logisticspipes.proxy.interfaces;
 
-import javax.annotation.Nullable;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.item.ItemIdentifier;
-
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 
 public interface IProxy {
 

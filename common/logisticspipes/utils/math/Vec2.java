@@ -1,7 +1,6 @@
 package logisticspipes.utils.math;
 
 import java.util.Objects;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * 2-dimensional vector.
@@ -10,7 +9,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * @author therealfarfetchd
  */
 // @MethodsReturnNonnullByDefault removed
-@ParametersAreNonnullByDefault
 public final class Vec2 {
 
 	public static final Vec2 ORIGIN = new Vec2(0, 0);

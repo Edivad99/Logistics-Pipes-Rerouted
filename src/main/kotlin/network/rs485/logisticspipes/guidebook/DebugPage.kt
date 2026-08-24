@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.guidebook
 
-import logisticspipes.utils.MinecraftColor
 import network.rs485.markdown.*
+import logisticspipes.utils.MinecraftColor
 import java.util.*
 import kotlin.random.Random
 

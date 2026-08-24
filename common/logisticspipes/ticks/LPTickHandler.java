@@ -3,21 +3,25 @@ package logisticspipes.ticks;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import com.google.common.collect.MapMaker;
-import logisticspipes.commands.commands.debug.DebugGuiController;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.utils.FluidIdentifier;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
+import com.google.common.collect.MapMaker;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import logisticspipes.commands.commands.debug.DebugGuiController;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.utils.FluidIdentifier;
 import network.rs485.grow.ServerTickDispatcher;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 

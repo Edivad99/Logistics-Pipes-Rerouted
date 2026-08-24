@@ -1,8 +1,8 @@
 package logisticspipes.network.guis.pipe;
 
-import logisticspipes.world.item.LPItems;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.gui.GuiFreqCardContent;
-import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.PipeItemsSystemDestinationLogistics;
@@ -11,7 +11,8 @@ import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.LogisticsItemCard;
 
 @StaticResolve
 public class FreqCardGui extends CoordinatesGuiProvider {

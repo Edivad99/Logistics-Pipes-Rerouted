@@ -1,20 +1,20 @@
 package logisticspipes.client.gui.tooltip;
 
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.storage.TagValueInput;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
 
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
@@ -45,7 +45,7 @@ public class ClientModuleInventoryTooltip implements ClientTooltipComponent {
 
     public ClientModuleInventoryTooltip(ModuleInventoryTooltip tooltip) {
         items = readItems(tooltip);
-        columns = Math.max(1, Math.min(MAX_COLUMNS, items.size()));
+        columns = Math.clamp(items.size(), 1, MAX_COLUMNS);
         rows = Math.max(1, Mth.positiveCeilDiv(items.size(), columns));
     }
 
@@ -85,16 +85,16 @@ public class ClientModuleInventoryTooltip implements ClientTooltipComponent {
     }
 
     @Override
-    public void renderImage(Font font, int x, int y, int tooltipWidth, int tooltipHeight, GuiGraphics guiGraphics) {
-        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_SPRITE, x, y, backgroundWidth(), backgroundHeight());
+    public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_SPRITE, x, y, backgroundWidth(), backgroundHeight());
         for (int index = 0; index < items.size(); index++) {
             int slotX = x + index % columns * SLOT_WIDTH + BORDER_WIDTH;
             int slotY = y + index / columns * SLOT_HEIGHT + BORDER_WIDTH;
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, slotX, slotY, SLOT_WIDTH, SLOT_HEIGHT);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, slotX, slotY, SLOT_WIDTH, SLOT_HEIGHT);
             ItemStack stack = items.get(index);
             if (!stack.isEmpty()) {
-                guiGraphics.renderItem(stack, slotX + 1, slotY + 1, index);
-                guiGraphics.renderItemDecorations(font, stack, slotX + 1, slotY + 1);
+                graphics.item(stack, slotX + 1, slotY + 1, index);
+                graphics.itemDecorations(font, stack, slotX + 1, slotY + 1);
             }
         }
     }

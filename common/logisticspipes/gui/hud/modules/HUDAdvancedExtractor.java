@@ -1,20 +1,21 @@
 package logisticspipes.gui.hud.modules;
 
-import logisticspipes.renderer.HUDDrawContext;
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
+
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
+import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Direction;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 
 public class HUDAdvancedExtractor implements IHUDModuleRenderer {

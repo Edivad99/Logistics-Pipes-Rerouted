@@ -2,10 +2,12 @@ package logisticspipes.interfaces.routing;
 
 import java.util.EnumSet;
 import java.util.List;
+
+import net.minecraft.core.Direction;
+
 import logisticspipes.proxy.specialconnection.SpecialPipeConnection.ConnectionInformation;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
-import net.minecraft.core.Direction;
 
 public interface ISpecialPipedConnection {
 

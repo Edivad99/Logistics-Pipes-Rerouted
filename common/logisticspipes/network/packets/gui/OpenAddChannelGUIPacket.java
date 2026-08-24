@@ -1,15 +1,17 @@
 package logisticspipes.network.packets.gui;
 
 import java.util.UUID;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.guis.AddChannelGuiProvider;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 @StaticResolve
 public class OpenAddChannelGUIPacket extends CoordinatesPacket {

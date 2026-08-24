@@ -38,11 +38,11 @@
 package network.rs485.minecraft
 
 import network.rs485.logisticspipes.integration.ONE_VECTOR
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.core.Vec3i
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.block.Blocks
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.async

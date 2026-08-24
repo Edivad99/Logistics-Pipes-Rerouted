@@ -1,10 +1,10 @@
 package logisticspipes.blocks;
 
-import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
-import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+
+import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
+import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
 /**
  * Minimal BlockEntity for the Logistics Block Frame.

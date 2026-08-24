@@ -1,13 +1,15 @@
 package logisticspipes.network.packets.pipe;
 
-import logisticspipes.world.item.ItemUpgrade;
+import net.minecraft.world.entity.player.Player;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
 import logisticspipes.utils.StaticResolve;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.item.ItemUpgrade;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

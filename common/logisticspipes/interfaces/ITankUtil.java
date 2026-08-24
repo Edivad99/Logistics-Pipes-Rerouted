@@ -1,11 +1,13 @@
 package logisticspipes.interfaces;
 
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 public interface ITankUtil {
 

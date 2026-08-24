@@ -1,13 +1,13 @@
 package logisticspipes.utils.transfer;
 
-import javax.annotation.Nullable;
-
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * A single-tank fluid store: what {@code FluidTank} was, on the API that replaced it.

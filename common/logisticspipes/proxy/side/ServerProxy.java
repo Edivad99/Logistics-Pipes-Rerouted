@@ -1,22 +1,23 @@
 package logisticspipes.proxy.side;
 
-import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.interfaces.IProxy;
 import logisticspipes.utils.item.ItemIdentifier;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class ServerProxy implements IProxy {
 
@@ -72,7 +73,7 @@ public class ServerProxy implements IProxy {
 		var server = ServerLifecycleHooks.getCurrentServer();
 		if (server != null) {
 			for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-				p.displayClientMessage(Component.literal("[LP] Server: " + message), false);
+				p.sendSystemMessage(Component.literal("[LP] Server: " + message));
 			}
 		}
 	}

@@ -1,6 +1,10 @@
 
 package logisticspipes.gui;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.packets.pipe.PipePropertiesUpdate;
 import logisticspipes.pipes.PipeFluidTerminus;
 import logisticspipes.proxy.MainProxy;
@@ -8,10 +12,6 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierInventory;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
@@ -29,8 +29,8 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 		propertyLayer = new PropertyLayer(pipe.getProperties());
 		sinkInventoryOverlay = propertyLayer.overlay(pipe.getSinkInv());
 
-		imageWidth = 180;
-		imageHeight = 130;
+		panelWidth = 180;
+		panelHeight = 130;
 	}
 	private static DummyContainer buildDummy(Player player, PipeFluidTerminus pipe) {
 		// propertyLayer is not yet available during static construction; use pipe.getSinkInv() directly
@@ -61,7 +61,7 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 45);
 		for (int i = 0; i < 9; i++) {
@@ -70,8 +70,8 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, "Fluid Terminus", 10, 8, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
+		guiGraphics.text(minecraft.font, "Fluid Terminus", 10, 8, 0xFF404040, false);
 	}
 }

@@ -7,8 +7,6 @@
 
 package logisticspipes.pipes.basic;
 
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -24,18 +22,39 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.PriorityBlockingQueue;
-import javax.annotation.Nullable;
+
+import net.minecraft.CrashReportCategory;
+import net.minecraft.client.GraphicsPreset;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
 import kotlin.Unit;
+import lombok.Getter;
+import lombok.Setter;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
-import logisticspipes.network.guis.pipe.NormalOrdererGui;
-import logisticspipes.particle.Particles;
-import logisticspipes.world.item.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
@@ -51,7 +70,6 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
-import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.logisticspipes.ITrackStatistics;
@@ -63,10 +81,12 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.network.guis.pipe.PipeController;
 import logisticspipes.network.packets.pipe.PipeSignTypes;
 import logisticspipes.network.packets.pipe.RequestSignPacket;
 import logisticspipes.network.packets.pipe.StatUpdate;
+import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.pipes.basic.debug.StatusEntry;
@@ -102,26 +122,8 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
-import lombok.Getter;
-import lombok.Setter;
-
-import net.minecraft.CrashReportCategory;
-import net.minecraft.client.GraphicsPreset;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.ChestBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.ChestType;
+import logisticspipes.world.item.ItemPipeSignCreator;
+import logisticspipes.world.item.LPItems;
 import network.rs485.logisticspipes.connection.Adjacent;
 import network.rs485.logisticspipes.connection.AdjacentFactory;
 import network.rs485.logisticspipes.connection.NoAdjacent;
@@ -875,7 +877,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				if (settings == null || settings.openNetworkMonitor) {
 					NewGuiHandler.getGui(PipeController.class).setTilePos(container).open(entityplayer);
 				} else {
-					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
+					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			return true;
@@ -912,7 +914,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 					gui.setDim(entityplayer.level().dimension().identifier());
 					gui.open(entityplayer);
 				} else {
-					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
+					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			return true;
@@ -928,7 +930,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 						onWrenchClicked(entityplayer);
 					}
 				} else {
-					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
+					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			SimpleServiceLocator.configToolHandler.wrenchUsed(entityplayer, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND), container);

@@ -2,9 +2,8 @@ package logisticspipes.client.model.pipe;
 
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.bus.api.SubscribeEvent;
@@ -12,6 +11,7 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.world.level.block.LPBlocks;
 

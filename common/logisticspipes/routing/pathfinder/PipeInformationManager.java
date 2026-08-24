@@ -4,12 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
-import logisticspipes.LogisticsPipes;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LogisticsPipes;
 import network.rs485.logisticspipes.connection.ConnectionType;
 
 public class PipeInformationManager {

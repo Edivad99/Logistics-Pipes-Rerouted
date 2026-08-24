@@ -1,9 +1,11 @@
 package logisticspipes.textures.provider;
 
-import logisticspipes.renderer.IIconProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+
+import logisticspipes.renderer.IIconProvider;
 
 public class LPActionTriggerIconProvider implements IIconProvider {
 

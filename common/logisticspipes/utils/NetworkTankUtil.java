@@ -1,9 +1,10 @@
 package logisticspipes.utils;
 
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 
 import net.neoforged.neoforge.fluids.FluidStack;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ITankUtil;
 

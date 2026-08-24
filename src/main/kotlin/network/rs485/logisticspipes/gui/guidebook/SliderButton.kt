@@ -22,13 +22,12 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import net.minecraft.client.input.MouseButtonEvent
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.Minecraft
-import net.minecraft.data.AtlasIds
-import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.data.AtlasIds
 import kotlin.math.roundToInt
 
 private const val minimumHeight = 16
@@ -49,7 +48,7 @@ class SliderButton(
     private var initialMouseYOffset: Int = 0
     private var hoveredBar: Boolean = false
 
-    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun extractContents(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (!visible) return
         val grip = sliderButton.translated(body)
         hoveredBar = grip.contains(mouseX, mouseY)

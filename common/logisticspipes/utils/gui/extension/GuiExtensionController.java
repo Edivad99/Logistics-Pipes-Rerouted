@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import logisticspipes.utils.gui.LPGuiGraphics;
-import lombok.Setter;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.inventory.Slot;
+
+import lombok.Setter;
+
+import logisticspipes.utils.gui.LPGuiGraphics;
 
 public class GuiExtensionController {
 
@@ -33,7 +35,7 @@ public class GuiExtensionController {
 		this.side = side;
 	}
 
-	public void render(GuiGraphics guiGraphics, int xPos, int yPos) {
+	public void render(GuiGraphicsExtractor guiGraphics, int xPos, int yPos) {
 		yPos += 4;
 		if (currentlyExtended == null) {
 			for (GuiExtension extension : extensions) {

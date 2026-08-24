@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.module
 
-import logisticspipes.renderer.HUDDrawContext
 import network.rs485.logisticspipes.logistics.LogisticsManager
 import network.rs485.logisticspipes.property.NullableEnumProperty
 import network.rs485.logisticspipes.property.Property
@@ -57,6 +56,7 @@ import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate
 import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.MainProxy
+import logisticspipes.renderer.HUDDrawContext
 import logisticspipes.routing.AsyncRouting
 import logisticspipes.routing.AsyncRouting.needsRoutingTableUpdate
 import logisticspipes.routing.AsyncRouting.updateServerRouterLsa
@@ -65,9 +65,9 @@ import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
 import net.minecraft.client.Minecraft
+import net.minecraft.core.Direction
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
 import java.util.*
 import kotlin.math.min
 import kotlin.math.pow

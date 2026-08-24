@@ -44,13 +44,13 @@ import logisticspipes.utils.Color
 import logisticspipes.utils.gui.LPGuiGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import java.lang.Float.min
 
-// Every drawing method takes the GuiGraphics to draw into, so nothing here depends on ambient state.
+// Every drawing method takes the GuiGraphicsExtractor to draw into, so nothing here depends on ambient state.
 // BDF custom-font paths remain deferred — those live on LPFontRenderer.
 
 /**
@@ -75,7 +75,7 @@ object GuiDrawer {
         FuzzyFlag.USE_ORE_CATEGORY -> Color.FUZZY_ORE_CATEGORY_COLOR.value
     }
 
-    fun drawGuiBackground(guiGraphics: GuiGraphics, guiArea: IRectangle) {
+    fun drawGuiBackground(guiGraphics: GuiGraphicsExtractor, guiArea: IRectangle) {
         val left = guiArea.roundedLeft
         val top = guiArea.roundedTop
         val right = guiArea.roundedRight
@@ -96,7 +96,7 @@ object GuiDrawer {
      * of the pre-1.21 renderer; the vanilla sprites bake both in, so they no longer select anything.
      */
     fun drawBorderedTile(
-        guiGraphics: GuiGraphics,
+        guiGraphics: GuiGraphicsExtractor,
         rect: IRectangle,
         hovered: Boolean,
         enabled: Boolean,
@@ -116,7 +116,7 @@ object GuiDrawer {
     }
 
     fun drawTextTooltip(
-        guiGraphics: GuiGraphics,
+        guiGraphics: GuiGraphicsExtractor,
         text: List<String>,
         x: Int,
         y: Int,
@@ -141,7 +141,7 @@ object GuiDrawer {
         // TODO: guide book hover indicator — deferred.
     }
 
-    fun drawLine(guiGraphics: GuiGraphics, start: Pair<Float, Float>, finish: Pair<Float, Float>, color: Int, thickness: Float) {
+    fun drawLine(guiGraphics: GuiGraphicsExtractor, start: Pair<Float, Float>, finish: Pair<Float, Float>, color: Int, thickness: Float) {
         val (x1, y1) = start
         val (x2, y2) = finish
         val t = thickness.coerceAtLeast(1f).toInt()
@@ -158,7 +158,7 @@ object GuiDrawer {
         }
     }
 
-    fun drawOutlineRect(guiGraphics: GuiGraphics, rect: IRectangle, color: Int) {
+    fun drawOutlineRect(guiGraphics: GuiGraphicsExtractor, rect: IRectangle, color: Int) {
         val left = rect.roundedLeft
         val top = rect.roundedTop
         val right = rect.roundedRight

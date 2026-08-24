@@ -7,10 +7,38 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.Projection;
+import net.minecraft.client.renderer.ProjectionMatrixBuffer;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
+
+import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Matrix4f;
 
+import logisticspipes.client.renderer.ImmediateSubmitCollector;
+import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.utils.LPPositionSet;
@@ -19,39 +47,25 @@ import logisticspipes.utils.math.Camera;
 import logisticspipes.utils.math.Matrix4d;
 import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.math.Vertex;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import logisticspipes.client.renderer.LPRenderTypes;
-import net.minecraft.client.renderer.PerspectiveProjectionMatrixBuffer;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.model.data.ModelData;
 import network.rs485.logisticspipes.world.CoordinateUtils;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
-import com.mojang.blaze3d.ProjectionType;
 
 //Based on: https://github.com/SleepyTrousers/EnderIO/blob/master/src/main/java/crazypants/enderio/machine/gui/GuiOverlayIoConfig.java
 public abstract class SideConfigDisplay {
 
 	/** Owns the GPU-side projection uniform this display uploads its own matrices through. */
-	private final PerspectiveProjectionMatrixBuffer projectionBuffer =
-			new PerspectiveProjectionMatrixBuffer("logisticspipes:side_config");
+	private final ProjectionMatrixBuffer projectionBuffer =
+			new ProjectionMatrixBuffer("logisticspipes:side_config");
+
+	/**
+	 * The projection put back after the scene, standing in for what the game had before.
+	 *
+	 * <p>Was {@code gameRenderer.getProjectionMatrix(70)}, which 26.1.2 removed along with the rest
+	 * of the loose projection plumbing -- a {@link Projection} now owns the parameters and derives
+	 * the matrix. The 70 degree default is the same approximation as before: LP does not know the
+	 * player's actual FOV setting here, and never did.</p>
+	 */
+	private final Projection restoreProjection = new Projection();
 
 	private boolean draggingRotate = false;
 	private boolean draggingMove = false;
@@ -61,7 +75,13 @@ public abstract class SideConfigDisplay {
 	private long initTime;
 
 	private Minecraft mc = Minecraft.getInstance();
-	private Level level;
+	/**
+	 * 26.1.2 moved {@code BlockAndTintGetter} into the client renderer package, and {@link Level}
+	 * no longer implements it -- only {@link ClientLevel} does. This display is client-only and its
+	 * level always comes from the player, so it holds the client type directly rather than casting
+	 * at the one call site that needs it.
+	 */
+	private ClientLevel level;
 
 	private final Vector3d origin = new Vector3d();
 	private final Vector3d eye = new Vector3d();
@@ -130,7 +150,7 @@ public abstract class SideConfigDisplay {
 			}
 		}
 
-		level = mc.player.level();
+		level = mc.level;
 	}
 
 	public abstract void handleSelection(SelectedFace selection);
@@ -273,47 +293,57 @@ public abstract class SideConfigDisplay {
 		// 1.21.6 uploads the projection through a uniform buffer: setProjectionMatrix takes a
 		// GpuBufferSlice, which PerspectiveProjectionMatrixBuffer produces from a Matrix4f.
 		RenderSystem.setProjectionMatrix(
-				projectionBuffer.getBuffer(Minecraft.getInstance().gameRenderer.getProjectionMatrix(70.0f)),
+				projectionBuffer.getBuffer(restoreProjection()),
 				ProjectionType.PERSPECTIVE
 		);
 	}
 
+	private Matrix4f restoreProjection() {
+		var window = Minecraft.getInstance().getWindow();
+		restoreProjection.setupPerspective(0.05f, 1024.0f, 70.0f, window.getWidth(), window.getHeight());
+		return restoreProjection.getMatrix(new Matrix4f());
+	}
+
+	/** Reused across blocks and frames, the way an entity render state is. */
+	private final BlockModelRenderState renderState = new BlockModelRenderState();
+	private static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
+
 	private void renderScene() {
-		BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+		BlockModelResolver blockModels = Minecraft.getInstance().getBlockModelResolver();
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 		PoseStack poseStack = new PoseStack();
+		ImmediateSubmitCollector collector = new ImmediateSubmitCollector(bufferSource);
 
 		for (DoubleCoordinates coord : configurables) {
-			renderBlockAt(coord, blockRenderer, bufferSource, poseStack, false);
+			renderBlockAt(coord, blockModels, collector, poseStack, false);
 		}
 		if (renderNeighbours) {
 			for (DoubleCoordinates coord : neighbours) {
-				renderBlockAt(coord, blockRenderer, bufferSource, poseStack, true);
+				renderBlockAt(coord, blockModels, collector, poseStack, true);
 			}
 		}
 		bufferSource.endBatch();
 	}
 
-	private void renderBlockAt(DoubleCoordinates coord, BlockRenderDispatcher blockRenderer,
-			MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, boolean transparent) {
+	private void renderBlockAt(DoubleCoordinates coord, BlockModelResolver blockModels,
+			ImmediateSubmitCollector collector, PoseStack poseStack, boolean transparent) {
 		BlockPos pos = new BlockPos(coord.getXInt(), coord.getYInt(), coord.getZInt());
 		BlockState state = level.getBlockState(pos);
 		if (state.isAir()) return;
 		poseStack.pushPose();
 		poseStack.translate(pos.getX() - origin.x, pos.getY() - origin.y, pos.getZ() - origin.z);
-		// RenderType.translucent() went with the chunk-layer rework in 1.21.6; the supported way to
-		// draw a block outside a chunk is getMovingBlockRenderType, which picks the layer the block
-		// actually declares. That means the `transparent` neighbours no longer get a translucent
-		// layer -- but they never actually looked translucent either, since the block textures are
-		// opaque and the enableBlend that once wrapped this call had already become a no-op.
-		RenderType renderType = ItemBlockRenderTypes.getMovingBlockRenderType(state);
+		// 26.1.2 removed BlockRenderDispatcher. A block drawn outside a chunk is resolved into a
+		// BlockModelRenderState -- the same object an entity renderer holds for a carried block --
+		// and submitted; ImmediateSubmitCollector puts the quads straight into our buffer source,
+		// since the level renderer's collector is not reachable from a GUI.
+		//
+		// Lighting is full-bright rather than sampled from the level. The old path took the light
+		// from the block's own position, which for a preview floating in a GUI was arbitrary
+		// anyway, and there is no dispatcher left to ask.
 		try {
-			// 1.21.5 collects the geometry up front instead of letting the dispatcher pull it
-			// from a model plus a RandomSource: renderBatched now takes the baked parts.
-			List<BlockModelPart> parts = blockRenderer.getBlockModel(state)
-				.collectParts(level, pos, state, level.getRandom());
-			blockRenderer.renderBatched(state, pos, level, poseStack,
-				bufferSource.getBuffer(renderType), false, parts);
+			renderState.clear();
+			blockModels.update(renderState, state, BLOCK_DISPLAY_CONTEXT);
+			renderState.submit(poseStack, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
 		} catch (Exception ignored) {}
 		poseStack.popPose();
 	}

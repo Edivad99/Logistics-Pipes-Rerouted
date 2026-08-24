@@ -22,14 +22,13 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.utils.MinecraftColor
-import net.minecraft.client.gui.GuiGraphics
-import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
+import logisticspipes.utils.MinecraftColor
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 private val homeButtonTexture = Rectangle(16, 64, 24, 32)
 private val homeIconTexture = Rectangle(128, 0, 16, 16)
@@ -54,7 +53,7 @@ class HomeButton(x: Int, y: Int, onClickAction: (Int) -> Boolean) :
 
     override fun getTooltipText(): String = TextUtil.translate("misc.guide_book.home_button")
 
-    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun extractContents(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (!visible) return
         val hovered = isHovered(mouseX, mouseY)
         // Button background.

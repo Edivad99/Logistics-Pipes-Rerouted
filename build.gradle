@@ -1,8 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
-import java.util.regex.Matcher
-
 plugins {
     id 'java-library'
     id 'idea'
@@ -29,7 +27,7 @@ base {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
         if (System.getProperty('idea.active')) {
             vendor = JvmVendorSpec.JETBRAINS
         }
@@ -39,7 +37,7 @@ java {
 kotlin {
     compilerOptions {
         languageVersion.set(KotlinVersion.KOTLIN_2_0)
-        jvmTarget.set(JvmTarget.JVM_21)
+        jvmTarget.set(JvmTarget.JVM_25)
         freeCompilerArgs.add("-Xjvm-default=all")
     }
 }
@@ -77,12 +75,7 @@ neoForge {
     // Specify the version of NeoForge to use.
     version = project.neo_version
 
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
-
-    validateAccessTransformers = false
+    validateAccessTransformers = true
 
     runs {
         configureEach {
@@ -179,7 +172,7 @@ dependencies {
     compileOnly "mezz.jei:jei-$minecraft_version-neoforge-api:$jei_version"
     localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
 
-    //implementation "curse.maven:jade-api-324717:$jade_id"
+    implementation "curse.maven:jade-api-324717:$jade_id"
 
     compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version:api"
     //localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
@@ -215,32 +208,46 @@ spotless {
 tasks.register('generatePackageInfos') {
     def srcDirs = [
         layout.projectDirectory.dir("common"),
-        //layout.projectDirectory.dir("src/main/java"),
-        //layout.projectDirectory.dir("src/api/java")
+        layout.projectDirectory.dir("src/main/java"),
+        layout.projectDirectory.dir("src/api/java")
     ]
-    def javaFiles = files(srcDirs.collect { dir ->
-        project.fileTree(dir) { include '**/*.java' }
-    })
 
     srcDirs.each { inputs.dir(it) }
     outputs.upToDateWhen { false }
 
+    def roots = srcDirs.collect { it.asFile }
+
     doLast {
-        javaFiles.each { javaFile ->
-            def packageInfoFile = new File(javaFile.parent, 'package-info.java')
-            if (!packageInfoFile.exists()) {
-                def pkgName = javaFile.toString().replaceAll(Matcher.quoteReplacement(File.separator), '/')
-                print(pkgName)
-                pkgName = pkgName.substring(pkgName.indexOf('logisticspipes'), pkgName.lastIndexOf('/'))
-                pkgName = pkgName.replaceAll('/', '.')
-                def pkgInfoText = """
-                    |@NullMarked
-                    |package $pkgName;
-                    |
-                    |import org.jspecify.annotations.NullMarked;
-                """.stripMargin().trim() + "\n"
-                packageInfoFile.text = pkgInfoText
+        def packageOf = { File root, File dir ->
+            root.toPath().relativize(dir.toPath()).toString().replace(File.separator, '.')
+        }
+        def javaDirs = [:]
+        def annotated = [] as Set
+
+        roots.each { root ->
+            if (!root.isDirectory()) return
+            root.eachDirRecurse { dir ->
+                def names = dir.list()
+                if (names == null) return
+                def pkgName = packageOf(root, dir)
+                if (pkgName.isEmpty()) return
+                if (names.contains('package-info.java')) {
+                    annotated << pkgName
+                } else if (names.any { it.endsWith('.java') }) {
+                    javaDirs.putIfAbsent(pkgName, dir)
+                }
             }
+        }
+
+        javaDirs.each { pkgName, dir ->
+            if (annotated.contains(pkgName)) return
+            new File(dir, 'package-info.java').text = """
+                |@NullMarked
+                |package $pkgName;
+                |
+                |import org.jspecify.annotations.NullMarked;
+            """.stripMargin().trim() + "\n"
+            logger.lifecycle("generated package-info for $pkgName")
         }
     }
 }

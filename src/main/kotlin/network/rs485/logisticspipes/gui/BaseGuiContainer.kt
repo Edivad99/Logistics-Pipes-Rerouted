@@ -45,13 +45,13 @@ import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.LPGuiGraphics
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.renderer.RenderPipelines
-import net.minecraft.network.chat.Component
-import net.minecraft.world.inventory.Slot
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.client.renderer.RenderPipelines
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
+import net.minecraft.world.inventory.Slot
 
 // TODO: Rendering deferred — full 1.20.1 rendering migration (PoseStack, AbstractContainerScreen API) pending.
 
@@ -68,6 +68,14 @@ abstract class BaseGuiContainer(
 
     open val fuzzySelector: FuzzySelectionWidget? = null
 
+    /** Panel size, standing in for the now-final [imageWidth] / [imageHeight]. */
+    private var panelWidth: Int = 0
+    private var panelHeight: Int = 0
+
+    override fun hasClickedOutside(mouseX: Double, mouseY: Double, guiLeft: Int, guiTop: Int): Boolean =
+        mouseX < guiLeft || mouseY < guiTop ||
+            mouseX >= guiLeft + panelWidth || mouseY >= guiTop + panelHeight
+
     /** Exposes the protected hoveredSlot field from AbstractContainerScreen. */
     val currentHoveredSlot: Slot? get() = hoveredSlot
 
@@ -76,14 +84,18 @@ abstract class BaseGuiContainer(
         // WidgetScreen resets its origin to (0, 0) before placeChildren, so SlotGroup.setPos
         // bakes LOCAL panel-relative coords into Slot.x/y — exactly what AbstractContainerScreen
         // expects at render time (it translates the pose by leftPos/topPos before renderSlot).
-        // We just copy the centered rect into leftPos/topPos/imageWidth/imageHeight.
+        // We just copy the centered rect into leftPos/topPos and keep the size ourselves.
         widgetScreen.initGuiWidget(this@BaseGuiContainer, width, height)
         val rect = widgetScreen.relativeBody
         // Round exactly the way the widgets do. Centering puts the panel on a half pixel as often as
         // not, and truncating here while the widgets draw at roundToInt() shifts every slot's
         // contents -- and its hit test -- one pixel off the slot background painted around it.
-        imageWidth = rect.roundedWidth
-        imageHeight = rect.roundedHeight
+        // imageWidth/imageHeight became final in 26.1.2 -- they are constructor arguments now.
+        // A widget GUI does not know its size until the widgets have been laid out against the
+        // screen, so the panel size is kept here instead and fed back through hasClickedOutside,
+        // the one place vanilla reads those fields for behaviour rather than for centring.
+        panelWidth = rect.roundedWidth
+        panelHeight = rect.roundedHeight
         leftPos = rect.roundedLeft
         topPos = rect.roundedTop
     }
@@ -96,17 +108,18 @@ abstract class BaseGuiContainer(
 
     private var lastPartialTick: Float = 0f
 
-    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    // 26.1.2 renamed the GUI draw path from render* to extract*. The explicit background call is
+    // gone: Screen#extractRenderStateWithTooltipAndSubtitles runs extractBackground before this.
+    override fun extractRenderState(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         lastPartialTick = partialTick
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick)
-        super.render(guiGraphics, mouseX, mouseY, partialTick)
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick)
         drawHoveredSlotHighlight(guiGraphics)
     }
 
     /**
      * Re-draws the hover highlight vanilla already drew during [render].
      *
-     * The widget layer paints its slot backgrounds from [renderLabels], which
+     * The widget layer paints its slot backgrounds from [extractLabels], which
      * `AbstractContainerScreen#render` calls *after* the highlight, so the highlight ends up buried
      * under those backgrounds -- items survive only because they are drawn with depth. Drawing it
      * once more here, on top, gives these slots the same feedback as every vanilla slot.
@@ -115,7 +128,7 @@ abstract class BaseGuiContainer(
      * over it with [RenderType.guiTexturedOverlay]. Only the front one may be repeated on top --
      * re-blitting the opaque back sprite here would cover the item stack.
      */
-    private fun drawHoveredSlotHighlight(guiGraphics: GuiGraphics) {
+    private fun drawHoveredSlotHighlight(guiGraphics: GuiGraphicsExtractor) {
         val slot = hoveredSlot?.takeIf { it.isActive && it.isHighlightable } ?: return
         val pose = guiGraphics.pose()
         pose.pushMatrix()
@@ -126,8 +139,8 @@ abstract class BaseGuiContainer(
         pose.popMatrix()
     }
 
-    override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
-        // super.renderLabels draws the menu title + inventory label at local (0,0); we skip those
+    override fun extractLabels(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
+        // super.extractLabels draws the menu title + inventory label at local (0,0); we skip those
         // for widget GUIs — widget layout handles its own labels.
         // Pose is translated by (leftPos, topPos); counter-translate so widget absolute coords work.
         val pose = guiGraphics.pose()
@@ -148,12 +161,20 @@ abstract class BaseGuiContainer(
         return super.mouseClicked(event, doubleClick)
     }
 
-    override fun renderBg(
-        guiGraphics: GuiGraphics,
-        partialTick: Float,
+    /**
+     * The panel behind the widgets.
+     *
+     * <p>Was `renderBg`, which 26.1.2 removed. Vanilla container screens now paint their panel by
+     * overriding `extractBackground` and calling super first -- see `MerchantScreen` -- so the
+     * world darkening still lands underneath.</p>
+     */
+    override fun extractBackground(
+        guiGraphics: GuiGraphicsExtractor,
         mouseX: Int,
         mouseY: Int,
+        partialTick: Float,
     ) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTick)
         val rect = widgetScreen.relativeBody
         val left = rect.x0.toInt()
         val top = rect.y0.toInt()
@@ -162,7 +183,7 @@ abstract class BaseGuiContainer(
         LPGuiGraphics.drawGuiBackGround(guiGraphics, left, top, right, bottom, 0f, true)
     }
 
-    fun List<Drawable>.draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, partialTicks: Float, visibleArea: IRectangle) =
+    fun List<Drawable>.draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, partialTicks: Float, visibleArea: IRectangle) =
         forEach {
             it.draw(guiGraphics, mouseX, mouseY, partialTicks, visibleArea)
         }

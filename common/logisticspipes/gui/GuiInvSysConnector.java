@@ -5,7 +5,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
@@ -24,12 +31,6 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUIChannelInformationReceiver {
@@ -105,21 +106,21 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 135);
 		guiGraphics.fill(leftPos + 9, topPos + 78, leftPos + 170, topPos + 132, Color.getValue(Color.GREY));
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "InventorySystemConnector"), 5, 6, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "ConnectionInformation") + ":", 10, 21, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.getTrimmedString(TextUtil.translate(GuiInvSysConnector.PREFIX + "Channel") + ": " + (connectedChannel != null ? connectedChannel.getName() : "UNDEFINED"), 150, this.font, "..."), 15, 38, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Resistance") + ":", 10, 55, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Waitingfor") + ":", 10, 68, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, (page + 1) + "/" + maxPage(), 136, 69, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "InventorySystemConnector"), 5, 6, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "ConnectionInformation") + ":", 10, 21, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.getTrimmedString(TextUtil.translate(GuiInvSysConnector.PREFIX + "Channel") + ": " + (connectedChannel != null ? connectedChannel.getName() : "UNDEFINED"), 150, this.font, "..."), 15, 38, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Resistance") + ":", 10, 55, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiInvSysConnector.PREFIX + "Waitingfor") + ":", 10, 68, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, (page + 1) + "/" + maxPage(), 136, 69, 0xFF404040, false);
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, null, page, 9, 79, 9, 27, 18, 18, 100.0F, DisplayAmount.ALWAYS);
 
 		int ppi = 0;
@@ -185,7 +186,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (!resistanceCountBar.handleKey(c, i)) {
 			return super.charTyped(event);
 		}

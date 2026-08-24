@@ -1,15 +1,16 @@
 package logisticspipes.network.packets.block;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.TagValueInput;
+
 import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.NBTCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class SecurityStationOpenPlayer extends NBTCoordinatesPacket {

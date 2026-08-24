@@ -37,24 +37,24 @@
 
 package network.rs485.logisticspipes.guidebook
 
-import logisticspipes.world.item.LogisticsItem
+import network.rs485.logisticspipes.gui.guidebook.GuiGuideBook
+import network.rs485.logisticspipes.gui.guidebook.IPageData
+import network.rs485.logisticspipes.gui.guidebook.Page
+import network.rs485.logisticspipes.gui.guidebook.PageData
+import network.rs485.logisticspipes.network.packets.SetCurrentPagePacket
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.guis.OpenGuideBook
 import logisticspipes.proxy.MainProxy
+import logisticspipes.world.item.LogisticsItem
 import net.minecraft.client.Minecraft
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.EquipmentSlot
-import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import network.rs485.logisticspipes.gui.guidebook.GuiGuideBook
-import network.rs485.logisticspipes.gui.guidebook.IPageData
-import network.rs485.logisticspipes.gui.guidebook.PageData
-import network.rs485.logisticspipes.gui.guidebook.Page
-import network.rs485.logisticspipes.network.packets.SetCurrentPagePacket
 
 class ItemGuideBook(properties: Properties) : LogisticsItem(properties) {
 

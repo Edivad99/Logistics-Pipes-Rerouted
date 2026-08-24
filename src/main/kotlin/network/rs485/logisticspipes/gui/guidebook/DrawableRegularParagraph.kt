@@ -37,9 +37,9 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 /**
  * Stores groups of ITokenText tokens to more easily translate Tokens to Drawable elements
@@ -62,13 +62,13 @@ class DrawableRegularParagraph(private val words: List<DrawableWord>) : Drawable
         words.find { it.isMouseHovering(mouseX, mouseY) }?.inBookMouseClicked(mouseX, mouseY, mouseButton, guideActionListener)
             ?: false
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
         drawChildren(guiGraphics, mouseX, mouseY, delta, visibleArea)
     }
 
     override fun drawChildren(
-        guiGraphics: GuiGraphics,
+        guiGraphics: GuiGraphicsExtractor,
         mouseX: Float,
         mouseY: Float,
         delta: Float,

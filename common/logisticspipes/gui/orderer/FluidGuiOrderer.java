@@ -1,5 +1,7 @@
 package logisticspipes.gui.orderer;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.orderer.RequestFluidOrdererRefreshPacket;
 import logisticspipes.network.packets.orderer.SubmitFluidRequestPacket;
@@ -8,7 +10,6 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
-import net.minecraft.world.entity.player.Player;
 
 public class FluidGuiOrderer extends GuiOrderer {
 
@@ -26,9 +27,9 @@ public class FluidGuiOrderer extends GuiOrderer {
 		refreshBtn.setPressListener(b -> refreshItems());
 		addRenderableWidget(refreshBtn);
 		if (setItemDisplay) {
-			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24, 49, new int[] { 1, 1000, 16000, 100 }, false);
+			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 10, topPos + 18, panelWidth - 20, panelHeight - 100, xCenter, bottom - 24, 49, new int[] { 1, 1000, 16000, 100 }, false);
 		}
-		itemDisplay.reposition(leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24);
+		itemDisplay.reposition(leftPos + 10, topPos + 18, panelWidth - 20, panelHeight - 100, xCenter, bottom - 24);
 	}
 
 	@Override

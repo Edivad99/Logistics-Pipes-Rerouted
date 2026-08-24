@@ -1,8 +1,7 @@
 package logisticspipes.world.item;
 
-import java.util.List;
-import java.util.function.Consumer;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

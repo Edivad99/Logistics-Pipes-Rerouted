@@ -3,7 +3,7 @@ package logisticspipes.utils.gui.extension;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public abstract class GuiExtension {
 
 	public abstract int getFinalHeight();
 
-	public abstract void renderForeground(GuiGraphics guiGraphics, int left, int top);
+	public abstract void renderForeground(GuiGraphicsExtractor guiGraphics, int left, int top);
 
 	public final void update(int xPos, int yPos) {
 		double d = 0;

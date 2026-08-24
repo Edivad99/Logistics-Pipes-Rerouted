@@ -2,11 +2,12 @@ package logisticspipes.commands.commands;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.abstracts.ICommandHandler;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 public class BypassCommand implements ICommandHandler {
 
@@ -29,10 +30,10 @@ public class BypassCommand implements ICommandHandler {
 	public void executeCommand(Player sender, String[] args) {
 		if (!LogisticsSecurityTileEntity.byPassed.contains((Player) sender)) {
 			LogisticsSecurityTileEntity.byPassed.add((Player) sender);
-			sender.displayClientMessage(Component.literal("Enabled"), false);
+			sender.sendSystemMessage(Component.literal("Enabled"));
 		} else {
 			LogisticsSecurityTileEntity.byPassed.remove((Player) sender);
-			sender.displayClientMessage(Component.literal("Disabled"), false);
+			sender.sendSystemMessage(Component.literal("Disabled"));
 		}
 	}
 }

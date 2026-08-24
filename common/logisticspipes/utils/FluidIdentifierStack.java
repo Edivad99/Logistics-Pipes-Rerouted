@@ -1,9 +1,10 @@
 package logisticspipes.utils;
 
-import javax.annotation.Nullable;
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidIdentifierStack implements Comparable<FluidIdentifierStack> {
 

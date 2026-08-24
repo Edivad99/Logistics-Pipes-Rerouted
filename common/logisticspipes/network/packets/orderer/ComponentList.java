@@ -2,6 +2,17 @@ package logisticspipes.network.packets.orderer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.orderer.GuiOrderer;
 import logisticspipes.gui.orderer.GuiRequestTable;
@@ -10,13 +21,6 @@ import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.IResource.ColorCode;
 import logisticspipes.request.resources.ResourceNetwork;
 import logisticspipes.utils.StaticResolve;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -56,10 +60,10 @@ public class ComponentList extends ModernPacket {
 					.handleSimulateAnswer(used, missing, (GuiRequestTable) Minecraft.getInstance().screen, player);
 		} else {
 			for (IResource item : used) {
-				player.displayClientMessage(Component.literal("Component: " + item.getDisplayText(ColorCode.SUCCESS)), false);
+				player.sendSystemMessage(Component.literal("Component: " + item.getDisplayText(ColorCode.SUCCESS)));
 			}
 			for (IResource item : missing) {
-				player.displayClientMessage(Component.literal("Missing: " + item.getDisplayText(ColorCode.MISSING)), false);
+				player.sendSystemMessage(Component.literal("Missing: " + item.getDisplayText(ColorCode.MISSING)));
 			}
 		}
 	}

@@ -4,26 +4,23 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.data.AtlasIds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSolidBlock;
@@ -136,7 +133,7 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
 
     @Override
     public void extractRenderState(T be, SolidBlockRenderState state, float partialTicks, Vec3 cameraPos,
-        @Nullable ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+        ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPos, breakProgress);
         state.type = null;
         state.icon = null;

@@ -1,15 +1,17 @@
 package logisticspipes.network.packets.hud;
 
-import logisticspipes.world.item.LPItems;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import logisticspipes.world.item.LPItems;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -46,49 +48,49 @@ public class HUDSettingsPacket extends ModernPacket {
 			case 0:
 				config.setChassisHUD(state);
 				if (config.isChassisHUD()) {
-					player.displayClientMessage(Component.translatable("lp.hud.config.chassie.enabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.chassie.enabled"));
 				} else {
-					player.displayClientMessage(Component.translatable("lp.hud.config.chassie.disabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.chassie.disabled"));
 				}
 				break;
 			case 1:
 				config.setHUDCrafting(state);
 				if (config.isHUDCrafting()) {
-					player.displayClientMessage(Component.translatable("lp.hud.config.crafting.enabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.crafting.enabled"));
 				} else {
-					player.displayClientMessage(Component.translatable("lp.hud.config.crafting.disabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.crafting.disabled"));
 				}
 				break;
 			case 2:
 				config.setHUDInvSysCon(state);
 				if (config.isHUDInvSysCon()) {
-					player.displayClientMessage(Component.translatable("lp.hud.config.invsyscon.enabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.invsyscon.enabled"));
 				} else {
-					player.displayClientMessage(Component.translatable("lp.hud.config.invsyscon.disabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.invsyscon.disabled"));
 				}
 				break;
 			case 3:
 				config.setHUDPowerJunction(state);
 				if (config.isHUDPowerLevel()) {
-					player.displayClientMessage(Component.translatable("lp.hud.config.powerjunction.enabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.powerjunction.enabled"));
 				} else {
-					player.displayClientMessage(Component.translatable("lp.hud.config.powerjunction.disabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.powerjunction.disabled"));
 				}
 				break;
 			case 4:
 				config.setHUDProvider(state);
 				if (config.isHUDProvider()) {
-					player.displayClientMessage(Component.translatable("lp.hud.config.provider.enabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.provider.enabled"));
 				} else {
-					player.displayClientMessage(Component.translatable("lp.hud.config.provider.disabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.provider.disabled"));
 				}
 				break;
 			case 5:
 				config.setHUDSatellite(state);
 				if (config.isHUDSatellite()) {
-					player.displayClientMessage(Component.translatable("lp.hud.config.satellite.enabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.satellite.enabled"));
 				} else {
-					player.displayClientMessage(Component.translatable("lp.hud.config.satellite.disabled"), false);
+					player.sendSystemMessage(Component.translatable("lp.hud.config.satellite.disabled"));
 				}
 				break;
 		}

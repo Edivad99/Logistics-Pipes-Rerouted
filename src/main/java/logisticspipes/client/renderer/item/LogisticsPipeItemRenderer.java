@@ -1,25 +1,22 @@
 package logisticspipes.client.renderer.item;
 
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
-import java.util.function.Consumer;
 import java.util.List;
+import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.special.SpecialModelRenderer;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.client.renderer.special.SpecialModelRenderer;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
@@ -73,7 +70,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
     }
 
     @Override
-    public void submit(@Nullable CoreUnroutedPipe dummyPipe, ItemDisplayContext ctx, PoseStack pose,
+    public void submit(@Nullable CoreUnroutedPipe dummyPipe, PoseStack pose,
         SubmitNodeCollector collector, int light, int overlay, boolean hasFoil, int outlineColor) {
         if (dummyPipe == null) {
             return;
@@ -126,7 +123,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
             pose.scale(scale, scale, scale);
             pose.translate(-bounds.getCenter().x, -bounds.getCenter().y, -bounds.getCenter().z);
 
-            collector.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(tube.texture()),
+            collector.submitCustomGeometry(pose, RenderTypes.entityCutout(tube.texture()),
                 (snapshot, buffer) -> MeshRenderer.emitRaw(buffer, snapshot, tube.mesh(), 0xFFFFFFFF, light, overlay));
         } finally {
             pose.popPose();
@@ -164,9 +161,14 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
             // Not submitItem: that path drives tint indices off an int[] the caller supplies, and
             // these quads carry whatever tint index the baker gave them. Emitting them untinted is
             // what the item has always done.
+            // putBulkData is gone; a quad's per-vertex colour, light and overlay ride on a
+            // QuadInstance now instead of being loose arguments.
+            QuadInstance quadInstance = new QuadInstance();
+            quadInstance.setLightCoords(light);
+            quadInstance.setOverlayCoords(overlay);
             collector.submitCustomGeometry(pose, Sheets.cutoutBlockSheet(), (snapshot, buffer) -> {
                 for (BakedQuad quad : quads) {
-                    buffer.putBulkData(snapshot, quad, 1.0f, 1.0f, 1.0f, 1.0f, light, overlay);
+                    buffer.putBakedQuad(snapshot, quad, quadInstance);
                 }
             });
         } finally {
@@ -174,13 +176,13 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
         }
     }
 
-    public record Unbaked() implements SpecialModelRenderer.Unbaked {
+    public record Unbaked() implements SpecialModelRenderer.Unbaked<CoreUnroutedPipe> {
 
         public static final Unbaked INSTANCE = new Unbaked();
         public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(INSTANCE);
 
         @Override
-        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
+        public SpecialModelRenderer<CoreUnroutedPipe> bake(SpecialModelRenderer.BakingContext context) {
             return LogisticsPipeItemRenderer.INSTANCE;
         }
 

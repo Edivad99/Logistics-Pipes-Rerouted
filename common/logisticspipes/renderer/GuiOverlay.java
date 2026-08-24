@@ -1,17 +1,18 @@
 package logisticspipes.renderer;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.Slot;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.SlotFinderNumberPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.SimpleGraphics;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.Slot;
 
 public class GuiOverlay {
 
@@ -63,11 +64,11 @@ public class GuiOverlay {
 
 	/**
 	 * Draws the slot highlight over the open container screen. Called from {@code ScreenEvent.Render.Post},
-	 * which is the event that hands us the screen's own {@link GuiGraphics} -- the overlay used to run on
-	 * {@code RenderFrameEvent.Post} and reach for whichever GuiGraphics the last screen render had left on a
+	 * which is the event that hands us the screen's own {@link GuiGraphicsExtractor} -- the overlay used to run on
+	 * {@code RenderFrameEvent.Post} and reach for whichever GuiGraphicsExtractor the last screen render had left on a
 	 * static field, which meant it drew against stale state whenever that ordering did not hold.
 	 */
-	public void renderOverGui(GuiGraphics guiGraphics) {
+	public void renderOverGui(GuiGraphicsExtractor guiGraphics) {
 		if (hasBeenSaved) {
 			hasBeenSaved = false;
 			// Mouse restore removed — GLFW mouse position is not directly settable in 1.20.1
@@ -76,8 +77,8 @@ public class GuiOverlay {
 			Minecraft client = Minecraft.getInstance();
 			AbstractContainerScreen gui = (AbstractContainerScreen) client.screen;
 
-			int guiTop = gui.getGuiTop();
-			int guiLeft = gui.getGuiLeft();
+			int guiTop = gui.getTopPos();
+			int guiLeft = gui.getLeftPos();
 
 			int x = oldX * gui.width / client.getWindow().getScreenWidth();
 			int y = oldY * gui.height / client.getWindow().getScreenHeight();
@@ -115,8 +116,8 @@ public class GuiOverlay {
 	}
 
 	private boolean isPointInRegion(AbstractContainerScreen gui, int x, int y, int width, int height, int pointX, int pointY) {
-		int x0 = gui.getGuiLeft();
-		int y0 = gui.getGuiTop();
+		int x0 = gui.getLeftPos();
+		int y0 = gui.getTopPos();
 		pointX -= x0;
 		pointY -= y0;
 		return pointX >= x - 1 && pointX < x + width + 1 && pointY >= y - 1 && pointY < y + height + 1;

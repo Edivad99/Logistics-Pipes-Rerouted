@@ -38,8 +38,8 @@
 package network.rs485.logisticspipes.property
 
 import net.minecraft.util.ExtraCodecs
-import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.*
 import java.util.concurrent.CopyOnWriteArraySet
 

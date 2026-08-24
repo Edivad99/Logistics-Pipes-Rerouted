@@ -1,14 +1,15 @@
 package logisticspipes.commands.commands;
 
-import logisticspipes.commands.abstracts.ICommandHandler;
-import logisticspipes.commands.exception.MissingArgumentException;
-import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+
+import logisticspipes.commands.abstracts.ICommandHandler;
+import logisticspipes.commands.exception.MissingArgumentException;
+import logisticspipes.utils.item.ItemIdentifier;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
@@ -43,6 +44,6 @@ public class NameLookupCommand implements ICommandHandler {
 		ItemIdentifier item = meta == 0
 				? ItemIdentifier.get(lookedUp)
 				: ItemIdentifier.get(lookedUp, DataComponentPatch.builder().set(DataComponents.DAMAGE, meta).build());
-		sender.displayClientMessage(Component.literal("Name: " + item.getFriendlyNameCC()), false);
+		sender.sendSystemMessage(Component.literal("Name: " + item.getFriendlyNameCC()));
 	}
 }

@@ -42,14 +42,14 @@ import network.rs485.markdown.*
 import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-// Drawing falls back to vanilla `Font` via `GuiGraphics.drawString` — BDF glyph metrics still used
+// Drawing falls back to vanilla `Font` via `GuiGraphicsExtractor.drawString` — BDF glyph metrics still used
 // for width/height measurements so guidebook layout stays self-consistent. A full BDF→atlas rewrite
 // with Blaze3D buffers is deferred; the fallback keeps the guidebook legible in the meantime.
 
@@ -104,24 +104,24 @@ class LPFontRenderer(private val fontName: String) {
      * Draws the given string via vanilla `Font` (fallback until the BDF atlas pipeline is reimplemented).
      * Width returned is BDF-derived so callers measuring our layout stay consistent.
      */
-    fun drawString(guiGraphics: GuiGraphics, string: String, x: Float, y: Float, color: Int, format: Set<TextFormat>, scale: Float): Int {
+    fun drawString(guiGraphics: GuiGraphicsExtractor, string: String, x: Float, y: Float, color: Int, format: Set<TextFormat>, scale: Float): Int {
         val font = Minecraft.getInstance().font
         val formatted = applyFormatCodes(string, format)
         val shadow = format.shadow()
         if (scale == 1f) {
-            guiGraphics.drawString(font, formatted, x.toInt(), y.toInt(), color, shadow)
+            guiGraphics.text(font, formatted, x.toInt(), y.toInt(), color, shadow)
         } else {
             val pose = guiGraphics.pose()
             pose.pushMatrix()
             pose.translate(x, y)
             pose.scale(scale, scale)
-            guiGraphics.drawString(font, formatted, 0, 0, color, shadow)
+            guiGraphics.text(font, formatted, 0, 0, color, shadow)
             pose.popMatrix()
         }
         return getStringWidth(string, format, scale)
     }
 
-    fun drawSpace(guiGraphics: GuiGraphics, x: Float, y: Float, width: Int, color: Int, italic: Boolean, underline: Boolean, strikethrough: Boolean, shadow: Boolean, scale: Float): Int {
+    fun drawSpace(guiGraphics: GuiGraphicsExtractor, x: Float, y: Float, width: Int, color: Int, italic: Boolean, underline: Boolean, strikethrough: Boolean, shadow: Boolean, scale: Float): Int {
         if (!underline && !strikethrough) return width
         val h = (wrapperPlain.fontHeight * scale).toInt()
         if (underline) {
@@ -133,7 +133,7 @@ class LPFontRenderer(private val fontName: String) {
         return width
     }
 
-    fun drawCenteredString(guiGraphics: GuiGraphics, string: String, x: Float, y: Float, color: Int, tags: Set<TextFormat>, scale: Float): Int {
+    fun drawCenteredString(guiGraphics: GuiGraphicsExtractor, string: String, x: Float, y: Float, color: Int, tags: Set<TextFormat>, scale: Float): Int {
         val width = getStringWidth(string, tags, scale)
         return drawString(guiGraphics, string, x - width / 2f, y, color, tags, scale)
     }

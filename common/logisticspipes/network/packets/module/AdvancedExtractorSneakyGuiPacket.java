@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.module;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.NewGuiHandler;
@@ -10,7 +12,6 @@ import logisticspipes.network.guis.module.inpipe.SneakyModuleInSlotGuiProvider;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyModuleContainer;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 
 @StaticResolve

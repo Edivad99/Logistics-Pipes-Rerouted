@@ -8,24 +8,18 @@
 
 package network.rs485.logisticspipes.item
 
+import network.rs485.logisticspipes.TestBootstrap
 import logisticspipes.utils.FluidIdentifier
-import net.minecraft.SharedConstants
+import org.junit.jupiter.api.BeforeAll
+import net.neoforged.neoforge.fluids.FluidStack
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.server.Bootstrap
 import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.level.material.Fluid
 import net.minecraft.world.level.material.Fluids
-import net.neoforged.neoforge.fluids.FluidStack
-import org.junit.jupiter.api.BeforeAll
-import java.util.TreeSet
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNull
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
+import java.util.*
+import kotlin.test.*
 
 /**
  * Pins the DataComponents-based fluid identity: interning, canonicalization, and the deterministic
@@ -37,8 +31,7 @@ class FluidIdentifierTest {
         @JvmStatic
         @BeforeAll
         fun bootstrap() {
-            SharedConstants.tryDetectVersion()
-            Bootstrap.bootStrap()
+            TestBootstrap.boot()
         }
     }
 

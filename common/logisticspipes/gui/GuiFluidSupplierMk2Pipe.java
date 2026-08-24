@@ -6,6 +6,10 @@
 
 package logisticspipes.gui;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.FluidSupplierAmount;
 import logisticspipes.network.packets.pipe.FluidSupplierMinMode;
@@ -17,9 +21,6 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
@@ -32,8 +33,8 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 		super(buildDummy(playerInventory, dummyInventory, logic));
 
 		this.logic = logic;
-		imageWidth = 184;
-		imageHeight = 176;
+		panelWidth = 184;
+		panelHeight = 176;
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierAmount.class).putInt(0).setPosX(this.logic.getX()).setPosY(this.logic.getY()).setPosZ(this.logic.getZ()));
 	}
 	private static DummyContainer buildDummy(Container playerInventory, Container dummyInventory, PipeFluidSupplierMk2 logic) {
@@ -46,40 +47,40 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv"), imageWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv")) / 2, 6, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Inventory"), 15, imageHeight - 95, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Fluid") + ":", 25, 22, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Partial") + ":", imageWidth - 176, imageHeight - 109, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "minMode") + ":", imageWidth - 108, imageHeight - 109, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, Integer.toString(logic.getAmount()), imageWidth / 2, 22, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, "+", 32, 39, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, "-", 32, 50, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv"), panelWidth / 2 - minecraft.font.width(TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "TargetInv")) / 2, 6, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Inventory"), 15, panelHeight - 95, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Fluid") + ":", 25, 22, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Partial") + ":", panelWidth - 176, panelHeight - 109, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "minMode") + ":", panelWidth - 108, panelHeight - 109, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, Integer.toString(logic.getAmount()), panelWidth / 2, 22, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, "+", 32, 39, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, "-", 32, 50, 0xFF404040, false);
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
-		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0.0f, true);
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int x, int y, float f) {
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, leftPos + panelWidth, topPos + panelHeight, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 13, topPos + 92);
 		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 59, topPos + 17);
 		//RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		//minecraft.renderEngine.func_110577_a("/logisticspipes/gui/supplier.png");
 		//int j = leftPos;
 		//int k = topPos;
-		//drawTexturedModalRect(j, k, 0, 0, imageWidth, imageHeight);
+		//drawTexturedModalRect(j, k, 0, 0, panelWidth, panelHeight);
 	}
 
 	@Override
 	public void init() {
 		super.init();
-		SmallGuiButton partialsBtn = new SmallGuiButton(0, width / 2 - 48, topPos + imageHeight - 115, 30, 20, logic.isRequestingPartials() ? TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Yes") : TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "No"));
+		SmallGuiButton partialsBtn = new SmallGuiButton(0, width / 2 - 48, topPos + panelHeight - 115, 30, 20, logic.isRequestingPartials() ? TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Yes") : TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "No"));
 		partialsBtn.setPressListener(b -> {
 			logic.setRequestingPartials(!logic.isRequestingPartials());
 			b.setMessage(Component.literal(logic.isRequestingPartials() ? TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Yes") : TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "No")));
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierMode.class).putInt((logic.isRequestingPartials() ? 1 : 0)).setPosX(logic.getX()).setPosY(logic.getY()).setPosZ(logic.getZ()));
 		});
 		addRenderableWidget(partialsBtn);
-		SmallGuiButton minModeBtn = new SmallGuiButton(1, width / 2 + 30, topPos + imageHeight - 115, 55, 20, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + logic.getMinMode().name()));
+		SmallGuiButton minModeBtn = new SmallGuiButton(1, width / 2 + 30, topPos + panelHeight - 115, 55, 20, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + logic.getMinMode().name()));
 		minModeBtn.setPressListener(b -> {
 			int index = logic.getMinMode().ordinal() + 1;
 			if (index >= MinMode.values().length) {

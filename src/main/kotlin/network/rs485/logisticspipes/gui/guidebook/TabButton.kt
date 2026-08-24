@@ -37,13 +37,13 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import net.minecraft.client.input.MouseButtonEvent
-import logisticspipes.utils.MinecraftColor
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
+import logisticspipes.utils.MinecraftColor
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.input.MouseButtonEvent
 
 interface TabButtonReturn {
     fun onLeftClick(): Boolean
@@ -75,7 +75,7 @@ class TabButton(
 
     // Body pass, drawn UNDER the frame: only inactive tabs (LP1's drawButton). The active tab's
     // body is drawn over the frame in renderForeground so it "opens into" the page.
-    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun extractContents(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (!visible || !isInactive) return
         // Inactive tabs sit slightly lower (shifted down by 3px) and are tinted with their color.
         val tabColor: Int = (MinecraftColor.values()[whisky.getColor()].colorCode and 0x00FFFFFF) or 0xFF000000.toInt()
@@ -90,7 +90,7 @@ class TabButton(
 
     // Foreground pass, drawn OVER the frame (LP1's drawButtonForegroundLayer): the active tab's
     // white body plus colored circle marker, and the hover tooltip.
-    fun renderForeground(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
+    fun renderForeground(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
         if (!isInactive) {
             val tabColor: Int = (MinecraftColor.values()[whisky.getColor()].colorCode and 0x00FFFFFF) or 0xFF000000.toInt()
             GuideBookGraphics.blitAtlas(guiGraphics, body, buttonTextureArea, color = -1)

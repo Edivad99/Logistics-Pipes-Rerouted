@@ -1,23 +1,21 @@
 package logisticspipes.renderer;
 
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.renderer.ImmediateSubmitCollector;
 import logisticspipes.client.renderer.LPRenderTypes;
@@ -26,10 +24,10 @@ import logisticspipes.client.renderer.LPRenderTypes;
  * The drawing surface the head-up display renders onto.
  *
  * <p>LP's HUD panels hang in the world above a pipe, billboarded towards the camera. Up to 1.21.5
- * they were drawn with a {@link net.minecraft.client.gui.GuiGraphics} whose pose had been loaded
+ * they were drawn with a {@link net.minecraft.client.gui.GuiGraphicsExtractor} whose pose had been loaded
  * with the camera orientation and a 3D translation -- a GUI object used for world geometry. 1.21.6
- * closed that door: {@code GuiGraphics.pose()} is a {@link org.joml.Matrix3x2fStack}, so it cannot
- * express a billboard, and {@code GuiGraphics} now writes into a {@code GuiRenderState} that is
+ * closed that door: {@code GuiGraphicsExtractor.pose()} is a {@link org.joml.Matrix3x2fStack}, so it cannot
+ * express a billboard, and {@code GuiGraphicsExtractor} now writes into a {@code GuiRenderState} that is
  * rendered in screen space at the end of the frame.</p>
  *
  * <p>Picture-in-Picture is not the replacement: it draws to a texture and submits it to the
@@ -100,7 +98,7 @@ public class HUDDrawContext {
         }
     }
 
-    /** Filled rectangle, ARGB. Replaces {@code GuiGraphics#fill}. */
+    /** Filled rectangle, ARGB. Replaces {@code GuiGraphicsExtractor#fill}. */
     public void fill(int x0, int y0, int x1, int y1, int color) {
         if (x0 > x1) {
             int swap = x0;
@@ -125,7 +123,7 @@ public class HUDDrawContext {
     }
 
     /**
-     * Textured rectangle. Replaces the {@code GuiGraphics#blit} overload the HUD used: {@code u}
+     * Textured rectangle. Replaces the {@code GuiGraphicsExtractor#blit} overload the HUD used: {@code u}
      * and {@code v} are pixel offsets into a {@code texWidth} x {@code texHeight} sheet.
      */
     public void blit(Identifier texture, int x, int y, float u, float v, int width, int height,
@@ -152,7 +150,7 @@ public class HUDDrawContext {
     }
 
     /**
-     * Replaces {@code GuiGraphics#drawString}. {@code Font#drawInBatch} is the world-space entry
+     * Replaces {@code GuiGraphicsExtractor#drawString}. {@code Font#drawInBatch} is the world-space entry
      * point -- it takes the matrix and buffer source directly, which is exactly what a GUI-less
      * caller has.
      */
@@ -162,7 +160,7 @@ public class HUDDrawContext {
             Font.DisplayMode.NORMAL, 0, packedLight);
     }
 
-    /** No-shadow overload, matching the {@code GuiGraphics} signature the HUD called. */
+    /** No-shadow overload, matching the {@code GuiGraphicsExtractor} signature the HUD called. */
     public void drawString(Font font, String text, int x, int y, int color) {
         drawString(font, text, x, y, color, false);
     }
@@ -171,13 +169,13 @@ public class HUDDrawContext {
         drawString(font, text, x, y, color, shadow);
     }
 
-    /** Replaces {@code GuiGraphics#drawCenteredString}. */
+    /** Replaces {@code GuiGraphicsExtractor#drawCenteredString}. */
     public void drawCenteredString(Font font, String text, int centerX, int y, int color, boolean shadow) {
         drawString(font, text, centerX - font.width(text) / 2, y, color, shadow);
     }
 
     /**
-     * Replaces {@code GuiGraphics#renderItem}. The GUI version bakes in its own 16x16 projection and
+     * Replaces {@code GuiGraphicsExtractor#renderItem}. The GUI version bakes in its own 16x16 projection and
      * lighting; in world space the transform is ours, so the stack is scaled to the same 16 pixels
      * and flipped on Y, since HUD coordinates grow downwards while item models grow upwards.
      */
@@ -223,7 +221,7 @@ public class HUDDrawContext {
     }
 
     /**
-     * Stack size and damage bar. {@code GuiGraphics#renderItemDecorations} is unavailable here, and
+     * Stack size and damage bar. {@code GuiGraphicsExtractor#renderItemDecorations} is unavailable here, and
      * only the count is drawn: the damage bar is a GUI-space overlay with its own pipeline, and no
      * HUD panel shows damageable items.
      */

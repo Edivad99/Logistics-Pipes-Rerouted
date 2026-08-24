@@ -1,21 +1,20 @@
 package logisticspipes.client.renderer.item;
 
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.serialization.MapCodec;
 
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.MapCodec;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.blocks.LogisticsSolidBlock;
 import logisticspipes.client.renderer.blockentity.LogisticsSolidBlockRenderer;
 import logisticspipes.world.item.LogisticsSolidBlockItem;
-import logisticspipes.blocks.LogisticsSolidBlock;
 
 /**
  * Draws an LP solid block item using the same OBJ geometry as
@@ -38,9 +37,8 @@ public class LogisticsSolidBlockItemRenderer implements SpecialModelRenderer<Log
     private LogisticsSolidBlockItemRenderer() {
     }
 
-    @Nullable
     @Override
-    public LogisticsSolidBlock.Type extractArgument(ItemStack stack) {
+    public LogisticsSolidBlock.@Nullable Type extractArgument(ItemStack stack) {
         return stack.getItem() instanceof LogisticsSolidBlockItem item ? item.getType() : null;
     }
 
@@ -57,7 +55,7 @@ public class LogisticsSolidBlockItemRenderer implements SpecialModelRenderer<Log
     }
 
     @Override
-    public void submit(@Nullable LogisticsSolidBlock.Type type, ItemDisplayContext ctx, PoseStack pose,
+    public void submit(LogisticsSolidBlock.@Nullable Type type, PoseStack pose,
         SubmitNodeCollector collector, int light, int overlay, boolean hasFoil, int outlineColor) {
         if (type == null) {
             return;
@@ -70,13 +68,13 @@ public class LogisticsSolidBlockItemRenderer implements SpecialModelRenderer<Log
         }
     }
 
-    public record Unbaked() implements SpecialModelRenderer.Unbaked {
+    public record Unbaked() implements SpecialModelRenderer.Unbaked<LogisticsSolidBlock.Type> {
 
         public static final Unbaked INSTANCE = new Unbaked();
         public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(INSTANCE);
 
         @Override
-        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
+        public SpecialModelRenderer<LogisticsSolidBlock.Type> bake(SpecialModelRenderer.BakingContext context) {
             return LogisticsSolidBlockItemRenderer.INSTANCE;
         }
 

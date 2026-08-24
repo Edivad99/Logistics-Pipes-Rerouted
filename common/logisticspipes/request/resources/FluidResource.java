@@ -2,12 +2,8 @@ package logisticspipes.request.resources;
 
 import java.util.Objects;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.MutableComponent;
-
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.routing.IRouter;

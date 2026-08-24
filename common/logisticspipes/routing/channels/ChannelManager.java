@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ import logisticspipes.utils.PlayerIdentifier;
 
 public class ChannelManager implements IChannelManager {
 
-    private static final String DATA_NAME = LPConstants.ID + "_ChannelManager_SavedData";
+    private static final Identifier DATA_NAME = LPConstants.rl("channel_manager");
     private final ChannelSavedData savedData;
 
     public ChannelManager(Level level) {
@@ -132,7 +132,7 @@ public class ChannelManager implements IChannelManager {
         ).apply(instance, ChannelSavedData::new));
 
         public static final SavedDataType<ChannelSavedData> TYPE =
-            new SavedDataType<>(DATA_NAME, ChannelSavedData::new, CODEC);
+            new SavedDataType<ChannelSavedData>(DATA_NAME, level -> new ChannelSavedData(), level -> CODEC);
 
         @Getter
         List<ChannelInformation> channels = new ArrayList<>();

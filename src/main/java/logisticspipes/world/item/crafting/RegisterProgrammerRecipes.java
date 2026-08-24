@@ -2,12 +2,13 @@ package logisticspipes.world.item.crafting;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleCrafter;

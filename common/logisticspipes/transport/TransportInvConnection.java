@@ -1,13 +1,16 @@
 package logisticspipes.transport;
 
 import java.util.Objects;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import net.neoforged.neoforge.capabilities.Capabilities;
+
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
 
 public class TransportInvConnection extends PipeTransportLogistics {
 

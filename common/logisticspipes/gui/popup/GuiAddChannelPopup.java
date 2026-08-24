@@ -1,6 +1,12 @@
 package logisticspipes.gui.popup;
 
 import java.util.UUID;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.AddNewChannelPacket;
 import logisticspipes.proxy.MainProxy;
@@ -10,10 +16,6 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiAddChannelPopup extends SubGuiScreen {
@@ -30,8 +32,8 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 		this.responsibleSecurityID = responsibleSecurityID;
 	}
 
-	protected GuiAddChannelPopup(UUID responsibleSecurityID, int imageHeight) {
-		super(118, imageHeight, 0, 0);
+	protected GuiAddChannelPopup(UUID responsibleSecurityID, int panelHeight) {
+		super(118, panelHeight, 0, 0);
 		this.responsibleSecurityID = responsibleSecurityID;
 	}
 
@@ -85,24 +87,24 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
 		drawTitle(guiGraphics);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "name"), guiLeft + 10, guiTop + 20, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "access") + ":", guiLeft + 10, guiTop + 55, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "public"), guiLeft + 10, guiTop + 70, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "security"), guiLeft + 10, guiTop + 85, responsibleSecurityID != null ? 0xFF404040 : 0xFF808080, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "private"), guiLeft + 10, guiTop + 100, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "name"), guiLeft + 10, guiTop + 20, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "access") + ":", guiLeft + 10, guiTop + 55, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "public"), guiLeft + 10, guiTop + 70, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "security"), guiLeft + 10, guiTop + 85, responsibleSecurityID != null ? 0xFF404040 : 0xFF808080, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "private"), guiLeft + 10, guiTop + 100, 0xFF404040, false);
 	}
 
-	protected void drawTitle(GuiGraphics guiGraphics) {
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2, guiTop + 6, 0xFFFFFFFF, true);
+	protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2, guiTop + 6, 0xFFFFFFFF, true);
 	}
 
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char par1 = (char) event.codepoint();
-		int par2 = event.modifiers();
+		int par2 = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (!this.textInput.handleKey(par1, par2)) {
 			return super.charTyped(event);
 		}

@@ -11,7 +11,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.NewGuiHandler;
@@ -29,9 +35,6 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 
 @CCType(name = "LogisticsPipes:Request")
 public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IRequestItems {
@@ -65,7 +68,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 			if (settings == null || settings.openRequest) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.displayClientMessage(Component.literal("Permission denied"), false);
+				entityplayer.sendSystemMessage(Component.literal("Permission denied"));
 			}
 		}
 		return true;

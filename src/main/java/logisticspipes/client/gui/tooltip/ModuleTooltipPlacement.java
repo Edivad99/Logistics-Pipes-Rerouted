@@ -2,14 +2,14 @@ package logisticspipes.client.gui.tooltip;
 
 import java.util.List;
 
-import com.mojang.datafixers.util.Either;
-
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
+
+import com.mojang.datafixers.util.Either;
 
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;

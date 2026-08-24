@@ -1,8 +1,16 @@
 package logisticspipes.transport;
 
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
-import logisticspipes.utils.transfer.LPFluidTank;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.pipe.PipeFluidUpdate;
@@ -11,15 +19,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.SafeTimeTracker;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import logisticspipes.utils.transfer.LPFluidTank;
 
 public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 

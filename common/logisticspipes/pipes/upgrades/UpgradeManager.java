@@ -1,18 +1,23 @@
 package logisticspipes.pipes.upgrades;
 
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.UUID;
-import logisticspipes.world.item.LPItems;
-import logisticspipes.world.item.component.LPDataComponents;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.world.item.ItemUpgrade;
-import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.power.BCPowerSupplierUpgrade;
 import logisticspipes.pipes.upgrades.power.IC2PowerSupplierUpgrade;
@@ -23,14 +28,10 @@ import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.SimpleStackInventory;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import logisticspipes.world.item.ItemUpgrade;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.LogisticsItemCard;
+import logisticspipes.world.item.component.LPDataComponents;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class UpgradeManager

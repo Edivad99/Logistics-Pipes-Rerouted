@@ -2,19 +2,23 @@ package logisticspipes.commands;
 
 import java.util.Arrays;
 import java.util.Locale;
+
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+
 import logisticspipes.LPConstants;
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.commands.exception.CommandNotFoundException;
 import logisticspipes.commands.exception.LPCommandException;
 import logisticspipes.commands.exception.PermissionDeniedException;
 import logisticspipes.proxy.MainProxy;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 // Registered via RegisterCommandsEvent in LogisticsPipes.registerCommands().
 // Subcommands are parsed from a greedy-string argument and dispatched through the
@@ -60,18 +64,18 @@ public class LogisticsPipesCommand {
 		Player sender = source.getPlayer();
 		if (sender == null) return;
 		if (arguments.length <= 0) {
-			sender.displayClientMessage(Component.literal("Type '/logisticspipes help' for help."), false);
+			sender.sendSystemMessage(Component.literal("Type '/logisticspipes help' for help."));
 			return;
 		}
 		try {
 			mainCommand.executeCommand(sender, arguments);
 		} catch (LPCommandException e) {
 			if (e instanceof PermissionDeniedException) {
-				sender.displayClientMessage(Component.literal("You are not allowed to execute that command now."), false);
+				sender.sendSystemMessage(Component.literal("You are not allowed to execute that command now."));
 			} else if (e instanceof CommandNotFoundException) {
-				sender.displayClientMessage(Component.literal("The command was not found"), false);
+				sender.sendSystemMessage(Component.literal("The command was not found"));
 			} else {
-				sender.displayClientMessage(Component.literal("Usage: /logisticspipes help"), false);
+				sender.sendSystemMessage(Component.literal("Usage: /logisticspipes help"));
 			}
 		}
 	}

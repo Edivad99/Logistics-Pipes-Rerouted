@@ -1,11 +1,12 @@
 package logisticspipes.network.packets.pipe;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.abstractpackets.Integer2ModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class FluidCraftingAmount extends Integer2ModuleCoordinatesPacket {

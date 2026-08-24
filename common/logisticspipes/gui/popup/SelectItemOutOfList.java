@@ -3,7 +3,16 @@ package logisticspipes.gui.popup;
 import java.util.List;
 import java.util.Locale;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -13,13 +22,6 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
@@ -82,7 +84,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float par3) {
 		ItemTooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
 		if (tip != null) {
 			guiGraphics.setTooltipForNextFrame(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
@@ -90,12 +92,12 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(font, TextUtil.translate("misc.selectType"), guiLeft + 8, guiTop + 6, 0xFF404040, false);
+        guiGraphics.text(font, TextUtil.translate("misc.selectType"), guiLeft + 8, guiTop + 6, 0xFF404040, false);
 
 		itemDisplay.renderPageNumber(guiGraphics, right - 47, guiTop + 6);
 
@@ -108,7 +110,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char par1 = (char) event.codepoint();
-		int par2 = event.modifiers();
+		int par2 = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (!itemDisplay.keyTyped(par1, par2)) {
 			if (par2 == 1 || !search.handleKey(par1, par2)) {
 				return super.charTyped(event);

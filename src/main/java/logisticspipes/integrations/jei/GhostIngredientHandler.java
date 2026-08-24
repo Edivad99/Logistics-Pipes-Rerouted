@@ -66,8 +66,8 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
                 @Override
                 public Rect2i getArea() {
                     return new Rect2i(
-                        gui.getGuiLeft() + ghostSlot.x,
-                        gui.getGuiTop() + ghostSlot.y,
+                        gui.getLeftPos() + ghostSlot.x,
+                        gui.getTopPos() + ghostSlot.y,
                         17,
                         17
                     );
@@ -102,8 +102,8 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
                 @Override
                 public Rect2i getArea() {
                     return new Rect2i(
-                        gui.getGuiLeft() + fluidSlot.x,
-                        gui.getGuiTop() + fluidSlot.y,
+                        gui.getLeftPos() + fluidSlot.x,
+                        gui.getTopPos() + fluidSlot.y,
                         17,
                         17
                     );
@@ -149,8 +149,8 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
                 @Override
                 public Rect2i getArea() {
                     return new Rect2i(
-                        gui.getGuiLeft() + fluidSlot.x,
-                        gui.getGuiTop() + fluidSlot.y,
+                        gui.getLeftPos() + fluidSlot.x,
+                        gui.getTopPos() + fluidSlot.y,
                         17,
                         17
                     );

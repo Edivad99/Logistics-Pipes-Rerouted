@@ -8,17 +8,16 @@
 
 package network.rs485.logisticspipes.util
 
+import network.rs485.logisticspipes.TestBootstrap
 import logisticspipes.utils.item.ItemIdentifier
-import net.minecraft.SharedConstants
+import org.junit.jupiter.api.BeforeAll
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
-import net.minecraft.server.Bootstrap
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.alchemy.PotionContents
 import net.minecraft.world.item.alchemy.Potions
-import org.junit.jupiter.api.BeforeAll
-import java.util.BitSet
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -36,8 +35,7 @@ class FuzzyUtilTest {
         @JvmStatic
         @BeforeAll
         fun bootstrap() {
-            SharedConstants.tryDetectVersion()
-            Bootstrap.bootStrap()
+            TestBootstrap.boot()
         }
     }
 

@@ -1,15 +1,18 @@
 package logisticspipes.network.packets.pipe;
 
 import java.lang.ref.WeakReference;
+
+import net.minecraft.world.entity.player.Player;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

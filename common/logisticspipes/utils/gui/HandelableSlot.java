@@ -1,10 +1,11 @@
 package logisticspipes.utils.gui;
 
-import logisticspipes.interfaces.ISlotClick;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import logisticspipes.interfaces.ISlotClick;
 
 public class HandelableSlot extends Slot {
 

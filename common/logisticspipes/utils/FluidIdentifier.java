@@ -9,10 +9,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.annotation.Nullable;
-
-import com.mojang.serialization.Codec;
-
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -25,11 +21,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+
+import com.mojang.serialization.Codec;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.proxy.LPRegistries;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -182,7 +181,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	}
 
 	public boolean hasCustomData() {
-		Optional<? extends CustomData> data = components.get(DataComponents.CUSTOM_DATA);
+		Optional<? extends CustomData> data = components.getPatch(DataComponents.CUSTOM_DATA);
 		return data != null && data.isPresent();
 	}
 
@@ -192,7 +191,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	 */
 	@Nullable
 	public CompoundTag getCustomDataTag() {
-		Optional<? extends CustomData> data = components.get(DataComponents.CUSTOM_DATA);
+		Optional<? extends CustomData> data = components.getPatch(DataComponents.CUSTOM_DATA);
 		return data != null && data.isPresent() ? data.get().copyTag() : null;
 	}
 

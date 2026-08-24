@@ -1,10 +1,11 @@
 package logisticspipes.asm.wrapper;
 
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
 import logisticspipes.api.ILPPipeConfigTool;
 import logisticspipes.api.ILPPipeTile;
 import logisticspipes.proxy.interfaces.ILPPipeConfigToolWrapper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 public class GenericLPPipeConfigToolWrapper extends AbstractWrapper implements ILPPipeConfigToolWrapper {
 

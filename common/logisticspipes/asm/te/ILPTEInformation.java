@@ -1,6 +1,6 @@
 package logisticspipes.asm.te;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface ILPTEInformation {
 

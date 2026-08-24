@@ -59,9 +59,9 @@ import logisticspipes.proxy.computers.interfaces.CCCommand
 import logisticspipes.utils.ISimpleInventoryEventHandler
 import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
+import net.minecraft.core.Direction
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
-import net.minecraft.core.Direction
 import kotlinx.coroutines.Deferred
 
 

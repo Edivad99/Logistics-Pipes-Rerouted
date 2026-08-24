@@ -9,7 +9,14 @@ package logisticspipes.gui;
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+
 import logisticspipes.LPConstants;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
@@ -23,13 +30,6 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.EnumProperty;
 import network.rs485.logisticspipes.property.IntListProperty;
@@ -62,8 +62,8 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 
 		slotAssignmentPatternOverlay = propertyLayer.overlay(supplierModule.slotAssignmentPattern);
 		slotAssignmentPatternOverlay.write((p) -> p.replaceContent(slots));
-		imageWidth = 194;
-		imageHeight = 186;
+		panelWidth = 194;
+		panelHeight = 186;
 		patternModeOverlay = propertyLayer
 				.overlay(supplierModule.patternMode);
 		requestModeOverlay = propertyLayer.overlay(supplierModule.requestMode);
@@ -103,20 +103,20 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		String name;
 		if (hasPatternUpgrade) {
 			name = TextUtil.translate(GuiSupplierPipe.PREFIX + "TargetInvPattern");
 		} else {
 			name = TextUtil.translate(GuiSupplierPipe.PREFIX + "TargetInv");
 		}
-		guiGraphics.drawString(minecraft.font, name, imageWidth / 2 - minecraft.font.width(name) / 2, 6, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "Inventory"), 18, imageHeight - 102, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "RequestMode"), imageWidth - 140, imageHeight - 112, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, name, panelWidth / 2 - minecraft.font.width(name) / 2, 6, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "Inventory"), 18, panelHeight - 102, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiSupplierPipe.PREFIX + "RequestMode"), panelWidth - 140, panelHeight - 112, 0xFF404040, false);
 		if (hasPatternUpgrade) {
 			slotAssignmentPatternOverlay.read((slotAssignments) -> {
 				for (int i = 0; i < slotAssignments.size(); i++) {
-					guiGraphics.drawString(minecraft.font, Integer.toString(slotAssignments.get(i)), 22 + i * 18, 55, 0xFF404040, false);
+					guiGraphics.text(minecraft.font, Integer.toString(slotAssignments.get(i)), 22 + i * 18, 55, 0xFF404040, false);
 				}
 				return null;
 			});
@@ -124,12 +124,12 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int x, int y, float f) {
 		if (!hasPatternUpgrade) {
 			// texture: GuiSupplierPipe.TEXTURE
 			int j = leftPos;
 			int k = topPos;
-			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiSupplierPipe.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiSupplierPipe.TEXTURE, j, k, 0.0f, 0.0f, panelWidth, panelHeight, 256, 256);
 		} else {
 			LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 			for (int i = 0; i < 9; i++) {

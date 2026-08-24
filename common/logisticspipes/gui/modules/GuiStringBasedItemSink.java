@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.world.Container;
+
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
@@ -15,9 +19,6 @@ import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.Container;
 import network.rs485.logisticspipes.property.StringListProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
@@ -35,7 +36,7 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 	private SmallGuiButton addButton;
 	private SmallGuiButton removeButton;
 
-	// Buffered text labels populated in renderBg, drawn in renderLabels
+	// Buffered text labels populated in extractGuiBackground, drawn in extractLabels
 	private final List<String> labelTexts = new ArrayList<>();
 	private final List<int[]> labelPositions = new ArrayList<>(); // {x, y, color}
 
@@ -48,8 +49,8 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 
 		tmpInv = tmpInvStatic;
 
-		imageWidth = 175;
-		imageHeight = 208;
+		panelWidth = 175;
+		panelHeight = 208;
 	}
 	private static DummyContainer buildDummy(Container playerInventory, LogisticsModule module) {
 		tmpInvStatic = new ItemIdentifierInventory(1, "Analyse Slot", 1);
@@ -97,7 +98,7 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 7, topPos + 126);
 		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 6, topPos + 7);
@@ -158,11 +159,11 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 		for (int i = 0; i < labelTexts.size(); i++) {
 			int[] pos = labelPositions.get(i);
-			guiGraphics.drawString(minecraft.font, labelTexts.get(i), pos[0], pos[1], pos[2], false);
+			guiGraphics.text(minecraft.font, labelTexts.get(i), pos[0], pos[1], pos[2], false);
 		}
 	}
 }

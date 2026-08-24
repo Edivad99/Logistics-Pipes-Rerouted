@@ -1,12 +1,14 @@
 package logisticspipes.gui.popup;
 
 import java.util.UUID;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.EditChannelPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.SmallGuiButton;
-import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiEditChannelPopup extends GuiAddChannelPopup {
@@ -50,15 +52,15 @@ public class GuiEditChannelPopup extends GuiAddChannelPopup {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderGuiBackground(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "owner") + ": ", guiLeft + 10, guiTop + 115, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, toInit.getOwner().getUsername(), guiLeft + 10, guiTop + 127, 0xFF404040, false);
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractGuiBackground(guiGraphics, mouseX, mouseY);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "owner") + ": ", guiLeft + 10, guiTop + 115, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, toInit.getOwner().getUsername(), guiLeft + 10, guiTop + 127, 0xFF404040, false);
 	}
 
 	@Override
-	protected void drawTitle(GuiGraphics guiGraphics) {
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6, 0xFFFFFFFF, true);
+	protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6, 0xFFFFFFFF, true);
 	}
 
 }

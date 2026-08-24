@@ -1,8 +1,5 @@
 package logisticspipes.pipes.basic;
 
-import static logisticspipes.LPConstants.PIPE_MAX_POS;
-import static logisticspipes.LPConstants.PIPE_MIN_POS;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -10,24 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import logisticspipes.world.level.block.LPBlocks;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.interfaces.IRotationProvider;
-import logisticspipes.interfaces.ITickable;
-import logisticspipes.interfaces.ITubeOrientation;
-import logisticspipes.world.item.ItemLogisticsPipe;
-import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockBlock;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.ticks.QueuedTasks;
-import logisticspipes.utils.LPPositionSet;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import net.minecraft.client.Minecraft;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -54,6 +37,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -61,11 +45,28 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.jspecify.annotations.Nullable;
+
+import static logisticspipes.LPConstants.PIPE_MAX_POS;
+import static logisticspipes.LPConstants.PIPE_MIN_POS;
+import logisticspipes.LogisticsPipes;
+import logisticspipes.interfaces.IRotationProvider;
+import logisticspipes.interfaces.ITickable;
+import logisticspipes.interfaces.ITubeOrientation;
+import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockBlock;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.ticks.QueuedTasks;
+import logisticspipes.utils.LPPositionSet;
+import logisticspipes.world.item.ItemLogisticsPipe;
+import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
-import net.minecraft.world.level.redstone.Orientation;
 
 // BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
 // Particle/ParticleEngine/TextureAtlasSprite imports removed — rendering deferred (see addHitEffects/addDestroyEffects TODOs)
@@ -469,7 +470,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 	 * purpose, so an unloaded or pipe-block tile stays targetable and collidable.</p>
 	 */
 	@Override
-	protected int getLightBlock(BlockState state) {
+	protected int getLightDampening(BlockState state) {
 		return 0;
 	}
 

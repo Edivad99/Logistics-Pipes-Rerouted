@@ -2,6 +2,11 @@ package logisticspipes.gui.popup;
 
 import java.awt.Rectangle;
 import java.util.List;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.upgrade.SneakyUpgradeSidePacket;
 import logisticspipes.proxy.MainProxy;
@@ -10,9 +15,6 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.sideconfig.SideConfigDisplay;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.util.TextUtil;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -57,7 +59,7 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		guiGraphics.fill(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height, 0xff000000);
 
 		Minecraft mc = Minecraft.getInstance();
@@ -66,7 +68,7 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
 		int w = bounds.width * (int) Minecraft.getInstance().getWindow().getGuiScale();
 		int h = (bounds.height - 1) * (int) Minecraft.getInstance().getWindow().getGuiScale();
 
-		guiGraphics.drawString(font, TextUtil.translate(PREFIX + "sneakyTitle"), guiLeft + 8, guiTop + 8, Color.getValue(Color.DARKER_GREY), false);
+		guiGraphics.text(font, TextUtil.translate(PREFIX + "sneakyTitle"), guiLeft + 8, guiTop + 8, Color.getValue(Color.DARKER_GREY), false);
 
 		configDisplay.drawScreen(mouseX, mouseY, 0.0f, new Rectangle(vpx, vpy, w, h), bounds);
 	}
@@ -109,7 +111,7 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
 	}
 

@@ -1,18 +1,20 @@
 package logisticspipes.network.packets.pipe;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.StaticResolve;
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import logisticspipes.network.PacketHandler;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -42,9 +44,9 @@ public class PipeDebugAskForTarget extends ModernPacket {
 				if (tile instanceof LogisticsTileGenericPipe) {
 					((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe = !((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe;
 					if (((LogisticsTileGenericPipe) tile).pipe.debug.debugThisPipe) {
-						player.displayClientMessage(Component.literal("Debug enabled On Client"), false);
+						player.sendSystemMessage(Component.literal("Debug enabled On Client"));
 					} else {
-						player.displayClientMessage(Component.literal("Debug disabled On Client"), false);
+						player.sendSystemMessage(Component.literal("Debug disabled On Client"));
 					}
 				}
 			} else {

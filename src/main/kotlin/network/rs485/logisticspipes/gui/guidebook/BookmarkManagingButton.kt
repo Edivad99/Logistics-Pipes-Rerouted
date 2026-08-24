@@ -42,12 +42,12 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.utils.MinecraftColor
-import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.TextUtil
+import logisticspipes.utils.MinecraftColor
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import java.util.*
 
 val additionTexture = Rectangle(192, 0, 16, 16)
@@ -66,7 +66,7 @@ class BookmarkManagingButton(
     private var buttonState: ButtonState = ButtonState.ADD
     var onClickActionStated: (ButtonState) -> Boolean = onClickAction
 
-    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun extractContents(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (!visible) return
         val hovered = isHovered(mouseX, mouseY)
         val yOffset = getButtonHoverState(hovered) * additionTexture.roundedHeight

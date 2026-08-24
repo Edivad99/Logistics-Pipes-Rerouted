@@ -1,15 +1,16 @@
 package logisticspipes.network.packets;
 
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifier;
-import lombok.Getter;
-import lombok.Setter;
-
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

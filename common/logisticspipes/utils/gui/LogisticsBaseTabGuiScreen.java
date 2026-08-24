@@ -5,15 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-
 
 public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 
@@ -51,7 +49,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int mouse_x, int mouse_y) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouse_x, int mouse_y, float f) {
 		for (int i = 0; i < tabList.size(); i++) {
 			LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
 		}
@@ -71,7 +69,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 			}
 		}
 
-		super.renderBg(guiGraphics, f, mouse_x, mouse_y);
+		super.extractGuiBackground(guiGraphics, mouse_x, mouse_y, f);
 	}
 
 	@Override
@@ -103,7 +101,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char p_73869_1_ = (char) event.codepoint();
-		int p_73869_2_ = event.modifiers();
+		int p_73869_2_ = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		for (int i = 0; i < tabList.size(); i++) {
 			if (current_Tab == i) {
 				if (tabList.get(i).handleKey(p_73869_2_, p_73869_1_)) {
@@ -118,8 +116,8 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 		for (int i = 0; i < tabList.size(); i++) {
 			if (current_Tab == i) {
 				tabList.get(i).renderForegroundContent(guiGraphics);
@@ -171,11 +169,11 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 		private final List<Slot> TAB_SLOTS = new ArrayList<>();
 		private final List<AbstractButton> TAB_BUTTONS = new ArrayList<>();
 
-		public abstract void renderIcon(GuiGraphics guiGraphics, int x, int y);
+		public abstract void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y);
 
-		public abstract void renderBackgroundContent(GuiGraphics guiGraphics);
+		public abstract void renderBackgroundContent(GuiGraphicsExtractor guiGraphics);
 
-		public abstract void renderForegroundContent(GuiGraphics guiGraphics);
+		public abstract void renderForegroundContent(GuiGraphicsExtractor guiGraphics);
 
 		public boolean isSlotForTab(Slot slot) {
 			return TAB_SLOTS.contains(slot);

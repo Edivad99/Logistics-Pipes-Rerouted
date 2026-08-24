@@ -37,20 +37,20 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import com.mojang.blaze3d.systems.RenderSystem
-import logisticspipes.LPConstants
 import network.rs485.logisticspipes.util.IRectangle
-import net.minecraft.client.gui.GuiGraphics
+import logisticspipes.LPConstants
+import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.resources.Identifier
 
 /**
  * Guide book texture-atlas drawing, ported from LP1's [GuiDrawer.drawGuiTexturedRect]/`putTexturedQuad`
- * (BufferBuilder + GlStateManager) to the 1.20.1 [GuiGraphics] blit idiom.
+ * (BufferBuilder + GlStateManager) to the 1.20.1 [GuiGraphicsExtractor] blit idiom.
  *
  * LP1 packs every guide book widget texture into a single 256x256 atlas (`textures/gui/gui.png`).
  * The widget classes pass a destination [IRectangle] (screen-space) and a source [IRectangle] (atlas
- * UV-space, in pixels); this helper maps those onto [GuiGraphics.blit] using the
+ * UV-space, in pixels); this helper maps those onto [GuiGraphicsExtractor.blit] using the
  * `(texture, dstX, dstY, dstW, dstH, srcU, srcV, srcW, srcH, atlasW, atlasH)` overload so that
  * arbitrary scaling between the source and destination is preserved (matching LP1's quad UV mapping).
  */
@@ -67,7 +67,7 @@ internal object GuideBookGraphics {
      * [RenderSystem.setShaderColor]; the tint is now the trailing ARGB argument of the blit itself.
      */
     fun blitAtlas(
-        guiGraphics: GuiGraphics,
+        guiGraphics: GuiGraphicsExtractor,
         dst: IRectangle,
         src: IRectangle,
         color: Int = -1,
@@ -93,9 +93,9 @@ internal object GuideBookGraphics {
      * Draws the guide book frame (border + corners) plus the slider rail. Ported from LP1's
      * [GuiDrawer.drawGuideBookFrame], which nine-sliced the 64x64 `guiGuidebookFrame` atlas region
      * (24px borders) over the outer rectangle and drew the slider rail from the `guiGuidebookSlider`
-     * region. In 1.20.1 the nine-slice is expressed directly via [GuiGraphics.blitNineSliced].
+     * region. In 1.20.1 the nine-slice is expressed directly via [GuiGraphicsExtractor.blitNineSliced].
      */
-    fun blitGuideBookFrame(guiGraphics: GuiGraphics, frame: IRectangle, slider: IRectangle) {
+    fun blitGuideBookFrame(guiGraphics: GuiGraphicsExtractor, frame: IRectangle, slider: IRectangle) {
         // Frame: source region (0,0)-(64,64) with a 24px border on each edge.
         //Fixme
 //        guiGraphics.blitNineSliced(
@@ -130,7 +130,7 @@ internal object GuideBookGraphics {
      * which painted the inner panel with a repeating dark texture. The pattern texture is 64x64 and is
      * tiled by repeated 64x64 blits clipped to [dst].
      */
-    fun blitDarkPatternTiled(guiGraphics: GuiGraphics, dst: IRectangle) {
+    fun blitDarkPatternTiled(guiGraphics: GuiGraphicsExtractor, dst: IRectangle) {
         val tile = 64
         val left = dst.roundedLeft
         val top = dst.roundedTop

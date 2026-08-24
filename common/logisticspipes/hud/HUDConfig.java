@@ -1,9 +1,10 @@
 package logisticspipes.hud;
 
-import logisticspipes.world.item.component.LPDataComponents;
+import net.minecraft.world.item.ItemStack;
+
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.world.item.component.HUDComponent;
-import net.minecraft.world.item.ItemStack;
+import logisticspipes.world.item.component.LPDataComponents;
 
 public class HUDConfig implements IHUDConfig {
 

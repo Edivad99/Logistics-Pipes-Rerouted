@@ -1,12 +1,13 @@
 package logisticspipes.pipes.unrouted;
 
-import javax.annotation.Nullable;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.transport.PipeTransportLogistics;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.Item;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

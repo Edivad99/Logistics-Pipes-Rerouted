@@ -42,7 +42,6 @@ import network.rs485.logisticspipes.property.Property
 import network.rs485.logisticspipes.property.PropertyHolder
 import network.rs485.logisticspipes.property.ValueProperty
 import java.util.*
-import kotlin.streams.toList
 
 /**
  * The property is created with a list of properties that are not being written to.

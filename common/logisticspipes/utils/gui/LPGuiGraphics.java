@@ -8,30 +8,23 @@
 
 package logisticspipes.utils.gui;
 
-import logisticspipes.renderer.HUDDrawContext;
 import java.util.List;
-import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
 
-
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Divisor;
 import it.unimi.dsi.fastutil.ints.IntIterator;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.utils.Color;
+import logisticspipes.renderer.HUDDrawContext;
 
 /**
  * Utils class for GUI-related drawing methods.
@@ -54,7 +47,7 @@ public final class LPGuiGraphics {
     private LPGuiGraphics() {
     }
 
-    public static void drawToolTip(GuiGraphics guiGraphics, int posX, int posY, List<String> msg,
+    public static void drawToolTip(GuiGraphicsExtractor guiGraphics, int posX, int posY, List<String> msg,
         ChatFormatting rarityColor) {
         if (msg.isEmpty()) {
             return;
@@ -79,7 +72,7 @@ public final class LPGuiGraphics {
         }
     }
 
-    public static void drawPlayerInventoryBackground(GuiGraphics guiGraphics, int xOffset, int yOffset) {
+    public static void drawPlayerInventoryBackground(GuiGraphicsExtractor guiGraphics, int xOffset, int yOffset) {
         //Player "backpack"
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -92,21 +85,21 @@ public final class LPGuiGraphics {
         }
     }
 
-    public static void drawPlayerHotbarBackground(GuiGraphics guiGraphics, int xOffset, int yOffset) {
+    public static void drawPlayerHotbarBackground(GuiGraphicsExtractor guiGraphics, int xOffset, int yOffset) {
         //Player "hotbar"
         for (int i1 = 0; i1 < 9; i1++) {
             LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + i1 * 18, yOffset);
         }
     }
 
-    public static void drawPlayerArmorBackground(GuiGraphics guiGraphics, int xOffset, int yOffset) {
+    public static void drawPlayerArmorBackground(GuiGraphicsExtractor guiGraphics, int xOffset, int yOffset) {
         //Player "armor"
         for (int i1 = 0; i1 < 4; i1++) {
             LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset, yOffset - i1 * 18);
         }
     }
 
-    private static void doDrawSlotBackground(GuiGraphics guiGraphics, int x, int y, Identifier slotDiskTexture) {
+    private static void doDrawSlotBackground(GuiGraphicsExtractor guiGraphics, int x, int y, Identifier slotDiskTexture) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
         // 1-pixel darker inset border so the slot visually separates from the panel on light backgrounds.
@@ -117,61 +110,61 @@ public final class LPGuiGraphics {
         guiGraphics.fill(x + 17, y, x + 18, y + 18, borderColor);
     }
 
-    public static void drawSlotDiskBackground(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawSlotDiskBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
         doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_DISK_TEXTURE);
     }
 
-    public static void drawSlotProgrammerBackground(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawSlotProgrammerBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
         doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_PROGRAMMER_TEXTURE);
     }
 
-    public static void drawSlotBackground(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawSlotBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
         doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_TEXTURE);
     }
 
-    public static void drawSlotBackground(GuiGraphics guiGraphics, int x, int y, int color) {
+    public static void drawSlotBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int color) {
         doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_TEXTURE);
     }
 
-    public static void drawBigSlotBackground(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawBigSlotBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LPGuiGraphics.BIG_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 26, 26, 26, 26);
     }
 
-    public static void drawSmallSlotBackground(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawSmallSlotBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LPGuiGraphics.SMALL_SLOT_TEXTURE, x, y, 0.0f, 0.0f, 8, 8, 8, 8);
     }
 
-    public static void renderIconAt(GuiGraphics guiGraphics, int x, int y, float zLevel, TextureAtlasSprite icon) {
+    public static void renderIconAt(GuiGraphicsExtractor guiGraphics, int x, int y, float zLevel, TextureAtlasSprite icon) {
         guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, icon, x, y, 16, 16);
     }
 
-    public static void drawLockBackground(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawLockBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LPGuiGraphics.LOCK_ICON, x, y, 0.0f, 0.0f, 14, 15, 14, 15);
     }
 
-    private static void drawTexture16by16(GuiGraphics guiGraphics, int x, int y, Identifier tex) {
+    private static void drawTexture16by16(GuiGraphicsExtractor guiGraphics, int x, int y, Identifier tex) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, tex, x, y, 0.0f, 0.0f, 16, 16, 16, 16);
     }
 
-    public static void drawLinesBackground(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawLinesBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
         drawTexture16by16(guiGraphics, x, y, LPGuiGraphics.LINES_ICON);
     }
 
-    public static void drawStatsBackground(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawStatsBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
         drawTexture16by16(guiGraphics, x, y, LPGuiGraphics.STATS_ICON);
     }
 
-    public static void drawGuiBackGround(@Nullable GuiGraphics guiGraphics, int guiLeft, int guiTop, int right, int bottom,
+    public static void drawGuiBackGround(@Nullable GuiGraphicsExtractor guiGraphics, int guiLeft, int guiTop, int right, int bottom,
         float zLevel, boolean resetColor) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, zLevel, resetColor, true, true,
             true, true);
     }
 
-    public static void drawGuiBackGround(@Nullable GuiGraphics guiGraphics, int guiLeft, int guiTop, int right,
+    public static void drawGuiBackGround(@Nullable GuiGraphicsExtractor guiGraphics, int guiLeft, int guiTop, int right,
         int bottom, float zLevel, boolean resetColor, boolean displayTop, boolean displayLeft, boolean displayBottom,
         boolean displayRight) {
         if (resetColor) {
@@ -185,7 +178,7 @@ public final class LPGuiGraphics {
             return;
         }
 
-        // GuiGraphics.blit() draws immediately -- innerBlit() goes straight to BufferUploader.drawWithShader()
+        // GuiGraphicsExtractor.blit() draws immediately -- innerBlit() goes straight to BufferUploader.drawWithShader()
         // instead of a RenderType -- so it obeys the live RenderSystem state and writes depth. That is fine in
         // a 2D GUI, but the world-space HUD stacks every panel layer within a fraction of a block of the next,
         // so those depth writes make the following coplanar content (inner panels, slots, text, fills) fail the
@@ -202,7 +195,7 @@ public final class LPGuiGraphics {
 
     /**
      * The one drawing operation the nine-slice needs. The GUI and the world-space HUD reach it
-     * through different objects -- {@link GuiGraphics} and {@link HUDDrawContext} -- so the routine
+     * through different objects -- {@link GuiGraphicsExtractor} and {@link HUDDrawContext} -- so the routine
      * is written against this instead of against either of them.
      */
     @FunctionalInterface

@@ -9,7 +9,11 @@ package logisticspipes.routing;
 
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
+
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
@@ -18,8 +22,6 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.util.LPFinalSerializable;
 import network.rs485.logisticspipes.world.DoubleCoordinates;

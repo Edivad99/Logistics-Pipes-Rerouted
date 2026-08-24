@@ -1,9 +1,11 @@
 package logisticspipes.routing.pathfinder;
 
 import java.util.List;
+
+import net.minecraft.core.Direction;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.minecraft.core.Direction;
 
 public interface IRouteProvider {
 

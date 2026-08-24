@@ -1,7 +1,5 @@
 package logisticspipes.asm.td;
 
-import logisticspipes.routing.ItemRoutingInformation;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
 // import cofh.thermaldynamics.duct.item.TravelingItem;

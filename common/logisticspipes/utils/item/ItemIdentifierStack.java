@@ -8,7 +8,6 @@
 package logisticspipes.utils.item;
 
 import java.util.LinkedList;
-import javax.annotation.Nullable;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -26,6 +25,7 @@ import net.minecraft.world.level.Level;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.logisticspipes.IRoutedItem;
@@ -75,7 +75,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
             return null;
         }
         RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
-        return ItemStack.SINGLE_ITEM_CODEC.parse(ops, entry.get("item"))
+        return ItemStack.CODEC.parse(ops, entry.get("item"))
             .resultOrPartial(error -> LogisticsPipes.LOG.error("Could not read stored item: {}", error))
             .map(stack -> new ItemIdentifierStack(ItemIdentifier.get(stack), entry.getIntOr("amount", 0)))
             .orElse(null);
@@ -126,7 +126,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
     /**
      * Serializes this stack as <code>{ item: &lt;namespaced id + components&gt;, amount: int }</code>.
      * <p>
-     * {@link ItemStack#SINGLE_ITEM_CODEC} rather than {@link ItemStack#CODEC}: the latter caps the
+     * {@link ItemStack#CODEC} rather than {@link ItemStack#CODEC}: the latter caps the
      * count at 99, and the amounts stored here routinely exceed that, so the count is kept as a
      * separate field. Note that the codec drops transient components, matching vanilla's own
      * persistence behaviour.
@@ -134,7 +134,7 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
     public CompoundTag saveToNBT(HolderLookup.Provider provider) {
         RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
         CompoundTag entry = new CompoundTag();
-        entry.put("item", ItemStack.SINGLE_ITEM_CODEC.encodeStart(ops, item.makeNormalStack(1)).getOrThrow());
+        entry.put("item", ItemStack.CODEC.encodeStart(ops, item.makeNormalStack(1)).getOrThrow());
         entry.putInt("amount", getStackSize());
         return entry;
     }

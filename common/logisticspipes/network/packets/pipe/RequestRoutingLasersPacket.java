@@ -8,8 +8,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import logisticspipes.LogisticsPipes;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import logisticspipes.LPConfigs;
+import logisticspipes.LogisticsPipes;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -22,11 +30,6 @@ import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.pathfinder.PathFinder;
 import logisticspipes.utils.StaticResolve;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class RequestRoutingLasersPacket extends CoordinatesPacket {

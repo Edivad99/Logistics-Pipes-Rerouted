@@ -1,13 +1,12 @@
 package logisticspipes.integrations.jei;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.world.item.ItemStack;
 
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.recipe.IFocusFactory;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.runtime.IJeiRuntime;
+import org.jspecify.annotations.Nullable;
 
 public class JEIPluginLoader {
 

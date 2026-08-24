@@ -55,7 +55,6 @@ import logisticspipes.utils.item.ItemIdentifier
 import net.minecraft.client.Minecraft
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
-import java.awt.Rectangle
 import java.util.concurrent.atomic.AtomicReference
 
 class ItemSinkWidgetScreen(private val guiReference: AtomicReference<ItemSinkGui>) : WidgetScreen() {

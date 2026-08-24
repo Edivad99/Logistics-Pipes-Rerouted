@@ -3,16 +3,17 @@ package logisticspipes.gui.popup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.IResource.ColorCode;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiRequestPopup extends SubGuiScreen {
@@ -54,7 +55,7 @@ public class GuiRequestPopup extends SubGuiScreen {
 		SmallGuiButton logButton = new SmallGuiButton(1, xCenter + 5, bottom - 25, 50, 20, "Log");
 		logButton.setPressListener(b -> {
 			for (String msg : text) {
-				player.displayClientMessage(Component.literal(msg), false);
+				player.sendSystemMessage(Component.literal(msg));
 			}
 			logButton.active = false;
 		});
@@ -62,7 +63,7 @@ public class GuiRequestPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		if (mWidth == 0) {
 			int lWidth = 0;
 			for (String msg : text) {
@@ -78,14 +79,14 @@ public class GuiRequestPopup extends SubGuiScreen {
 	}
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         for (int i = 0; i < text.length; i++) {
             if (text[i] == null) {
                 continue;
             }
             String msg = TextUtil.getTrimmedString(text[i], mWidth - 10, font, "...");
             int stringWidth = minecraft.font.width(msg);
-            guiGraphics.drawString(minecraft.font, msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0xFF404040, false);
+            guiGraphics.text(minecraft.font, msg, xCenter - (stringWidth / 2), guiTop + 10 + (i * 10), 0xFF404040, false);
         }
     }
 }

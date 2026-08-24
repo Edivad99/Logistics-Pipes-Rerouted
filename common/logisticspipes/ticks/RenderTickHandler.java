@@ -1,33 +1,17 @@
 package logisticspipes.ticks;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import logisticspipes.LPConstants;
-import logisticspipes.client.model.mesh.MeshRenderer;
-import logisticspipes.client.model.mesh.ObjMesh;
-import logisticspipes.client.model.pipe.PipeModelStore;
-import logisticspipes.client.model.tube.TubeMeshes;
-import logisticspipes.interfaces.ITubeOrientation;
-import logisticspipes.world.item.ItemLogisticsPipe;
-import logisticspipes.pipes.PipeBlockRequestTable;
-import logisticspipes.pipes.basic.CoreMultiBlockPipe;
-import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
-import logisticspipes.renderer.GuiOverlay;
-import logisticspipes.renderer.LogisticsHUDRenderer;
-import logisticspipes.routing.debug.ClientViewController;
-import logisticspipes.utils.LPPositionSet;
+import java.util.function.Function;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-
-import logisticspipes.client.renderer.LPRenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -46,11 +30,28 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import logisticspipes.LPConstants;
+import logisticspipes.client.model.mesh.MeshRenderer;
+import logisticspipes.client.model.mesh.ObjMesh;
+import logisticspipes.client.model.pipe.PipeModelStore;
+import logisticspipes.client.model.tube.TubeMeshes;
+import logisticspipes.client.renderer.LPRenderTypes;
+import logisticspipes.interfaces.ITubeOrientation;
+import logisticspipes.pipes.PipeBlockRequestTable;
+import logisticspipes.pipes.basic.CoreMultiBlockPipe;
+import logisticspipes.pipes.basic.CoreUnroutedPipe;
+import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
+import logisticspipes.renderer.GuiOverlay;
+import logisticspipes.renderer.LogisticsHUDRenderer;
+import logisticspipes.routing.debug.ClientViewController;
+import logisticspipes.utils.LPPositionSet;
+import logisticspipes.world.item.ItemLogisticsPipe;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
-import java.util.function.Function;
-
-import net.minecraft.util.Util;
 
 public class RenderTickHandler {
 
@@ -102,7 +103,7 @@ public class RenderTickHandler {
 	}
 
 	/** The slot-finder overlay draws on top of an open container screen, so it runs on the screen's own
-	 *  render event: that is the one that carries the {@link net.minecraft.client.gui.GuiGraphics} to draw
+	 *  render event: that is the one that carries the {@link net.minecraft.client.gui.GuiGraphicsExtractor} to draw
 	 *  into. RenderFrameEvent.Post, where this used to live, provides none. */
 	@SubscribeEvent
 	public void screenRender(ScreenEvent.Render.Post event) {
@@ -127,7 +128,7 @@ public class RenderTickHandler {
 	}
 
 	@SubscribeEvent
-	public void renderWorldLast(RenderLevelStageEvent.AfterParticles worldEvent) {
+	public void renderWorldLast(RenderLevelStageEvent.AfterTranslucentParticles worldEvent) {
 		PoseStack poseStack = worldEvent.getPoseStack();
 		float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();

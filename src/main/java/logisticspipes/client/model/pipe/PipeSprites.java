@@ -1,10 +1,10 @@
 package logisticspipes.client.model.pipe;
 
 import java.util.function.IntFunction;
-import javax.annotation.Nullable;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
+import org.jspecify.annotations.Nullable;
 
 /**
  * The atlas sprites the pipe frame is textured with, resolved once per atlas stitch.

@@ -2,19 +2,19 @@ package logisticspipes.client.model.mesh;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.model.geom.builders.UVPair;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 
 import net.neoforged.neoforge.client.model.quad.BakedColors;
 import net.neoforged.neoforge.client.model.quad.BakedNormals;
 
+import com.mojang.blaze3d.platform.Transparency;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-
+import org.jspecify.annotations.Nullable;
 
 /**
  * Turns an {@link ObjMesh} into {@link BakedQuad}s so pipe geometry can live in the chunk
@@ -119,20 +119,21 @@ public final class MeshBaker {
             out.add(new BakedQuad(
                 positions[0], positions[1], positions[2], positions[3],
                 uvs[0], uvs[1], uvs[2], uvs[3],
-                // tintIndex -1: the color is carried by the quad itself, so no block color
-                // handler should touch it.
-                -1,
                 lightSampleFace(mesh, quad),
-                sprite,
-                shade,
-                // lightEmission 0 keeps the chunk builder's lightmap in charge of brightness.
-                0,
+                // 26.1.2 folded sprite, chunk layer, item render type, tint, shading, light
+                // emission and ambient occlusion into one MaterialInfo. Building it through of()
+                // rather than by hand is what derives the chunk layer from the transparency:
+                // TRANSPARENT gives ChunkSectionLayer.CUTOUT, which is what pipe sprites want.
+                //
+                // tintIndex -1: the colour is carried by the quad itself, so no block colour
+                // handler should touch it. lightEmission 0 leaves the chunk builder's lightmap in
+                // charge of brightness. Ambient occlusion off, for the reason on
+                // PipeBakedModel.Part -- this geometry hangs inside the block, so AO derived from
+                // the neighbours bands the joints.
+                BakedQuad.MaterialInfo.of(new Material.Baked(sprite, false), Transparency.TRANSPARENT,
+                    -1, shade, 0, false),
                 BakedNormals.of(normals[0], normals[1], normals[2], normals[3]),
-                BakedColors.of(argb),
-                // Ambient occlusion is a property of the quad now rather than of the model part.
-                // Off, for the reason spelled out on PipeBakedModel.Part: this geometry hangs
-                // inside the block, so AO derived from the neighbors bands the joints.
-                false));
+                BakedColors.of(argb)));
         }
     }
 

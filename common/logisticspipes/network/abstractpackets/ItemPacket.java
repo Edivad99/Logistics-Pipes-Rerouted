@@ -1,16 +1,18 @@
 package logisticspipes.network.abstractpackets;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Objects;
+
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
-
-import java.util.Objects;
 
 public abstract class ItemPacket extends CoordinatesPacket {
 

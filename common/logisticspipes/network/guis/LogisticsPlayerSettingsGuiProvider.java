@@ -1,11 +1,12 @@
 package logisticspipes.network.guis;
 
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+
 import logisticspipes.gui.GuiLogisticsSettings;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 
 @StaticResolve
 public class LogisticsPlayerSettingsGuiProvider extends GuiProvider {

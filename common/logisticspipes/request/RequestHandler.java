@@ -10,6 +10,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.network.PacketHandler;
@@ -26,10 +32,6 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 public class RequestHandler {
 
@@ -41,7 +43,7 @@ public class RequestHandler {
 
 	public static void request(final Player player, final ItemIdentifierStack stack, final CoreRoutedPipe pipe) {
 		if (!pipe.useEnergy(5)) {
-			player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
+			player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return;
 		}
 		RequestTree.request(new ItemIdentifierStack(stack), pipe, new RequestLog() {
@@ -119,7 +121,7 @@ public class RequestHandler {
 
 	public static void requestList(final Player player, final List<ItemIdentifierStack> list, final CoreRoutedPipe pipe) {
 		if (!pipe.useEnergy(5)) {
-			player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
+			player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return;
 		}
 		RequestTree.request(list, pipe, new RequestLog() {
@@ -144,7 +146,7 @@ public class RequestHandler {
 
 	public static void requestMacrolist(CompoundTag itemlist, final CoreRoutedPipe requester, final Player player) {
 		if (!requester.useEnergy(5)) {
-			player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
+			player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return;
 		}
 		ListTag list = itemlist.getListOrEmpty("inventar");
@@ -222,7 +224,7 @@ public class RequestHandler {
 
 	public static void requestFluid(final Player player, final ItemIdentifierStack stack, CoreRoutedPipe pipe, IRequestFluid requester) {
 		if (!pipe.useEnergy(10)) {
-			player.displayClientMessage(Component.translatable("lp.misc.noenergy"), false);
+			player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 			return;
 		}
 

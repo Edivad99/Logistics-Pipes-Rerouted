@@ -2,14 +2,16 @@ package logisticspipes.utils;
 
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 
-import logisticspipes.interfaces.ITankUtil;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.interfaces.ITankUtil;
 
 /**
  * LP's view of a neighbouring fluid inventory.

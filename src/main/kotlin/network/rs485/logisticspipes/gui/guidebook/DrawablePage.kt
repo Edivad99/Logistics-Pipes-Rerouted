@@ -37,9 +37,9 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 private const val PAGE_VERTICAL_PADDING = 5
 
@@ -67,16 +67,16 @@ class DrawablePage(private val drawableParagraphs: List<DrawableParagraph>) : Dr
         return currentY
     }
 
-    override fun preRender(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, visibleArea: IRectangle) =
+    override fun preRender(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, visibleArea: IRectangle) =
         getVisibleParagraphs(visibleArea).forEach {
             it.preRender(guiGraphics, mouseX, mouseY, visibleArea)
         }
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) =
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) =
         drawChildren(guiGraphics, mouseX, mouseY, delta, visibleArea)
 
     override fun drawChildren(
-        guiGraphics: GuiGraphics,
+        guiGraphics: GuiGraphicsExtractor,
         mouseX: Float,
         mouseY: Float,
         delta: Float,

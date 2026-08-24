@@ -1,15 +1,14 @@
 package logisticspipes.gui.hud.modules;
 
-import logisticspipes.renderer.HUDDrawContext;
 import java.util.List;
 
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
+import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
-import net.minecraft.client.gui.GuiGraphics;
 import network.rs485.logisticspipes.module.SimpleFilter;
 
 public class HUDSimpleFilterModule implements IHUDModuleRenderer {

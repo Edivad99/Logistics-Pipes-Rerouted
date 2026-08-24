@@ -4,18 +4,20 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
-import logisticspipes.network.guis.upgrade.DisconnectionUpgradeConfigGuiProvider;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.network.NewGuiHandler;
+import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
+import logisticspipes.network.guis.upgrade.DisconnectionUpgradeConfigGuiProvider;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
 
 public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 

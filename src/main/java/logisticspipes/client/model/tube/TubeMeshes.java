@@ -1,9 +1,8 @@
 package logisticspipes.client.model.tube;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.resources.Identifier;
 
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.model.mesh.ObjMesh;
 import logisticspipes.interfaces.ITubeOrientation;
@@ -73,8 +72,7 @@ public final class TubeMeshes {
     /**
      * The tube type a pipe is, or null when it is not a high-speed tube.
      */
-    @Nullable
-    public static TubeModels.Kind kindOf(@Nullable CoreUnroutedPipe pipe) {
+    public static TubeModels.@Nullable Kind kindOf(@Nullable CoreUnroutedPipe pipe) {
         if (pipe instanceof HSTubeLine) {
             return TubeModels.Kind.LINE;
         }

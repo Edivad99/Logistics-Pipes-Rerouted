@@ -1,16 +1,17 @@
 package logisticspipes.pipes.signs;
 
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
-import com.mojang.blaze3d.pipeline.RenderTarget; // was net.minecraft.client.shader.Framebuffer
-import com.mojang.blaze3d.vertex.PoseStack;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+
+import com.mojang.blaze3d.pipeline.RenderTarget; // was net.minecraft.client.shader.Framebuffer
+import com.mojang.blaze3d.vertex.PoseStack;
+
+import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
 
 public interface IPipeSign extends ValueIOSerializable {
 

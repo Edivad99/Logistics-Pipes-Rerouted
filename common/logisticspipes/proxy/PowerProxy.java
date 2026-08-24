@@ -1,13 +1,15 @@
 package logisticspipes.proxy;
 
-import javax.annotation.Nullable;
-
-import logisticspipes.proxy.interfaces.IPowerProxy;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.proxy.interfaces.IPowerProxy;
 
 /**
  * Finds the energy capability on a neighbouring block.

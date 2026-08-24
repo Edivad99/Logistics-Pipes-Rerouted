@@ -1,14 +1,10 @@
 package logisticspipes.utils.gui.hud;
 
-
-
-
-
-import logisticspipes.renderer.HUDDrawContext;
-import logisticspipes.interfaces.IHUDButton;
-import logisticspipes.utils.Color;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+
+import logisticspipes.interfaces.IHUDButton;
+import logisticspipes.renderer.HUDDrawContext;
+import logisticspipes.utils.Color;
 
 public abstract class BasicHUDButton implements IHUDButton {
 
@@ -16,7 +12,7 @@ public abstract class BasicHUDButton implements IHUDButton {
 	// z compares almost-equal against it and comes out stippled. Backgrounds dodge this by not writing depth
 	// (see LPGuiGraphics#drawGuiBackGround), but fill() goes through RenderType.GUI, which sets its own
 	// COLOR_DEPTH_WRITE mask when the batch is drawn and so ignores RenderSystem.depthMask(). Buttons
-	// therefore step toward the viewer instead, the way GuiGraphics does for items (+150) and their count
+	// therefore step toward the viewer instead, the way GuiGraphicsExtractor does for items (+150) and their count
 	// labels (+200). Both steps stay well under 150 so a button never covers an item.
 	public static final int BUTTON_Z = 30;
 	public static final int BUTTON_LABEL_Z = 15;

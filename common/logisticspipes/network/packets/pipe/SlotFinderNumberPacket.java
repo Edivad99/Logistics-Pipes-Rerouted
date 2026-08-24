@@ -1,14 +1,5 @@
 package logisticspipes.network.packets.pipe;
 
-import logisticspipes.interfaces.IInventoryUtil;
-import logisticspipes.modules.ModuleActiveSupplier;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.utils.StaticResolve;
-import logisticspipes.utils.item.ItemIdentifier;
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -18,6 +9,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import logisticspipes.interfaces.IInventoryUtil;
+import logisticspipes.modules.ModuleActiveSupplier;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.utils.StaticResolve;
+import logisticspipes.utils.item.ItemIdentifier;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -66,7 +68,7 @@ public class SlotFinderNumberPacket extends ModuleCoordinatesPacket {
 			}
 		}
 		if (result == null) {
-			player.displayClientMessage(Component.translatable("lp.chat.slotnotfound"), false);
+			player.sendSystemMessage(Component.translatable("lp.chat.slotnotfound"));
 			return;
 		}
 		int resultIndex = -1;
@@ -106,7 +108,7 @@ public class SlotFinderNumberPacket extends ModuleCoordinatesPacket {
 		}
 
 		if (resultIndex == -1) {
-			player.displayClientMessage(Component.translatable("lp.chat.slotnotfound"), false);
+			player.sendSystemMessage(Component.translatable("lp.chat.slotnotfound"));
 		} else {
 			//Copy pipe to coordinates to use the getPipe method
 			setPosX(getPipePosX());

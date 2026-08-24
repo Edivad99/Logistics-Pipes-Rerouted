@@ -37,16 +37,16 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import net.minecraft.client.input.MouseButtonEvent
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.components.Button
-import net.minecraft.network.chat.Component
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.network.chat.Component
 
 open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) :
     Button(Button.builder(Component.empty()) { }.pos(x, y).size(width, height)) {
@@ -82,13 +82,13 @@ open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) :
 
     open fun getTooltipText(): String = ""
 
-    open fun drawTooltip(guiGraphics: GuiGraphics, x: Int, y: Int, horizontalAlign: HorizontalAlignment, verticalAlign: VerticalAlignment) {
+    open fun drawTooltip(guiGraphics: GuiGraphicsExtractor, x: Int, y: Int, horizontalAlign: HorizontalAlignment, verticalAlign: VerticalAlignment) {
         GuiDrawer.drawTextTooltip(guiGraphics, listOf(getTooltipText()), x, y, GuideBookConstants.Z_TOOLTIP, horizontalAlign, verticalAlign)
     }
 
     fun getHoverState(mouseOver: Boolean): Int = if (!isActive) 2 else if (mouseOver) 1 else 0
 
-    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun extractContents(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         // TODO: deferred rendering
     }
 }

@@ -11,7 +11,19 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
@@ -19,7 +31,6 @@ import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.interfaces.ISlotClick;
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.world.item.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.ChassisModule;
 import logisticspipes.network.PacketHandler;
@@ -30,18 +41,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.MinecraftColor;
 import logisticspipes.utils.item.ItemIdentifier;
-
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.ContainerListener;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import logisticspipes.world.item.ItemModule;
 import network.rs485.logisticspipes.property.IBitSet;
 
 public class DummyContainer extends AbstractContainerMenu {
@@ -266,8 +266,8 @@ public class DummyContainer extends AbstractContainerMenu {
 		return false;
 	}
 
-	public void superSlotClick(int slotId, int dragType, ClickType clickTypeIn, Player player) {
-		super.clicked(slotId, dragType, clickTypeIn, player);
+	public void superSlotClick(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+		super.clicked(slotIndex, buttonNum, containerInput, player);
 	}
 
 	private void handleSwitch(Slot slot2, ItemStack out, ItemStack in, Player player) {
@@ -287,7 +287,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	 * Clone/clear itemstacks for items
 	 */
 	@Override
-	public void clicked(int slotId, int mouseButton, ClickType shiftMode, Player player) {
+    public void clicked(int slotId, int mouseButton, ContainerInput shiftMode, Player player) {
 		lastClicked = System.currentTimeMillis();
 		if (slotId < 0) {
 			superSlotClick(slotId, mouseButton, shiftMode, player);
@@ -303,7 +303,7 @@ public class DummyContainer extends AbstractContainerMenu {
 		}
 		if (slot == null) return;
 		if ((!(slot instanceof DummySlot) && !(slot instanceof UnmodifiableSlot) && !(slot instanceof FluidSlot) && !(slot instanceof ColorSlot) && !(slot instanceof HandelableSlot))) {
-			superSlotClick(slotId, mouseButton, shiftMode, player);
+            superSlotClick(slotId, mouseButton, shiftMode, player);
 			ItemStack stack2 = slot.getItem();
 			if (!stack2.isEmpty() && stack2.getItem() instanceof ItemModule) {
 				if (player instanceof ServerPlayer && MainProxy.isServer(player.level())) {
@@ -317,7 +317,7 @@ public class DummyContainer extends AbstractContainerMenu {
 		ItemStack currentlyEquippedStack = this.getCarried();
 
 		// we get a leftclick *and* a doubleclick message if there's a doubleclick with no item on the pointer, filter it out
-		if (currentlyEquippedStack.isEmpty() && shiftMode == ClickType.PICKUP_ALL) {
+		if (currentlyEquippedStack.isEmpty() && shiftMode == ContainerInput.PICKUP_ALL) {
 			return;
 		}
 
@@ -336,7 +336,7 @@ public class DummyContainer extends AbstractContainerMenu {
 		handleDummyClick(slot, slotId, currentlyEquippedStack, mouseButton, shiftMode, player);
 	}
 
-	public void handleDummyClick(Slot slot, int slotId, ItemStack currentlyEquippedStack, int mouseButton, ClickType shiftMode, Player entityplayer) {
+	public void handleDummyClick(Slot slot, int slotId, ItemStack currentlyEquippedStack, int mouseButton, ContainerInput shiftMode, Player entityplayer) {
 		if (slot instanceof FluidSlot) {
 			if (!currentlyEquippedStack.isEmpty()) {
 				FluidIdentifier ident = FluidIdentifier.get(currentlyEquippedStack);
@@ -414,7 +414,7 @@ public class DummyContainer extends AbstractContainerMenu {
 		if (currentlyEquippedStack.isEmpty()) {
 			if (!slot.getItem().isEmpty() && mouseButton == 1) {
 				ItemStack tstack = slot.getItem();
-				if (shiftMode == ClickType.QUICK_MOVE) {
+				if (shiftMode == ContainerInput.QUICK_MOVE) {
 					tstack.setCount(Math.min(slot.getMaxStackSize(), tstack.getCount() * 2));
 				} else {
 					tstack.setCount(tstack.getCount() / 2);
@@ -449,7 +449,7 @@ public class DummyContainer extends AbstractContainerMenu {
 		if (currentItem.equals(slotItem)) {
 			ItemStack tstack = slot.getItem();
 			// Do manual shift-checking to play nice with NEI
-			int counter = shiftMode == ClickType.QUICK_MOVE ? 10 : 1;
+			int counter = shiftMode == ContainerInput.QUICK_MOVE ? 10 : 1;
 			if (mouseButton == 1) {
 				if (tstack.getCount() + counter <= slot.getMaxStackSize()) {
 					tstack.grow(counter);

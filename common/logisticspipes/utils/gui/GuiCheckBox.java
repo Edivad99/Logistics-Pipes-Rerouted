@@ -1,14 +1,14 @@
 package logisticspipes.utils.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import logisticspipes.LPConstants;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+
+import logisticspipes.LPConstants;
 
 public class GuiCheckBox extends AbstractButton {
 
@@ -35,7 +35,7 @@ public class GuiCheckBox extends AbstractButton {
 	}
 
 	@Override
-	public void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
+	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partial) {
 		if (visible) {
 			boolean hover = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
 			Identifier tex = LPConstants.rl("textures/gui/checkbox-" + (state ? "on" : "out") + (hover ? "-mouse" : "") + ".png");

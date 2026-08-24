@@ -49,23 +49,24 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
 
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.network.connection.ConnectionType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 
 import io.netty.buffer.ByteBuf;
 import static io.netty.buffer.Unpooled.buffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.network.IReadListObject;
 import logisticspipes.network.IWriteListObject;

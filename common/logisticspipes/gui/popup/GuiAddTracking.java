@@ -3,7 +3,16 @@ package logisticspipes.gui.popup;
 import java.util.List;
 import java.util.Locale;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
 import logisticspipes.network.PacketHandler;
@@ -19,13 +28,6 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
@@ -100,7 +102,7 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float par3) {
 		ItemTooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
 		if (tip != null) {
 			guiGraphics.setTooltipForNextFrame(minecraft.font, tip.stack(), tip.screenX(), tip.screenY());
@@ -108,14 +110,14 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		itemDisplay.renderItemArea(guiGraphics, 0.0f);
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-		//guiGraphics.drawString(minecraft.font, StringUtil.translate(PREFIX + "title"), guiLeft + 5, guiTop + 6, 0xFF404040, false);
+		//guiGraphics.text(minecraft.font, StringUtil.translate(PREFIX + "title"), guiLeft + 5, guiTop + 6, 0xFF404040, false);
 		itemDisplay.renderPageNumber(guiGraphics, right - 47, guiTop + 6);
 
         itemDisplay.renderSortMode(guiGraphics, xCenter, bottom - 32);
@@ -138,7 +140,7 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (i == 201) { //PgUp
 			itemDisplay.prevPage();
 		} else if (i == 209) { //PgDn

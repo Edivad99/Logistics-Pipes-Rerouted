@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.module
 
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
 
 const val SNEAKY_DIRECTION_NBT: String = "sneakydirection"
 

@@ -37,10 +37,10 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import net.minecraft.nbt.CompoundTag
 import network.rs485.logisticspipes.guidebook.BookContents
 import network.rs485.logisticspipes.util.*
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.nbt.CompoundTag
 
 
 interface IPageData : LPSerializable {
@@ -140,7 +140,7 @@ class Page(data: PageData) : IPageData by data {
     fun cycleColor(inverted: Boolean = false) =
         cycleMinecraftColorId((color ?: 0), inverted).also { color = it }
 
-    fun draw(guiGraphics: GuiGraphics, visibleArea: IRectangle, mouseX: Float, mouseY: Float, partialTicks: Float) {
+    fun draw(guiGraphics: GuiGraphicsExtractor, visibleArea: IRectangle, mouseX: Float, mouseY: Float, partialTicks: Float) {
         drawable.preRender(guiGraphics, mouseX, mouseY, visibleArea)
         drawable.draw(guiGraphics, mouseX, mouseY, partialTicks, visibleArea)
     }

@@ -1,7 +1,17 @@
 package logisticspipes.pipes.upgrades;
 
 import java.util.Arrays;
-import javax.annotation.Nullable;
+
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleCreativeTabBasedItemSink;
 import logisticspipes.modules.ModuleItemSink;
@@ -12,13 +22,6 @@ import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
 import logisticspipes.network.guis.upgrade.SneakyUpgradeConfigGuiProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 
 public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 

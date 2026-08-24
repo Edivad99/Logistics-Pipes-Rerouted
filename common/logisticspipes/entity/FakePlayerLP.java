@@ -1,9 +1,11 @@
 package logisticspipes.entity;
 
-import logisticspipes.LPConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+
 import net.neoforged.neoforge.common.util.FakePlayer;
+
+import logisticspipes.LPConstants;
 
 public class FakePlayerLP extends FakePlayer {
 

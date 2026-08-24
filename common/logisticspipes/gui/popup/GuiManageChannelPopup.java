@@ -1,6 +1,11 @@
 package logisticspipes.gui.popup;
 
 import java.util.List;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.BlockPos;
+
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.DeleteChannelPacket;
@@ -12,9 +17,6 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelInformationReceiver {
@@ -84,15 +86,15 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
 		drawTitle(guiGraphics);
 
-		textList.renderGuiBackground(guiGraphics, mouseX, mouseY);
+		textList.extractGuiBackground(guiGraphics, mouseX, mouseY);
 	}
 
-	protected void drawTitle(GuiGraphics guiGraphics) {
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6, 0xFFFFFFFF, true);
+	protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6, 0xFFFFFFFF, true);
 	}
 
 	@Override

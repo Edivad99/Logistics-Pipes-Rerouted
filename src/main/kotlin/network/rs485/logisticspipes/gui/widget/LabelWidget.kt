@@ -43,7 +43,7 @@ import network.rs485.logisticspipes.gui.guidebook.MouseHoverable
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import network.rs485.logisticspipes.util.math.MutableRectangle
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 class LabelWidget(
     parent: Drawable,
@@ -107,7 +107,7 @@ class LabelWidget(
         overflowing = text != trimmedText
     }
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (backgroundColor != 0) {
             guiGraphics.fill(absoluteBody.roundedLeft, absoluteBody.roundedTop, absoluteBody.roundedRight, absoluteBody.roundedBottom, backgroundColor)
         }
@@ -119,7 +119,7 @@ class LabelWidget(
             HorizontalAlignment.CENTER -> absoluteBody.roundedLeft + (absoluteBody.roundedWidth - textWidth) / 2
             HorizontalAlignment.RIGHT -> absoluteBody.roundedRight - textWidth - 2
         }
-        guiGraphics.drawString(GuiDrawer.mcFontRenderer, drawText, textX, textY, textColor, false)
+        guiGraphics.text(GuiDrawer.mcFontRenderer, drawText, textX, textY, textColor, false)
     }
 
     private fun trimText(text: String): String {

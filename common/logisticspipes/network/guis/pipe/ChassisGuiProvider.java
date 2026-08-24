@@ -1,7 +1,10 @@
 package logisticspipes.network.guis.pipe;
 
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
 import logisticspipes.gui.GuiChassisPipe;
-import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.BooleanModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -10,9 +13,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import logisticspipes.world.item.ItemUpgrade;
 
 @StaticResolve
 public class ChassisGuiProvider extends BooleanModuleCoordinatesGuiProvider {

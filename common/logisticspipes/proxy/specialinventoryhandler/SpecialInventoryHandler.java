@@ -2,11 +2,12 @@ package logisticspipes.proxy.specialinventoryhandler;
 
 import java.util.Map;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.utils.item.ItemIdentifier;

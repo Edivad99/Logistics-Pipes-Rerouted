@@ -1,12 +1,10 @@
 package logisticspipes.client.model.mesh;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Emits an {@link ObjMesh} straight into a {@link VertexConsumer}, for geometry that cannot

@@ -1,6 +1,12 @@
 package logisticspipes.network.packets.orderer;
 
-import logisticspipes.world.item.LPItems;
+import java.util.Objects;
+
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeBlockRequestTable;
@@ -8,12 +14,7 @@ import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.request.RequestHandler;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.entity.player.Player;
-
-import java.util.Objects;
+import logisticspipes.world.item.LPItems;
 
 @StaticResolve
 public class DiskMacroRequestPacket extends IntegerCoordinatesPacket {

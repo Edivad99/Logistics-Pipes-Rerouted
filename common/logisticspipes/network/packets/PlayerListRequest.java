@@ -2,12 +2,15 @@ package logisticspipes.network.packets;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

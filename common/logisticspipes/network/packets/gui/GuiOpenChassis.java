@@ -1,5 +1,7 @@
 package logisticspipes.network.packets.gui;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -8,7 +10,6 @@ import logisticspipes.network.guis.pipe.ChassisGuiProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class GuiOpenChassis extends CoordinatesPacket {

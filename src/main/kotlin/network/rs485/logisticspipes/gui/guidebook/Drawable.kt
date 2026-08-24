@@ -37,16 +37,16 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.utils.MinecraftColor
-import net.minecraft.client.Minecraft
-import net.minecraft.sounds.SoundEvents
-import net.minecraft.sounds.SoundEvent
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.gui.guidebook.GuideBookConstants.DRAW_BODY_WIREFRAME
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
-import net.minecraft.client.gui.GuiGraphics
+import logisticspipes.utils.MinecraftColor
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundEvents
 
 interface MouseHoverable {
     /**
@@ -147,7 +147,7 @@ interface Drawable {
      * @param delta         Timing floating value
      * @param visibleArea   used to avoid draw calls on non-visible children
      */
-    fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (DRAW_BODY_WIREFRAME) {
             val visibleAbsoluteBody = MutableRectangle.fromRectangle(visibleArea)
                 .translate(0, -5)

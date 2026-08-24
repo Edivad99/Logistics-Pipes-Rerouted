@@ -38,8 +38,8 @@
 package network.rs485.minecraft
 
 import net.minecraft.core.BlockPos
-import net.minecraft.world.level.ChunkPos
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.ChunkPos
 
 interface WorldBuilder {
     fun finalPosition(selector: BlockPosSelector): BlockPos

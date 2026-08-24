@@ -2,22 +2,18 @@ package logisticspipes.world.item.crafting;
 
 import java.util.List;
 
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
-
-import com.mojang.serialization.MapCodec;
 
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
@@ -45,23 +41,24 @@ public class ProgrammerRecipe extends WrappedShapedRecipe {
     }
 
     private String getRequiredProgram() {
-        return BuiltInRegistries.ITEM.getKey(this.result.getItem()).toString();
+        return BuiltInRegistries.ITEM.getKey(this.result.item().value()).toString();
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
-        return this.result.copy();
+    public ItemStack assemble(CraftingInput input) {
+        return this.result.create();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public RecipeSerializer<? extends ShapedRecipe> getSerializer() {
-        return LPRecipeSerializers.PROGRAMMER_RECIPE.get();
+    public RecipeSerializer<ShapedRecipe> getSerializer() {
+        return (RecipeSerializer<ShapedRecipe>) (RecipeSerializer<?>) LPRecipeSerializers.PROGRAMMER_RECIPE.get();
     }
 
     @Override
     public List<RecipeDisplay> display() {
-        ItemStack programmer = LPItems.LOGISTICS_PROGRAMMER.toStack();
-        programmer.set(LPDataComponents.RECIPE_TARGET.get(), getRequiredProgram());
+        ItemStackTemplate programmer = new ItemStackTemplate(LPItems.LOGISTICS_PROGRAMMER.get(), 1,
+            DataComponentPatch.builder().set(LPDataComponents.RECIPE_TARGET.get(), getRequiredProgram()).build());
         SlotDisplay programmerSlot = new SlotDisplay.ItemStackSlotDisplay(programmer);
         List<SlotDisplay> slots = getIngredients().stream()
             .map(ingredient -> ingredient
@@ -76,18 +73,9 @@ public class ProgrammerRecipe extends WrappedShapedRecipe {
             new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)));
     }
 
-    public static class Serializer implements RecipeSerializer<ProgrammerRecipe> {
-
-        private final ShapedRecipe.Serializer vanilla = new ShapedRecipe.Serializer();
-
-        @Override
-        public MapCodec<ProgrammerRecipe> codec() {
-            return vanilla.codec().xmap(ProgrammerRecipe::new, ProgrammerRecipe::getInternal);
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, ProgrammerRecipe> streamCodec() {
-            return vanilla.streamCodec().map(ProgrammerRecipe::new, ProgrammerRecipe::getInternal);
-        }
+    public static RecipeSerializer<ProgrammerRecipe> createSerializer() {
+        return new RecipeSerializer<>(
+            ShapedRecipe.SERIALIZER.codec().xmap(ProgrammerRecipe::new, ProgrammerRecipe::getInternal),
+            ShapedRecipe.SERIALIZER.streamCodec().map(ProgrammerRecipe::new, ProgrammerRecipe::getInternal));
     }
 }

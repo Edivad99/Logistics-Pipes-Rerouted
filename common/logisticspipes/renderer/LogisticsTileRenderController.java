@@ -3,6 +3,16 @@ package logisticspipes.renderer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.PowerPacketLaser;
@@ -10,13 +20,6 @@ import logisticspipes.pipefxhandlers.PipeFXLaserPowerBall;
 import logisticspipes.pipefxhandlers.PipeFXLaserPowerBeam;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsTileRenderController {

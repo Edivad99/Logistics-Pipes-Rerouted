@@ -1,9 +1,10 @@
 package logisticspipes.commands.commands;
 
-import logisticspipes.commands.abstracts.ICommandHandler;
-import logisticspipes.utils.string.ChatColor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+
+import logisticspipes.commands.abstracts.ICommandHandler;
+import logisticspipes.utils.string.ChatColor;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
@@ -27,11 +28,11 @@ public class ClearCommand implements ICommandHandler {
 	@Override
 	public void executeCommand(Player sender, String[] args) {
 		if (args.length <= 0 || !args[0].equalsIgnoreCase("all")) {
-			sender.displayClientMessage(Component.literal("%LPSTORESENDMESSAGE%"), false);
-			sender.displayClientMessage(Component.literal("%LPCLEARCHAT%"), false);
-			sender.displayClientMessage(Component.literal("%LPRESTORESENDMESSAGE%"), false);
+			sender.sendSystemMessage(Component.literal("%LPSTORESENDMESSAGE%"));
+			sender.sendSystemMessage(Component.literal("%LPCLEARCHAT%"));
+			sender.sendSystemMessage(Component.literal("%LPRESTORESENDMESSAGE%"));
 		} else {
-			sender.displayClientMessage(Component.literal("%LPCLEARCHAT%"), false);
+			sender.sendSystemMessage(Component.literal("%LPCLEARCHAT%"));
 		}
 	}
 }

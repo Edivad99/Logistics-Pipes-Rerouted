@@ -1,13 +1,20 @@
 package logisticspipes.utils.gui;
 
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
+
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.ISpecialItemRenderer;
 import logisticspipes.utils.Color;
@@ -16,12 +23,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import logisticspipes.utils.tuples.Pair;
-import lombok.Getter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemStack;
 
 public class ItemDisplay {
 
@@ -188,7 +189,7 @@ public class ItemDisplay {
 		allItems.sort(new ItemidStackDisplayOptionComparator());
 	}
 
-	public void renderSortMode(GuiGraphics guiGraphics, int x, int y) {
+	public void renderSortMode(GuiGraphicsExtractor guiGraphics, int x, int y) {
 		String name = ItemDisplay.option.name();
 		boolean up = true;
 		if (name.endsWith("_DOWN")) {
@@ -196,10 +197,10 @@ public class ItemDisplay {
 			up = false;
 		}
 		name += !up ? " ⏶" : " ⏷";
-		guiGraphics.drawString(font, name, x - font.width(name) / 2, y, 0xFF404040, false);
+		guiGraphics.text(font, name, x - font.width(name) / 2, y, 0xFF404040, false);
 	}
 
-	public void renderPageNumber(GuiGraphics guiGraphics, int x, int y) {
+	public void renderPageNumber(GuiGraphicsExtractor guiGraphics, int x, int y) {
 		maxPage = (getSearchedItemNumber() - 1) / itemsPerPage;
 		if (maxPage == -1) {
 			maxPage = 0;
@@ -208,7 +209,7 @@ public class ItemDisplay {
 			page = maxPage;
 		}
 		String pageString = "Page " + (page + 1) + " / " + (maxPage + 1);
-        guiGraphics.drawString(font, pageString, x - font.width(pageString) / 2, y, 0xFF404040, false);
+        guiGraphics.text(font, pageString, x - font.width(pageString) / 2, y, 0xFF404040, false);
 	}
 
 	private int getSearchedItemNumber() {
@@ -221,14 +222,14 @@ public class ItemDisplay {
 		return count;
 	}
 
-	public void renderAmount(GuiGraphics guiGraphics, int stackAmount) {
+	public void renderAmount(GuiGraphicsExtractor guiGraphics, int stackAmount) {
 		int requestCount = requestCountBar.getInteger();
 		String StackrequestCount = (requestCount / stackAmount) + "+" + (requestCount % stackAmount);
-		//screen.guiGraphics.drawString(font, requestCount + "", x - font.width(requestCount + "") / 2, y, 0xFF404040, false);
-		guiGraphics.drawString(font, StackrequestCount, this.amountPosLeft - font.width(StackrequestCount) / 2, this.amountPosTop + 11, 0xFF404040, false);
+		//screen.guiGraphics.text(font, requestCount + "", x - font.width(requestCount + "") / 2, y, 0xFF404040, false);
+		guiGraphics.text(font, StackrequestCount, this.amountPosLeft - font.width(StackrequestCount) / 2, this.amountPosTop + 11, 0xFF404040, false);
 	}
 
-	public void renderItemArea(GuiGraphics guiGraphics, double zLevel) {
+	public void renderItemArea(GuiGraphicsExtractor guiGraphics, double zLevel) {
 		guiGraphics.fill(left, top, left + width, top + height, Color.getValue(Color.GREY));
 
 		tooltip = null;
@@ -239,7 +240,7 @@ public class ItemDisplay {
 		int y = 2;
 		// Two coordinate spaces are in play here, and mixing them up is what used to shift the
 		// tooltip up and to the left by exactly (left, top): the hit tests below are in coords
-		// relative to the display area origin, but GuiGraphics#renderTooltip -- which is what the
+		// relative to the display area origin, but GuiGraphicsExtractor#renderTooltip -- which is what the
 		// screens hand getToolTip()'s first two entries to -- expects screen coords.
 		int screenMouseX = screen.getCurrentMouseX();
 		int screenMouseY = screen.getCurrentMouseY();

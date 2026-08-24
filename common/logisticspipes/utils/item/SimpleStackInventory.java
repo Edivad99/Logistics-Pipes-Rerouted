@@ -7,33 +7,31 @@
 
 package logisticspipes.utils.item;
 
-import net.minecraft.world.entity.ContainerUser;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import logisticspipes.LogisticsPipes;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.ISimpleInventoryEventHandler;
-import logisticspipes.utils.tuples.Pair;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
+
+import logisticspipes.LogisticsPipes;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.utils.ISimpleInventoryEventHandler;
+import logisticspipes.utils.tuples.Pair;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
-import org.jetbrains.annotations.NotNull;
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Iterable over its own pair type: the two Iterable parameterisations conflict. The pair

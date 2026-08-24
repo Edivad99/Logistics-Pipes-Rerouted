@@ -6,7 +6,6 @@
   "group": "chip_advanced",
   "ingredient": "logisticspipes:chip_advanced_raw",
   "result": {
-    "count": 1,
     "id": "logisticspipes:chip_advanced"
   }
 }

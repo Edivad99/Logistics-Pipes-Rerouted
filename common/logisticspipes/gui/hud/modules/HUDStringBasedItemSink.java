@@ -1,14 +1,15 @@
 package logisticspipes.gui.hud.modules;
 
-import logisticspipes.renderer.HUDDrawContext;
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minecraft.client.Minecraft;
+
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IStringBasedModule;
+import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 
 public class HUDStringBasedItemSink implements IHUDModuleRenderer {
 

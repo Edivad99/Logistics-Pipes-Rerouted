@@ -37,10 +37,10 @@
 
 package network.rs485.logisticspipes.connection
 
+import network.rs485.logisticspipes.world.WorldCoordinatesWrapper
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.SimpleServiceLocator
 import net.minecraft.core.Direction
-import network.rs485.logisticspipes.world.WorldCoordinatesWrapper
 
 object AdjacentFactory {
     fun createAdjacentCache(parent: CoreRoutedPipe): Adjacent {

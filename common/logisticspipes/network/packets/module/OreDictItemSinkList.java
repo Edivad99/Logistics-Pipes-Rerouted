@@ -1,13 +1,14 @@
 package logisticspipes.network.packets.module;
 
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.TagValueInput;
+
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.NBTModuleCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class OreDictItemSinkList extends NBTModuleCoordinatesPacket {

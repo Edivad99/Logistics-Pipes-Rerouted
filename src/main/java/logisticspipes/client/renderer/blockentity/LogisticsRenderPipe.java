@@ -3,38 +3,36 @@ package logisticspipes.client.renderer.blockentity;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nullable;
 
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.data.AtlasIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.SignRenderer;
+import net.minecraft.client.renderer.blockentity.StandingSignRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.MaterialSet;
-import net.minecraft.util.Unit;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.core.Direction;
+import net.minecraft.data.AtlasIds;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.PlainSignBlock;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Quaternionf;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -76,13 +74,12 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     private static TextureAtlasSprite requestTableSprite = null;
 
     private final Model.Simple signModel;
-    /** Resolves a {@link Material} to its stitched sprite; 1.21.9 hands one to every BER. */
-    private final MaterialSet materials;
+    private final SpriteGetter sprites;
 
     public LogisticsRenderPipe(BlockEntityRendererProvider.Context context) {
         // A pipe sign hangs on the pipe, so it never has the standing sign's post.
-        signModel = SignRenderer.createSignModel(context.entityModelSet(), TYPE, false);
-        materials = context.materials();
+        signModel = StandingSignRenderer.createSignModel(context.entityModelSet(), TYPE, PlainSignBlock.Attachment.WALL);
+        sprites = context.sprites();
     }
 
     /**
@@ -129,7 +126,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
     @Override
     public void extractRenderState(LogisticsTileGenericPipe blockEntity, PipeRenderState state, float partialTicks,
-        Vec3 cameraPos, @Nullable ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+        Vec3 cameraPos, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPos, breakProgress);
         state.blockEntity = blockEntity.pipe == null ? null : blockEntity;
         state.partialTicks = partialTicks;
@@ -182,7 +179,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             return;
         }
 
-        collector.submitCustomGeometry(poseStack, RenderTypes.entityCutoutNoCull(tube.texture()),
+        collector.submitCustomGeometry(poseStack, RenderTypes.entityCutout(tube.texture()),
             (pose, buffer) -> MeshRenderer.emitRaw(buffer, pose, tube.mesh(), 0xFFFFFFFF, packedLight, packedOverlay));
     }
 
@@ -481,12 +478,11 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.pushPose();
         try {
             poseStack.scale(signScale, -signScale, -signScale);
-            // Models are submitted whole now instead of being rendered into a buffer picked from
-            // the material; the material only supplies the render type and the stitched sprite.
-            Material material = Sheets.getSignMaterial(TYPE);
-            collector.submitModel(signModel, Unit.INSTANCE, poseStack,
-                material.renderType(signModel::renderType), packedLight, OverlayTexture.NO_OVERLAY,
-                -1, materials.get(material), 0, null);
+            // Models are submitted whole. 26.1.2 replaced Material with a SpriteId plus the
+            // SpriteGetter that resolves it, and the overload below picks the render type from
+            // the sprite's atlas itself -- so there is nothing left to look up by hand.
+            collector.submitModel(signModel, Unit.INSTANCE, poseStack, packedLight,
+                OverlayTexture.NO_OVERLAY, -1, Sheets.getSignSprite(TYPE), sprites, 0, null);
         } finally {
             poseStack.popPose();
         }

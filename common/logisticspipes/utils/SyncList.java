@@ -6,9 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.ListSyncPacket;
 import logisticspipes.proxy.MainProxy;
-import net.minecraft.world.entity.player.Player;
 
 public class SyncList<E> implements List<E> {
 

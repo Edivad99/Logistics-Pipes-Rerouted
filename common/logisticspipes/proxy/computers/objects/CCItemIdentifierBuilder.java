@@ -1,15 +1,17 @@
 package logisticspipes.proxy.computers.objects;
 
 import java.util.List;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCType;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
-import logisticspipes.utils.item.ItemIdentifier;
+
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+
+import logisticspipes.proxy.computers.interfaces.CCCommand;
+import logisticspipes.proxy.computers.interfaces.CCType;
+import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
+import logisticspipes.utils.item.ItemIdentifier;
 
 @CCType(name = "ItemIdentifierBuilder")
 public class CCItemIdentifierBuilder implements ILPCCTypeHolder {

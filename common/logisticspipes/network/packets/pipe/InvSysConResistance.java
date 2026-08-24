@@ -1,12 +1,13 @@
 package logisticspipes.network.packets.pipe;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class InvSysConResistance extends IntegerCoordinatesPacket {

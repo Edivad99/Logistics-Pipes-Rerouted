@@ -1,18 +1,20 @@
 package logisticspipes.client.renderer;
 
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.DepthTestFunction;
-
 import java.util.function.Function;
 
-import net.minecraft.util.Util;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.CompareOp;
 
 import logisticspipes.LPConstants;
 
@@ -39,9 +41,8 @@ public final class LPRenderTypes {
      */
     public static final RenderPipeline GLOW_PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/glow"))
-        .withBlend(BlendFunction.TRANSLUCENT)
-        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-        .withDepthWrite(false)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .build();
 
@@ -51,9 +52,8 @@ public final class LPRenderTypes {
      */
     public static final RenderPipeline OVERLAY_PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/overlay"))
-        .withBlend(BlendFunction.TRANSLUCENT)
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-        .withDepthWrite(false)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
         .withCull(false)
         .build();
 
@@ -66,8 +66,8 @@ public final class LPRenderTypes {
      */
     public static final RenderPipeline ADDITIVE_PARTICLE_PIPELINE = RenderPipeline.builder(RenderPipelines.PARTICLE_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/additive_particle"))
-        .withBlend(BlendFunction.LIGHTNING)
-        .withDepthWrite(false)
+        .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .build();
 
     /**
@@ -79,41 +79,38 @@ public final class LPRenderTypes {
         .withLocation(LPConstants.rl("pipeline/ghost_entity"))
         .withShaderDefine("ALPHA_CUTOUT", 0.1F)
         .withSampler("Sampler1")
-        .withBlend(BlendFunction.TRANSLUCENT)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .build();
 
     /**
      * Textured, translucent, drawn over whatever is already there. Replaces
      * {@code RenderType.guiTexturedOverlay}, which 1.21.6 removed along with every other
-     * {@code RenderType.gui*}: the side-config preview needs it outside a GuiGraphics, so LP has to
+     * {@code RenderType.gui*}: the side-config preview needs it outside a GuiGraphicsExtractor, so LP has to
      * declare the pipeline itself.
      */
     public static final RenderPipeline TEXTURED_OVERLAY_PIPELINE = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/textured_overlay"))
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-        .withDepthWrite(false)
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
         .build();
 
     /**
      * Flat coloured geometry for the world-space HUD panels: translucent, depth-tested so the world
      * still occludes them, but not depth-writing. The panels stack many coplanar layers within a
      * fraction of a block, and letting each one write depth makes the next fail the LEQUAL test and
-     * come out stippled -- the problem the old GuiGraphics path worked around by spreading the
+     * come out stippled -- the problem the old GuiGraphicsExtractor path worked around by spreading the
      * layers apart in z.
      */
     public static final RenderPipeline HUD_FILL_PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/hud_fill"))
-        .withBlend(BlendFunction.TRANSLUCENT)
-        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-        .withDepthWrite(false)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .build();
 
     /** As {@link #HUD_FILL_PIPELINE}, textured. */
     public static final RenderPipeline HUD_TEXTURED_PIPELINE = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/hud_textured"))
-        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-        .withDepthWrite(false)
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .build();
 

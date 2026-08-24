@@ -1,14 +1,16 @@
 package logisticspipes.network.packets.gui;
 
+import net.minecraft.world.entity.player.Player;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.abstractpackets.GuiPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.StaticResolve;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

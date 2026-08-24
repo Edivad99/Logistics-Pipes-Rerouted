@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
 class IntegerProperty(initialValue: Int, override val tagKey: String) : ValueProperty<Int>(initialValue) {
 

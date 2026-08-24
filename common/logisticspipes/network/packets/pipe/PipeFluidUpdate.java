@@ -1,17 +1,21 @@
 package logisticspipes.network.packets.pipe;
 
 import java.util.BitSet;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.StaticResolve;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.fluids.FluidStack;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

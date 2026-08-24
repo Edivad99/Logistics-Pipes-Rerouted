@@ -4,24 +4,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import com.google.common.collect.Maps;
 
-import logisticspipes.LogisticsEventListener;
-import logisticspipes.proxy.side.ClientProxy;
-import logisticspipes.proxy.side.ServerProxy;
-import logisticspipes.world.item.LPItems;
-import logisticspipes.LogisticsPipes;
-import logisticspipes.entity.FakePlayerLP;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.proxy.interfaces.IProxy;
-import logisticspipes.routing.debug.RoutingTableDebugUpdateThread;
-import logisticspipes.routing.pathfinder.IPipeInformationProvider;
-import logisticspipes.ticks.RoutingTableUpdateThread;
-import logisticspipes.utils.PlayerCollectionList;
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -35,6 +18,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -42,6 +26,25 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+
+import com.google.common.collect.Maps;
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LogisticsEventListener;
+import logisticspipes.LogisticsPipes;
+import logisticspipes.entity.FakePlayerLP;
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.network.PacketHandler;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.proxy.interfaces.IProxy;
+import logisticspipes.proxy.side.ClientProxy;
+import logisticspipes.proxy.side.ServerProxy;
+import logisticspipes.routing.debug.RoutingTableDebugUpdateThread;
+import logisticspipes.routing.pathfinder.IPipeInformationProvider;
+import logisticspipes.ticks.RoutingTableUpdateThread;
+import logisticspipes.utils.PlayerCollectionList;
+import logisticspipes.world.item.LPItems;
 
 public class MainProxy {
 
@@ -184,7 +187,7 @@ public class MainProxy {
 	// ── Chunk-watch / broadcast helpers ──────────────────────────────────────
 
 	public static boolean isAnyoneWatching(BlockPos pos, int dimensionID) {
-		ChunkPos chunkPos = new ChunkPos(pos);
+		ChunkPos chunkPos = ChunkPos.containing(pos);
 		PlayerCollectionList list = LogisticsEventListener.watcherList.get(chunkPos);
 		return list != null && !list.isEmpty();
 	}
@@ -197,7 +200,7 @@ public class MainProxy {
 
 	public static void sendPacketToAllWatchingChunk(@Nullable LogisticsModule module, ModernPacket packet) {
 		if (module == null || module.getBlockPos() == null) return;
-		ChunkPos chunkPos = new ChunkPos(module.getBlockPos());
+		ChunkPos chunkPos = ChunkPos.containing(module.getBlockPos());
 		sendPacketToChunkWatchers(chunkPos, packet);
 	}
 
@@ -214,13 +217,13 @@ public class MainProxy {
 			// future and it is the thread stuck in the retry loop. The game hangs on
 			// "Saving world" at 100% CPU, and only for worlds containing pipes.
 			PacketDistributor.sendToPlayersTrackingChunk(
-					serverLevel,
-					new ChunkPos(tile.getBlockPos()),
-					PacketHandler.buildPayloadPublic(packet)
+                serverLevel,
+                ChunkPos.containing(tile.getBlockPos()),
+                PacketHandler.buildPayloadPublic(packet)
 			);
 			return;
 		}
-		ChunkPos chunkPos = new ChunkPos(tile.getBlockPos());
+		ChunkPos chunkPos = ChunkPos.containing(tile.getBlockPos());
 		sendPacketToChunkWatchers(chunkPos, packet);
 	}
 

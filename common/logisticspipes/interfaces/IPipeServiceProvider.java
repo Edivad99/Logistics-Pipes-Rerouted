@@ -1,6 +1,10 @@
 package logisticspipes.interfaces;
 
-import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.api.IRoutedPowerProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.modules.LogisticsModule;
@@ -8,8 +12,6 @@ import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.item.ItemIdentifier;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import network.rs485.logisticspipes.connection.Adjacent;
 
 //methods needed by modules that any CRP can offer

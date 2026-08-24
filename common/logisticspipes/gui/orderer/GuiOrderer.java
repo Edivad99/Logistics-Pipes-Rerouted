@@ -12,7 +12,21 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.popup.GuiRequestPopup;
 import logisticspipes.interfaces.ISpecialItemRenderer;
@@ -34,19 +48,6 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.StringUtil;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer {
 
@@ -110,15 +111,15 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 		addRenderableWidget(wire(new SmallGuiButton(20, xCenter - 13, bottom - 41, 26, 10, "Sort"), 20)); // Sort
 
 		if (search == null) {
-			search = new InputBar(font, this, leftPos + 10, bottom - 78, imageWidth - 20, 15);
+			search = new InputBar(font, this, leftPos + 10, bottom - 78, panelWidth - 20, 15);
 		}
-		search.reposition(leftPos + 10, bottom - 78, imageWidth - 20, 15);
+		search.reposition(leftPos + 10, bottom - 78, panelWidth - 20, 15);
 		addRenderableWidget(search);
 
 		if (itemDisplay == null) {
-			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24, 49, new int[] { 1, 10, 64, 64 }, true);
+			itemDisplay = new ItemDisplay(this, font, this, this, leftPos + 10, topPos + 18, panelWidth - 20, panelHeight - 100, xCenter, bottom - 24, 49, new int[] { 1, 10, 64, 64 }, true);
 		}
-		itemDisplay.reposition(leftPos + 10, topPos + 18, imageWidth - 20, imageHeight - 100, xCenter, bottom - 24);
+		itemDisplay.reposition(leftPos + 10, topPos + 18, panelWidth - 20, panelHeight - 100, xCenter, bottom - 24);
 	}
 
 	@Override
@@ -127,7 +128,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	public void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
+	public void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int i, int j, float f) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 
 		itemDisplay.renderPageNumber(guiGraphics, right - 47, topPos + 6);
@@ -139,19 +140,19 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	}
 
 	@Override
-	public void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, title, minecraft.font.width(title) / 2, 6, 0xFF404040, false);
+	public void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
+		guiGraphics.text(minecraft.font, title, minecraft.font.width(title) / 2, 6, 0xFF404040, false);
 		if (popupCheck != null && popupCheck.getState()) {
-			guiGraphics.drawString(minecraft.font, "Popup", 25, bottom - topPos - 56, 0xFF404040, false);
+			guiGraphics.text(minecraft.font, "Popup", 25, bottom - topPos - 56, 0xFF404040, false);
 		} else {
-			guiGraphics.drawString(minecraft.font, "Popup", 25, bottom - topPos - 56, Color.getValue(Color.GREY), false);
+			guiGraphics.text(minecraft.font, "Popup", 25, bottom - topPos - 56, Color.getValue(Color.GREY), false);
 		}
 	}
 
 	@Override
-	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		// Deliberately not in renderLabels: that runs inside a pose translated by (leftPos, topPos),
+	protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		// Deliberately not in extractLabels: that runs inside a pose translated by (leftPos, topPos),
 		// which would apply the gui origin to the screen coords ItemDisplay reports.
 		ItemTooltip tip = itemDisplay != null ? itemDisplay.getToolTip() : null;
 		if (tip != null) {
@@ -289,7 +290,7 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (search.isFocused()) {
 			if (!search.isEmpty() && search.handleKey(c, i)) {
 				return true;

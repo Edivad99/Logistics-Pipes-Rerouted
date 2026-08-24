@@ -41,7 +41,6 @@ import network.rs485.grow.ServerTickDispatcher
 import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
 import logisticspipes.blocks.LogisticsSolidBlock
-import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity
 import logisticspipes.interfaces.routing.IRequestItems
 import logisticspipes.pipes.PipeItemsBasicLogistics
 import logisticspipes.pipes.PipeItemsProviderLogistics
@@ -55,12 +54,13 @@ import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
 import logisticspipes.world.item.LPItems
 import logisticspipes.world.level.block.LPBlocks
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity
+import net.minecraft.core.Direction
 import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.ChestBlockEntity
-import net.minecraft.core.Direction
 import java.time.Duration
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull

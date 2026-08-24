@@ -2,19 +2,19 @@ package logisticspipes.client.model.pipe;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nullable;
 
-import net.minecraft.data.AtlasIds;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
@@ -22,6 +22,7 @@ import net.neoforged.neoforge.model.data.ModelData;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The pipe's block model. Puts pipe geometry into the chunk mesh, where the 1.12.2-derived
@@ -37,7 +38,7 @@ import com.google.common.cache.CacheBuilder;
  * configurations, so the quads are built once and shared.</p>
  *
  * <p>1.21.5 removed {@code BakedModel} and split it per use site; a block model is now a
- * {@link BlockStateModel} handing out {@link BlockModelPart}s. The NeoForge-added
+ * {@link BlockStateModel} handing out {@link BlockStateModelPart}s. The NeoForge-added
  * {@code collectParts} overload is what replaces {@code IDynamicBakedModel#getQuads}: instead
  * of the model data being pushed in as an argument, the model pulls it off the level with
  * {@code level.getModelData(pos)}.</p>
@@ -87,7 +88,7 @@ public class PipeBakedModel implements DynamicBlockStateModel {
 
     @Override
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
-        List<BlockModelPart> parts) {
+        List<BlockStateModelPart> parts) {
         PipeGeometryKey key = level.getModelData(pos).get(PipeModelProperties.GEOMETRY);
         if (key == null || !PipeModelStore.isReady()) {
             return;
@@ -104,14 +105,23 @@ public class PipeBakedModel implements DynamicBlockStateModel {
             quadCache.put(key, quads);
         }
         if (!quads.isEmpty()) {
-            parts.add(new Part(quads, particleIcon()));
+            parts.add(new Part(quads, particleMaterial()));
         }
     }
 
+    /**
+     * No material flags. 26.1.2 uses them to tell the chunk builder about things like forced
+     * translucency or animation; pipe geometry is plain cutout.
+     */
     @Override
-    public TextureAtlasSprite particleIcon() {
+    public int materialFlags() {
+        return 0;
+    }
+
+    @Override
+    public Material.Baked particleMaterial() {
         TextureAtlasSprite sprite = PipeModelStore.sprites().basicPipe();
-        return sprite != null ? sprite : fallback.particleIcon();
+        return sprite != null ? new Material.Baked(sprite, false) : fallback.particleMaterial();
     }
 
     /**
@@ -120,15 +130,15 @@ public class PipeBakedModel implements DynamicBlockStateModel {
      * {@link PipeModelProperties#PARTICLE_SPRITE}.
      */
     @Override
-    public TextureAtlasSprite particleIcon(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+    public Material.Baked particleMaterial(BlockAndTintGetter level, BlockPos pos, BlockState state) {
         Identifier name = level.getModelData(pos).get(PipeModelProperties.PARTICLE_SPRITE);
         if (name != null) {
-            return Minecraft.getInstance()
+            return new Material.Baked(Minecraft.getInstance()
                 .getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
-                .getSprite(name);
+                .getSprite(name), false);
         }
-        return particleIcon();
+        return particleMaterial();
     }
 
     /**
@@ -154,7 +164,7 @@ public class PipeBakedModel implements DynamicBlockStateModel {
      * pipe's own position by {@code MeshBaker.lightSampleFace}, which reproduces the single
      * uniform light level of the immediate-mode path.</p>
      */
-    private record Part(List<BakedQuad> quads, TextureAtlasSprite particleIcon) implements BlockModelPart {
+    private record Part(List<BakedQuad> quads, Material.Baked particleMaterial) implements BlockStateModelPart {
 
         @Override
         public List<BakedQuad> getQuads(@Nullable Direction side) {
@@ -166,6 +176,11 @@ public class PipeBakedModel implements DynamicBlockStateModel {
         @Override
         public boolean useAmbientOcclusion() {
             return false;
+        }
+
+        @Override
+        public int materialFlags() {
+            return 0;
         }
     }
 }

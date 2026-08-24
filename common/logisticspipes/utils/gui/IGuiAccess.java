@@ -1,17 +1,14 @@
 package logisticspipes.utils.gui;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-
 public interface IGuiAccess {
 
-	int getGuiLeft();
+	int getLeftPos();
 
-	int getGuiTop();
+	int getTopPos();
 
-	int getXSize();
+	int getImageWidth();
 
-	int getYSize();
+	int getImageHeight();
 
 	int getRight();
 

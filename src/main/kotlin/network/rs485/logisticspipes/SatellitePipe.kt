@@ -39,10 +39,8 @@ package network.rs485.logisticspipes
 
 import logisticspipes.utils.item.ItemIdentifierStack
 import net.minecraft.world.level.block.entity.BlockEntity
-import javax.annotation.Nullable
 
 interface SatellitePipe {
-    @Nullable
     val container: BlockEntity?
 
     val itemList: List<ItemIdentifierStack>

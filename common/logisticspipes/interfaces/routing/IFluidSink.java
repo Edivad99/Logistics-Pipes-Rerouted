@@ -1,6 +1,6 @@
 package logisticspipes.interfaces.routing;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;

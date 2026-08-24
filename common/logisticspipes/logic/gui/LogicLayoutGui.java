@@ -1,7 +1,12 @@
 package logisticspipes.logic.gui;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import net.minecraft.world.entity.player.Player;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import logisticspipes.logic.LogicController;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
@@ -10,15 +15,6 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.util.ARGB;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
 
 // import net.minecraft.client.gui.Gui; // removed — Gui is HUD class in 1.20.1, not GUI base
 
@@ -64,7 +60,6 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 
 	private static final Identifier achievementTextures = Identifier.withDefaultNamespace("textures/gui/achievement/achievement_background.png");
 
-	private final ItemRenderer renderItem = Minecraft.getInstance().getItemRenderer();
 
 	private int isMouseButtonDown;
 	private int mouseX;
@@ -88,8 +83,8 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		isMouseButtonDown = 0;
 	}
 
@@ -108,8 +103,8 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		double mouseX = event.x();
 		double mouseY = event.y();
 		int button = event.button();
-		int k = (width - imageWidth) / 2;
-		int l = (height - imageHeight) / 2;
+		int k = (width - panelWidth) / 2;
+		int l = (height - panelHeight) / 2;
 		if (mouseX >= k + 8 && mouseX < k + 8 + 224 && mouseY >= l + 17 && mouseY < l + 17 + 155) {
 			guiMapX -= dx / zoom.zoom;
 			guiMapY -= dy / zoom.zoom;
@@ -118,42 +113,42 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-		super.renderBg(guiGraphics, f, i, j);
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int i, int j, float f) {
+		super.extractGuiBackground(guiGraphics, i, j, f);
 		drawTransparentBack(guiGraphics);
 		drawMap(guiGraphics, i, j);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 180, right, bottom, 0.0f, true, false, true, true, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 50, topPos + 205);
 	}
 
-	private void drawTransparentBack(GuiGraphics guiGraphics) {
+	private void drawTransparentBack(GuiGraphicsExtractor guiGraphics) {
 		SimpleGraphics.drawGradientRect(guiGraphics, 0, 0, width, height, Color.BLANK, Color.BLANK, 0.0);
 	}
 
-	private void drawMap(GuiGraphics guiGraphics, int par1, int par2) {
-		int leftSide = ((width - imageWidth) / 2);
-		int topSide = ((height - imageHeight) / 2);
+	private void drawMap(GuiGraphicsExtractor guiGraphics, int par1, int par2) {
+		int leftSide = ((width - panelWidth) / 2);
+		int topSide = ((height - panelHeight) / 2);
 
 		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256, ARGB.colorFromFloat(1.0F, 0.7F, 0.7F, 0.7F));
 
 		topPos = (int) (topPos * 1 / zoom.zoom);
 		leftPos = (int) (leftPos * 1 / zoom.zoom);
-		imageWidth = (int) (imageWidth * 1 / zoom.zoom);
-		imageHeight = (int) (imageHeight * 1 / zoom.zoom);
+		panelWidth = (int) (panelWidth * 1 / zoom.zoom);
+		panelHeight = (int) (panelHeight * 1 / zoom.zoom);
 		leftSide *= 1 / zoom.zoom;
 		topSide *= 1 / zoom.zoom;
 
 		topPos = (int) (topPos * zoom.zoom);
 		leftPos = (int) (leftPos * zoom.zoom);
-		imageWidth = (int) (imageWidth * zoom.zoom);
-		imageHeight = (int) (imageHeight * zoom.zoom);
+		panelWidth = (int) (panelWidth * zoom.zoom);
+		panelHeight = (int) (panelHeight * zoom.zoom);
 		leftSide *= zoom.zoom;
 		topSide *= zoom.zoom;
 
 		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LogicLayoutGui.achievementTextures, leftSide, topSide, 0.0f, 0.0f, 256, 202, 256, 256);
 	}
 
-	private void renderLinkedOrderListItems(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
+	private void renderLinkedOrderListItems(GuiGraphicsExtractor guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
 		int size = list.size();
 		int startLeft = -(size - 1) * (30 / 2) + xPos;
 		yPos += 13;
@@ -182,7 +177,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		}
 	}
 
-	private void renderLinkedOrderListLines(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos) {
+	private void renderLinkedOrderListLines(GuiGraphicsExtractor guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos) {
 		int size = list.size();
 		if (list.isEmpty()) {
 			size = 1;
@@ -223,7 +218,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		}
 	}
 
-	private void drawPointFor(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int i, int startLeft) {
+	private void drawPointFor(GuiGraphicsExtractor guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int i, int startLeft) {
 		float totalLine = 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10;
 		for (Float point : list.getSubOrders().get(i).getProgresses()) {
 			int pos = (int) (totalLine * (1.0F - point));
@@ -258,7 +253,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		}
 	}
 
-	protected void drawProgressPoint(GuiGraphics guiGraphics, int x, int y, int color) {
+	protected void drawProgressPoint(GuiGraphicsExtractor guiGraphics, int x, int y, int color) {
 		int line = zoom.line + 1;
 		guiGraphics.fill(x - line + 1, y - line + 1, x + line, y + line, color);
 	}

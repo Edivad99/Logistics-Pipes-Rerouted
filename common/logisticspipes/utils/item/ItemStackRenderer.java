@@ -8,23 +8,13 @@
 
 package logisticspipes.utils.item;
 
-import logisticspipes.renderer.HUDDrawContext;
-import org.joml.Matrix3x2fStack;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import logisticspipes.utils.gui.IItemSearch;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
@@ -32,6 +22,14 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.renderer.HUDDrawContext;
+import logisticspipes.utils.gui.IItemSearch;
 import network.rs485.logisticspipes.util.TextUtil;
 
 @Data
@@ -73,7 +71,7 @@ public class ItemStackRenderer {
 		scaleZ = 1.0F;
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(GuiGraphics guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount) {
+	public static void renderItemIdentifierStackListIntoGui(GuiGraphicsExtractor guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount) {
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, zLevel, displayAmount, true, false);
 	}
 
@@ -83,7 +81,7 @@ public class ItemStackRenderer {
 		renderItemIdentifierStackListIntoHud(context, allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, itemStackRenderer);
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(GuiGraphics guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount, boolean renderEffect, boolean ignoreDepth) {
+	public static void renderItemIdentifierStackListIntoGui(GuiGraphicsExtractor guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, float zLevel, DisplayAmount displayAmount, boolean renderEffect, boolean ignoreDepth) {
 		ItemStackRenderer itemStackRenderer = new ItemStackRenderer(0, 0, zLevel, renderEffect, ignoreDepth);
 		itemStackRenderer.setDisplayAmount(displayAmount);
 		ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, IItemSearch, page, left, top, columns, items, xSize, ySize, itemStackRenderer);
@@ -130,7 +128,7 @@ public class ItemStackRenderer {
 		}
 	}
 
-	public static void renderItemIdentifierStackListIntoGui(GuiGraphics guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, ItemStackRenderer itemStackRenderer) {
+	public static void renderItemIdentifierStackListIntoGui(GuiGraphicsExtractor guiGraphics, List<ItemIdentifierStack> allItems, @Nullable IItemSearch IItemSearch, int page, int left, int top, int columns, int items, int xSize, int ySize, ItemStackRenderer itemStackRenderer) {
 		int ppi = 0;
 		int column = 0;
 		int row = 0;
@@ -174,7 +172,7 @@ public class ItemStackRenderer {
 		}
 	}
 
-	/** The world-space HUD counterpart of {@link #renderInGui(GuiGraphics)}. */
+	/** The world-space HUD counterpart of {@link #renderInGui(GuiGraphicsExtractor)}. */
 	public void renderInHud(@Nullable HUDDrawContext context) {
 		if (context == null) {
 			return;
@@ -195,7 +193,7 @@ public class ItemStackRenderer {
 		context.renderItemDecorations(font, stack, posX, posY, countLabel);
 	}
 
-	public void renderInGui(@Nullable GuiGraphics guiGraphics) {
+	public void renderInGui(@Nullable GuiGraphicsExtractor guiGraphics) {
 		if (guiGraphics == null) {
             return;
         }
@@ -208,20 +206,20 @@ public class ItemStackRenderer {
             return;
         }
 
-        guiGraphics.renderItem(stack, posX, posY);
+        guiGraphics.item(stack, posX, posY);
 
         if (displayAmount != DisplayAmount.NEVER) {
             long count = itemIdentStack != null ? itemIdentStack.getStackSize() : stack.getCount();
             String countLabel = TextUtil.getThreeDigitFormattedNumber(count, displayAmount == DisplayAmount.ALWAYS);
-            guiGraphics.renderItemDecorations(font, stack, posX, posY, countLabel);
+            guiGraphics.itemDecorations(font, stack, posX, posY, countLabel);
         }
         else {
-            guiGraphics.renderItemDecorations(font, stack, posX, posY, null);
+            guiGraphics.itemDecorations(font, stack, posX, posY, null);
         }
 	}
 
 	private void setupGuiTransform(int xPosition, int yPosition, boolean isGui3d) {
-		// no-op: replaced by GuiGraphics.renderItem in renderInGui()
+		// no-op: replaced by GuiGraphicsExtractor.renderItem in renderInGui()
 	}
 
 	public void renderInWorld() {
@@ -237,7 +235,7 @@ public class ItemStackRenderer {
 		renderState.submit(poseStack, collector, packedLight, packedOverlay, 0);
 	}
 
-	public void renderItemInGui(GuiGraphics gg, float x, float y, Item item, float zLevel, float scale) {
+	public void renderItemInGui(GuiGraphicsExtractor gg, float x, float y, Item item, float zLevel, float scale) {
 		if (gg == null || item == null) return;
 		ItemStack stack = new ItemStack(item);
 		if (stack.isEmpty()) return;
@@ -245,7 +243,7 @@ public class ItemStackRenderer {
 		pose.pushMatrix();
 		pose.translate(x, y);
 		pose.scale(scale, scale);
-		gg.renderItem(stack, 0, 0);
+		gg.item(stack, 0, 0);
 		pose.popMatrix();
 	}
 

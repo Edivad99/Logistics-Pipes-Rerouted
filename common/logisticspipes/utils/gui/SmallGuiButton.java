@@ -9,18 +9,16 @@ package logisticspipes.utils.gui;
 
 import java.util.function.Consumer;
 
-import logisticspipes.utils.Color;
-
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
-import lombok.Getter;
 import lombok.Setter;
+
+import logisticspipes.utils.Color;
 
 public class SmallGuiButton extends AbstractButton {
 
@@ -54,7 +52,7 @@ public class SmallGuiButton extends AbstractButton {
     /**
      * 1.21.11 made {@code renderWidget} final and split it: subclasses fill in
      * {@code renderContents}, and text is requested from an {@link ActiveTextCollector} rather than
-     * drawn onto the {@link GuiGraphics}.
+     * drawn onto the {@link GuiGraphicsExtractor}.
      *
      * <p>This does not call {@code renderDefaultLabel} because LP offsets the label vertically by
      * {@code stringOffset}, which is the whole reason this class exists; the rest is that method's
@@ -63,10 +61,10 @@ public class SmallGuiButton extends AbstractButton {
      * style, which is how {@code AbstractButton} applies {@code getFGColor} too.</p>
      */
     @Override
-    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        renderDefaultSprite(guiGraphics);
+    protected void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        extractDefaultSprite(guiGraphics);
         Component message = getMessage().copy().withStyle(style -> style.withColor(getFGColor()));
-        guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE)
+        guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE)
             .acceptScrollingWithDefaultCenter(
                 message,
                 this.getX() + TEXT_MARGIN,

@@ -1,10 +1,12 @@
 package logisticspipes.renderer.state;
 
+import net.minecraft.core.Direction;
+
+import lombok.Getter;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import lombok.Getter;
-import net.minecraft.core.Direction;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

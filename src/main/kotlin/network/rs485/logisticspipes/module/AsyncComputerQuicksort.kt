@@ -37,8 +37,6 @@
 
 package network.rs485.logisticspipes.module
 
-import net.minecraft.world.level.storage.ValueOutput
-import net.minecraft.world.level.storage.ValueInput
 import logisticspipes.interfaces.IClientInformationProvider
 import logisticspipes.interfaces.IModuleWatchReciver
 import logisticspipes.interfaces.IPipeServiceProvider
@@ -49,6 +47,8 @@ import logisticspipes.proxy.MainProxy
 import logisticspipes.utils.PlayerCollectionList
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 

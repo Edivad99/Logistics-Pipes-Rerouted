@@ -1,14 +1,15 @@
 package logisticspipes.network.guis.logic;
 
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
 import logisticspipes.logic.gui.LogicLayoutGui;
 import logisticspipes.logic.interfaces.ILogicControllerTile;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 @StaticResolve
 public class LogicControllerGuiProvider extends CoordinatesGuiProvider {

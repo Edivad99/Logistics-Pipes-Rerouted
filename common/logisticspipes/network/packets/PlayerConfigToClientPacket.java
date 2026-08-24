@@ -1,10 +1,12 @@
 package logisticspipes.network.packets;
 
+import net.minecraft.world.entity.player.Player;
+
+import lombok.Setter;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
-import lombok.Setter;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;

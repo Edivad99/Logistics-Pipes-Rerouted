@@ -2,15 +2,16 @@ package logisticspipes.utils.gui;
 
 import java.util.Objects;
 
-import logisticspipes.world.item.ItemModule;
-import logisticspipes.logisticspipes.ItemModuleInformationManager;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.utils.DummyLevelProvider;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import logisticspipes.logisticspipes.ItemModuleInformationManager;
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.modules.LogisticsModule.ModulePositionType;
+import logisticspipes.utils.DummyLevelProvider;
+import logisticspipes.world.item.ItemModule;
 
 public class DummyModuleContainer extends DummyContainer {
 

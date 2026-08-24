@@ -37,25 +37,24 @@
 
 package network.rs485.logisticspipes.util
 
-import io.netty.buffer.Unpooled
+import network.rs485.logisticspipes.TestBootstrap
+import network.rs485.logisticspipes.util.TestUtil.Companion.getBytesFromInteger
+import network.rs485.util.use
 import logisticspipes.utils.item.ItemIdentifier
-import net.minecraft.SharedConstants
-import net.minecraft.server.Bootstrap
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
-import net.minecraft.world.item.component.CustomData
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.chat.Component
+import io.netty.buffer.Unpooled
+import org.junit.jupiter.api.BeforeAll
+import net.neoforged.neoforge.fluids.FluidStack
 import net.minecraft.core.Direction
 import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.level.material.Fluids
-import net.neoforged.neoforge.fluids.FluidStack
-import network.rs485.logisticspipes.util.TestUtil.Companion.getBytesFromInteger
-import network.rs485.util.use
-import org.junit.jupiter.api.BeforeAll
 import java.util.*
 import kotlin.test.*
 
@@ -66,8 +65,7 @@ class LPDataIOWrapperTest {
         @JvmStatic
         @BeforeAll
         fun bootstrap() {
-            SharedConstants.tryDetectVersion()
-            Bootstrap.bootStrap()
+            TestBootstrap.boot()
         }
     }
     @Test

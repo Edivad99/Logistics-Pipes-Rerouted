@@ -44,10 +44,11 @@ import network.rs485.util.checkBooleanProperty
 import logisticspipes.LogisticsPipes
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
-import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.core.BlockPos
 import net.minecraft.core.GlobalPos
+import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.clock.WorldClocks
 import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.storage.LevelData
 import java.lang.management.ManagementFactory
@@ -84,7 +85,10 @@ object MinecraftTest {
             level.gameRules.set(GameRules.RESPAWN_RADIUS, 0, serverInstance)
             level.gameRules.set(GameRules.ADVANCE_TIME, false, serverInstance)
             level.gameRules.set(GameRules.ADVANCE_WEATHER, false, serverInstance)
-            level.setDayTime(5000)
+            // 26.1 took the time off the level: it now lives on a WorldClock in the registry,
+            // driven by the server's clock manager.
+            serverInstance.clockManager()
+                .setTotalTicks(serverInstance.registryAccess().getOrThrow(WorldClocks.OVERWORLD), 5000L)
             level.setRainLevel(0f)
             level.setThunderLevel(0f)
         }

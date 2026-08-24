@@ -1,8 +1,8 @@
 package logisticspipes.interfaces;
 
-import logisticspipes.renderer.HUDDrawContext;
 import java.util.List;
 
+import logisticspipes.renderer.HUDDrawContext;
 
 public interface IHUDModuleRenderer {
 

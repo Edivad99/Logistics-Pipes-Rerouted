@@ -3,7 +3,13 @@ package logisticspipes.gui.modules;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+
 import kotlin.Unit;
+
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
 import logisticspipes.proxy.MainProxy;
@@ -12,10 +18,6 @@ import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.property.StringListProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
@@ -35,7 +37,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	private SmallGuiButton scrollUpButton;
 	private SmallGuiButton scrollDownButton;
 
-	// Buffered text labels populated in renderBg, drawn in renderLabels
+	// Buffered text labels populated in extractGuiBackground, drawn in extractLabels
 	private final List<String> labelTexts = new ArrayList<>();
 	private final List<int[]> labelPositions = new ArrayList<>(); // {x, y, color}
 
@@ -47,8 +49,8 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 
 		tmpInv = tmpInvStatic;
 
-		imageWidth = 175;
-		imageHeight = 208;
+		panelWidth = 175;
+		panelHeight = 208;
 	}
 	private static DummyContainer buildDummy(Container playerInventory, ModuleOreDictItemSink oreDictModule) {
 		tmpInvStatic = new ItemIdentifierInventory(1, "Analyse Slot", 1);
@@ -98,7 +100,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
 		int pointerX = var2 - leftPos;
 		int pointerY = var3 - topPos;
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
@@ -117,7 +119,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 		labelTexts.clear();
 		labelPositions.clear();
 
-		// Unsunk list: highlight bar + click handling; text buffered for renderLabels
+		// Unsunk list: highlight bar + click handling; text buffered for extractLabels
 		guiGraphics.fill(leftPos + 26, topPos + 5, leftPos + 159, topPos + 27, Color.DARK_GREY.getValue());
 		final ArrayList<String> oresToAdd = oreListOverlay.read(oreList -> {
 			ArrayList<String> oresToAddInner = new ArrayList<>();
@@ -148,7 +150,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 			});
 		}
 
-		// Main ore list: highlight bar + click handling; text buffered for renderLabels
+		// Main ore list: highlight bar + click handling; text buffered for extractLabels
 		guiGraphics.fill(leftPos + 5, topPos + 30, leftPos + 169, topPos + 122, Color.DARK_GREY.getValue());
 		final ArrayList<String> oresToRemove = oreListOverlay.read(oreList -> {
 			ArrayList<String> oresToRemoveInner = new ArrayList<>();
@@ -177,17 +179,17 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 		for (int i = 0; i < labelTexts.size(); i++) {
 			int[] pos = labelPositions.get(i);
-			guiGraphics.drawString(minecraft.font, labelTexts.get(i), pos[0], pos[1], pos[2], false);
+			guiGraphics.text(minecraft.font, labelTexts.get(i), pos[0], pos[1], pos[2], false);
 		}
 	}
 
 	private List<String> getOreNames(ItemStack stack) {
 		List<String> oreNames = new ArrayList<>();
-		stack.getTags().forEach(tag -> {
+		stack.typeHolder().tags().forEach(tag -> {
 			String oreName = tag.location().toString();
 			if (!oreNames.contains(oreName)) {
 				oreNames.add(oreName);

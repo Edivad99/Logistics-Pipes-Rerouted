@@ -1,8 +1,9 @@
 package logisticspipes.interfaces;
 
-import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
+
+import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public interface ISlotUpgradeManager {

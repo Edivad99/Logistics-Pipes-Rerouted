@@ -1,10 +1,12 @@
 package logisticspipes.utils;
 
-import logisticspipes.interfaces.ISpecialTankAccessHandler;
-import logisticspipes.interfaces.ISpecialTankUtil;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+
+import logisticspipes.interfaces.ISpecialTankAccessHandler;
+import logisticspipes.interfaces.ISpecialTankUtil;
 
 public class SpecialTankUtil extends TankUtil implements ISpecialTankUtil {
 

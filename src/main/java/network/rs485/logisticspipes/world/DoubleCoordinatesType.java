@@ -1,8 +1,8 @@
 package network.rs485.logisticspipes.world;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
 
 import lombok.Getter;
 

@@ -1,21 +1,24 @@
 package logisticspipes.logistics;
 
-import net.minecraft.nbt.NbtOps;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
-import logisticspipes.particle.Particles;
-import logisticspipes.world.item.LPItems;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.item.ItemStack;
+
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.SimpleFluidContent;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.routing.IFluidSink;
 import logisticspipes.interfaces.routing.IProvideFluids;
-import logisticspipes.world.item.LogisticsFluidContainer;
+import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
@@ -27,16 +30,9 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.world.item.component.LPDataComponents;
-
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.SimpleFluidContent;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class LogisticsFluidManager implements ILogisticsFluidManager {
 

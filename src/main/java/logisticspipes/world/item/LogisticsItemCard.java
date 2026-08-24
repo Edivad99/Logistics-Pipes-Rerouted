@@ -1,9 +1,8 @@
 package logisticspipes.world.item;
 
-import java.util.List;
-import java.util.function.Consumer;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;

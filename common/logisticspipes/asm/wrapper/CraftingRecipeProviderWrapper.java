@@ -1,7 +1,8 @@
 package logisticspipes.asm.wrapper;
 
-import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 class CraftingRecipeProviderWrapper extends AbstractWrapper implements ICraftingRecipeProvider {

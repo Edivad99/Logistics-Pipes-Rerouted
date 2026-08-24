@@ -1,9 +1,7 @@
 package logisticspipes.world.item;
 
-import java.util.List;
-import java.util.function.Consumer;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
@@ -17,6 +15,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;

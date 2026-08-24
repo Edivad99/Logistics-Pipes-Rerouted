@@ -1,12 +1,5 @@
 package logisticspipes.gui.popup;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.util.ARGB;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -15,10 +8,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import logisticspipes.LPConstants;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
+import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.routing.order.IOrderInfoProvider;
@@ -29,13 +30,6 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.Identifier;
-
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class RequestMonitorPopup extends SubGuiScreen {
@@ -145,7 +139,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float par3) {
+	protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float par3) {
 		if (tooltip != null) {
 			guiGraphics.setComponentTooltipForNextFrame(minecraft.font,
 					tooltip.lines().stream().map(Component::literal).collect(java.util.stream.Collectors.toList()),
@@ -154,12 +148,12 @@ public class RequestMonitorPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int par1, int par2) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int par1, int par2) {
 
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		if (!table.watchedRequests.containsKey(orderId)) {
 			exitGui();
 			return;
@@ -192,7 +186,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		findLowest(table.watchedRequests.get(orderId).getValue2(), -200);
 	}
 
-	private void drawTransparentBack(GuiGraphics guiGraphics) {
+	private void drawTransparentBack(GuiGraphicsExtractor guiGraphics) {
 		SimpleGraphics.drawGradientRect(guiGraphics, 0, 0, width, height, Color.BLANK, Color.BLANK, 0.0);
 	}
 
@@ -235,8 +229,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		// compile as written even setting the target aside: TextureTarget now takes a label as its
 		// first argument, and Screenshot.takeScreenshot returns nothing and takes a callback.
 		if (minecraft.player != null) {
-			minecraft.player.displayClientMessage(
-				Component.literal("Tree view export has not been ported to this Minecraft version"), false);
+			minecraft.player.sendSystemMessage(
+				Component.literal("Tree view export has not been ported to this Minecraft version"));
 		}
 		LogisticsPipes.LOG.warn("saveTreeToImage is not ported: 1.21.5 removed RenderTarget#bindWrite");
 
@@ -252,8 +246,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		// int anchorY = 60;
 		//
 		// int oldGuiLeft = guiLeft, oldGuiTop = guiTop, oldXSize = xSize, oldYSize = ySize;
-		// //GuiGraphics oldStored = getGuiGraphics();
-		//         GuiGraphics gg = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
+		// //GuiGraphicsExtractor oldStored = getGuiGraphics();
+		//         GuiGraphicsExtractor gg = new GuiGraphicsExtractor(minecraft, minecraft.renderBuffers().bufferSource());
 		//         PoseStack modelView = gg.pose();
 		// TextureTarget target = new TextureTarget(imgWidth, imgHeight, true);
 		// try {
@@ -323,7 +317,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 				File candidate = new File(screenShotsFolder, s + "_tree" + (i == 1 ? "" : "_" + i) + ".png");
 				if (!candidate.exists()) {
 					image.writeToFile(candidate);
-					Minecraft.getInstance().player.displayClientMessage(Component.literal("Saved tree view as " + candidate.getName()), false);
+					Minecraft.getInstance().player.sendSystemMessage(Component.literal("Saved tree view as " + candidate.getName()));
 					return;
 				}
 				++i;
@@ -335,7 +329,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 	}
 
-	private void drawMap(GuiGraphics guiGraphics, int par1, int par2) {
+	private void drawMap(GuiGraphicsExtractor guiGraphics, int par1, int par2) {
 		tooltip = null;
 		int mapX = (int) Math.floor(guiMapX);
 		int mapY = (int) Math.floor(guiMapY - zoom.moveY);
@@ -369,10 +363,10 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		String s = Integer.toString(orderId);
 		if (!list.isEmpty()) {
 			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 220, 0.0f, 202.0f, 26, 26, 256, 256, ARGB.colorFromFloat(1.0F, 0.7F, 0.7F, 0.7F));
-			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 210, 0xFFFFFFFF, true);
+			guiGraphics.text(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 210, 0xFFFFFFFF, true);
 		} else {
 			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, innerLeftSide - mapX + 97, innerTopSide - mapY - 162, 0.0f, 202.0f, 26, 26, 256, 256, ARGB.colorFromFloat(1.0F, 0.7F, 0.7F, 0.7F));
-			guiGraphics.drawString(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 0xFFFFFFFF, true);
+			guiGraphics.text(minecraft.font, s, innerLeftSide - mapX + 111 - minecraft.font.width(s) / 2, innerTopSide - mapY - 152, 0xFFFFFFFF, true);
 		}
 		renderLinkedOrderListItems(guiGraphics, list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180, par1, par2);
 
@@ -386,7 +380,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, RequestMonitorPopup.achievementTextures, leftSide, topSide, 0.0f, 0.0f, xSize, ySize, 256, 256);
 	}
 
-	private void renderLinkedOrderListItems(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
+	private void renderLinkedOrderListItems(GuiGraphicsExtractor guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int par1, int par2) {
 		int size = list.size();
 		int startLeft = -(size - 1) * (30 / 2) + xPos;
 		yPos += 13;
@@ -422,7 +416,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 	}
 
-	private void renderLinkedOrderListLines(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos) {
+	private void renderLinkedOrderListLines(GuiGraphicsExtractor guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos) {
 		int size = list.size();
 		if (list.isEmpty()) {
 			size = 1;
@@ -463,7 +457,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 	}
 
-	private void drawPointFor(GuiGraphics guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int i, int startLeft) {
+	private void drawPointFor(GuiGraphicsExtractor guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos, int i, int startLeft) {
 		float totalLine = 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10;
 		for (Float point : list.getSubOrders().get(i).getProgresses()) {
 			int pos = (int) (totalLine * (1.0F - point));
@@ -498,23 +492,24 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 	}
 
-	private void renderItemAt(GuiGraphics guiGraphics, ItemIdentifierStack item, int x, int y) {
+	private void renderItemAt(GuiGraphicsExtractor guiGraphics, ItemIdentifierStack item, int x, int y) {
 		if (guiLeft < x && x < guiLeft + xSize - 16 && guiTop < y && y < guiTop + ySize - 16) {
 			ItemStack stack = item.getItem().makeNormalStack(1);
 			if (!stack.isEmpty()) {
-                guiGraphics.renderItem(stack, x, y);
+                guiGraphics.item(stack, x, y);
 			}
 			String s = TextUtil.getThreeDigitFormattedNumber(item.getStackSize(), false);
-            guiGraphics.drawString(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 0xFFFFFFFF, true);
+            guiGraphics.text(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 0xFFFFFFFF, true);
 		}
 	}
 
-	protected void drawProgressPoint(GuiGraphics guiGraphics, int x, int y, int color) {
+	protected void drawProgressPoint(GuiGraphicsExtractor guiGraphics, int x, int y, int color) {
 		int line = zoom.line + 1;
 		guiGraphics.fill(x - line + 1, y - line + 1, x + line, y + line, color);
 	}
 
 	private TextureAtlasSprite getTexture(Block blockIn) {
-		return Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(blockIn.defaultBlockState());
+		return Minecraft.getInstance().getModelManager().getBlockStateModelSet()
+			.getParticleMaterial(blockIn.defaultBlockState()).sprite();
 	}
 }

@@ -3,7 +3,9 @@ package logisticspipes.modules;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import net.minecraft.world.item.ItemStack;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
@@ -12,7 +14,6 @@ import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
-import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.Property;
 

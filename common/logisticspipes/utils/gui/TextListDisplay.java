@@ -1,15 +1,15 @@
 package logisticspipes.utils.gui;
 
 import java.util.Collections;
-import logisticspipes.utils.Color;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
-import network.rs485.logisticspipes.util.TextUtil;
+import lombok.Getter;
+import lombok.Setter;
+
+import logisticspipes.utils.Color;
 
 public class TextListDisplay {
 
@@ -57,11 +57,11 @@ public class TextListDisplay {
 		return false;
 	}
 
-	public void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	public void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		mousePosX = mouseX;
 		mousePosY = mouseY;
 
-        guiGraphics.fill(gui.getGuiLeft() + borderLeft, gui.getGuiTop() + borderTop, gui.getRight() - borderRight, gui.getBottom() - borderBottom, Color.getValue(Color.GREY));
+        guiGraphics.fill(gui.getLeftPos() + borderLeft, gui.getTopPos() + borderTop, gui.getRight() - borderRight, gui.getBottom() - borderBottom, Color.getValue(Color.GREY));
 
 		if (scroll + elementPerPage > list.getSize()) {
 			scroll = list.getSize() - elementPerPage;
@@ -73,38 +73,38 @@ public class TextListDisplay {
 		boolean flag = false;
 
 		hover = -1;
-		if (gui.getGuiLeft() + borderLeft + 2 < this.mousePosX
-				&& this.mousePosX < gui.getRight() - borderRight - 2 && gui.getGuiTop() + borderTop + 2 < this.mousePosY
-				&& this.mousePosY < gui.getGuiTop() + borderTop + 3 + (elementPerPage * 10)) {
-			hover = scroll + (this.mousePosY - gui.getGuiTop() - borderTop - 3) / 10;
+		if (gui.getLeftPos() + borderLeft + 2 < this.mousePosX
+				&& this.mousePosX < gui.getRight() - borderRight - 2 && gui.getTopPos() + borderTop + 2 < this.mousePosY
+				&& this.mousePosY < gui.getTopPos() + borderTop + 3 + (elementPerPage * 10)) {
+			hover = scroll + (this.mousePosY - gui.getTopPos() - borderTop - 3) / 10;
 		}
 		if (list.getSize() == 0 || hover >= list.getSize()) {
 			hover = -1;
 		}
 
-		if (gui.getGuiLeft() + borderLeft + 2 < this.mouseClickX
-				&& this.mouseClickX < gui.getRight() - borderRight - 2 && gui.getGuiTop() + borderTop + 2 < this.mouseClickY
-				&& this.mouseClickY < gui.getGuiTop() + borderTop + 3 + (elementPerPage * 10)) {
-			selected = scroll + (this.mouseClickY - gui.getGuiTop() - borderTop - 3) / 10;
+		if (gui.getLeftPos() + borderLeft + 2 < this.mouseClickX
+				&& this.mouseClickX < gui.getRight() - borderRight - 2 && gui.getTopPos() + borderTop + 2 < this.mouseClickY
+				&& this.mouseClickY < gui.getTopPos() + borderTop + 3 + (elementPerPage * 10)) {
+			selected = scroll + (this.mouseClickY - gui.getTopPos() - borderTop - 3) / 10;
 			mouseClickX = -1;
 			mouseClickY = -1;
 		}
 
 		for (int i = scroll; i < list.getSize() && (i - scroll) < elementPerPage; i++) {
 			if (i == selected) {
-                guiGraphics.fill(gui.getGuiLeft() + borderLeft + 2, gui.getGuiTop() + borderTop + 2 + ((i - scroll) * 10), gui.getRight() - borderRight - 2, gui.getGuiTop() + borderTop + 13 + ((i - scroll) * 10), Color.getValue(Color.DARKER_GREY));
+                guiGraphics.fill(gui.getLeftPos() + borderLeft + 2, gui.getTopPos() + borderTop + 2 + ((i - scroll) * 10), gui.getRight() - borderRight - 2, gui.getTopPos() + borderTop + 13 + ((i - scroll) * 10), Color.getValue(Color.DARKER_GREY));
 				flag = true;
 			}
             String name = list.getTextAt(i);
 
-            int minX = gui.getGuiLeft() + borderLeft + 4;
-            int maxX = gui.getGuiLeft() + gui.getXSize() - borderRight - 2;
+            int minX = gui.getLeftPos() + borderLeft + 4;
+            int maxX = gui.getLeftPos() + gui.getImageWidth() - borderRight - 2;
 
             // The collector takes a vertical band rather than a baseline -- it centres the line at
             // (minY + maxY - 9) / 2 + 1 -- so the band is built around the old baseline to land on
             // the same pixel. The colour rides on the component's style; there is no colour
             // argument any more.
-            int lineY = gui.getGuiTop() + borderTop + 4 + ((i - scroll) * 10);
+            int lineY = gui.getTopPos() + borderTop + 4 + ((i - scroll) * 10);
             int colour = list.getTextColor(i);
             guiGraphics.textRenderer().acceptScrollingWithDefaultCenter(
                 Component.literal(name).withStyle(style -> style.withColor(colour)),
@@ -120,9 +120,9 @@ public class TextListDisplay {
 		}
 	}
 
-	public void renderGuiForeground(GuiGraphics guiGraphics) {
+	public void renderGuiForeground(GuiGraphicsExtractor guiGraphics) {
 		if (hover != -1) {
-			LPGuiGraphics.drawToolTip(guiGraphics, mousePosX - gui.getGuiLeft(), mousePosY - gui.getGuiTop(), Collections.singletonList(list.getTextAt(hover)), ChatFormatting.WHITE);
+			LPGuiGraphics.drawToolTip(guiGraphics, mousePosX - gui.getLeftPos(), mousePosY - gui.getTopPos(), Collections.singletonList(list.getTextAt(hover)), ChatFormatting.WHITE);
 		}
 	}
 
@@ -137,15 +137,15 @@ public class TextListDisplay {
 	}
 
 	public void mouseScrollUp() {
-		if (gui.getGuiLeft() + borderLeft < mousePosX
-				&& mousePosX < gui.getRight() - borderRight && gui.getGuiTop() + borderTop < mousePosY && mousePosY < gui.getBottom() + borderBottom) {
+		if (gui.getLeftPos() + borderLeft < mousePosX
+				&& mousePosX < gui.getRight() - borderRight && gui.getTopPos() + borderTop < mousePosY && mousePosY < gui.getBottom() + borderBottom) {
 			scrollUp();
 		}
 	}
 
 	public void mouseScrollDown() {
-		if (gui.getGuiLeft() + borderLeft < mousePosX
-				&& mousePosX < gui.getRight() - borderRight && gui.getGuiTop() + borderTop < mousePosY && mousePosY < gui.getBottom() + borderBottom) {
+		if (gui.getLeftPos() + borderLeft < mousePosX
+				&& mousePosX < gui.getRight() - borderRight && gui.getTopPos() + borderTop < mousePosY && mousePosY < gui.getBottom() + borderBottom) {
 			scrollDown();
 		}
 	}

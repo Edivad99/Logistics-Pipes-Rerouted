@@ -5,9 +5,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -202,7 +202,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+    protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
         LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 105);
         LPGuiGraphics.drawSlotDiskBackground(guiGraphics, leftPos + 9, topPos + 9);
@@ -231,13 +231,13 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 catUp.visible = false;
                 catDn.visible = false;
                 unlock.visible = false;
-                programListLarge.renderGuiBackground(guiGraphics, var2, var3);
+                programListLarge.extractGuiBackground(guiGraphics, var2, var3);
             } else {
                 catUp.visible = true;
                 catDn.visible = true;
                 unlock.visible = true;
-                categoryList.renderGuiBackground(guiGraphics, var2, var3);
-                programList.renderGuiBackground(guiGraphics, var2, var3);
+                categoryList.extractGuiBackground(guiGraphics, var2, var3);
+                programList.extractGuiBackground(guiGraphics, var2, var3);
             }
 
             int selIndex = programList.getSelected();
@@ -287,7 +287,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
     @Override
     public boolean charTyped(CharacterEvent event) {
         char typedChar = (char) event.codepoint();
-        int keyCode = event.modifiers();
+        int keyCode = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
         if (compiler.getCurrentTask() == null) {
             if (!search.handleKey(typedChar, keyCode)) {
                 return super.charTyped(event);
@@ -340,10 +340,10 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderLabels(guiGraphics, mouseX, mouseY);
+    protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        super.extractLabels(guiGraphics, mouseX, mouseY);
         if (compiler.getCurrentTask() != null) {
-            guiGraphics.drawString(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0xFF000000, false);
+            guiGraphics.text(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0xFF000000, false);
             Item item = BuiltInRegistries.ITEM.getValue(compiler.getCurrentTask());
             String name;
             if (!item.equals(Items.AIR)) {
@@ -352,10 +352,10 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 name = "gui.compiler." + compiler.getCurrentTask().toString().replace(':', '.');
             }
             String text = TextUtil.getTrimmedString(TextUtil.translate(name), 160, font, "...");
-            guiGraphics.drawString(font, text, 10, 70, 0xFF000000, false);
+            guiGraphics.text(font, text, 10, 70, 0xFF000000, false);
             if (!compiler.isWasAbleToConsumePower()) {
-                guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.1"), 68, 10, 0xFF000000, false);
-                guiGraphics.drawString(font, TextUtil.translate("gui.compiler.nopower.2"), 35, 20, 0xFF000000, false);
+                guiGraphics.text(font, TextUtil.translate("gui.compiler.nopower.1"), 68, 10, 0xFF000000, false);
+                guiGraphics.text(font, TextUtil.translate("gui.compiler.nopower.2"), 35, 20, 0xFF000000, false);
             }
         } else {
             if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {

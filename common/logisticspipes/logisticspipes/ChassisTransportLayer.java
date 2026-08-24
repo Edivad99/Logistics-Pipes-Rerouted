@@ -1,10 +1,11 @@
 package logisticspipes.logisticspipes;
 
+import net.minecraft.core.Direction;
+
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.core.Direction;
 
 public class ChassisTransportLayer extends TransportLayer {
 

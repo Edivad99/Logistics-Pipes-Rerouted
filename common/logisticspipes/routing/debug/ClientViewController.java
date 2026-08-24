@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.minecraft.client.multiplayer.ClientLevel;
-
 import logisticspipes.interfaces.IDebugHUDProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateCanidatePipe;
@@ -21,7 +19,6 @@ import logisticspipes.network.packets.routingdebug.RoutingUpdateInitDebug;
 import logisticspipes.network.packets.routingdebug.RoutingUpdateSourcePipe;
 import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;

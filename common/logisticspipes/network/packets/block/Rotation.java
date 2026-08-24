@@ -1,11 +1,12 @@
 package logisticspipes.network.packets.block;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class Rotation extends IntegerCoordinatesPacket {

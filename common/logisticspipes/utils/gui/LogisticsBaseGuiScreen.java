@@ -13,26 +13,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import javax.annotation.Nullable;
-
-import logisticspipes.LPConstants;
-import logisticspipes.interfaces.IChainAddList;
-import logisticspipes.interfaces.IFuzzySlot;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.FuzzySlotSettingsPacket;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.ChainAddArrayList;
-import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.extension.GuiExtensionController;
-import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-import lombok.Getter;
-import org.lwjgl.glfw.GLFW;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -45,6 +28,20 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
+
+import logisticspipes.LPConstants;
+import logisticspipes.interfaces.IChainAddList;
+import logisticspipes.interfaces.IFuzzySlot;
+import logisticspipes.network.PacketHandler;
+import logisticspipes.network.packets.gui.FuzzySlotSettingsPacket;
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.utils.ChainAddArrayList;
+import logisticspipes.utils.Color;
+import logisticspipes.utils.gui.extension.GuiExtensionController;
+import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
 import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyFlag;
 import network.rs485.logisticspipes.util.FuzzyUtil;
@@ -77,7 +74,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	private int currentDrawScreenMouseY;
 	/** Stored during rendering so non-render methods (drawPoint, fillRect, etc.) can use it. */
 	@Deprecated(forRemoval = true)
-    private GuiGraphics guiGraphics;
+    private GuiGraphicsExtractor guiGraphics;
 
 	public int getCurrentMouseX() { return currentDrawScreenMouseX; }
 	public int getCurrentMouseY() { return currentDrawScreenMouseY; }
@@ -87,8 +84,8 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	private int fuzzySlotGuiHoverTime;
 	private Queue<Runnable> renderAtTheEnd = new LinkedList<>();
 
-	public LogisticsBaseGuiScreen(int imageWidth, int imageHeight, int xCenterOffset, int yCenterOffset) {
-		this(new DummyContainer(null, null), imageWidth, imageHeight, xCenterOffset, yCenterOffset);
+	public LogisticsBaseGuiScreen(int panelWidth, int panelHeight, int xCenterOffset, int yCenterOffset) {
+		this(new DummyContainer(null, null), panelWidth, panelHeight, xCenterOffset, yCenterOffset);
 	}
 
 	public LogisticsBaseGuiScreen(AbstractContainerMenu container) {
@@ -98,31 +95,75 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
     public LogisticsBaseGuiScreen(AbstractContainerMenu container, Inventory inventory, Component title,
-        int imageWidth, int imageHeight, int xCenterOffset, int yCenterOffset) {
+        int panelWidth, int panelHeight, int xCenterOffset, int yCenterOffset) {
         super(container, inventory, title);
-        this.imageWidth = imageWidth;
-        this.imageHeight = imageHeight;
+        this.panelWidth = panelWidth;
+        this.panelHeight = panelHeight;
         this.xCenterOffset = xCenterOffset;
         this.yCenterOffset = yCenterOffset;
     }
 
-	public LogisticsBaseGuiScreen(AbstractContainerMenu container, int imageWidth, int imageHeight, int xCenterOffset, int yCenterOffset) {
+	public LogisticsBaseGuiScreen(AbstractContainerMenu container, int panelWidth, int panelHeight, int xCenterOffset, int yCenterOffset) {
 		super(container, Minecraft.getInstance().player.getInventory(), Component.empty());
-		this.imageWidth = imageWidth;
-		this.imageHeight = imageHeight;
+		this.panelWidth = panelWidth;
+		this.panelHeight = panelHeight;
 		this.xCenterOffset = xCenterOffset;
 		this.yCenterOffset = yCenterOffset;
+	}
+
+	/**
+	 * Panel size, standing in for {@code imageWidth} / {@code imageHeight}.
+	 *
+	 * <p>26.1.2 made those final: they are constructor arguments of
+	 * {@code AbstractContainerScreen} now. LP cannot use them, because several of its screens
+	 * resize themselves after construction -- the crafting pipe grows for its satellite rows, the
+	 * request table widens and narrows as the recipe panel is toggled -- so the size is kept here
+	 * instead. Nothing is lost: LP already computed its own {@code leftPos}/{@code topPos} in
+	 * {@link #init()} rather than relying on vanilla's centring.</p>
+	 */
+	protected int panelWidth;
+	protected int panelHeight;
+
+	/**
+	 * The panel size as everyone outside LP sees it.
+	 *
+	 * <p>The fields behind these are final and were filled in by the three-argument
+	 * {@code AbstractContainerScreen} constructor, which defaults them to 176x166 -- so without
+	 * this override every LP screen, whatever its real size, claims to be a vanilla-sized chest
+	 * panel. Vanilla itself only uses them for centring, which LP does not rely on, but other mods
+	 * read them to keep clear of the window: JEI asks {@code getImageWidth}/{@code getImageHeight}
+	 * to place its ingredient list, and drew it straight over the request table.</p>
+	 */
+	@Override
+	public int getImageWidth() {
+		return panelWidth;
+	}
+
+	@Override
+	public int getImageHeight() {
+		return panelHeight;
+	}
+
+	/**
+	 * Vanilla decides whether a click counts as outside the GUI -- which is what throws the carried
+	 * stack away -- from the fields rather than from the getters above, so it needs its own
+	 * override.
+	 */
+	@Override
+	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop) {
+		return mouseX < guiLeft || mouseY < guiTop
+			|| mouseX >= guiLeft + panelWidth || mouseY >= guiTop + panelHeight;
 	}
 
 	@Override
 	public void init() {
 		super.init();
 		buttonList.clear();
-		leftPos = width / 2 - imageWidth / 2 + xCenterOffset;
-		topPos = height / 2 - imageHeight / 2 + yCenterOffset;
+		leftPos = width / 2 - panelWidth / 2 + xCenterOffset;
+		topPos = height / 2 - panelHeight / 2 + yCenterOffset;
 
-		right = width / 2 + imageWidth / 2 + xCenterOffset;
-		bottom = height / 2 + imageHeight / 2 + yCenterOffset;
+		right = width / 2 + panelWidth / 2 + xCenterOffset;
+		bottom = height / 2 + panelHeight / 2 + yCenterOffset;
 
 		xCenter = (right + leftPos) / 2;
 		yCenter = (bottom + topPos) / 2;
@@ -162,34 +203,45 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		subGui = null;
 	}
 
+	/**
+	 * Vanilla calls this once per frame, from {@code extractRenderStateWithTooltipAndSubtitles},
+	 * in its own stratum ahead of the one the widgets go into -- so everything drawn here lands
+	 * underneath them without any ordering care of LP's own.
+	 */
 	@Override
-	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		if (subGui == null) {
-			super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-		}
+	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+		super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
+		extractGuiBackground(guiGraphics, mouseX, mouseY, partialTick);
+	}
+
+	/**
+	 * The panel chrome, drawn behind the widgets.
+	 *
+	 * <p>This used to be {@code AbstractContainerScreen#renderBg}, which 26.1.2 removed: a container
+	 * screen now paints its own background by overriding {@link #extractBackground}, the way
+	 * {@code AbstractFurnaceScreen} does. LP keeps a hook of its own only because dozens of screens
+	 * override it and because the argument order differs.</p>
+	 *
+	 * <p>Same name and argument order as {@link SubGuiScreen#extractGuiBackground}, which is the
+	 * matching hook on the popup side.</p>
+	 */
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+		renderExtensions(guiGraphics);
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		this.guiGraphics = guiGraphics;
 		currentDrawScreenMouseX = mouseX;
 		currentDrawScreenMouseY = mouseY;
 		checkButtons();
 		if (subGui != null) {
-			// Background first, then content, then the popup on top -- the same order as the branch below.
-			// #renderBackground is a no-op while a popup is open, so AbstractContainerScreen.render's internal
-			// call draws nothing and this explicit one is what puts the chrome on screen: it has to run *before*
-			// super.render(), or renderBg() repaints the panel and slot backgrounds over the buttons that
-			// super.render() just drew, leaving their frames covered.
-			if (!subGui.hasSubGui()) {
-				super.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
-			}
-			// In 1.20.1, Mouse hack removed — subGui renders directly
-			super.render(guiGraphics, 0, 0, partialTicks);
-			subGui.render(guiGraphics, mouseX, mouseY, partialTicks);
+			// The mouse is reported as (0,0) so nothing underneath the popup highlights or shows a
+			// tooltip while the popup has the pointer.
+			super.extractRenderState(guiGraphics, 0, 0, partialTicks);
+			subGui.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		} else {
-			renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
-			super.render(guiGraphics, mouseX, mouseY, partialTicks);
+			super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 			for (IRenderSlot slot : slots) {
 				int localMouseX = mouseX - leftPos;
 				int localMouseY = mouseY - topPos;
@@ -205,7 +257,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 					}
 				}
 			}
-			this.renderTooltip(guiGraphics, mouseX, mouseY);
+			this.extractTooltip(guiGraphics, mouseX, mouseY);
 			renderToolTips(guiGraphics, mouseX, mouseY, partialTicks);
 		}
 		Runnable run = renderAtTheEnd.poll();
@@ -215,14 +267,9 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		}
 	}
 
-	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int i, int j) {
-		renderExtensions(guiGraphics);
-	}
-
-	protected void renderExtensions(GuiGraphics guiGraphics) {
+	protected void renderExtensions(GuiGraphicsExtractor guiGraphics) {
 		extensionControllerLeft.render(guiGraphics, leftPos, topPos);
-		extensionControllerRight.render(guiGraphics, leftPos + imageWidth, topPos);
+		extensionControllerRight.render(guiGraphics, leftPos + panelWidth, topPos);
 	}
 
 	/**
@@ -231,11 +278,11 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	 * method behind as dead code, so neither happened and every slot of the container got drawn.
 	 */
 	@Override
-	protected void renderSlot(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY) {
+	protected void extractSlot(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY) {
 		if (!shouldRenderSlot(slot)) {
 			return;
 		}
-		super.renderSlot(guiGraphics, slot, mouseX, mouseY);
+		super.extractSlot(guiGraphics, slot, mouseX, mouseY);
 		// The fuzzy markers and their hover panel belong to the screen underneath, so they stay hidden while a
 		// popup is up -- otherwise they would draw over it.
 		if (subGui == null) {
@@ -313,13 +360,13 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 				renderAtTheEnd.add(() -> {
 					LPGuiGraphics.drawGuiBackGround(guiGraphics, posX, posY, posX + 61, posY + 47, 0.0f, true, true, true, true, true);
 					final String PREFIX = "gui.crafting.";
-					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
+					guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
 							(useOreDict ? 0xFFFF4040 : 0x404040), false);
-					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "IgnDamage"), posX + 5, posY + 15,
+					guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "IgnDamage"), posX + 5, posY + 15,
 							(ignoreDamage ? 0xFF40FF40 : 0x404040), false);
-					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "IgnNBT"), posX + 5, posY + 25,
+					guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "IgnNBT"), posX + 5, posY + 25,
 							(ignoreNBT ? 0xFF4040FF : 0x404040), false);
-					guiGraphics.drawString(minecraft.font, TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
+					guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
 							(useOreCategory ? 0xFF7F7F40 : 0x404040), false);
 				});
 			}
@@ -371,24 +418,24 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	}
 
 	/**
-	 * Draw tooltips here rather than from {@link #renderLabels}, and in <b>screen</b> coordinates.
+	 * Draw tooltips here rather than from {@link #extractLabels}, and in <b>screen</b> coordinates.
 	 * <p>
 	 * This runs after {@code AbstractContainerScreen#render} has popped its pose, so nothing is
-	 * translated: what you pass to {@code GuiGraphics#renderTooltip} is what the player sees.
-	 * {@code renderLabels}, by contrast, runs inside a pose already translated by
+	 * translated: what you pass to {@code GuiGraphicsExtractor#renderTooltip} is what the player sees.
+	 * {@code extractLabels}, by contrast, runs inside a pose already translated by
 	 * (leftPos, topPos), so drawing a tooltip there applies the gui origin twice. Mirrors
 	 * {@code SubGuiScreen#renderToolTips}, so both kinds of screen work the same way.
 	 * <p>
 	 * Only called when no popup is open; a popup draws its own tooltips.
 	 */
-	protected void renderToolTips(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {}
+	protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		if (mouseX < leftPos) {
 			extensionControllerLeft.mouseOver(mouseX, mouseY);
 		}
-		if (mouseX > leftPos + imageWidth) {
+		if (mouseX > leftPos + panelWidth) {
 			extensionControllerRight.mouseOver(mouseX, mouseY);
 		}
 		for (IRenderSlot slot : slots) {
@@ -669,8 +716,8 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 //			el.onUpdateScreen();
 //	}
 
-    public void drawCenteredString(GuiGraphics guiGraphics, String text, int x, int y, int color) {
+    public void drawCenteredString(GuiGraphicsExtractor guiGraphics, String text, int x, int y, int color) {
 		int actualX = x - minecraft.font.width(text) / 2;
-		guiGraphics.drawString(minecraft.font, text, actualX, y, color, false);
+		guiGraphics.text(minecraft.font, text, actualX, y, color, false);
 	}
 }

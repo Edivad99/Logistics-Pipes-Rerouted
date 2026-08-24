@@ -9,19 +9,19 @@ package logisticspipes.gui.modules;
 
 import java.util.Locale;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
+
 import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.SneakyDirection;
 
 public class GuiSneakyConfigurator extends ModuleBaseGui {
@@ -33,16 +33,16 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 		super(new DummyContainer(playerInventory, null), module);
 		if (!(module instanceof SneakyDirection)) throw new IllegalArgumentException("Module is not sneaky");
 		directionReceiver = (SneakyDirection) module;
-		imageWidth = 160;
-		imageHeight = 200;
+		panelWidth = 160;
+		panelHeight = 200;
 	}
 
 	@Override
 	public void init() {
 		super.init();
 
-		int left = width / 2 - imageWidth / 2;
-		int top = height / 2 - imageHeight / 2;
+		int left = width / 2 - panelWidth / 2;
+		int top = height / 2 - panelHeight / 2;
 
 		dirButtons[0] = wire(new logisticspipes.utils.gui.SmallGuiButton(0, left + 110, top + 103, 40, 20, "")); //DOWN
 		dirButtons[1] = wire(new logisticspipes.utils.gui.SmallGuiButton(1, left + 110, top + 43, 40, 20, "")); //UP
@@ -73,24 +73,24 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 
 		refreshButtons();
 
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 
-		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, "Sneaky orientation", panelWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0xFF404040, false);
 	}
 
 	private static final Identifier TEXTURE = LPConstants.rl("textures/gui/sneaky.png");
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int x, int y, float f) {
 		// texture: GuiSneakyConfigurator.TEXTURE
 		int j = leftPos;
 		int k = topPos;
-		//guiGraphics.fill(width/2 - imageWidth / 2, height / 2 - imageHeight /2, width/2 + imageWidth / 2, height / 2 + imageHeight /2, 0xFF404040);
-		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiSneakyConfigurator.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		//guiGraphics.fill(width/2 - panelWidth / 2, height / 2 - panelHeight /2, width/2 + panelWidth / 2, height / 2 + panelHeight /2, 0xFF404040);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiSneakyConfigurator.TEXTURE, j, k, 0.0f, 0.0f, panelWidth, panelHeight, 256, 256);
 	}
 
 	private String getButtonOrientationString(Direction orientation) {

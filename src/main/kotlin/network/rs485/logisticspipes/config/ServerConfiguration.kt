@@ -37,9 +37,9 @@
 
 package network.rs485.logisticspipes.config
 
+import logisticspipes.utils.PlayerIdentifier
 import com.google.gson.*
 import com.google.gson.annotations.JsonAdapter
-import logisticspipes.utils.PlayerIdentifier
 import java.lang.reflect.Type
 import java.util.*
 

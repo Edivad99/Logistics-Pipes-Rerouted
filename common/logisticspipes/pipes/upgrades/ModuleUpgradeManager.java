@@ -1,19 +1,19 @@
 package logisticspipes.pipes.upgrades;
 
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import lombok.Getter;
+
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.SimpleStackInventory;
-import lombok.Getter;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
+import logisticspipes.world.item.ItemUpgrade;
 import network.rs485.logisticspipes.property.SimpleInventoryProperty;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 

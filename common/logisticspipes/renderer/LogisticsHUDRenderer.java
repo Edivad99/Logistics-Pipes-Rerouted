@@ -6,15 +6,26 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
-import org.joml.Quaternionf;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.PoseStack;
-import logisticspipes.api.IHUDArmor;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Quaternionf;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.LPConfigs;
+import logisticspipes.api.IHUDArmor;
+import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IDebugHUDProvider;
 import logisticspipes.interfaces.IHUDConfig;
@@ -27,21 +38,6 @@ import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-
-import logisticspipes.client.renderer.LPRenderTypes;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-
 
 public class LogisticsHUDRenderer {
 
@@ -172,7 +168,7 @@ public class LogisticsHUDRenderer {
 	// LP1 drew panels at scale 0.01 offset 0.4 from the pipe; shrunk and pushed clear of the pipe's block.
 	private static final float PANEL_SCALE = 0.008F;
 	private static final float PANEL_OFFSET = 0.75F;
-	// GuiGraphics layers content by translating z: items sit at +150, count labels at +200. RenderType.gui()
+	// GuiGraphicsExtractor layers content by translating z: items sit at +150, count labels at +200. RenderType.gui()
 	// keeps LEQUAL depth test *and* depth writes, and a RenderType applies its own state when the batch is
 	// drawn, so RenderSystem.disableDepthTest() around the draw calls cannot switch that off. The layers
 	// therefore have to be far enough apart in world units to survive depth precision at panel distance:
@@ -180,7 +176,7 @@ public class LogisticsHUDRenderer {
 	// holes out of text, slot backgrounds and item icons. -0.0006F spreads it over ~0.12 blocks instead.
 	// Negative because panel local +z points away from the viewer, while higher GUI z means "nearer".
 	private static final float PANEL_LAYER_SCALE = -0.0006F;
-	// GuiGraphics.renderItem() calls flush() internally, and flush() runs endBatch() on the buffer source it
+	// GuiGraphicsExtractor.renderItem() calls flush() internally, and flush() runs endBatch() on the buffer source it
 	// was handed. Handing it the level renderer's shared BufferSource would end every pending level batch
 	// mid-stage, so the HUD gets its own.
 	private final MultiBufferSource.BufferSource hudBufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
@@ -188,7 +184,7 @@ public class LogisticsHUDRenderer {
 	//TODO: only load this once, rather than twice
 	private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/icons.png");
 
-	public void renderPlayerDisplay(long renderTicks, GuiGraphics guiGraphics) {
+	public void renderPlayerDisplay(long renderTicks, GuiGraphicsExtractor guiGraphics) {
 		if (!displayRenderer()) {
 			return;
 		}
@@ -198,7 +194,7 @@ public class LogisticsHUDRenderer {
 			int height = mc.getWindow().getGuiScaledHeight();
 			if (mc.gui != null && guiGraphics != null) {
 				// LP1 redrew the vanilla crosshair tinted black to mark a HUD target lock.
-				// GuiGraphics.setColor is gone in 1.21.3 -- the tint is an ARGB blit argument now.
+				// GuiGraphicsExtractor.setColor is gone in 1.21.3 -- the tint is an ARGB blit argument now.
 				guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f, 16, 16,
 					256, 256, 0xFF000000);
 			}
@@ -437,8 +433,8 @@ public class LogisticsHUDRenderer {
 		double z = renderer.getZ() + 0.5 - cam.z;
 		// The context is handed down through IHeadUpDisplayRenderer/IHUDButton/IHUDModuleRenderer,
 		// so nothing in the HUD render path depends on ambient state. The billboard transforms are
-		// applied to the level stage's own PoseStack now: 1.21.6 made the GuiGraphics pose 2D, so
-		// this could no longer be expressed through a GuiGraphics at all.
+		// applied to the level stage's own PoseStack now: 1.21.6 made the GuiGraphicsExtractor pose 2D, so
+		// this could no longer be expressed through a GuiGraphicsExtractor at all.
 		poseStack.pushPose();
 		poseStack.translate((float) x, (float) y, (float) z);
 		poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));

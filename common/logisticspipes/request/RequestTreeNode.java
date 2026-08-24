@@ -15,6 +15,9 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import lombok.Getter;
+
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.ICraft;
 import logisticspipes.interfaces.routing.IFilter;
@@ -33,7 +36,6 @@ import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.routing.order.LogisticsOrderManager;
 import logisticspipes.utils.tuples.Pair;
-import lombok.Getter;
 
 public class RequestTreeNode {
 

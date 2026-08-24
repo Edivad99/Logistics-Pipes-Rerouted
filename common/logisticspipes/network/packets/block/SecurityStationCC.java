@@ -1,13 +1,14 @@
 package logisticspipes.network.packets.block;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.network.abstractpackets.IntegerCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class SecurityStationCC extends IntegerCoordinatesPacket {

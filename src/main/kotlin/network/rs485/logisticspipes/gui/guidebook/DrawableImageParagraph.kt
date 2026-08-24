@@ -43,7 +43,7 @@ import network.rs485.logisticspipes.util.math.MutableRectangle
 import logisticspipes.LogisticsPipes
 import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.resources.Identifier
 import java.io.IOException
@@ -76,7 +76,7 @@ class DrawableImageParagraph(private val alternativeText: List<DrawableWord>, va
         null
     }
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (image.broken) {
             super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
             for (drawableWord in alternativeText.filter { it.visible(visibleArea) }) {
@@ -136,7 +136,7 @@ class DrawableImage(private var imageResource: Identifier) : Drawable {
         return int32(16) to int32(20)
     }
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (!broken) {
             // Clip to the visible page area so partially-scrolled images do not draw over the frame.
             guiGraphics.enableScissor(

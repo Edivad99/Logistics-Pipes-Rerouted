@@ -37,13 +37,13 @@
 
 package network.rs485.logisticspipes.property
 
-import net.minecraft.world.level.storage.ValueOutput
-import net.minecraft.world.level.storage.ValueInput
+import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
+import network.rs485.logisticspipes.inventory.SlotAccess
 import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
 import net.minecraft.world.item.ItemStack
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
-import network.rs485.logisticspipes.inventory.SlotAccess
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.concurrent.CopyOnWriteArraySet
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare

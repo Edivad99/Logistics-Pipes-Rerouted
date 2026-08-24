@@ -1,8 +1,5 @@
 package logisticspipes.logic;
 
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,11 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
-import logisticspipes.utils.item.SimpleStackInventory;
-import lombok.Getter;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.Tag;
+
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+
+import lombok.Getter;
+
+import logisticspipes.utils.item.SimpleStackInventory;
 
 public class LogicController implements ValueIOSerializable {
 

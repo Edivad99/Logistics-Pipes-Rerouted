@@ -1,6 +1,6 @@
 package logisticspipes.utils.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -38,10 +38,10 @@ public class GuiStringHandlerButton extends Button {
 	 * variant; the point of this class is the message refresh in front of it.
 	 */
 	@Override
-	protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 		setMessage(Component.literal(handler.getContent()));
-		renderDefaultSprite(guiGraphics);
-		renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
+		extractDefaultSprite(guiGraphics);
+		extractDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
 	}
 
 	public interface StringHandler {

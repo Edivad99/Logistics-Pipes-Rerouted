@@ -1,13 +1,15 @@
 package logisticspipes.network.guis.module.inpipe;
 
-import javax.annotation.Nullable;
+import net.minecraft.world.entity.player.Player;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.gui.modules.GuiSimpleFilter;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.module.SimpleFilter;
 
 @StaticResolve

@@ -1,5 +1,17 @@
 package logisticspipes.gui.popup;
 
+import java.util.Objects;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.component.CustomData;
+
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.orderer.DiscContent;
@@ -11,18 +23,6 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
-
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.component.CustomData;
-
-import java.util.Objects;
 
 public class GuiDiskPopup extends SubGuiScreen {
 
@@ -150,9 +150,9 @@ public class GuiDiskPopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(minecraft.font, "Disk", xCenter - (minecraft.font.width("Disk") / 2), guiTop + 10, 0xFFFFFFFF, true);
+        guiGraphics.text(minecraft.font, "Disk", xCenter - (minecraft.font.width("Disk") / 2), guiTop + 10, 0xFFFFFFFF, true);
 
 		//NameInput
 		if (editName) {
@@ -163,11 +163,11 @@ public class GuiDiskPopup extends SubGuiScreen {
 		}
         guiGraphics.fill(guiLeft + 12, guiTop + 30, right - 12, guiTop + 43, Color.getValue(Color.DARKER_GREY));
 
-        guiGraphics.drawString(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFFFF, false);
+        guiGraphics.text(minecraft.font, name1 + name2, guiLeft + 15, guiTop + 33, 0xFFFFFFFF, false);
 
 		//guiGraphics.fill(guiLeft + 6, guiTop + 46, right - 6, bottom - 30, Color.getValue(Color.GREY));
 
-		textList.renderGuiBackground(guiGraphics, mouseX, mouseY);
+		textList.extractGuiBackground(guiGraphics, mouseX, mouseY);
 
 		if (editName) {
 			int lineX = guiLeft + 15 + minecraft.font.width(name1);
@@ -234,7 +234,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char c = (char) event.codepoint();
-		int i = event.modifiers();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (editName) {
 			if (c == 13) {
 				writeDiskName();

@@ -1,14 +1,16 @@
 package logisticspipes.network.guis.block;
 
 import java.util.BitSet;
-import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
+
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.gui.GuiLogisticsCraftingTable;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.item.ItemIdentifier;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

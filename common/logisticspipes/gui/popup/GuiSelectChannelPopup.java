@@ -2,10 +2,12 @@ package logisticspipes.gui.popup;
 
 import java.util.List;
 import java.util.function.Consumer;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.BlockPos;
+
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.SmallGuiButton;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSelectChannelPopup extends GuiManageChannelPopup {
@@ -36,8 +38,8 @@ public class GuiSelectChannelPopup extends GuiManageChannelPopup {
 		addRenderableWidget(selBtn);
 	}
 
-	protected void drawTitle(GuiGraphics guiGraphics) {
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6, 0xFFFFFFFF, true);
+	protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
+		guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"), (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6, 0xFFFFFFFF, true);
 	}
 
 }

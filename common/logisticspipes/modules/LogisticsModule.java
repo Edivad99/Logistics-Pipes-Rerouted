@@ -1,14 +1,23 @@
 package logisticspipes.modules;
 
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+
 import kotlin.Unit;
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -21,21 +30,12 @@ import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.ItemModule;
-
-import lombok.Getter;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import logisticspipes.world.item.LPItems;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
 import network.rs485.logisticspipes.property.UtilKt;
-import org.jetbrains.annotations.NotNull;
 
 @CCType(name = "LogisticsModule")
 public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeHolder, PropertyHolder {
@@ -108,12 +108,12 @@ public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeH
 	}
 
     @Override
-	public void deserialize(@NotNull ValueInput input) {
+	public void deserialize(ValueInput input) {
 		PropertyHolder.deserialize(input, this);
 	}
 
 	@Override
-	public void serialize(@NotNull ValueOutput output) {
+	public void serialize(ValueOutput output) {
 		PropertyHolder.serialize(output, this);
 	}
 

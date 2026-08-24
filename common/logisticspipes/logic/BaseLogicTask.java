@@ -1,11 +1,14 @@
 package logisticspipes.logic;
 
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import java.util.UUID;
-import lombok.Getter;
+
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+
+import lombok.Getter;
 
 public abstract class BaseLogicTask implements ValueIOSerializable {
 

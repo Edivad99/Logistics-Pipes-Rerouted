@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import logisticspipes.utils.Color
 import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.Margin
 import network.rs485.logisticspipes.gui.Size
@@ -45,7 +44,8 @@ import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
-import net.minecraft.client.gui.GuiGraphics
+import logisticspipes.utils.Color
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 open class TextButton(
     parent: Drawable,
@@ -97,14 +97,14 @@ open class TextButton(
         return TextUtil.getTrimmedString(text, relativeBody.roundedWidth - 4, helper.mcFontRenderer)
     }
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
         if (!visible) return
         val color = if (enabled) Color.WHITE.value else 0xFFA0A0A0.toInt()
         val textWidth = helper.mcFontRenderer.width(trimmedText)
         val cx = absoluteBody.roundedLeft + absoluteBody.roundedWidth / 2 - textWidth / 2
         val cy = absoluteBody.roundedTop + yOffset
-        guiGraphics.drawString(helper.mcFontRenderer, trimmedText, cx, cy, color, true)
+        guiGraphics.text(helper.mcFontRenderer, trimmedText, cx, cy, color, true)
     }
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int): Boolean = if (enabled) {

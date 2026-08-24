@@ -2,13 +2,17 @@ package logisticspipes.textures;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
-import logisticspipes.LPConstants;
+
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.Identifier;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LPConstants;
 
 /**
  * Collects (index, fileName) pairs registered via {@link Textures#registerBlockIcons(Object)}

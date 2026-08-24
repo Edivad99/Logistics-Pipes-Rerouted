@@ -38,13 +38,13 @@
 package network.rs485.logisticspipes.gui.widget
 
 import network.rs485.logisticspipes.util.TextUtil
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 class VerticalLabel(fullText: String, x: Int, y: Int, maxLength: Int, textColor: Int, backgroundColor: Int) : Label(fullText, x, y, maxLength, textColor, backgroundColor) {
 
     override val overflows: Boolean get() = fullRect.height > maxLength
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
         hovered = hovered(mouseX, mouseY)
         val rect = if (hovered) fullRect else trimmedRect
         val text = if (hovered) fullText else trimmedText
@@ -57,7 +57,7 @@ class VerticalLabel(fullText: String, x: Int, y: Int, maxLength: Int, textColor:
         if (backgroundColor != 0) {
             guiGraphics.fill(-1, -1, fontRenderer.width(text) + 1, fontRenderer.lineHeight + 1, backgroundColor)
         }
-        guiGraphics.drawString(fontRenderer, text, 0, 0, textColor, false)
+        guiGraphics.text(fontRenderer, text, 0, 0, textColor, false)
         pose.popMatrix()
     }
 

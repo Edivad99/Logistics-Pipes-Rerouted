@@ -5,11 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import logisticspipes.world.item.LPItems;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+
 import logisticspipes.LogisticsPipes;
-import logisticspipes.world.item.component.LPDataComponents;
-import logisticspipes.world.item.ItemUpgrade;
-import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.LogicControllerPacket;
 import logisticspipes.network.packets.gui.OpenUpgradePacket;
@@ -30,12 +33,10 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import logisticspipes.world.item.ItemUpgrade;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.LogisticsItemCard;
+import logisticspipes.world.item.component.LPDataComponents;
 import network.rs485.logisticspipes.util.TextUtil;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
@@ -136,7 +137,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
 			// Deferred: tab icon requires an LP item texture selection; left blank for now.
 		}
 
@@ -150,7 +151,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderBackgroundContent(GuiGraphics guiGraphics) {
+		public void renderBackgroundContent(GuiGraphicsExtractor guiGraphics) {
 			for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
 				LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 9 + pipeSlot * 18, topPos + 41);
 			}
@@ -162,10 +163,10 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderForegroundContent(GuiGraphics guiGraphics) {
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "upgrade"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
+		public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "upgrade"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 			if (pipe.getOriginalUpgradeManager().hasCombinedSneakyUpgrade()) {
-				guiGraphics.drawString(font, TextUtil.translate(PREFIX + "sneakyUpgrades"), 10, 74, Color.getValue(Color.DARKER_GREY), false);
+				guiGraphics.text(font, TextUtil.translate(PREFIX + "sneakyUpgrades"), 10, 74, Color.getValue(Color.DARKER_GREY), false);
 			}
 		}
 	}
@@ -190,24 +191,24 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
 			LPGuiGraphics.drawLockBackground(guiGraphics, x + 1, y);
 		}
 
 		@Override
-		public void renderBackgroundContent(GuiGraphics guiGraphics) {
+		public void renderBackgroundContent(GuiGraphicsExtractor guiGraphics) {
 			LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 9, topPos + 41);
 		}
 
 		@Override
-		public void renderForegroundContent(GuiGraphics guiGraphics) {
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "security"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
+		public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "security"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
 			ItemStack itemStack = pipe.getOriginalUpgradeManager().secInv.getItem(0);
 			if (!itemStack.isEmpty()) {
 				UUID id = itemStack.get(LPDataComponents.UUID);
-				guiGraphics.drawString(font, "Id: ", 10, 68, Color.getValue(Color.DARKER_GREY), false);
-				guiGraphics.drawString(font, ChatColor.BLUE + id.toString(), 10, 80, Color.getValue(Color.DARKER_GREY), false);
-				guiGraphics.drawString(font, "Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? ChatColor.GREEN + "Authorized" : ChatColor.RED + "Unauthorized"), 10, 94, Color.getValue(Color.DARKER_GREY), false);
+				guiGraphics.text(font, "Id: ", 10, 68, Color.getValue(Color.DARKER_GREY), false);
+				guiGraphics.text(font, ChatColor.BLUE + id.toString(), 10, 80, Color.getValue(Color.DARKER_GREY), false);
+				guiGraphics.text(font, "Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? ChatColor.GREEN + "Authorized" : ChatColor.RED + "Unauthorized"), 10, 94, Color.getValue(Color.DARKER_GREY), false);
 			}
 		}
 	}
@@ -215,58 +216,58 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 	private class Statistics extends TabSubGui {
 
 		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
 			LPGuiGraphics.drawStatsBackground(guiGraphics, x, y);
 		}
 
 		@Override
-		public void renderBackgroundContent(GuiGraphics guiGraphics) {
+		public void renderBackgroundContent(GuiGraphicsExtractor guiGraphics) {
 
 		}
 
 		@Override
-		public void renderForegroundContent(GuiGraphics guiGraphics) {
+		public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
 			String pipeName = ItemIdentifier.get(pipe.item).getFriendlyName();
-			guiGraphics.drawString(font, pipeName, (170 - font.width(pipeName)) / 2, 28, 0xFF83601c, false);
+			guiGraphics.text(font, pipeName, (170 - font.width(pipeName)) / 2, 28, 0xFF83601c, false);
 
 			int sessionXCenter = 85;
 			int lifetimeXCenter = 140;
 			String s;
 
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Session"), sessionXCenter - font
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "Session"), sessionXCenter - font
 					.width(TextUtil.translate(PREFIX + "Session")) / 2, 40, 0xFF303030, false);
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Lifetime"), lifetimeXCenter - font
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "Lifetime"), lifetimeXCenter - font
 					.width(TextUtil.translate(PREFIX + "Lifetime")) / 2, 40, 0xFF303030, false);
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Sent") + ":", 55 - font
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "Sent") + ":", 55 - font
 					.width(TextUtil.translate(PREFIX + "Sent") + ":"), 55, 0xFF303030, false);
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Recieved") + ":", 55 - font
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "Recieved") + ":", 55 - font
 					.width(TextUtil.translate(PREFIX + "Recieved") + ":"), 70, 0xFF303030, false);
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "Relayed") + ":", 55 - font
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "Relayed") + ":", 55 - font
 					.width(TextUtil.translate(PREFIX + "Relayed") + ":"), 85, 0xFF303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_sent);
-			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 55, 0xFF303030, false);
+			guiGraphics.text(font, s, sessionXCenter - font.width(s) / 2, 55, 0xFF303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_received);
-			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 70, 0xFF303030, false);
+			guiGraphics.text(font, s, sessionXCenter - font.width(s) / 2, 70, 0xFF303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_relayed);
-			guiGraphics.drawString(font, s, sessionXCenter - font.width(s) / 2, 85, 0xFF303030, false);
+			guiGraphics.text(font, s, sessionXCenter - font.width(s) / 2, 85, 0xFF303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_sent);
-			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 55, 0xFF303030, false);
+			guiGraphics.text(font, s, lifetimeXCenter - font.width(s) / 2, 55, 0xFF303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_received);
-			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 70, 0xFF303030, false);
+			guiGraphics.text(font, s, lifetimeXCenter - font.width(s) / 2, 70, 0xFF303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_relayed);
-			guiGraphics.drawString(font, s, lifetimeXCenter - font.width(s) / 2, 85, 0xFF303030, false);
+			guiGraphics.text(font, s, lifetimeXCenter - font.width(s) / 2, 85, 0xFF303030, false);
 
-			guiGraphics.drawString(font, TextUtil.translate(PREFIX + "RoutingTableSize") + ":", 110 - font
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "RoutingTableSize") + ":", 110 - font
 					.width(TextUtil.translate(PREFIX + "RoutingTableSize") + ":"), 110, 0xFF303030, false);
 
 			s = StringUtils.getStringWithSpacesFromLong(pipe.server_routing_table_size);
-			guiGraphics.drawString(font, s, 130 - font.width(s) / 2, 110, 0xFF303030, false);
+			guiGraphics.text(font, s, 130 - font.width(s) / 2, 110, 0xFF303030, false);
 		}
 	}
 
@@ -280,7 +281,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
 			// Deferred: tab icon requires an LP item texture selection; left blank for now.
 		}
 
@@ -293,7 +294,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderBackgroundContent(GuiGraphics guiGraphics) {
+		public void renderBackgroundContent(GuiGraphicsExtractor guiGraphics) {
 			guiGraphics.fill(leftPos + 12, topPos + 34, leftPos + 32, topPos + 54, Color.getValue(Color.BLACK));
 			guiGraphics.fill(leftPos + 14, topPos + 36, leftPos + 30, topPos + 52, Color.getValue(Color.DARKER_GREY));
 		}
@@ -307,7 +308,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderForegroundContent(GuiGraphics guiGraphics) {
+		public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
 
 		}
 	}
@@ -332,12 +333,12 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderIcon(GuiGraphics guiGraphics, int x, int y) {
+		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
 			LPGuiGraphics.drawLinesBackground(guiGraphics, x, y);
 		}
 
 		@Override
-		public void renderBackgroundContent(GuiGraphics guiGraphics) {
+		public void renderBackgroundContent(GuiGraphicsExtractor guiGraphics) {
 
 		}
 
@@ -367,7 +368,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		}
 
 		@Override
-		public void renderForegroundContent(GuiGraphics guiGraphics) {
+		public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
 			List<ItemIdentifierStack> allItems = pipe.getClientSideOrderManager().stream()
 					.map(IOrderInfoProvider::getAsDisplayItem).collect(Collectors.toCollection(LinkedList::new));
 			itemDisplay_5.setItemList(allItems);
@@ -381,16 +382,16 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 				String s;
 				if (target != null) {
 					s = target.getFriendlyName();
-					guiGraphics.drawString(font, s, 35, stringPos, 0xFF303030, false);
+					guiGraphics.text(font, s, 35, stringPos, 0xFF303030, false);
 				}
 				s = Integer.toString(i + 1);
 				stringPos += 6;
-				guiGraphics.drawString(font, s, 3, stringPos, 0xFF303030, false);
+				guiGraphics.text(font, s, 3, stringPos, 0xFF303030, false);
 				stringPos += 4;
 				DoubleCoordinates pos = order.getTargetPosition();
 				if (pos != null) {
 					s = pos.toIntBasedString();
-					guiGraphics.drawString(font, s, 40, stringPos, 0xFF303030, false);
+					guiGraphics.text(font, s, 40, stringPos, 0xFF303030, false);
 				}
 				stringPos += 10;
 			}

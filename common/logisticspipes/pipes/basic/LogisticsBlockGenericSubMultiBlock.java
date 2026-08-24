@@ -2,10 +2,7 @@ package logisticspipes.pipes.basic;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import javax.annotation.Nullable;
-import logisticspipes.interfaces.ITickable;
-import logisticspipes.world.level.block.LPBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -21,10 +18,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.interfaces.ITickable;
+import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityBlock {

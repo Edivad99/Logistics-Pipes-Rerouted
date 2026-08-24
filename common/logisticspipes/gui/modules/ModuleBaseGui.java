@@ -1,14 +1,16 @@
 package logisticspipes.gui.modules;
 
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+
+import lombok.Getter;
+
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.gui.GuiOpenChassis;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import lombok.Getter;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public abstract class ModuleBaseGui extends LogisticsBaseGuiScreen {
 
@@ -23,7 +25,7 @@ public abstract class ModuleBaseGui extends LogisticsBaseGuiScreen {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		char typedChar = (char) event.codepoint();
-		int keyCode = event.modifiers();
+		int keyCode = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
 		if (module == null) {
 			return super.charTyped(event);
 		}

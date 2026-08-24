@@ -1,13 +1,14 @@
 
 package logisticspipes.gui;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiFirewall extends LogisticsBaseGuiScreen {
@@ -45,7 +46,7 @@ public class GuiFirewall extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 33, topPos + 175);
 		for (int x = 0; x < 6; x++) {
@@ -56,14 +57,14 @@ public class GuiFirewall extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Firewall"), 45, 8, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filter") + ":", 14, 28, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filtereditemsare") + ":", 125, 8, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Providing") + ":", 144, 41, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Crafting") + ":", 146, 74, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Sorting") + ":", 150, 107, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Powerflow") + ":", 142, 141, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Firewall"), 45, 8, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filter") + ":", 14, 28, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Filtereditemsare") + ":", 125, 8, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Providing") + ":", 144, 41, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Crafting") + ":", 146, 74, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Sorting") + ":", 150, 107, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, TextUtil.translate(GuiFirewall.PREFIX + "Powerflow") + ":", 142, 141, 0xFF404040, false);
 	}
 }

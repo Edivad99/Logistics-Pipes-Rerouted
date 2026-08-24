@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes
 
-import net.neoforged.neoforge.common.util.ValueIOSerializable
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty
 import network.rs485.logisticspipes.property.Property
 import network.rs485.logisticspipes.property.PropertyHolder
@@ -50,6 +49,7 @@ import logisticspipes.utils.FluidIdentifierStack
 import logisticspipes.utils.FluidSinkReply
 import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.item.ItemIdentifierInventory
+import net.neoforged.neoforge.common.util.ValueIOSerializable
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 

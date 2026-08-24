@@ -1,14 +1,15 @@
 
 package logisticspipes.gui;
 
-import logisticspipes.world.item.LPItems;
-import logisticspipes.world.item.LogisticsItemCard;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.LogisticsItemCard;
 
 public class GuiFreqCardContent extends LogisticsBaseGuiScreen {
 
@@ -25,7 +26,7 @@ public class GuiFreqCardContent extends LogisticsBaseGuiScreen {
 
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 45);
 		LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 81, topPos + 14);

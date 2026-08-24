@@ -1,22 +1,21 @@
 package logisticspipes.pipes;
 
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
-import javax.annotation.Nullable;
-
-import logisticspipes.world.item.LPItems;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.security.SecuritySettings;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.proxy.MainProxy;
+import logisticspipes.security.SecuritySettings;
+import logisticspipes.textures.Textures;
+import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.world.item.LPItems;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
@@ -37,7 +36,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 			if (settings == null || settings.openGui) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);
+				entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 			}
 		}
 		return true;

@@ -2,7 +2,10 @@ package logisticspipes.gui;
 
 import java.util.Arrays;
 
-import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.CraftingCycleRecipe;
 import logisticspipes.proxy.MainProxy;
@@ -13,9 +16,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 
 public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
@@ -71,7 +72,7 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float fA, int iA, int jA) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int iA, int jA, float fA) {
 		for (AbstractButton cycleButton : cycleButtons) {
 			cycleButton.visible = crafter.targetType != null;
 		}

@@ -4,7 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
-import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.gui.popup.GuiRecipeImport;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -17,11 +24,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifier;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.world.CoordinateUtils;

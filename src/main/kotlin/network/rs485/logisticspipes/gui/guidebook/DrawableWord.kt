@@ -41,7 +41,7 @@ import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
 import network.rs485.markdown.*
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import kotlin.math.floor
 
 /**
@@ -80,7 +80,7 @@ open class DrawableWord(
     override fun isMouseHovering(mouseX: Float, mouseY: Float): Boolean =
         absoluteBody.contains(mouseX, mouseY)
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         val hovering = linkInteractable?.isMouseHovering(mouseX, mouseY) ?: false
         val updatedColor = linkInteractable?.updateColor(color) ?: color
         val updatedFormat = linkInteractable?.updateFormat(format) ?: format
@@ -109,7 +109,7 @@ class DrawableSpace(
     linkInteractable: LinkInteractable?,
 ) : DrawableWord(" ", scale, state, linkInteractable) {
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         if (width > 0) {
             linkInteractable?.isMouseHovering(mouseX, mouseY)
             val updatedColor = linkInteractable?.updateColor(color) ?: color

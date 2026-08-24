@@ -1,14 +1,17 @@
 package logisticspipes.network.guis.module.inpipe;
 
 import java.util.BitSet;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.utils.StaticResolve;
-import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import network.rs485.logisticspipes.gui.module.ItemSinkGui;
 import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;

@@ -37,11 +37,11 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import logisticspipes.utils.MinecraftColor
-import net.minecraft.client.gui.GuiGraphics
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
+import logisticspipes.utils.MinecraftColor
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 /**
  * This draws a line with a given thickness that will span the entire width of the page, minus padding.
@@ -61,7 +61,7 @@ class DrawableHorizontalLine(private val thickness: Int, private val padding: In
 
     override fun getHovered(mouseX: Float, mouseY: Float): Drawable? = null
 
-    override fun draw(guiGraphics: GuiGraphics, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
+    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
         super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
         GuiDrawer.drawLine(guiGraphics, absoluteBody.topLeft, absoluteBody.topRight, color, thickness.toFloat())
     }

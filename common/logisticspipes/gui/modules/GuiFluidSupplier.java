@@ -7,14 +7,14 @@
 
 package logisticspipes.gui.modules;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import logisticspipes.LPConstants;
-import logisticspipes.modules.ModuleFluidSupplier;
-import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
+
+import logisticspipes.LPConstants;
+import logisticspipes.modules.ModuleFluidSupplier;
+import logisticspipes.utils.gui.DummyContainer;
 
 public class GuiFluidSupplier extends ModuleBaseGui {
 
@@ -23,8 +23,8 @@ public class GuiFluidSupplier extends ModuleBaseGui {
 	public GuiFluidSupplier(Container playerInventory, ModuleFluidSupplier module) {
 		super(buildDummy(playerInventory, module), module);
 		liquidSupplier = module;
-		imageWidth = 175;
-		imageHeight = 142;
+		panelWidth = 175;
+		panelHeight = 142;
 	}
 	private static DummyContainer buildDummy(Container playerInventory, ModuleFluidSupplier module) {
 		DummyContainer dummy = new DummyContainer(playerInventory, module.getFilterInventory());
@@ -39,18 +39,18 @@ public class GuiFluidSupplier extends ModuleBaseGui {
 
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.drawString(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) liquidSupplier.getFilterInventory()).getName(), 8, 6, 0xFF404040, false);
-		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		guiGraphics.text(minecraft.font, ((logisticspipes.utils.item.ItemIdentifierInventory) liquidSupplier.getFilterInventory()).getName(), 8, 6, 0xFF404040, false);
+		guiGraphics.text(minecraft.font, "Inventory", 8, panelHeight - 92, 0xFF404040, false);
 	}
 
 	private static final Identifier TEXTURE = LPConstants.rl("textures/gui/itemsink.png");
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int x, int y, float f) {
 		// texture: GuiFluidSupplier.TEXTURE
 		int j = leftPos;
 		int k = topPos;
-		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiFluidSupplier.TEXTURE, j, k, 0.0f, 0.0f, imageWidth, imageHeight, 256, 256);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiFluidSupplier.TEXTURE, j, k, 0.0f, 0.0f, panelWidth, panelHeight, 256, 256);
 	}
 }

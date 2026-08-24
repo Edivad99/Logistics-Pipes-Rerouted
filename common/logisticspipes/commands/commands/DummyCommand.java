@@ -1,7 +1,8 @@
 package logisticspipes.commands.commands;
 
-import logisticspipes.commands.abstracts.ICommandHandler;
 import net.minecraft.world.entity.player.Player;
+
+import logisticspipes.commands.abstracts.ICommandHandler;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 

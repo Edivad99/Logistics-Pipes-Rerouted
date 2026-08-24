@@ -2,9 +2,11 @@ package logisticspipes.proxy.progressprovider;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minecraft.world.level.block.entity.BlockEntity;
+
 import logisticspipes.api.IProgressProvider;
 import logisticspipes.proxy.interfaces.IGenericProgressProvider;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class MachineProgressProvider {
 

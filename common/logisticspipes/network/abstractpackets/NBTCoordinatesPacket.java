@@ -1,8 +1,10 @@
 package logisticspipes.network.abstractpackets;
 
+import net.minecraft.nbt.CompoundTag;
+
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.nbt.CompoundTag;
+
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

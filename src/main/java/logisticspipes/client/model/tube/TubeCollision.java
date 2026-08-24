@@ -1,8 +1,8 @@
 package logisticspipes.client.model.tube;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.world.phys.AABB;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.model.mesh.ObjMesh;
 import logisticspipes.interfaces.ITubeOrientation;

@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nullable;
-import logisticspipes.LogisticsPipes;
+
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LogisticsPipes;
 
 public class DictItemIdentifier {
 
@@ -25,7 +28,7 @@ public class DictItemIdentifier {
 		}
 		// 1.20.1 replacement for OreDictionary.getOreIDs: walk the item's tag keys and
 		// assign each TagKey a stable int id via DictIdentifier.
-		for (TagKey<Item> tag : stack.getTags().toList()) {
+		for (TagKey<Item> tag : stack.typeHolder().tags().toList()) {
 			DictIdentifier ident = DictIdentifier.getForTag(tag);
 			ids.set(ident.getId());
 			hasDict = true;

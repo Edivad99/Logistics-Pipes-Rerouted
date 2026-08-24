@@ -1,9 +1,10 @@
 package logisticspipes.commands.commands;
 
-import logisticspipes.commands.abstracts.ICommandHandler;
-import logisticspipes.ticks.RoutingTableUpdateThread;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+
+import logisticspipes.commands.abstracts.ICommandHandler;
+import logisticspipes.ticks.RoutingTableUpdateThread;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
@@ -26,7 +27,7 @@ public class RoutingThreadCommand implements ICommandHandler {
 
 	@Override
 	public void executeCommand(Player sender, String[] args) {
-		sender.displayClientMessage(Component.literal("RoutingTableUpdateThread: Queued: " + RoutingTableUpdateThread.size()), false);
-		sender.displayClientMessage(Component.literal("RoutingTableUpdateThread: Average: " + RoutingTableUpdateThread.getAverage() + "ns"), false);
+		sender.sendSystemMessage(Component.literal("RoutingTableUpdateThread: Queued: " + RoutingTableUpdateThread.size()));
+		sender.sendSystemMessage(Component.literal("RoutingTableUpdateThread: Average: " + RoutingTableUpdateThread.getAverage() + "ns"));
 	}
 }

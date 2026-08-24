@@ -1,13 +1,11 @@
 package logisticspipes.utils.gui;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 
@@ -97,7 +95,7 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
      * @return Boolean, true if key was handled.
      */
     public boolean handleKey(char c, int i) {
-        return charTyped(new CharacterEvent(c, 0)); // was: textboxKeyTyped(c, i) in 1.12.2
+        return charTyped(new CharacterEvent(c)); // was: textboxKeyTyped(c, i) in 1.12.2
     }
 
     public void setInteger(int newValue) {

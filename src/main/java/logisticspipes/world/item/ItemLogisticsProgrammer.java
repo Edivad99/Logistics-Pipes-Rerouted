@@ -1,14 +1,16 @@
 package logisticspipes.world.item;
 
-import java.util.List;
-import java.util.function.Consumer;
 import java.util.Objects;
+import java.util.function.Consumer;
 
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 
@@ -22,10 +24,16 @@ public class ItemLogisticsProgrammer extends LogisticsItem {
     }
 
     @Override
-    public ItemStack getCraftingRemainder(ItemStack itemStack) {
-        ItemStack result = new ItemStack(this);
-        result.applyComponents(itemStack.getComponents());
-        return result;
+    public ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
+        return new ItemStackTemplate(this, 1, componentPatchOf(instance));
+    }
+
+    private static DataComponentPatch componentPatchOf(ItemInstance instance) {
+        return switch (instance) {
+            case ItemStack stack -> stack.getComponentsPatch();
+            case ItemStackTemplate template -> template.components();
+            default -> DataComponentPatch.EMPTY;
+        };
     }
 
     @Override

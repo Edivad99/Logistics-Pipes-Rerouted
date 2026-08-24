@@ -1,14 +1,16 @@
 package logisticspipes.network.packets.gui;
 
-import logisticspipes.client.gui.ClientGuiOpener;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.utils.StaticResolve;
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.world.entity.player.Player;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import logisticspipes.client.gui.ClientGuiOpener;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

@@ -3,13 +3,15 @@ package logisticspipes.commands.commands.wrapper;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.asm.wrapper.AbstractWrapper;
 import logisticspipes.asm.wrapper.LogisticsWrapperHandler;
 import logisticspipes.asm.wrapper.WrapperState;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.abstracts.ICommandHandler;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
@@ -33,7 +35,7 @@ public class ShowCommand implements ICommandHandler {
 	@Override
 	public void executeCommand(Player sender, String[] args) {
 		if (args.length != 1) {
-			sender.displayClientMessage(Component.literal("Wrong amount of arguments"), false);
+			sender.sendSystemMessage(Component.literal("Wrong amount of arguments"));
 			return;
 		}
 		String name = args[0];
@@ -53,23 +55,23 @@ public class ShowCommand implements ICommandHandler {
 			}
 		}
 		if (list.size() > 1) {
-			sender.displayClientMessage(Component.literal("Possible: "), false);
+			sender.sendSystemMessage(Component.literal("Possible: "));
 			for (AbstractWrapper can : list) {
-				sender.displayClientMessage(Component.literal(can.getName() + can.getTypeName()), false);
+				sender.sendSystemMessage(Component.literal(can.getName() + can.getTypeName()));
 			}
 		} else if (list.isEmpty()) {
-			sender.displayClientMessage(Component.literal("No match found"), false);
+			sender.sendSystemMessage(Component.literal("No match found"));
 		} else {
 			AbstractWrapper wrapper = list.get(0);
 			Throwable t = wrapper.getReason();
 			if (t == null) {
-				sender.displayClientMessage(Component.literal("null"), false);
+				sender.sendSystemMessage(Component.literal("null"));
 				return;
 			} else {
-				sender.displayClientMessage(Component.literal("-----------------------------------------------------"), false);
-				sender.displayClientMessage(Component.literal(t.toString()), false);
+				sender.sendSystemMessage(Component.literal("-----------------------------------------------------"));
+				sender.sendSystemMessage(Component.literal(t.toString()));
 				for (StackTraceElement s : t.getStackTrace()) {
-					sender.displayClientMessage(Component.literal(" " + s.toString()), false);
+					sender.sendSystemMessage(Component.literal(" " + s.toString()));
 				}
 				t.printStackTrace();
 			}

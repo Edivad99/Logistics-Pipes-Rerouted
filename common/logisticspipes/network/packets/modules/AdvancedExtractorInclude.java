@@ -1,9 +1,10 @@
 package logisticspipes.network.packets.modules;
 
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.network.abstractpackets.BooleanModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 
 @StaticResolve

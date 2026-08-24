@@ -3,24 +3,22 @@ package logisticspipes.renderer.newpipe;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Quaternionf;
 
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
-import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemStack;
-
-import org.joml.Quaternionf;
+import logisticspipes.world.item.LogisticsFluidContainer;
 
 public class LogisticsNewPipeItemBoxRenderer {
 

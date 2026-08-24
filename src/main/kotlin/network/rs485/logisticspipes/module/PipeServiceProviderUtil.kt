@@ -37,17 +37,14 @@
 
 package network.rs485.logisticspipes.module
 
-import logisticspipes.interfaces.IInventoryUtil
-import logisticspipes.interfaces.IPipeServiceProvider
-import logisticspipes.interfaces.ISlotUpgradeManager
-import logisticspipes.pipes.PipeLogisticsChassis
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.core.Direction
-import network.rs485.logisticspipes.connection.LPNeighborTileEntity
 import network.rs485.logisticspipes.connection.NeighborTileEntity
 import network.rs485.logisticspipes.connection.getInventoryUtil
 import network.rs485.logisticspipes.connection.sneakyInsertion
-import java.util.*
+import logisticspipes.interfaces.IInventoryUtil
+import logisticspipes.interfaces.IPipeServiceProvider
+import logisticspipes.interfaces.ISlotUpgradeManager
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
 
 fun IPipeServiceProvider.availableSneakyInventories(sneakyDirection: Direction?): List<IInventoryUtil?> = sneakyDirection?.let {
     availableAdjacent.inventories().map { adjacent -> adjacent.sneakyInsertion().from(sneakyDirection).getInventoryUtil() }

@@ -1,7 +1,5 @@
 package logisticspipes.integrations.refinedstorage;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,6 +11,7 @@ import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponen
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.common.api.support.network.NetworkNodeContainerProvider;
 import com.refinedmods.refinedstorage.neoforge.api.RefinedStorageNeoForgeApi;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Finds the Refined Storage network behind a block, shared by the item and fluid handlers.

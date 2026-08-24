@@ -1,22 +1,23 @@
 package logisticspipes.logisticspipes;
 
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.storage.TagValueOutput;
-import net.minecraft.world.level.storage.TagValueInput;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import logisticspipes.interfaces.IClientInformationProvider;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.proxy.MainProxy;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+
+import logisticspipes.interfaces.IClientInformationProvider;
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.proxy.MainProxy;
 
 public class ItemModuleInformationManager {
 

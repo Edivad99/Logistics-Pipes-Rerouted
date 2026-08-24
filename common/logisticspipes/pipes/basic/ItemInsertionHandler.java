@@ -3,12 +3,14 @@ package logisticspipes.pipes.basic;
 import java.util.ArrayList;
 import java.util.List;
 
-import logisticspipes.interfaces.ILPItemAcceptor;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+
 import net.neoforged.neoforge.transfer.VoidingResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+
+import logisticspipes.interfaces.ILPItemAcceptor;
 
 /**
  * The item capability a pipe exposes to its neighbours: a drop slot that swallows items into the

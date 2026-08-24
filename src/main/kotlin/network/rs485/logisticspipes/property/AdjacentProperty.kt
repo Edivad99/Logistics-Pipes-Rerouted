@@ -37,13 +37,13 @@
 
 package network.rs485.logisticspipes.property
 
-import com.mojang.serialization.Codec
-import net.minecraft.world.level.storage.ValueOutput
-import net.minecraft.world.level.storage.ValueInput
 import network.rs485.logisticspipes.connection.*
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.utils.DirectionUtil
+import com.mojang.serialization.Codec
 import net.minecraft.core.Direction
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
 class AdjacentProperty @JvmOverloads constructor(
     defaultValue: Adjacent = NoAdjacent,

@@ -1,9 +1,10 @@
 package logisticspipes.pipes;
 
+import net.minecraft.world.item.Item;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
-import net.minecraft.world.item.Item;
 
 public class PipeLogisticsChassisMk3 extends PipeLogisticsChassis {
 

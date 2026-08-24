@@ -2,13 +2,14 @@ package logisticspipes.commands.commands;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.RequestUpdateNamesPacket;
 import logisticspipes.proxy.MainProxy;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 public class TransferNamesCommand implements ICommandHandler {
 
@@ -29,7 +30,7 @@ public class TransferNamesCommand implements ICommandHandler {
 
 	@Override
 	public void executeCommand(Player sender, String[] args) {
-		sender.displayClientMessage(Component.literal("Requesting Transfer"), false);
+		sender.sendSystemMessage(Component.literal("Requesting Transfer"));
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RequestUpdateNamesPacket.class), sender);
 		MainProxy.getProxy(false).sendNameUpdateRequest(sender);
 	}

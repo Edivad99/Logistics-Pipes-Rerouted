@@ -36,14 +36,14 @@
  */
 package network.rs485.logisticspipes.integration
 
-import logisticspipes.pipes.basic.CoreRoutedPipe
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe
-import net.minecraft.core.BlockPos
-import net.minecraft.server.level.ServerLevel
 import network.rs485.minecraft.Configurator
 import network.rs485.minecraft.Placer
 import network.rs485.minecraft.configurator
+import logisticspipes.pipes.basic.CoreRoutedPipe
+import logisticspipes.pipes.basic.LogisticsBlockGenericPipe
 import logisticspipes.world.level.block.LPBlocks
+import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
 import java.time.Duration
 import kotlin.test.assertTrue
 

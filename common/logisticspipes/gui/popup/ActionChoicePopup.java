@@ -1,9 +1,10 @@
 package logisticspipes.gui.popup;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 
 public class ActionChoicePopup extends SubGuiScreen {
 
@@ -51,9 +52,9 @@ public class ActionChoicePopup extends SubGuiScreen {
 	}
 
 	@Override
-	protected void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.drawString(minecraft.font, message, xCenter - minecraft.font.width(message) / 2, guiTop + 6, 0xFFFFFFFF, true);
+        guiGraphics.text(minecraft.font, message, xCenter - minecraft.font.width(message) / 2, guiTop + 6, 0xFFFFFFFF, true);
 	}
 
 }

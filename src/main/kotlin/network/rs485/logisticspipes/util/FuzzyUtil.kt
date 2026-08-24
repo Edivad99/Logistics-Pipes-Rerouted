@@ -37,10 +37,9 @@
 
 package network.rs485.logisticspipes.util
 
-import logisticspipes.utils.item.ItemIdentifier
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
 import network.rs485.logisticspipes.property.IBitSet
+import logisticspipes.utils.item.ItemIdentifier
+import net.minecraft.nbt.CompoundTag
 import java.util.*
 
 enum class FuzzyFlag(val bit: Int, val nbtName: String) {

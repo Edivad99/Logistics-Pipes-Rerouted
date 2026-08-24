@@ -1,7 +1,7 @@
 package logisticspipes.api;
 
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * things implementing this interface are capable of providing power, but they

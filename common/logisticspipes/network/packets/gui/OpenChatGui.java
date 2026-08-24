@@ -1,12 +1,14 @@
 package logisticspipes.network.packets.gui;
 
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.utils.StaticResolve;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.world.entity.player.Player;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 

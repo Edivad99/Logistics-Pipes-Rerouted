@@ -1,12 +1,13 @@
 package logisticspipes.network.guis.block;
 
-import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.gui.GuiPowerJunction;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.world.entity.player.Player;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 
 @StaticResolve
 public class PowerJunctionGui extends CoordinatesGuiProvider {

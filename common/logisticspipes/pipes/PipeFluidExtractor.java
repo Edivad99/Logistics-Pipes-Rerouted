@@ -1,17 +1,17 @@
 package logisticspipes.pipes;
 
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.fluids.FluidStack;
+
 import logisticspipes.interfaces.ITankUtil;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.FluidIdentifierStack;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 public class PipeFluidExtractor extends PipeFluidInsertion {
 

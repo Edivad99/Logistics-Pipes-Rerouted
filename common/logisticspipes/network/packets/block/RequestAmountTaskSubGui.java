@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
+
+import net.minecraft.world.entity.player.Player;
+
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -14,7 +17,6 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import net.minecraft.world.entity.player.Player;
 
 @StaticResolve
 public class RequestAmountTaskSubGui extends CoordinatesPacket {

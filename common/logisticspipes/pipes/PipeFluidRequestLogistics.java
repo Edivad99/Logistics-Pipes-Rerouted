@@ -1,6 +1,10 @@
 package logisticspipes.pipes;
 
-import javax.annotation.Nullable;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
@@ -9,9 +13,6 @@ import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.FluidIdentifier;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 
 public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IRequestFluid {
 
@@ -31,7 +32,7 @@ public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IReque
 			if (settings == null || settings.openRequest) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.displayClientMessage(Component.literal("Permission denied"), false);
+				entityplayer.sendSystemMessage(Component.literal("Permission denied"));
 			}
 		}
 		return true;

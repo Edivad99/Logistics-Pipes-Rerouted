@@ -37,10 +37,10 @@
 
 package network.rs485.logisticspipes.util
 
+import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import logisticspipes.utils.SinkReply
 import logisticspipes.utils.item.ItemIdentifier
 import net.minecraft.world.item.ItemStack
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import kotlin.math.min
 
 

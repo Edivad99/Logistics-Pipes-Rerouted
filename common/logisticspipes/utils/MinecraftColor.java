@@ -1,8 +1,11 @@
 package logisticspipes.utils;
 
+import java.util.EnumMap;
+import java.util.Map;
+
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public enum MinecraftColor {
@@ -30,14 +33,12 @@ public enum MinecraftColor {
 		this.colorCode = colorCode;
 	}
 
-	// In 1.20.1 dyes are separate items; map via DyeItem / DyeColor
-	private static final java.util.Map<Item, MinecraftColor> DYE_TO_COLOR;
+	private static final Map<DyeColor, MinecraftColor> BY_DYE;
 	static {
-		DYE_TO_COLOR = new java.util.HashMap<>();
+		BY_DYE = new EnumMap<>(DyeColor.class);
 		for (MinecraftColor color : values()) {
 			if (color != BLANK) {
-				Item dyeItem = DyeItem.byColor(color.toDyeColor());
-				DYE_TO_COLOR.put(dyeItem, color);
+				BY_DYE.put(color.toDyeColor(), color);
 			}
 		}
 	}
@@ -66,8 +67,11 @@ public enum MinecraftColor {
 
 	public static MinecraftColor getColor(ItemStack item) {
 		if (!item.isEmpty()) {
-			MinecraftColor color = DYE_TO_COLOR.get(item.getItem());
-			if (color != null) return color;
+			DyeColor dye = item.get(DataComponents.DYE);
+			if (dye != null) {
+				MinecraftColor color = BY_DYE.get(dye);
+				if (color != null) return color;
+			}
 		}
 		return BLANK;
 	}
@@ -80,7 +84,10 @@ public enum MinecraftColor {
 		if (this == BLANK) {
 			return ItemStack.EMPTY;
 		}
-		return new ItemStack(DyeItem.byColor(toDyeColor()));
+		return BuiltInRegistries.ITEM.get(toDyeColor().getTag())
+			.flatMap(holders -> holders.stream().findFirst())
+			.map(ItemStack::new)
+			.orElse(ItemStack.EMPTY);
 	}
 
 	public MinecraftColor getNext() {

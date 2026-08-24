@@ -1,15 +1,5 @@
 package logisticspipes.pipes;
 
-import javax.annotation.Nullable;
-import logisticspipes.world.item.LPItems;
-import logisticspipes.interfaces.routing.IRequestItems;
-import logisticspipes.world.item.RemoteOrderer;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.security.SecuritySettings;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -17,6 +7,17 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.interfaces.routing.IRequestItems;
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.security.SecuritySettings;
+import logisticspipes.textures.Textures;
+import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.RemoteOrderer;
 
 public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements IRequestItems {
 
@@ -41,7 +42,7 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
 				} else {
                     resp = Component.translatable("lp.chat.permissiondenied").withStyle(ChatFormatting.RED);
 				}
-                entityplayer.displayClientMessage(resp, true);
+                entityplayer.sendOverlayMessage(resp);
             }
 			return true;
 		}

@@ -2,20 +2,16 @@ package logisticspipes.client;
 
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.rendertype.RenderType;
 
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleGroupsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterRangeSelectItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -44,7 +40,6 @@ import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
-import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor;
 
 public class ClientManager {
@@ -53,7 +48,6 @@ public class ClientManager {
     }
 
     public static void init(IEventBus modEventBus) {
-        modEventBus.addListener(ClientManager::handleClientSetup);
         modEventBus.addListener(ClientManager::handleRegisterRenderers);
         modEventBus.addListener(ClientManager::handleParticleRegistration);
         modEventBus.addListener(ClientManager::handleRegisterParticleGroups);
@@ -79,19 +73,6 @@ public class ClientManager {
     }
 
     // Mod events
-    private static void handleClientSetup(FMLClientSetupEvent event) {
-        // Texture atlas sprites and item/block models are supplied declaratively via
-        // JSON in assets/logisticspipes/models/** in 1.20.1 — no code registration.
-        // BlockEntityRenderer for the pipe BE is registered via
-        // EntityRenderersEvent.RegisterRenderers (see registerRenderers below).
-        event.enqueueWork(() -> {
-            // 1.21.6 replaced the RenderType-keyed chunk layers with the ChunkSectionLayer enum.
-            ItemBlockRenderTypes.setRenderLayer(
-                LPBlocks.PIPE.get(),
-                ChunkSectionLayer.CUTOUT);
-        });
-    }
-
     private static void handleRegisterReloadListeners(AddClientReloadListenersEvent event) {
         event.addListener(LPConstants.rl("obj_models"), new ObjModelManager());
     }

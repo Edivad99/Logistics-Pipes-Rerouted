@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,15 +26,16 @@ import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
-import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
-import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
+import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
