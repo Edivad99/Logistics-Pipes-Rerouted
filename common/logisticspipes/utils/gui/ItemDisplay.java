@@ -20,7 +20,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemDisplay {
@@ -34,7 +34,7 @@ public class ItemDisplay {
 		NAME_DOWN,
 	}
 
-	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/icons.png");
+	private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/icons.png");
 	private static final int PANELSIZEX = 20;
 	private static final int PANELSIZEY = 20;
 

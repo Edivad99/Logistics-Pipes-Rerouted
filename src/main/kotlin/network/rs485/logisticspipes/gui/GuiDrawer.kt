@@ -47,7 +47,7 @@ import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.lang.Float.min
 
 // Every drawing method takes the GuiGraphics to draw into, so nothing here depends on ambient state.
@@ -87,9 +87,9 @@ object GuiDrawer {
         // TODO: texture-atlas sprite blit — no widget GUI calls this yet; port alongside guide book work.
     }
 
-    private val BUTTON = ResourceLocation.withDefaultNamespace("widget/button")
-    private val BUTTON_DISABLED = ResourceLocation.withDefaultNamespace("widget/button_disabled")
-    private val BUTTON_HIGHLIGHTED = ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+    private val BUTTON = Identifier.withDefaultNamespace("widget/button")
+    private val BUTTON_DISABLED = Identifier.withDefaultNamespace("widget/button_disabled")
+    private val BUTTON_HIGHLIGHTED = Identifier.withDefaultNamespace("widget/button_highlighted")
 
     /**
      * Draws a vanilla button face. [light] and [thickerBottomBorder] described the hand-drawn borders
@@ -170,6 +170,6 @@ object GuiDrawer {
     }
 }
 
-private class Texture(val resource: ResourceLocation, size: Int) {
+private class Texture(val resource: Identifier, size: Int) {
     val factor: Float = 1.0f / size
 }

@@ -8,7 +8,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
 @CCType(name = "ItemIdentifierBuilder")
@@ -53,7 +53,7 @@ public class CCItemIdentifierBuilder implements ILPCCTypeHolder {
 	public ItemIdentifier build() {
 		Item item;
 		if (itemIDName != null) {
-			item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(itemIDName));
+			item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemIDName));
 		} else {
 			item = BuiltInRegistries.ITEM.byId(itemID);
 		}

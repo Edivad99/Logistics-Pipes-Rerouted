@@ -20,7 +20,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluid;
@@ -173,7 +173,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	 * The registry name of this fluid, e.g. {@code minecraft:water}.
 	 */
 	public String getFluidID() {
-		ResourceLocation key = BuiltInRegistries.FLUID.getKey(fluid);
+		Identifier key = BuiltInRegistries.FLUID.getKey(fluid);
 		return key != null ? key.toString() : "unknown";
 	}
 
@@ -297,7 +297,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		}
 		List<String> parts = new ArrayList<>(components.size());
 		for (Map.Entry<DataComponentType<?>, Optional<?>> entry : components.entrySet()) {
-			ResourceLocation typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey());
+			Identifier typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey());
 			String name = typeKey != null ? typeKey.toString() : entry.getKey().toString();
 			parts.add(entry.getValue()
 					.map(value -> name + "=" + FluidIdentifier.renderComponent(entry.getKey(), value))

@@ -1,6 +1,6 @@
 package logisticspipes.client.model.pipe;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import net.neoforged.neoforge.model.data.ModelProperty;
 
@@ -27,5 +27,5 @@ public final class PipeModelProperties {
      * model would otherwise hand out has nothing to do with what the player is breaking.
      * Absent means "use the pipe frame sprite".
      */
-    public static final ModelProperty<ResourceLocation> PARTICLE_SPRITE = new ModelProperty<>();
+    public static final ModelProperty<Identifier> PARTICLE_SPRITE = new ModelProperty<>();
 }

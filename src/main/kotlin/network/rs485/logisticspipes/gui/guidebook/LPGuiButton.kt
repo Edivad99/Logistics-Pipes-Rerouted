@@ -88,7 +88,7 @@ open class LPGuiButton(id: Int, x: Int, y: Int, width: Int, height: Int) :
 
     fun getHoverState(mouseOver: Boolean): Int = if (!isActive) 2 else if (mouseOver) 1 else 0
 
-    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         // TODO: deferred rendering
     }
 }

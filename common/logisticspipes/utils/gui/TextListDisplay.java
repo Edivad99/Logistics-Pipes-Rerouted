@@ -100,13 +100,18 @@ public class TextListDisplay {
             int minX = gui.getGuiLeft() + borderLeft + 4;
             int maxX = gui.getGuiLeft() + gui.getXSize() - borderRight - 2;
 
-            guiGraphics.drawScrollingString(
-                Minecraft.getInstance().font,
-                Component.literal(name),
+            // The collector takes a vertical band rather than a baseline -- it centres the line at
+            // (minY + maxY - 9) / 2 + 1 -- so the band is built around the old baseline to land on
+            // the same pixel. The colour rides on the component's style; there is no colour
+            // argument any more.
+            int lineY = gui.getGuiTop() + borderTop + 4 + ((i - scroll) * 10);
+            int colour = list.getTextColor(i);
+            guiGraphics.textRenderer().acceptScrollingWithDefaultCenter(
+                Component.literal(name).withStyle(style -> style.withColor(colour)),
                 minX,
                 maxX,
-                gui.getGuiTop() + borderTop + 4 + ((i - scroll) * 10),
-                list.getTextColor(i)
+                lineY - 1,
+                lineY + 8
             );
 		}
 

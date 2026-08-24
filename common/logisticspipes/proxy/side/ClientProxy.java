@@ -19,7 +19,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -46,12 +46,12 @@ public class ClientProxy implements IProxy {
 
 	@Override
     @Nullable
-	public LogisticsTileGenericPipe getPipeInDimensionAt(ResourceLocation dimension, int x, int y, int z, Player player) {
+	public LogisticsTileGenericPipe getPipeInDimensionAt(Identifier dimension, int x, int y, int z, Player player) {
 		Level level = Minecraft.getInstance().level;
 		if (level == null) {
             return null;
         }
-		if (!level.dimension().location().equals(dimension)) {
+		if (!level.dimension().identifier().equals(dimension)) {
             return null;
         }
 		return getPipe(level, x, y, z);

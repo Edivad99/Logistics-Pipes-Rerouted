@@ -48,7 +48,7 @@ import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.core.BlockPos
 import net.minecraft.core.GlobalPos
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.storage.LevelData
 import java.lang.management.ManagementFactory
 import java.time.Duration
@@ -81,9 +81,9 @@ object MinecraftTest {
 
             // set rules for spawning players without annoying stuff
             level.setRespawnData(LevelData.RespawnData(GlobalPos.of(level.dimension(), firstBlockPos), 0f, 0f))
-            level.gameRules.getRule(GameRules.RULE_SPAWN_RADIUS).set(0, serverInstance)
-            level.gameRules.getRule(GameRules.RULE_DAYLIGHT).set(false, serverInstance)
-            level.gameRules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverInstance)
+            level.gameRules.set(GameRules.RESPAWN_RADIUS, 0, serverInstance)
+            level.gameRules.set(GameRules.ADVANCE_TIME, false, serverInstance)
+            level.gameRules.set(GameRules.ADVANCE_WEATHER, false, serverInstance)
             level.setDayTime(5000)
             level.setRainLevel(0f)
             level.setThunderLevel(0f)

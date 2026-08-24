@@ -41,7 +41,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.CreativeModeTab;
@@ -75,7 +75,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemIdentifier> STREAM_CODEC =
         StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC,
+            Identifier.STREAM_CODEC,
             identifier -> Objects.requireNonNull(
                 BuiltInRegistries.ITEM.getKey(identifier.item),
                 "item is not registered"),
@@ -224,8 +224,8 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
                 if (tab == null || tab.getType() != CreativeModeTab.Type.CATEGORY) {
                     continue;
                 }
-                ResourceLocation key = BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(tab)
-                    .map(ResourceKey::location).orElse(null);
+                Identifier key = BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(tab)
+                    .map(ResourceKey::identifier).orElse(null);
                 String tabName = key != null ? key.getPath() : tab.getDisplayName().getString();
                 // The client's creative screen may rebuild tab contents concurrently (integrated
                 // server thread vs render thread), so guard the whole per-tab read.
@@ -452,8 +452,8 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
     public String getModName() {
         if (modName == null) {
-            ResourceLocation rl = BuiltInRegistries.ITEM.getResourceKey(item)
-                .map(ResourceKey::location).orElse(null);
+            Identifier rl = BuiltInRegistries.ITEM.getResourceKey(item)
+                .map(ResourceKey::identifier).orElse(null);
             if (rl != null) {
                 modName = ModList.get().getModContainerById(rl.getNamespace())
                     .map(mc -> mc.getModInfo().getDisplayName())
@@ -534,7 +534,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         }
         List<String> parts = new ArrayList<>(components.size());
         for (Map.Entry<DataComponentType<?>, Optional<?>> entry : components.entrySet()) {
-            ResourceLocation typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey());
+            Identifier typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey());
             String name = typeKey != null ? typeKey.toString() : entry.getKey().toString();
             // An empty Optional means "removed relative to the prototype", not "absent".
             parts.add(entry.getValue()

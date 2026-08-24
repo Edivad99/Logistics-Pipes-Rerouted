@@ -4,11 +4,11 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -128,12 +128,12 @@ public class HUDDrawContext {
      * Textured rectangle. Replaces the {@code GuiGraphics#blit} overload the HUD used: {@code u}
      * and {@code v} are pixel offsets into a {@code texWidth} x {@code texHeight} sheet.
      */
-    public void blit(ResourceLocation texture, int x, int y, float u, float v, int width, int height,
+    public void blit(Identifier texture, int x, int y, float u, float v, int width, int height,
         int texWidth, int texHeight) {
         blit(texture, x, y, u, v, width, height, texWidth, texHeight, -1);
     }
 
-    public void blit(ResourceLocation texture, int x, int y, float u, float v, int width, int height,
+    public void blit(Identifier texture, int x, int y, float u, float v, int width, int height,
         int texWidth, int texHeight, int color) {
         Matrix4f matrix = poseStack.last().pose();
         VertexConsumer consumer = beginning(LPRenderTypes.HUD_TEXTURED.apply(texture));

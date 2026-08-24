@@ -6,11 +6,11 @@ import com.mojang.blaze3d.platform.DepthTestFunction;
 
 import java.util.function.Function;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
@@ -121,15 +121,15 @@ public final class LPRenderTypes {
 
     public static final RenderType GLOW = RenderType.create(
         LPConstants.ID + ":glow",
-        BUFFER_SIZE,
-        GLOW_PIPELINE,
-        RenderType.CompositeState.builder().createCompositeState(false));
+        RenderSetup.builder(GLOW_PIPELINE)
+            .bufferSize(BUFFER_SIZE)
+            .createRenderSetup());
 
     public static final RenderType OVERLAY = RenderType.create(
         LPConstants.ID + ":overlay",
-        BUFFER_SIZE,
-        OVERLAY_PIPELINE,
-        RenderType.CompositeState.builder().createCompositeState(false));
+        RenderSetup.builder(OVERLAY_PIPELINE)
+            .bufferSize(BUFFER_SIZE)
+            .createRenderSetup());
 
     /**
      * Pipelines have to be handed to the pipeline registry before anything can draw through
@@ -137,29 +137,27 @@ public final class LPRenderTypes {
      */
     public static final RenderType HUD_FILL = RenderType.create(
         LPConstants.ID + ":hud_fill",
-        BUFFER_SIZE,
-        HUD_FILL_PIPELINE,
-        RenderType.CompositeState.builder().createCompositeState(false));
+        RenderSetup.builder(HUD_FILL_PIPELINE)
+            .bufferSize(BUFFER_SIZE)
+            .createRenderSetup());
 
     /** Textured HUD geometry bound to a given texture; memoized so each texture keeps one type. */
-    public static final Function<ResourceLocation, RenderType> HUD_TEXTURED = Util.memoize(
+    public static final Function<Identifier, RenderType> HUD_TEXTURED = Util.memoize(
         texture -> RenderType.create(
             LPConstants.ID + ":hud_textured",
-            BUFFER_SIZE,
-            HUD_TEXTURED_PIPELINE,
-            RenderType.CompositeState.builder()
-                .setTextureState(new RenderStateShard.TextureStateShard(texture, false))
-                .createCompositeState(false)));
+            RenderSetup.builder(HUD_TEXTURED_PIPELINE)
+                .bufferSize(BUFFER_SIZE)
+                .withTexture("Sampler0", texture)
+                .createRenderSetup()));
 
     /** Textured overlay bound to a given texture; memoized so each texture keeps one type. */
-    public static final Function<ResourceLocation, RenderType> TEXTURED_OVERLAY = Util.memoize(
+    public static final Function<Identifier, RenderType> TEXTURED_OVERLAY = Util.memoize(
         texture -> RenderType.create(
             LPConstants.ID + ":textured_overlay",
-            BUFFER_SIZE,
-            TEXTURED_OVERLAY_PIPELINE,
-            RenderType.CompositeState.builder()
-                .setTextureState(new RenderStateShard.TextureStateShard(texture, false))
-                .createCompositeState(false)));
+            RenderSetup.builder(TEXTURED_OVERLAY_PIPELINE)
+                .bufferSize(BUFFER_SIZE)
+                .withTexture("Sampler0", texture)
+                .createRenderSetup()));
 
     public static void register(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(GLOW_PIPELINE);

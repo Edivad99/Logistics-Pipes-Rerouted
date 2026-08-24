@@ -3,7 +3,7 @@ package logisticspipes.client.model;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import logisticspipes.LPConstants;
 import logisticspipes.client.model.mesh.ObjModel;
@@ -21,32 +21,32 @@ public final class LpObjModels {
     private LpObjModels() {
     }
 
-    // ResourceLocation paths only accept [a-z0-9/._-], so these files are named in lower
+    // Identifier paths only accept [a-z0-9/._-], so these files are named in lower
     // snake case rather than keeping the CamelCase they had on the classpath.
-    public static final ResourceLocation PIPE = obj("pipe_model_moved");
-    public static final ResourceLocation TRANSPORT_BOX = obj("pipe_model_transport_box");
-    public static final ResourceLocation SOLID_BLOCK = obj("block_model_result");
-    public static final ResourceLocation TUBE_LINE = obj("hstube_line_result");
-    public static final ResourceLocation TUBE_TURN = obj("hstube_turn_result");
-    public static final ResourceLocation TUBE_GAIN = obj("hstube_gain_result");
-    public static final ResourceLocation TUBE_SPEEDUP = obj("hstube_speedup_result");
+    public static final Identifier PIPE = obj("pipe_model_moved");
+    public static final Identifier TRANSPORT_BOX = obj("pipe_model_transport_box");
+    public static final Identifier SOLID_BLOCK = obj("block_model_result");
+    public static final Identifier TUBE_LINE = obj("hstube_line_result");
+    public static final Identifier TUBE_TURN = obj("hstube_turn_result");
+    public static final Identifier TUBE_GAIN = obj("hstube_gain_result");
+    public static final Identifier TUBE_SPEEDUP = obj("hstube_speedup_result");
 
     /**
      * Every file the reload listener loads.
      */
-    public static final List<ResourceLocation> ALL = List.of(
+    public static final List<Identifier> ALL = List.of(
         PIPE, TRANSPORT_BOX, SOLID_BLOCK, TUBE_LINE, TUBE_TURN, TUBE_GAIN, TUBE_SPEEDUP);
 
     /**
      * The models authored at 100×, already scaled down. Swapped wholesale on reload.
      */
-    private static volatile Map<ResourceLocation, ObjModel> loaded = Map.of();
+    private static volatile Map<Identifier, ObjModel> loaded = Map.of();
 
-    private static ResourceLocation obj(String name) {
+    private static Identifier obj(String name) {
         return LPConstants.rl("models/obj/" + name + ".obj");
     }
 
-    static void setLoaded(Map<ResourceLocation, ObjModel> models) {
+    static void setLoaded(Map<Identifier, ObjModel> models) {
         loaded = Map.copyOf(models);
     }
 
@@ -55,7 +55,7 @@ public final class LpObjModels {
      * parts should check {@link ObjModel#groups()} rather than assume content — a resource
      * pack can remove or break any of these.
      */
-    public static ObjModel get(ResourceLocation location) {
+    public static ObjModel get(Identifier location) {
         ObjModel model = loaded.get(location);
         return model == null ? ObjModel.empty() : model;
     }

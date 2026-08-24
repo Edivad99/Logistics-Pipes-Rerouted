@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -35,7 +35,7 @@ public class ItemLogisticsProgrammer extends LogisticsItem {
             if (stack.has(LPDataComponents.RECIPE_TARGET)) {
                 String target = Objects.requireNonNull(stack.get(LPDataComponents.RECIPE_TARGET));
                 if (!target.isEmpty()) {
-                    Item targetItem = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(target));
+                    Item targetItem = BuiltInRegistries.ITEM.getValue(Identifier.parse(target));
                     if (targetItem instanceof ItemModule) {
                         tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForModule")));
                         tooltipAdder.accept(

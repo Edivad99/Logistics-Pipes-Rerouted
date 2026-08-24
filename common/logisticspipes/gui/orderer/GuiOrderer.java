@@ -42,7 +42,7 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -59,12 +59,12 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	public final int xCoord;
 	public final int yCoord;
 	public final int zCoord;
-	public ResourceLocation dimension;
+	public Identifier dimension;
 
-	public static ResourceLocation dimensioncache;
+	public static Identifier dimensioncache;
 	public static long cachetime;
 
-	public GuiOrderer(int x, int y, int z, ResourceLocation dim, Player entityPlayer) {
+	public GuiOrderer(int x, int y, int z, Identifier dim, Player entityPlayer) {
 		super(buildDummy(entityPlayer), 220, 240, 0, 0);
 		xCoord = x;
 		yCoord = y;

@@ -31,7 +31,7 @@ public class LogisticsPipesCommand {
 	public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 			Commands.literal(LPConstants.ID)
-				.requires(src -> src.hasPermission(0))
+				.requires(Commands.hasPermission(Commands.LEVEL_ALL))
 				.then(Commands.literal("help")
 					.executes(ctx -> {
 						executeForSource(ctx.getSource(), new String[]{"help"});
@@ -51,7 +51,7 @@ public class LogisticsPipesCommand {
 		// Short alias: /lp ... → /logisticspipes ...
 		dispatcher.register(
 			Commands.literal("lp")
-				.requires(src -> src.hasPermission(0))
+				.requires(Commands.hasPermission(Commands.LEVEL_ALL))
 				.redirect(dispatcher.getRoot().getChild(LPConstants.ID))
 		);
 	}

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
@@ -55,8 +55,8 @@ public class FluidContainerRenderer {
         return color;
     }
 
-    private static int averageTextureColor(ResourceLocation spriteName) {
-        ResourceLocation file = ResourceLocation.fromNamespaceAndPath(spriteName.getNamespace(),
+    private static int averageTextureColor(Identifier spriteName) {
+        Identifier file = Identifier.fromNamespaceAndPath(spriteName.getNamespace(),
             "textures/" + spriteName.getPath() + ".png");
         Resource resource = Minecraft.getInstance().getResourceManager().getResource(file).orElse(null);
         if (resource == null) {

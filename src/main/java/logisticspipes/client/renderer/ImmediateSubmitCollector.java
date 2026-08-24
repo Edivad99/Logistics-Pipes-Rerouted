@@ -8,13 +8,12 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.entity.state.HitboxesRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
@@ -79,11 +78,6 @@ public class ImmediateSubmitCollector implements SubmitNodeCollector {
     private static UnsupportedOperationException unsupported(String what) {
         return new UnsupportedOperationException(
             "ImmediateSubmitCollector does not implement " + what + "; it exists for LP's HUD item path only");
-    }
-
-    @Override
-    public void submitHitbox(PoseStack poseStack, EntityRenderState entityState, HitboxesRenderState hitboxes) {
-        throw unsupported("submitHitbox");
     }
 
     @Override

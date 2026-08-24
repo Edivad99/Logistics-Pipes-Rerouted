@@ -19,14 +19,15 @@ import logisticspipes.routing.debug.ClientViewController;
 import logisticspipes.utils.LPPositionSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 
 import logisticspipes.client.renderer.LPRenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -49,12 +50,11 @@ import network.rs485.logisticspipes.world.DoubleCoordinates;
 import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 import java.util.function.Function;
 
-import net.minecraft.Util;
-import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.util.Util;
 
 public class RenderTickHandler {
 
-	private static final ResourceLocation GHOST_PIPE_TEXTURE = LPConstants.rl("textures/blocks/pipes/white.png");
+	private static final Identifier GHOST_PIPE_TEXTURE = LPConstants.rl("textures/blocks/pipes/white.png");
 
 	/**
 	 * Back-face-culled translucent entity render type for the ghost pipe.
@@ -67,18 +67,21 @@ public class RenderTickHandler {
 	 * The dedicated {@code entity_translucent_cull} shader program is gone too, but culling is GL
 	 * state rather than anything the program did, so the plain translucent one is the same shader.</p>
 	 */
-	private static final Function<ResourceLocation, RenderType> GHOST_PIPE_RENDER_TYPE = Util.memoize(
+	private static final Function<Identifier, RenderType> GHOST_PIPE_RENDER_TYPE = Util.memoize(
 		texture -> RenderType.create(
 			"lp_entity_translucent_cull",
-			1536,
-			true,
-			true,
-			LPRenderTypes.GHOST_ENTITY_PIPELINE,
-			RenderType.CompositeState.builder()
-				.setTextureState(new RenderStateShard.TextureStateShard(texture, false))
-				.setLightmapState(RenderStateShard.LIGHTMAP)
-				.setOverlayState(RenderStateShard.OVERLAY)
-				.createCompositeState(true)));
+			// 1.21.11 folded RenderStateShard and CompositeState into RenderSetup: the shards are
+			// now named builder steps, and the buffer size and the two booleans that used to be
+			// positional arguments of create() moved in here as well.
+			RenderSetup.builder(LPRenderTypes.GHOST_ENTITY_PIPELINE)
+				.bufferSize(1536)
+				.affectsCrumbling()
+				.sortOnUpload()
+				.withTexture("Sampler0", texture)
+				.useLightmap()
+				.useOverlay()
+				.setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE)
+				.createRenderSetup()));
 
 	private long renderTicks = 0;
 
@@ -204,7 +207,7 @@ public class RenderTickHandler {
 		// Ghost pipe rendering — LP1 drew the pipe highlight model at the target position
 		// with the plain white pipe texture and alpha forced to 0x50.
 		poseStack.pushPose();
-		Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+		Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 		double gx = pos.getX() + (orientation != null ? orientation.getOffset().getXInt() : 0);
 		double gy = pos.getY() + (orientation != null ? orientation.getOffset().getYInt() : 0);
 		double gz = pos.getZ() + (orientation != null ? orientation.getOffset().getZInt() : 0);

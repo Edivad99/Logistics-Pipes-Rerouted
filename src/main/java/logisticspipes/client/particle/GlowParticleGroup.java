@@ -87,7 +87,12 @@ public class GlowParticleGroup extends ParticleGroup<GlowGeometryParticle> imple
 
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            vertices.add(new Vertex(x, y, z, net.minecraft.util.ARGB.color(alpha, red, green, blue)));
+            return setColor(net.minecraft.util.ARGB.color(alpha, red, green, blue));
+        }
+
+        @Override
+        public VertexConsumer setColor(int argb) {
+            vertices.add(new Vertex(x, y, z, argb));
             return this;
         }
 
@@ -109,6 +114,11 @@ public class GlowParticleGroup extends ParticleGroup<GlowGeometryParticle> imple
         @Override
         public VertexConsumer setNormal(float x, float y, float z) {
             throw new UnsupportedOperationException("LP glow geometry has no normals");
+        }
+
+        @Override
+        public VertexConsumer setLineWidth(float width) {
+            throw new UnsupportedOperationException("LP glow geometry is not line geometry");
         }
     }
 }

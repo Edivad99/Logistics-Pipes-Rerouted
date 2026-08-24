@@ -1,9 +1,4 @@
-@FieldsAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+@NullMarked
 package logisticspipes.client.gui.tooltip;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

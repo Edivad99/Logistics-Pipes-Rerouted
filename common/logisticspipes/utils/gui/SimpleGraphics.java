@@ -158,7 +158,7 @@ public final class SimpleGraphics {
      */
     /**
      * @deprecated 1.12.2 signature — callers must migrate to
-     * {@code guiGraphics.blit(ResourceLocation, x, y, u, v, w, h)}.
+     * {@code guiGraphics.blit(Identifier, x, y, u, v, w, h)}.
      * Kept as a no-op so legacy call sites still compile until migrated.
      */
     @Deprecated

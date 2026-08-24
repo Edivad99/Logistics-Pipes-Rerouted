@@ -17,7 +17,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -57,7 +57,7 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 		guiGraphics.drawString(minecraft.font, TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Partialrequests") + ":", imageWidth - 140, imageHeight - 112, 0xFF404040, false);
 	}
 
-	protected static final ResourceLocation SUPPLIER = LPConstants.rl("textures/gui/supplier.png");
+	protected static final Identifier SUPPLIER = LPConstants.rl("textures/gui/supplier.png");
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {

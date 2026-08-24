@@ -2,7 +2,7 @@ package logisticspipes.client.model.tube;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 
 import logisticspipes.client.model.mesh.ObjMesh;
@@ -108,7 +108,7 @@ public final class TubeMeshes {
     /**
      * Empty mesh when the pipe is not a tube, or has no orientation yet.
      */
-    public record TubeGeometry(ObjMesh mesh, @Nullable ResourceLocation texture) {
+    public record TubeGeometry(ObjMesh mesh, @Nullable Identifier texture) {
 
         public boolean isEmpty() {
             return mesh.isEmpty() || texture == null;

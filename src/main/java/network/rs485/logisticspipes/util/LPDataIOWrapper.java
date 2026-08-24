@@ -61,7 +61,7 @@ import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import io.netty.buffer.ByteBuf;
 import static io.netty.buffer.Unpooled.buffer;
@@ -294,8 +294,8 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	}
 
 	@Override
-	public void writeResourceLocation(@Nullable ResourceLocation resource) {
-		buf().writeNullable(resource, ResourceLocation.STREAM_CODEC);
+	public void writeIdentifier(@Nullable Identifier resource) {
+		buf().writeNullable(resource, Identifier.STREAM_CODEC);
 	}
 
 	@Override
@@ -500,8 +500,8 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Nullable
 	@Override
-	public ResourceLocation readResourceLocation() {
-		return buf().readNullable(ResourceLocation.STREAM_CODEC);
+	public Identifier readIdentifier() {
+		return buf().readNullable(Identifier.STREAM_CODEC);
 	}
 
 	@Override

@@ -55,7 +55,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 	public void openGui(Player entityplayer) {
 		NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
 		gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-		gui.setDim(getWorld().dimension().location());
+		gui.setDim(getWorld().dimension().identifier());
 		gui.open(entityplayer);
 	}
 

@@ -23,7 +23,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 	private SmallGuiButton macroButton;
 
 	public NormalMk2GuiOrderer(PipeItemsRequestLogisticsMk2 RequestPipeMK2, Player entityPlayer) {
-		super(RequestPipeMK2.getX(), RequestPipeMK2.getY(), RequestPipeMK2.getZ(), RequestPipeMK2.getWorld().dimension().location(), entityPlayer);
+		super(RequestPipeMK2.getX(), RequestPipeMK2.getY(), RequestPipeMK2.getZ(), RequestPipeMK2.getWorld().dimension().identifier(), entityPlayer);
 		pipe = RequestPipeMK2;
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
 	}

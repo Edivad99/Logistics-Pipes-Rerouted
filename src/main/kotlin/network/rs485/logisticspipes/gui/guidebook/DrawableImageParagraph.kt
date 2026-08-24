@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.gui.guidebook
 
-import com.mojang.blaze3d.systems.RenderSystem
 import network.rs485.logisticspipes.gui.GuiDrawer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
@@ -46,7 +45,7 @@ import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.RenderPipelines
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.io.IOException
 
 class DrawableImageParagraph(private val alternativeText: List<DrawableWord>, val image: DrawableImage) : DrawableParagraph() {
@@ -90,7 +89,7 @@ class DrawableImageParagraph(private val alternativeText: List<DrawableWord>, va
     }
 }
 
-class DrawableImage(private var imageResource: ResourceLocation) : Drawable {
+class DrawableImage(private var imageResource: Identifier) : Drawable {
 
     override var relativeBody: MutableRectangle = MutableRectangle()
     override var parent: Drawable? = null

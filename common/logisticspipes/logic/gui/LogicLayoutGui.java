@@ -15,9 +15,9 @@ import net.minecraft.util.ARGB;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
 // import net.minecraft.client.gui.Gui; // removed — Gui is HUD class in 1.20.1, not GUI base
@@ -62,7 +62,7 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 		}
 	}
 
-	private static final ResourceLocation achievementTextures = ResourceLocation.withDefaultNamespace("textures/gui/achievement/achievement_background.png");
+	private static final Identifier achievementTextures = Identifier.withDefaultNamespace("textures/gui/achievement/achievement_background.png");
 
 	private final ItemRenderer renderItem = Minecraft.getInstance().getItemRenderer();
 

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -172,9 +172,9 @@ public final class TubeModels {
         // Deliberately the gain model: the S-curve is the gain geometry stood on its side.
         SCURVE(LpObjModels.TUBE_GAIN, "Lane", "hs-tube", "NORTH");
 
-        public final ResourceLocation obj;
+        public final Identifier obj;
         public final String groupToken;
-        public final ResourceLocation texture;
+        public final Identifier texture;
         /**
          * Orientation drawn when there is no placed tube to read one from — the item form.
          * These are the orientations LP1's five renderers returned from
@@ -182,7 +182,7 @@ public final class TubeModels {
          */
         public final String orientationWithoutPipe;
 
-        Kind(ResourceLocation obj, String groupToken, String texture, String orientationWithoutPipe) {
+        Kind(Identifier obj, String groupToken, String texture, String orientationWithoutPipe) {
             this.obj = obj;
             this.groupToken = groupToken;
             this.texture = LPConstants.rl("textures/blocks/pipes/" + texture + ".png");

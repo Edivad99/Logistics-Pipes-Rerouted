@@ -19,7 +19,7 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.util.LPFinalSerializable;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -48,9 +48,9 @@ public interface IRouter extends LPFinalSerializable {
 
 	@Nullable CoreRoutedPipe getCachedPipe();
 
-	boolean isInDim(ResourceLocation dimension);
+	boolean isInDim(Identifier dimension);
 
-	boolean isAt(ResourceLocation dimension, int xCoord, int yCoord, int zCoord);
+	boolean isAt(Identifier dimension, int xCoord, int yCoord, int zCoord);
 
 	UUID getId();
 

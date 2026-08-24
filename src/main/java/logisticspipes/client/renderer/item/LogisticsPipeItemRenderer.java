@@ -1,12 +1,15 @@
 package logisticspipes.client.renderer.item;
 
 import org.joml.Vector3f;
-import java.util.Set;
+import org.joml.Vector3fc;
+import java.util.function.Consumer;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -64,9 +67,9 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
      * so the eight corners of that cube are the extents.
      */
     @Override
-    public void getExtents(Set<Vector3f> extents) {
-        extents.add(new Vector3f(-0.5f, -0.5f, -0.5f));
-        extents.add(new Vector3f(0.5f, 0.5f, 0.5f));
+    public void getExtents(Consumer<Vector3fc> extents) {
+        extents.accept(new Vector3f(-0.5f, -0.5f, -0.5f));
+        extents.accept(new Vector3f(0.5f, 0.5f, 0.5f));
     }
 
     @Override
@@ -123,7 +126,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
             pose.scale(scale, scale, scale);
             pose.translate(-bounds.getCenter().x, -bounds.getCenter().y, -bounds.getCenter().z);
 
-            collector.submitCustomGeometry(pose, RenderType.entityCutoutNoCull(tube.texture()),
+            collector.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(tube.texture()),
                 (snapshot, buffer) -> MeshRenderer.emitRaw(buffer, snapshot, tube.mesh(), 0xFFFFFFFF, light, overlay));
         } finally {
             pose.popPose();
@@ -161,7 +164,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
             // Not submitItem: that path drives tint indices off an int[] the caller supplies, and
             // these quads carry whatever tint index the baker gave them. Emitting them untinted is
             // what the item has always done.
-            collector.submitCustomGeometry(pose, RenderType.cutoutMipped(), (snapshot, buffer) -> {
+            collector.submitCustomGeometry(pose, Sheets.cutoutBlockSheet(), (snapshot, buffer) -> {
                 for (BakedQuad quad : quads) {
                     buffer.putBulkData(snapshot, quad, 1.0f, 1.0f, 1.0f, 1.0f, light, overlay);
                 }

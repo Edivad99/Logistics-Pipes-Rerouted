@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import logisticspipes.utils.Color;
 
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.input.InputWithModifiers;
@@ -50,11 +51,28 @@ public class SmallGuiButton extends AbstractButton {
 		pressListener.accept(this);
 	}
 
+    /**
+     * 1.21.11 made {@code renderWidget} final and split it: subclasses fill in
+     * {@code renderContents}, and text is requested from an {@link ActiveTextCollector} rather than
+     * drawn onto the {@link GuiGraphics}.
+     *
+     * <p>This does not call {@code renderDefaultLabel} because LP offsets the label vertically by
+     * {@code stringOffset}, which is the whole reason this class exists; the rest is that method's
+     * body. Two things worth knowing about the collector: it takes a vertical <em>band</em> rather
+     * than a baseline, and it has no colour argument at all -- the colour rides on the component's
+     * style, which is how {@code AbstractButton} applies {@code getFGColor} too.</p>
+     */
     @Override
-    public void renderString(GuiGraphics guiGraphics, Font font, int color) {
-        int minX = this.getX() + 2;
-        int maxX = this.getX() + this.getWidth() - 2;
-        renderScrollingString(guiGraphics, font, this.getMessage(), minX, this.getY() + stringOffset, maxX, this.getY() + this.getHeight() + stringOffset, color);
+    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderDefaultSprite(guiGraphics);
+        Component message = getMessage().copy().withStyle(style -> style.withColor(getFGColor()));
+        guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE)
+            .acceptScrollingWithDefaultCenter(
+                message,
+                this.getX() + TEXT_MARGIN,
+                this.getX() + this.getWidth() - TEXT_MARGIN,
+                this.getY() + stringOffset,
+                this.getY() + this.getHeight() + stringOffset);
     }
 
     @Override

@@ -1,7 +1,8 @@
 package logisticspipes.client.renderer.item;
 
 import org.joml.Vector3f;
-import java.util.Set;
+import org.joml.Vector3fc;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -50,9 +51,9 @@ public class LogisticsSolidBlockItemRenderer implements SpecialModelRenderer<Log
      * so the eight corners of that cube are the extents.
      */
     @Override
-    public void getExtents(Set<Vector3f> extents) {
-        extents.add(new Vector3f(-0.5f, -0.5f, -0.5f));
-        extents.add(new Vector3f(0.5f, 0.5f, 0.5f));
+    public void getExtents(Consumer<Vector3fc> extents) {
+        extents.accept(new Vector3f(-0.5f, -0.5f, -0.5f));
+        extents.accept(new Vector3f(0.5f, 0.5f, 0.5f));
     }
 
     @Override

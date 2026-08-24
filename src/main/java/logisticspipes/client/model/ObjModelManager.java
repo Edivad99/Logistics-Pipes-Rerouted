@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -56,7 +56,7 @@ public class ObjModelManager implements PreparableReloadListener {
             .thenAcceptAsync(this::publish, applyExecutor);
     }
 
-    private void publish(Map<ResourceLocation, ObjModel> models) {
+    private void publish(Map<Identifier, ObjModel> models) {
         LpObjModels.setLoaded(models);
         // Mod reload listeners apply after the vanilla ones, so ModelEvent.BakingCompleted has
         // already fired by now and anything assembled there saw no models at all. Invalidate
@@ -67,9 +67,9 @@ public class ObjModelManager implements PreparableReloadListener {
         minecraft.levelRenderer.allChanged();
     }
 
-    private static Map<ResourceLocation, ObjModel> parseAll(ResourceManager resourceManager) {
-        Map<ResourceLocation, ObjModel> models = new HashMap<>();
-        for (ResourceLocation location : LpObjModels.ALL) {
+    private static Map<Identifier, ObjModel> parseAll(ResourceManager resourceManager) {
+        Map<Identifier, ObjModel> models = new HashMap<>();
+        for (Identifier location : LpObjModels.ALL) {
             resourceManager.getResource(location).ifPresentOrElse(
                 resource -> parse(location, resource, models),
                 () -> LOGGER.error("Missing OBJ model {}", location));
@@ -77,7 +77,7 @@ public class ObjModelManager implements PreparableReloadListener {
         return models;
     }
 
-    private static void parse(ResourceLocation location, Resource resource, Map<ResourceLocation, ObjModel> out) {
+    private static void parse(Identifier location, Resource resource, Map<Identifier, ObjModel> out) {
         try (InputStream in = resource.open()) {
             ObjModel model = ObjParser.parse(in)
                 .mapMeshes(mesh -> mesh.transform(MeshTransforms.scale(MODEL_SCALE)));

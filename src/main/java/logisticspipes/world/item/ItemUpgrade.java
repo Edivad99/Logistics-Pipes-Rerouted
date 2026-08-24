@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -42,7 +42,7 @@ public class ItemUpgrade extends LogisticsItem {
         return new ItemUpgrade(new Upgrade(upgradeConstructor), properties);
     }
 
-    public static Item getAndCheckUpgrade(ResourceLocation resource) {
+    public static Item getAndCheckUpgrade(Identifier resource) {
         Objects.requireNonNull(resource, "Resource for upgrade is null. Was the upgrade registered?");
         return Objects.requireNonNull(BuiltInRegistries.ITEM.getValue(resource),
             "Upgrade " + resource + " not found in Item registry");

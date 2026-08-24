@@ -9,7 +9,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.string.StringUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -30,7 +30,7 @@ public class GuiPowerProvider extends LogisticsBaseGuiScreen {
 	}
 
 
-	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/power_junction.png");
+	private static final Identifier TEXTURE = LPConstants.rl("textures/gui/power_junction.png");
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float var1, int var2, int var3) {

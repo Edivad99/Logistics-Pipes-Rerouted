@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import logisticspipes.LPConstants;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 
@@ -90,7 +90,7 @@ public class TextureRegistrar {
 		if (!event.getAtlas().location().equals(TextureAtlas.LOCATION_BLOCKS)) return;
 		collectOnce();
 
-		// The pipe-model sprites are looked up by ResourceLocation rather than by
+		// The pipe-model sprites are looked up by Identifier rather than by
 		// Textures.java index, and handed to the baked-model pipeline below.
 		TextureAtlasSprite base = event.getAtlas().getSprite(LPConstants.rl("blocks/pipes/pipemodel"));
 		TextureAtlasSprite status = event.getAtlas().getSprite(LPConstants.rl("blocks/pipes/pipemodel-status"));
@@ -126,5 +126,5 @@ public class TextureRegistrar {
 		return NEW_PIPE_SPRITES.get(index);
 	}
 
-	private record Entry(int index, ResourceLocation rl) {}
+	private record Entry(int index, Identifier rl) {}
 }

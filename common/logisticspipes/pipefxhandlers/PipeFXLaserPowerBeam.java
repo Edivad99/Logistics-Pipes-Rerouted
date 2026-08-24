@@ -37,9 +37,9 @@ public class PipeFXLaserPowerBeam extends GlowGeometryParticle {
 
 	@Override
 	public void emit(VertexConsumer bb, Camera camera, float partialTicks) {
-		double px = Mth.lerp(partialTicks, xo, x) - camera.getPosition().x;
-		double py = Mth.lerp(partialTicks, yo, y) - camera.getPosition().y;
-		double pz = Mth.lerp(partialTicks, zo, z) - camera.getPosition().z;
+		double px = Mth.lerp(partialTicks, xo, x) - camera.position().x;
+		double py = Mth.lerp(partialTicks, yo, y) - camera.position().y;
+		double pz = Mth.lerp(partialTicks, zo, z) - camera.position().z;
 
 		// Beam axis and sign
 		Direction actual = reverse ? dir.getOpposite() : dir;

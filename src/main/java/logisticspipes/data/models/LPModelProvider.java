@@ -14,7 +14,7 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -68,7 +68,7 @@ public class LPModelProvider extends ModelProvider {
 
     private static List<Item> specialRenderedItems(Class<? extends Item> type) {
         return BuiltInRegistries.ITEM.listElements()
-            .filter(holder -> holder.getKey().location().getNamespace().equals(LPConstants.ID))
+            .filter(holder -> holder.getKey().identifier().getNamespace().equals(LPConstants.ID))
             .map(Holder::value)
             .filter(type::isInstance)
             .toList();
@@ -106,7 +106,7 @@ public class LPModelProvider extends ModelProvider {
         return items;
     }
 
-    private static Item byId(ResourceLocation id) {
+    private static Item byId(Identifier id) {
         return BuiltInRegistries.ITEM.getValue(id);
     }
 
@@ -120,9 +120,9 @@ public class LPModelProvider extends ModelProvider {
         Item signCreator = LPItems.SIGN_CREATOR.get();
 
         var entries = new ArrayList<net.minecraft.client.renderer.item.RangeSelectItemModel.Entry>();
-        ResourceLocation fallback = null;
+        Identifier fallback = null;
         for (int mode = 0; mode < modes.length; mode++) {
-            ResourceLocation model =
+            Identifier model =
                 itemModels.createFlatItemModel(signCreator, "_" + modes[mode], ModelTemplates.FLAT_ITEM);
             if (mode == 0) {
                 fallback = model;

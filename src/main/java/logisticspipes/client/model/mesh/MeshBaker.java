@@ -4,9 +4,16 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+
+import net.neoforged.neoforge.client.model.quad.BakedColors;
+import net.neoforged.neoforge.client.model.quad.BakedNormals;
+
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 
 /**
@@ -21,12 +28,6 @@ public final class MeshBaker {
 
     private MeshBaker() {
     }
-
-    /**
-     * {@code DefaultVertexFormat.BLOCK} is 8 ints per vertex.
-     */
-    private static final int INTS_PER_VERTEX = 8;
-    private static final int INTS_PER_QUAD = INTS_PER_VERTEX * 4;
 
     public static final int WHITE = 0xFFFFFFFF;
 
@@ -100,43 +101,39 @@ public final class MeshBaker {
             return;
         }
 
-        int packedColour = packColour(argb);
+        // 1.21.11 turned BakedQuad from a raw int[] in DefaultVertexFormat.BLOCK layout into a
+        // record of positions, packed UVs, and NeoForge-supplied normal/colour holders. The data is
+        // the same; nothing has to be laid out by hand any more.
         for (int quad = 0; quad < mesh.quadCount(); quad++) {
-            int[] data = new int[INTS_PER_QUAD];
+            Vector3fc[] positions = new Vector3fc[4];
+            long[] uvs = new long[4];
+            int[] normals = new int[4];
             for (int vertex = 0; vertex < 4; vertex++) {
-                int offset = vertex * INTS_PER_VERTEX;
-                data[offset] = Float.floatToRawIntBits(mesh.x(quad, vertex));
-                data[offset + 1] = Float.floatToRawIntBits(mesh.y(quad, vertex));
-                data[offset + 2] = Float.floatToRawIntBits(mesh.z(quad, vertex));
-                data[offset + 3] = packedColour;
-                data[offset + 4] = Float.floatToRawIntBits(SpriteUv.u(sprite, uv.applyU(mesh.u(quad, vertex))));
-                data[offset + 5] = Float.floatToRawIntBits(SpriteUv.v(sprite, uv.applyV(mesh.v(quad, vertex))));
-                data[offset + 6] = 0; // lightmap: filled in by the chunk builder
-                data[offset + 7] = packNormal(mesh.nx(quad, vertex), mesh.ny(quad, vertex), mesh.nz(quad, vertex));
+                positions[vertex] = new Vector3f(mesh.x(quad, vertex), mesh.y(quad, vertex), mesh.z(quad, vertex));
+                uvs[vertex] = UVPair.pack(
+                    SpriteUv.u(sprite, uv.applyU(mesh.u(quad, vertex))),
+                    SpriteUv.v(sprite, uv.applyV(mesh.v(quad, vertex))));
+                normals[vertex] = BakedNormals.pack(
+                    mesh.nx(quad, vertex), mesh.ny(quad, vertex), mesh.nz(quad, vertex));
             }
-            // tintIndex -1: the color is baked into the vertices above, so no block color
-            // handler should touch it.
-            // 1.21.3 added a lightEmission argument; 0 keeps the pre-1.21.3 behaviour of letting
-            // the chunk builder's lightmap decide the brightness.
-            out.add(new BakedQuad(data, -1, lightSampleFace(mesh, quad), sprite, shade, 0));
+            out.add(new BakedQuad(
+                positions[0], positions[1], positions[2], positions[3],
+                uvs[0], uvs[1], uvs[2], uvs[3],
+                // tintIndex -1: the color is carried by the quad itself, so no block color
+                // handler should touch it.
+                -1,
+                lightSampleFace(mesh, quad),
+                sprite,
+                shade,
+                // lightEmission 0 keeps the chunk builder's lightmap in charge of brightness.
+                0,
+                BakedNormals.of(normals[0], normals[1], normals[2], normals[3]),
+                BakedColors.of(argb),
+                // Ambient occlusion is a property of the quad now rather than of the model part.
+                // Off, for the reason spelled out on PipeBakedModel.Part: this geometry hangs
+                // inside the block, so AO derived from the neighbors bands the joints.
+                false));
         }
     }
 
-    /**
-     * Vertex colours in the BLOCK format are little-endian RGBA, i.e. 0xAABBGGRR.
-     */
-    private static int packColour(int argb) {
-        int a = (argb >>> 24) & 0xFF;
-        int r = (argb >>> 16) & 0xFF;
-        int g = (argb >>> 8) & 0xFF;
-        int b = argb & 0xFF;
-        return (a << 24) | (b << 16) | (g << 8) | r;
-    }
-
-    private static int packNormal(float nx, float ny, float nz) {
-        int x = ((int) (nx * 127.0f)) & 0xFF;
-        int y = ((int) (ny * 127.0f)) & 0xFF;
-        int z = ((int) (nz * 127.0f)) & 0xFF;
-        return x | (y << 8) | (z << 16);
-    }
 }

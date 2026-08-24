@@ -47,11 +47,11 @@ import logisticspipes.utils.gui.LPGuiGraphics
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.RenderPipelines
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.network.chat.Component
 import net.minecraft.world.inventory.Slot
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.resources.Identifier
 
 // TODO: Rendering deferred — full 1.20.1 rendering migration (PoseStack, AbstractContainerScreen API) pending.
 
@@ -174,7 +174,7 @@ abstract class BaseGuiContainer(
 
     companion object {
         // Private in AbstractContainerScreen, re-declared here for [drawHoveredSlotHighlight].
-        private val SLOT_HIGHLIGHT_FRONT_SPRITE: ResourceLocation =
-            ResourceLocation.withDefaultNamespace("container/slot_highlight_front")
+        private val SLOT_HIGHLIGHT_FRONT_SPRITE: Identifier =
+            Identifier.withDefaultNamespace("container/slot_highlight_front")
     }
 }

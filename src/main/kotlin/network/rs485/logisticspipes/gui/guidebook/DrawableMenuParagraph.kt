@@ -40,7 +40,7 @@ package network.rs485.logisticspipes.gui.guidebook
 import logisticspipes.world.item.LPItems
 import logisticspipes.utils.MinecraftColor
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import network.rs485.logisticspipes.gui.GuiDrawer
@@ -61,7 +61,7 @@ private fun iconStack(icon: String): ItemStack {
     // so treat AIR as "not found" and fall back to LP's broken item (matching LP1's broken-icon look).
     // tryParse instead of the constructor: book pages are data-driven and a malformed identifier
     // (e.g. uppercase) must degrade to the broken item, not throw (1.12's constructor never threw).
-    val item = ResourceLocation.tryParse(icon)?.let { BuiltInRegistries.ITEM.getValue(it) }
+    val item = Identifier.tryParse(icon)?.let { BuiltInRegistries.ITEM.getValue(it) }
     return if (item == null || item === Items.AIR) LPItems.BROKEN_ITEM.toStack() else ItemStack(item)
 }
 

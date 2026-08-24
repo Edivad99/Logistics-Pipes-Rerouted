@@ -8,7 +8,7 @@ import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class GuiCheckBox extends AbstractButton {
 
@@ -35,10 +35,10 @@ public class GuiCheckBox extends AbstractButton {
 	}
 
 	@Override
-	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
+	public void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
 		if (visible) {
 			boolean hover = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
-			ResourceLocation tex = LPConstants.rl("textures/gui/checkbox-" + (state ? "on" : "out") + (hover ? "-mouse" : "") + ".png");
+			Identifier tex = LPConstants.rl("textures/gui/checkbox-" + (state ? "on" : "out") + (hover ? "-mouse" : "") + ".png");
 			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, tex, getX(), getY(), 0, 0, width, height, width, height);
 		}
 	}

@@ -109,7 +109,7 @@ public class PipeTransportLogistics {
 					SectionPos.blockToSectionCoord(container.getBlockPos().getZ()));
 			ItemBufferSyncPacket packet = PacketHandler.getPacket(ItemBufferSyncPacket.class);
 			packet.setTilePos(container);
-			itemBuffer.setPacketType(packet, getWorld().dimension().location().hashCode(), container.getX(), container.getZ());
+			itemBuffer.setPacketType(packet, getWorld().dimension().identifier().hashCode(), container.getX(), container.getZ());
 		}
 	}
 
@@ -715,7 +715,7 @@ public class PipeTransportLogistics {
 	}
 
 	private void sendItemPacket(LPTravelingItemServer item) {
-		if (MainProxy.isAnyoneWatching(container.getBlockPos(), getWorld().dimension().location().hashCode())) {
+		if (MainProxy.isAnyoneWatching(container.getBlockPos(), getWorld().dimension().identifier().hashCode())) {
 			if (!LPTravelingItem.clientSideKnownIDs.get(item.getId())) {
 				MainProxy.sendPacketToAllWatchingChunk(container, (PacketHandler.getPacket(PipeContentPacket.class).setItem(item.getItemIdentifierStack()).setTravelId(item.getId())));
 				LPTravelingItem.clientSideKnownIDs.set(item.getId());

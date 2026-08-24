@@ -47,7 +47,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import io.netty.buffer.ByteBuf;
 
@@ -119,7 +119,7 @@ public interface LPDataOutput {
 
 	void writeFacing(@Nullable Direction direction);
 
-	void writeResourceLocation(@Nullable ResourceLocation resource);
+	void writeIdentifier(@Nullable Identifier resource);
 
 	<T extends Enum<T>> void writeEnumSet(EnumSet<T> types, Class<T> clazz);
 

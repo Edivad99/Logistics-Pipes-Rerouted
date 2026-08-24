@@ -11,7 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -26,10 +26,10 @@ import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
  */
 public class ClientModuleInventoryTooltip implements ClientTooltipComponent {
 
-    private static final ResourceLocation BACKGROUND_SPRITE =
-        ResourceLocation.withDefaultNamespace("container/bundle/background");
-    private static final ResourceLocation SLOT_SPRITE =
-        ResourceLocation.withDefaultNamespace("container/bundle/slot");
+    private static final Identifier BACKGROUND_SPRITE =
+        Identifier.withDefaultNamespace("container/bundle/background");
+    private static final Identifier SLOT_SPRITE =
+        Identifier.withDefaultNamespace("container/bundle/slot");
 
     private static final int SLOT_WIDTH = 18;
     private static final int SLOT_HEIGHT = 20;

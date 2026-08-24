@@ -18,10 +18,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
@@ -38,17 +38,17 @@ import logisticspipes.utils.Color;
  */
 public final class LPGuiGraphics {
 
-    public static final ResourceLocation WIDGETS_TEXTURE = ResourceLocation.withDefaultNamespace(
+    public static final Identifier WIDGETS_TEXTURE = Identifier.withDefaultNamespace(
         "textures/gui/widgets.png");
-    public static final ResourceLocation SLOT_TEXTURE = LPConstants.rl("textures/gui/slot.png");
-    public static final ResourceLocation BIG_SLOT_TEXTURE = LPConstants.rl("textures/gui/slot-big.png");
-    public static final ResourceLocation SMALL_SLOT_TEXTURE = LPConstants.rl("textures/gui/slot-small.png");
-    public static final ResourceLocation BACKGROUND_TEXTURE = LPConstants.rl("textures/gui/guibackground.png");
-    public static final ResourceLocation LOCK_ICON = LPConstants.rl("textures/gui/lock.png");
-    public static final ResourceLocation LINES_ICON = LPConstants.rl("textures/gui/lines.png");
-    public static final ResourceLocation STATS_ICON = LPConstants.rl("textures/gui/stats.png");
-    public static final ResourceLocation SLOT_DISK_TEXTURE = LPConstants.rl("textures/gui/slot_disk.png");
-    public static final ResourceLocation SLOT_PROGRAMMER_TEXTURE = LPConstants.rl("textures/gui/slot_programmer.png");
+    public static final Identifier SLOT_TEXTURE = LPConstants.rl("textures/gui/slot.png");
+    public static final Identifier BIG_SLOT_TEXTURE = LPConstants.rl("textures/gui/slot-big.png");
+    public static final Identifier SMALL_SLOT_TEXTURE = LPConstants.rl("textures/gui/slot-small.png");
+    public static final Identifier BACKGROUND_TEXTURE = LPConstants.rl("textures/gui/guibackground.png");
+    public static final Identifier LOCK_ICON = LPConstants.rl("textures/gui/lock.png");
+    public static final Identifier LINES_ICON = LPConstants.rl("textures/gui/lines.png");
+    public static final Identifier STATS_ICON = LPConstants.rl("textures/gui/stats.png");
+    public static final Identifier SLOT_DISK_TEXTURE = LPConstants.rl("textures/gui/slot_disk.png");
+    public static final Identifier SLOT_PROGRAMMER_TEXTURE = LPConstants.rl("textures/gui/slot_programmer.png");
     public static float zLevel = 0.0F;
 
     private LPGuiGraphics() {
@@ -106,7 +106,7 @@ public final class LPGuiGraphics {
         }
     }
 
-    private static void doDrawSlotBackground(GuiGraphics guiGraphics, int x, int y, ResourceLocation slotDiskTexture) {
+    private static void doDrawSlotBackground(GuiGraphics guiGraphics, int x, int y, Identifier slotDiskTexture) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
         // 1-pixel darker inset border so the slot visually separates from the panel on light backgrounds.
@@ -152,7 +152,7 @@ public final class LPGuiGraphics {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, LPGuiGraphics.LOCK_ICON, x, y, 0.0f, 0.0f, 14, 15, 14, 15);
     }
 
-    private static void drawTexture16by16(GuiGraphics guiGraphics, int x, int y, ResourceLocation tex) {
+    private static void drawTexture16by16(GuiGraphics guiGraphics, int x, int y, Identifier tex) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, tex, x, y, 0.0f, 0.0f, 16, 16, 16, 16);
     }
@@ -207,7 +207,7 @@ public final class LPGuiGraphics {
      */
     @FunctionalInterface
     public interface Blitter {
-        void blit(ResourceLocation texture, int x, int y, float u, float v, int width, int height, int texWidth,
+        void blit(Identifier texture, int x, int y, float u, float v, int width, int height, int texWidth,
             int texHeight);
     }
 
@@ -284,7 +284,7 @@ public final class LPGuiGraphics {
         }
     }
 
-    private static void blitRepeating(Blitter blitter, ResourceLocation p_283059_, int p_283575_, int p_283192_,
+    private static void blitRepeating(Blitter blitter, Identifier p_283059_, int p_283575_, int p_283192_,
         int p_281790_, int p_283642_, int p_282691_, int p_281912_, int p_281728_, int p_282324_, int textureWidth,
         int textureHeight) {
         int i = p_283575_;

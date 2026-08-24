@@ -2,7 +2,7 @@ package logisticspipes;
 
 import java.util.UUID;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import com.mojang.authlib.GameProfile;
 
@@ -17,8 +17,8 @@ public class LPConstants {
     private LPConstants() {
     }
 
-    public static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(ID, path);
+    public static Identifier rl(String path) {
+        return Identifier.fromNamespaceAndPath(ID, path);
     }
 
     public static final float FACADE_THICKNESS = 2F / 16F;

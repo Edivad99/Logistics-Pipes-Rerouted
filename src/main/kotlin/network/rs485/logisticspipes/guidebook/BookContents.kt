@@ -42,7 +42,7 @@ import logisticspipes.LPConstants
 import logisticspipes.LogisticsPipes
 import net.minecraft.client.Minecraft
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import network.rs485.logisticspipes.gui.guidebook.DrawablePage
 import network.rs485.logisticspipes.gui.guidebook.DrawablePageFactory
 import network.rs485.logisticspipes.util.TextUtil
@@ -235,7 +235,7 @@ class LoadedPage(override val fileLocation: String, override val language: Strin
                 try {
                     it.icon.split(":").apply {
                         val item = BuiltInRegistries.ITEM.getValue(
-                            ResourceLocation.fromNamespaceAndPath(
+                            Identifier.fromNamespaceAndPath(
                                 this@apply[0],
                                 this@apply[1],
                             )
@@ -273,7 +273,7 @@ fun resolveAbsoluteLocation(resolvedLocation: Path, language: String): Path =
 
 interface PageInfoProvider {
     fun resolveLocation(location: String): Path = Paths.get(fileLocation).resolveSibling(location).normalize()
-    fun resolveResource(location: String): ResourceLocation =
+    fun resolveResource(location: String): Identifier =
         location.lastIndexOf(':').let { idx ->
             val resourceDomain = when (idx) {
                 -1 -> LPConstants.ID
@@ -284,7 +284,7 @@ interface PageInfoProvider {
                 key = resourcePath,
                 defaultValue = resolveAbsoluteLocation(resolveLocation(resourcePath), language).toLocation(false)
             )
-            ResourceLocation.fromNamespaceAndPath(resourceDomain, resourcePath)
+            Identifier.fromNamespaceAndPath(resourceDomain, resourcePath)
         }
 
     val language: String

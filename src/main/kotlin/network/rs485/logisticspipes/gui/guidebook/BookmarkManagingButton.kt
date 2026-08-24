@@ -66,7 +66,7 @@ class BookmarkManagingButton(
     private var buttonState: ButtonState = ButtonState.ADD
     var onClickActionStated: (ButtonState) -> Boolean = onClickAction
 
-    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (!visible) return
         val hovered = isHovered(mouseX, mouseY)
         val yOffset = getButtonHoverState(hovered) * additionTexture.roundedHeight

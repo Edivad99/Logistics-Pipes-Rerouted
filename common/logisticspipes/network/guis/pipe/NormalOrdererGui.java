@@ -5,7 +5,7 @@ import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
@@ -13,13 +13,13 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 @StaticResolve
 public class NormalOrdererGui extends CoordinatesGuiProvider {
 
-	private ResourceLocation dim = ResourceLocation.withDefaultNamespace("overworld");
+	private Identifier dim = Identifier.withDefaultNamespace("overworld");
 
 	public NormalOrdererGui(int id) {
 		super(id);
 	}
 
-	public NormalOrdererGui setDim(ResourceLocation dim) {
+	public NormalOrdererGui setDim(Identifier dim) {
 		this.dim = dim;
 		return this;
 	}
@@ -27,13 +27,13 @@ public class NormalOrdererGui extends CoordinatesGuiProvider {
 	@Override
 	public void writeData(LPDataOutput output) {
 		super.writeData(output);
-		output.writeResourceLocation(dim);
+		output.writeIdentifier(dim);
 	}
 
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
-		ResourceLocation rl = input.readResourceLocation();
+		Identifier rl = input.readIdentifier();
 		if (rl != null) dim = rl;
 	}
 

@@ -32,10 +32,16 @@ public class GuiStringHandlerButton extends Button {
 		this.handler = handler;
 	}
 
+	/**
+	 * 1.21.11 made {@code Button} abstract and {@code renderWidget} final: what a subclass fills in
+	 * is {@code renderContents}. Drawing matches {@code Button.Plain}, the concrete vanilla
+	 * variant; the point of this class is the message refresh in front of it.
+	 */
 	@Override
-	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+	protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		setMessage(Component.literal(handler.getContent()));
-		super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+		renderDefaultSprite(guiGraphics);
+		renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
 	}
 
 	public interface StringHandler {

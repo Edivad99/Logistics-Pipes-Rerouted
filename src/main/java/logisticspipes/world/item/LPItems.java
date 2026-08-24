@@ -3,7 +3,7 @@ package logisticspipes.world.item;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
 import net.neoforged.bus.api.IEventBus;
@@ -100,8 +100,8 @@ public class LPItems {
         return deferredRegister.getEntries();
     }
 
-    public static BiMap<String, ResourceLocation> modules = HashBiMap.create();
-    public static BiMap<String, ResourceLocation> upgrades = HashBiMap.create();
+    public static BiMap<String, Identifier> modules = HashBiMap.create();
+    public static BiMap<String, Identifier> upgrades = HashBiMap.create();
 
     // MISC
     public static final DeferredItem<LogisticsItemCard> ITEM_CARD =

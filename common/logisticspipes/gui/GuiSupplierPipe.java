@@ -27,7 +27,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import network.rs485.logisticspipes.property.BooleanProperty;
@@ -41,7 +41,7 @@ import network.rs485.logisticspipes.util.TextUtil;
 public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 
 	private static final String PREFIX = "gui.supplierpipe.";
-	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/supplier.png");
+	private static final Identifier TEXTURE = LPConstants.rl("textures/gui/supplier.png");
 	private final boolean hasPatternUpgrade;
 	private final PropertyLayer propertyLayer;
 	private final ModuleActiveSupplier supplierModule;

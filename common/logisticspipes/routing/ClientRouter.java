@@ -20,7 +20,7 @@ import logisticspipes.utils.tuples.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
@@ -31,7 +31,7 @@ public class ClientRouter implements IRouter {
 	private final int yCoord;
 	private final int zCoord;
 
-	public ClientRouter(UUID id, ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+	public ClientRouter(UUID id, Identifier dimension, int xCoord, int yCoord, int zCoord) {
 		this.xCoord = xCoord;
 		this.yCoord = yCoord;
 		this.zCoord = zCoord;
@@ -109,12 +109,12 @@ public class ClientRouter implements IRouter {
 	}
 
 	@Override
-	public boolean isInDim(ResourceLocation dimension) {
+	public boolean isInDim(Identifier dimension) {
 		return true;
 	}
 
 	@Override
-	public boolean isAt(ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+	public boolean isAt(Identifier dimension, int xCoord, int yCoord, int zCoord) {
 		return this.xCoord == xCoord && this.yCoord == yCoord && this.zCoord == zCoord;
 	}
 

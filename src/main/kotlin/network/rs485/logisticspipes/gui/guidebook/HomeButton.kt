@@ -54,7 +54,7 @@ class HomeButton(x: Int, y: Int, onClickAction: (Int) -> Boolean) :
 
     override fun getTooltipText(): String = TextUtil.translate("misc.guide_book.home_button")
 
-    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (!visible) return
         val hovered = isHovered(mouseX, mouseY)
         // Button background.

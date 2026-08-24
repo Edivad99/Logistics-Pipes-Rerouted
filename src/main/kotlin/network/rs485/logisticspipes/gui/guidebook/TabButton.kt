@@ -75,7 +75,7 @@ class TabButton(
 
     // Body pass, drawn UNDER the frame: only inactive tabs (LP1's drawButton). The active tab's
     // body is drawn over the frame in renderForeground so it "opens into" the page.
-    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (!visible || !isInactive) return
         // Inactive tabs sit slightly lower (shifted down by 3px) and are tinted with their color.
         val tabColor: Int = (MinecraftColor.values()[whisky.getColor()].colorCode and 0x00FFFFFF) or 0xFF000000.toInt()

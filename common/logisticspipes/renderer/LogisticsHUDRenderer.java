@@ -35,8 +35,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 
 import logisticspipes.client.renderer.LPRenderTypes;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
@@ -186,7 +186,7 @@ public class LogisticsHUDRenderer {
 	private final MultiBufferSource.BufferSource hudBufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
 
 	//TODO: only load this once, rather than twice
-	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/icons.png");
+	private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/icons.png");
 
 	public void renderPlayerDisplay(long renderTicks, GuiGraphics guiGraphics) {
 		if (!displayRenderer()) {
@@ -343,7 +343,7 @@ public class LogisticsHUDRenderer {
 			MultiBufferSource.BufferSource laserBuffers = Minecraft.getInstance().renderBuffers().bufferSource();
 			VertexConsumer bb = laserBuffers.getBuffer(LPRenderTypes.OVERLAY);
 			// The pose origin is the interpolated camera, not the player's feet as in 1.12.
-			Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+			Vec3 cam = mc.gameRenderer.getMainCamera().position();
 			for (LaserData data : lasers) {
 				poseStack.pushPose();
 				double x = data.getPosX() + 0.5 - cam.x;
@@ -431,7 +431,7 @@ public class LogisticsHUDRenderer {
 	private void displayOneView(IHeadUpDisplayRendererProvider renderer, IHUDConfig config, float partialTick, boolean shifted, PoseStack poseStack, int packedLight) {
 		Minecraft mc = Minecraft.getInstance();
 		// The level-stage pose origin is the interpolated camera, not the player's feet as in 1.12.
-		Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 cam = mc.gameRenderer.getMainCamera().position();
 		double x = renderer.getX() + 0.5 - cam.x;
 		double y = renderer.getY() + 0.5 - cam.y;
 		double z = renderer.getZ() + 0.5 - cam.z;

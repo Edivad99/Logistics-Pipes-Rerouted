@@ -54,7 +54,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -353,8 +353,8 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
 		if (pipe != null && pipe.item != null) {
-			ResourceLocation key = BuiltInRegistries.ITEM.getResourceKey(pipe.item)
-				.map(ResourceKey::location).orElse(null);
+			Identifier key = BuiltInRegistries.ITEM.getResourceKey(pipe.item)
+				.map(ResourceKey::identifier).orElse(null);
 			if (key != null) {
 				output.putString(NBT_PIPE_ID, key.toString());
 			}
@@ -387,7 +387,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		coreState.pipeIdName = input.getStringOr(NBT_PIPE_ID, "");
 		Item pipeItem = null;
 		if (coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
-			pipeItem = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(coreState.pipeIdName));
+			pipeItem = BuiltInRegistries.ITEM.getValue(Identifier.parse(coreState.pipeIdName));
 		}
 		pipe = LogisticsBlockGenericPipe.createPipe(pipeItem);
 		// load() can run more than once on the client (initial chunk tag + later data packets).
@@ -700,7 +700,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		if (!pipeBound && pipe != null) {
 			pipe.setTile(this);
 			if (pipe.item != null) {
-				ResourceLocation key = BuiltInRegistries.ITEM.getKey(pipe.item);
+				Identifier key = BuiltInRegistries.ITEM.getKey(pipe.item);
 				coreState.pipeIdName = key == null ? "" : key.toString();
 			}
 			pipeBound = true;
@@ -735,7 +735,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	public void afterStateUpdated() {
 		if (pipe == null && coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
 			Item pipeItem = BuiltInRegistries.ITEM.getValue(
-				ResourceLocation.parse(coreState.pipeIdName));
+				Identifier.parse(coreState.pipeIdName));
 			initialize(LogisticsBlockGenericPipe.createPipe(pipeItem));
 		}
 
@@ -789,7 +789,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		if (pipe.isPipeBlock() || !pipe.actAsNormalPipe()) {
 			// No geometry, but the model is still asked for the break/hit particle sprite, and
 			// the frame's would be wrong for a pipe that never draws the frame.
-			ResourceLocation particle = pipe.getParticleSprite();
+			Identifier particle = pipe.getParticleSprite();
 			if (particle == null) {
 				return ModelData.EMPTY;
 			}

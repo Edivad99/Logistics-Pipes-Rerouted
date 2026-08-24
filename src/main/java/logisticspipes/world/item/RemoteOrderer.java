@@ -91,7 +91,7 @@ public class RemoteOrderer extends LogisticsItem {
                     MainProxy.sendPacketToPlayer(dimPkt, player);
                     NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
                     gui.setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ());
-                    gui.setDim(pipe.getWorld().dimension().location());
+                    gui.setDim(pipe.getWorld().dimension().identifier());
                     gui.open(player);
                 }
             }

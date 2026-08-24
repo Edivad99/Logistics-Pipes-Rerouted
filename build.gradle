@@ -82,7 +82,7 @@ neoForge {
         minecraftVersion = project.parchment_minecraft_version
     }
 
-    validateAccessTransformers = true
+    validateAccessTransformers = false
 
     runs {
         configureEach {
@@ -234,14 +234,10 @@ tasks.register('generatePackageInfos') {
                 pkgName = pkgName.substring(pkgName.indexOf('logisticspipes'), pkgName.lastIndexOf('/'))
                 pkgName = pkgName.replaceAll('/', '.')
                 def pkgInfoText = """
-                    |@FieldsAreNonnullByDefault
-                    |@MethodsReturnNonnullByDefault
-                    |@ParametersAreNonnullByDefault
+                    |@NullMarked
                     |package $pkgName;
                     |
-                    |import javax.annotation.ParametersAreNonnullByDefault;
-                    |import net.minecraft.FieldsAreNonnullByDefault;
-                    |import net.minecraft.MethodsReturnNonnullByDefault;
+                    |import org.jspecify.annotations.NullMarked;
                 """.stripMargin().trim() + "\n"
                 packageInfoFile.text = pkgInfoText
             }

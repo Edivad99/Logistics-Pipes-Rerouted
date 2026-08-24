@@ -20,7 +20,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.SneakyDirection;
 
@@ -82,7 +82,7 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 		guiGraphics.drawString(minecraft.font, "Sneaky orientation", imageWidth / 2 - minecraft.font.width("Sneaky orientation") / 2, 10, 0xFF404040, false);
 	}
 
-	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/sneaky.png");
+	private static final Identifier TEXTURE = LPConstants.rl("textures/gui/sneaky.png");
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {

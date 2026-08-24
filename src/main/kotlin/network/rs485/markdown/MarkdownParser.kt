@@ -37,11 +37,11 @@
 
 package network.rs485.markdown
 
-import org.apache.http.NameValuePair
-import org.apache.http.client.utils.URLEncodedUtils
 import java.lang.Integer.min
 import java.net.URI
 import java.net.URISyntaxException
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.stream.IntStream
 import kotlin.collections.ArrayList
@@ -75,8 +75,8 @@ object MarkdownParser {
                 }
             }
         }
-        val queryComponents: List<NameValuePair>
-            get() = uri?.let { URLEncodedUtils.parse(it.query, Charsets.UTF_8) } ?: emptyList()
+        val queryComponents: List<QueryParameter>
+            get() = parseQuery(uri?.rawQuery)
 
         fun getMenuType() = if (uri?.scheme == "menu")
             queryComponents.find { it.name == "type" }.let { type ->
@@ -93,6 +93,38 @@ object MarkdownParser {
         fun isImageLink() = link?.startsWith("image://", ignoreCase = true) ?: false
         fun isItemLink() = link?.startsWith("item://", ignoreCase = true) ?: false
     }
+
+    /** One `name=value` pair of a link's query string; `value` is null for a bare `name`. */
+    data class QueryParameter(val name: String, val value: String?)
+
+    /**
+     * Splits a raw query string into its parameters.
+     *
+     * <p>Was Apache HttpClient's `URLEncodedUtils.parse`. That library was never a declared
+     * dependency -- it came in transitively from Minecraft, and 1.21.11 stopped shipping it -- and
+     * pulling in an HTTP client to read one query parameter would be absurd, so this does the same
+     * few lines directly.
+     *
+     * <p>It reads `rawQuery` where the old call read `query`. `URI.getQuery()` is already decoded,
+     * so the old code decoded twice: harmless for the guide book's plain `?type=list` links, wrong
+     * for anything containing a literal percent sign. Decoding the raw form once is what
+     * `URLEncodedUtils` was being handed everywhere else.
+     */
+    private fun parseQuery(rawQuery: String?): List<QueryParameter> =
+        rawQuery.takeUnless { it.isNullOrEmpty() }
+            ?.split('&')
+            ?.filter(String::isNotEmpty)
+            ?.map { component ->
+                val separator = component.indexOf('=')
+                if (separator < 0) {
+                    QueryParameter(decode(component), null)
+                } else {
+                    QueryParameter(decode(component.substring(0, separator)), decode(component.substring(separator + 1)))
+                }
+            }
+            ?: emptyList()
+
+    private fun decode(value: String): String = URLDecoder.decode(value, StandardCharsets.UTF_8)
 
     private val htmlBreakRegex = Regex("<br(\\s*/)?>")
 

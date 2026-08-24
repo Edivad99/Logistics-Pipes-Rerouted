@@ -49,7 +49,7 @@ class SliderButton(
     private var initialMouseYOffset: Int = 0
     private var hoveredBar: Boolean = false
 
-    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun renderContents(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (!visible) return
         val grip = sliderButton.translated(body)
         hoveredBar = grip.contains(mouseX, mouseY)

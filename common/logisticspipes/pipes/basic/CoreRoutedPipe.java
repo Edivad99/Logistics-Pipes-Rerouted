@@ -106,14 +106,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import net.minecraft.CrashReportCategory;
-import net.minecraft.client.GraphicsStatus;
+import net.minecraft.client.GraphicsPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -720,7 +717,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
                 }
             }
         } else if (getWorld() instanceof ClientLevel) {
-            if (!Minecraft.getInstance().options.graphicsMode().get().equals(GraphicsStatus.FAST)) {
+            if (Minecraft.getInstance().options.graphicsPreset().get() != GraphicsPreset.FAST) {
                 for (int i = 0; i < queuedParticles.length; i++) {
                     if (this.queuedParticles[i] > 0) {
                         PipeFXRenderHandler.spawnGenericParticle(Particles.values()[i],
@@ -844,7 +841,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     public IRouter getRouter() {
 		if (stillNeedReplace) {
 			LogisticsPipes.LOG.debug("Pipe not ready at ({}, {}, {}, '{}')", this.getX(), this.getY(), this.getZ(),
-					getWorld() != null ? getWorld().dimension().location().toString() : "unknown");
+					getWorld() != null ? getWorld().dimension().identifier().toString() : "unknown");
 		}
 		if (router == null) {
 			synchronized (routerIdLock) {
@@ -912,7 +909,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				if (settings == null || settings.openRequest) {
 					NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
 					gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-					gui.setDim(entityplayer.level().dimension().location());
+					gui.setDim(entityplayer.level().dimension().identifier());
 					gui.open(entityplayer);
 				} else {
 					entityplayer.displayClientMessage(Component.translatable("lp.chat.permissiondenied"), false);

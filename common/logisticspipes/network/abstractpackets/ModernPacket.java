@@ -5,7 +5,7 @@ import java.util.List;
 import logisticspipes.network.packetcontent.IPacketContent;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -32,7 +32,7 @@ public abstract class ModernPacket {
 	@Setter
 	private int debugId = 0;
 	@Getter
-	private ResourceLocation dimension = ResourceLocation.withDefaultNamespace("overworld");
+	private Identifier dimension = Identifier.withDefaultNamespace("overworld");
 
 	public List<IPacketContent<?>> content = Collections.emptyList();
 
@@ -40,26 +40,26 @@ public abstract class ModernPacket {
 		this.id = id;
 	}
 
-	public ModernPacket setDimension(ResourceLocation dimension) {
+	public ModernPacket setDimension(Identifier dimension) {
 		this.dimension = dimension;
 		return this;
 	}
 
 	public ModernPacket setDimension(Level level) {
-		this.dimension = level.dimension().location();
+		this.dimension = level.dimension().identifier();
 		return this;
 	}
 
 	public void readData(LPDataInput input) {
-		ResourceLocation rl = input.readResourceLocation();
-		dimension = rl != null ? rl : ResourceLocation.withDefaultNamespace("overworld");
+		Identifier rl = input.readIdentifier();
+		dimension = rl != null ? rl : Identifier.withDefaultNamespace("overworld");
 		content.forEach(it -> it.readData(input));
 	}
 
 	public abstract void processPacket(Player player);
 
 	public void writeData(LPDataOutput output) {
-		output.writeResourceLocation(dimension);
+		output.writeIdentifier(dimension);
 		content.forEach(it -> it.writeData(output));
 	}
 

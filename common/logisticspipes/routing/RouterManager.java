@@ -28,7 +28,7 @@ import logisticspipes.network.packets.block.SecurityStationAuthorizedList;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelConnection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -87,7 +87,7 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		if (id > 0) {
 			getRouter(id);
 		}
-		ResourceLocation dimId = level.dimension().location();
+		Identifier dimId = level.dimension().identifier();
 		if (MainProxy.isClient(level)) {
 			synchronized (routersClient) {
 				for (IRouter r2 : routersClient) {
@@ -241,7 +241,7 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		deauthorizeUUID(tile.getSecId());
 	}
 
-	public void dimensionUnloaded(ResourceLocation dim) {
+	public void dimensionUnloaded(Identifier dim) {
 		synchronized (routersServer) {
 			routersServer.stream().filter(r -> r != null && r.isInDim(dim)).forEach(r -> {
 				r.clearPipeCache();

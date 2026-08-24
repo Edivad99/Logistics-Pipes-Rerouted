@@ -32,9 +32,9 @@ import logisticspipes.utils.string.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -82,7 +82,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
 		}
 	}
 
-	private static final ResourceLocation achievementTextures = LPConstants.rl("textures/gui/gui_border.png");
+	private static final Identifier achievementTextures = LPConstants.rl("textures/gui/gui_border.png");
 	private final PipeBlockRequestTable table;
 	private final int orderId;
 

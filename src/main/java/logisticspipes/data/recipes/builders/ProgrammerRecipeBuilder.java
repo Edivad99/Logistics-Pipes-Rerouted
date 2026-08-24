@@ -10,7 +10,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -129,12 +129,12 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
             this.resultStack,
             this.showNotification);
         recipeOutput.accept(id, new ProgrammerRecipe(shapedrecipe),
-            builder.build(id.location().withPrefix("recipes/" + this.category.getFolderName() + "/")));
+            builder.build(id.identifier().withPrefix("recipes/" + this.category.getFolderName() + "/")));
     }
 
     private ShapedRecipePattern ensureValid(ResourceKey<Recipe<?>> id) {
         if (this.criteria.isEmpty()) {
-            throw new IllegalStateException("No way of obtaining recipe " + id.location());
+            throw new IllegalStateException("No way of obtaining recipe " + id.identifier());
         }
         return ShapedRecipePattern.of(this.key, this.rows);
     }

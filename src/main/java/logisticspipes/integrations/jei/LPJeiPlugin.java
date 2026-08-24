@@ -1,7 +1,7 @@
 package logisticspipes.integrations.jei;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -17,10 +17,10 @@ import network.rs485.logisticspipes.gui.BaseGuiContainer;
 @JeiPlugin
 public class LPJeiPlugin implements IModPlugin {
 
-    private static final ResourceLocation PLUGIN_ID = LPConstants.rl("jei_plugin");
+    private static final Identifier PLUGIN_ID = LPConstants.rl("jei_plugin");
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return PLUGIN_ID;
     }
 

@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -121,15 +121,12 @@ public class PipeBakedModel implements DynamicBlockStateModel {
      */
     @Override
     public TextureAtlasSprite particleIcon(BlockAndTintGetter level, BlockPos pos, BlockState state) {
-        ResourceLocation name = level.getModelData(pos).get(PipeModelProperties.PARTICLE_SPRITE);
+        Identifier name = level.getModelData(pos).get(PipeModelProperties.PARTICLE_SPRITE);
         if (name != null) {
-            TextureAtlasSprite sprite = Minecraft.getInstance()
+            return Minecraft.getInstance()
                 .getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
                 .getSprite(name);
-            if (sprite != null) {
-                return sprite;
-            }
         }
         return particleIcon();
     }

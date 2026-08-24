@@ -13,10 +13,11 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import org.joml.Quaternionf;
@@ -26,7 +27,7 @@ public class LogisticsNewPipeItemBoxRenderer {
 	private static final int RENDER_SIZE = 40;
 
 	private int renderList = -1;
-	private static final ResourceLocation BLOCKS = ResourceLocation.withDefaultNamespace("textures/atlas/blocks.png");
+	private static final Identifier BLOCKS = Identifier.withDefaultNamespace("textures/atlas/blocks.png");
 	private static final Map<FluidIdentifier, int[]> renderLists = new HashMap<>();
 
 	public void doRenderItem(ItemStack itemstack, float light, double x, double y, double z, double boxScale, double yaw, double pitch, double yawForPitch, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
@@ -41,7 +42,7 @@ public class LogisticsNewPipeItemBoxRenderer {
 		poseStack.translate(-0.5, -0.5, -0.5);
 
 		// Everything the emitter needs is passed in, so there is no bound render state to go stale.
-		collector.submitCustomGeometry(poseStack, RenderType.cutoutMipped(), (pose, buffer) -> MeshRenderer.emit(
+		collector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> MeshRenderer.emit(
 			buffer, pose,
 			PipeModelStore.parts().innerTransportBox(),
 			PipeModelStore.sprites().innerBox(),

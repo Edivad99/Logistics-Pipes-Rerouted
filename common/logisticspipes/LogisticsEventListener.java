@@ -187,7 +187,7 @@ public class LogisticsEventListener {
 	public void WorldUnload(LevelEvent.Unload event) {
 		if (MainProxy.isServer(event.getLevel())) {
 			if (event.getLevel() instanceof Level level) {
-				SimpleServiceLocator.routerManager.dimensionUnloaded(level.dimension().location());
+				SimpleServiceLocator.routerManager.dimensionUnloaded(level.dimension().identifier());
 			}
 		}
 	}

@@ -45,7 +45,7 @@ import logisticspipes.LPConstants
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.*
 
 data class InlineDrawableState(var format: Set<TextFormat>, var color: Int, var link: Link?)
@@ -71,7 +71,7 @@ class ItemLink(translationKey: String) : Link() {
     init {
         stack = if (translationKey.isNotEmpty() && translationKey.contains(":")) {
             val resourceLocation = translationKey.split(":").let { it ->
-                ResourceLocation.fromNamespaceAndPath(
+                Identifier.fromNamespaceAndPath(
                         it.getOrElse(0) { LPConstants.ID },
                         it.getOrElse(1) { "broken_item" }
                 )

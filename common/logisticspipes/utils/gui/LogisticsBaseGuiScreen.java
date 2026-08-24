@@ -40,7 +40,7 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -52,7 +52,7 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen implements ISubGuiController, IGuiAccess {
 
-	protected static final ResourceLocation ITEMSINK = LPConstants.rl("textures/gui/itemsink.png");
+	protected static final Identifier ITEMSINK = LPConstants.rl("textures/gui/itemsink.png");
 
 	@Getter
 	protected int right;
@@ -145,15 +145,15 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 		if (subGui == null) {
 			subGui = gui;
 			subGui.register(this);
-			subGui.init(minecraft, width, height);
+			subGui.init(width, height);
 		}
 	}
 
 	@Override
-	public void resize(Minecraft mc, int width, int height) {
-		super.resize(mc, width, height);
+	public void resize(int width, int height) {
+		super.resize(width, height);
 		if (subGui != null) {
-			subGui.resize(mc, width, height);
+			subGui.resize(width, height);
 		}
 	}
 
@@ -231,11 +231,11 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 	 * method behind as dead code, so neither happened and every slot of the container got drawn.
 	 */
 	@Override
-	protected void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+	protected void renderSlot(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY) {
 		if (!shouldRenderSlot(slot)) {
 			return;
 		}
-		super.renderSlot(guiGraphics, slot);
+		super.renderSlot(guiGraphics, slot, mouseX, mouseY);
 		// The fuzzy markers and their hover panel belong to the screen underneath, so they stay hidden while a
 		// popup is up -- otherwise they would draw over it.
 		if (subGui == null) {

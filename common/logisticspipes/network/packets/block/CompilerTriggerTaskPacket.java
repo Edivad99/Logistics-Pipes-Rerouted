@@ -6,7 +6,7 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
@@ -20,7 +20,7 @@ public class CompilerTriggerTaskPacket extends CoordinatesPacket {
 
 	@Getter
 	@Setter
-	private ResourceLocation category;
+	private Identifier category;
 
 	@Getter
 	@Setter
@@ -35,14 +35,14 @@ public class CompilerTriggerTaskPacket extends CoordinatesPacket {
 	@Override
 	public void writeData(LPDataOutput output) {
 		super.writeData(output);
-		output.writeResourceLocation(category);
+		output.writeIdentifier(category);
 		output.writeUTF(type);
 	}
 
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
-		category = input.readResourceLocation();
+		category = input.readIdentifier();
 		type = input.readUTF();
 	}
 

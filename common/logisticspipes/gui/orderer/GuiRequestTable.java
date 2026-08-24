@@ -59,7 +59,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -73,7 +73,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	public final Player entityPlayer;
 	protected final String title = "Request items";
 	public ItemDisplay itemDisplay;
-	public ResourceLocation dimension;
+	public Identifier dimension;
 	protected DisplayOptions displayOptions = DisplayOptions.Both;
 	private SmallGuiButton macroButton;
 	private InputBar search;
@@ -94,7 +94,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		this.entityPlayer = entityPlayer;
         ((DummyContainer) this.menu).guiHolderForJEI = this;
         if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
-			dimension = this.table.getWorld().dimension().location();
+			dimension = this.table.getWorld().dimension().identifier();
 		} else {
 			dimension = GuiOrderer.dimensioncache;
 		}

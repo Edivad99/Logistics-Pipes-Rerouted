@@ -24,14 +24,14 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import logisticspipes.client.renderer.LPRenderTypes;
 import net.minecraft.client.renderer.PerspectiveProjectionMatrixBuffer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -437,6 +437,6 @@ public abstract class SideConfigDisplay {
 
 		public static final Vector3d UP_V = new Vector3d(0, 1, 0);
 		public static final Vector3d ZERO_V = new Vector3d(0, 0, 0);
-		public static final ResourceLocation BLOCK_TEX = TextureAtlas.LOCATION_BLOCKS;
+		public static final Identifier BLOCK_TEX = TextureAtlas.LOCATION_BLOCKS;
 	}
 }

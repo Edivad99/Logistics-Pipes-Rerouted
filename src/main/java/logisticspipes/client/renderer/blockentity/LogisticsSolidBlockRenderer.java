@@ -6,11 +6,12 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
@@ -119,7 +120,7 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
         if (parts.isEmpty() || icon == null) {
             return;
         }
-        collector.submitCustomGeometry(poseStack, RenderType.cutoutMipped(), (pose, buffer) -> {
+        collector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> {
             MeshRenderer.emit(buffer, pose, parts.body(rotation), icon, light, overlay);
             for (SolidBlockModelParts.CoverSide side : plates) {
                 MeshRenderer.emit(buffer, pose, parts.outerPlate(side, rotation), icon, light, overlay);

@@ -44,7 +44,7 @@ import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.utils.tuples.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -649,7 +649,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	 * the frame is never drawn for this pipe.
 	 */
 	@Override
-	public ResourceLocation getParticleSprite() {
+	public Identifier getParticleSprite() {
 		return LPConstants.rl("blocks/requesttable/requesttexture");
 	}
 }

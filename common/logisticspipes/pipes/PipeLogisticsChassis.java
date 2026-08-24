@@ -89,7 +89,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -243,7 +243,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			if (idStack != null) {
 				moduleStack = idStack.getItem().makeNormalStack(1);
 			} else {
-				ResourceLocation resourceLocation = LPItems.modules.get(module.getLPName());
+				Identifier resourceLocation = LPItems.modules.get(module.getLPName());
 				Item item = BuiltInRegistries.ITEM.getValue(resourceLocation);
 				if (item == null) return;
 				moduleStack = new ItemStack(item);

@@ -70,7 +70,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -133,7 +133,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	int ticksUntillNextInventoryCheck = 0;
 	private EnumSet<Direction> routedExits = EnumSet.noneOf(Direction.class);
 	private EnumMap<Direction, Integer> subPowerExits = new EnumMap<>(Direction.class);
-	private final ResourceLocation dimension;
+	private final Identifier dimension;
 	private WeakReference<CoreRoutedPipe> myPipeCache = null;
 	private final LinkedList<Pair<Integer, IRouterQueuedTask>> queue = new LinkedList<>();
 	int connectionNeedsChecking = 0;
@@ -165,7 +165,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	private Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
 	private Set<LPTileEntityObject> oldTouchedPipes = new HashSet<>();
 
-	public ServerRouter(UUID globalID, ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+	public ServerRouter(UUID globalID, Identifier dimension, int xCoord, int yCoord, int zCoord) {
 		if (globalID != null) {
 			id = globalID;
 		} else {
@@ -296,12 +296,12 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	@Override
-	public boolean isInDim(ResourceLocation dimension) {
+	public boolean isInDim(Identifier dimension) {
 		return this.dimension.equals(dimension);
 	}
 
 	@Override
-	public boolean isAt(ResourceLocation dimension, int xCoord, int yCoord, int zCoord) {
+	public boolean isAt(Identifier dimension, int xCoord, int yCoord, int zCoord) {
 		return this.dimension.equals(dimension) && this.xCoord == xCoord && this.yCoord == yCoord && this.zCoord == zCoord;
 	}
 

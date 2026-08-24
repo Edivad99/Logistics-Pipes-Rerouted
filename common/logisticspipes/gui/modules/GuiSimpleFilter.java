@@ -15,8 +15,8 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import network.rs485.logisticspipes.module.SimpleFilter;
 
@@ -50,7 +50,7 @@ public class GuiSimpleFilter extends ModuleBaseGui {
 		guiGraphics.drawString(minecraft.font, "Inventory", 8, imageHeight - 92, 0xFF404040, false);
 	}
 
-	private static final ResourceLocation TEXTURE = LPConstants.rl("textures/gui/itemsink.png");
+	private static final Identifier TEXTURE = LPConstants.rl("textures/gui/itemsink.png");
 
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, float f, int x, int y) {

@@ -5,13 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -112,7 +113,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             return;
         }
 
-        collector.submitCustomGeometry(poseStack, RenderType.cutoutMipped(), (pose, buffer) -> {
+        collector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> {
             MeshRenderer.emit(buffer, pose, parts.body(0), sprite, packedLight, packedOverlay);
             for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
                 MeshRenderer.emit(buffer, pose, parts.outerPlate(side, 0), sprite, packedLight, packedOverlay);
@@ -181,7 +182,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             return;
         }
 
-        collector.submitCustomGeometry(poseStack, RenderType.entityCutoutNoCull(tube.texture()),
+        collector.submitCustomGeometry(poseStack, RenderTypes.entityCutoutNoCull(tube.texture()),
             (pose, buffer) -> MeshRenderer.emitRaw(buffer, pose, tube.mesh(), 0xFFFFFFFF, packedLight, packedOverlay));
     }
 
@@ -210,7 +211,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         }
 
         final int rot = rotation;
-        collector.submitCustomGeometry(poseStack, RenderType.cutoutMipped(), (pose, buffer) -> {
+        collector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> {
             MeshRenderer.emit(buffer, pose, parts.body(rot), sprite, packedLight, packedOverlay);
             for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
                 // Plates are skipped where a pipe connects, so adjacent pipes visually enter the

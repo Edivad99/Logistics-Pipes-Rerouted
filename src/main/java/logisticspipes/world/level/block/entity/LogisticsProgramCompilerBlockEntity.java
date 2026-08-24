@@ -15,7 +15,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -51,14 +51,14 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
 
     public static class ProgramCategories {
 
-        public static final ResourceLocation BASIC = LPConstants.rl("compilercategory.basic");
-        public static final ResourceLocation TIER_2 = LPConstants.rl("compilercategory.tier_2");
-        public static final ResourceLocation FLUID = LPConstants.rl("compilercategory.fluid");
-        public static final ResourceLocation TIER_3 = LPConstants.rl("compilercategory.tier_3");
-        public static final ResourceLocation CHASSIS = LPConstants.rl("compilercategory.chassis");
-        public static final ResourceLocation CHASSIS_2 = LPConstants.rl("compilercategory.chassis_2");
-        public static final ResourceLocation CHASSIS_3 = LPConstants.rl("compilercategory.chassis_3");
-        public static final ResourceLocation MODDED = LPConstants.rl("compilercategory.modded");
+        public static final Identifier BASIC = LPConstants.rl("compilercategory.basic");
+        public static final Identifier TIER_2 = LPConstants.rl("compilercategory.tier_2");
+        public static final Identifier FLUID = LPConstants.rl("compilercategory.fluid");
+        public static final Identifier TIER_3 = LPConstants.rl("compilercategory.tier_3");
+        public static final Identifier CHASSIS = LPConstants.rl("compilercategory.chassis");
+        public static final Identifier CHASSIS_2 = LPConstants.rl("compilercategory.chassis_2");
+        public static final Identifier CHASSIS_3 = LPConstants.rl("compilercategory.chassis_3");
+        public static final Identifier MODDED = LPConstants.rl("compilercategory.modded");
 
         static {
             //Force the order of keys
@@ -80,12 +80,12 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
     private static final int DISK_SLOT = 0;
     private static final int PROGRAMMER_SLOT = 1;
 
-    public static final Map<ResourceLocation, Set<ResourceLocation>> programByCategory = new LinkedHashMap<>();
+    public static final Map<Identifier, Set<Identifier>> programByCategory = new LinkedHashMap<>();
     private final PlayerCollectionList playerList = new PlayerCollectionList();
     private String taskType = "";
     @Getter
     @Nullable
-    private ResourceLocation currentTask = null;
+    private Identifier currentTask = null;
     @Getter
     private double taskProgress = 0;
     @Getter
@@ -104,7 +104,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
         }
     }
 
-    public void triggerNewTask(ResourceLocation category, String taskType) {
+    public void triggerNewTask(Identifier category, String taskType) {
         if (currentTask != null) {
             return;
         }

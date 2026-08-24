@@ -110,7 +110,7 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
             try {
                 clickedLinkURI = URI(webLink)
                 minecraft?.setScreen(ConfirmLinkScreen({ confirmed ->
-                    if (confirmed) net.minecraft.Util.getPlatform().openUri(clickedLinkURI!!)
+                    if (confirmed) net.minecraft.util.Util.getPlatform().openUri(clickedLinkURI!!)
                     minecraft?.setScreen(this@GuiGuideBook)
                 }, webLink, true))
             } catch (error: URISyntaxException) {
@@ -228,9 +228,9 @@ class GuiGuideBook(private val state: ItemGuideBook.GuideBookState) : Screen(Com
         super.onClose()
     }
 
-    override fun resize(minecraft: Minecraft, width: Int, height: Int) {
+    override fun resize(width: Int, height: Int) {
         state.currentPage.progress = 0.0f
-        super.resize(minecraft, width, height)
+        super.resize(width, height)
     }
 
     // Animates the visible scroll position toward the page's target progress; port of LP1's

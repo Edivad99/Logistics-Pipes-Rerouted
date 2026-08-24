@@ -154,10 +154,10 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 	protected abstract void renderGuiBackground(GuiGraphics guiGraphics, int mouseX, int mouseY);
 
 	@Override
-	public void resize(Minecraft mc, int width, int height) {
-		super.resize(mc, width, height);
+	public void resize(int width, int height) {
+		super.resize(width, height);
 		if (subGui != null) {
-			subGui.resize(mc, width, height);
+			subGui.resize(width, height);
 		}
 	}
 
@@ -181,7 +181,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 		if (subGui == null) {
 			subGui = gui;
 			subGui.register(this);
-			subGui.init(minecraft, width, height);
+			subGui.init(width, height);
 		}
 	}
 
