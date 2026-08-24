@@ -1,6 +1,7 @@
 package logisticspipes.utils.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -99,6 +100,11 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 		}
 		if (event.isEscape()) { // close only this popup, not the whole GUI
 			exitGui();
+			return true;
+		}
+		EditBox editing = InputBar.focusedAmong(children());
+		if (editing != null) {
+			editing.keyPressed(event);
 			return true;
 		}
 		return super.keyPressed(event);

@@ -553,7 +553,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			return;
 		}
 		macroButton.active = !table.diskInv.getItem(0).isEmpty() && table.diskInv.getItem(0).getItem().equals(LPItems.DISK.get());
-		guiGraphics.text(minecraft.font, "Sort:", 136, 55, 0xFFffffff, false);
+		guiGraphics.text(minecraft.font, "Sort:", 136, 55, 0xFF404040, false);
 		if (showRequest) {
 			guiGraphics.text(minecraft.font, title, 180 + minecraft.font.width(title) / 2, 6, 0xFF404040, false);
 			if (popupCheck != null && popupCheck.getState()) {

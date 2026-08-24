@@ -1,17 +1,16 @@
 package logisticspipes.utils.gui;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.StringUtil;
 
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
-public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventListener {
+public class InputBar extends EditBox {
 
     public enum Align {
         LEFT,
@@ -39,7 +38,7 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
     public InputBar(Font font, LogisticsBaseGuiScreen screen, int left, int top, int width, int height,
         boolean isActive, boolean numberOnly, Align align) {
         super(font, left + 2, top, width - 4, height - 2, Component.empty());
-        screen.onGuiEvents.add(this);
+        screen.registerTextField(this);
         if (numberOnly) {
             setFilter((String s) -> {
                 try {
@@ -59,16 +58,6 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
         setY(top);
         setWidth(width - 4);
         // height set at construction
-    }
-
-    @Override
-    public void onUpdateScreen() {
-        //tick(); // was: updateCursorCounter() in 1.12.2
-    }
-
-    @Override
-    public boolean onKeyboardInput() {
-        return (isFocused() || Minecraft.getInstance().hasAltDown()) && StringUtil.isAllowedChatCharacter(' ');
     }
 
     /**
@@ -112,5 +101,15 @@ public class InputBar extends EditBox implements LogisticsBaseGuiScreen.EventLis
 
     public boolean isEmpty() {
         return getValue().isEmpty();
+    }
+
+    @Nullable
+    public static EditBox focusedAmong(Iterable<?> candidates) {
+        for (Object candidate : candidates) {
+            if (candidate instanceof EditBox editBox && editBox.canConsumeInput()) {
+                return editBox;
+            }
+        }
+        return null;
     }
 }
