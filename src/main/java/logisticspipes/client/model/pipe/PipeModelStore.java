@@ -56,9 +56,7 @@ public final class PipeModelStore {
     }
 
     public static PipeModelParts parts() {
-        if (dirty) {
-            rebuild();
-        }
+        ensureBuilt();
         return parts;
     }
 
@@ -67,9 +65,7 @@ public final class PipeModelStore {
     }
 
     public static SolidBlockModelParts solidBlock() {
-        if (dirty) {
-            rebuild();
-        }
+        ensureBuilt();
         return solidBlock;
     }
 
@@ -85,7 +81,7 @@ public final class PipeModelStore {
         return generation;
     }
 
-    private static synchronized void rebuild() {
+    private static synchronized void ensureBuilt() {
         if (!dirty) {
             return;
         }
@@ -94,7 +90,6 @@ public final class PipeModelStore {
             // rather than caching an empty result.
             return;
         }
-        dirty = false;
 
         List<String> problems = new ArrayList<>();
         PipeModelParts loaded = PipeModelPartsLoader.load(problems::add);
@@ -106,6 +101,8 @@ public final class PipeModelStore {
         solidBlock = SolidBlockModelParts.load();
         TubeModels.reload();
         generation++;
+        // Cleared last, so that "not dirty" always means "the parts above are in place".
+        dirty = false;
     }
 
     /**
