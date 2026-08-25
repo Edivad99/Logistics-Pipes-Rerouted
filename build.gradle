@@ -180,6 +180,9 @@ dependencies {
     compileOnly("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
         transitive = false
     }
+    // RS's API classes carry apiguardian @API annotations; without this javac emits
+    // "unknown enum constant Status.STABLE" for every one of them (transitive = false above).
+    compileOnly "org.apiguardian:apiguardian-api:1.1.2"
     /*localRuntime("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
         transitive = false
     }*/
