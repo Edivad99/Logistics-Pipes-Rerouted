@@ -35,28 +35,37 @@
  * SOFTWARE.
  */
 
-package logisticspipes.routing
+package logisticspipes.routing;
 
-object AsyncRouting {
-    fun getDistance(sourceRouter: ServerRouter, destinationRouter: IRouter): List<ExitRoute>? {
-        return if (sourceRouter.routeTable.size <= destinationRouter.simpleID) {
-            null
-        } else {
-            sourceRouter.routeTable[destinationRouter.simpleID]
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
+public final class AsyncRouting {
+
+    private AsyncRouting() {
+    }
+
+    public static @Nullable List<ExitRoute> getDistance(ServerRouter sourceRouter, IRouter destinationRouter) {
+        if (sourceRouter.routeTable.size() <= destinationRouter.getSimpleID()) {
+            return null;
+        }
+        return sourceRouter.routeTable.get(destinationRouter.getSimpleID());
+    }
+
+    public static void updateServerRouterLsa(ServerRouter router) {
+        if (router.connectionNeedsChecking != 0 && router.checkAdjacentUpdate()) {
+            router.updateLsa();
         }
     }
 
-    fun ServerRouter.updateServerRouterLsa() {
-        if (connectionNeedsChecking != 0 && checkAdjacentUpdate()) {
-            updateLsa()
-        }
+    public static boolean needsRoutingTableUpdate(ServerRouter router) {
+        return router.lsaVersion > ServerRouter.lastLsaVersion[router.simpleID];
     }
 
-    fun ServerRouter.needsRoutingTableUpdate(): Boolean = lsaVersion > ServerRouter.lastLsaVersion[simpleID]
-
-    fun updateRoutingTable(serverRouter: ServerRouter) {
+    public static void updateRoutingTable(ServerRouter serverRouter) {
         if (serverRouter.lsaVersion > ServerRouter.lastLsaVersion[serverRouter.simpleID]) {
-            serverRouter.CreateRouteTable(serverRouter.lsaVersion)
+            serverRouter.CreateRouteTable(serverRouter.lsaVersion);
         }
     }
 }

@@ -50,8 +50,6 @@ import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.MainProxy
 import logisticspipes.routing.AsyncRouting
-import logisticspipes.routing.AsyncRouting.needsRoutingTableUpdate
-import logisticspipes.routing.AsyncRouting.updateServerRouterLsa
 import logisticspipes.routing.ServerRouter
 import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.SinkReply
@@ -107,8 +105,8 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
         val stack = inventory.getItem(slot)
         if (!stalled && slot == stallSlot) stalled = true
         if (stack.isEmpty) return null
-        serverRouter.updateServerRouterLsa()
-        if (!LPConfigs.COMMON.DISABLE_ASYNC_WORK.asBoolean && serverRouter.needsRoutingTableUpdate()) {
+        AsyncRouting.updateServerRouterLsa(serverRouter)
+        if (!LPConfigs.COMMON.DISABLE_ASYNC_WORK.asBoolean && AsyncRouting.needsRoutingTableUpdate(serverRouter)) {
             // go async
             return slot to stack
         }

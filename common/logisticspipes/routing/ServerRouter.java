@@ -1098,9 +1098,9 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	private void ensureChangeListenerAttachedToPipe(CoreRoutedPipe pipe) {
-		if (pipe.container instanceof ILPTEInformation && ((ILPTEInformation) pipe.container).getLPTileEntityObject() != null) {
-			if (!((ILPTEInformation) pipe.container).getLPTileEntityObject().changeListeners.contains(localChangeListener)) {
-				((ILPTEInformation) pipe.container).getLPTileEntityObject().changeListeners.add(localChangeListener);
+		if (pipe.container != null && pipe.container.getLPTileEntityObject() != null) {
+			if (!pipe.container.getLPTileEntityObject().changeListeners.contains(localChangeListener)) {
+				pipe.container.getLPTileEntityObject().changeListeners.add(localChangeListener);
 			}
 		}
 	}

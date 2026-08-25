@@ -58,8 +58,6 @@ import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.MainProxy
 import logisticspipes.renderer.HUDDrawContext
 import logisticspipes.routing.AsyncRouting
-import logisticspipes.routing.AsyncRouting.needsRoutingTableUpdate
-import logisticspipes.routing.AsyncRouting.updateServerRouterLsa
 import logisticspipes.routing.ServerRouter
 import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.item.ItemIdentifier
@@ -111,8 +109,8 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
                 if (itemsLeft < 1) break
                 if (stacksLeft < 1) break
             }
-            serverRouter.updateServerRouterLsa()
-            if (serverRouter.needsRoutingTableUpdate()) {
+            AsyncRouting.updateServerRouterLsa(serverRouter)
+            if (AsyncRouting.needsRoutingTableUpdate(serverRouter)) {
                 updateRoutingTableMsgChannel.trySend(Unit)
             } else {
                 extractAndSend(serverRouter, inventory)
