@@ -20,7 +20,7 @@ import logisticspipes.LPConfigs;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockWatchingHandler;
-import logisticspipes.interfaces.IGuiOpenControler;
+import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.IHeadUpDisplayBlockRendererProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -40,7 +40,7 @@ import logisticspipes.utils.PlayerCollectionList;
 
 @CCType(name = "LogisticsPowerJunction")
 public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
-    implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenControler,
+    implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenController,
     IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
 
     public final static int MAX_STORAGE = 2_000_000;

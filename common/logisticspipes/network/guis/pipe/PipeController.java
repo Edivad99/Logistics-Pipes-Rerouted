@@ -6,7 +6,7 @@ import java.util.UUID;
 import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.GuiPipeController;
-import logisticspipes.interfaces.IGuiOpenControler;
+import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -44,7 +44,7 @@ public class PipeController extends CoordinatesGuiProvider {
 			return null;
 		}
 		final CoreRoutedPipe pipe = (CoreRoutedPipe) tile.pipe;
-		DummyContainer dummy = new DummyContainer(player, null, pipe.getOriginalUpgradeManager().getGuiController(), new IGuiOpenControler() {
+		DummyContainer dummy = new DummyContainer(player, null, pipe.getOriginalUpgradeManager().getGuiController(), new IGuiOpenController() {
 
 			//Network Statistics
 			@Override

@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.IRoutedPowerProvider;
-import logisticspipes.interfaces.IGuiOpenControler;
+import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
@@ -52,7 +52,7 @@ import network.rs485.logisticspipes.util.FuzzyUtil;
 import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
-    implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenControler {
+    implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenController {
 
     public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
     private final PlayerCollectionList guiWatcher = new PlayerCollectionList();

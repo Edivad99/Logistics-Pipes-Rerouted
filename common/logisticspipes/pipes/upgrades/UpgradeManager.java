@@ -15,7 +15,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-import logisticspipes.interfaces.IGuiOpenControler;
+import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -292,8 +292,8 @@ public class UpgradeManager
 		return combinedSneakyOrientation;
 	}
 
-	public IGuiOpenControler getGuiController() {
-		return new IGuiOpenControler() {
+	public IGuiOpenController getGuiController() {
+		return new IGuiOpenController() {
 
 			PlayerCollectionList players = new PlayerCollectionList();
 

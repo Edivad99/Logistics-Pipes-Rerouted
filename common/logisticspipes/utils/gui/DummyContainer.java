@@ -27,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
-import logisticspipes.interfaces.IGuiOpenControler;
+import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.interfaces.ISlotClick;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -53,8 +53,7 @@ public class DummyContainer extends AbstractContainerMenu {
 	protected Container playerInventory;
     @Nullable
 	protected Container dummyInventory;
-    @Nullable
-	protected IGuiOpenControler[] controler;
+	private final List<IGuiOpenController> controllers;
 	boolean wasDummyLookup;
 	boolean overrideMCAntiSend;
 	private final List<Slot> transferTop = new ArrayList<>();
@@ -68,18 +67,16 @@ public class DummyContainer extends AbstractContainerMenu {
 		super(null, 0);
 		this.playerInventory = playerInventory;
 		this.dummyInventory = dummyInventory;
-		controler = null;
+		controllers = List.of();
 	}
 
-	public DummyContainer(Player player, Container dummyInventory, IGuiOpenControler... controler) {
+	public DummyContainer(Player player, @Nullable Container dummyInventory, IGuiOpenController... controllers) {
 		super(null, 0);
 		playerInventory = player.getInventory();
 		this.dummyInventory = dummyInventory;
-		this.controler = controler;
+		this.controllers = List.of(controllers);
 		if (MainProxy.isServer(player.level())) {
-			for (IGuiOpenControler element : this.controler) {
-				element.guiOpenedByPlayer(player);
-			}
+			this.controllers.forEach(element -> element.guiOpenedByPlayer(player));
 		}
 	}
 
@@ -479,11 +476,7 @@ public class DummyContainer extends AbstractContainerMenu {
 
 	@Override
 	public void removed(Player player) {
-		if (controler != null) {
-			for (IGuiOpenControler element : controler) {
-				element.guiClosedByPlayer(player);
-			}
-		}
+		controllers.forEach(element -> element.guiClosedByPlayer(player));
 		super.removed(player);
 	}
 

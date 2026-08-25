@@ -29,7 +29,7 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.interfaces.IGuiOpenControler;
+import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IInventoryUtil;
@@ -119,7 +119,7 @@ import network.rs485.logisticspipes.property.UUIDProperty;
 import network.rs485.logisticspipes.property.UUIDPropertyKt;
 
 public class ModuleCrafter extends LogisticsModule
-		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IGuiOpenControler, Gui {
+		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IGuiOpenController, Gui {
 
 	public final ItemIdentifierInventoryProperty dummyInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(11, "Requested items", 127), "dummyInv");

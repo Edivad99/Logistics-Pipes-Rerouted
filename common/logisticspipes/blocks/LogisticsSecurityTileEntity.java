@@ -29,7 +29,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.IRoutedPowerProvider;
-import logisticspipes.interfaces.IGuiOpenControler;
+import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.ISecurityProvider;
 import logisticspipes.network.NewGuiHandler;
@@ -52,7 +52,7 @@ import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
-public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IGuiOpenControler, ISecurityProvider, IGuiTileEntity {
+public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IGuiOpenController, ISecurityProvider, IGuiTileEntity {
 
 	public LogisticsSecurityTileEntity(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.SECURITY_STATION.get(), pos, state);
