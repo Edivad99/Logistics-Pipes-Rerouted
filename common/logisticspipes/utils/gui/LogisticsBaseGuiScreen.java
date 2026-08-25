@@ -82,11 +82,6 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
     private AbstractWidget selectedButton;
     private int currentDrawScreenMouseX;
     private int currentDrawScreenMouseY;
-    /**
-     * Stored during rendering so non-render methods (drawPoint, fillRect, etc.) can use it.
-     */
-    @Deprecated(forRemoval = true)
-    private GuiGraphicsExtractor guiGraphics;
     private IFuzzySlot fuzzySlot;
     private boolean fuzzySlotActiveGui;
     private int fuzzySlotGuiHoverTime;
@@ -235,7 +230,6 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.guiGraphics = guiGraphics;
         currentDrawScreenMouseX = mouseX;
         currentDrawScreenMouseY = mouseY;
         checkButtons();
@@ -291,7 +285,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
         // The fuzzy markers and their hover panel belong to the screen underneath, so they stay hidden while a
         // popup is up -- otherwise they would draw over it.
         if (subGui == null) {
-            onRenderSlot(slot);
+            onRenderSlot(guiGraphics, slot);
         }
     }
 
@@ -313,7 +307,7 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
         return shouldRenderSlot(slot) && super.isHovering(slot, mouseX, mouseY);
     }
 
-    private void onRenderSlot(Slot slot) {
+    private void onRenderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
         if (slot instanceof IFuzzySlot) {
             final IBitSet set = ((IFuzzySlot) slot).getFuzzyFlags();
             int x1 = slot.x;
@@ -606,19 +600,19 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
         return false;
     }
 
-    public void drawPoint(int x, int y, int color) {
+    public void drawPoint(GuiGraphicsExtractor guiGraphics, int x, int y, int color) {
         guiGraphics.fill(x, y, x + 1, y + 1, color);
     }
 
-    public void drawPoint(int x, int y, Color color) {
+    public void drawPoint(GuiGraphicsExtractor guiGraphics, int x, int y, Color color) {
         guiGraphics.fill(x, y, x + 1, y + 1, Color.getValue(color));
     }
 
-    public void fillRect(int x1, int y1, int x2, int y2, Color color) {
+    public void fillRect(GuiGraphicsExtractor guiGraphics, int x1, int y1, int x2, int y2, Color color) {
         guiGraphics.fill(x1, y1, x2, y2, Color.getValue(color));
     }
 
-    public void drawLine(int x1, int y1, int x2, int y2, Color color) {
+    public void drawLine(GuiGraphicsExtractor guiGraphics, int x1, int y1, int x2, int y2, Color color) {
         int lasty = y1;
         for (int dx = 0; x1 + dx < x2; dx++) {
             int plotx = x1 + dx;
@@ -630,19 +624,19 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
                 ploty = y1 + (y2 - y1) / (x2 - x1 - 1) * dx;
             }
 
-            drawPoint(plotx, ploty, color);
+            drawPoint(guiGraphics, plotx, ploty, color);
             while (lasty < ploty) {
-                drawPoint(plotx, ++lasty, color);
+                drawPoint(guiGraphics, plotx, ++lasty, color);
             }
             while (lasty > ploty) {
-                drawPoint(plotx, --lasty, color);
+                drawPoint(guiGraphics, plotx, --lasty, color);
             }
         }
         while (lasty < y2) {
-            drawPoint(x2, ++lasty, color);
+            drawPoint(guiGraphics, x2, ++lasty, color);
         }
         while (lasty > y2) {
-            drawPoint(x2, --lasty, color);
+            drawPoint(guiGraphics, x2, --lasty, color);
         }
     }
 

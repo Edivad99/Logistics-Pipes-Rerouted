@@ -264,12 +264,12 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 					int xOrigo = xCenter - 72;
 					int yOrigo = yCenter + 90;
 
-					drawLine(xOrigo + 0, yOrigo + 0, xOrigo + 150, yOrigo + 0, Color.DARKER_GREY);
-					drawLine(xOrigo + 0, yOrigo + 0, xOrigo + 0, yOrigo - 80, Color.DARKER_GREY);
+					drawLine(guiGraphics, xOrigo + 0, yOrigo + 0, xOrigo + 150, yOrigo + 0, Color.DARKER_GREY);
+					drawLine(guiGraphics, xOrigo + 0, yOrigo + 0, xOrigo + 0, yOrigo - 80, Color.DARKER_GREY);
 
-					drawLine(xOrigo - 4, yOrigo - 80, xOrigo + 0, yOrigo - 80, Color.DARKER_GREY);
+					drawLine(guiGraphics, xOrigo - 4, yOrigo - 80, xOrigo + 0, yOrigo - 80, Color.DARKER_GREY);
 
-					drawLine(xOrigo + 150, yOrigo - 1, xOrigo + 150, yOrigo + 4, Color.DARKER_GREY);
+					drawLine(guiGraphics, xOrigo + 150, yOrigo - 1, xOrigo + 150, yOrigo + 4, Color.DARKER_GREY);
 
 					long[] data = getTaskData(task);
 
@@ -313,14 +313,14 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 							if (i % interval == 0) {
 								String s = formatTime(data.length - i - 1);
 								int w = minecraft.font.width(s);
-								drawLine(xOrigo + (int) x, yOrigo - 1, xOrigo + (int) x, yOrigo + 4, Color.DARKER_GREY);
+								drawLine(guiGraphics, xOrigo + (int) x, yOrigo - 1, xOrigo + (int) x, yOrigo + 4, Color.DARKER_GREY);
 								graphTexts.add(s);
 							graphTextPos.add(new int[]{(int)(xOrigo - leftPos + (int) x - w / 2f), yOrigo - topPos + 6, Color.DARKER_GREY.getValue()});
 							}
 						}
 
 						if (y > 0 && y < 80) {
-							drawLine(xOrigo - 4, yOrigo - (int) y, xOrigo + 0, yOrigo - (int) y, Color.DARKER_GREY);
+							drawLine(guiGraphics, xOrigo - 4, yOrigo - (int) y, xOrigo + 0, yOrigo - (int) y, Color.DARKER_GREY);
 							int yPixel = (int) y;
 							boolean tooClose = false;
 							for (int labeled : labeledYPixels) {
@@ -446,7 +446,7 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 			left = clampCorner(right, left, Vec2.ORIGIN, true);
 			left = clampCorner(right, left, new Vec2(150, 80), false);
 
-			drawLine(xOrigo + (int) left.x, yOrigo - (int) left.y, xOrigo + (int) right.x, yOrigo - (int) right.y, Color.RED);
+			drawLine(guiGraphics, xOrigo + (int) left.x, yOrigo - (int) left.y, xOrigo + (int) right.x, yOrigo - (int) right.y, Color.RED);
 
 			int radius = 2;
 			if (xViewportScale < 4) radius = 1;
