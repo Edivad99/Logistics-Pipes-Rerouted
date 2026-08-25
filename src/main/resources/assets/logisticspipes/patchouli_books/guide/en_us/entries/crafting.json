@@ -1,0 +1,65 @@
+{
+  "name": "3. Automatic Crafting",
+  "category": "logisticspipes:tutorial",
+  "icon": "logisticspipes:crafting_table",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Automatic Crafting",
+      "text": "Requesting something you have is useful. Requesting something you $(italic)don't$() have, but could craft, is where an LP network starts to shine.$(br2)$(item)Crafting Pipes$() tell the network it can take a set of ingredients, feed them to the machine behind the pipe, and get something else out."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:crafting_table",
+      "title": "The Logistics Crafting Table",
+      "text": "As a test, let's automate planks from logs. Craft a $(item)Crafting Pipe$() and a $(item)Logistics Crafting Table$() — Compiler and Programmer as usual.$(br2)Unlike a normal table, its grid holds $(thing)ghosts$() of the ingredients: the grid only says $(italic)which recipe$(). The real items land in the inventory below, which reserves space per grid slot."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Importing the Recipe",
+      "text": "Connect a Crafting Pipe to the table and to the network, then open its settings with the $(item)Pipe Manager$().$(br2)Here you declare the ingredients and products. You can do it by hand — but next to a Logistics Crafting Table, just press $(thing)Import$() and it fills itself in."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Requesting a Craft",
+      "text": "Open the $(item)Request Pipe$() again. Planks now appear even though none are in stock, because something on the network can make them.$(br2)Request one: a log leaves storage, goes to the table, and four planks come back. Yours goes to the Request Pipe; the other three look for a sink and get stored for later."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Crafting Trees",
+      "text": "Crafting Pipes can request ingredients from $(italic)other$() Crafting Pipes, building a tree of work the network carries out on its own.$(br2)With enough pipes and tables you can have it craft complex things from raw materials — including more logistics pipes, which means also automating Basic pipes, unrouted pipes, and so on down."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The Programmer Problem",
+      "text": "The Crafting Pipe recipe contains a Programmer that is $(italic)not$() consumed. To handle it, put the Programmer in the crafting table's inventory, then open the Crafting Pipe and remove the Programmer from the ingredient list — the network never needs to craft one.$(br2)That dedicates it to this job, so craft yourself a fresh one. Same story for every other recipe that calls for a Programmer."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Not Just Crafting",
+      "text": "A recipe on a Crafting Pipe really says: put these ingredients into that inventory, and eventually I can pull the product back out.$(br2)Crafting tables are the obvious case, but smelting works the same way. Attach a $(item)Supplier Pipe$() to a furnace's side for coal and a Crafting Pipe for the ore, and declare that one iron ore becomes one ingot."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Except It Doesn't Work",
+      "text": "Furnaces are $(thing)sided$(): the top feeds the input slot, the sides feed fuel, the bottom pulls output.$(br2)So the Crafting Pipe has to be $(italic)underneath$(), to pull ingots out. But the ore still has to go in the top."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:pipe_satellite",
+      "title": "Satellite Pipes",
+      "text": "A $(item)Satellite Pipe$() lets a Crafting Pipe send some of its ingredients somewhere else — here, the top of the furnace.$(br2)Put the Crafting Pipe on the bottom and the Satellite on top, then use the Pipe Manager on the Satellite to give it a $(thing)name$() so the two can find each other."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Wiring Them Together",
+      "text": "Back on the Crafting Pipe, enter the same recipe but click $(thing)Select$() to pick your Satellite from the list.$(br2)The ingredients in the rightmost three slots now go to the Satellite instead of the Crafting Pipe — so put the iron ore in one of those, not on the left.$(br2)Now the ore goes to the top while the Crafting Pipe waits underneath for the ingot."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "A Rule for Other Mods",
+      "text": "Some mods let you choose which sides reach which slots, which simplifies all this.$(br2)$(bold)One rule matters above all:$() a machine must $(italic)not$() auto-eject its output into the LP network. The Crafting Pipe has to be the one that pulls the output, or the operation never counts as finished.$(br2)This is the opposite of Applied Energistics, which expects you to push outputs back yourself."
+    }
+  ]
+}

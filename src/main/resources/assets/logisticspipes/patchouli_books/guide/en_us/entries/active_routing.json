@@ -1,0 +1,62 @@
+{
+  "name": "2. Active Routing",
+  "category": "logisticspipes:tutorial",
+  "icon": "logisticspipes:pipe_supplier",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Active Routing",
+      "text": "Passive routing lets the network decide what to do with an item that turns up. $(thing)Active routing$() is the other half: pipes can $(thing)provide$() items so that other pipes can actively request them.$(br2)When that happens the providing pipe pulls the item out of its inventory and sends it to whoever asked. This is how you pull items from storage without knowing which chest holds them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:program_compiler",
+      "title": "Infrastructure",
+      "text": "Pipes beyond the Basic one need a little groundwork. Craft the $(item)Logistics Program Compiler$(), place it, and power it by attaching a $(item)Basic pipe$() to its side and connecting that to the network.$(br2)Click $(thing)Basic$(), then $(thing)Unlock$() to begin. It takes a while."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:pipe_provider",
+      "title": "Provider Pipes",
+      "text": "While you wait, craft a $(item)Logistics Programmer$().$(br2)When the Compiler is ready, open it, pick $(thing)Provider Logistics Pipe$() and click $(thing)Compile$() — once per pipe type, the $(item)disk$() remembers. Then put the Programmer in the top-right slot and click $(thing)Flash$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Providing Storage",
+      "text": "With the program loaded, the Programmer can be used to craft Provider pipes — and it is not consumed doing so.$(br2)Craft a few and connect one to each chest you want to expose to the network."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:pipe_request",
+      "title": "Request Pipes",
+      "text": "To ask for those items you need a $(item)Request pipe$(). Craft it exactly as before: compile the program, flash the Programmer, craft.$(br2)It can join the network anywhere. At a dead end it drops what you request on the floor; attached to a chest, it puts it in the chest."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Never Branch on Unrouted Pipe",
+      "text": "If an unrouted pipe turns $(thing)red$(), it is unhappy. Unrouted pipes do not know where to send items, so at a junction they pick a direction at random. Guess wrong and the next routed pipe sends the item back, and it guesses again — wasting time.$(br2)$(bold)As a rule, never put an unrouted pipe at an intersection.$() Use a Basic pipe there instead."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Requesting",
+      "text": "Right-click the Request pipe and you get a box listing everything the network provides. Pick an item at the top, choose a quantity at the bottom, click $(thing)Request$().$(br2)Note that the two pipes on each chest play opposite roles: Basic pipes $(italic)sink$() items and provide nothing; Provider pipes $(italic)provide$() items and cannot sink."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:pipe_supplier",
+      "title": "Supplier Pipes",
+      "text": "The generator needs a steady supply of coal. A $(item)Supplier pipe$() is an automated Request pipe: it watches an inventory and asks for more when stock runs low.$(br2)Attach it to the generator and right-click with the Pipe Manager to say how much to keep. With JEI installed you can drag a $(thing)ghost$() item from its list. The mouse wheel changes the amount."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Supply Strategies",
+      "text": "$(li)$(thing)Partial$(): top up whenever stock is low$(li)$(thing)Bulk50$(): wait until half is gone, then refill$(li)$(thing)Bulk100$(): wait until empty, then refill$(li)$(thing)Full$(): like Bulk100, but only if the whole order can be met$(li)$(thing)Infinite$(): keep requesting until the inventory is full"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Which To Use",
+      "text": "$(italic)marth's advice:$() Bulk50 for most things. It keeps fewer requests in flight, which is more power-efficient and leaves machines idle less often.$(br2)Infinite mode is handy for draining all of a given item out of a network.$(br2)$(italic)Next: automatic crafting.$()"
+    }
+  ]
+}

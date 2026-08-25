@@ -1,0 +1,89 @@
+{
+  "name": "4. Consolidating Pipes",
+  "category": "logisticspipes:tutorial",
+  "icon": "logisticspipes:pipe_chassis_mk1",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:pipe_chassis_mk1",
+      "title": "Logistics Chassis",
+      "text": "By now the network is a bit of a mess. A $(item)Logistics Chassis$() is a pipe that does several jobs at once, so we can collapse what we have.$(br2)Open the $(item)Compiler$() and start unlocking $(thing)Chassis$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Modules, Not Pipes",
+      "text": "A Chassis does nothing by itself — you add $(thing)modules$() to give it jobs. There are five tiers, and the only difference between them is how many modules they hold.$(br2)Build the program for a $(item)Chassis Mk2$(), which fits two, and craft a few.$(br2)Replace one of the Basic pipes on a storage chest with a Chassis, then open it with the $(item)Pipe Manager$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:module_item_sink",
+      "title": "ItemSink Modules",
+      "text": "The two slots at the top are for modules. Craft an $(item)ItemSink Module$(), add it, and click the $(thing)[!]$() beside it to configure it exactly like the pipe it replaced.$(br2)Then replace the Basic pipe holding the default route with another Mk2 Chassis, add an ItemSink Module, and set that module as the default route."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:module_item_sink_polymorphic",
+      "title": "Polymorphic ItemSink",
+      "text": "The $(item)Polymorphic ItemSink Module$() cannot be given a list of items. Instead it automatically sinks whatever is $(italic)already$() in the chest behind it.$(br2)Used liberally these make chest storage fast and effortless. Replace the rest of your storage Basic pipes with Mk2 Chassis and Polymorphic sinks."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:module_provider",
+      "title": "Provider Modules",
+      "text": "Now consolidate the provider side: craft $(item)Provider Modules$() and add them to the same Chassis.$(br2)Their settings let you include or exclude specific items, but the one that matters here is $(thing)Excess Inventory$() at the bottom."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Excess Inventory",
+      "text": "$(li)$(thing)Normal$() — provide everything$(li)Leave first stack$(li)Leave last stack$(li)Leave first & last stack$(li)Leave 1 item per stack$(li)Leave 1 item per type"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Which Setting",
+      "text": "A Chassis with a Polymorphic sink must keep at least one of each item, or it stops sinking that item and it starts going elsewhere — so $(thing)Leave 1 item per type$() is ideal there.$(br2)$(thing)Normal$() suits machine output buffers and regular ItemSink modules. $(thing)Leave 1 item per stack$() helps when you want specific slots reserved for specific items.$(br2)Tip: configure a whole stack of fresh modules at once by holding them and right-clicking in the air. Careful — once configured, modules no longer stack."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Cleaning Up",
+      "text": "With Provider Modules in place, remove the old $(item)Provider Pipes$(). This matters more than it looks: while both exist they provide the same items twice, and the network double-counts them.$(br2)Provider Pipes have the same settings as Provider Modules, incidentally — we skipped them earlier because Normal was fine."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Which Way Is It Facing?",
+      "text": "A Chassis attaches to exactly $(italic)one$() thing at a time, shown by orange dots on one side. Yours may well have latched onto the Power Junction or a hopper instead of the chest.$(br2)Fix it by holding $(thing)shift$() and right-clicking the Chassis with the Pipe Manager."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:module_crafter",
+      "title": "Crafting Modules",
+      "text": "The furnace sits idle most of the time, so let's have it smelt gold as well as iron. Craft two $(item)Crafting Modules$() and an Mk2 Chassis to replace the Crafting Pipe underneath it.$(br2)Set them up one per recipe, just like the pipe. Both still need the Satellite Pipe — but since Satellites have no recipes of their own, both modules can share one."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Item Bouncing",
+      "text": "Two crafts sharing one machine can collide. Request iron and gold in quick succession: the iron ore arrives and starts smelting, then the gold ore arrives to find the top occupied and the Satellite fails to insert it.$(br2)The gold ore $(thing)bounces$() — back into the network and off to storage. The Crafting Pipe knows, and asks again once the top is free."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Why Providers Matter",
+      "text": "Bouncing is the reason it is crucial to have providers everywhere that can sink items.$(br2)If an ingredient bounces and lands somewhere that does $(italic)not$() provide it back to the network, the Crafting Module can never finish — it cannot re-request an ingredient that is no longer reachable."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:upgrade_sneaky",
+      "title": "Sneaky Upgrades",
+      "text": "$(thing)Upgrades$() alter what a pipe already does, rather than adding new jobs like modules, and they work in many pipe types rather than only Chassis. Managing them needs a $(item)Pipe Controller$() — it looks like a red Pipe Manager.$(br2)A $(item)Sneaky Upgrade$() makes a pipe pretend it is on a $(italic)different$() side of the thing it is attached to when inserting."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Retiring the Satellite",
+      "text": "That is exactly the furnace problem. With a Sneaky Upgrade on the Chassis holding the Crafting Modules, it can insert into the top of the furnace by itself.$(br2)Right-click the Chassis with the Pipe Controller, install the upgrade, and click the $(thing)[!]$() beneath it. A 3D view of the furnace opens: drag with the left mouse button to rotate, then right-click the top face."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Testing It",
+      "text": "The 3D view closes without confirming anything, which is poor feedback — but you can check by crafting.$(br2)Remove the Satellite Pipe, update the Crafting Modules' recipes to stop using it, and request an iron ingot.$(br2)This works because the Sneaky Upgrade changes the side the Chassis $(italic)inserts$() into, not the side it $(italic)extracts$() from — so the Chassis must stay on the bottom."
+    }
+  ]
+}

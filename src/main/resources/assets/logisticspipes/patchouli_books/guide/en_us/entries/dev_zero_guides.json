@@ -1,0 +1,18 @@
+{
+  "name": "About These Guides",
+  "category": "logisticspipes:tutorial",
+  "icon": "minecraft:apple",
+  "sortnum": -1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "dev/zero's Guides",
+      "text": "A five-part series gracefully provided by $(l:https://www.devzero.com/about/)marth$(/l).$(br2)You can find the original $(l:https://www.devzero.com/gaming/lp-tutorial/)here$(/l)."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "What's Covered",
+      "text": "$(li)Sorting items — passive routing$(li)Active routing — provide and request$(li)Automatic crafting$(li)Consolidating pipes into Chassis$(li)Managing items with modules$(br2)They build on each other, so read them in order."
+    }
+  ]
+}

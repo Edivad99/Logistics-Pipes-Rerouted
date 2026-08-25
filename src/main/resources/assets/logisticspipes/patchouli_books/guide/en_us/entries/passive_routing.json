@@ -1,0 +1,46 @@
+{
+  "name": "1. Sorting Items",
+  "category": "logisticspipes:tutorial",
+  "icon": "logisticspipes:module_item_sink",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Sorting Items",
+      "text": "In this part we craft our first logistics pipes and build a basic item-sorting system.$(br2)LP has two major types of pipes. $(thing)Routed$() pipes connect to each other to form a network that can intelligently pass items between pipes and the rest of the world. $(thing)Unrouted$() pipes lack that intelligence; they only connect pipes together to carry items between them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:power_junction",
+      "title": "Power First",
+      "text": "Let's build a simple sorting system. Start with some chests.$(br2)Logistics pipes need power. Build a $(item)Power Junction$() and connect it to a generator of some kind — a coal generator will do."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:pipe_basic",
+      "title": "Attaching Pipes",
+      "text": "Craft some $(item)Basic Logistics Pipes$() and attach one to each chest.$(br2)A Basic pipe also has to touch a $(italic)side$() of the Power Junction — not the top or bottom — but one pipe can happily do double duty. Where there is a gap between Basic pipes, bridge it with unrouted pipes."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Passive Routing",
+      "text": "When a routed pipe meets an item it looks for a $(thing)sink$() for it: a pipe willing to accept it and put it in the inventory behind it. It then sends the item that way, and each routed pipe along the route passes it on until it arrives.$(br2)That pipe then adds it to its chest."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:pipe_manager",
+      "title": "Choosing What Goes Where",
+      "text": "Every Basic pipe holds a list of the item types it will sink. To edit it, craft a $(item)Pipe Manager$() and right-click the pipe.$(br2)Wrenches from many other mods work too."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The Default Route",
+      "text": "Repeat for the other pipes to send different items to different chests.$(br2)You also need at least one pipe set as a $(thing)default route$() — somewhere for items with nowhere else to go.$(br2)$(bold)A network with no default route drops items on the floor$() when it cannot find a sink for them."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Done",
+      "text": "All that is left is a hopper to feed items into the network.$(br2)The sorting system is complete — drop some items into the hopper and watch it work.$(br2)$(italic)Next: making that inventory easier to reach.$()"
+    }
+  ]
+}

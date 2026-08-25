@@ -1,0 +1,73 @@
+{
+  "name": "5. Managing Items with Modules",
+  "category": "logisticspipes:tutorial",
+  "icon": "logisticspipes:module_blank",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:module_extractor",
+      "title": "The Dump Chest",
+      "text": "Coming home from a mining trip, the first thing you want is to empty your inventory. Hoppers work, but they only pull from the top and they are slow.$(br2)An $(item)Extractor Module$() constantly pulls items out of whatever it is attached to and injects them into the network to be sunk. Put one in a Chassis on a chest and dump everything there."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Making It Fast",
+      "text": "Out of the box the module is $(italic)slower$() than a hopper: one item every five seconds.$(br2)$(item)Item Extraction Upgrades$() raise how many items it moves each time; $(item)Action Speed Upgrades$() raise how often it runs.$(br2)marth uses five or six Action Speed and a few more Item Extraction for a dump chest. Both cap at 16. Remember that extraction costs power."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:upgrade_module_upgrade",
+      "title": "Upgrading a Module",
+      "text": "The $(item)Pipe Controller$() will not help here: these upgrades go on the $(italic)module$(), not the Chassis.$(br2)Craft a $(item)Module Upgrade$(). Installed in a Chassis, it adds a row of slots to the right of every module — that is where module upgrades go. Open it with the $(item)Pipe Manager$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Where Else They Help",
+      "text": "Item Extraction Upgrades also work on $(item)Provider$() and $(item)Crafting Pipes$(), and on Provider and Crafting Modules.$(br2)That matters when something requests an enormous quantity: the extraction speed of the pipe itself becomes the bottleneck."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Item Sink Priority",
+      "text": "When more than one pipe can sink an item, the network decides by priority:$(br)$(li)$(item)Passive Supplier Modules$()$(li)Item Sinks — Basic Pipes and all ItemSink Modules$(li)$(item)Terminus Modules$()$(li)Default routes"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:module_passive_supplier",
+      "title": "Passive Suppliers",
+      "text": "$(item)Passive Supplier Modules$() are largely a relic from before Active Suppliers existed.$(br2)They try to keep a number of an item in stock, but unlike $(item)Supplier Pipes$() and $(item)Active Supplier Modules$() they never $(italic)request$() anything. They simply grab what they need first when it enters the network."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:module_terminus",
+      "title": "Terminus Modules",
+      "text": "With their below-normal priority, $(item)Terminus Modules$() are how you get rid of excess once storage fills up.$(br2)Most networks have one dumping surplus cobblestone and dirt into a trash can, a matter condenser, or a pool of lava — so it never crowds out the default route's storage."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Why the Default Route Fills Up",
+      "text": "Supplier and Crafting Pipes are absent from that list. Suppliers use active routing, which can only request from providers; Basic pipes and other sinks use passive routing, which can only react to items already in the network.$(br2)So the default route may never empty itself, even with a provider on it — there is no priority system for providers. Fill it and the network starts spilling items on the floor."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:module_quick_sort",
+      "title": "QuickSort Modules",
+      "text": "A $(item)QuickSort Module$() looks at what it holds and searches for somewhere on the network — other than a default route — that can sink it. If it finds one, it puts the item back into the network to be re-sunk.$(br2)Upgrade the default route's Chassis to Mk3 and add one."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Using It",
+      "text": "Check the chest now and then for anything piling up. When something is, take one out and place it in a chest with a $(item)Polymorphic sink$() — QuickSort will move the rest across.$(br2)Or add it to a $(item)Terminus Module$() and have QuickSort send it off for disposal."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "QuickSort as a Dump Chest",
+      "text": "QuickSort Modules also make good alternatives to Extractor Modules for the post-outing dump chest. They do not extract items that have nowhere but the default route to go, which makes it immediately obvious when something needs storage.$(br2)In most of marth's factories the default route and the dump chest are the same chest."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "A Warning",
+      "text": "$(bold)Do not place a QuickSort Module in the same place as an item sink$() unless that sink is a default route.$(br2)And if you ignore that, do not do it twice in one network — the QuickSort Modules will trade items back and forth forever."
+    }
+  ]
+}

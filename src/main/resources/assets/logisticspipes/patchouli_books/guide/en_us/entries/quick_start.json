@@ -1,0 +1,56 @@
+{
+  "name": "Logistics Pipes",
+  "category": "logisticspipes:getting_started",
+  "icon": "logisticspipes:pipe_basic",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Welcome Back",
+      "text": "$(italic)\"It's been a long time. How have you been?\"$()$(br2)First off, thanks for playing Logistics Pipes.$(br2)A lot of changes have been made since the last release of LP in Minecraft 1.7.10. We'll try to explain some of these in this book."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "I hope you already have your $(item)Logistics Power Junction$() set up and crafted your first $(item)Basic Logistics Pipes$(). If not, go for it.$(br2)You might have recognized that all other types of pipes and modules now need something called a $(item)Logistics Programmer$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:logistics_programmer",
+      "title": "The Programmer",
+      "text": "The Logistics Programmer won't be used up in any crafting recipe, but you need to set it up first. That is done with a $(item)Logistics Program Compiler$().$(br2)I know, it sounds complicated. But it really isn't. Craft both of these and a $(item)Logistics Disk$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Powering the Compiler",
+      "text": "Place the Program Compiler next to a Basic Logistics Pipe that is connected — directly or through other pipes — to the $(item)Power Junction$().$(br2)The compiler needs power, and takes it from the LP network."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "logisticspipes:disk",
+      "title": "Researching",
+      "text": "The compiler researches new tiers, pipes, modules and upgrades.$(br2)Insert the $(item)Logistics Disk$() in the top left slot, then unlock a tier. Start with $(thing)Basic$(). Researching takes some time, so relax and get some coffee."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Compiling",
+      "text": "After unlocking a tier you'll see pipe, module and upgrade names on the right. Compile each of them — much quicker than researching. Compiling makes a program flashable onto the Programmer.$(br2)To flash one, put the Programmer in the top right slot and flash a program onto it. You can then use that Programmer in the crafting recipe for that item.$(br2)Module programs live inside the chassis tiers."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Where Did Mk2 Go?",
+      "text": "You might be asking where the Mk2 and Mk3 pipes and modules are. They're gone — you recreate their effects with upgrades instead.$(br2)Look for $(thing)Action Speed$(), $(thing)Item Extraction$() and $(thing)ItemStack Extraction$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Upgrading Modules",
+      "text": "To upgrade your $(italic)modules$(), your chassis pipe needs the $(thing)Module Upgrade$(). Apply it to the chassis and new slots appear to the right of every inserted module — that's where module upgrades go.$(br2)While you're at it, check out the new $(thing)Highspeed Tubes$().$(br2)$(bold)But most importantly: have fun!$()"
+    },
+    {
+      "type": "patchouli:link",
+      "url": "https://github.com/VoiceLessQ/Logistic-Pipes-2/issues",
+      "link_text": "Bug Reports",
+      "title": "Links",
+      "text": "Found something broken, or want the latest build?$(br2)$(l:https://github.com/VoiceLessQ/Logistic-Pipes-2/releases)Official Builds$(/l)$(br)$(l:https://github.com/VoiceLessQ/Logistic-Pipes-2)Help us improve this book$(/l)"
+    }
+  ]
+}

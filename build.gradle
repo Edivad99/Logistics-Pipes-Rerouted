@@ -173,6 +173,7 @@ dependencies {
     localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
 
     implementation "curse.maven:jade-api-324717:$jade_id"
+    implementation "curse.maven:patchouli-306770:$patchouli_id"
 
     compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version:api"
     //localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
