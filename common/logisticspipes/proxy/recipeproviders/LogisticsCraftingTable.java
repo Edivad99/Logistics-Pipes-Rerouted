@@ -13,60 +13,57 @@ import network.rs485.logisticspipes.property.BitSetProperty;
 
 public class LogisticsCraftingTable implements IFuzzyRecipeProvider {
 
-	@Override
-	public boolean canOpenGui(BlockEntity tile) {
-		return (tile instanceof LogisticsCraftingTableBlockEntity);
-	}
+    @Override
+    public boolean canOpenGui(BlockEntity tile) {
+        return (tile instanceof LogisticsCraftingTableBlockEntity);
+    }
 
-	@Override
-	public boolean importRecipe(BlockEntity tile, IItemIdentifierInventory inventory) {
-		if (!(tile instanceof LogisticsCraftingTableBlockEntity)) {
-			return false;
-		}
+    @Override
+    public boolean importRecipe(BlockEntity blockEntity, IItemIdentifierInventory inventory) {
+        if (!(blockEntity instanceof LogisticsCraftingTableBlockEntity bench)) {
+            return false;
+        }
 
-		LogisticsCraftingTableBlockEntity bench = (LogisticsCraftingTableBlockEntity) tile;
-		ItemIdentifierStack result = bench.resultInv.getIDStackInSlot(0);
+        ItemIdentifierStack result = bench.resultInv.getIDStackInSlot(0);
 
-		if (result == null) {
-			return false;
-		}
+        if (result == null) {
+            return false;
+        }
 
-		inventory.setItem(9, result);
+        inventory.setItem(9, result);
 
-		// Import
-		for (int i = 0; i < bench.matrix.getContainerSize(); i++) {
-			if (i >= inventory.getContainerSize() - 2) {
-				break;
-			}
-			ItemStack stackInSlot = bench.matrix.getItem(i);
-			if (!stackInSlot.isEmpty() && stackInSlot.getCount() > 1) {
-				stackInSlot = stackInSlot.copy();
-				stackInSlot.setCount(1);
-			}
-			inventory.setItem(i, stackInSlot);
-		}
+        // Import
+        for (int i = 0; i < bench.matrix.getContainerSize(); i++) {
+            if (i >= inventory.getContainerSize() - 2) {
+                break;
+            }
+            ItemStack stackInSlot = bench.matrix.getItem(i);
+            if (!stackInSlot.isEmpty() && stackInSlot.getCount() > 1) {
+                stackInSlot = stackInSlot.copy();
+                stackInSlot.setCount(1);
+            }
+            inventory.setItem(i, stackInSlot);
+        }
 
-		if (!bench.isFuzzy()) {
-			inventory.getSlotAccess().compactFirst(9);
-		}
+        if (!bench.isFuzzy()) {
+            inventory.getSlotAccess().compactFirst(9);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public void importFuzzyFlags(BlockEntity tile, SlotAccess slotAccess, BitSetProperty fuzzyFlags) {
-		if (!(tile instanceof LogisticsCraftingTableBlockEntity)) {
-			return;
-		}
+    @Override
+    public void importFuzzyFlags(BlockEntity blockEntity, SlotAccess slotAccess, BitSetProperty fuzzyFlags) {
+        if (!(blockEntity instanceof LogisticsCraftingTableBlockEntity bench)) {
+            return;
+        }
 
-		LogisticsCraftingTableBlockEntity bench = (LogisticsCraftingTableBlockEntity) tile;
+        if (!bench.isFuzzy()) {
+            return;
+        }
 
-		if (!bench.isFuzzy()) {
-			return;
-		}
-
-		fuzzyFlags.replaceWith(bench.fuzzyFlags);
-		new FuzzySlotAccess(slotAccess, fuzzyFlags).compactFirst(9);
-	}
+        fuzzyFlags.replaceWith(bench.fuzzyFlags);
+        new FuzzySlotAccess(slotAccess, fuzzyFlags).compactFirst(9);
+    }
 
 }

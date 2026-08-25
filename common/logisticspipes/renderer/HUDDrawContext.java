@@ -11,7 +11,6 @@ import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Matrix4f;
@@ -40,6 +39,14 @@ import logisticspipes.client.renderer.LPRenderTypes;
  * sets up the pose so that one unit is one HUD pixel.</p>
  */
 public class HUDDrawContext {
+
+    /**
+     * How far towards the camera the stack-size label sits, in HUD pixels. An item is scaled by 16
+     * on every axis, so a block model rotated into the GUI display pose reaches about 14 units
+     * either side of the panel plane; 16 clears it. The panel itself is scaled to 0.008 blocks per
+     * unit, so this is about 13 centimetres in world terms -- far too little to read as detached.
+     */
+    private static final float ITEM_LABEL_DEPTH = 16.0f;
 
     private final PoseStack poseStack;
     private final MultiBufferSource.BufferSource bufferSource;
@@ -195,28 +202,36 @@ public class HUDDrawContext {
 
         poseStack.pushPose();
         poseStack.translate(x + 8.0f, y + 8.0f, 0.0f);
-        // A flat item is a sprite that the model generator extrudes into a thin slab. A GUI hides
-        // that: it looks at the item head on through an orthographic projection. Here the camera is
+        // Negative on y *and* z, which together are a 180 degree turn about x rather than a
+        // mirror. A GUI gets away with scale(s, -s, s) because its projection is built with
+        // invertY -- see GuiItemAtlas.render -- so the two mirrorings cancel; out here the
+        // projection is the ordinary perspective camera, and a lone negative left the whole item
+        // reflected: back-face culling kept the far faces, so a chest showed its own hollow
+        // interior, and every normal pointed the wrong way, so lit-from-above surfaces came out
+        // dark. The panel's +z points away from the camera, so flipping z is also what turns the
+        // model around to face the viewer.
+        //
+        // A flat item is a sprite the model generator extrudes into a thin slab. A GUI hides that
+        // by looking at it head on through an orthographic projection; here the camera is
         // perspective, so an item away from the centre of the screen is seen at a slight angle and
         // the unlit sides of the slab show up as dark slivers along its edge. Squashing z keeps the
         // sprite intact and makes the extrusion too thin to see; real 3D models keep their depth.
-        poseStack.scale(16.0f, -16.0f, flat ? 1.0f : 16.0f);
+        poseStack.scale(16.0f, -16.0f, flat ? -1.0f : -16.0f);
 
-        // Items need the GUI light set, not the level's. We are inside the world pass, so
-        // Lighting.Entry.LEVEL is active and an item model rendered under it comes out dark --
-        // vanilla's GuiRenderer switches around exactly this call, and picks between the two item
-        // entries on the same usesBlockLight test. The batch has to be drawn while that set is
-        // bound, since the lighting lives in a uniform buffer applied at draw time, and the level
-        // set is restored afterwards for the rest of the world pass.
-        Lighting lighting = minecraft.gameRenderer.getLighting();
-        lighting.setupFor(flat ? Lighting.Entry.ITEMS_FLAT : Lighting.Entry.ITEMS_3D);
+        // Lighting stays on Lighting.Entry.LEVEL, the world pass's own set, rather than switching
+        // to the ITEMS_* sets a GUI uses. Those are not neutral: ITEMS_3D bakes its light
+        // directions through scaling(1, -1, 1) plus the GUI's own item rotation, so they only make
+        // sense for geometry mirrored the GUI way and viewed from the GUI's angle. Applied to an
+        // upright item in the world they light it from underneath. LEVEL's directions are the
+        // plain ones, coming from above, which is what an item standing upright in the world wants.
+        //
         // 1.21.9 routes item drawing through a SubmitNodeCollector, which a level-stage listener
         // has no way to obtain; ImmediateSubmitCollector adapts back onto the buffer source we do
-        // have, and the drawing itself is still vanilla's ItemRenderer.
+        // have, and the drawing itself is still vanilla's.
         renderState.submit(poseStack, new ImmediateSubmitCollector(bufferSource), packedLight,
             OverlayTexture.NO_OVERLAY, 0);
+        // Drawn now so the item lands in call order, like every other primitive here.
         bufferSource.endBatch();
-        lighting.setupFor(Lighting.Entry.LEVEL);
         poseStack.popPose();
     }
 
@@ -230,7 +245,7 @@ public class HUDDrawContext {
             return;
         }
         String count = String.valueOf(stack.getCount());
-        drawString(font, count, x + 19 - 2 - font.width(count), y + 6 + 3, 0xFFFFFFFF, true);
+        drawCountLabel(font, count, x, y);
     }
 
     /** As above, with an explicit label -- LP formats its own counts for large stacks. */
@@ -240,8 +255,22 @@ public class HUDDrawContext {
         }
         String text = label != null ? label : (stack.getCount() == 1 ? null : String.valueOf(stack.getCount()));
         if (text != null) {
-            drawString(font, text, x + 19 - 2 - font.width(text), y + 6 + 3, 0xFFFFFFFF, true);
+            drawCountLabel(font, text, x, y);
         }
+    }
+
+    /**
+     * A GUI puts the count on top of the item by opening a new stratum, which does not exist
+     * outside GuiRenderState. Here the item is real geometry that writes depth and, being a block
+     * model scaled by 16, reaches several units towards the camera -- so a label drawn on the
+     * panel plane loses the depth test against the very item it belongs to and comes out sunk into
+     * it. Moving the label towards the viewer past the item's own depth is what puts it in front.
+     */
+    private void drawCountLabel(Font font, String text, int x, int y) {
+        poseStack.pushPose();
+        poseStack.translate(0.0f, 0.0f, -ITEM_LABEL_DEPTH);
+        drawString(font, text, x + 19 - 2 - font.width(text), y + 6 + 3, 0xFFFFFFFF, true);
+        poseStack.popPose();
     }
 
     /** The render type used for flat fills, exposed for callers that batch their own geometry. */

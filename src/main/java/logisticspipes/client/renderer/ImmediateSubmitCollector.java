@@ -40,8 +40,8 @@ import org.jspecify.annotations.Nullable;
  * -- no collector is reachable from a level-stage listener, in vanilla or in NeoForge.</p>
  *
  * <p>So the HUD keeps its buffer source and adapts in the other direction. The work is still
- * vanilla's: {@link #submitItem} is the body of {@code ItemFeatureRenderer.renderItem} minus the
- * foil and outline passes, which LP's HUD never asks for.</p>
+ * vanilla's: each implemented method is the body of the matching feature renderer, minus the foil,
+ * outline and block-breaking passes, which LP's HUD never asks for.</p>
  *
  * <p>Only the submissions LP actually produces are implemented. Everything else
  * throws rather than silently dropping geometry: if a future change starts routing models or name
@@ -118,18 +118,30 @@ public class ImmediateSubmitCollector implements SubmitNodeCollector {
         throw unsupported("submitLeash");
     }
 
+    /**
+     * An item whose model is drawn by a {@code SpecialModelRenderer} rather than from baked quads --
+     * a chest, a shulker box, a bed, a banner -- reaches the collector through here instead of
+     * through {@link #submitItem}. The body is {@code ModelFeatureRenderer.renderModel} without the
+     * outline and block-breaking passes, neither of which the HUD asks for.
+     */
     @Override
     public <S> void submitModel(Model<? super S> model, S state, PoseStack poseStack, RenderType renderType,
         int lightCoords, int overlayCoords, int tintedColor, @Nullable TextureAtlasSprite sprite, int outlineColor,
         ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
-        throw unsupported("submitModel");
+        VertexConsumer buffer = bufferSource.getBuffer(renderType);
+        model.setupAnim(state);
+        model.renderToBuffer(poseStack, sprite == null ? buffer : sprite.wrap(buffer),
+            lightCoords, overlayCoords, tintedColor);
     }
 
+    /** As {@link #submitModel}, for the renderers that submit a single part: {@code ModelPartFeatureRenderer.render}. */
     @Override
     public void submitModelPart(ModelPart modelPart, PoseStack poseStack, RenderType renderType, int lightCoords,
         int overlayCoords, @Nullable TextureAtlasSprite sprite, boolean sheeted, boolean hasFoil, int tintedColor,
         ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay, int outlineColor) {
-        throw unsupported("submitModelPart");
+        VertexConsumer buffer = bufferSource.getBuffer(renderType);
+        modelPart.render(poseStack, sprite == null ? buffer : sprite.wrap(buffer),
+            lightCoords, overlayCoords, tintedColor);
     }
 
     @Override

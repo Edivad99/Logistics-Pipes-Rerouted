@@ -108,9 +108,9 @@ public abstract class ModuleCoordinatesPacket extends CoordinatesPacket {
 			LogisticsTileGenericPipe pipe = this.getPipe(player.level(), LTGPCompletionCheck.NONE);
 			moduleBased = false;
 			if (!(pipe.pipe instanceof CoreRoutedPipe)) {
-				throw new TargetNotFoundException("Couldn't find " + clazz.getName() + ", pipe didn't exsist", this);
+				throw new TargetNotFoundException("Couldn't find " + clazz.getName() + ", pipe didn't exist", this);
 			} else if (!pipe.isInitialized()) {
-				return null;
+				throw new TargetNotFoundException("Couldn't find " + clazz.getName() + ", pipe not initialized yet", this);
 			}
 			if (!(pipe.pipe instanceof PipeLogisticsChassis)) {
 				throw new TargetNotFoundException("Couldn't find " + clazz.getName() + ", pipe wasn't a chassi pipe", this);

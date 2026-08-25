@@ -207,19 +207,23 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			sendInitPacket = false;
 			getRenderController().sendInit();
 		}
-		if (!level.isClientSide()) {
-			if (deletePipe) {
-				level.removeBlock(getBlockPos(), false);
-			}
+		if (!level.isClientSide() && deletePipe) {
+			level.removeBlock(getBlockPos(), false);
+		}
 
-			if (pipe == null) {
-				debug.end();
-				return;
-			}
+		if (pipe == null) {
+			debug.end();
+			return;
+		}
 
-			if (!initialized) {
-				initialize(pipe);
-			}
+		// Both sides. onLoad() clears this flag every time the tile is (re)added to the level, which
+		// on the client happens after the description packet has already initialized it -- and the
+		// client had no other way back, because this call used to sit inside a server-only branch and
+		// afterStateUpdated() only runs when a *new* state packet arrives. A client pipe therefore
+		// spent most of its life reporting isInitialized() == false, and every packet gated on that
+		// was dropped: the chassis HUD never received its module contents.
+		if (!initialized) {
+			initialize(pipe);
 		}
 
 		if (!LogisticsBlockGenericPipe.isValid(pipe)) {

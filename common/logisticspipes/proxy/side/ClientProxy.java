@@ -27,9 +27,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class ClientProxy implements IProxy {
 
-	int renderIndex = 0;
-
-	@Override
+    @Override
 	public String getSide() {
 		return "Client";
 	}
