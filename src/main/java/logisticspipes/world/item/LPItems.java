@@ -82,7 +82,6 @@ import logisticspipes.pipes.upgrades.SpeedUpgrade;
 import logisticspipes.pipes.upgrades.UpgradeModuleUpgrade;
 import logisticspipes.pipes.upgrades.power.RFPowerSupplierUpgrade;
 import logisticspipes.world.level.block.LPBlocks;
-import network.rs485.logisticspipes.guidebook.ItemGuideBook;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.module.AsyncExtractorModule;
 import network.rs485.logisticspipes.module.AsyncQuicksortModule;
@@ -122,8 +121,6 @@ public class LPItems {
         deferredRegister.registerItem("fluid_container", LogisticsFluidContainer::new);
     public static final DeferredItem<LogisticsBrokenItem> BROKEN_ITEM =
         deferredRegister.registerItem("broken_item", LogisticsBrokenItem::new);
-    public static final DeferredItem<ItemGuideBook> GUIDE_BOOK =
-        deferredRegister.registerItem("guide_book", ItemGuideBook::new);
     public static final DeferredItem<ItemPipeController> PIPE_CONTROLLER =
         deferredRegister.registerItem("pipe_controller", ItemPipeController::new);
     public static final DeferredItem<ItemPipeManager> PIPE_MANAGER =

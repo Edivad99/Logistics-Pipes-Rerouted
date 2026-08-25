@@ -18,6 +18,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -42,6 +43,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.fml.ModList;
+
+import vazkii.patchouli.api.PatchouliAPI;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -65,9 +69,8 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
 import logisticspipes.utils.string.ChatColor;
-import logisticspipes.world.item.LPItems;
-import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.PlayerConfiguration;
+import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.module.AsyncQuicksortModule;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -339,20 +342,32 @@ public class LogisticsEventListener {
 		}
 	}
 
+	/**
+	 * Hands the player the guide book the first time they craft anything from LP.
+	 */
 	@SubscribeEvent
 	public void onItemCrafting(PlayerEvent.ItemCraftedEvent event) {
-		if (!event.getEntity().level().isClientSide() && !event.getCrafting().isEmpty()) {
-			if (BuiltInRegistries.ITEM.getKey(event.getCrafting().getItem()).getNamespace().equals(LPConstants.ID)) {
-				PlayerIdentifier identifier = PlayerIdentifier.get(event.getEntity());
-				PlayerConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(identifier);
-				if (!config.getHasCraftedLPItem() && !LogisticsPipes.isDEBUG()) {
-					ItemStack book = LPItems.GUIDE_BOOK.toStack(1);
-					event.getEntity().addItem(book);
-
-					config.setHasCraftedLPItem(true);
-					LogisticsPipes.getServerConfigManager().setPlayerConfiguration(identifier, config);
-				}
-			}
+		if (event.getEntity().level().isClientSide() || event.getCrafting().isEmpty()) {
+			return;
 		}
+		if (!BuiltInRegistries.ITEM.getKey(event.getCrafting().getItem()).getNamespace().equals(LPConstants.ID)) {
+			return;
+		}
+		if (!ModList.get().isLoaded(PatchouliAPI.MOD_ID)) {
+			return;
+		}
+		PlayerIdentifier identifier = PlayerIdentifier.get(event.getEntity());
+		PlayerConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(identifier);
+		if (config.getHasCraftedLPItem() || LogisticsPipes.isDEBUG()) {
+			return;
+		}
+		ItemStack book = PatchouliAPI.get().getBookStack(LPConstants.rl("guide"));
+		if (book.isEmpty()) {
+			return;
+		}
+		event.getEntity().addItem(book);
+		config.setHasCraftedLPItem(true);
+		LogisticsPipes.getServerConfigManager().setPlayerConfiguration(identifier, config);
 	}
+
 }

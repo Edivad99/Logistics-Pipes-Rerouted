@@ -35,14 +35,11 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.gui.guidebook
+package network.rs485.logisticspipes.gui
 
-import network.rs485.logisticspipes.gui.GuiDrawer
-import network.rs485.logisticspipes.gui.guidebook.GuideBookConstants.DRAW_BODY_WIREFRAME
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.Rectangle
 import network.rs485.logisticspipes.util.math.MutableRectangle
-import logisticspipes.utils.MinecraftColor
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.sounds.SoundEvent
@@ -148,13 +145,7 @@ interface Drawable {
      * @param visibleArea   used to avoid draw calls on non-visible children
      */
     fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        if (DRAW_BODY_WIREFRAME) {
-            val visibleAbsoluteBody = MutableRectangle.fromRectangle(visibleArea)
-                .translate(0, -5)
-                .grow(0, 10)
-                .overlap(absoluteBody)
-            GuiDrawer.drawOutlineRect(guiGraphics, visibleAbsoluteBody, MinecraftColor.WHITE.colorCode)
-        }
+        // No default drawing; the debug wireframe went with the guide book.
     }
 
     /**

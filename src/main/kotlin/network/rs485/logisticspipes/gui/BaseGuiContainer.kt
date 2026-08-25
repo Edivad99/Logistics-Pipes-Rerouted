@@ -37,8 +37,6 @@
 
 package network.rs485.logisticspipes.gui
 
-import network.rs485.logisticspipes.gui.guidebook.Drawable
-import network.rs485.logisticspipes.gui.guidebook.MouseInteractable
 import network.rs485.logisticspipes.gui.widget.FuzzySelectionWidget
 import network.rs485.logisticspipes.inventory.container.LPBaseContainer
 import network.rs485.logisticspipes.util.IRectangle

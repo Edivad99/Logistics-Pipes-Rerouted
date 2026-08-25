@@ -41,7 +41,7 @@ import network.rs485.logisticspipes.gui.HorizontalAlignment
 import network.rs485.logisticspipes.gui.Margin
 import network.rs485.logisticspipes.gui.Size
 import network.rs485.logisticspipes.gui.VerticalAlignment
-import network.rs485.logisticspipes.gui.guidebook.Drawable
+import network.rs485.logisticspipes.gui.Drawable
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import logisticspipes.utils.Color

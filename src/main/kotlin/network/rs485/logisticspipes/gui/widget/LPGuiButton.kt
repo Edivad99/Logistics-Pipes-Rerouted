@@ -38,8 +38,8 @@
 package network.rs485.logisticspipes.gui.widget
 
 import network.rs485.logisticspipes.gui.*
-import network.rs485.logisticspipes.gui.guidebook.Drawable
-import network.rs485.logisticspipes.gui.guidebook.MouseInteractable
+import network.rs485.logisticspipes.gui.Drawable
+import network.rs485.logisticspipes.gui.MouseInteractable
 import network.rs485.logisticspipes.util.IRectangle
 import net.minecraft.client.gui.GuiGraphicsExtractor
 

@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.gui
 
-import network.rs485.logisticspipes.gui.guidebook.Drawable
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 

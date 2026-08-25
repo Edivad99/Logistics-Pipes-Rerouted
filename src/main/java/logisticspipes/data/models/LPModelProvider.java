@@ -93,7 +93,6 @@ public class LPModelProvider extends ModelProvider {
             LPItems.PIPE_MANAGER.get(),
             LPItems.LOGISTICS_PROGRAMMER.get(),
             LPItems.BROKEN_ITEM.get(),
-            LPItems.GUIDE_BOOK.get(),
             LPItems.CHIP_ADVANCED.get(),
             LPItems.CHIP_ADVANCED_RAW.get(),
             LPItems.CHIP_BASIC.get(),

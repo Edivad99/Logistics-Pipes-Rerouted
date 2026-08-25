@@ -47,10 +47,10 @@
     },
     {
       "type": "patchouli:link",
-      "url": "https://github.com/VoiceLessQ/Logistic-Pipes-2/issues",
+      "url": "https://github.com/Edivad99/Logistic-Pipes-2/issues",
       "link_text": "Bug Reports",
       "title": "Links",
-      "text": "Found something broken, or want the latest build?$(br2)$(l:https://github.com/VoiceLessQ/Logistic-Pipes-2/releases)Official Builds$(/l)$(br)$(l:https://github.com/VoiceLessQ/Logistic-Pipes-2)Help us improve this book$(/l)"
+      "text": "Found something broken, or want the latest build?$(br2)$(l:https://github.com/Edivad99/Logistic-Pipes-2/releases)Official Builds$(/l)$(br)$(l:https://github.com/Edivad99/Logistic-Pipes-2)Help us improve this book$(/l)"
     }
   ]
 }

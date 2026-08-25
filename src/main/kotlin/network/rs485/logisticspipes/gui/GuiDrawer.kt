@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.gui
 
-import network.rs485.logisticspipes.gui.font.LPFontRenderer
 import network.rs485.logisticspipes.util.FuzzyFlag
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.utils.Color
@@ -51,7 +50,6 @@ import net.minecraft.resources.Identifier
 import java.lang.Float.min
 
 // Every drawing method takes the GuiGraphicsExtractor to draw into, so nothing here depends on ambient state.
-// BDF custom-font paths remain deferred — those live on LPFontRenderer.
 
 /**
  * Drawing methods to help with GUIs (rendering implementation deferred for 1.20.1).
@@ -61,9 +59,6 @@ object GuiDrawer {
     private const val BORDER: Int = 4
     private const val NORMAL_SLOT_SIZE = 18
 
-    val lpFontRenderer: LPFontRenderer by lazy {
-        LPFontRenderer.get("ter-u12n")
-    }
     val mcFontRenderer: Font by lazy {
         Minecraft.getInstance().font
     }
@@ -81,10 +76,6 @@ object GuiDrawer {
         val right = guiArea.roundedRight
         val bottom = guiArea.roundedBottom
         LPGuiGraphics.drawGuiBackGround(guiGraphics, left, top, right, bottom, 0f, true)
-    }
-
-    fun drawGuiTexturedRect(rect: IRectangle, text: IRectangle, blend: Boolean, color: Int) {
-        // TODO: texture-atlas sprite blit — no widget GUI calls this yet; port alongside guide book work.
     }
 
     private val BUTTON = Identifier.withDefaultNamespace("widget/button")
@@ -111,10 +102,6 @@ object GuiDrawer {
         guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, rect.roundedLeft, rect.roundedTop, rect.roundedWidth, rect.roundedHeight)
     }
 
-    fun drawGuideBookFrame(rect: IRectangle, slider: IRectangle) {
-        // TODO: guide book frame — deferred with guide book rendering port.
-    }
-
     fun drawTextTooltip(
         guiGraphics: GuiGraphicsExtractor,
         text: List<String>,
@@ -127,18 +114,6 @@ object GuiDrawer {
         if (text.isEmpty()) return
         val components = text.map { Component.literal(it) }
         guiGraphics.setComponentTooltipForNextFrame(mcFontRenderer, components, x, y)
-    }
-
-    fun drawGuideBookBackground(rect: IRectangle) {
-        // TODO: guide book background — deferred with guide book rendering port.
-    }
-
-    fun drawSliderButton(body: IRectangle, texture: IRectangle) {
-        // TODO: guide book slider — deferred with guide book rendering port.
-    }
-
-    fun drawInteractionIndicator(mouseX: Float, mouseY: Float) {
-        // TODO: guide book hover indicator — deferred.
     }
 
     fun drawLine(guiGraphics: GuiGraphicsExtractor, start: Pair<Float, Float>, finish: Pair<Float, Float>, color: Int, thickness: Float) {

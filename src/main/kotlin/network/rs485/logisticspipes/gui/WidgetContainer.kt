@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.gui
 
-import network.rs485.logisticspipes.gui.guidebook.*
 import network.rs485.logisticspipes.gui.widget.LPGuiWidget
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.LogisticsPipes

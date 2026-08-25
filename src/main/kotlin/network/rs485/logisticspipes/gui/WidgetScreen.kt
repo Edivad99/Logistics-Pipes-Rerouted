@@ -37,9 +37,6 @@
 
 package network.rs485.logisticspipes.gui
 
-import network.rs485.logisticspipes.gui.guidebook.Drawable
-import network.rs485.logisticspipes.gui.guidebook.MouseHoverable
-import network.rs485.logisticspipes.gui.guidebook.Screen
 import network.rs485.logisticspipes.util.math.MutableRectangle
 
 abstract class WidgetScreen : Drawable {

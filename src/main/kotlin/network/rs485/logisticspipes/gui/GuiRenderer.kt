@@ -37,7 +37,6 @@
 
 package network.rs485.logisticspipes.gui
 
-import network.rs485.logisticspipes.gui.guidebook.Drawable
 import network.rs485.logisticspipes.gui.widget.*
 
 object GuiRenderer : WidgetRenderer<WidgetContainer> {
