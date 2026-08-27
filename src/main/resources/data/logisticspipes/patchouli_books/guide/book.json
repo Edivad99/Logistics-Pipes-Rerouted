@@ -1,6 +1,6 @@
 {
-  "name": "Logistics Pipes",
-  "landing_text": "$(italic)\"It's been a long time. How have you been?\"$()$(br2)First off, thanks for playing Logistics Pipes.",
+  "name": "Logistics Pipes: Rerouted",
+  "landing_text": "$(italic)\"It's been a long time. How have you been?\"$()$(br2)First off, thanks for playing Logistics Pipes: Rerouted.",
   "model": "patchouli:book_blue",
   "creative_tab": "logisticspipes:logistics_pipes",
   "use_resource_pack": true,

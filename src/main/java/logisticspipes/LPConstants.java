@@ -9,7 +9,7 @@ import com.mojang.authlib.GameProfile;
 public class LPConstants {
 
     public static final String ID = "logisticspipes";
-    public static final String NAME = "Logistics Pipes";
+    public static final String NAME = "Logistics Pipes: Rerouted";
     private static final String LP_PLAYER = "[" + ID + "]";
     public static final GameProfile FAKE_GAMEPROFILE =
         new GameProfile(UUID.nameUUIDFromBytes(LP_PLAYER.getBytes()), LP_PLAYER);

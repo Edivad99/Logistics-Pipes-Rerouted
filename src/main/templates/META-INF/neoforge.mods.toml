@@ -1,51 +1,51 @@
 modLoader = "javafml"
 loaderVersion = "${loader_version_range}"
-license     = "MMPL-1.0.1"
+license = "${mod_license}"
+issueTrackerURL = "https://github.com/Edivad99/Logistics-Pipes-Rerouted/issues"
 
 [[mods]]
-    modId = "${mod_id}"
-    version = "${mod_version}"
-    displayName = "Logistics Pipes 2"
-    description = '''
-        Logistics Pipes 2 is a NeoForge 1.21.1 revival of the classic Logistics Pipes:
-        request-based item routing, automated crafting, and modular chassis pipes,
-        brought back to modern Minecraft.
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+description = '''
+Logistics Pipes: Rerouted is a NeoForge revival of the classic Logistics Pipes:
+request-based item routing, automated crafting, and modular chassis pipes,
+brought back to modern Minecraft.
 
-        Originally by Krapht; 1.12.2 codebase by the RS485 LP team. This port is
-        maintained by NoZeroG and Edivad99 and distributed under the MMPL-1.0.1.
-    '''
-    authors = "NoZeroG and Edivad99 (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
-    displayURL = "https://github.com/Edivad99/Logistic-Pipes-2"
-    issueTrackerURL = "https://github.com/Edivad99/Logistic-Pipes-2/issues"
+Originally by Krapht; 1.12.2 codebase by the RS485 LP team. This port is
+maintained by Edivad99 and NoZeroG and distributed under the MMPL-1.0.1.
+'''
+authors = "Edivad99 and NoZeroG (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
+displayURL = "https://github.com/Edivad99/Logistics-Pipes-Rerouted"
 
 [[dependencies.logisticspipes]]
-    type = "required"
-    modId = "neoforge"
-    ordering = "AFTER"
-    side = "BOTH"
-    versionRange = "${neo_version_range}"
+type = "required"
+modId = "neoforge"
+ordering = "AFTER"
+side = "BOTH"
+versionRange = "${neo_version_range}"
 [[dependencies.logisticspipes]]
-    type = "required"
-    modId = "minecraft"
-    ordering = "NONE"
-    side = "BOTH"
-    versionRange = "${minecraft_version_range}"
+type = "required"
+modId = "minecraft"
+ordering = "NONE"
+side = "BOTH"
+versionRange = "${minecraft_version_range}"
 
 # Applied Energistics 2 — optional integration (AEInterfaceInventoryHandler).
 # Only the ordering matters: AE2 has to be loaded before SpecialInventoryHandlerManager
 # decides whether to register the handler.
 [[dependencies.logisticspipes]]
-    type = "optional"
-    modId = "ae2"
-    ordering = "AFTER"
-    side = "BOTH"
-    versionRange = "[19,)"
+type = "optional"
+modId = "ae2"
+ordering = "AFTER"
+side = "BOTH"
+versionRange = "[19,)"
 
 # Refined Storage — optional integration (RefinedStorageInventoryHandler), same reasoning as AE2:
 # RS has to be loaded before SpecialInventoryHandlerManager decides whether to register.
 [[dependencies.logisticspipes]]
-    type = "optional"
-    modId = "refinedstorage"
-    ordering = "AFTER"
-    side = "BOTH"
-    versionRange = "[2,)"
+type = "optional"
+modId = "refinedstorage"
+ordering = "AFTER"
+side = "BOTH"
+versionRange = "[2,)"

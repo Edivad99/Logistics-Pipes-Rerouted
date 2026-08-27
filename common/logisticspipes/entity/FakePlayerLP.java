@@ -10,7 +10,7 @@ import logisticspipes.LPConstants;
 public class FakePlayerLP extends FakePlayer {
 
   private final Component DISPLAY_NAME = Component.literal(
-      String.format("[%s]", LPConstants.NAME.replace(" ", "")));
+      String.format("[%s]", LPConstants.NAME.replace(" ", "").replace(":", "")));
 
   public FakePlayerLP(ServerLevel level) {
     super(level, LPConstants.FAKE_GAMEPROFILE);

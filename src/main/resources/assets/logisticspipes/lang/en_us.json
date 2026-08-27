@@ -470,5 +470,6 @@
   "enum.logisticspipes.fuzzy_flags.use_ore_dict": "OreDict",
   "enum.logisticspipes.fuzzy_flags.ignore_damage": "IgnDamage",
   "enum.logisticspipes.fuzzy_flags.ignore_nbt": "IgnNBT",
-  "enum.logisticspipes.fuzzy_flags.use_ore_category": "OrePrefix"
+  "enum.logisticspipes.fuzzy_flags.use_ore_category": "OrePrefix",
+  "itemGroup.logisticspipes": "Logistics Pipes: Rerouted"
 }

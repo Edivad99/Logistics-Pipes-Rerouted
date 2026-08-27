@@ -125,3 +125,4 @@ runs/
 repo/
 !**/src/**/repo/
 /.kotlin
+/CHANGELOG.md
