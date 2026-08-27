@@ -64,6 +64,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.DecoderException;
 import static io.netty.buffer.Unpooled.buffer;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import org.jspecify.annotations.Nullable;
@@ -79,6 +80,15 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	private static final Charset UTF_8 = StandardCharsets.UTF_8;
+	/**
+	 * Cap on the initial capacity of a collection sized from the wire. The length prefix is
+	 * attacker-controlled, so pre-sizing to it lets a single small packet claiming
+	 * {@code Integer.MAX_VALUE} entries exhaust the heap before a single element is read.
+	 * Collections grow on demand, so a bounded initial capacity only costs a few resizes on
+	 * genuinely large payloads, and the element reads hit the end of the buffer long before
+	 * memory becomes a problem.
+	 */
+	private static final int MAX_INITIAL_CAPACITY = 1024;
 	private static final HashMap<Long, LPDataIOWrapper> BUFFER_WRAPPER_MAP = new HashMap<>();
 	ByteBuf localBuffer;
 	private int reference;
@@ -223,7 +233,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public byte[] readByteArray() {
-		final int length = readInt();
+		final int length = readLengthPrefix(Byte.BYTES);
 		if (length == -1) {
 			return null;
 		}
@@ -521,12 +531,50 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 		return buf().readNbt();
 	}
 
+	/**
+	 * Reads a length prefix for an allocation that must be exactly that size, so it cannot be
+	 * bounded by {@link #MAX_INITIAL_CAPACITY} the way a growable collection can. Every element
+	 * needs at least {@code minBytesPerElement} bytes on the wire, which gives a hard upper bound
+	 * from what is actually left in the buffer.
+	 *
+	 * @return the length, or -1 for the null marker
+	 */
+	private int readLengthPrefix(int minBytesPerElement) {
+		final int length = localBuffer.readInt();
+		if (length == -1) {
+			return -1;
+		}
+		if (length < 0) {
+			throw new DecoderException("Negative length prefix: " + length);
+		}
+		final long required = (long) length * minBytesPerElement;
+		if (required > localBuffer.readableBytes()) {
+			throw new DecoderException("Length prefix of " + length + " needs at least " + required
+				+ " bytes, but only " + localBuffer.readableBytes() + " are readable");
+		}
+		return length;
+	}
+
+	/** As {@link #readLengthPrefix}, for a collection that is filled element by element. */
+	private int readSizePrefix() {
+		final int size = readInt();
+		if (size < -1) {
+			throw new DecoderException("Negative size prefix: " + size);
+		}
+		return size;
+	}
+
 	@Nullable
 	@Override
 	public boolean[] readBooleanArray() {
 		final int bitCount = localBuffer.readInt();
 		if (bitCount == -1) {
 			return null;
+		}
+		// The bits arrive packed into the byte array read below, so eight of them share one byte.
+		if (bitCount < 0 || bitCount > (long) localBuffer.readableBytes() * Byte.SIZE) {
+			throw new DecoderException("Bit count of " + bitCount + " exceeds the "
+				+ localBuffer.readableBytes() + " readable bytes");
 		}
 
 		byte[] data = readByteArray();
@@ -546,7 +594,8 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public String[] readUTFArray() {
-		final int length = localBuffer.readInt();
+		// Each entry is a byte array, so it carries at least its own int length prefix.
+		final int length = readLengthPrefix(Integer.BYTES);
 		if (length == -1) {
 			return null;
 		}
@@ -559,7 +608,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public int[] readIntArray() {
-		final int length = localBuffer.readInt();
+		final int length = readLengthPrefix(Integer.BYTES);
 		if (length == -1) {
 			return null;
 		}
@@ -571,6 +620,10 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
 	@Override
 	public byte[] readBytes(int length) {
+		if (length < 0 || length > localBuffer.readableBytes()) {
+			throw new DecoderException("Cannot read " + length + " bytes, "
+				+ localBuffer.readableBytes() + " readable");
+		}
 		byte[] arr = new byte[length];
 		localBuffer.readBytes(arr, 0, length);
 		return arr;
@@ -601,12 +654,12 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public <T> ArrayList<T> readArrayList(IReadListObject<T> reader) {
-		int size = readInt();
+		int size = readSizePrefix();
 		if (size == -1) {
 			return null;
 		}
 
-		ArrayList<T> list = new ArrayList<>(size);
+		ArrayList<T> list = new ArrayList<>(Math.min(size, MAX_INITIAL_CAPACITY));
 		for (int i = 0; i < size; i++) {
 			list.add(reader.readObject(this));
 		}
@@ -616,7 +669,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public <T> LinkedList<T> readLinkedList(IReadListObject<T> reader) {
-		int size = readInt();
+		int size = readSizePrefix();
 		if (size == -1) {
 			return null;
 		}
@@ -631,12 +684,12 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public <T> Set<T> readSet(IReadListObject<T> handler) {
-		int size = readInt();
+		int size = readSizePrefix();
 		if (size == -1) {
 			return null;
 		}
 
-		Set<T> set = new HashSet<>(size);
+		Set<T> set = new HashSet<>(Math.min(size, MAX_INITIAL_CAPACITY));
 		for (int i = 0; i < size; i++) {
 			set.add(handler.readObject(this));
 		}
@@ -646,7 +699,9 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public <T> NonNullList<T> readNonNullList(IReadListObject<T> reader, T fillItem) {
-		int size = readInt();
+		// withSize allocates the full length up front, so this needs the hard bound rather than
+		// a capped initial capacity. Every element costs at least one byte on the wire.
+		int size = readLengthPrefix(Byte.BYTES);
 		if (size == -1) {
 			return null;
 		}
@@ -678,7 +733,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 	@Nullable
 	@Override
 	public long[] readLongArray() {
-		final int length = localBuffer.readInt();
+		final int length = readLengthPrefix(Long.BYTES);
 		if (length == -1) {
 			return null;
 		}
