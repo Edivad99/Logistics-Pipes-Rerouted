@@ -6,13 +6,15 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.routing.IFilter;
 
 public class DummyRoutingDebugAdapter implements IRoutingDebugAdapter {
 
 	@Override
-	public void start(PriorityQueue<ExitRoute> candidatesCost, ArrayList<EnumSet<PipeRoutingConnectionType>> closedSet, ArrayList<EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList) {}
+	public void start(PriorityQueue<ExitRoute> candidatesCost, ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet, ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList) {}
 
 	@Override
 	public void nextPipe(ExitRoute lowestCostNode) {}
@@ -39,7 +41,7 @@ public class DummyRoutingDebugAdapter implements IRoutingDebugAdapter {
 	public void newFlagsForPipe(EnumSet<PipeRoutingConnectionType> newFlags) {}
 
 	@Override
-	public void filterList(EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters) {}
+	public void filterList(@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters) {}
 
 	@Override
 	public boolean independent() {

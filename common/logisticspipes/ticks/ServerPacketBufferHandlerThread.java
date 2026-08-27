@@ -16,6 +16,7 @@ import java.util.zip.GZIPOutputStream;
 
 import net.minecraft.world.entity.player.Player;
 
+import logisticspipes.LPConstants;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.BufferTransfer;
@@ -76,7 +77,7 @@ public class ServerPacketBufferHandlerThread {
 		new Thread(() -> {
 			serverCompressorThread.clear(player);
 			serverDecompressorThread.clear(player);
-		}).start();
+		}, "[%s] Packet Buffer Clear Server".formatted(LPConstants.NAME)).start();
 	}
 
 	private static class ServerCompressorThread extends Thread {
@@ -91,7 +92,7 @@ public class ServerPacketBufferHandlerThread {
 		private final Queue<WeakReference<Player>> playersToClear = new LinkedList<>();
 
 		public ServerCompressorThread() {
-			super("LogisticsPipes Packet Compressor Server");
+			super("[%s] Packet Compressor Server".formatted(LPConstants.NAME));
 			setDaemon(true);
 			start();
 		}
@@ -203,7 +204,7 @@ public class ServerPacketBufferHandlerThread {
 		private final Queue<WeakReference<Player>> playersToClear = new LinkedList<>();
 
 		public ServerDecompressorThread() {
-			super("LogisticsPipes Packet Decompressor Server");
+			super("[%s] Packet Decompressor Server".formatted(LPConstants.NAME));
 			setDaemon(true);
 			start();
 		}

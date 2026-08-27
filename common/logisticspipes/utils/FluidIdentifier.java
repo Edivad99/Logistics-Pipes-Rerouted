@@ -30,6 +30,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import com.mojang.serialization.Codec;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.LPConstants;
 import logisticspipes.proxy.LPRegistries;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
@@ -55,7 +56,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	// Everything else. Held weakly for the same reason as the item cache: nothing bounds how many
 	// component variants of a fluid a mod may produce at runtime.
 	private final static WeakInternCache<FluidKey, FluidIdentifier> patchedIdentifiers =
-			WeakInternCache.create("LogisticsPipes FluidIdentifier Cleanup Thread");
+			WeakInternCache.create("[%s] FluidIdentifier Cleanup Thread".formatted(LPConstants.NAME));
 
 	private final Object[] ccTypeHolder = new Object[1];
 

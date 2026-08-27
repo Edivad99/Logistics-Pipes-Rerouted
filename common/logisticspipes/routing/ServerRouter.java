@@ -707,12 +707,12 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 		//space and time inefficient, a bitset with 3 bits per node would save a lot but makes the main iteration look like a complete mess
-		ArrayList<EnumSet<PipeRoutingConnectionType>> closedSet = new ArrayList<>(ServerRouter.getBiggestSimpleID());
+		ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet = new ArrayList<>(ServerRouter.getBiggestSimpleID());
 		for (int i = 0; i < ServerRouter.getBiggestSimpleID(); i++) {
 			closedSet.add(null);
 		}
 
-		ArrayList<EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList = new ArrayList<>(ServerRouter
+		ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList = new ArrayList<>(ServerRouter
 				.getBiggestSimpleID());
 		for (int i = 0; i < ServerRouter.getBiggestSimpleID(); i++) {
 			filterList.add(null);

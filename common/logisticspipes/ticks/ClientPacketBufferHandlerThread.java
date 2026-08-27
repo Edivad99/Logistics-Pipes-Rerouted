@@ -13,6 +13,7 @@ import java.util.zip.GZIPOutputStream;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 
+import logisticspipes.LPConstants;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.BufferTransfer;
@@ -92,7 +93,7 @@ public class ClientPacketBufferHandlerThread {
 		private Lock clearLock = new ReentrantLock();
 
 		public ClientCompressorThread() {
-			super("LogisticsPipes Packet Compressor Client");
+			super("[%s] Packet Compressor Client".formatted(LPConstants.NAME));
 			setDaemon(true);
 			start();
 		}
@@ -101,7 +102,7 @@ public class ClientPacketBufferHandlerThread {
 		public void run() {
 			while (true) {
 				synchronized (clientList) {
-					if (!pause && clientList.size() > 0) {
+					if (!pause && !clientList.isEmpty()) {
 						clientBuffer = LPDataIOWrapper.collectData(output -> {
 							output.writeBytes(clientBuffer);
 							clearLock.lock();
@@ -134,7 +135,7 @@ public class ClientPacketBufferHandlerThread {
 					MainProxy.sendPacketToServer(PacketHandler.getPacket(BufferTransfer.class).setContent(compressed));
 				}
 				synchronized (clientList) {
-					while (pause || clientList.size() == 0) {
+					while (pause || clientList.isEmpty()) {
 						try {
 							clientList.wait();
 						} catch (InterruptedException ignored) { }
@@ -167,15 +168,11 @@ public class ClientPacketBufferHandlerThread {
 
 		public void clear() {
 			clear = true;
-			new Thread() {
-
-				@Override
-				public void run() {
-					clearLock.lock();
-					clientList.clear();
-					clearLock.unlock();
-				}
-			}.start();
+			new Thread(() -> {
+                clearLock.lock();
+                clientList.clear();
+                clearLock.unlock();
+            }, "[%s] Packet Buffer Clear Client".formatted(LPConstants.NAME)).start();
 		}
 	}
 
@@ -195,8 +192,8 @@ public class ClientPacketBufferHandlerThread {
 		private boolean clear = false;
 
 		public ClientDecompressorThread() {
-			super("LogisticsPipes Packet Decompressor Client");
-			setDaemon(true);
+            super("[%s] Packet Decompressor Client".formatted(LPConstants.NAME));
+            setDaemon(true);
 			start();
 		}
 
@@ -210,7 +207,7 @@ public class ClientPacketBufferHandlerThread {
 				part = null;
 				packetBufferLock.lock();
 				try {
-					if (FriendlyByteBuf.size() > 0) {
+					if (!FriendlyByteBuf.isEmpty()) {
 						part = FriendlyByteBuf.pop();
 					}
 				} finally {
@@ -228,7 +225,7 @@ public class ClientPacketBufferHandlerThread {
 				partB = null;
 				retryPacketsLock.lock();
 				try {
-					if (retryPackets.size() > 0) {
+					if (!retryPackets.isEmpty()) {
 						partB = retryPackets.pop();
 					}
 				} finally {
@@ -251,7 +248,7 @@ public class ClientPacketBufferHandlerThread {
 					flag = false;
 					byte[] buffer = null;
 					synchronized (queue) {
-						if (queue.size() > 0) {
+						if (!queue.isEmpty()) {
 							flag = true;
 							buffer = queue.getFirst();
 							queue.removeFirst();
@@ -281,7 +278,7 @@ public class ClientPacketBufferHandlerThread {
 					}
 				}
 				synchronized (queue) {
-					while (queue.size() == 0) {
+					while (queue.isEmpty()) {
 						try {
 							queue.wait();
 						} catch (InterruptedException ignored) { }

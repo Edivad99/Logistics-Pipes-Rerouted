@@ -8,10 +8,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.concurrent.CancellationException;
+
+import org.jspecify.annotations.Nullable;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
+import logisticspipes.LPConstants;
+import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.chathelper.LPChatListener;
 import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.routing.IFilter;
@@ -35,7 +40,7 @@ import logisticspipes.ticks.QueuedTasks;
 
 public class DebugController implements IRoutingDebugAdapter {
 
-	private static HashMap<Player, DebugController> instances = new HashMap<>();
+	private static final HashMap<Player, DebugController> instances = new HashMap<>();
 	public List<WeakReference<ExitRoute>> cachedRoutes = new LinkedList<>();
 
 	private final Player sender;
@@ -57,14 +62,22 @@ public class DebugController implements IRoutingDebugAdapter {
 		NOWAIT
 	}
 
+	@Nullable
 	private Thread oldThread = null;
-	private DebugWaitState state;
+	// Any value but NOWAIT preserves the previous behavior of an unset field: wait() only
+	// short-circuits on NOWAIT, and debug() re-arms this to LOOP before anything reads it.
+	private DebugWaitState state = DebugWaitState.LOOP;
+	@Nullable
 	private ExitRoute prevNode = null;
+	@Nullable
 	private ExitRoute nextNode = null;
 	private boolean pipeHandled = false;
+	@Nullable
 	private PriorityQueue<ExitRoute> candidatesCost = null;
-	private ArrayList<EnumSet<PipeRoutingConnectionType>> closedSet = null;
-	private ArrayList<EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList = null;
+	@Nullable
+	private ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet = null;
+	@Nullable
+	private ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList = null;
 
 	public void debug(final ServerRouter serverRouter) {
 		QueuedTasks.queueTask(() -> {
@@ -72,32 +85,49 @@ public class DebugController implements IRoutingDebugAdapter {
 			Thread tmp = new Thread() {
 
 				@Override
+				@SuppressWarnings("BusyWait") // same poll-based LPChatListener handshake as wait()
 				public void run() {
 					while (LPChatListener.existTaskFor(sender.getDisplayName().getString())) {
 						try {
 							Thread.sleep(10);
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							Thread.currentThread().interrupt();
+							return;
 						}
 					}
 					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), sender);
-					if (oldThread != null) {
-						oldThread.stop();
+					// This used to be oldThread.stop(), which throws UnsupportedOperationException
+					// outright since Java 20. The previous run is canceled cooperatively instead:
+					// wait() turns the interrupt into a CancellationException that unwinds
+					// CreateRouteTable.
+					final Thread previous = oldThread;
+					if (previous != null) {
+						previous.interrupt();
 					}
 					oldThread = new RoutingTableDebugUpdateThread() {
 
 						@Override
 						public void run() {
-							serverRouter.CreateRouteTable(0, DebugController.this);
-							oldThread = null;
+							try {
+								serverRouter.CreateRouteTable(0, DebugController.this);
+							} catch (CancellationException ignored) {
+								// superseded by a newer debug run
+							} finally {
+								// stop() killed the thread outright, so it never got here. Now that
+								// it unwinds, only clear the field if a newer run has not claimed it.
+								if (oldThread == this) {
+									oldThread = null;
+								}
+							}
 						}
 					};
 					oldThread.setDaemon(true);
-					oldThread.setName("RoutingTable update debug Thread");
+                    oldThread.setName("[%s] RoutingTable update debug Thread".formatted(LPConstants.NAME));
 					oldThread.start();
 				}
 			};
 			tmp.setDaemon(true);
+			tmp.setName("[%s] RoutingTable debug starter".formatted(LPConstants.NAME));
 			tmp.start();
 			return null;
 		});
@@ -107,13 +137,16 @@ public class DebugController implements IRoutingDebugAdapter {
 		sender.sendSystemMessage(Component.literal(message));
 	}
 
-	private synchronized void wait(final String reson, boolean flag) {
+	// The handshake with LPChatListener is poll-based: the chat task flips the state from
+	// another thread, so there is nothing to wait/notify on without reworking that listener.
+	@SuppressWarnings("BusyWait")
+	private synchronized void wait(final String reason) {
 		if (state == DebugWaitState.NOWAIT) {
 			return;
 		}
 		state = DebugWaitState.LOOP;
 		QueuedTasks.queueTask(() -> {
-			sender.sendSystemMessage(Component.literal(reson));
+			sender.sendSystemMessage(Component.literal(reason));
 			LPChatListener.addTask(() -> {
 				state = DebugWaitState.CONTINUE;
 				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), sender);
@@ -133,18 +166,22 @@ public class DebugController implements IRoutingDebugAdapter {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				// The routing debug thread parks here for most of its life, so this is where a
+				// cancellation lands. Swallowing it would leave the superseded run spinning
+				// forever; unwinding is what makes interrupt() an actual replacement for stop().
+				Thread.currentThread().interrupt();
+				throw new CancellationException("Routing debug cancelled for " + sender.getDisplayName().getString());
 			}
 		}
 	}
 
 	@Override
-	public void start(PriorityQueue<ExitRoute> candidatesCost, ArrayList<EnumSet<PipeRoutingConnectionType>> closedSet, ArrayList<EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList) {
+	public void start(PriorityQueue<ExitRoute> candidatesCost, ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet, ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList) {
 		this.candidatesCost = candidatesCost;
 		this.closedSet = closedSet;
 		this.filterList = filterList;
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateDebugCanidateList.class).setExitRoutes(new ArrayList<>(candidatesCost)), sender);
-		wait("Start?", true);
+		wait("Start?");
 	}
 
 	@Override
@@ -165,6 +202,14 @@ public class DebugController implements IRoutingDebugAdapter {
 	}
 
 	public void handledPipe(boolean flag) {
+		// These are only populated by start(); CreateRouteTable always calls it first, but a
+		// canceled run can unwind out of wait() and leave a later callback with nothing to send.
+		final ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet = this.closedSet;
+		final ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList = this.filterList;
+		final PriorityQueue<ExitRoute> candidatesCost = this.candidatesCost;
+		if (closedSet == null || filterList == null || candidatesCost == null) {
+			return;
+		}
 		for (int i = 0; i < closedSet.size(); i++) {
 			EnumSet<PipeRoutingConnectionType> set = closedSet.get(i);
 			if (set != null) {
@@ -185,14 +230,15 @@ public class DebugController implements IRoutingDebugAdapter {
 		}
 
 		LinkedList<ExitRoute> exitRoutes = new LinkedList<>(candidatesCost);
-		if (flag) {
+		final ExitRoute nextNode = this.nextNode;
+		if (flag && nextNode != null) {
 			exitRoutes.addFirst(nextNode);
 		}
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateDebugCanidateList.class).setExitRoutes(exitRoutes), sender);
 		if (prevNode == null || prevNode.debug.isTraced) {
 			//Display Information On Client Side
 
-			wait("Continue with next pipe?", false);
+			wait("Continue with next pipe?");
 		}
 		pipeHandled = true;
 	}
@@ -234,7 +280,7 @@ public class DebugController implements IRoutingDebugAdapter {
 	}
 
 	@Override
-	public void filterList(EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters) {
+	public void filterList(@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters) {
 
 	}
 
@@ -249,10 +295,12 @@ public class DebugController implements IRoutingDebugAdapter {
 	}
 
 	public void untrace(int integer) {
-		WeakReference<ExitRoute> ref = cachedRoutes.get(integer);
-		if (ref != null && ref.get() != null) {
-			ref.get().debug.isTraced = false;
-			System.out.println("Did Untrack: " + ref.get().destination.getLPPosition());
+		// ref.get() has to be read once into a local: the referent can be collected between two
+		// calls, so the old null-check-then-dereference pattern could still NPE.
+		ExitRoute route = cachedRoutes.get(integer).get();
+		if (route != null) {
+			route.debug.isTraced = false;
+			LogisticsPipes.LOG.debug("Did Untrack: {}", route.destination.getLPPosition());
 		}
 	}
 }

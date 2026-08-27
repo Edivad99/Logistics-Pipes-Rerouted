@@ -55,6 +55,7 @@ import net.neoforged.fml.ModList;
 import com.mojang.serialization.Codec;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
@@ -92,7 +93,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
     // Everything else. Held weakly: with damage folded into the patch this tier absorbs every
     // durability value of every tool and every enchanted book, which is unbounded and player-driven.
     private final static WeakInternCache<ItemKey, ItemIdentifier> patchedIdentifiers =
-        WeakInternCache.create("LogisticsPipes ItemIdentifier Cleanup Thread");
+        WeakInternCache.create("[%s] ItemIdentifier Cleanup Thread".formatted(LPConstants.NAME));
     // Item -> registry-key path of the FIRST CATEGORY tab containing it, built once on demand.
     // Vanilla only builds tab contents from the client creative-inventory screen, so on a
     // dedicated server (and on survival clients) getDisplayItems() stays empty forever; we
