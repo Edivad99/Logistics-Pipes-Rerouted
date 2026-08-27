@@ -111,18 +111,20 @@ public final class TubeModels {
                 List<ObjMesh> placed = new ArrayList<>(parts.size());
                 for (ObjModel.Part part : parts) {
                     // Single-sided on purpose. The originals called twoFacedCopy() here, but the
-                    // tubes are drawn with RenderType.entityCutoutNoCull, which already shows
-                    // both faces of a quad. Duplicating them put two coplanar copies with
-                    // opposed normals in the same place, and since entity render types shade
-                    // from the normal, the two copies fought for depth and were lit opposite
-                    // ways — one side of a tube came out darker than the other.
+                    // tubes are drawn with a no-cull render type, which already shows both faces
+                    // of a quad. Duplicating them put two coplanar copies in the same place,
+                    // which fought for depth.
                     //
-                    // Removing the duplicates was not enough, because the winding of the OBJ
-                    // itself is not consistent between neighbouring faces (the same reason
-                    // PipeQuadBaker bakes the pipe frame with shade = false), and
-                    // withComputedNormals() reads the normal straight off that winding. So a
-                    // uniform normal instead: the tubes end up flat-lit, matching the unshaded
-                    // pipe frame they attach to, rather than half-lit by an arbitrary winding.
+                    // The uniform normal is what is left of an older attempt to stop one side of
+                    // a tube coming out darker than the other: the OBJ does not wind its faces
+                    // consistently (the same reason PipeQuadBaker bakes the pipe frame with
+                    // shade = false), so withComputedNormals() would hand neighbouring faces of
+                    // one surface opposed normals. It is no longer what fixes the shading —
+                    // LPRenderTypes.TUBE_CUTOUT drops the directional term entirely, because
+                    // vanilla's no-cull entity pipeline lights the back face from -Normal and
+                    // picks a side by winding, which no choice of normal can even out. Keeping
+                    // it costs nothing and leaves the mesh with sane normals for anything else
+                    // that reads them.
                     placed.add(part.mesh().transform(transform).withUniformNormal(0.0f, 1.0f, 0.0f));
                 }
                 // The originals kept the four lanes as separate models only because each had to

@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +22,7 @@ import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.pipe.PipeQuadBaker;
 import logisticspipes.client.model.tube.TubeMeshes;
+import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
@@ -123,7 +123,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
             pose.scale(scale, scale, scale);
             pose.translate(-bounds.getCenter().x, -bounds.getCenter().y, -bounds.getCenter().z);
 
-            collector.submitCustomGeometry(pose, RenderTypes.entityCutout(tube.texture()),
+            collector.submitCustomGeometry(pose, LPRenderTypes.TUBE_CUTOUT.apply(tube.texture()),
                 (snapshot, buffer) -> MeshRenderer.emitRaw(buffer, snapshot, tube.mesh(), 0xFFFFFFFF, light, overlay));
         } finally {
             pose.popPose();

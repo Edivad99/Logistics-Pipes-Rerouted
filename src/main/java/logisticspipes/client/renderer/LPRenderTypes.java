@@ -83,6 +83,28 @@ public final class LPRenderTypes {
         .build();
 
     /**
+     * The high-speed tubes' own entity-cutout pipeline: vanilla's {@code ENTITY_CUTOUT} minus its
+     * {@code PER_FACE_LIGHTING} define, plus {@code NO_CARDINAL_LIGHTING}.
+     *
+     * <p>The tube OBJs do not wind their faces consistently — the same reason {@code PipeQuadBaker}
+     * bakes the pipe frame with {@code shade = false} — so which of a quad's two sides counts as
+     * the front is arbitrary. {@code PER_FACE_LIGHTING} lights the back side from {@code -Normal}
+     * and picks between the two by {@code gl_FrontFacing}, so on a no-cull draw an arbitrary
+     * winding decides the brightness and one side of a tube comes out dark. Giving every vertex
+     * the same normal cannot help: the shader negates it for whatever it calls the back face.
+     * {@code NO_CARDINAL_LIGHTING} drops the directional term altogether — the flat, unshaded
+     * result the pipe frame already gets, and the immediate-mode counterpart of
+     * {@code shade = false}. The lightmap still applies, so tubes still darken in the dark.</p>
+     */
+    public static final RenderPipeline TUBE_CUTOUT_PIPELINE = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+        .withLocation(LPConstants.rl("pipeline/tube_cutout"))
+        .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+        .withShaderDefine("NO_CARDINAL_LIGHTING")
+        .withSampler("Sampler1")
+        .withCull(false)
+        .build();
+
+    /**
      * Textured, translucent, drawn over whatever is already there. Replaces
      * {@code RenderType.guiTexturedOverlay}, which 1.21.6 removed along with every other
      * {@code RenderType.gui*}: the side-config preview needs it outside a GuiGraphicsExtractor, so LP has to
@@ -117,13 +139,13 @@ public final class LPRenderTypes {
     private static final int BUFFER_SIZE = 1536;
 
     public static final RenderType GLOW = RenderType.create(
-        LPConstants.ID + ":glow",
+        LPConstants.rl("glow").toString(),
         RenderSetup.builder(GLOW_PIPELINE)
             .bufferSize(BUFFER_SIZE)
             .createRenderSetup());
 
     public static final RenderType OVERLAY = RenderType.create(
-        LPConstants.ID + ":overlay",
+        LPConstants.rl("overlay").toString(),
         RenderSetup.builder(OVERLAY_PIPELINE)
             .bufferSize(BUFFER_SIZE)
             .createRenderSetup());
@@ -133,7 +155,7 @@ public final class LPRenderTypes {
      * them; wired up from {@code ClientManager}.
      */
     public static final RenderType HUD_FILL = RenderType.create(
-        LPConstants.ID + ":hud_fill",
+        LPConstants.rl("hud_fill").toString(),
         RenderSetup.builder(HUD_FILL_PIPELINE)
             .bufferSize(BUFFER_SIZE)
             .createRenderSetup());
@@ -141,16 +163,30 @@ public final class LPRenderTypes {
     /** Textured HUD geometry bound to a given texture; memoized so each texture keeps one type. */
     public static final Function<Identifier, RenderType> HUD_TEXTURED = Util.memoize(
         texture -> RenderType.create(
-            LPConstants.ID + ":hud_textured",
+            LPConstants.rl("hud_textured").toString(),
             RenderSetup.builder(HUD_TEXTURED_PIPELINE)
                 .bufferSize(BUFFER_SIZE)
                 .withTexture("Sampler0", texture)
                 .createRenderSetup()));
 
+    /**
+     * The tube body bound to its standalone PNG; memoized so each texture keeps one type.
+     * Mirrors vanilla's {@code entityCutout} render setup — only the pipeline differs.
+     */
+    public static final Function<Identifier, RenderType> TUBE_CUTOUT = Util.memoize(
+        texture -> RenderType.create(
+            LPConstants.rl("tube_cutout").toString(),
+            RenderSetup.builder(TUBE_CUTOUT_PIPELINE)
+                .withTexture("Sampler0", texture)
+                .useLightmap()
+                .useOverlay()
+                .affectsCrumbling()
+                .createRenderSetup()));
+
     /** Textured overlay bound to a given texture; memoized so each texture keeps one type. */
     public static final Function<Identifier, RenderType> TEXTURED_OVERLAY = Util.memoize(
         texture -> RenderType.create(
-            LPConstants.ID + ":textured_overlay",
+            LPConstants.rl("textured_overlay").toString(),
             RenderSetup.builder(TEXTURED_OVERLAY_PIPELINE)
                 .bufferSize(BUFFER_SIZE)
                 .withTexture("Sampler0", texture)
@@ -161,6 +197,7 @@ public final class LPRenderTypes {
         event.registerPipeline(OVERLAY_PIPELINE);
         event.registerPipeline(ADDITIVE_PARTICLE_PIPELINE);
         event.registerPipeline(GHOST_ENTITY_PIPELINE);
+        event.registerPipeline(TUBE_CUTOUT_PIPELINE);
         event.registerPipeline(TEXTURED_OVERLAY_PIPELINE);
         event.registerPipeline(HUD_FILL_PIPELINE);
         event.registerPipeline(HUD_TEXTURED_PIPELINE);
