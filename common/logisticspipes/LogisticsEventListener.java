@@ -1,6 +1,7 @@
 package logisticspipes;
 
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -10,6 +11,7 @@ import java.util.Queue;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
@@ -17,8 +19,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -33,6 +36,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueInput;
 
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.VersionChecker;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
@@ -44,6 +48,8 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.fml.ModList;
+
+import net.neoforged.neoforgespi.language.IModInfo;
 
 import vazkii.patchouli.api.PatchouliAPI;
 
@@ -295,7 +301,24 @@ public class LogisticsEventListener {
 	@SubscribeEvent
 	public void clientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
 		SimpleServiceLocator.clientBufferHandler.clear();
-	}
+
+        IModInfo modInfo = ModList.get().getModFileById(LPConstants.ID).getMods().getFirst();
+        VersionChecker.CheckResult result = VersionChecker.getResult(modInfo);
+        VersionChecker.Status versionStatus = result.status();
+
+        if (versionStatus.shouldDraw()) {
+            String newVersion = result.target().toString();
+            String modUrl = modInfo.getModURL().orElseThrow().toString();
+            MutableComponent message = Component.literal(LPConstants.NAME + ": ").withStyle(ChatFormatting.GREEN)
+                .append(Component.literal(
+                        "A new version (%s) is available to download.".formatted(newVersion))
+                    .withStyle(style -> style
+                        .withColor(ChatFormatting.WHITE)
+                        .withUnderlined(true)
+                        .withClickEvent(new ClickEvent.OpenUrl(URI.create(modUrl)))));
+            event.getPlayer().sendSystemMessage(message);
+        }
+    }
 
 	@SubscribeEvent
 	public void onItemStackToolTip(ItemTooltipEvent event) {

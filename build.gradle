@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask
 
 plugins {
     id 'java-library'
@@ -9,10 +10,17 @@ plugins {
     id 'com.diffplug.spotless' version '8.0.0'
     id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
     id 'org.jetbrains.kotlin.plugin.lombok' version "$kotlin_version"
+    id 'se.bjurr.gitchangelog.git-changelog-gradle-plugin' version '3.1.2'
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.0'
 }
 
 tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
+}
+
+def isRelease = System.getenv('CURSEFORGE_TOKEN')
+if (!isRelease) {
+    mod_version += '-snapshot'
 }
 
 version = "$minecraft_version-$mod_version"
@@ -176,7 +184,7 @@ dependencies {
     implementation "curse.maven:patchouli-306770:$patchouli_id"
 
     compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version:api"
-    //localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
+    localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
 
     compileOnly("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
         transitive = false
@@ -184,9 +192,9 @@ dependencies {
     // RS's API classes carry apiguardian @API annotations; without this javac emits
     // "unknown enum constant Status.STABLE" for every one of them (transitive = false above).
     compileOnly "org.apiguardian:apiguardian-api:1.1.2"
-    /*localRuntime("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
+    localRuntime("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {
         transitive = false
-    }*/
+    }
 
     //localRuntime "curse.maven:mekanism-268560:7904058"
     testImplementation "org.jetbrains.kotlin:kotlin-test:2.4.0"
@@ -296,18 +304,60 @@ def lastCommit = providers.exec {
     commandLine 'git', 'rev-parse', 'HEAD'
 }.standardOutput.asText.get().trim()
 
+def penultimateTag = () -> {
+    providers.exec {
+        commandLine 'git', 'describe', '--abbrev=0', '--tags', 'HEAD~'
+    }.standardOutput.asText.get().trim()
+}
+
 tasks.named('jar', Jar).configure {
     from(sourceSets.main.output)
     from(sourceSets.api.output)
     manifest {
         attributes([
             'Specification-Title'   : project.name,
-            'Specification-Vendor'  : 'NoZeroG, Edivad99',
+            'Specification-Vendor'  : 'Edivad99',
             'Specification-Version' : '1',
             'Implementation-Title'  : project.name,
             'Implementation-Version': project.version,
-            'Implementation-Vendor' : 'NoZeroG, Edivad99',
+            'Implementation-Vendor' : 'Edivad99',
             'Implementation-Commit' : lastCommit,
         ])
+    }
+}
+
+tasks.register('makeChangelog', GitChangelogTask) {
+    fromRepo.set(projectDir.absolutePath.toString())
+    fromRevision.set(penultimateTag())
+    toRevision.set('HEAD')
+    file.set(file('CHANGELOG.md'))
+    untaggedName.set('Next release')
+    templateContent.set(file('changelog.mustache').text)
+    ignoreCommitsIfMessageMatches.set('^.*Merge branch.*$')
+}
+
+publishMods {
+    displayName = "logistics-pipes-rerouted-$minecraft_version-$mod_version"
+    version = mod_version
+    type = BETA
+
+    def changelogFile = file('CHANGELOG.md')
+    changelog = changelogFile.exists() ? changelogFile.text : 'CHANGELOG.md not found'
+
+    modLoaders.add('neoforge')
+    file = jar.archiveFile
+
+    curseforge {
+        projectId = '1668265'
+        accessToken = providers.environmentVariable('CURSEFORGE_TOKEN')
+        minecraftVersions.add(minecraft_version)
+        client = true
+        server = true
+    }
+    modrinth {
+        projectId = 'ARoycqvI'
+        accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+        minecraftVersions.add(minecraft_version)
+        environment = CLIENT_AND_SERVER
     }
 }
