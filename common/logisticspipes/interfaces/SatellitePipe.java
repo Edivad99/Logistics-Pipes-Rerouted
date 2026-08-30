@@ -35,22 +35,31 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes
+package logisticspipes.interfaces;
 
-import logisticspipes.utils.item.ItemIdentifierStack
-import net.minecraft.world.level.block.entity.BlockEntity
+import java.util.List;
+import java.util.Set;
 
-interface SatellitePipe {
-    val container: BlockEntity?
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-    val itemList: List<ItemIdentifierStack>
+import org.jspecify.annotations.Nullable;
 
-    val satellitesOfType: Set<SatellitePipe>
+import logisticspipes.utils.item.ItemIdentifierStack;
 
-    var satellitePipeName: String
+public interface SatellitePipe {
 
-    fun updateWatchers()
+    @Nullable
+    BlockEntity getContainer();
 
-    fun ensureAllSatelliteStatus()
+    List<ItemIdentifierStack> getItemList();
 
+    Set<SatellitePipe> getSatellitesOfType();
+
+    String getSatellitePipeName();
+
+    void setSatellitePipeName(String satellitePipeName);
+
+    void updateWatchers();
+
+    void ensureAllSatelliteStatus();
 }

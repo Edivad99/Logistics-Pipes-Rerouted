@@ -2,6 +2,7 @@ package logisticspipes.network.packets.satpipe;
 
 import net.minecraft.world.entity.player.Player;
 
+import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
@@ -9,7 +10,6 @@ import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import network.rs485.logisticspipes.SatellitePipe;
 
 @StaticResolve
 public class SatelliteSetNamePacket extends StringCoordinatesPacket {

@@ -43,10 +43,10 @@ import net.minecraft.world.item.Item;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.guis.pipe.FluidTerminusGui;
 import logisticspipes.network.packets.pipe.PipePropertiesUpdate;
+import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.textures.Textures;
 import logisticspipes.utils.FluidSinkReply.FixedFluidPriority;
-import network.rs485.logisticspipes.FluidSinkPipe;
 
 public class PipeFluidTerminus extends FluidSinkPipe {
 

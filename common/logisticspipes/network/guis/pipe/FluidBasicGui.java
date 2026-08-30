@@ -6,9 +6,9 @@ import logisticspipes.gui.GuiFluidBasic;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import network.rs485.logisticspipes.FluidSinkPipe;
 
 @StaticResolve
 public class FluidBasicGui extends CoordinatesGuiProvider {
