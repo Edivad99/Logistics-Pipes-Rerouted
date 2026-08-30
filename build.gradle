@@ -30,7 +30,7 @@ group = 'network.rs485'
 // configuration of that name instead of to the project property.
 def modId = mod_id
 base {
-    archivesName = mod_id
+    archivesName = "logistics-pipes-rerouted"
 }
 
 java {
