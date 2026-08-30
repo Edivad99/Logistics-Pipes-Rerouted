@@ -6,17 +6,18 @@ import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.gui.module.ProviderGui;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 import network.rs485.logisticspipes.inventory.container.ProviderContainer;
 import network.rs485.logisticspipes.property.layer.SimplePropertyOverlay;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class ProviderModuleGuiProvider extends ModuleCoordinatesGuiProvider {
@@ -35,7 +36,7 @@ public class ProviderModuleGuiProvider extends ModuleCoordinatesGuiProvider {
 
 	@Getter
 	@Setter
-	private Direction sneakyOrientation;
+	private @Nullable Direction sneakyOrientation;
 
 	public ProviderModuleGuiProvider(int id) {
 		super(id);

@@ -3,9 +3,9 @@ package logisticspipes.network.packets;
 import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class ActivateNBTDebug extends ModernPacket {

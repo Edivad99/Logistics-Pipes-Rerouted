@@ -290,8 +290,7 @@ class AsyncExtractorModule(
         )
     }
 
-    override fun startWatching(player: Player?) {
-        Objects.requireNonNull(player, "player must not be null")
+    override fun startWatching(player: Player) {
         localModeWatchers.add(player)
         MainProxy.sendPacketToPlayer(
             PacketHandler.getPacket(SneakyModuleDirectionUpdate::class.java).setDirection(sneakyDirection)
@@ -300,8 +299,7 @@ class AsyncExtractorModule(
         )
     }
 
-    override fun stopWatching(player: Player?) {
-        Objects.requireNonNull(player, "player must not be null")
+    override fun stopWatching(player: Player) {
         if (localModeWatchers.contains(player)) localModeWatchers.remove(player)
     }
 
@@ -314,7 +312,7 @@ class AsyncExtractorModule(
             // needs a line of text through context.drawString.
         }
 
-        override fun getButtons(): MutableList<IHUDButton>? = null
+        override fun getButtons(): List<IHUDButton> = emptyList()
 
     }
 

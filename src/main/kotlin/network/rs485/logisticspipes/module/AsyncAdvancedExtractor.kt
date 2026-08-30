@@ -160,7 +160,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
     override fun handleInvContent(items: MutableCollection<ItemIdentifierStack>) =
         filterInventory.handleItemIdentifierList(items)
 
-    override fun InventoryChanged(inventory: Container?) {
+    override fun InventoryChanged(inventory: Container) {
         MainProxy.runOnServer(world) {
             Runnable {
                 MainProxy.sendToPlayerList(
@@ -181,7 +181,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         return clientInformation
     }
 
-    override fun startWatching(player: Player?) {
+    override fun startWatching(player: Player) {
         extractor.startWatching(player)
         MainProxy.sendPacketToPlayer(
             PacketHandler.getPacket(ModuleInventory::class.java)
@@ -197,7 +197,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         )
     }
 
-    override fun stopWatching(player: Player?) = extractor.stopWatching(player)
+    override fun stopWatching(player: Player) = extractor.stopWatching(player)
 
     override fun startHUDWatching() {
         MainProxy.sendPacketToServer(

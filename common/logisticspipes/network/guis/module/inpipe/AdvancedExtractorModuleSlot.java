@@ -5,11 +5,11 @@ import net.minecraft.world.entity.player.Player;
 import logisticspipes.gui.modules.GuiAdvancedExtractor;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class AdvancedExtractorModuleSlot extends ModuleCoordinatesGuiProvider {

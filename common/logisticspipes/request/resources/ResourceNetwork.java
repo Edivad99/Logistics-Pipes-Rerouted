@@ -1,7 +1,7 @@
 package logisticspipes.request.resources;
 
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public enum ResourceNetwork {
 	DictResource(DictResource.class) {

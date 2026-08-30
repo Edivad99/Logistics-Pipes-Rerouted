@@ -23,10 +23,10 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.routing.debug.ExitRouteDebug;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
-import network.rs485.logisticspipes.util.LPFinalSerializable;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPFinalSerializable;
 
 /**
  * Defines direction with a cost

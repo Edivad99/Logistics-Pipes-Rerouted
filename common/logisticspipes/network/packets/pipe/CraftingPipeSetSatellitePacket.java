@@ -10,9 +10,9 @@ import lombok.Setter;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.abstractpackets.IntegerModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
 
 /**
  * Created by davboecki on 20/06/2019.

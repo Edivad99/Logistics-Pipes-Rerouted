@@ -11,7 +11,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import logisticspipes.client.particle.GlowGeometryParticle;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 @Accessors(chain = true)
 public class PipeFXLaserPowerBeam extends GlowGeometryParticle {

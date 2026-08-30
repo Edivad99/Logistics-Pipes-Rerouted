@@ -3,27 +3,29 @@ package logisticspipes.network.guis.module.inpipe;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.gui.modules.GuiSneakyConfigurator;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.SneakyDirection;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class SneakyModuleInSlotGuiProvider extends ModuleCoordinatesGuiProvider {
 
-	private Direction sneakyOrientation;
+	private @Nullable Direction sneakyOrientation;
 
 	public SneakyModuleInSlotGuiProvider(int id) {
 		super(id);
 	}
 
-	public SneakyModuleInSlotGuiProvider setSneakyOrientation(Direction sneakyOrientation) {
+	public SneakyModuleInSlotGuiProvider setSneakyOrientation(@Nullable Direction sneakyOrientation) {
 		this.sneakyOrientation = sneakyOrientation;
 		return this;
 	}

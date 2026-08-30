@@ -7,8 +7,8 @@ import lombok.Getter;
 import logisticspipes.LPConfigs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public class TextureMatrix {
 

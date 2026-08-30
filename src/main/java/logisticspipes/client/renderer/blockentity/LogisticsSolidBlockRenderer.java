@@ -28,9 +28,9 @@ import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.solid.SolidBlockModelParts;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.util.CoordinateUtils;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
-import network.rs485.logisticspipes.world.CoordinateUtils;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 /**
  * Shared BlockEntityRenderer for all LP solid blocks. Reuses the OBJ-parsed 3D body

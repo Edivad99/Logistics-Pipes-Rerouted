@@ -5,9 +5,9 @@ import java.util.List;
 
 import lombok.Getter;
 
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
-import network.rs485.logisticspipes.util.LPFinalSerializable;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPFinalSerializable;
 
 public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> implements LPFinalSerializable {
 

@@ -156,10 +156,11 @@ class ProviderGui private constructor(
     override fun onClose() {
         super.onClose()
         propertyLayer.unregister()
-        if (minecraft?.player != null && propertyLayer.properties.isNotEmpty()) {
+        val registryAccess = Minecraft.getInstance().level?.registryAccess()
+        if (minecraft?.player != null && registryAccess != null && propertyLayer.properties.isNotEmpty()) {
             // send update to server, when there are changed properties
             MainProxy.sendPacketToServer(
-                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, Minecraft.getInstance().level?.registryAccess()).setModulePos(providerModule),
+                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, registryAccess).setModulePos(providerModule),
             )
         }
     }

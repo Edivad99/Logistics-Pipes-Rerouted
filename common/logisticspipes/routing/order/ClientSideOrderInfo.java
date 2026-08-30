@@ -4,10 +4,10 @@ import java.util.List;
 
 import lombok.Getter;
 
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.LPDataInput;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class ClientSideOrderInfo implements IOrderInfoProvider {
 

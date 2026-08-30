@@ -19,8 +19,8 @@ import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.IDistanceTracker;
+import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 public class ItemRoutingInformation {
 

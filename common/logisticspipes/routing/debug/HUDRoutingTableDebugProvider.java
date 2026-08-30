@@ -4,7 +4,7 @@ import net.minecraft.world.level.Level;
 
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 public class HUDRoutingTableDebugProvider implements IHeadUpDisplayRendererProvider {
 

@@ -24,6 +24,7 @@ import logisticspipes.pipes.upgrades.power.IC2PowerSupplierUpgrade;
 import logisticspipes.pipes.upgrades.power.RFPowerSupplierUpgrade;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -32,7 +33,6 @@ import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.world.item.component.LPDataComponents;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class UpgradeManager
 		implements ISimpleInventoryEventHandler, ISlotUpgradeManager, IPipeUpgradeManager, ValueIOSerializable {

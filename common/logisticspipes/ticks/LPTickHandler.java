@@ -21,9 +21,9 @@ import lombok.Setter;
 import logisticspipes.commands.commands.debug.DebugGuiController;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.FluidIdentifier;
 import network.rs485.grow.ServerTickDispatcher;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LPTickHandler {
 

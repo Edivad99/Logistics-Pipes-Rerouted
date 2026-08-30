@@ -62,11 +62,11 @@ import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockBlock;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.ticks.QueuedTasks;
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinatesType;
 import logisticspipes.utils.LPPositionSet;
 import logisticspipes.world.item.ItemLogisticsPipe;
 import logisticspipes.world.level.block.LPBlocks;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
-import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 // BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
 // Particle/ParticleEngine/TextureAtlasSprite imports removed — rendering deferred (see addHitEffects/addDestroyEffects TODOs)

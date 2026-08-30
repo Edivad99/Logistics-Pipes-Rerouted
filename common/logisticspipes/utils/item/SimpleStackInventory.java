@@ -29,9 +29,9 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.tuples.Pair;
-import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Iterable over its own pair type: the two Iterable parameterisations conflict. The pair

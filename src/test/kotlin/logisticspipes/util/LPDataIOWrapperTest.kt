@@ -35,7 +35,7 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.util
+package logisticspipes.util
 
 import network.rs485.logisticspipes.TestBootstrap
 import network.rs485.logisticspipes.util.TestUtil.Companion.getBytesFromInteger
@@ -448,14 +448,6 @@ class LPDataIOWrapperTest {
 
     @Test
     @Ignore
-    fun `test writeByteBuf with null`() {
-        assertFailsWith<NullPointerException> {
-            LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeByteBuf(null) }
-        }
-    }
-
-    @Test
-    @Ignore
     fun `test readByteBuf with invalid values`() {
         val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeByteArray(null) }
         assertFailsWith<NullPointerException> {
@@ -723,7 +715,7 @@ class LPDataIOWrapperTest {
         val arr = arrayListOf("drölf", "text")
         val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCollection(arr) { obj: LPDataOutput, s: String? -> obj.writeUTF(s) } }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readArrayList<String> { obj: LPDataInput -> obj.readUTF() }
+            val actual = input.readArrayList<String> { obj: LPDataInput -> obj.readUTF()!! }
 
             assertEquals(arr, actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
@@ -734,7 +726,7 @@ class LPDataIOWrapperTest {
     fun `test writeCollection and readArrayList with null UTF string`() {
         val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCollection<String>(null) { obj: LPDataOutput, s: String? -> obj.writeUTF(s) } }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readArrayList { obj: LPDataInput -> obj.readUTF() }
+            val actual = input.readArrayList { obj: LPDataInput -> obj.readUTF()!! }
 
             assertNull(actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
@@ -748,7 +740,7 @@ class LPDataIOWrapperTest {
         linkedList.add("text")
         val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCollection(linkedList) { obj: LPDataOutput, s: String? -> obj.writeUTF(s) } }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readLinkedList<String> { obj: LPDataInput -> obj.readUTF() }
+            val actual = input.readLinkedList<String> { obj: LPDataInput -> obj.readUTF()!! }
 
             assertEquals(linkedList, actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
@@ -759,7 +751,7 @@ class LPDataIOWrapperTest {
     fun `test writeCollection and readLinkedList with UTF null value`() {
         val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCollection<String>(null) { obj: LPDataOutput, s: String? -> obj.writeUTF(s) } }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readLinkedList { obj: LPDataInput -> obj.readUTF() }
+            val actual = input.readLinkedList { obj: LPDataInput -> obj.readUTF()!! }
 
             assertNull(actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
@@ -771,7 +763,7 @@ class LPDataIOWrapperTest {
         val expected = setOf("drölf", "text")
         val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCollection(expected) { obj: LPDataOutput, s: String? -> obj.writeUTF(s) } }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readSet { obj: LPDataInput -> obj.readUTF() }
+            val actual = input.readSet { obj: LPDataInput -> obj.readUTF()!! }
 
             assertEquals(expected, actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
@@ -784,7 +776,7 @@ class LPDataIOWrapperTest {
             output.writeCollection<String>(null) { obj: LPDataOutput, s: String? -> obj.writeUTF(s) }
         }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readSet { obj: LPDataInput -> obj.readUTF() }
+            val actual = input.readSet { obj: LPDataInput -> obj.readUTF()!! }
 
             assertNull(actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
@@ -798,7 +790,7 @@ class LPDataIOWrapperTest {
         expected[1] = "text"
         val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCollection(expected) { obj: LPDataOutput, s: String? -> obj.writeUTF(s) } }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readNonNullList({ obj: LPDataInput -> obj.readUTF() }, "")
+            val actual = input.readNonNullList({ obj: LPDataInput -> obj.readUTF()!! }, "")
 
             assertEquals(expected, actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)
@@ -809,7 +801,7 @@ class LPDataIOWrapperTest {
     fun `test writeCollection and readNonNullList with null`() {
         val data = LPDataIOWrapper.collectData { output: LPDataOutput -> output.writeCollection<String>(null) { obj: LPDataOutput, s: String? -> obj.writeUTF(s) } }
         LPDataIOWrapper.provideData(data) { input: LPDataInput ->
-            val actual = input.readNonNullList({ obj: LPDataInput -> obj.readUTF() }, "")
+            val actual = input.readNonNullList({ obj: LPDataInput -> obj.readUTF()!! }, "")
 
             assertNull(actual)
             assertEquals(0, (input as LPDataIOWrapper).localBuffer.readableBytes(), BUFFER_EMPTY_MSG)

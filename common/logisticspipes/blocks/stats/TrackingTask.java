@@ -5,10 +5,10 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.util.ItemStackLoader;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
-import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 public class TrackingTask {
 

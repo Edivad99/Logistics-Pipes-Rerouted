@@ -2,10 +2,10 @@ package logisticspipes.request.resources;
 
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.routing.IRouter;
+import logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPFinalSerializable;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.util.LPDataOutput;
-import network.rs485.logisticspipes.util.LPFinalSerializable;
 
 /**
  * With Destination and amount

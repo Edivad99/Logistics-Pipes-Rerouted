@@ -22,7 +22,7 @@ import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 public class ClientViewController implements IDebugHUDProvider {
 

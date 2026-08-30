@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.transport.PipeTransportLogistics;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public class PipeItemsBasicTransport extends CoreUnroutedPipe {
 

@@ -37,12 +37,12 @@ import logisticspipes.pipes.PipeItemsBasicLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.util.CoordinateUtils;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.component.LPDataComponents;
-import network.rs485.logisticspipes.world.CoordinateUtils;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEntity
     implements IScreenOpenController, MenuProvider {

@@ -37,9 +37,9 @@
 
 package network.rs485.logisticspipes.config
 
-import network.rs485.logisticspipes.util.LPDataInput
-import network.rs485.logisticspipes.util.LPDataOutput
-import network.rs485.logisticspipes.util.LPSerializable
+import logisticspipes.util.LPDataInput
+import logisticspipes.util.LPDataOutput
+import logisticspipes.util.LPSerializable
 
 open class ClientConfiguration : LPSerializable {
     var renderPipeDistance = 48

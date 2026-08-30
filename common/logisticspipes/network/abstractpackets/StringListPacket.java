@@ -6,8 +6,8 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public abstract class StringListPacket extends ModernPacket {
 

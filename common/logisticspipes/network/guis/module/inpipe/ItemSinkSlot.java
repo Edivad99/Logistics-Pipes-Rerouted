@@ -11,13 +11,13 @@ import lombok.Setter;
 import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.gui.module.ItemSinkGui;
 import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.SimplePropertyOverlay;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class ItemSinkSlot extends ModuleCoordinatesGuiProvider {

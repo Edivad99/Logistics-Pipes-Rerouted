@@ -2,8 +2,8 @@ package logisticspipes.renderer.state;
 
 import net.minecraft.core.Direction;
 
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public class ConnectionMatrix {
 

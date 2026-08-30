@@ -2,7 +2,7 @@ package logisticspipes.routing.debug;
 
 import java.util.List;
 
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 public class ExitRouteDebug {
 

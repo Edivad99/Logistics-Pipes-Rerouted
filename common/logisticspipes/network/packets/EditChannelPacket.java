@@ -12,9 +12,9 @@ import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.channels.ChannelInformation;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class EditChannelPacket extends AddNewChannelPacket {

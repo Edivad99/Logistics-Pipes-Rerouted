@@ -34,9 +34,9 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.util.LPDataIOWrapper;
+import logisticspipes.util.LPDataInput;
 import logisticspipes.utils.StaticResolverUtil;
-import network.rs485.logisticspipes.util.LPDataIOWrapper;
-import network.rs485.logisticspipes.util.LPDataInput;
 
 /**
  * Central packet registry and dispatcher for LogisticsPipes.

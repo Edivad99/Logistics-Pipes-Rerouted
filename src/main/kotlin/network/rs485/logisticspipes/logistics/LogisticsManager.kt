@@ -74,6 +74,7 @@ object LogisticsManager {
     private fun getBestReply(stack: ItemStack, itemid: ItemIdentifier, sourceRouter: ServerRouter, destinationStream: Stream<ExitRoute>, routersToExclude: List<Int>, canBeDefault: Boolean): Pair<Int, SinkReply>? {
         var resultRouterId: Int? = null
         var result: SinkReply? = null
+        val sourcePipe = sourceRouter.pipe
         destinationStream.filter {
             it.destination.id != sourceRouter.id &&
                     !routersToExclude.contains(it.destination.simpleID) &&
@@ -83,7 +84,7 @@ object LogisticsManager {
                     it.destination.logisticsModule.receivePassive() &&
                     it.destination.pipe != null &&
                     it.destination.pipe!!.isEnabled &&
-                    !it.destination.pipe!!.isOnSameContainer(sourceRouter.pipe)
+                    (sourcePipe == null || !it.destination.pipe!!.isOnSameContainer(sourcePipe))
         }.sorted().forEachOrdered {
             val reply: SinkReply?
             val module: LogisticsModule = it.destination.logisticsModule

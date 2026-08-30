@@ -18,8 +18,8 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.BufferTransfer;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.util.LPDataIOWrapper;
 import logisticspipes.utils.tuples.Pair;
-import network.rs485.logisticspipes.util.LPDataIOWrapper;
 
 public class ClientPacketBufferHandlerThread {
 

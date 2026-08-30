@@ -9,9 +9,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 @ToString
 public abstract class CoordinatesPopupGuiProvider extends PopupGuiProvider {

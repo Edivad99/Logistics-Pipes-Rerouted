@@ -38,6 +38,7 @@ import logisticspipes.network.guis.block.AutoCraftingGui;
 import logisticspipes.network.packets.block.CraftingSetType;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.resources.IResource;
+import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.CraftingUtil;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
@@ -49,7 +50,6 @@ import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyUtil;
-import network.rs485.logisticspipes.util.items.ItemStackLoader;
 
 public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenController {

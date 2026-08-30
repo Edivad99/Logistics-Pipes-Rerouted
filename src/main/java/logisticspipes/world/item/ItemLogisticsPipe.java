@@ -33,10 +33,10 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinatesType;
 import logisticspipes.utils.LPPositionSet;
 import logisticspipes.world.level.block.LPBlocks;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
-import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 /**
  * A logistics pipe Item

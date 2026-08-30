@@ -1,4 +1,4 @@
 @NullMarked
-package network.rs485.logisticspipes.util.items;
+package logisticspipes.util;
 
 import org.jspecify.annotations.NullMarked;

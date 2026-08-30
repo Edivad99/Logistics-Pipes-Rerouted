@@ -2,22 +2,24 @@ package logisticspipes.network.abstractpackets;
 
 import net.minecraft.core.Direction;
 
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public abstract class DirectionModuleCoordinatesPacket extends ModuleCoordinatesPacket {
-	private Direction direction;
+	private @Nullable Direction direction;
 
 	public DirectionModuleCoordinatesPacket(int id) {
 		super(id);
 	}
 
-	public DirectionModuleCoordinatesPacket setDirection(Direction newDirection) {
+	public DirectionModuleCoordinatesPacket setDirection(@Nullable Direction newDirection) {
 		direction = newDirection;
 		return this;
 	}
 
-	public Direction getDirection() {
+	public @Nullable Direction getDirection() {
 		return direction;
 	}
 

@@ -8,8 +8,8 @@ import lombok.Setter;
 
 import logisticspipes.network.abstractguis.CoordinatesPopupGuiProvider;
 import logisticspipes.routing.channels.ChannelInformation;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public abstract class ChannelInformationListCoordinatesPopupGuiProvider extends CoordinatesPopupGuiProvider {
 

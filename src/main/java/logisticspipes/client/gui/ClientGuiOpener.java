@@ -10,9 +10,9 @@ import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.PopupGuiProvider;
 import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.network.packets.gui.OpenGUIPacket;
+import logisticspipes.util.LPDataIOWrapper;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
-import network.rs485.logisticspipes.util.LPDataIOWrapper;
 
 public final class ClientGuiOpener {
 

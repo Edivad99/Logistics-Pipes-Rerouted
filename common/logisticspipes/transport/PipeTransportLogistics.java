@@ -61,6 +61,9 @@ import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
+import logisticspipes.util.CoordinateUtils;
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.CacheHolder.CacheTypes;
 import logisticspipes.utils.InventoryHelper;
 import logisticspipes.utils.OrientationsUtil;
@@ -69,9 +72,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
-import network.rs485.logisticspipes.util.items.ItemStackLoader;
-import network.rs485.logisticspipes.world.CoordinateUtils;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class PipeTransportLogistics {
 

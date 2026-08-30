@@ -14,10 +14,10 @@ import com.google.common.cache.CacheBuilder;
 
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
-import network.rs485.logisticspipes.world.CoordinateUtils;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.CoordinateUtils;
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public class PipeRenderState implements IClientState {
 

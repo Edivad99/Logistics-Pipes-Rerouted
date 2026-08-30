@@ -12,9 +12,9 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.transport.LPTravelingItem;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.item.ItemIdentifier;
 import network.rs485.logisticspipes.connection.ConnectionType;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public interface IPipeInformationProvider {
 

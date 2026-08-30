@@ -177,12 +177,12 @@ class ItemSinkGui private constructor(
     override fun onClose() {
         super.onClose()
         propertyLayer.unregister()
-        if (minecraft?.player != null && propertyLayer.properties.isNotEmpty()) {
+        val registryAccess = Minecraft.getInstance().level?.registryAccess()
+        if (minecraft?.player != null && registryAccess != null && propertyLayer.properties.isNotEmpty()) {
             // send update to server, when there are changed properties
             MainProxy.sendPacketToServer(
-                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer,
-                    Minecraft.getInstance().level?.registryAccess()
-                ).setModulePos(itemSinkModule),
+                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, registryAccess)
+                    .setModulePos(itemSinkModule),
             )
         }
     }

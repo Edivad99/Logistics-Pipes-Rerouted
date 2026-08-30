@@ -2,11 +2,11 @@ package logisticspipes.routing.order;
 
 import java.util.List;
 
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPFinalSerializable;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.util.LPDataOutput;
-import network.rs485.logisticspipes.util.LPFinalSerializable;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public interface IOrderInfoProvider extends LPFinalSerializable {
 

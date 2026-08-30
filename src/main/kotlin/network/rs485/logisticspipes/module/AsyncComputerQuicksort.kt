@@ -146,13 +146,13 @@ class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsync
 
     override fun getClientInformation(): MutableList<String> = mutableListOf("Timeout: $timeout")
 
-    override fun startWatching(player: Player?) {
+    override fun startWatching(player: Player) {
         localModeWatchers.add(player)
 //        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CCBasedQuickSortMode::class.java).setTimeOut(timeout).setModulePos(this), player)
 //        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CCBasedQuickSortSinkSize::class.java).setSinkSize(sinkSize).setModulePos(this), player)
     }
 
-    override fun stopWatching(player: Player?) {
+    override fun stopWatching(player: Player) {
         localModeWatchers.remove(player)
     }
 

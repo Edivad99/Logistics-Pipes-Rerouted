@@ -57,7 +57,7 @@ data class WorldCoordinatesWrapper(private val level: Level, private val pos: Bl
 
     fun connectedTileEntities(): List<LPNeighborTileEntity<BlockEntity>> {
         val pipe = tileEntity
-        if (SimpleServiceLocator.pipeInformationManager.isNotAPipe(pipe)) {
+        if (pipe == null || SimpleServiceLocator.pipeInformationManager.isNotAPipe(pipe)) {
             LogisticsPipes.LOG.warn("The coordinates didn't hold a pipe at all", Throwable("Stack trace"))
             return emptyList()
         }

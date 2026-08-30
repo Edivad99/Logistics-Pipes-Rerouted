@@ -12,9 +12,9 @@ import net.minecraft.world.phys.AABB;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
+import logisticspipes.util.DoubleCoordinatesType;
 import logisticspipes.utils.LPPositionSet;
 import logisticspipes.utils.tuples.Pair;
-import network.rs485.logisticspipes.world.DoubleCoordinatesType;
 
 public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 

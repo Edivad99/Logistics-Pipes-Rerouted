@@ -23,6 +23,7 @@ import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.order.IOrderInfoProvider;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -38,7 +39,6 @@ import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.world.item.component.LPDataComponents;
 import network.rs485.logisticspipes.util.TextUtil;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 

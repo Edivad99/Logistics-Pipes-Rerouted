@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import logisticspipes.client.particle.GlowGeometryParticle;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 public class PipeFXLaserPowerBall extends GlowGeometryParticle {
 

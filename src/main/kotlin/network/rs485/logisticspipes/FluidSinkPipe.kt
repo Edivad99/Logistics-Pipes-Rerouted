@@ -91,11 +91,11 @@ abstract class FluidSinkPipe(
         return null
     }
 
-    fun guiOpenedByPlayer(player: Player?) {
+    fun guiOpenedByPlayer(player: Player) {
         guiOpenedBy.add(player)
     }
 
-    fun guiClosedByPlayer(player: Player?) {
+    fun guiClosedByPlayer(player: Player) {
         guiOpenedBy.remove(player)
     }
 

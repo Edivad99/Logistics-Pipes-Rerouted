@@ -28,9 +28,9 @@ import logisticspipes.network.packets.multiblock.MultiBlockCoordinatesPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.ISubMultiBlockPipeInformationProvider;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.TileBuffer;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements ISubMultiBlockPipeInformationProvider, ITickable {
 

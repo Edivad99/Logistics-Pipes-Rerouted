@@ -1,6 +1,6 @@
 package logisticspipes.network;
 
-import network.rs485.logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataInput;
 
 public interface IReadListObject<T> {
 

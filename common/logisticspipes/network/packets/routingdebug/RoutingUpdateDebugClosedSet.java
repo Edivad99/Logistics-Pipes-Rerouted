@@ -10,10 +10,10 @@ import lombok.Setter;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.debug.ClientViewController;
+import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 @StaticResolve
 public class RoutingUpdateDebugClosedSet extends ModernPacket {

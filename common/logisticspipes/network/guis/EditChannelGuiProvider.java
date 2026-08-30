@@ -11,9 +11,9 @@ import logisticspipes.gui.popup.GuiEditChannelPopup;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.PopupGuiProvider;
 import logisticspipes.routing.channels.ChannelInformation;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
 public class EditChannelGuiProvider extends PopupGuiProvider {

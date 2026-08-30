@@ -10,6 +10,8 @@ import java.util.Map;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Blocks;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.interfaces.routing.IRequestFluid;
@@ -40,7 +42,7 @@ public class RequestTree extends RequestTreeNode {
 	public static final EnumSet<ActiveRequestType> defaultRequestFlags = EnumSet.of(ActiveRequestType.Provide, ActiveRequestType.Craft);
 	private HashMap<FinalPair<IProvide, ItemIdentifier>, Integer> promisetotals;
 
-	public RequestTree(IResource requestType, RequestTree parent, EnumSet<ActiveRequestType> requestFlags, IAdditionalTargetInformation info) {
+	public RequestTree(IResource requestType, RequestTree parent, EnumSet<ActiveRequestType> requestFlags, @Nullable IAdditionalTargetInformation info) {
 		super(requestType, parent, requestFlags, info);
 	}
 
@@ -145,7 +147,7 @@ public class RequestTree extends RequestTreeNode {
 
 	}
 
-	public static boolean request(List<ItemIdentifierStack> items, IRequestItems requester, RequestLog log, EnumSet<ActiveRequestType> requestFlags, IAdditionalTargetInformation info) {
+	public static boolean request(List<ItemIdentifierStack> items, IRequestItems requester, RequestLog log, EnumSet<ActiveRequestType> requestFlags, @Nullable IAdditionalTargetInformation info) {
 		Map<IResource, Integer> messages = new HashMap<>();
 		RequestTree tree = new RequestTree(new ItemResource(new ItemIdentifierStack(ItemIdentifier.get(Item.BY_BLOCK.get(Blocks.STONE)), 0), requester), null, requestFlags, info);
 		boolean isDone = true;
@@ -174,7 +176,7 @@ public class RequestTree extends RequestTreeNode {
 		}
 	}
 
-	public static int request(ItemIdentifierStack item, IRequestItems requester, RequestLog log, boolean acceptPartial, boolean simulateOnly, boolean logMissing, boolean logUsed, EnumSet<ActiveRequestType> requestFlags, IAdditionalTargetInformation info) {
+	public static int request(ItemIdentifierStack item, IRequestItems requester, RequestLog log, boolean acceptPartial, boolean simulateOnly, boolean logMissing, boolean logUsed, EnumSet<ActiveRequestType> requestFlags, @Nullable IAdditionalTargetInformation info) {
 		ItemResource req = new ItemResource(item, requester);
 		RequestTree tree = new RequestTree(req, null, requestFlags, info);
 		if (!simulateOnly && (tree.isDone() || ((tree.getPromiseAmount() > 0) && acceptPartial))) {
@@ -200,11 +202,11 @@ public class RequestTree extends RequestTreeNode {
 		}
 	}
 
-	public static boolean request(ItemIdentifierStack item, IRequestItems requester, RequestLog log, IAdditionalTargetInformation info) {
+	public static boolean request(ItemIdentifierStack item, IRequestItems requester, RequestLog log, @Nullable IAdditionalTargetInformation info) {
 		return RequestTree.request(item, requester, log, false, false, true, false, RequestTree.defaultRequestFlags, info) == item.getStackSize();
 	}
 
-	public static int requestPartial(ItemIdentifierStack item, IRequestItems requester, IAdditionalTargetInformation info) {
+	public static int requestPartial(ItemIdentifierStack item, IRequestItems requester, @Nullable IAdditionalTargetInformation info) {
 		return RequestTree.request(item, requester, null, true, false, true, false, RequestTree.defaultRequestFlags, info);
 	}
 

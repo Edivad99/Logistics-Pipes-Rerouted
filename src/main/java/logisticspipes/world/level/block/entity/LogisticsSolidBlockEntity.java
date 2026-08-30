@@ -15,7 +15,7 @@ import logisticspipes.interfaces.ITickable;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.RequestRotationPacket;
 import logisticspipes.proxy.MainProxy;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 public class LogisticsSolidBlockEntity extends BlockEntity implements ITickable, IRotationProvider {
 

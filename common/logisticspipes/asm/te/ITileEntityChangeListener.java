@@ -2,7 +2,7 @@ package logisticspipes.asm.te;
 
 import net.minecraft.core.Direction;
 
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 public interface ITileEntityChangeListener {
 

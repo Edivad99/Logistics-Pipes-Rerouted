@@ -41,14 +41,14 @@ import logisticspipes.client.renderer.ImmediateSubmitCollector;
 import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.textures.Textures;
+import logisticspipes.util.CoordinateUtils;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.LPPositionSet;
 import logisticspipes.utils.math.BoundingBox;
 import logisticspipes.utils.math.Camera;
 import logisticspipes.utils.math.Matrix4d;
 import logisticspipes.utils.math.Vector3d;
 import logisticspipes.utils.math.Vertex;
-import network.rs485.logisticspipes.world.CoordinateUtils;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 //Based on: https://github.com/SleepyTrousers/EnderIO/blob/master/src/main/java/crazypants/enderio/machine/gui/GuiOverlayIoConfig.java
 public abstract class SideConfigDisplay {

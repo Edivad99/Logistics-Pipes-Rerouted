@@ -7,7 +7,7 @@ import net.minecraft.world.phys.AABB;
 
 import lombok.SneakyThrows;
 
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 public class LPPositionSet<T extends DoubleCoordinates> extends HashSet<T> implements IPositionRotateble {
 

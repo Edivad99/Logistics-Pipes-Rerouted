@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.CancellationException;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;

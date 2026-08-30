@@ -25,8 +25,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ITickable;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.world.level.block.LPBlocks;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityBlock {
 

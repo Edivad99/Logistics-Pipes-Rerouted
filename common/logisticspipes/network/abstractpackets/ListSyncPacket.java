@@ -8,8 +8,8 @@ import lombok.Setter;
 
 import logisticspipes.network.IReadListObject;
 import logisticspipes.network.IWriteListObject;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public abstract class ListSyncPacket<E> extends CoordinatesPacket implements IWriteListObject<E>, IReadListObject<E> {
 

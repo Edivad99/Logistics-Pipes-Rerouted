@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.minecraft.core.Direction;
 
-import network.rs485.logisticspipes.world.DoubleCoordinates;
+import logisticspipes.util.DoubleCoordinates;
 
 public class BoundingBox {
 

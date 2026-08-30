@@ -2,18 +2,20 @@ package logisticspipes.network.abstractguis;
 
 import net.minecraft.world.level.Level;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import logisticspipes.util.LPDataInput;
+import logisticspipes.util.LPDataOutput;
 
 public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvider {
 
-	private ModulePositionType slot;
+	private @Nullable ModulePositionType slot;
 	private int positionInt;
 
 	public ModuleCoordinatesGuiProvider(int id) {
@@ -76,11 +78,11 @@ public abstract class ModuleCoordinatesGuiProvider extends CoordinatesGuiProvide
 		return (T) module;
 	}
 
-	public ModulePositionType getSlot() {
+	public @Nullable ModulePositionType getSlot() {
 		return this.slot;
 	}
 
-	public ModuleCoordinatesGuiProvider setSlot(ModulePositionType slot) {
+	public ModuleCoordinatesGuiProvider setSlot(@Nullable ModulePositionType slot) {
 		this.slot = slot;
 		return this;
 	}

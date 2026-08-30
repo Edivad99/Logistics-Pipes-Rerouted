@@ -10,13 +10,13 @@ import net.minecraft.client.input.MouseButtonEvent;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.upgrade.SneakyUpgradeSidePacket;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.sideconfig.SideConfigDisplay;
 import network.rs485.logisticspipes.util.TextUtil;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class SneakyConfigurationPopup extends SubGuiScreen {
 
