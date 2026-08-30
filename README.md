@@ -1,6 +1,6 @@
 # Logistic Pipes: Rerouted
 
-A revival of [Logistics Pipes](https://github.com/RS485/LogisticsPipes), ported from Forge 1.12.2 to **NeoForge 1.20.1** — bringing the classic
+A revival of [Logistics Pipes](https://github.com/RS485/LogisticsPipes), ported from Forge 1.12.2 to **NeoForge 26.1.2+** — bringing the classic
 request-based item routing, automated crafting, and modular chassis pipes back to modern Minecraft.
 
 See the original [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/logistics-pipes) for background on what the mod has been since its 1.4.x days.
