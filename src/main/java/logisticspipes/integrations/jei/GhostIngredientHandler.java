@@ -18,6 +18,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.SetGhostItemPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.FluidIdentifier;
+import logisticspipes.utils.gui.DummySlot;
 import logisticspipes.utils.gui.FluidSlot;
 import network.rs485.logisticspipes.gui.widget.GhostSlot;
 import network.rs485.logisticspipes.gui.widget.Unmodifiable;
@@ -50,14 +51,20 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
         // nothing to clean up
     }
 
+    /**
+     * Whether an item dragged out of JEI can be dropped on this slot.
+     */
+    private static boolean acceptsGhostItem(Slot slot) {
+        if (slot instanceof Unmodifiable) {
+            return false;
+        }
+        return slot instanceof GhostSlot || slot instanceof DummySlot;
+    }
+
     private <I> List<Target<I>> getItemTargets(AbstractContainerScreen<?> gui, ItemStack ingredient) {
         List<Target<I>> targets = new ArrayList<>();
         for (Slot slot : gui.getMenu().slots) {
-            if (!(slot instanceof GhostSlot ghostSlot)) {
-                continue;
-            }
-
-            if (slot instanceof Unmodifiable) {
+            if (!acceptsGhostItem(slot)) {
                 continue;
             }
 
@@ -66,8 +73,8 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
                 @Override
                 public Rect2i getArea() {
                     return new Rect2i(
-                        gui.getLeftPos() + ghostSlot.x,
-                        gui.getTopPos() + ghostSlot.y,
+                        gui.getLeftPos() + slot.x,
+                        gui.getTopPos() + slot.y,
                         17,
                         17
                     );
@@ -76,7 +83,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
                 @Override
                 public void accept(I ignored) {
                     ItemStack copy = ingredient.copyWithCount(1);
-                    ghostSlot.set(copy);
+                    slot.set(copy);
                     MainProxy.sendPacketToServer(
                         PacketHandler.getPacket(SetGhostItemPacket.class)
                             .putInt(slot.index)
