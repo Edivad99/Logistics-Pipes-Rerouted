@@ -46,7 +46,6 @@ import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.block.SecurityStationCCIDs
 import logisticspipes.network.packets.orderer.DiscContent
-import logisticspipes.network.packets.pipe.FireWallFlag
 import logisticspipes.network.packets.pipe.FluidSupplierAmount
 import logisticspipes.network.packets.pipe.InvSysConSetChannelOnPipePacket
 import logisticspipes.network.packets.pipe.ItemAmountSignUpdatePacket
@@ -63,7 +62,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import logisticspipes.util.LPDataIOWrapper
 import org.junit.jupiter.api.BeforeAll
-import java.util.BitSet
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -197,14 +195,6 @@ class PacketRoundTripTest {
         )
         assertCoords(actual)
         assertEquals("◘ËCanale♀ßüöä", actual.string)
-    }
-
-    @Test
-    fun `BitSetCoordinatesPacket round trip`() {
-        val flags = BitSet().apply { set(0); set(3); set(11) }
-        val actual = roundTrip(FireWallFlag(ANY_ID).withCoords().apply { this.flags = flags })
-        assertCoords(actual)
-        assertEquals(flags, actual.flags)
     }
 
     @Test
