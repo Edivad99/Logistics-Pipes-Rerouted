@@ -1,11 +1,15 @@
 package logisticspipes.network.packets.orderer;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import logisticspipes.network.PacketHandler;
+import logisticspipes.network.to_client.DiskContentMessage;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
@@ -42,7 +46,9 @@ public class DiskDropPacket extends CoordinatesPacket {
 				}
 			}
 			pipeItemsRequestLogisticsMk2.dropDisk();
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DiscContent.class).setStack(disk).setBlockPos(pipe.getBlockPos()), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new DiskContentMessage(pipe.getBlockPos(), disk));
+			}
 		}
 	}
 }

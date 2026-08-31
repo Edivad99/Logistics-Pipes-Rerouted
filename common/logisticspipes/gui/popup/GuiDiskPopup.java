@@ -2,6 +2,7 @@ package logisticspipes.gui.popup;
 
 import java.util.Objects;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
@@ -12,9 +13,11 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.component.CustomData;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.DiscContent;
+import logisticspipes.network.to_server.SaveDiskContentMessage;
 import logisticspipes.network.packets.orderer.DiskMacroRequestPacket;
 import logisticspipes.network.packets.orderer.DiskSetNamePacket;
 import logisticspipes.proxy.MainProxy;
@@ -123,7 +126,8 @@ public class GuiDiskPopup extends SubGuiScreen {
 		editName = false;
 		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskSetNamePacket.class).setString(name1 + name2).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
 		diskProvider.getDisk().set(DataComponents.CUSTOM_NAME, Component.literal(name1 + name2));
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiscContent.class).setStack(diskProvider.getDisk()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
+		ClientPacketDistributor.sendToServer(new SaveDiskContentMessage(
+				new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), diskProvider.getDisk()));
 	}
 
 	@Override
@@ -213,7 +217,8 @@ public class GuiDiskPopup extends SubGuiScreen {
 				}
 		);
 
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiscContent.class).setStack(diskProvider.getDisk()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
+		ClientPacketDistributor.sendToServer(new SaveDiskContentMessage(
+				new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), diskProvider.getDisk()));
 	}
 
 	private void handleAddEdit() {

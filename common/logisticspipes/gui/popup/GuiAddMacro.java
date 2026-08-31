@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
@@ -15,9 +16,11 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.DiscContent;
+import logisticspipes.network.to_server.SaveDiskContentMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.IItemSearch;
@@ -141,7 +144,8 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			}
 			compTag.put("macroList", list);
 			diskProvider.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.of(compTag));
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiscContent.class).setStack(diskProvider.getDisk()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
+			ClientPacketDistributor.sendToServer(new SaveDiskContentMessage(
+					new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), diskProvider.getDisk()));
 			exitGui();
 		} else if (macroItems.size() != 0) {
 			setSubGui(new GuiMessagePopup("Please enter a name"));

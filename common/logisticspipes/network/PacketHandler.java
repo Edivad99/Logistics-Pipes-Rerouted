@@ -31,6 +31,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
+import logisticspipes.network.to_client.DiskContentMessage;
 import logisticspipes.network.to_client.FirewallFlagsMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
@@ -42,6 +43,7 @@ import logisticspipes.network.to_client.SneakyDirectionMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
 import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
+import logisticspipes.network.to_server.SaveDiskContentMessage;
 import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.SetFirewallFlagsMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
@@ -118,6 +120,8 @@ public class PacketHandler {
                 UntraceRoutingMessage.STREAM_CODEC, UntraceRoutingMessage::handle);
         registrar.playToServer(SetFirewallFlagsMessage.TYPE,
                 SetFirewallFlagsMessage.STREAM_CODEC, SetFirewallFlagsMessage::handle);
+        registrar.playToServer(SaveDiskContentMessage.TYPE,
+                SaveDiskContentMessage.STREAM_CODEC, SaveDiskContentMessage::handle);
     }
 
     private static void registerServerToClient(PayloadRegistrar registrar) {
@@ -137,6 +141,8 @@ public class PacketHandler {
                 PlayerListMessage.STREAM_CODEC, PlayerListMessage::handle);
         registrar.playToClient(FirewallFlagsMessage.TYPE,
                 FirewallFlagsMessage.STREAM_CODEC, FirewallFlagsMessage::handle);
+        registrar.playToClient(DiskContentMessage.TYPE,
+                DiskContentMessage.STREAM_CODEC, DiskContentMessage::handle);
         registrar.playToClient(SecurityAuthorizedListMessage.TYPE,
                 SecurityAuthorizedListMessage.STREAM_CODEC, SecurityAuthorizedListMessage::handle);
     }

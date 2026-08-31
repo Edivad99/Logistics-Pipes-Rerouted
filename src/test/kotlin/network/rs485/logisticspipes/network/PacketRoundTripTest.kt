@@ -45,7 +45,6 @@ import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.block.SecurityStationCCIDs
-import logisticspipes.network.packets.orderer.DiscContent
 import logisticspipes.network.packets.pipe.FluidSupplierAmount
 import logisticspipes.network.packets.pipe.InvSysConSetChannelOnPipePacket
 import logisticspipes.network.packets.pipe.ItemAmountSignUpdatePacket
@@ -195,15 +194,6 @@ class PacketRoundTripTest {
         )
         assertCoords(actual)
         assertEquals("◘ËCanale♀ßüöä", actual.string)
-    }
-
-    @Test
-    fun `ItemPacket round trip`() {
-        val stack = ItemStack(Items.DIAMOND_PICKAXE, 1).also { it.damageValue = 137 }
-        val actual = roundTrip(DiscContent(ANY_ID).withCoords().apply { this.stack = stack })
-        assertCoords(actual)
-        assertEquals(Items.DIAMOND_PICKAXE, actual.stack.item)
-        assertEquals(137, actual.stack.damageValue)
     }
 
     // ── level 3: IntegerCoordinatesPacket ────────────────────────────────────
