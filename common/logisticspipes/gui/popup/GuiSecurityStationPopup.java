@@ -4,9 +4,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.TagValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.SaveSecurityPlayerPacket;
+import logisticspipes.blocks.LogisticsSecurityTileEntity.SecurityPermissions;
+import logisticspipes.network.to_server.SaveSecuritySettingsMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.gui.GuiCheckBox;
@@ -57,11 +60,11 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
 	}
 
 	private void sendSettings() {
-		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING,
-			tile.getLevel().registryAccess());
-		activeSetting.serialize(output);
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(SaveSecurityPlayerPacket.class)
-			.put(output.buildResult()).setBlockPos(tile.getBlockPos()));
+		if (activeSetting.name == null || activeSetting.name.isEmpty()) {
+			return;
+		}
+		ClientPacketDistributor.sendToServer(new SaveSecuritySettingsMessage(
+			tile.getBlockPos(), activeSetting.name, SecurityPermissions.of(activeSetting)));
 	}
 
 	@Override

@@ -44,7 +44,6 @@ import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
-import logisticspipes.network.packets.block.SecurityStationCCIDs
 import logisticspipes.network.packets.pipe.FluidSupplierAmount
 import logisticspipes.network.packets.pipe.InvSysConSetChannelOnPipePacket
 import logisticspipes.network.packets.pipe.ItemAmountSignUpdatePacket
@@ -54,7 +53,6 @@ import net.minecraft.SharedConstants
 import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.Identifier
 import net.minecraft.server.Bootstrap
 import net.minecraft.world.item.ItemStack
@@ -180,14 +178,6 @@ class PacketRoundTripTest {
     }
 
     @Test
-    fun `NBTCoordinatesPacket round trip`() {
-        val tag = CompoundTag().apply { putInt("lp_test", 7); putString("who", "krapht") }
-        val actual = roundTrip(SecurityStationCCIDs(ANY_ID).withCoords().apply { this.tag = tag })
-        assertCoords(actual)
-        assertEquals(tag, actual.tag)
-    }
-
-    @Test
     fun `StringCoordinatesPacket round trip`() {
         val actual = roundTrip(
             InvSysConSetChannelOnPipePacket(ANY_ID).withCoords().apply { string = "◘ËCanale♀ßüöä" },
@@ -252,10 +242,4 @@ class PacketRoundTripTest {
         assertEquals(null, actual.type)
     }
 
-    @Test
-    fun `NBTCoordinatesPacket with a null tag round trips`() {
-        val actual = roundTrip(SecurityStationCCIDs(ANY_ID).withCoords().apply { tag = null })
-        assertCoords(actual)
-        assertEquals(null, actual.tag)
-    }
 }

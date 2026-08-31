@@ -38,12 +38,15 @@ import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.network.to_client.QuickSortStateMessage;
+import logisticspipes.network.to_client.SecurityStationCCIdsMessage;
+import logisticspipes.network.to_client.SecurityStationSettingsMessage;
 import logisticspipes.network.to_client.SecurityAuthorizedListMessage;
 import logisticspipes.network.to_client.SneakyDirectionMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
 import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
 import logisticspipes.network.to_server.SaveDiskContentMessage;
+import logisticspipes.network.to_server.SaveSecuritySettingsMessage;
 import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.SetFirewallFlagsMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
@@ -122,6 +125,8 @@ public class PacketHandler {
                 SetFirewallFlagsMessage.STREAM_CODEC, SetFirewallFlagsMessage::handle);
         registrar.playToServer(SaveDiskContentMessage.TYPE,
                 SaveDiskContentMessage.STREAM_CODEC, SaveDiskContentMessage::handle);
+        registrar.playToServer(SaveSecuritySettingsMessage.TYPE,
+                SaveSecuritySettingsMessage.STREAM_CODEC, SaveSecuritySettingsMessage::handle);
     }
 
     private static void registerServerToClient(PayloadRegistrar registrar) {
@@ -143,6 +148,10 @@ public class PacketHandler {
                 FirewallFlagsMessage.STREAM_CODEC, FirewallFlagsMessage::handle);
         registrar.playToClient(DiskContentMessage.TYPE,
                 DiskContentMessage.STREAM_CODEC, DiskContentMessage::handle);
+        registrar.playToClient(SecurityStationSettingsMessage.TYPE,
+                SecurityStationSettingsMessage.STREAM_CODEC, SecurityStationSettingsMessage::handle);
+        registrar.playToClient(SecurityStationCCIdsMessage.TYPE,
+                SecurityStationCCIdsMessage.STREAM_CODEC, SecurityStationCCIdsMessage::handle);
         registrar.playToClient(SecurityAuthorizedListMessage.TYPE,
                 SecurityAuthorizedListMessage.STREAM_CODEC, SecurityAuthorizedListMessage::handle);
     }
