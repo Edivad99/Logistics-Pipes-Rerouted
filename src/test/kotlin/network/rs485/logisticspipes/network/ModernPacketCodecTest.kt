@@ -39,7 +39,7 @@ package network.rs485.logisticspipes.network
 
 import io.netty.buffer.Unpooled
 import logisticspipes.network.ModernPacketCodec
-import logisticspipes.network.packets.pipe.CraftingPriority
+import logisticspipes.network.packets.block.PowerJunctionLevel
 import net.minecraft.SharedConstants
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
@@ -79,9 +79,9 @@ class ModernPacketCodecTest {
     private fun buffer(): RegistryFriendlyByteBuf =
         RegistryFriendlyByteBuf(Unpooled.buffer(), registries(), ConnectionType.OTHER)
 
-    /** A packet on the deepest inheritance chain left, with every level of it filled in. */
-    private fun samplePacket(): CraftingPriority =
-        CraftingPriority(PACKET_ID).apply {
+    /** A packet with a coordinate and a value, filled in at every level of its chain. */
+    private fun samplePacket(): PowerJunctionLevel =
+        PowerJunctionLevel(PACKET_ID).apply {
             setDimension(Identifier.parse("logisticspipes:test_dimension"))
             posX = 12
             posY = -34

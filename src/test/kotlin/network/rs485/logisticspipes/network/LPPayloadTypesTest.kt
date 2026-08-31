@@ -41,8 +41,8 @@ import io.netty.buffer.Unpooled
 import logisticspipes.network.LPPayloadTypes
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.abstractpackets.ModernPacket
-import logisticspipes.network.packets.PlayerList
-import logisticspipes.network.packets.pipe.CraftingPriority
+import logisticspipes.network.packets.DeleteChannelPacket
+import logisticspipes.network.packets.block.PowerJunctionLevel
 import net.minecraft.SharedConstants
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
@@ -103,17 +103,17 @@ class LPPayloadTypesTest {
 
     @Test
     fun `a packet name is derived from its class, not its position`() {
-        buildTableOf(CraftingPriority(0), PlayerList(1))
-        val first = LPPayloadTypes.entryFor(CraftingPriority(0)).name()
+        buildTableOf(PowerJunctionLevel(0), DeleteChannelPacket(1))
+        val first = LPPayloadTypes.entryFor(PowerJunctionLevel(0)).name()
 
         // Same class, different id, different neighbours in the table.
-        buildTableOf(PlayerList(0), CraftingPriority(7))
-        val second = LPPayloadTypes.entryFor(CraftingPriority(7)).name()
+        buildTableOf(DeleteChannelPacket(0), PowerJunctionLevel(7))
+        val second = LPPayloadTypes.entryFor(PowerJunctionLevel(7)).name()
 
         assertEquals(first, second, "the payload name must not depend on the packet table")
         assertEquals(
             Identifier.parse(
-                "logisticspipes:logisticspipes/network/packets/pipe/craftingpriority",
+                "logisticspipes:logisticspipes/network/packets/block/powerjunctionlevel",
             ),
             first,
         )
@@ -121,10 +121,10 @@ class LPPayloadTypesTest {
 
     @Test
     fun `different packets get different names`() {
-        buildTableOf(CraftingPriority(0), PlayerList(1))
+        buildTableOf(PowerJunctionLevel(0), DeleteChannelPacket(1))
         assertNotEquals(
-            LPPayloadTypes.entryFor(CraftingPriority(0)).name(),
-            LPPayloadTypes.entryFor(PlayerList(1)).name(),
+            LPPayloadTypes.entryFor(PowerJunctionLevel(0)).name(),
+            LPPayloadTypes.entryFor(DeleteChannelPacket(1)).name(),
         )
     }
 
@@ -132,7 +132,7 @@ class LPPayloadTypesTest {
     fun `null slots in the packet table are skipped`() {
         // A class that failed to construct on this side leaves a null. It used to be load-bearing:
         // the slot had to stay so every later id kept its value. Now it is simply skipped.
-        val table = listOf(null, CraftingPriority(1), null)
+        val table = listOf(null, PowerJunctionLevel(1), null)
         PacketHandler.packetlist = table
         LPPayloadTypes.build(table)
 
@@ -142,8 +142,8 @@ class LPPayloadTypesTest {
 
     @Test
     fun `payload codec round trips a packet with its debug id`() {
-        buildTableOf(CraftingPriority(0))
-        val packet = CraftingPriority(0).apply {
+        buildTableOf(PowerJunctionLevel(0))
+        val packet = PowerJunctionLevel(0).apply {
             setDimension(Identifier.parse("logisticspipes:test_dimension"))
             posX = 1
             posY = 2
@@ -156,7 +156,7 @@ class LPPayloadTypesTest {
         val buf = buffer()
         try {
             entry.codec().encode(buf, LPPayloadTypes.payloadFor(packet))
-            val actual = entry.codec().decode(buf).packet() as CraftingPriority
+            val actual = entry.codec().decode(buf).packet() as PowerJunctionLevel
 
             assertEquals(99, actual.debugId)
             assertEquals(44, actual.integer)
@@ -169,8 +169,8 @@ class LPPayloadTypesTest {
 
     @Test
     fun `payloadFor reports a packet that was never registered`() {
-        buildTableOf(CraftingPriority(0))
-        val error = runCatching { LPPayloadTypes.payloadFor(PlayerList(1)) }.exceptionOrNull()
+        buildTableOf(PowerJunctionLevel(0))
+        val error = runCatching { LPPayloadTypes.payloadFor(DeleteChannelPacket(1)) }.exceptionOrNull()
         assertEquals(IllegalStateException::class, error!!::class)
     }
 }

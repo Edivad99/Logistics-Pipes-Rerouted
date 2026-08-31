@@ -2,11 +2,13 @@ package logisticspipes.routing.debug;
 
 import net.minecraft.client.Minecraft;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.gui.hud.BasicHUDGui;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateUntrace;
+import logisticspipes.network.to_server.UntraceRoutingMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.routing.ExitRoute;
@@ -58,7 +60,7 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 
 			@Override
 			public void clicked() {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RoutingUpdateUntrace.class).setInteger(index));
+				ClientPacketDistributor.sendToServer(new UntraceRoutingMessage(index));
 				display = false;
 			}
 

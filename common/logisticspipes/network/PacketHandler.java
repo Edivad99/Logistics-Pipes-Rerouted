@@ -34,11 +34,17 @@ import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
+import logisticspipes.network.to_client.PlayerListMessage;
+import logisticspipes.network.to_client.QuickSortStateMessage;
+import logisticspipes.network.to_client.SecurityAuthorizedListMessage;
 import logisticspipes.network.to_client.SneakyDirectionMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
+import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
 import logisticspipes.network.to_server.SetSneakyDirectionMessage;
+import logisticspipes.network.to_server.UntraceRoutingMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.util.LPDataIOWrapper;
@@ -102,6 +108,12 @@ public class PacketHandler {
                 SetSneakyDirectionMessage.STREAM_CODEC, SetSneakyDirectionMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
                 SetOreDictItemSinkListMessage.STREAM_CODEC, SetOreDictItemSinkListMessage::handle);
+        registrar.playToServer(SetCraftingSatelliteMessage.TYPE,
+                SetCraftingSatelliteMessage.STREAM_CODEC, SetCraftingSatelliteMessage::handle);
+        registrar.playToServer(RequestPipeContentMessage.TYPE,
+                RequestPipeContentMessage.STREAM_CODEC, RequestPipeContentMessage::handle);
+        registrar.playToServer(UntraceRoutingMessage.TYPE,
+                UntraceRoutingMessage.STREAM_CODEC, UntraceRoutingMessage::handle);
     }
 
     private static void registerServerToClient(PayloadRegistrar registrar) {
@@ -115,6 +127,12 @@ public class PacketHandler {
                 ItemSinkDefaultRouteMessage.STREAM_CODEC, ItemSinkDefaultRouteMessage::handle);
         registrar.playToClient(AdvancedExtractorIncludeMessage.TYPE,
                 AdvancedExtractorIncludeMessage.STREAM_CODEC, AdvancedExtractorIncludeMessage::handle);
+        registrar.playToClient(QuickSortStateMessage.TYPE,
+                QuickSortStateMessage.STREAM_CODEC, QuickSortStateMessage::handle);
+        registrar.playToClient(PlayerListMessage.TYPE,
+                PlayerListMessage.STREAM_CODEC, PlayerListMessage::handle);
+        registrar.playToClient(SecurityAuthorizedListMessage.TYPE,
+                SecurityAuthorizedListMessage.STREAM_CODEC, SecurityAuthorizedListMessage::handle);
     }
 
     private static void handlePayload(LPPayload payload, IPayloadContext context) {

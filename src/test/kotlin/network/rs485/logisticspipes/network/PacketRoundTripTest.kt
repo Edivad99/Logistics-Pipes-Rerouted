@@ -42,16 +42,14 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType
 import logisticspipes.network.abstractpackets.CoordinatesPacket
 import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
-import logisticspipes.network.packets.PlayerList
+import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.block.SecurityStationCCIDs
 import logisticspipes.network.packets.orderer.DiscContent
-import logisticspipes.network.packets.pipe.CraftingPriority
 import logisticspipes.network.packets.pipe.FireWallFlag
 import logisticspipes.network.packets.pipe.FluidSupplierAmount
 import logisticspipes.network.packets.pipe.InvSysConSetChannelOnPipePacket
 import logisticspipes.network.packets.pipe.ItemAmountSignUpdatePacket
-import logisticspipes.network.packets.pipe.PipeContentRequest
 import logisticspipes.network.packets.pipe.SendQueueContent
 import logisticspipes.network.packets.pipe.SlotFinderActivatePacket
 import net.minecraft.SharedConstants
@@ -159,9 +157,9 @@ class PacketRoundTripTest {
 
     @Test
     fun `ModernPacket carries the dimension`() {
-        // Any packet that chains into ModernPacket.writeData picks the dimension up; PlayerList
-        // is the shallowest one that does.
-        val actual = roundTrip(PlayerList(ANY_ID).withDimension())
+        // Any packet that chains into ModernPacket.writeData picks the dimension up;
+        // DeleteChannelPacket is one of the shallowest that does.
+        val actual = roundTrip(DeleteChannelPacket(ANY_ID).withDimension())
         assertEquals(Identifier.parse("logisticspipes:test_dimension"), actual.dimension)
     }
 
@@ -175,19 +173,6 @@ class PacketRoundTripTest {
             RequestUpdateNamesPacket(ANY_ID).withDimension().writeData(output)
         }
         assertEquals(0, data.size, "RequestUpdateNamesPacket is expected to serialize to nothing")
-    }
-
-    @Test
-    fun `StringListPacket round trip`() {
-        val expected = listOf("Krapht", "davboecki", "theZorro266")
-        val actual = roundTrip(PlayerList(ANY_ID).withDimension().apply { stringList = expected })
-        assertEquals(expected, actual.stringList)
-    }
-
-    @Test
-    fun `IntegerPacket round trip`() {
-        val actual = roundTrip(PipeContentRequest(ANY_ID).withDimension().apply { integer = 42 })
-        assertEquals(42, actual.integer)
     }
 
     // ── level 2: CoordinatesPacket ───────────────────────────────────────────
@@ -275,13 +260,6 @@ class PacketRoundTripTest {
     }
 
     // ── level 4+: the deepest chains ─────────────────────────────────────────
-
-    @Test
-    fun `IntegerModuleCoordinatesPacket round trip`() {
-        val actual = roundTrip(CraftingPriority(ANY_ID).withModule().apply { putInt(7) })
-        assertModule(actual)
-        assertEquals(7, actual.integer)
-    }
 
     // ── the null branches, which are where asymmetries hide ──────────────────
 

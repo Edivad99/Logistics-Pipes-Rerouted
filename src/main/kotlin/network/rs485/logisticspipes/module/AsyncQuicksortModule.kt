@@ -45,7 +45,8 @@ import network.rs485.logisticspipes.util.getExtractionMax
 import logisticspipes.LPConfigs
 import logisticspipes.interfaces.IInventoryUtil
 import logisticspipes.network.PacketHandler
-import logisticspipes.network.packets.modules.QuickSortState
+import logisticspipes.network.ModuleTarget
+import logisticspipes.network.to_client.QuickSortStateMessage
 import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.MainProxy
@@ -54,6 +55,8 @@ import logisticspipes.routing.ServerRouter
 import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.SinkReply
 import logisticspipes.utils.item.ItemIdentifier
+import net.neoforged.neoforge.network.PacketDistributor
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import kotlinx.coroutines.Deferred
@@ -81,8 +84,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
     private var currentSlot = 0
         set(value) {
             field = value
-            MainProxy.sendToPlayerList(PacketHandler.getPacket(QuickSortState::class.java).putInt(value)
-                .setModulePos(this), localSlotWatchers)
+            localSlotWatchers.send(QuickSortStateMessage(ModuleTarget.of(this), value))
         }
     private var stallSlot = 0
 
@@ -176,8 +178,9 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
 
     fun addWatchingPlayer(player: Player) {
         localSlotWatchers.add(player)
-        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(QuickSortState::class.java).putInt(currentSlot)
-            .setModulePos(this), player)
+        if (player is ServerPlayer) {
+            PacketDistributor.sendToPlayer(player, QuickSortStateMessage(ModuleTarget.of(this), currentSlot))
+        }
     }
 
     fun removeWatchingPlayer(player: Player) {

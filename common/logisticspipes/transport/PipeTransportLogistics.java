@@ -30,6 +30,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.ILogisticsPowerProvider;
@@ -46,7 +48,7 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.ItemBufferSyncPacket;
 import logisticspipes.network.packets.pipe.PipeContentPacket;
-import logisticspipes.network.packets.pipe.PipeContentRequest;
+import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.packets.pipe.PipePositionPacket;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -766,7 +768,7 @@ public class PipeTransportLogistics {
 	}
 
 	private void sendItemContentRequest(int travelId) {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeContentRequest.class).setInteger(travelId));
+		ClientPacketDistributor.sendToServer(new RequestPipeContentMessage(travelId));
 	}
 
 	public void sendItem(ItemStack stackToSend) {

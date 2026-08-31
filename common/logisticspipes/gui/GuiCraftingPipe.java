@@ -17,13 +17,16 @@ import net.minecraft.world.entity.player.Player;
 import kotlin.Unit;
 import lombok.Getter;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.gui.modules.ModuleBaseGui;
 import logisticspipes.gui.popup.GuiSelectSatellitePopup;
 import logisticspipes.modules.ModuleCrafter;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.cpipe.CPipeCleanupImport;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
-import logisticspipes.network.packets.pipe.CraftingPipeSetSatellitePacket;
+import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -332,7 +335,8 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 	private void openSubGuiForSatelliteSelection(int id, boolean fluidSatellite) {
 		if (module.getSlot().isInWorld()) {
 			this.setSubGui(new GuiSelectSatellitePopup(module.getBlockPos(), fluidSatellite, uuid ->
-					MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingPipeSetSatellitePacket.class).setPipeID(uuid).putInt(id).setModulePos(module))));
+					ClientPacketDistributor.sendToServer(
+							new SetCraftingSatelliteMessage(ModuleTarget.of(module), id, uuid))));
 		}
 	}
 

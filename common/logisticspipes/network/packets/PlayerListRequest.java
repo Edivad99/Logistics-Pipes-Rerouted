@@ -3,13 +3,14 @@ package logisticspipes.network.packets;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.util.LPDataInput;
 import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
@@ -35,8 +36,10 @@ public class PlayerListRequest extends ModernPacket {
 				? ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers().stream()
 				: Stream.empty();
 		Stream<Player> allPlayerEntities = allPlayers.filter(o -> o instanceof Player).map(o -> (Player) o);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PlayerList.class)
-				.setStringList(allPlayerEntities.map(entityPlayer -> entityPlayer.getGameProfile().name()).collect(Collectors.toList())), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new PlayerListMessage(
+					allPlayerEntities.map(entityPlayer -> entityPlayer.getGameProfile().name()).collect(Collectors.toList())));
+		}
 	}
 
 	@Override
