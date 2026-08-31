@@ -12,6 +12,7 @@ import java.util.concurrent.DelayQueue;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +24,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
@@ -46,6 +50,7 @@ import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
@@ -60,7 +65,8 @@ import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket;
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.packets.pipe.CraftingPipeUpdatePacket;
-import logisticspipes.network.packets.pipe.FluidCraftingAmount;
+import logisticspipes.network.to_client.FluidCraftingAmountMessage;
+import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
@@ -734,18 +740,17 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	public void changeFluidAmount(int change, int slot, Player player) {
-		if (MainProxy.isClient(player.level())) {
-			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(FluidCraftingAmount.class).setInteger2(slot).putInt(change)
-							.setModulePos(this));
-		} else {
-			liquidAmounts.increase(slot, change);
-			if (liquidAmounts.get(slot) <= 0) {
-				liquidAmounts.set(slot, 0);
-			}
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FluidCraftingAmount.class).setInteger2(slot)
-					.putInt(liquidAmounts.get(slot)).setModulePos(this), player);
-		}
+        if (player instanceof ServerPlayer serverPlayer) {
+            liquidAmounts.increase(slot, change);
+            if (liquidAmounts.get(slot) <= 0) {
+                liquidAmounts.set(slot, 0);
+            }
+            PacketDistributor.sendToPlayer(serverPlayer,
+                new FluidCraftingAmountMessage(ModuleTarget.of(this), slot, liquidAmounts.get(slot)));
+        } else {
+            ClientPacketDistributor.sendToServer(
+                new ChangeFluidCraftingAmountMessage(ModuleTarget.of(this), slot, change));
+        }
 	}
 
 	private IRouter getFluidSatelliteRouter(int x) {

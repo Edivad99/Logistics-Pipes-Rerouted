@@ -8,9 +8,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
@@ -23,6 +26,7 @@ import logisticspipes.interfaces.IModuleInventoryReceive;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
@@ -32,7 +36,7 @@ import logisticspipes.network.guis.module.inpipe.ItemSinkSlot;
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.packets.module.ModuleInventory;
-import logisticspipes.network.packets.modules.ItemSinkDefault;
+import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
@@ -77,8 +81,10 @@ public class ModuleItemSink extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDItemSink(this);
-	private SinkReply sinkReply;
-	private SinkReply sinkReplyDefault;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReply;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReplyDefault;
 
 	public ModuleItemSink() {
 		filterInventory.addListener(this);
@@ -113,9 +119,7 @@ public class ModuleItemSink extends LogisticsModule
 	public void setDefaultRoute(Boolean isDefaultRoute) {
 		defaultRoute.setValue(isDefaultRoute);
 		if (!localModeWatchers.isEmpty()) {
-			MainProxy.sendToPlayerList(
-				PacketHandler.getPacket(ItemSinkDefault.class).setFlag(isDefaultRoute).setModulePos(this),
-				localModeWatchers);
+			localModeWatchers.send(new ItemSinkDefaultRouteMessage(ModuleTarget.of(this), isDefaultRoute));
 		}
 	}
 
@@ -142,18 +146,20 @@ public class ModuleItemSink extends LogisticsModule
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 		boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+		final SinkReply replyDefault = Objects.requireNonNull(sinkReplyDefault, "module has not been registered");
 		if (defaultRoute.getValue() && !allowDefault) {
 			return null;
 		}
-		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
-			&& bestCustomPriority >= sinkReply.customPriority)) {
+		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+			&& bestCustomPriority >= reply.customPriority)) {
 			return null;
 		}
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		if (filterInventory.containsUndamagedItem(item.getUndamaged())) {
 			if (service.canUseEnergy(1)) {
-				return sinkReply;
+				return reply;
 			}
 			return null;
 		}
@@ -179,20 +185,20 @@ public class ModuleItemSink extends LogisticsModule
 				}
 				if (ident1.equals(ident2)) {
 					if (service.canUseEnergy(5)) {
-						return sinkReply;
+						return reply;
 					}
 					return null;
 				}
 			}
 		}
 		if (defaultRoute.getValue()) {
-			if (bestPriority > sinkReplyDefault.fixedPriority.ordinal() || (
-				bestPriority == sinkReplyDefault.fixedPriority.ordinal()
-					&& bestCustomPriority >= sinkReplyDefault.customPriority)) {
+			if (bestPriority > replyDefault.fixedPriority.ordinal() || (
+				bestPriority == replyDefault.fixedPriority.ordinal()
+					&& bestCustomPriority >= replyDefault.customPriority)) {
 				return null;
 			}
 			if (service.canUseEnergy(1)) {
-				return sinkReplyDefault;
+				return replyDefault;
 			}
 			return null;
 		}
@@ -226,8 +232,10 @@ public class ModuleItemSink extends LogisticsModule
 		localModeWatchers.add(player);
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
 			.setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory)).setModulePos(this), player);
-		MainProxy.sendPacketToPlayer(
-			PacketHandler.getPacket(ItemSinkDefault.class).setFlag(defaultRoute.getValue()).setModulePos(this), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new ItemSinkDefaultRouteMessage(ModuleTarget.of(this), defaultRoute.getValue()));
+		}
 	}
 
 	@Override

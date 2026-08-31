@@ -3,8 +3,11 @@ package logisticspipes.utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 
 public class PlayerCollectionList {
@@ -37,6 +40,21 @@ public class PlayerCollectionList {
 	public Iterable<Player> players() {
 		checkPlayers();
 		return () -> new Itr(players.iterator());
+	}
+
+	/**
+	 * Sends a payload to every player on this list.
+	 *
+	 * <p>Server-side only in practice: the list holds whoever is watching something, and only a
+	 * {@link ServerPlayer} has a connection to send down. A client-side list is empty, so this is
+	 * a no-op there rather than an error.
+	 */
+	public void send(CustomPacketPayload payload) {
+		players().forEach(player -> {
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, payload);
+			}
+		});
 	}
 
 	public int size() {

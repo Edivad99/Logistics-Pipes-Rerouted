@@ -9,9 +9,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.RequestSatellitePipeListPacket;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -47,7 +47,7 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 				return 0xFFFFFF;
 			}
 		});
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSatellitePipeListPacket.class).setFlag(fluidSatellites).setBlockPos(pos));
+		ClientPacketDistributor.sendToServer(new RequestSatellitePipeListMessage(pos, fluidSatellites));
 	}
 
 	protected void drawTitle(GuiGraphicsExtractor guiGraphics) {

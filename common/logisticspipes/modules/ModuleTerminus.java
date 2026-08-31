@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import net.minecraft.world.Container;
@@ -52,7 +53,8 @@ public class ModuleTerminus extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
-	private SinkReply sinkReply;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReply;
 
 	public ModuleTerminus() {
 		filterInventory.addListener(this);
@@ -86,15 +88,16 @@ public class ModuleTerminus extends LogisticsModule
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= sinkReply.customPriority)) {
+		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+				&& bestCustomPriority >= reply.customPriority)) {
 			return null;
 		}
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		if (filterInventory.containsUndamagedItem(item.getUndamaged())) {
 			if (service.canUseEnergy(2)) {
-				return sinkReply;
+				return reply;
 			}
 		}
 

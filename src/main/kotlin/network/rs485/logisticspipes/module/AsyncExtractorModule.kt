@@ -52,7 +52,8 @@ import logisticspipes.network.guis.module.inhand.SneakyModuleInHandGuiProvider
 import logisticspipes.network.guis.module.inpipe.SneakyModuleInSlotGuiProvider
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket
-import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate
+import logisticspipes.network.ModuleTarget
+import logisticspipes.network.to_client.SneakyDirectionMessage
 import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.MainProxy
@@ -64,6 +65,9 @@ import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
 import net.minecraft.client.Minecraft
 import net.minecraft.core.Direction
+import java.util.Optional
+import net.neoforged.neoforge.network.PacketDistributor
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import java.util.*
@@ -193,12 +197,7 @@ class AsyncExtractorModule(
         get() = sneakyDirectionProp.value
         set(value) {
             sneakyDirectionProp.value = value
-            MainProxy.sendToPlayerList(
-                PacketHandler.getPacket(SneakyModuleDirectionUpdate::class.java)
-                    .setDirection(sneakyDirection)
-                    .setModulePos(this),
-                localModeWatchers,
-            )
+            localModeWatchers.send(SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(value)))
         }
 
     private val hudRenderer: IHUDModuleRenderer = HUDAsyncExtractor(this)
@@ -292,11 +291,12 @@ class AsyncExtractorModule(
 
     override fun startWatching(player: Player) {
         localModeWatchers.add(player)
-        MainProxy.sendPacketToPlayer(
-            PacketHandler.getPacket(SneakyModuleDirectionUpdate::class.java).setDirection(sneakyDirection)
-                .setModulePos(this),
-            player,
-        )
+        if (player is ServerPlayer) {
+            PacketDistributor.sendToPlayer(
+                player,
+                SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(sneakyDirection)),
+            )
+        }
     }
 
     override fun stopWatching(player: Player) {

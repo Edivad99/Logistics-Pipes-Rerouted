@@ -53,7 +53,8 @@ import logisticspipes.network.guis.module.inpipe.AdvancedExtractorModuleSlot
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket
 import logisticspipes.network.packets.module.ModuleInventory
-import logisticspipes.network.packets.modules.AdvancedExtractorInclude
+import logisticspipes.network.ModuleTarget
+import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage
 import logisticspipes.proxy.MainProxy
 import logisticspipes.proxy.computers.interfaces.CCCommand
 import logisticspipes.utils.ISimpleInventoryEventHandler
@@ -61,6 +62,8 @@ import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
 import net.minecraft.core.Direction
 import net.minecraft.world.Container
+import net.neoforged.neoforge.network.PacketDistributor
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import kotlinx.coroutines.Deferred
 
@@ -112,11 +115,8 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
             MainProxy.runOnServer(level) {
                 Runnable {
                     itemsIncluded.addObserver {
-                        MainProxy.sendToPlayerList(
-                            PacketHandler.getPacket(AdvancedExtractorInclude::class.java)
-                                .setFlag(it.copyValue())
-                                .setModulePos(this),
-                            extractor.localModeWatchers,
+                        extractor.localModeWatchers.send(
+                            AdvancedExtractorIncludeMessage(ModuleTarget.of(this), it.copyValue()),
                         )
                     }
                 }
@@ -191,12 +191,12 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
                 .setModulePos(this),
             player,
         )
-        MainProxy.sendPacketToPlayer(
-            PacketHandler.getPacket(AdvancedExtractorInclude::class.java)
-                .setFlag(itemsIncluded.value)
-                .setModulePos(this),
-            player,
-        )
+        if (player is ServerPlayer) {
+            PacketDistributor.sendToPlayer(
+                player,
+                AdvancedExtractorIncludeMessage(ModuleTarget.of(this), itemsIncluded.value),
+            )
+        }
     }
 
     override fun stopWatching(player: Player) = extractor.stopWatching(player)

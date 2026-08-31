@@ -2,10 +2,9 @@ package logisticspipes.network.abstractpackets;
 
 import net.minecraft.nbt.CompoundTag;
 
-import org.jspecify.annotations.Nullable;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.util.LPDataInput;
 import logisticspipes.util.LPDataOutput;

@@ -21,6 +21,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import com.mojang.serialization.Codec;
 import org.jspecify.annotations.Nullable;
@@ -29,6 +30,15 @@ import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
+import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
+import logisticspipes.network.to_client.FluidCraftingAmountMessage;
+import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
+import logisticspipes.network.to_client.OreDictItemSinkListMessage;
+import logisticspipes.network.to_client.SneakyDirectionMessage;
+import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
+import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
+import logisticspipes.network.to_server.SetSneakyDirectionMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.util.LPDataIOWrapper;
@@ -69,7 +79,42 @@ public class PacketHandler {
             // Worth a line: a client and a server that registered different counts will fail to
             // negotiate, and this is the only place that number is visible.
             LogisticsPipes.LOG.info("Registered {} LogisticsPipes packet payloads", registered);
+
+            registerClientToServer(registrar);
+            registerServerToClient(registrar);
         });
+    }
+
+    /**
+     * Messages that have left the {@link ModernPacket} hierarchy behind.
+     *
+     * <p>Listed by hand, and by direction: a payload record knows which way it travels, so it is
+     * registered one way only and the wrong-way case stops being representable. The loop above
+     * keeps serving the packets that have not migrated yet, which have to stay bidirectional
+     * because a {@code ModernPacket} carries no direction.
+     */
+    private static void registerClientToServer(PayloadRegistrar registrar) {
+        registrar.playToServer(ChangeFluidCraftingAmountMessage.TYPE,
+                ChangeFluidCraftingAmountMessage.STREAM_CODEC, ChangeFluidCraftingAmountMessage::handle);
+        registrar.playToServer(RequestSatellitePipeListMessage.TYPE,
+                RequestSatellitePipeListMessage.STREAM_CODEC, RequestSatellitePipeListMessage::handle);
+        registrar.playToServer(SetSneakyDirectionMessage.TYPE,
+                SetSneakyDirectionMessage.STREAM_CODEC, SetSneakyDirectionMessage::handle);
+        registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
+                SetOreDictItemSinkListMessage.STREAM_CODEC, SetOreDictItemSinkListMessage::handle);
+    }
+
+    private static void registerServerToClient(PayloadRegistrar registrar) {
+        registrar.playToClient(FluidCraftingAmountMessage.TYPE,
+                FluidCraftingAmountMessage.STREAM_CODEC, FluidCraftingAmountMessage::handle);
+        registrar.playToClient(SneakyDirectionMessage.TYPE,
+                SneakyDirectionMessage.STREAM_CODEC, SneakyDirectionMessage::handle);
+        registrar.playToClient(OreDictItemSinkListMessage.TYPE,
+                OreDictItemSinkListMessage.STREAM_CODEC, OreDictItemSinkListMessage::handle);
+        registrar.playToClient(ItemSinkDefaultRouteMessage.TYPE,
+                ItemSinkDefaultRouteMessage.STREAM_CODEC, ItemSinkDefaultRouteMessage::handle);
+        registrar.playToClient(AdvancedExtractorIncludeMessage.TYPE,
+                AdvancedExtractorIncludeMessage.STREAM_CODEC, AdvancedExtractorIncludeMessage::handle);
     }
 
     private static void handlePayload(LPPayload payload, IPayloadContext context) {

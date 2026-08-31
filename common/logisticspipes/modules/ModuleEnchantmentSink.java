@@ -2,6 +2,7 @@ package logisticspipes.modules;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.world.item.ItemStack;
 
@@ -15,7 +16,8 @@ import network.rs485.logisticspipes.property.Property;
 
 public class ModuleEnchantmentSink extends LogisticsModule {
 
-	private SinkReply sinkReply;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReply;
 
 	public static String getName() {
 		return "enchantment_sink";
@@ -46,16 +48,17 @@ public class ModuleEnchantmentSink extends LogisticsModule {
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
 		// check to see if a better route is already found
 		// Note: Higher MKs are higher priority
-		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= sinkReply.customPriority)) {
+		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+				&& bestCustomPriority >= reply.customPriority)) {
 			return null;
 		}
 
 		//check to see if item is enchanted
 		if (stack.isEnchanted()) {
-			return sinkReply;
+			return reply;
 		}
 		return null;
 	}

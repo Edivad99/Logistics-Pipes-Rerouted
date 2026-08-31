@@ -29,7 +29,7 @@ public interface IProxy {
 
 	void tickClient();
 
-    LogisticsModule getModuleFromGui();
+    @Nullable LogisticsModule getModuleFromGui();
 
 	boolean checkSinglePlayerOwner(String commandSenderName);
 

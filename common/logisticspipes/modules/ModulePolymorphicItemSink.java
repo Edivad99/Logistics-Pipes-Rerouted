@@ -2,6 +2,7 @@ package logisticspipes.modules;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.world.item.ItemStack;
 
@@ -19,7 +20,8 @@ import network.rs485.logisticspipes.property.Property;
 
 public class ModulePolymorphicItemSink extends LogisticsModule {
 
-	private SinkReply sinkReply;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReply;
 
 	public static String getName() {
 		return "item_sink_polymorphic";
@@ -50,8 +52,9 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= sinkReply.customPriority)) {
+		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+				&& bestCustomPriority >= reply.customPriority)) {
 			return null;
 		}
 		final IPipeServiceProvider service = this.service;
@@ -68,7 +71,7 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 		}
 
 		if (service.canUseEnergy(3)) {
-			return sinkReply;
+			return reply;
 		}
 		return null;
 	}

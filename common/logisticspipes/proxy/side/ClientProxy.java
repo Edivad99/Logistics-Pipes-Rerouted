@@ -100,7 +100,7 @@ public class ClientProxy implements IProxy {
 	}
 
     @Override
-	public LogisticsModule getModuleFromGui() {
+	public @Nullable LogisticsModule getModuleFromGui() {
 		var screen = Minecraft.getInstance().screen;
 		if (screen instanceof logisticspipes.gui.modules.ModuleBaseGui g) return g.getModule();
 		if (screen instanceof logisticspipes.gui.GuiCraftingPipe g)        return g.getCraftingModule();

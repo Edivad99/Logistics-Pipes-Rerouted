@@ -87,7 +87,7 @@ public class ServerProxy implements IProxy {
 	public void tickClient() {}
 
     @Override
-	public LogisticsModule getModuleFromGui() {
+	public @Nullable LogisticsModule getModuleFromGui() {
 		return null;
 	}
 

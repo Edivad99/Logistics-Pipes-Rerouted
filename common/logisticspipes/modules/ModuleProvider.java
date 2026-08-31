@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,6 +34,7 @@ import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
@@ -42,7 +44,7 @@ import logisticspipes.network.guis.module.inpipe.ProviderModuleGuiProvider;
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.packets.module.ModuleInventory;
-import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
+import logisticspipes.network.to_client.SneakyDirectionMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.proxy.MainProxy;
@@ -128,14 +130,8 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	@Override
 	public void setSneakyDirection(Direction direction) {
 		sneakyDirection.setValue(direction);
-		MainProxy.runOnServer(getWorld(), () -> () ->
-				MainProxy.sendToPlayerList(
-						PacketHandler.getPacket(SneakyModuleDirectionUpdate.class)
-								.setDirection(sneakyDirection.getValue())
-								.setModulePos(this),
-						localModeWatchers
-				)
-		);
+		MainProxy.runOnServer(getWorld(), () -> () -> localModeWatchers.send(
+				new SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(sneakyDirection.getValue()))));
 	}
 
 	protected int neededEnergy() {

@@ -45,13 +45,9 @@ import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.PlayerList
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.block.SecurityStationCCIDs
-import logisticspipes.network.packets.gui.RequestSatellitePipeListPacket
-import logisticspipes.network.packets.modules.AdvancedExtractorInclude
-import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate
 import logisticspipes.network.packets.orderer.DiscContent
 import logisticspipes.network.packets.pipe.CraftingPriority
 import logisticspipes.network.packets.pipe.FireWallFlag
-import logisticspipes.network.packets.pipe.FluidCraftingAmount
 import logisticspipes.network.packets.pipe.FluidSupplierAmount
 import logisticspipes.network.packets.pipe.InvSysConSetChannelOnPipePacket
 import logisticspipes.network.packets.pipe.ItemAmountSignUpdatePacket
@@ -59,7 +55,6 @@ import logisticspipes.network.packets.pipe.PipeContentRequest
 import logisticspipes.network.packets.pipe.SendQueueContent
 import logisticspipes.network.packets.pipe.SlotFinderActivatePacket
 import net.minecraft.SharedConstants
-import net.minecraft.core.Direction
 import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
@@ -203,13 +198,6 @@ class PacketRoundTripTest {
     }
 
     @Test
-    fun `BooleanCoordinatesPacket round trip`() {
-        val actual = roundTrip(RequestSatellitePipeListPacket(ANY_ID).withCoords().apply { isFlag = true })
-        assertCoords(actual)
-        assertEquals(true, actual.isFlag)
-    }
-
-    @Test
     fun `NBTCoordinatesPacket round trip`() {
         val tag = CompoundTag().apply { putInt("lp_test", 7); putString("who", "krapht") }
         val actual = roundTrip(SecurityStationCCIDs(ANY_ID).withCoords().apply { this.tag = tag })
@@ -270,22 +258,6 @@ class PacketRoundTripTest {
     }
 
     @Test
-    fun `BooleanModuleCoordinatesPacket round trip`() {
-        val actual = roundTrip(AdvancedExtractorInclude(ANY_ID).withModule().apply { setFlag(true) })
-        assertModule(actual)
-        assertEquals(true, actual.isFlag)
-    }
-
-    @Test
-    fun `DirectionModuleCoordinatesPacket round trip`() {
-        val actual = roundTrip(
-            SneakyModuleDirectionUpdate(ANY_ID).withModule().apply { setDirection(Direction.WEST) },
-        )
-        assertModule(actual)
-        assertEquals(Direction.WEST, actual.direction)
-    }
-
-    @Test
     fun `InventoryModuleCoordinatesPacket round trip`() {
         val stacks = NonNullList.of(
             ItemStack.EMPTY,
@@ -309,18 +281,6 @@ class PacketRoundTripTest {
         val actual = roundTrip(CraftingPriority(ANY_ID).withModule().apply { putInt(7) })
         assertModule(actual)
         assertEquals(7, actual.integer)
-    }
-
-    @Test
-    fun `Integer2ModuleCoordinatesPacket round trip is the deepest chain`() {
-        // FluidCraftingAmount -> Integer2ModuleCoordinatesPacket -> IntegerModuleCoordinatesPacket
-        //   -> ModuleCoordinatesPacket -> CoordinatesPacket -> ModernPacket
-        val actual = roundTrip(
-            FluidCraftingAmount(ANY_ID).withModule().apply { putInt(101); integer2 = 202 },
-        )
-        assertModule(actual)
-        assertEquals(101, actual.integer)
-        assertEquals(202, actual.integer2)
     }
 
     // ── the null branches, which are where asymmetries hide ──────────────────

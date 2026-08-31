@@ -45,7 +45,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 		super(buildDummy(playerInventory, oreDictModule), oreDictModule);
 
 		propertyLayer = new PropertyLayer(oreDictModule.getProperties());
-		oreListOverlay = propertyLayer.overlay(oreDictModule.oreList);
+		oreListOverlay = propertyLayer.overlay(oreDictModule.getOreList());
 
 		tmpInv = tmpInvStatic;
 

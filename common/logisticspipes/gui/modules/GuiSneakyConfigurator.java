@@ -8,6 +8,7 @@
 package logisticspipes.gui.modules;
 
 import java.util.Locale;
+import java.util.Optional;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -16,11 +17,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_server.SetSneakyDirectionMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import network.rs485.logisticspipes.module.SneakyDirection;
 
@@ -59,7 +61,8 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 	private logisticspipes.utils.gui.SmallGuiButton wire(logisticspipes.utils.gui.SmallGuiButton btn) {
 		btn.setPressListener(b -> {
 			directionReceiver.setSneakyDirection(b.id == 6 ? null : Direction.from3DDataValue(b.id));
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(SneakyModuleDirectionUpdate.class).setDirection(directionReceiver.getSneakyDirection()).setModulePos(module));
+			ClientPacketDistributor.sendToServer(new SetSneakyDirectionMessage(
+					ModuleTarget.of(module), Optional.ofNullable(directionReceiver.getSneakyDirection())));
 			refreshButtons();
 		});
 		return btn;
