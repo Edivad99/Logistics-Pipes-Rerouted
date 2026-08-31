@@ -106,7 +106,6 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	@Override
 	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
-		list.add("Filter: ");
 		list.add("<inventory>");
 		list.add("<that>" + filterInventory.getTagKey());
 		return list;

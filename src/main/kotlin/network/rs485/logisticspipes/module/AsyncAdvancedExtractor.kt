@@ -176,8 +176,10 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
     override fun getClientInformation(): MutableList<String> {
         val clientInformation = extractor.clientInformation
         clientInformation.add(if (itemsIncluded.value) "Included" else "Excluded")
-        clientInformation.add("Filter:")
-        clientInformation.addAll(filterInventory.clientInformation)
+        // The pair the tooltip looks for: it turns the filter into an item grid instead of the
+        // raw stack strings addAll(filterInventory.clientInformation) used to leave here.
+        clientInformation.add("<inventory>")
+        clientInformation.add("<that>" + filterInventory.tagKey)
         return clientInformation
     }
 

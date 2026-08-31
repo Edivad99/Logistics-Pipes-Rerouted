@@ -198,12 +198,22 @@ public class ItemModule extends LogisticsItem {
     }
 
     /**
-     * Index of the {@code <inventory>} entry in the module's information list, which is the line the
-     * item grid takes the place of. Returns {@code -1} when the module has no inventory to show.
+     * The line the module writes just before its {@code <inventory>} marker -- "Filter: ",
+     * "Supplied: " and friends -- which is the line the item grid belongs under.
+     *
+     * <p>Returns null when the module has no inventory to show, or writes no label ahead of it.
+     * This is a text anchor rather than an index on purpose: the tooltip vanilla hands us holds
+     * the item name and whatever its components contribute as well, so the position of a line in
+     * the module's own list says nothing about its position in the tooltip.
      */
-    public static int getInventoryLineIndex(ItemStack stack) {
+    @Nullable
+    public static String getInventoryLabel(ItemStack stack) {
         ListTag informationList = getInformationList(stack);
-        return informationList == null ? -1 : findInventoryEntry(informationList);
+        if (informationList == null) {
+            return null;
+        }
+        int entry = findInventoryEntry(informationList);
+        return entry > 0 ? informationList.getStringOr(entry - 1, "") : null;
     }
 
     private static int findInventoryEntry(ListTag informationList) {

@@ -206,7 +206,6 @@ public class ModuleItemSink extends LogisticsModule
 	public List<String> getClientInformation() {
 		List<String> list = new ArrayList<>();
 		list.add("Default: " + (isDefaultRoute() ? "Yes" : "No"));
-		list.add("Filter: ");
 		list.add("<inventory>");
 		list.add("<that>" + filterInventory.getTagKey());
 		return list;
