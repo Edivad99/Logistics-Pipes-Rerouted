@@ -26,14 +26,12 @@ import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
  */
 public class ClientModuleInventoryTooltip implements ClientTooltipComponent {
 
-    private static final Identifier BACKGROUND_SPRITE =
-        Identifier.withDefaultNamespace("container/bundle/background");
     private static final Identifier SLOT_SPRITE =
-        Identifier.withDefaultNamespace("container/bundle/slot");
+        Identifier.withDefaultNamespace("container/bundle/slot_background");
 
-    private static final int SLOT_WIDTH = 18;
-    private static final int SLOT_HEIGHT = 20;
-    private static final int BORDER_WIDTH = 1;
+    /** The sprite is a 24x24 nine-slice with a 4px border, so the item sits in the inner 16x16. */
+    private static final int SLOT_SIZE = 24;
+    private static final int SLOT_BORDER = 4;
     private static final int MARGIN_Y = 4;
 
     /** Filter inventories are laid out nine wide in the GUIs, so the tooltip matches that. */
@@ -77,24 +75,23 @@ public class ClientModuleInventoryTooltip implements ClientTooltipComponent {
     }
 
     private int backgroundWidth() {
-        return columns * SLOT_WIDTH + 2 * BORDER_WIDTH;
+        return columns * SLOT_SIZE;
     }
 
     private int backgroundHeight() {
-        return rows * SLOT_HEIGHT + 2 * BORDER_WIDTH;
+        return rows * SLOT_SIZE;
     }
 
     @Override
     public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_SPRITE, x, y, backgroundWidth(), backgroundHeight());
         for (int index = 0; index < items.size(); index++) {
-            int slotX = x + index % columns * SLOT_WIDTH + BORDER_WIDTH;
-            int slotY = y + index / columns * SLOT_HEIGHT + BORDER_WIDTH;
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, slotX, slotY, SLOT_WIDTH, SLOT_HEIGHT);
+            int slotX = x + index % columns * SLOT_SIZE;
+            int slotY = y + index / columns * SLOT_SIZE;
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, slotX, slotY, SLOT_SIZE, SLOT_SIZE);
             ItemStack stack = items.get(index);
             if (!stack.isEmpty()) {
-                graphics.item(stack, slotX + 1, slotY + 1, index);
-                graphics.itemDecorations(font, stack, slotX + 1, slotY + 1);
+                graphics.item(stack, slotX + SLOT_BORDER, slotY + SLOT_BORDER, index);
+                graphics.itemDecorations(font, stack, slotX + SLOT_BORDER, slotY + SLOT_BORDER);
             }
         }
     }
