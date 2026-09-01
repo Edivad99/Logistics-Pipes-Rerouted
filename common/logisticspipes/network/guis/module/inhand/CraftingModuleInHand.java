@@ -1,16 +1,18 @@
 package logisticspipes.network.guis.module.inhand;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.gui.GuiCraftingPipe;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.util.LPDataInput;
 import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
@@ -49,7 +51,9 @@ public class CraftingModuleInHand extends ModuleInHandGuiProvider {
 		if (!(dummy.getModule() instanceof ModuleCrafter)) {
 			return null;
 		}
-		MainProxy.sendPacketToPlayer(((ModuleCrafter) dummy.getModule()).getCPipePacket(), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, ((ModuleCrafter) dummy.getModule()).getUpdateMessage());
+		}
 		dummy.setInventory(((ModuleCrafter) dummy.getModule()).dummyInventory);
 		dummy.addNormalSlotsForPlayerInventory(18, 97);
 		//Input slots

@@ -32,6 +32,7 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
+import logisticspipes.network.to_client.CraftingModuleUpdateMessage;
 import logisticspipes.network.to_client.DiskContentMessage;
 import logisticspipes.network.to_client.FirewallFlagsMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
@@ -215,6 +216,8 @@ public class PacketHandler {
                 ModulePropertiesMessage.STREAM_CODEC, ModulePropertiesMessage::handle);
         registrar.playToClient(PipePropertiesMessage.TYPE,
                 PipePropertiesMessage.STREAM_CODEC, PipePropertiesMessage::handle);
+        registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
+                CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,
                 ModuleInventoryMessage.STREAM_CODEC, ModuleInventoryMessage::handle);
         registrar.playToClient(OreDictItemSinkListMessage.TYPE,

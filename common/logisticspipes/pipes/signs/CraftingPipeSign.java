@@ -122,7 +122,7 @@ public class CraftingPipeSign implements IPipeSign {
 					Component.literal(idStr).getVisualOrderText(), false, Font.DisplayMode.NORMAL,
 					packedLight, SIGN_TEXT_COLOR, 0, 0);
 				ModuleCrafter logisticsMod = cpipe.getLogisticsModule();
-				oldSatelliteName = logisticsMod.clientSideSatelliteNames.satelliteName;
+				oldSatelliteName = logisticsMod.clientSideSatelliteNames.satelliteName();
 				if (!oldSatelliteName.isEmpty()) {
 					String sat = "Sat: " + oldSatelliteName;
 					collector.submitText(poseStack, -font.width(sat) / 2.0F, 1 * 10 - 4 * 5,

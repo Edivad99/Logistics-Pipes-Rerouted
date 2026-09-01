@@ -192,11 +192,11 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 			if (liquidCrafter != 0) {
 				extension.registerButton(extensionControllerLeft.registerControlledButton(addRenderableWidget(normalButtonArray[5] = new SmallGuiButton(22, leftPos - (liquidCrafter * 40) / 2 - 18, topPos + 158, 37, 10, TextUtil.translate(PREFIX + "Select")))));
 			}
-			satellitePipeLabel = new Label(craftingModule.clientSideSatelliteNames.satelliteName, 115, 43, 55, 0x404040, 0xff8b8b8b);
+			satellitePipeLabel = new Label(craftingModule.clientSideSatelliteNames.satelliteName(), 115, 43, 55, 0x404040, 0xff8b8b8b);
 		} else {
 			for (int i = 0; i < 9; i++) {
 				addRenderableWidget(advancedSatButtonArray[i][0] = new SmallGuiButton(30 + i, (width - panelWidth) / 2 + 9 + 18 * i, (height - panelHeight) / 2 + 75, 17, 10, TextUtil.translate(PREFIX + "Sel")));
-				satellitePipeLabels[i] = new VerticalLabel(craftingModule.clientSideSatelliteNames.advancedSatelliteNameArray[i], 11 + (i * 18), 37, 36, 0x404040, 0xffc6c6c6);
+				satellitePipeLabels[i] = new VerticalLabel(craftingModule.clientSideSatelliteNames.advancedSatelliteNames().get(i), 11 + (i * 18), 37, 36, 0x404040, 0xffc6c6c6);
 			}
 			addRenderableWidget(normalButtonArray[1] = new SmallGuiButton(3, (width - panelWidth) / 2 + 39, (height - panelHeight) / 2 + 100, 37, 10, TextUtil.translate(GuiCraftingPipe.PREFIX + "Import")));
 			addRenderableWidget(normalButtonArray[2] = new SmallGuiButton(4, (width - panelWidth) / 2 + 6, (height - panelHeight) / 2 + 100, 28, 10, TextUtil
@@ -359,11 +359,11 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		if (!isAdvancedSat) {
 			guiGraphics.text(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Output"), 77, 40, 0xFF404040, false);
 			guiGraphics.text(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Satellite"), 123, 7, 0xFF404040, false);
-			if (craftingModule.clientSideSatelliteNames.satelliteName.isEmpty()) {
+			if (craftingModule.clientSideSatelliteNames.satelliteName().isEmpty()) {
 				guiGraphics.text(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Off"), 135, 43, 0xFF404040, false);
 			} else {
-				if (!satellitePipeLabel.isTextEqual(craftingModule.clientSideSatelliteNames.satelliteName)) {
-					satellitePipeLabel.setText(craftingModule.clientSideSatelliteNames.satelliteName);
+				if (!satellitePipeLabel.isTextEqual(craftingModule.clientSideSatelliteNames.satelliteName())) {
+					satellitePipeLabel.setText(craftingModule.clientSideSatelliteNames.satelliteName());
 				}
 				satellitePipeLabel.draw(guiGraphics, mouseX - leftPos, mouseY - topPos);
 			}
@@ -371,11 +371,11 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 			guiGraphics.text(minecraft.font, String.valueOf(craftingPriorityOverlay.get()), 143 - (minecraft.font.width(String.valueOf(craftingPriorityOverlay.get())) / 2), 87, 0xFF404040, false);
 		} else {
 			for (int i = 0; i < 9; i++) {
-				if (craftingModule.clientSideSatelliteNames.advancedSatelliteNameArray[i].isEmpty()) {
+				if (craftingModule.clientSideSatelliteNames.advancedSatelliteNames().get(i).isEmpty()) {
 					guiGraphics.text(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Off"), 9 + (i * 18), 57, 0xFF404040, false);
 				} else {
-					if (!satellitePipeLabels[i].isTextEqual(craftingModule.clientSideSatelliteNames.advancedSatelliteNameArray[i])) {
-						satellitePipeLabels[i].setText(craftingModule.clientSideSatelliteNames.advancedSatelliteNameArray[i]);
+					if (!satellitePipeLabels[i].isTextEqual(craftingModule.clientSideSatelliteNames.advancedSatelliteNames().get(i))) {
+						satellitePipeLabels[i].setText(craftingModule.clientSideSatelliteNames.advancedSatelliteNames().get(i));
 					}
 					satellitePipeLabels[i].draw(guiGraphics, mouseX - leftPos, mouseY - topPos);
 				}
@@ -456,7 +456,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 						int liquidLeft = left + i * 40;
 						renderFluidText(guiGraphics, liquidLeft, top, i);
 					}
-					if (craftingModule.clientSideSatelliteNames.liquidSatelliteName.isEmpty()) {
+					if (craftingModule.clientSideSatelliteNames.liquidSatelliteName().isEmpty()) {
                         guiGraphics.fill(left + 3, top + 3, left + 3 + (liquidCrafter * 40), top + 138, 0xAA8B8B8B);
                         guiGraphics.text(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Off"), left + (liquidCrafter * 40) / 2 - 5, top + 145, 0xFF404040, false);
 						for (int i = 0; i < liquidCrafter; i++) {
@@ -465,7 +465,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 							}
 						}
 					} else {
-                        guiGraphics.text(minecraft.font, craftingModule.clientSideSatelliteNames.liquidSatelliteName, left + (liquidCrafter * 40) / 2 + 3 - (font.width(craftingModule.clientSideSatelliteNames.liquidSatelliteName) / 2), top + 145, 0xFF404040, false);
+                        guiGraphics.text(minecraft.font, craftingModule.clientSideSatelliteNames.liquidSatelliteName(), left + (liquidCrafter * 40) / 2 + 3 - (font.width(craftingModule.clientSideSatelliteNames.liquidSatelliteName()) / 2), top + 145, 0xFF404040, false);
 						for (int i = 0; i < liquidCrafter; i++) {
 							for (int j = 0; j < 8; j++) {
 								liquidGuiParts[i][j].active = true;
@@ -487,14 +487,14 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 			guiGraphics.text(minecraft.font, "100", left + 13, top + 93, 0xFF404040, false);
 			guiGraphics.text(minecraft.font, "1000", left + 10, top + 113, 0xFF404040, false);
 			if (isAdvancedSat) {
-				if (craftingModule.clientSideSatelliteNames.liquidSatelliteNameArray[i].isEmpty()) {
+				if (craftingModule.clientSideSatelliteNames.liquidSatelliteNames().get(i).isEmpty()) {
 					guiGraphics.fill(left + 3, top + 3, left + 42, top + 138, 0xAA8B8B8B);
 					guiGraphics.text(minecraft.font, TextUtil.translate(GuiCraftingPipe.PREFIX + "Off"), left + 15, top + 146, 0xFF404040, false);
 					for (int j = 0; j < 8; j++) {
 						liquidGuiParts[i][j].active = false;
 					}
 				} else {
-					String name = craftingModule.clientSideSatelliteNames.liquidSatelliteNameArray[i];
+					String name = craftingModule.clientSideSatelliteNames.liquidSatelliteNames().get(i);
 					name = TextUtil.getTrimmedString(name, 40, minecraft.font, "...");
 					guiGraphics.text(minecraft.font, name, left + 22 - (font.width(name) / 2), top + 146, 0xFF404040, false);
 					for (int j = 0; j < 8; j++) {
@@ -503,7 +503,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 				}
 				guiGraphics.fill(left + 3, top + 138, left + 42, top + 139, 0xff8B8B8B);
 			}
-			if (craftingModule.liquidInventory.getItem(i).isEmpty() && !((!isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteName.isEmpty()) || (isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteNameArray[i].isEmpty()))) {
+			if (craftingModule.liquidInventory.getItem(i).isEmpty() && !((!isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteName().isEmpty()) || (isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteNames().get(i).isEmpty()))) {
 				guiGraphics.fill(left + 3, top + 50, left + 42, top + 138, 0xAA8B8B8B);
 				for (int j = 0; j < 8; j++) {
 					liquidGuiParts[i][j].active = false;
@@ -513,7 +513,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 
 		@Override
 		public boolean renderSelectSlot(int slotId) {
-			if ((isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteNameArray[id].isEmpty()) || (!isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteName.isEmpty())) {
+			if ((isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteNames().get(id).isEmpty()) || (!isAdvancedSat && craftingModule.clientSideSatelliteNames.liquidSatelliteName().isEmpty())) {
 				return false;
 			}
 			return super.renderSelectSlot(slotId);

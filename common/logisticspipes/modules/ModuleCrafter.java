@@ -2,14 +2,19 @@ package logisticspipes.modules;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.DelayQueue;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -56,14 +61,13 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.guis.module.inhand.CraftingModuleInHand;
 import logisticspipes.network.guis.module.inpipe.CraftingModuleSlot;
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket;
-import logisticspipes.network.packets.pipe.CraftingPipeUpdatePacket;
 import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_client.CraftingModuleUpdateMessage;
 import logisticspipes.network.to_server.CrafterImportRecipeMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeFluidSatellite;
@@ -158,7 +162,7 @@ public class ModuleCrafter extends LogisticsModule
 	protected final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	protected final PlayerCollectionList guiWatcher = new PlayerCollectionList();
 
-	public ClientSideSatelliteNames clientSideSatelliteNames = new ClientSideSatelliteNames();
+	public ClientSideSatelliteNames clientSideSatelliteNames = ClientSideSatelliteNames.EMPTY;
 
 	protected SinkReply sinkReply;
 
@@ -634,13 +638,17 @@ public class ModuleCrafter extends LogisticsModule
 		return fuzzyFlags.get(startIdx, startIdx + 3);
 	}
 
-	public ModernPacket getCPipePacket() {
-		return PacketHandler.getPacket(CraftingPipeUpdatePacket.class).setAmount(liquidAmounts.getArray())
-				.setLiquidSatelliteNameArray(getSatelliteNamesForUUIDs(liquidSatelliteUUIDList))
-				.setLiquidSatelliteName(getSatelliteNameForUUID(liquidSatelliteUUID.getValue()))
-				.setSatelliteName(getSatelliteNameForUUID(satelliteUUID.getValue()))
-				.setAdvancedSatelliteNameArray(getSatelliteNamesForUUIDs(advancedSatelliteUUIDList))
-				.setPriority(priority.getValue()).setModulePos(this);
+	/** Everything about this crafter the client cannot work out for itself. */
+	public CraftingModuleUpdateMessage getUpdateMessage() {
+		return new CraftingModuleUpdateMessage(
+				ModuleTarget.of(this),
+				List.of(Arrays.stream(liquidAmounts.getArray()).boxed().toArray(Integer[]::new)),
+				new ClientSideSatelliteNames(
+						getSatelliteNameForUUID(satelliteUUID.getValue()),
+						getSatelliteNamesForUUIDs(advancedSatelliteUUIDList),
+						getSatelliteNameForUUID(liquidSatelliteUUID.getValue()),
+						getSatelliteNamesForUUIDs(liquidSatelliteUUIDList)),
+				priority.getValue());
 	}
 
 	private String getSatelliteNameForUUID(UUID uuid) {
@@ -660,21 +668,15 @@ public class ModuleCrafter extends LogisticsModule
 		return "UNKNOWN NAME";
 	}
 
-	private String[] getSatelliteNamesForUUIDs(UUIDListProperty list) {
-		return list.stream().map(this::getSatelliteNameForUUID).toArray(String[]::new);
+	private List<String> getSatelliteNamesForUUIDs(UUIDListProperty list) {
+		return list.stream().map(this::getSatelliteNameForUUID).toList();
 	}
 
-	public void handleCraftingUpdatePacket(CraftingPipeUpdatePacket packet) {
-		if (MainProxy.isClient(getWorld())) {
-			liquidAmounts.replaceContent(packet.getAmount());
-			clientSideSatelliteNames.liquidSatelliteNameArray = packet.getLiquidSatelliteNameArray();
-			clientSideSatelliteNames.liquidSatelliteName = packet.getLiquidSatelliteName();
-			clientSideSatelliteNames.satelliteName = packet.getSatelliteName();
-			clientSideSatelliteNames.advancedSatelliteNameArray = packet.getAdvancedSatelliteNameArray();
-			priority.setValue(packet.getPriority());
-		} else {
-			throw new UnsupportedOperationException();
-		}
+	/** Applies an update from the server. */
+	public void applyUpdate(List<Integer> liquidAmountList, ClientSideSatelliteNames names, int newPriority) {
+		liquidAmounts.replaceContent(liquidAmountList);
+		clientSideSatelliteNames = names;
+		priority.setValue(newPriority);
 	}
 
 	@Override
@@ -1197,7 +1199,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	private void updateSatellitesOnClient() {
-		MainProxy.sendToPlayerList(getCPipePacket(), guiWatcher);
+		guiWatcher.send(getUpdateMessage());
 	}
 
 	public void setSatelliteUUID(@Nullable UUID pipeID) {
@@ -1261,16 +1263,37 @@ public class ModuleCrafter extends LogisticsModule
 		}
 	}
 
-	public static class ClientSideSatelliteNames {
+	/**
+	 * The satellite names the client shows, resolved by the server.
+	 *
+	 * <p>A satellite is referenced by UUID, and only the server can turn one into the name the
+	 * player typed, so the client is told the names outright and keeps them here.
+	 */
+	public record ClientSideSatelliteNames(
+			String satelliteName,
+			List<String> advancedSatelliteNames,
+			String liquidSatelliteName,
+			List<String> liquidSatelliteNames
+	) {
 
-		public
-        String satelliteName = "";
-		public
-        String[] advancedSatelliteNameArray = {};
-		public
-        String liquidSatelliteName = "";
-		public
-        String[] liquidSatelliteNameArray = {};
+		/**
+		 * What the client holds before the first update arrives.
+		 *
+		 * <p>The lists are full-length and blank rather than empty: the GUI indexes them by slot
+		 * while it builds its labels, which it does before any update can have arrived.
+		 */
+		public static final ClientSideSatelliteNames EMPTY = new ClientSideSatelliteNames(
+				"", Collections.nCopies(9, ""), "", Collections.nCopies(ItemUpgrade.MAX_LIQUID_CRAFTER, ""));
+
+		public static final StreamCodec<RegistryFriendlyByteBuf, ClientSideSatelliteNames> STREAM_CODEC =
+				StreamCodec.composite(
+						ByteBufCodecs.STRING_UTF8, ClientSideSatelliteNames::satelliteName,
+						ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
+						ClientSideSatelliteNames::advancedSatelliteNames,
+						ByteBufCodecs.STRING_UTF8, ClientSideSatelliteNames::liquidSatelliteName,
+						ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
+						ClientSideSatelliteNames::liquidSatelliteNames,
+						ClientSideSatelliteNames::new);
 	}
 
 	public boolean hasByproductUpgrade() {
