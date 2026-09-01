@@ -28,7 +28,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
+import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.gui.hud.HUDSatellite;
@@ -45,8 +47,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.hud.ChestContent;
-import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
+import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.RequestTree;
@@ -107,12 +108,12 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), true));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), false));
 	}
 
 	private void addToList(ItemIdentifierStack stack) {
@@ -141,8 +142,8 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
-	public void playerStartWatching(Player player, int mode) {
-		if (mode == 1) {
+	public void playerStartWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.HUD) {
 			localModeWatchers.add(player);
 			if (player instanceof ServerPlayer serverPlayer) {
 				PacketDistributor.sendToPlayer(serverPlayer,
@@ -155,7 +156,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
-	public void playerStopWatching(Player player, int mode) {
+	public void playerStopWatching(Player player, WatchMode mode) {
 		super.playerStopWatching(player, mode);
 		localModeWatchers.remove(player);
 	}

@@ -20,6 +20,9 @@ import net.minecraft.world.level.Level;
 
 import com.google.common.base.Preconditions;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.gui.hud.HUDCrafting;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -33,9 +36,8 @@ import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
 import logisticspipes.network.packets.orderer.OrdererManagerContent;
+import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.CraftingPipeSign;
 import logisticspipes.proxy.MainProxy;
@@ -167,17 +169,17 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), true));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), false));
 	}
 
 	@Override
-	public void playerStartWatching(Player player, int mode) {
-		if (mode == 1) {
+	public void playerStartWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.HUD) {
 			localModeWatchers.add(player);
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(oldList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
 			craftingModule.startWatching(player);
@@ -187,7 +189,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 	}
 
 	@Override
-	public void playerStopWatching(Player player, int mode) {
+	public void playerStopWatching(Player player, WatchMode mode) {
 		super.playerStopWatching(player, mode);
 		localModeWatchers.remove(player);
 		craftingModule.stopWatching(player);

@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.gui.hud.modules.HUDProviderModule;
@@ -39,14 +40,12 @@ import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.ProviderModuleInHand;
 import logisticspipes.network.guis.module.inpipe.ProviderModuleGuiProvider;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.to_client.SneakyDirectionMessage;
+import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.proxy.MainProxy;
@@ -393,15 +392,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		}
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {

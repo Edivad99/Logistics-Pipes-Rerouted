@@ -38,6 +38,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.gui.GuiChassisPipe;
@@ -63,12 +66,11 @@ import logisticspipes.modules.ChassisModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
 import logisticspipes.network.packets.pipe.ChassisOrientationPacket;
 import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
 import logisticspipes.network.packets.pipe.RequestChassisOrientationPacket;
 import logisticspipes.network.packets.pipe.SendQueueContent;
+import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
@@ -575,18 +577,18 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), true));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), false));
 		hud.stopWatching();
 	}
 
 	@Override
-	public void playerStartWatching(Player player, int mode) {
-		if (mode == 1) {
+	public void playerStartWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.HUD) {
 			updateModuleInventory(player.registryAccess());
 			localModeWatchers.add(player);
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChassisPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
@@ -597,7 +599,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void playerStopWatching(Player player, int mode) {
+	public void playerStopWatching(Player player, WatchMode mode) {
 		super.playerStopWatching(player, mode);
 		localModeWatchers.remove(player);
 	}

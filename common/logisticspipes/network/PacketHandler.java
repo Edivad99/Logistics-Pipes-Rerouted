@@ -57,6 +57,9 @@ import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.network.to_server.SetFirewallFlagsMessage;
 import logisticspipes.network.to_server.SetInvSysConChannelMessage;
+import logisticspipes.network.to_server.BlockHudWatchMessage;
+import logisticspipes.network.to_server.ModuleWatchMessage;
+import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
 import logisticspipes.network.to_server.SetSatelliteNameMessage;
 import logisticspipes.network.to_server.SetSneakyDirectionMessage;
@@ -127,6 +130,12 @@ public class PacketHandler {
                 RequestSatellitePipeListMessage.STREAM_CODEC, RequestSatellitePipeListMessage::handle);
         registrar.playToServer(SetSneakyDirectionMessage.TYPE,
                 SetSneakyDirectionMessage.STREAM_CODEC, SetSneakyDirectionMessage::handle);
+        registrar.playToServer(BlockHudWatchMessage.TYPE,
+                BlockHudWatchMessage.STREAM_CODEC, BlockHudWatchMessage::handle);
+        registrar.playToServer(PipeHudWatchMessage.TYPE,
+                PipeHudWatchMessage.STREAM_CODEC, PipeHudWatchMessage::handle);
+        registrar.playToServer(ModuleWatchMessage.TYPE,
+                ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
                 SetOreDictItemSinkListMessage.STREAM_CODEC, SetOreDictItemSinkListMessage::handle);
         registrar.playToServer(SetCraftingSatelliteMessage.TYPE,

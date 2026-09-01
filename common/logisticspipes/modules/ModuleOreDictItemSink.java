@@ -37,17 +37,14 @@ import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.OreDictItemSinkModuleInHand;
 import logisticspipes.network.guis.module.inpipe.OreDictItemSinkModuleSlot;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
+import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
@@ -179,15 +176,7 @@ public class ModuleOreDictItemSink extends LogisticsModule
         return list;
     }
 
-    @Override
-    public void startHUDWatching() {
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-    }
 
-    @Override
-    public void stopHUDWatching() {
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-    }
 
     @Override
     public void startWatching(Player player) {

@@ -18,6 +18,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.gui.hud.HUDProvider;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -29,11 +32,8 @@ import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleProvider;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
+import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
 import logisticspipes.routing.LogisticsPromise;
@@ -108,18 +108,17 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe implements IProvi
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(
-				PacketHandler.getPacket(HUDStartWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), true));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), false));
 	}
 
 	@Override
-	public void playerStartWatching(Player player, int mode) {
-		if (mode == 1) {
+	public void playerStartWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.HUD) {
 			providerModule.startWatching(player);
 		} else {
 			super.playerStartWatching(player, mode);
@@ -127,8 +126,8 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe implements IProvi
 	}
 
 	@Override
-	public void playerStopWatching(Player player, int mode) {
-		if (mode == 1) {
+	public void playerStopWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.HUD) {
 			providerModule.stopWatching(player);
 		} else {
 			super.playerStopWatching(player, mode);

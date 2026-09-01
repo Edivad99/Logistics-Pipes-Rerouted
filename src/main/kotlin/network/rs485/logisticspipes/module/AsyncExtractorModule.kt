@@ -50,10 +50,9 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
 import logisticspipes.network.guis.module.inhand.SneakyModuleInHandGuiProvider
 import logisticspipes.network.guis.module.inpipe.SneakyModuleInSlotGuiProvider
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.SneakyDirectionMessage
+import logisticspipes.network.to_server.ModuleWatchMessage
 import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.proxy.MainProxy
@@ -275,19 +274,9 @@ class AsyncExtractorModule(
     override fun getClientInformation(): MutableList<String> =
         mutableListOf("Extraction: ${sneakyDirection?.name ?: "DEFAULT"}")
 
-    override fun stopHUDWatching() {
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(HUDStopModuleWatchingPacket::class.java).setModulePos(this),
-        )
-    }
 
     override fun getHUDRenderer(): IHUDModuleRenderer = hudRenderer
 
-    override fun startHUDWatching() {
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(HUDStartModuleWatchingPacket::class.java).setModulePos(this),
-        )
-    }
 
     override fun startWatching(player: Player) {
         localModeWatchers.add(player)

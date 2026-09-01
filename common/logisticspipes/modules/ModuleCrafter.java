@@ -63,11 +63,10 @@ import logisticspipes.network.guis.module.inhand.CraftingModuleInHand;
 import logisticspipes.network.guis.module.inpipe.CraftingModuleSlot;
 import logisticspipes.network.packets.cpipe.CPipeSatelliteImport;
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.network.packets.pipe.CraftingPipeUpdatePacket;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
@@ -1183,15 +1182,7 @@ public class ModuleCrafter extends LogisticsModule
 		cleanupModeIsExclude.setValue(false);
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import net.minecraft.world.entity.player.Player;
 
+import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.gui.GuiPipeController;
 import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
@@ -49,12 +50,12 @@ public class PipeController extends CoordinatesGuiProvider {
 			//Network Statistics
 			@Override
 			public void guiOpenedByPlayer(Player player) {
-				pipe.playerStartWatching(player, 0);
+				pipe.playerStartWatching(player, WatchMode.GUI);
 			}
 
 			@Override
 			public void guiClosedByPlayer(Player player) {
-				pipe.playerStopWatching(player, 0);
+				pipe.playerStopWatching(player, WatchMode.GUI);
 			}
 		});
 		dummy.addNormalSlotsForPlayerInventory(0, 0);

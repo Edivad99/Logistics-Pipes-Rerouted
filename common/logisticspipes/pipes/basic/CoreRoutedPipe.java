@@ -68,6 +68,7 @@ import logisticspipes.interfaces.ISecurityProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.IWatchingHandler;
+import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.interfaces.IWorldProvider;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IFilter;
@@ -983,16 +984,16 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public void playerStartWatching(Player player, int mode) {
-		if (mode == 0) {
+	public void playerStartWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.GUI) {
 			watchers.add(player);
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(StatUpdate.class).setPipe(this), player);
 		}
 	}
 
 	@Override
-	public void playerStopWatching(Player player, int mode) {
-		if (mode == 0) {
+	public void playerStopWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.GUI) {
 			watchers.remove(player);
 		}
 	}

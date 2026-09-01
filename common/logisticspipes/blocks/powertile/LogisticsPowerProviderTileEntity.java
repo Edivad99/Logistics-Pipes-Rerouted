@@ -17,6 +17,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockWatchingHandler;
 import logisticspipes.interfaces.IGuiOpenController;
@@ -31,8 +33,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.guis.block.PowerProviderGui;
 import logisticspipes.network.packets.block.PowerProviderLevel;
-import logisticspipes.network.packets.hud.HUDStartBlockWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopBlockWatchingPacket;
+import logisticspipes.network.to_server.BlockHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
@@ -271,12 +272,12 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartBlockWatchingPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new BlockHudWatchMessage(getBlockPos(), true));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopBlockWatchingPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new BlockHudWatchMessage(getBlockPos(), false));
 	}
 
 	@Override

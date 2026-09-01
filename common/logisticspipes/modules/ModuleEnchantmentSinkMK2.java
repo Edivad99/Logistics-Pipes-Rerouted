@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.network.ModuleTarget;
@@ -23,11 +24,9 @@ import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IModuleInventoryReceive;
 import logisticspipes.interfaces.IModuleWatchReciver;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
+import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
@@ -117,15 +116,7 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 		return list;
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {

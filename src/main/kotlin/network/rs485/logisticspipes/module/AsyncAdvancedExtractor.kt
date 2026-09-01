@@ -50,11 +50,10 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
 import logisticspipes.network.guis.module.inhand.AdvancedExtractorModuleInHand
 import logisticspipes.network.guis.module.inpipe.AdvancedExtractorModuleSlot
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket
 import logisticspipes.network.to_client.ModuleInventoryMessage
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage
+import logisticspipes.network.to_server.ModuleWatchMessage
 import logisticspipes.proxy.MainProxy
 import logisticspipes.proxy.computers.interfaces.CCCommand
 import logisticspipes.utils.ISimpleInventoryEventHandler
@@ -200,18 +199,8 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
 
     override fun stopWatching(player: Player) = extractor.stopWatching(player)
 
-    override fun startHUDWatching() {
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(HUDStartModuleWatchingPacket::class.java).setModulePos(this),
-        )
-    }
 
     override fun getHUDRenderer(): IHUDModuleRenderer = hud
 
-    override fun stopHUDWatching() {
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(HUDStopModuleWatchingPacket::class.java).setModulePos(this),
-        )
-    }
 
 }
