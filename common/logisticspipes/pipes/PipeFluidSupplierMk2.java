@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -13,10 +14,11 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import lombok.Getter;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.FluidSupplierAmount;
+import logisticspipes.network.to_client.FluidSupplierAmountMessage;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.RequestTree;
@@ -308,7 +310,9 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 			amount = 0;
 		}
 		markTileDirty();
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FluidSupplierAmount.class).putInt(amount).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new FluidSupplierAmountMessage(getPos(), amount));
+		}
 	}
 
 	@Override

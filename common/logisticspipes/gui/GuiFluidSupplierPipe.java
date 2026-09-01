@@ -12,11 +12,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LPConstants;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.FluidSupplierMode;
+import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -74,7 +74,8 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 		partialsBtn.setPressListener(b -> {
 			logic.setRequestingPartials(!logic.isRequestingPartials());
 			b.setMessage(Component.literal(logic.isRequestingPartials() ? TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "Yes") : TextUtil.translate(GuiFluidSupplierPipe.PREFIX + "No")));
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierMode.class).putInt((logic.isRequestingPartials() ? 1 : 0)).setPosX(logic.getX()).setPosY(logic.getY()).setPosZ(logic.getZ()));
+			ClientPacketDistributor.sendToServer(
+					new FluidSupplierPartialsMessage(logic.getPos(), logic.isRequestingPartials()));
 		});
 		addRenderableWidget(partialsBtn);
 	}

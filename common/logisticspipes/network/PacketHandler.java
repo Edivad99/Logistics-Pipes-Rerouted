@@ -30,12 +30,15 @@ import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
+import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
+import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.CraftingModuleUpdateMessage;
 import logisticspipes.network.to_client.DiskContentMessage;
 import logisticspipes.network.to_client.FirewallFlagsMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
+import logisticspipes.network.to_client.FluidSupplierAmountMessage;
 import logisticspipes.network.to_client.ItemAmountSignMessage;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.ItemSinkImportedItemsMessage;
@@ -54,6 +57,7 @@ import logisticspipes.network.to_client.SneakyDirectionMessage;
 import logisticspipes.network.to_client.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.BlockHudWatchMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.ChangeFluidSupplierAmountMessage;
 import logisticspipes.network.to_server.CrafterCleanupImportMessage;
 import logisticspipes.network.to_server.CrafterImportRecipeMessage;
 import logisticspipes.network.to_server.ItemSinkImportRequestMessage;
@@ -126,6 +130,7 @@ public class PacketHandler {
 
             registerClientToServer(registrar);
             registerServerToClient(registrar);
+            registerBidirectional(registrar);
         });
     }
 
@@ -162,6 +167,8 @@ public class PacketHandler {
                 SetModulePropertiesMessage.STREAM_CODEC, SetModulePropertiesMessage::handle);
         registrar.playToServer(SetPipePropertiesMessage.TYPE,
                 SetPipePropertiesMessage.STREAM_CODEC, SetPipePropertiesMessage::handle);
+        registrar.playToServer(ChangeFluidSupplierAmountMessage.TYPE,
+                ChangeFluidSupplierAmountMessage.STREAM_CODEC, ChangeFluidSupplierAmountMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -203,6 +210,19 @@ public class PacketHandler {
                 OpenSecurityPlayerMessage.STREAM_CODEC, OpenSecurityPlayerMessage::handle);
     }
 
+    /**
+     * Messages that mean the same thing whichever way they travel, so both sides run the same
+     * handler. See {@code logisticspipes.network.bidirectional} for what belongs here.
+     */
+    private static void registerBidirectional(PayloadRegistrar registrar) {
+        registrar.playBidirectional(FluidSupplierMinModeMessage.TYPE,
+                FluidSupplierMinModeMessage.STREAM_CODEC,
+                FluidSupplierMinModeMessage::handle, FluidSupplierMinModeMessage::handle);
+        registrar.playBidirectional(FluidSupplierPartialsMessage.TYPE,
+                FluidSupplierPartialsMessage.STREAM_CODEC,
+                FluidSupplierPartialsMessage::handle, FluidSupplierPartialsMessage::handle);
+    }
+
     private static void registerServerToClient(PayloadRegistrar registrar) {
         registrar.playToClient(FluidCraftingAmountMessage.TYPE,
                 FluidCraftingAmountMessage.STREAM_CODEC, FluidCraftingAmountMessage::handle);
@@ -216,6 +236,8 @@ public class PacketHandler {
                 ModulePropertiesMessage.STREAM_CODEC, ModulePropertiesMessage::handle);
         registrar.playToClient(PipePropertiesMessage.TYPE,
                 PipePropertiesMessage.STREAM_CODEC, PipePropertiesMessage::handle);
+        registrar.playToClient(FluidSupplierAmountMessage.TYPE,
+                FluidSupplierAmountMessage.STREAM_CODEC, FluidSupplierAmountMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
                 CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,

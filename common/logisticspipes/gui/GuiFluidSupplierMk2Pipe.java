@@ -10,13 +10,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.FluidSupplierAmount;
-import logisticspipes.network.packets.pipe.FluidSupplierMinMode;
-import logisticspipes.network.packets.pipe.FluidSupplierMode;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
+import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
+import logisticspipes.network.to_server.ChangeFluidSupplierAmountMessage;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
@@ -35,7 +35,7 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 		this.logic = logic;
 		panelWidth = 184;
 		panelHeight = 176;
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierAmount.class).putInt(0).setPosX(this.logic.getX()).setPosY(this.logic.getY()).setPosZ(this.logic.getZ()));
+		ClientPacketDistributor.sendToServer(new ChangeFluidSupplierAmountMessage(this.logic.getPos(), 0));
 	}
 	private static DummyContainer buildDummy(Container playerInventory, Container dummyInventory, PipeFluidSupplierMk2 logic) {
 		DummyContainer dummy = new DummyContainer(playerInventory, dummyInventory);
@@ -77,7 +77,8 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 		partialsBtn.setPressListener(b -> {
 			logic.setRequestingPartials(!logic.isRequestingPartials());
 			b.setMessage(Component.literal(logic.isRequestingPartials() ? TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "Yes") : TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + "No")));
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierMode.class).putInt((logic.isRequestingPartials() ? 1 : 0)).setPosX(logic.getX()).setPosY(logic.getY()).setPosZ(logic.getZ()));
+			ClientPacketDistributor.sendToServer(
+					new FluidSupplierPartialsMessage(logic.getPos(), logic.isRequestingPartials()));
 		});
 		addRenderableWidget(partialsBtn);
 		SmallGuiButton minModeBtn = new SmallGuiButton(1, width / 2 + 30, topPos + panelHeight - 115, 55, 20, TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + logic.getMinMode().name()));
@@ -88,7 +89,7 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 			}
 			logic.setMinMode(MinMode.values()[index]);
 			b.setMessage(Component.literal(TextUtil.translate(GuiFluidSupplierMk2Pipe.PREFIX + logic.getMinMode().name())));
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierMinMode.class).putInt(logic.getMinMode().ordinal()).setPosX(logic.getX()).setPosY(logic.getY()).setPosZ(logic.getZ()));
+			ClientPacketDistributor.sendToServer(new FluidSupplierMinModeMessage(logic.getPos(), logic.getMinMode()));
 		});
 		addRenderableWidget(minModeBtn);
 		int[] amounts = {1, 10, 100, 1000};
@@ -99,7 +100,8 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 			for (int row = 0; row < 2; row++) {
 				final int change = (row == 0 ? 1 : -1) * amounts[col];
 				SmallGuiButton amtBtn = new SmallGuiButton((col + 1) * 10 + row, xs[col], ys[row], widths[col], 10, Integer.toString(amounts[col]));
-				amtBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(FluidSupplierAmount.class).putInt(change).setPosX(logic.getX()).setPosY(logic.getY()).setPosZ(logic.getZ())));
+				amtBtn.setPressListener(b -> ClientPacketDistributor.sendToServer(
+						new ChangeFluidSupplierAmountMessage(logic.getPos(), change)));
 				addRenderableWidget(amtBtn);
 			}
 		}

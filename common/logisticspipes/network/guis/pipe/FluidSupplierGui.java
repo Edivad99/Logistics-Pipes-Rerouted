@@ -1,15 +1,16 @@
 package logisticspipes.network.guis.pipe;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import logisticspipes.gui.GuiFluidSupplierPipe;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
-import logisticspipes.network.packets.pipe.FluidSupplierMode;
+import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 
@@ -40,8 +41,10 @@ public class FluidSupplierGui extends CoordinatesGuiProvider {
 				dummy.addDummySlot(column + row * 3, 72 + column * 18, 18 + row * 18);
 			}
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FluidSupplierMode.class)
-				.putInt(pipe.isRequestingPartials() ? 1 : 0).setBlockPos(tile.getBlockPos()), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+					new FluidSupplierPartialsMessage(tile.getBlockPos(), pipe.isRequestingPartials()));
+		}
 		return dummy;
 	}
 
