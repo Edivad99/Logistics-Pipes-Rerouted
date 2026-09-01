@@ -25,14 +25,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
-import logisticspipes.interfaces.IWatchingHandler.WatchMode;
-import logisticspipes.network.TargetLookup;
-import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -44,9 +42,9 @@ import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleSatellite;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
-import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.network.packets.hud.ChestContent;
+import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;

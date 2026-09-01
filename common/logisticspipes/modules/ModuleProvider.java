@@ -17,12 +17,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
 
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
-import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.gui.hud.modules.HUDProviderModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -44,8 +43,8 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.ProviderModuleInHand;
 import logisticspipes.network.guis.module.inpipe.ProviderModuleGuiProvider;
+import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.network.to_client.SneakyDirectionMessage;
-import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.proxy.MainProxy;

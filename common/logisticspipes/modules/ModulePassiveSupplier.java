@@ -6,17 +6,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import org.jspecify.annotations.Nullable;
 
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
-import logisticspipes.network.to_client.ModuleInventoryMessage;
-import logisticspipes.network.ModuleTarget;
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -26,9 +24,10 @@ import logisticspipes.interfaces.IModuleInventoryReceive;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.to_server.ModuleWatchMessage;
+import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.ISimpleInventoryEventHandler;

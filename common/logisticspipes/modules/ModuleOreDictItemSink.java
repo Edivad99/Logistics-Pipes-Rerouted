@@ -42,7 +42,6 @@ import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.OreDictItemSinkModuleInHand;
 import logisticspipes.network.guis.module.inpipe.OreDictItemSinkModuleSlot;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
-import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.utils.PlayerCollectionList;

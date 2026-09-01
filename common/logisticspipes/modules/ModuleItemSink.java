@@ -13,13 +13,11 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.gui.hud.modules.HUDItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -35,7 +33,7 @@ import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.ItemSinkInHand;
 import logisticspipes.network.guis.module.inpipe.ItemSinkSlot;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
-import logisticspipes.network.to_server.ModuleWatchMessage;
+import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;

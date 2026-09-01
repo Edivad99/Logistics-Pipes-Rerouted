@@ -18,11 +18,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
-import com.google.common.base.Preconditions;
-
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.interfaces.IWatchingHandler.WatchMode;
+import com.google.common.base.Preconditions;
+
 import logisticspipes.gui.hud.HUDCrafting;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;

@@ -10,12 +10,11 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,9 +22,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import org.jspecify.annotations.Nullable;
-
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.IRoutedPowerProvider;
 import logisticspipes.interfaces.IGuiOpenController;
@@ -37,9 +36,9 @@ import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.guis.block.SecurityStationGui;
 import logisticspipes.network.packets.block.SecurityStationAutoDestroy;
 import logisticspipes.network.packets.block.SecurityStationCC;
+import logisticspipes.network.packets.block.SecurityStationId;
 import logisticspipes.network.to_client.SecurityStationCCIdsMessage;
 import logisticspipes.network.to_client.SecurityStationSettingsMessage;
-import logisticspipes.network.packets.block.SecurityStationId;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;

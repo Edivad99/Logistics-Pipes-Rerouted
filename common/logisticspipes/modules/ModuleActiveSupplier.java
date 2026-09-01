@@ -9,17 +9,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
-import logisticspipes.network.to_client.ModuleInventoryMessage;
-import logisticspipes.network.ModuleTarget;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -31,12 +29,13 @@ import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.interfaces.routing.ITargetSlotInformation;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.ActiveSupplierInHand;
 import logisticspipes.network.guis.module.inpipe.ActiveSupplierSlot;
-import logisticspipes.network.to_server.ModuleWatchMessage;
+import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.basic.debug.StatusEntry;

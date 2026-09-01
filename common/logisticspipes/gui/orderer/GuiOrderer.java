@@ -12,12 +12,12 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -26,18 +26,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.RemotePipeTarget;
-import logisticspipes.network.to_server.SubmitRequestMessage;
-import logisticspipes.network.to_server.SimulateRequestMessage;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.popup.GuiRequestPopup;
 import logisticspipes.interfaces.ISpecialItemRenderer;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.RemotePipeTarget;
+import logisticspipes.network.to_server.SimulateRequestMessage;
+import logisticspipes.network.to_server.SubmitRequestMessage;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;

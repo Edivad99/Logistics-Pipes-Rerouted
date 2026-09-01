@@ -5,9 +5,9 @@ import java.util.UUID;
 
 import net.minecraft.world.entity.player.Player;
 
-import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.gui.GuiPipeController;
 import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;

@@ -20,7 +20,6 @@ import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.gui.hud.HUDProvider;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;

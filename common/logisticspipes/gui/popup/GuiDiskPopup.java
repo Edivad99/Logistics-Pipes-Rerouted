@@ -2,11 +2,11 @@ package logisticspipes.gui.popup;
 
 import java.util.Objects;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -15,11 +15,11 @@ import net.minecraft.world.item.component.CustomData;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.to_server.SaveDiskContentMessage;
 import logisticspipes.network.packets.orderer.DiskMacroRequestPacket;
+import logisticspipes.network.to_server.SaveDiskContentMessage;
+import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;

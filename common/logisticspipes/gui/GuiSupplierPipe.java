@@ -17,13 +17,15 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LPConstants;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
 import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
-import logisticspipes.network.PacketHandler;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
-import logisticspipes.network.packets.pipe.SlotFinderOpenGuiPacket;
+import logisticspipes.network.to_server.SlotFinderOpenGuiMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
@@ -167,8 +169,8 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 			for (int i = 0; i < 9; i++) {
 				final int slot = i;
 				SmallGuiButton setBtn = new SmallGuiButton(i + 2, leftPos + 18 + i * 18, topPos + 40, 17, 10, "Set");
-				setBtn.setPressListener(b -> MainProxy.sendPacketToServer(
-						PacketHandler.getPacket(SlotFinderOpenGuiPacket.class).setSlot(slot).setModulePos(supplierModule)));
+				setBtn.setPressListener(b -> ClientPacketDistributor.sendToServer(
+						new SlotFinderOpenGuiMessage(ModuleTarget.of(supplierModule), slot)));
 				addRenderableWidget(setBtn);
 			}
 		}

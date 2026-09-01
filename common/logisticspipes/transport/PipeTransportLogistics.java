@@ -26,11 +26,11 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
-
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -48,8 +48,8 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.ItemBufferSyncPacket;
 import logisticspipes.network.packets.pipe.PipeContentPacket;
-import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.packets.pipe.PipePositionPacket;
+import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;

@@ -1,16 +1,12 @@
 package logisticspipes.gui.popup;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.storage.TagValueOutput;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.blocks.LogisticsSecurityTileEntity.SecurityPermissions;
 import logisticspipes.network.to_server.SaveSecuritySettingsMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;

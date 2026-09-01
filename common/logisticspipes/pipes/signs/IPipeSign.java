@@ -2,15 +2,15 @@ package logisticspipes.pipes.signs;
 
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 import com.mojang.blaze3d.pipeline.RenderTarget; // was net.minecraft.client.shader.Framebuffer
 import com.mojang.blaze3d.vertex.PoseStack;
-
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jspecify.annotations.Nullable;
+
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 

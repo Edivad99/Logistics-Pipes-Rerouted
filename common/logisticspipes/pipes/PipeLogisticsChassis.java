@@ -35,12 +35,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-
-import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.gui.GuiChassisPipe;

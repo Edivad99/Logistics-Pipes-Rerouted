@@ -32,8 +32,6 @@ import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
-import logisticspipes.network.TargetLookup;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -55,18 +53,18 @@ import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.guis.module.inhand.CraftingModuleInHand;
 import logisticspipes.network.guis.module.inpipe.CraftingModuleSlot;
-import logisticspipes.network.packets.cpipe.CPipeSatelliteImport;
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket;
 import logisticspipes.network.packets.pipe.CraftingPipeUpdatePacket;
+import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
-import logisticspipes.network.to_server.ModuleWatchMessage;
+import logisticspipes.network.to_server.CrafterImportRecipeMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
@@ -700,8 +698,7 @@ public class ModuleCrafter extends LogisticsModule
 	public void importFromCraftingTable(@Nullable Player player) {
 		if (MainProxy.isClient(getWorld())) {
 			// Send packet asking for import
-			final CoordinatesPacket packet = PacketHandler.getPacket(CPipeSatelliteImport.class).setModulePos(this);
-			MainProxy.sendPacketToServer(packet);
+			ClientPacketDistributor.sendToServer(new CrafterImportRecipeMessage(ModuleTarget.of(this)));
 		} else {
 			final IPipeServiceProvider service = this.service;
 			if (service == null) return;

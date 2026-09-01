@@ -13,11 +13,12 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.LogicControllerPacket;
-import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
 import logisticspipes.network.packets.pipe.PipeManagerWatchingPacket;
+import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;

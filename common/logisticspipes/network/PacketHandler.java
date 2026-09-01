@@ -30,26 +30,34 @@ import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
-import logisticspipes.network.to_client.ItemAmountSignMessage;
-import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
+import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.DiskContentMessage;
 import logisticspipes.network.to_client.FirewallFlagsMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
+import logisticspipes.network.to_client.ItemAmountSignMessage;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
+import logisticspipes.network.to_client.ItemSinkImportedItemsMessage;
 import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
-import logisticspipes.network.to_client.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.network.to_client.QuickSortStateMessage;
 import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.network.to_client.SecurityAuthorizedListMessage;
 import logisticspipes.network.to_client.SecurityStationCCIdsMessage;
 import logisticspipes.network.to_client.SecurityStationSettingsMessage;
+import logisticspipes.network.to_client.SlotFinderActivateMessage;
 import logisticspipes.network.to_client.SneakyDirectionMessage;
+import logisticspipes.network.to_client.StringBasedItemSinkListMessage;
+import logisticspipes.network.to_server.BlockHudWatchMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.CrafterCleanupImportMessage;
+import logisticspipes.network.to_server.CrafterImportRecipeMessage;
+import logisticspipes.network.to_server.ItemSinkImportRequestMessage;
+import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
 import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
+import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
 import logisticspipes.network.to_server.SaveDiskContentMessage;
@@ -58,15 +66,14 @@ import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.network.to_server.SetFirewallFlagsMessage;
 import logisticspipes.network.to_server.SetInvSysConChannelMessage;
-import logisticspipes.network.to_server.BlockHudWatchMessage;
-import logisticspipes.network.to_server.ModuleWatchMessage;
-import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
-import logisticspipes.network.to_server.SetStringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.SetSatelliteNameMessage;
 import logisticspipes.network.to_server.SetSneakyDirectionMessage;
 import logisticspipes.network.to_server.SetSneakyUpgradeSideMessage;
+import logisticspipes.network.to_server.SetStringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.SimulateRequestMessage;
+import logisticspipes.network.to_server.SlotFinderOpenGuiMessage;
+import logisticspipes.network.to_server.SlotFinderSlotMessage;
 import logisticspipes.network.to_server.SubmitFluidRequestMessage;
 import logisticspipes.network.to_server.SubmitRequestMessage;
 import logisticspipes.network.to_server.ToggleDisconnectionUpgradeSideMessage;
@@ -136,6 +143,16 @@ public class PacketHandler {
                 BlockHudWatchMessage.STREAM_CODEC, BlockHudWatchMessage::handle);
         registrar.playToServer(PipeHudWatchMessage.TYPE,
                 PipeHudWatchMessage.STREAM_CODEC, PipeHudWatchMessage::handle);
+        registrar.playToServer(CrafterCleanupImportMessage.TYPE,
+                CrafterCleanupImportMessage.STREAM_CODEC, CrafterCleanupImportMessage::handle);
+        registrar.playToServer(CrafterImportRecipeMessage.TYPE,
+                CrafterImportRecipeMessage.STREAM_CODEC, CrafterImportRecipeMessage::handle);
+        registrar.playToServer(ItemSinkImportRequestMessage.TYPE,
+                ItemSinkImportRequestMessage.STREAM_CODEC, ItemSinkImportRequestMessage::handle);
+        registrar.playToServer(SlotFinderOpenGuiMessage.TYPE,
+                SlotFinderOpenGuiMessage.STREAM_CODEC, SlotFinderOpenGuiMessage::handle);
+        registrar.playToServer(SlotFinderSlotMessage.TYPE,
+                SlotFinderSlotMessage.STREAM_CODEC, SlotFinderSlotMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -182,6 +199,10 @@ public class PacketHandler {
                 FluidCraftingAmountMessage.STREAM_CODEC, FluidCraftingAmountMessage::handle);
         registrar.playToClient(SneakyDirectionMessage.TYPE,
                 SneakyDirectionMessage.STREAM_CODEC, SneakyDirectionMessage::handle);
+        registrar.playToClient(ItemSinkImportedItemsMessage.TYPE,
+                ItemSinkImportedItemsMessage.STREAM_CODEC, ItemSinkImportedItemsMessage::handle);
+        registrar.playToClient(SlotFinderActivateMessage.TYPE,
+                SlotFinderActivateMessage.STREAM_CODEC, SlotFinderActivateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,
                 ModuleInventoryMessage.STREAM_CODEC, ModuleInventoryMessage::handle);
         registrar.playToClient(OreDictItemSinkListMessage.TYPE,

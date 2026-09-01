@@ -4,11 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -19,9 +19,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.IDiskProvider;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.to_server.SaveDiskContentMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ItemTooltip;

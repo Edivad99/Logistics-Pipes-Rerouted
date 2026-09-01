@@ -8,7 +8,6 @@
 package logisticspipes.gui;
 
 import java.io.IOException;
-
 import java.util.Objects;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -16,11 +15,10 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import logisticspipes.network.to_server.SetSatelliteNameMessage;
+
 import logisticspipes.interfaces.SatellitePipe;
-import logisticspipes.network.PacketHandler;
+import logisticspipes.network.to_server.SetSatelliteNameMessage;
 import logisticspipes.pipes.SatelliteNamingResult;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;

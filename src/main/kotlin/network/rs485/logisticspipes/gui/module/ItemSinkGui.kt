@@ -45,10 +45,12 @@ import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty
 import network.rs485.logisticspipes.property.layer.PropertyLayer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
+import net.neoforged.neoforge.client.network.ClientPacketDistributor
+
 import logisticspipes.modules.ModuleItemSink
-import logisticspipes.network.PacketHandler
-import logisticspipes.network.packets.module.ItemSinkImportPacket
+import logisticspipes.network.ModuleTarget
 import logisticspipes.network.packets.module.ModulePropertiesUpdate
+import logisticspipes.network.to_server.ItemSinkImportRequestMessage
 import logisticspipes.proxy.MainProxy
 import logisticspipes.utils.Color
 import logisticspipes.utils.item.ItemIdentifier
@@ -79,8 +81,8 @@ class ItemSinkWidgetScreen(private val guiReference: AtomicReference<ItemSinkGui
                     button {
                         text = TextUtil.translate("${gui.prefix}import")
                         action = {
-                            MainProxy.sendPacketToServer(
-                                PacketHandler.getPacket(ItemSinkImportPacket::class.java).setModulePos(gui.itemSinkModule),
+                            ClientPacketDistributor.sendToServer(
+                                ItemSinkImportRequestMessage(ModuleTarget.of(gui.itemSinkModule)),
                             )
                         }
                         enabled = true // TODO disable button if there is no attached inventory!

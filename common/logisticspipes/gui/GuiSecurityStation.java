@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.popup.GuiEditCCAccessTable;
@@ -25,6 +25,7 @@ import logisticspipes.network.packets.block.SecurityRequestCCIdsPacket;
 import logisticspipes.network.packets.block.SecurityStationAutoDestroy;
 import logisticspipes.network.packets.block.SecurityStationCC;
 import logisticspipes.network.packets.gui.OpenSecurityChannelManagerPacket;
+import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;

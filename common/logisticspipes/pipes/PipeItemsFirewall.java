@@ -1,6 +1,5 @@
 package logisticspipes.pipes;
 
-
 import java.util.Objects;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -12,12 +11,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
-
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;

@@ -2,7 +2,6 @@ package logisticspipes.gui.popup;
 
 import java.awt.Rectangle;
 import java.util.List;
-
 import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
@@ -10,9 +9,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import logisticspipes.network.PacketHandler;
+
 import logisticspipes.network.to_server.SetSneakyUpgradeSideMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;

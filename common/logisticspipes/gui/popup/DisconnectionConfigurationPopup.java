@@ -1,7 +1,6 @@
 package logisticspipes.gui.popup;
 
 import java.awt.Rectangle;
-
 import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
@@ -9,10 +8,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import logisticspipes.network.PacketHandler;
+
 import logisticspipes.network.to_server.ToggleDisconnectionUpgradeSideMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;

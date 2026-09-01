@@ -44,9 +44,9 @@ import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
+import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import logisticspipes.network.packets.pipe.FluidSupplierAmount
 import logisticspipes.network.packets.pipe.SendQueueContent
-import logisticspipes.network.packets.pipe.SlotFinderActivatePacket
 import net.minecraft.SharedConstants
 import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
@@ -172,7 +172,7 @@ class PacketRoundTripTest {
 
     @Test
     fun `CoordinatesPacket round trip`() {
-        assertCoords(roundTrip(SlotFinderActivatePacket(ANY_ID).withModule()))
+        assertCoords(roundTrip(CraftingPipeOpenConnectedGuiPacket(ANY_ID).withModule()))
     }
 
     // ── level 3: IntegerCoordinatesPacket ────────────────────────────────────
@@ -188,7 +188,7 @@ class PacketRoundTripTest {
 
     @Test
     fun `ModuleCoordinatesPacket round trip`() {
-        assertModule(roundTrip(SlotFinderActivatePacket(ANY_ID).withModule()))
+        assertModule(roundTrip(CraftingPipeOpenConnectedGuiPacket(ANY_ID).withModule()))
     }
 
     @Test
@@ -216,7 +216,7 @@ class PacketRoundTripTest {
     fun `ModuleCoordinatesPacket with no module type round trips`() {
         // The module block is written behind a boolean; the unset branch is the one that
         // silently desyncs if the read side ever stops mirroring it.
-        val actual = roundTrip(SlotFinderActivatePacket(ANY_ID).withCoords())
+        val actual = roundTrip(CraftingPipeOpenConnectedGuiPacket(ANY_ID).withCoords())
         assertCoords(actual)
         assertEquals(null, actual.type)
     }

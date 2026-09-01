@@ -1,9 +1,9 @@
 package logisticspipes.pipes.signs;
 
-import java.util.Optional;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -22,14 +23,11 @@ import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import logisticspipes.network.to_client.ItemAmountSignMessage;
-import logisticspipes.network.TargetLookup;
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.network.guis.item.ItemAmountSignGui;
+import logisticspipes.network.to_client.ItemAmountSignMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
