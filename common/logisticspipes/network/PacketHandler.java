@@ -38,19 +38,30 @@ import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.network.to_client.QuickSortStateMessage;
+import logisticspipes.network.to_client.SatelliteNameMessage;
+import logisticspipes.network.to_client.SecurityAuthorizedListMessage;
 import logisticspipes.network.to_client.SecurityStationCCIdsMessage;
 import logisticspipes.network.to_client.SecurityStationSettingsMessage;
-import logisticspipes.network.to_client.SecurityAuthorizedListMessage;
 import logisticspipes.network.to_client.SneakyDirectionMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
+import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
 import logisticspipes.network.to_server.SaveDiskContentMessage;
 import logisticspipes.network.to_server.SaveSecuritySettingsMessage;
 import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
+import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.network.to_server.SetFirewallFlagsMessage;
+import logisticspipes.network.to_server.SetInvSysConChannelMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
+import logisticspipes.network.to_server.SetSatelliteNameMessage;
 import logisticspipes.network.to_server.SetSneakyDirectionMessage;
+import logisticspipes.network.to_server.SetSneakyUpgradeSideMessage;
+import logisticspipes.network.to_server.SimulateRequestMessage;
+import logisticspipes.network.to_server.SubmitFluidRequestMessage;
+import logisticspipes.network.to_server.SubmitRequestMessage;
+import logisticspipes.network.to_server.ToggleDisconnectionUpgradeSideMessage;
 import logisticspipes.network.to_server.UntraceRoutingMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -127,6 +138,26 @@ public class PacketHandler {
                 SaveDiskContentMessage.STREAM_CODEC, SaveDiskContentMessage::handle);
         registrar.playToServer(SaveSecuritySettingsMessage.TYPE,
                 SaveSecuritySettingsMessage.STREAM_CODEC, SaveSecuritySettingsMessage::handle);
+        registrar.playToServer(SubmitRequestMessage.TYPE,
+                SubmitRequestMessage.STREAM_CODEC, SubmitRequestMessage::handle);
+        registrar.playToServer(SimulateRequestMessage.TYPE,
+                SimulateRequestMessage.STREAM_CODEC, SimulateRequestMessage::handle);
+        registrar.playToServer(SubmitFluidRequestMessage.TYPE,
+                SubmitFluidRequestMessage.STREAM_CODEC, SubmitFluidRequestMessage::handle);
+        registrar.playToServer(SetSneakyUpgradeSideMessage.TYPE,
+                SetSneakyUpgradeSideMessage.STREAM_CODEC, SetSneakyUpgradeSideMessage::handle);
+        registrar.playToServer(ToggleDisconnectionUpgradeSideMessage.TYPE,
+                ToggleDisconnectionUpgradeSideMessage.STREAM_CODEC, ToggleDisconnectionUpgradeSideMessage::handle);
+        registrar.playToServer(OpenUpgradeConfigMessage.TYPE,
+                OpenUpgradeConfigMessage.STREAM_CODEC, OpenUpgradeConfigMessage::handle);
+        registrar.playToServer(SetInvSysConChannelMessage.TYPE,
+                SetInvSysConChannelMessage.STREAM_CODEC, SetInvSysConChannelMessage::handle);
+        registrar.playToServer(SetSatelliteNameMessage.TYPE,
+                SetSatelliteNameMessage.STREAM_CODEC, SetSatelliteNameMessage::handle);
+        registrar.playToServer(SetDiskNameMessage.TYPE,
+                SetDiskNameMessage.STREAM_CODEC, SetDiskNameMessage::handle);
+        registrar.playToServer(OpenSecurityPlayerMessage.TYPE,
+                OpenSecurityPlayerMessage.STREAM_CODEC, OpenSecurityPlayerMessage::handle);
     }
 
     private static void registerServerToClient(PayloadRegistrar registrar) {
@@ -152,6 +183,8 @@ public class PacketHandler {
                 SecurityStationSettingsMessage.STREAM_CODEC, SecurityStationSettingsMessage::handle);
         registrar.playToClient(SecurityStationCCIdsMessage.TYPE,
                 SecurityStationCCIdsMessage.STREAM_CODEC, SecurityStationCCIdsMessage::handle);
+        registrar.playToClient(SatelliteNameMessage.TYPE,
+                SatelliteNameMessage.STREAM_CODEC, SatelliteNameMessage::handle);
         registrar.playToClient(SecurityAuthorizedListMessage.TYPE,
                 SecurityAuthorizedListMessage.STREAM_CODEC, SecurityAuthorizedListMessage::handle);
     }

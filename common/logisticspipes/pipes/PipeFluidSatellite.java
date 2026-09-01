@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
@@ -21,6 +22,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -36,7 +40,6 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.hud.ChestContent;
 import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
-import logisticspipes.network.packets.satpipe.SyncSatelliteNamePacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.MainProxy;
@@ -154,8 +157,10 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 	public void playerStartWatching(Player player, int mode) {
 		if (mode == 1) {
 			localModeWatchers.add(player);
-			final ModernPacket packet = PacketHandler.getPacket(SyncSatelliteNamePacket.class).setString((this).satellitePipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-			MainProxy.sendPacketToPlayer(packet, player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer,
+						new SatelliteNameMessage(getPos(), satellitePipeName));
+			}
 			updateInv(true);
 		} else {
 			super.playerStartWatching(player, mode);
@@ -195,11 +200,9 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 
 	public void updateWatchers() {
 		final LogisticsTileGenericPipe container = Objects.requireNonNull(getContainer());
-		CoordinatesPacket packet = PacketHandler.getPacket(SyncSatelliteNamePacket.class)
-				.setString(satellitePipeName)
-				.setTilePos(container);
-		MainProxy.sendToPlayerList(packet, localModeWatchers);
-		MainProxy.sendPacketToAllWatchingChunk(container, packet);
+		final SatelliteNameMessage message = new SatelliteNameMessage(getPos(), satellitePipeName);
+		localModeWatchers.send(message);
+		TargetLookup.sendToChunkWatchers(container, message);
 	}
 
 	@Override
@@ -213,8 +216,10 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 	@Override
 	public void onWrenchClicked(Player entityplayer) {
 		// Send the satellite id when opening gui
-		final ModernPacket packet = PacketHandler.getPacket(SyncSatelliteNamePacket.class).setString(satellitePipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-		MainProxy.sendPacketToPlayer(packet, entityplayer);
+		if (entityplayer instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+					new SatelliteNameMessage(getPos(), satellitePipeName));
+		}
 		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.SatelliteGui.class)
 				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
 				.open(entityplayer);

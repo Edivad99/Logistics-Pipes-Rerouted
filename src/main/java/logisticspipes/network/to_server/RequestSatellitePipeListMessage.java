@@ -12,13 +12,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.PacketHandler;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.network.packets.gui.ProvideSatellitePipeListPacket;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
@@ -50,8 +50,9 @@ public record RequestSatellitePipeListMessage(BlockPos pos, boolean fluid) imple
     }
 
     public static void handle(RequestSatellitePipeListMessage message, IPayloadContext context) {
-        final BlockEntity be = context.player().level().getBlockEntity(message.pos);
-        if (!(be instanceof LogisticsTileGenericPipe container)
+        final LogisticsTileGenericPipe container =
+                TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        if (container == null
                 || !(container.pipe instanceof CoreRoutedPipe pipe)
                 || pipe.getRouter() == null
                 || pipe.getRouter().getRouteTable() == null) {

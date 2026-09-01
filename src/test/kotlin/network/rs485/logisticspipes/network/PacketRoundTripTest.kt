@@ -45,7 +45,6 @@ import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.pipe.FluidSupplierAmount
-import logisticspipes.network.packets.pipe.InvSysConSetChannelOnPipePacket
 import logisticspipes.network.packets.pipe.ItemAmountSignUpdatePacket
 import logisticspipes.network.packets.pipe.SendQueueContent
 import logisticspipes.network.packets.pipe.SlotFinderActivatePacket
@@ -175,15 +174,6 @@ class PacketRoundTripTest {
     @Test
     fun `CoordinatesPacket round trip`() {
         assertCoords(roundTrip(SlotFinderActivatePacket(ANY_ID).withModule()))
-    }
-
-    @Test
-    fun `StringCoordinatesPacket round trip`() {
-        val actual = roundTrip(
-            InvSysConSetChannelOnPipePacket(ANY_ID).withCoords().apply { string = "◘ËCanale♀ßüöä" },
-        )
-        assertCoords(actual)
-        assertEquals("◘ËCanale♀ßüöä", actual.string)
     }
 
     // ── level 3: IntegerCoordinatesPacket ────────────────────────────────────

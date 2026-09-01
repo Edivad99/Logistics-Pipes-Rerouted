@@ -7,12 +7,12 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
+import logisticspipes.network.TargetLookup;
 
 /**
  * The computer ids a security station excludes.
@@ -38,8 +38,9 @@ public record SecurityStationCCIdsMessage(BlockPos pos, List<Integer> excludedId
     }
 
     public static void handle(SecurityStationCCIdsMessage message, IPayloadContext context) {
-        final BlockEntity be = context.player().level().getBlockEntity(message.pos);
-        if (be instanceof LogisticsSecurityTileEntity station) {
+        final LogisticsSecurityTileEntity station =
+                TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsSecurityTileEntity.class);
+        if (station != null) {
             station.setExcludedCC(message.excludedIds);
         }
     }

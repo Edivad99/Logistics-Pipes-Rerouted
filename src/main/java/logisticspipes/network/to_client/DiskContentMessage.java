@@ -5,11 +5,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -33,8 +33,9 @@ public record DiskContentMessage(BlockPos pos, ItemStack disk) implements Custom
     }
 
     public static void handle(DiskContentMessage message, IPayloadContext context) {
-        final BlockEntity be = context.player().level().getBlockEntity(message.pos);
-        if (!(be instanceof LogisticsTileGenericPipe container)) {
+        final LogisticsTileGenericPipe container =
+                TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        if (container == null) {
             return;
         }
         if (container.pipe instanceof PipeItemsRequestLogisticsMk2 requestPipe) {

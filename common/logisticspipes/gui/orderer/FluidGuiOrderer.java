@@ -1,10 +1,14 @@
 package logisticspipes.gui.orderer;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.RemotePipeTarget;
+import logisticspipes.network.to_server.SubmitFluidRequestMessage;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.orderer.RequestFluidOrdererRefreshPacket;
-import logisticspipes.network.packets.orderer.SubmitFluidRequestPacket;
 import logisticspipes.pipes.PipeFluidRequestLogistics;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -39,7 +43,9 @@ public class FluidGuiOrderer extends GuiOrderer {
 
 	@Override
 	protected void submitRequest() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(SubmitFluidRequestPacket.class).setStack(itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount())).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
+		ClientPacketDistributor.sendToServer(new SubmitFluidRequestMessage(
+				new RemotePipeTarget(dimension, new BlockPos(xCoord, yCoord, zCoord)),
+				itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount())));
 	}
 
 	@Override

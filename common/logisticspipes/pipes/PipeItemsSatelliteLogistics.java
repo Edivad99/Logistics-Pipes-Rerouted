@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
@@ -27,6 +28,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -43,7 +47,6 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.hud.ChestContent;
 import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
-import logisticspipes.network.packets.satpipe.SyncSatelliteNamePacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.RequestTree;
@@ -141,8 +144,10 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	public void playerStartWatching(Player player, int mode) {
 		if (mode == 1) {
 			localModeWatchers.add(player);
-			final ModernPacket packet = PacketHandler.getPacket(SyncSatelliteNamePacket.class).setString(satellitePipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-			MainProxy.sendPacketToPlayer(packet, player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer,
+						new SatelliteNameMessage(getPos(), satellitePipeName));
+			}
 			updateInv(true);
 		} else {
 			super.playerStartWatching(player, mode);
@@ -198,9 +203,9 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	public void updateWatchers() {
-		CoordinatesPacket packet = PacketHandler.getPacket(SyncSatelliteNamePacket.class).setString(satellitePipeName).setTilePos(this.getContainer());
-		MainProxy.sendToPlayerList(packet, localModeWatchers);
-		MainProxy.sendPacketToAllWatchingChunk(this.getContainer(), packet);
+		final SatelliteNameMessage message = new SatelliteNameMessage(getPos(), satellitePipeName);
+		localModeWatchers.send(message);
+		TargetLookup.sendToChunkWatchers(getContainer(), message);
 	}
 
 	@Override
@@ -214,8 +219,10 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	@Override
 	public void onWrenchClicked(Player entityplayer) {
 		// Send the satellite id when opening gui
-		final ModernPacket packet = PacketHandler.getPacket(SyncSatelliteNamePacket.class).setString(satellitePipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-		MainProxy.sendPacketToPlayer(packet, entityplayer);
+		if (entityplayer instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+					new SatelliteNameMessage(getPos(), satellitePipeName));
+		}
 		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.SatelliteGui.class)
 				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
 				.open(entityplayer);

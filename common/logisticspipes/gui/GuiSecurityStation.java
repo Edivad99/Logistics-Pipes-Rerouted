@@ -10,6 +10,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.popup.GuiEditCCAccessTable;
@@ -22,7 +24,6 @@ import logisticspipes.network.packets.block.SecurityCardPacket;
 import logisticspipes.network.packets.block.SecurityRequestCCIdsPacket;
 import logisticspipes.network.packets.block.SecurityStationAutoDestroy;
 import logisticspipes.network.packets.block.SecurityStationCC;
-import logisticspipes.network.packets.block.SecurityStationOpenPlayerRequest;
 import logisticspipes.network.packets.gui.OpenSecurityChannelManagerPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -99,7 +100,8 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		btnOpen = new SmallGuiButton(4, leftPos + 241, topPos + 217, 30, 10, TextUtil.translate(GuiSecurityStation.PREFIX + "Open"));
 		btnOpen.setPressListener(b -> {
 			if (!searchBar.getValue().isEmpty()) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityStationOpenPlayerRequest.class).setString(searchBar.getValue()).setBlockPos(tile.getBlockPos()));
+				ClientPacketDistributor.sendToServer(
+					new OpenSecurityPlayerMessage(tile.getBlockPos(), searchBar.getValue()));
 			}
 		});
 		addRenderableWidget(btnOpen);

@@ -2,12 +2,15 @@ package logisticspipes.gui.popup;
 
 import java.awt.Rectangle;
 
+import java.util.Optional;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.upgrade.ToogleDisconnectionUpgradeSidePacket;
+import logisticspipes.network.to_server.ToggleDisconnectionUpgradeSideMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -53,7 +56,8 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
 
 	public void handleSelection(SideConfigDisplay.SelectedFace selection) {
 		//ItemStack stack = pipe.getOriginalUpgradeManager().getInv().getItem(pos);
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(ToogleDisconnectionUpgradeSidePacket.class).setSide(selection.face).setSlot(pos));
+		ClientPacketDistributor.sendToServer(
+				new ToggleDisconnectionUpgradeSideMessage(pos.index, Optional.ofNullable(selection.face)));
 	}
 
 	@Override

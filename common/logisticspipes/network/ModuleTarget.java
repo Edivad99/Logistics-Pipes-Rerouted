@@ -11,7 +11,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
@@ -75,8 +74,8 @@ public record ModuleTarget(
         if (type == ModulePositionType.IN_HAND) {
             return inHand(player);
         }
-        final BlockEntity be = player.level().getBlockEntity(pos);
-        if (!(be instanceof LogisticsTileGenericPipe pipe) || !(pipe.pipe instanceof CoreRoutedPipe routed)) {
+        final LogisticsTileGenericPipe pipe = TargetLookup.blockEntityAt(player, pos, LogisticsTileGenericPipe.class);
+        if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe routed)) {
             return null;
         }
         if (type == ModulePositionType.IN_PIPE) {

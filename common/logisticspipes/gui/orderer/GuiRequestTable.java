@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -29,6 +30,11 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.RemotePipeTarget;
+import logisticspipes.network.to_server.SubmitRequestMessage;
+import logisticspipes.network.to_server.SimulateRequestMessage;
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.popup.GuiDiskPopup;
 import logisticspipes.gui.popup.GuiRequestPopup;
@@ -41,9 +47,7 @@ import logisticspipes.network.packets.block.ClearCraftingGridPacket;
 import logisticspipes.network.packets.block.CraftingCycleRecipe;
 import logisticspipes.network.packets.orderer.DiskRequestConectPacket;
 import logisticspipes.network.packets.orderer.OrdererRefreshRequestPacket;
-import logisticspipes.network.packets.orderer.RequestComponentPacket;
 import logisticspipes.network.packets.orderer.RequestSubmitListPacket;
-import logisticspipes.network.packets.orderer.RequestSubmitPacket;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.resources.IResource;
@@ -399,7 +403,8 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	private void handleBtn(int id, AbstractButton guibutton) {
 		if (id == 0 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitPacket.class).setStack(stack).setTilePos(table.container).setDimension(dimension));
+			ClientPacketDistributor.sendToServer(new SubmitRequestMessage(
+					new RemotePipeTarget(dimension, table.container.getBlockPos()), stack));
 			refreshItems();
 		} else if (id == 1) {
 			itemDisplay.nextPage();
@@ -425,7 +430,8 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			LPConfigs.savePopupState();
 		} else if (id == 13 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestComponentPacket.class).setStack(stack).setTilePos(table.container).setDimension(dimension));
+			ClientPacketDistributor.sendToServer(new SimulateRequestMessage(
+					new RemotePipeTarget(dimension, table.container.getBlockPos()), stack));
 		} else if (id == 9) {
 			String displayString = "";
 			switch (displayOptions) {

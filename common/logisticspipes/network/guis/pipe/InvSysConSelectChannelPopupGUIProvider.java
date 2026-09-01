@@ -2,14 +2,14 @@ package logisticspipes.network.guis.pipe;
 
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.gui.popup.GuiSelectChannelPopup;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractpackets.ChannelInformationListCoordinatesPopupGuiProvider;
-import logisticspipes.network.packets.pipe.InvSysConSetChannelOnPipePacket;
+import logisticspipes.network.to_server.SetInvSysConChannelMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 
 @StaticResolve
@@ -27,9 +27,8 @@ public class InvSysConSelectChannelPopupGUIProvider extends ChannelInformationLi
 		}
 
 		return new GuiSelectChannelPopup(getChannelInformations(), bPipe.getBlockPos(), sel -> {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConSetChannelOnPipePacket.class)
-					.setString(sel.getChannelIdentifier().toString())
-					.setTilePos(bPipe));
+			ClientPacketDistributor.sendToServer(
+					new SetInvSysConChannelMessage(bPipe.getBlockPos(), sel.getChannelIdentifier()));
 		});
 	}
 

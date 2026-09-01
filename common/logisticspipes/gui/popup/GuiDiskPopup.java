@@ -15,11 +15,11 @@ import net.minecraft.world.item.component.CustomData;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.to_server.SaveDiskContentMessage;
 import logisticspipes.network.packets.orderer.DiskMacroRequestPacket;
-import logisticspipes.network.packets.orderer.DiskSetNamePacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -124,7 +124,8 @@ public class GuiDiskPopup extends SubGuiScreen {
 
 	private void writeDiskName() {
 		editName = false;
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskSetNamePacket.class).setString(name1 + name2).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
+		ClientPacketDistributor.sendToServer(new SetDiskNameMessage(
+				new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), name1 + name2));
 		diskProvider.getDisk().set(DataComponents.CUSTOM_NAME, Component.literal(name1 + name2));
 		ClientPacketDistributor.sendToServer(new SaveDiskContentMessage(
 				new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), diskProvider.getDisk()));

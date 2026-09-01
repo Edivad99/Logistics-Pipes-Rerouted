@@ -59,7 +59,10 @@ public class ServerProxy implements IProxy {
             return null;
         }
 		BlockPos pos = new BlockPos(x, y, z);
-		if (level.isEmptyBlock(pos)) {
+		// isLoaded before anything that reads the block: getBlockState and getBlockEntity both
+		// go through getChunkAt, which loads -- or generates -- an absent chunk, and these
+		// coordinates come off the wire.
+		if (!level.isLoaded(pos) || level.isEmptyBlock(pos)) {
             return null;
         }
 		return level.getBlockEntity(pos) instanceof LogisticsTileGenericPipe tile ? tile : null;

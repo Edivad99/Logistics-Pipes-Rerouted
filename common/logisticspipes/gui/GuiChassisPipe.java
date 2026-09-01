@@ -17,13 +17,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.LPConfigs;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.guis.pipe.ChassisGuiProvider;
 import logisticspipes.network.packets.chassis.ChassisGUI;
 import logisticspipes.network.packets.gui.GuiClosePacket;
-import logisticspipes.network.packets.gui.OpenUpgradePacket;
+import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.proxy.MainProxy;
@@ -109,12 +110,12 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 			if (hasUpgradeModuleUpgrade) {
 				final int idxA = i * 2;
 				SmallGuiButton upA = new SmallGuiButton(100 + i, leftPos + 134, topPos + 12 + i * 20, 10, 10, "!");
-				upA.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenUpgradePacket.class).setSlot(upgradeSlots[idxA])));
+				upA.setPressListener(b -> ClientPacketDistributor.sendToServer(new OpenUpgradeConfigMessage(upgradeSlots[idxA].index)));
 				upgradeConfig[idxA] = addRenderableWidget(upA);
 				upgradeConfig[idxA].visible = chassisPipe.getModuleUpgradeManager(i).hasGuiUpgrade(0);
 				final int idxB = i * 2 + 1;
 				SmallGuiButton upB = new SmallGuiButton(120 + i, leftPos + 182, topPos + 12 + i * 20, 10, 10, "!");
-				upB.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenUpgradePacket.class).setSlot(upgradeSlots[idxB])));
+				upB.setPressListener(b -> ClientPacketDistributor.sendToServer(new OpenUpgradeConfigMessage(upgradeSlots[idxB].index)));
 				upgradeConfig[idxB] = addRenderableWidget(upB);
 				upgradeConfig[idxB].visible = chassisPipe.getModuleUpgradeManager(i).hasGuiUpgrade(1);
 			}

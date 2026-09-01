@@ -9,13 +9,16 @@ package logisticspipes.gui;
 
 import java.io.IOException;
 
+import java.util.Objects;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import logisticspipes.network.to_server.SetSatelliteNameMessage;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
@@ -46,8 +49,8 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 
 		super.init();
 		SmallGuiButton saveBtn = new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, "Save");
-		saveBtn.setPressListener(b -> MainProxy.sendPacketToServer(
-				PacketHandler.getPacket(SatelliteSetNamePacket.class).setString(input.getValue()).setTilePos(satellitePipe.getContainer())));
+		saveBtn.setPressListener(b -> ClientPacketDistributor.sendToServer(new SetSatelliteNameMessage(
+				Objects.requireNonNull(satellitePipe.getContainer()).getBlockPos(), input.getValue())));
 		addRenderableWidget(saveBtn);
 		input = new InputBar(font, this, leftPos + 8, topPos + 40, 100, 16);
         addRenderableWidget(input);

@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -27,12 +28,15 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.RemotePipeTarget;
+import logisticspipes.network.to_server.SubmitRequestMessage;
+import logisticspipes.network.to_server.SimulateRequestMessage;
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.popup.GuiRequestPopup;
 import logisticspipes.interfaces.ISpecialItemRenderer;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.RequestComponentPacket;
-import logisticspipes.network.packets.orderer.RequestSubmitPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.utils.Color;
@@ -265,7 +269,8 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 			LPConfigs.savePopupState();
 		} else if (id == 13 && itemDisplay.getSelectedItem() != null) {
 			final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestComponentPacket.class).setStack(stack).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
+			ClientPacketDistributor.sendToServer(new SimulateRequestMessage(
+					new RemotePipeTarget(dimension, new BlockPos(xCoord, yCoord, zCoord)), stack));
 		} else if (id == 20) {
 			itemDisplay.cycle();
 		}
@@ -284,7 +289,8 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	 */
 	protected void submitRequest() {
 		final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem().makeStack(itemDisplay.getRequestCount());
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitPacket.class).setStack(stack).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
+		ClientPacketDistributor.sendToServer(new SubmitRequestMessage(
+				new RemotePipeTarget(dimension, new BlockPos(xCoord, yCoord, zCoord)), stack));
 	}
 
 	@Override

@@ -3,12 +3,15 @@ package logisticspipes.gui.popup;
 import java.awt.Rectangle;
 import java.util.List;
 
+import java.util.Optional;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.upgrade.SneakyUpgradeSidePacket;
+import logisticspipes.network.to_server.SetSneakyUpgradeSideMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.Color;
@@ -54,7 +57,8 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
 	}
 
 	public void handleSelection(SideConfigDisplay.SelectedFace selection) {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(SneakyUpgradeSidePacket.class).setSide(selection.face).setSlot(pos));
+		ClientPacketDistributor.sendToServer(
+				new SetSneakyUpgradeSideMessage(pos.index, Optional.ofNullable(selection.face)));
 		this.exitGui();
 	}
 

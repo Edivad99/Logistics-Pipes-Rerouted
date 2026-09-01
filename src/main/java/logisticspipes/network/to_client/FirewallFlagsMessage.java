@@ -4,11 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
@@ -32,8 +32,9 @@ public record FirewallFlagsMessage(BlockPos pos, PipeItemsFirewall.FirewallFlags
     }
 
     public static void handle(FirewallFlagsMessage message, IPayloadContext context) {
-        final BlockEntity be = context.player().level().getBlockEntity(message.pos);
-        if (be instanceof LogisticsTileGenericPipe container && container.pipe instanceof PipeItemsFirewall firewall) {
+        final LogisticsTileGenericPipe container =
+                TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        if (container != null && container.pipe instanceof PipeItemsFirewall firewall) {
             firewall.setFlags(message.flags);
         }
     }

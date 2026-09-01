@@ -9,8 +9,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.blocks.LogisticsSecurityTileEntity.SecurityPermissions;
+import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.security.SecuritySettings;
 
 /**
