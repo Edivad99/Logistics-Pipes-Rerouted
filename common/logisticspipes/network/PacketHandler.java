@@ -39,7 +39,9 @@ import logisticspipes.network.to_client.ItemAmountSignMessage;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.ItemSinkImportedItemsMessage;
 import logisticspipes.network.to_client.ModuleInventoryMessage;
+import logisticspipes.network.to_client.ModulePropertiesMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
+import logisticspipes.network.to_client.PipePropertiesMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.network.to_client.QuickSortStateMessage;
 import logisticspipes.network.to_client.SatelliteNameMessage;
@@ -66,7 +68,9 @@ import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.network.to_server.SetFirewallFlagsMessage;
 import logisticspipes.network.to_server.SetInvSysConChannelMessage;
+import logisticspipes.network.to_server.SetModulePropertiesMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
+import logisticspipes.network.to_server.SetPipePropertiesMessage;
 import logisticspipes.network.to_server.SetSatelliteNameMessage;
 import logisticspipes.network.to_server.SetSneakyDirectionMessage;
 import logisticspipes.network.to_server.SetSneakyUpgradeSideMessage;
@@ -153,6 +157,10 @@ public class PacketHandler {
                 SlotFinderOpenGuiMessage.STREAM_CODEC, SlotFinderOpenGuiMessage::handle);
         registrar.playToServer(SlotFinderSlotMessage.TYPE,
                 SlotFinderSlotMessage.STREAM_CODEC, SlotFinderSlotMessage::handle);
+        registrar.playToServer(SetModulePropertiesMessage.TYPE,
+                SetModulePropertiesMessage.STREAM_CODEC, SetModulePropertiesMessage::handle);
+        registrar.playToServer(SetPipePropertiesMessage.TYPE,
+                SetPipePropertiesMessage.STREAM_CODEC, SetPipePropertiesMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -203,6 +211,10 @@ public class PacketHandler {
                 ItemSinkImportedItemsMessage.STREAM_CODEC, ItemSinkImportedItemsMessage::handle);
         registrar.playToClient(SlotFinderActivateMessage.TYPE,
                 SlotFinderActivateMessage.STREAM_CODEC, SlotFinderActivateMessage::handle);
+        registrar.playToClient(ModulePropertiesMessage.TYPE,
+                ModulePropertiesMessage.STREAM_CODEC, ModulePropertiesMessage::handle);
+        registrar.playToClient(PipePropertiesMessage.TYPE,
+                PipePropertiesMessage.STREAM_CODEC, PipePropertiesMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,
                 ModuleInventoryMessage.STREAM_CODEC, ModuleInventoryMessage::handle);
         registrar.playToClient(OreDictItemSinkListMessage.TYPE,

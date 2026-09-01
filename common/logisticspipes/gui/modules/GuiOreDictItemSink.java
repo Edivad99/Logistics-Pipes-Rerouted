@@ -10,9 +10,11 @@ import net.minecraft.world.item.ItemStack;
 
 import kotlin.Unit;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.modules.ModuleOreDictItemSink;
-import logisticspipes.network.packets.module.ModulePropertiesUpdate;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_server.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -81,7 +83,8 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 		propertyLayer.unregister();
 		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
-			MainProxy.sendPacketToServer(ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, this.minecraft.level.registryAccess()).setModulePos(module));
+			ClientPacketDistributor.sendToServer(SetModulePropertiesMessage.of(
+					ModuleTarget.of(module), propertyLayer, this.minecraft.level.registryAccess()));
 		}
 	}
 

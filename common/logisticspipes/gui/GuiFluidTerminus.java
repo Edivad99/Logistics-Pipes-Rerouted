@@ -5,9 +5,10 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 
-import logisticspipes.network.packets.pipe.PipePropertiesUpdate;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.to_server.SetPipePropertiesMessage;
 import logisticspipes.pipes.PipeFluidTerminus;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
@@ -50,8 +51,8 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 		propertyLayer.unregister();
 		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
-			MainProxy.sendPacketToServer(
-					PipePropertiesUpdate.fromPropertyHolder(propertyLayer, this.minecraft.level.registryAccess()).setBlockPos(pipePosition));
+			ClientPacketDistributor.sendToServer(SetPipePropertiesMessage.of(
+					pipePosition, propertyLayer, this.minecraft.level.registryAccess()));
 		}
 	}
 

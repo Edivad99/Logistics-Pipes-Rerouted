@@ -49,9 +49,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor
 
 import logisticspipes.modules.ModuleItemSink
 import logisticspipes.network.ModuleTarget
-import logisticspipes.network.packets.module.ModulePropertiesUpdate
 import logisticspipes.network.to_server.ItemSinkImportRequestMessage
-import logisticspipes.proxy.MainProxy
+import logisticspipes.network.to_server.SetModulePropertiesMessage
 import logisticspipes.utils.Color
 import logisticspipes.utils.item.ItemIdentifier
 import net.minecraft.client.Minecraft
@@ -182,9 +181,8 @@ class ItemSinkGui private constructor(
         val registryAccess = Minecraft.getInstance().level?.registryAccess()
         if (minecraft?.player != null && registryAccess != null && propertyLayer.properties.isNotEmpty()) {
             // send update to server, when there are changed properties
-            MainProxy.sendPacketToServer(
-                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, registryAccess)
-                    .setModulePos(itemSinkModule),
+            ClientPacketDistributor.sendToServer(
+                SetModulePropertiesMessage.of(ModuleTarget.of(itemSinkModule), propertyLayer, registryAccess),
             )
         }
     }

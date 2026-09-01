@@ -37,14 +37,16 @@
 
 package logisticspipes.pipes;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.guis.pipe.FluidTerminusGui;
-import logisticspipes.network.packets.pipe.PipePropertiesUpdate;
+import logisticspipes.network.to_client.PipePropertiesMessage;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.textures.Textures;
 import logisticspipes.utils.FluidSinkReply.FixedFluidPriority;
 
@@ -66,9 +68,10 @@ public class PipeFluidTerminus extends FluidSinkPipe {
 
     @Override
     public void onWrenchClicked(Player entityplayer) {
-        MainProxy.sendPacketToPlayer(
-            PipePropertiesUpdate.fromPropertyHolder(this, entityplayer.registryAccess()).setBlockPos(getPos()),
-            entityplayer);
+        if (entityplayer instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer,
+                PipePropertiesMessage.of(getPos(), this, entityplayer.registryAccess()));
+        }
         NewGuiHandler.openGui(
             NewGuiHandler.getGui(FluidTerminusGui.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()),
             entityplayer);

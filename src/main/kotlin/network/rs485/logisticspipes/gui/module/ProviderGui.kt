@@ -45,9 +45,11 @@ import network.rs485.logisticspipes.property.EnumProperty
 import network.rs485.logisticspipes.property.layer.PropertyLayer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
+import net.neoforged.neoforge.client.network.ClientPacketDistributor
+
 import logisticspipes.modules.ModuleProvider
-import logisticspipes.network.packets.module.ModulePropertiesUpdate
-import logisticspipes.proxy.MainProxy
+import logisticspipes.network.ModuleTarget
+import logisticspipes.network.to_server.SetModulePropertiesMessage
 import logisticspipes.utils.Color
 import net.minecraft.client.Minecraft
 import net.minecraft.world.Container
@@ -159,8 +161,8 @@ class ProviderGui private constructor(
         val registryAccess = Minecraft.getInstance().level?.registryAccess()
         if (minecraft?.player != null && registryAccess != null && propertyLayer.properties.isNotEmpty()) {
             // send update to server, when there are changed properties
-            MainProxy.sendPacketToServer(
-                ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, registryAccess).setModulePos(providerModule),
+            ClientPacketDistributor.sendToServer(
+                SetModulePropertiesMessage.of(ModuleTarget.of(providerModule), propertyLayer, registryAccess),
             )
         }
     }

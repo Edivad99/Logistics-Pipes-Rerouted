@@ -38,10 +38,12 @@
 package network.rs485.logisticspipes.property
 
 import network.rs485.grow.Coroutines.scheduleServerTask
+import net.neoforged.neoforge.network.PacketDistributor
+
 import logisticspipes.modules.LogisticsModule
-import logisticspipes.network.PacketHandler
-import logisticspipes.network.packets.module.ModulePropertiesUpdate
-import logisticspipes.proxy.MainProxy
+import logisticspipes.network.ModuleTarget
+import logisticspipes.network.to_client.ModulePropertiesMessage
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.ProblemReporter
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.storage.TagValueOutput
@@ -71,12 +73,15 @@ class PropertyUpdater(
     private fun sendPropertyUpdate() {
         if (shouldUpdate && !weakPlayer.isEnqueued) {
             val player = weakPlayer.get() ?: return
-            val packet = PacketHandler.getPacket(ModulePropertiesUpdate::class.java)
             val output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.level().registryAccess())
             changedProperties.serialize(output)
-            packet.tag = output.buildResult()
             changedProperties.clear()
-            MainProxy.sendPacketToPlayer(packet.setModulePos(module), player)
+            if (player is ServerPlayer) {
+                PacketDistributor.sendToPlayer(
+                    player,
+                    ModulePropertiesMessage(ModuleTarget.of(module), output.buildResult()),
+                )
+            }
             shouldUpdate = false
         }
     }

@@ -23,10 +23,9 @@ import logisticspipes.gui.modules.ModuleBaseGui;
 import logisticspipes.gui.popup.GuiSelectSatellitePopup;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.packets.module.ModulePropertiesUpdate;
 import logisticspipes.network.to_server.CrafterCleanupImportMessage;
 import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_server.SetModulePropertiesMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -346,7 +345,8 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		propertyLayer.unregister();
 		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
-			MainProxy.sendPacketToServer(ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, this.minecraft.level.registryAccess()).setModulePos(module));
+			ClientPacketDistributor.sendToServer(SetModulePropertiesMessage.of(
+					ModuleTarget.of(module), propertyLayer, this.minecraft.level.registryAccess()));
 		}
 	}
 

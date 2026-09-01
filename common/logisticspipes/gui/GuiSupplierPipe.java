@@ -24,9 +24,8 @@ import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
 import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.packets.module.ModulePropertiesUpdate;
+import logisticspipes.network.to_server.SetModulePropertiesMessage;
 import logisticspipes.network.to_server.SlotFinderOpenGuiMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -99,8 +98,9 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 		propertyLayer.unregister();
 		if (this.minecraft.player != null && !propertyLayer.getProperties().isEmpty()) {
 			// send update to server, when there are changed properties
-			MainProxy.sendPacketToServer(
-					ModulePropertiesUpdate.fromPropertyHolder(propertyLayer, Minecraft.getInstance().level.registryAccess()).setModulePos(supplierModule));
+			ClientPacketDistributor.sendToServer(SetModulePropertiesMessage.of(
+					ModuleTarget.of(supplierModule), propertyLayer,
+					Minecraft.getInstance().level.registryAccess()));
 		}
 	}
 
