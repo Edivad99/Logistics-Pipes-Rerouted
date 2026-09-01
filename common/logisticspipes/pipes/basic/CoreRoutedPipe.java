@@ -48,6 +48,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.PacketDistributor;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -1533,10 +1537,12 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		MainProxy.sendPacketToPlayer(packet, player);
 		for (int i = 0; i < 6; i++) {
 			if (signItem[i] != null) {
-				packet = signItem[i].getPacket();
-				if (packet != null) {
-					MainProxy.sendPacketToAllWatchingChunk(container, packet);
-					MainProxy.sendPacketToPlayer(packet, player);
+				final CustomPacketPayload signPayload = signItem[i].getPacket();
+				if (signPayload != null) {
+					TargetLookup.sendToChunkWatchers(container, signPayload);
+					if (player instanceof ServerPlayer serverPlayer) {
+						PacketDistributor.sendToPlayer(serverPlayer, signPayload);
+					}
 				}
 			}
 		}

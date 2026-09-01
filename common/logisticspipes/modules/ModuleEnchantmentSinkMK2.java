@@ -13,6 +13,10 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.PacketDistributor;
+import logisticspipes.network.to_client.ModuleInventoryMessage;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -24,7 +28,6 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
-import logisticspipes.network.packets.module.ModuleInventory;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
@@ -127,8 +130,10 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	@Override
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
-				.setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory)).setModulePos(this), player);
+		if (player instanceof ServerPlayer inventoryWatcher) {
+			PacketDistributor.sendToPlayer(inventoryWatcher,
+					new ModuleInventoryMessage(ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(filterInventory)));
+		}
 	}
 
 	@Override
@@ -139,12 +144,8 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	@Override
 	public void InventoryChanged(Container inventory) {
 		MainProxy.runOnServer(getWorld(), () -> () ->
-				MainProxy.sendToPlayerList(
-						PacketHandler.getPacket(ModuleInventory.class)
-								.setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
-								.setModulePos(this),
-						localModeWatchers
-				)
+				localModeWatchers.send(
+					new ModuleInventoryMessage(ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(inventory)))
 		);
 	}
 

@@ -1,7 +1,11 @@
 package logisticspipes.pipes.signs;
 
+import java.util.Optional;
+import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.Container;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -18,12 +22,14 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.cpipe.CPipeSatelliteImportBack;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -61,14 +67,15 @@ public class CraftingPipeSign implements IPipeSign {
 	public void serialize(ValueOutput output) {}
 
 	@Override
-	public ModernPacket getPacket() {
+	public CustomPacketPayload getPacket() {
 		PipeItemsCraftingLogistics cpipe = (PipeItemsCraftingLogistics) pipe;
-		return PacketHandler.getPacket(CPipeSatelliteImportBack.class)
-				.setInventory(cpipe.getDummyInventory())
-				.setType(ModulePositionType.IN_PIPE)
-				.setPosX(cpipe.getX())
-				.setPosY(cpipe.getY())
-				.setPosZ(cpipe.getZ());
+		final Container inventory = cpipe.getDummyInventory();
+		final List<ItemStack> slots = new ArrayList<>(inventory.getContainerSize());
+		for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+			slots.add(inventory.getItem(slot));
+		}
+		return new CraftingDummyInventoryMessage(
+				new ModuleTarget(cpipe.getPos(), Optional.of(ModulePositionType.IN_PIPE), 0), slots);
 	}
 
 	@Override

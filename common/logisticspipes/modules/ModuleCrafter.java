@@ -32,6 +32,8 @@ import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -60,7 +62,6 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.guis.module.inhand.CraftingModuleInHand;
 import logisticspipes.network.guis.module.inpipe.CraftingModuleSlot;
 import logisticspipes.network.packets.cpipe.CPipeSatelliteImport;
-import logisticspipes.network.packets.cpipe.CPipeSatelliteImportBack;
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket;
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
@@ -717,13 +718,17 @@ public class ModuleCrafter extends LogisticsModule
 						}
 					});
 
-			// Send inventory as packet
-			final CoordinatesPacket packet = PacketHandler.getPacket(CPipeSatelliteImportBack.class)
-					.setInventory(dummyInventory).setModulePos(this);
-			if (player != null) {
-				MainProxy.sendPacketToPlayer(packet, player);
+			// Send inventory as message
+			final List<ItemStack> slots = new ArrayList<>(dummyInventory.getContainerSize());
+			for (int slot = 0; slot < dummyInventory.getContainerSize(); slot++) {
+				slots.add(dummyInventory.getItem(slot));
 			}
-			MainProxy.sendPacketToAllWatchingChunk(this, packet);
+			final CraftingDummyInventoryMessage message =
+					new CraftingDummyInventoryMessage(ModuleTarget.of(this), slots);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, message);
+			}
+			TargetLookup.sendToChunkWatchers(getWorld(), getBlockPos(), message);
 		}
 	}
 

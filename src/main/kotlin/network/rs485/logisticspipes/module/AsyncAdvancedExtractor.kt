@@ -52,7 +52,7 @@ import logisticspipes.network.guis.module.inhand.AdvancedExtractorModuleInHand
 import logisticspipes.network.guis.module.inpipe.AdvancedExtractorModuleSlot
 import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket
 import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket
-import logisticspipes.network.packets.module.ModuleInventory
+import logisticspipes.network.to_client.ModuleInventoryMessage
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage
 import logisticspipes.proxy.MainProxy
@@ -163,11 +163,11 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
     override fun InventoryChanged(inventory: Container) {
         MainProxy.runOnServer(world) {
             Runnable {
-                MainProxy.sendToPlayerList(
-                    PacketHandler.getPacket(ModuleInventory::class.java)
-                        .setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
-                        .setModulePos(this),
-                    extractor.localModeWatchers,
+                extractor.localModeWatchers.send(
+                    ModuleInventoryMessage(
+                        ModuleTarget.of(this),
+                        ItemIdentifierStack.getListFromInventory(inventory),
+                    ),
                 )
             }
         }
@@ -185,16 +185,15 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
 
     override fun startWatching(player: Player) {
         extractor.startWatching(player)
-        MainProxy.sendPacketToPlayer(
-            PacketHandler.getPacket(ModuleInventory::class.java)
-                .setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory))
-                .setModulePos(this),
-            player,
-        )
         if (player is ServerPlayer) {
+            val target = ModuleTarget.of(this)
             PacketDistributor.sendToPlayer(
                 player,
-                AdvancedExtractorIncludeMessage(ModuleTarget.of(this), itemsIncluded.value),
+                ModuleInventoryMessage(target, ItemIdentifierStack.getListFromInventory(filterInventory)),
+            )
+            PacketDistributor.sendToPlayer(
+                player,
+                AdvancedExtractorIncludeMessage(target, itemsIncluded.value),
             )
         }
     }

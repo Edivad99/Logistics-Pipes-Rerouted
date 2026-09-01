@@ -45,7 +45,6 @@ import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.pipe.FluidSupplierAmount
-import logisticspipes.network.packets.pipe.ItemAmountSignUpdatePacket
 import logisticspipes.network.packets.pipe.SendQueueContent
 import logisticspipes.network.packets.pipe.SlotFinderActivatePacket
 import net.minecraft.SharedConstants
@@ -183,16 +182,6 @@ class PacketRoundTripTest {
         val actual = roundTrip(FluidSupplierAmount(ANY_ID).withCoords().apply { integer = 9001 })
         assertCoords(actual)
         assertEquals(9001, actual.integer)
-    }
-
-    @Test
-    fun `Integer2CoordinatesPacket round trip`() {
-        val actual = roundTrip(
-            ItemAmountSignUpdatePacket(ANY_ID).withCoords().apply { integer = 11; integer2 = 22 },
-        )
-        assertCoords(actual)
-        assertEquals(11, actual.integer)
-        assertEquals(22, actual.integer2)
     }
 
     // ── level 3: ModuleCoordinatesPacket ─────────────────────────────────────

@@ -53,10 +53,18 @@ public final class TargetLookup {
      * incomplete and hang the save.
      */
     public static void sendToChunkWatchers(@Nullable BlockEntity be, CustomPacketPayload payload) {
-        if (be == null || !(be.getLevel() instanceof ServerLevel level)) {
+        if (be != null) {
+            sendToChunkWatchers(be.getLevel(), be.getBlockPos(), payload);
+        }
+    }
+
+    /** The same, for a sender that knows its level and position but is not itself a block entity. */
+    public static void sendToChunkWatchers(@Nullable Level level, @Nullable BlockPos pos,
+            CustomPacketPayload payload) {
+        if (pos == null || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        PacketDistributor.sendToPlayersTrackingChunk(level, ChunkPos.containing(be.getBlockPos()), payload);
+        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(pos), payload);
     }
 
     /**

@@ -30,11 +30,14 @@ import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
+import logisticspipes.network.to_client.ItemAmountSignMessage;
+import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.DiskContentMessage;
 import logisticspipes.network.to_client.FirewallFlagsMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
+import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.network.to_client.QuickSortStateMessage;
@@ -165,6 +168,8 @@ public class PacketHandler {
                 FluidCraftingAmountMessage.STREAM_CODEC, FluidCraftingAmountMessage::handle);
         registrar.playToClient(SneakyDirectionMessage.TYPE,
                 SneakyDirectionMessage.STREAM_CODEC, SneakyDirectionMessage::handle);
+        registrar.playToClient(ModuleInventoryMessage.TYPE,
+                ModuleInventoryMessage.STREAM_CODEC, ModuleInventoryMessage::handle);
         registrar.playToClient(OreDictItemSinkListMessage.TYPE,
                 OreDictItemSinkListMessage.STREAM_CODEC, OreDictItemSinkListMessage::handle);
         registrar.playToClient(ItemSinkDefaultRouteMessage.TYPE,
@@ -185,6 +190,10 @@ public class PacketHandler {
                 SecurityStationCCIdsMessage.STREAM_CODEC, SecurityStationCCIdsMessage::handle);
         registrar.playToClient(SatelliteNameMessage.TYPE,
                 SatelliteNameMessage.STREAM_CODEC, SatelliteNameMessage::handle);
+        registrar.playToClient(CraftingDummyInventoryMessage.TYPE,
+                CraftingDummyInventoryMessage.STREAM_CODEC, CraftingDummyInventoryMessage::handle);
+        registrar.playToClient(ItemAmountSignMessage.TYPE,
+                ItemAmountSignMessage.STREAM_CODEC, ItemAmountSignMessage::handle);
         registrar.playToClient(SecurityAuthorizedListMessage.TYPE,
                 SecurityAuthorizedListMessage.STREAM_CODEC, SecurityAuthorizedListMessage::handle);
     }
