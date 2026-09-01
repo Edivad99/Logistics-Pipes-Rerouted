@@ -13,19 +13,20 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.blocks.LogisticsSecurityTileEntity.CardAction;
+import logisticspipes.blocks.LogisticsSecurityTileEntity.SecurityFlag;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.popup.GuiEditCCAccessTable;
 import logisticspipes.gui.popup.GuiSecurityStationPopup;
 import logisticspipes.interfaces.PlayerListReciver;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.PlayerListRequest;
-import logisticspipes.network.packets.block.SecurityAuthorizationPacket;
-import logisticspipes.network.packets.block.SecurityCardPacket;
-import logisticspipes.network.packets.block.SecurityRequestCCIdsPacket;
-import logisticspipes.network.packets.block.SecurityStationAutoDestroy;
-import logisticspipes.network.packets.block.SecurityStationCC;
 import logisticspipes.network.packets.gui.OpenSecurityChannelManagerPacket;
 import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
+import logisticspipes.network.to_server.RequestSecurityStationCCIdsMessage;
+import logisticspipes.network.to_server.SecurityCardActionMessage;
+import logisticspipes.network.to_server.SetSecurityStationAuthorizedMessage;
+import logisticspipes.network.to_server.ToggleSecurityStationFlagMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
@@ -85,17 +86,17 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	public void init() {
 		super.init();
 		btnMinusMinus = new SmallGuiButton(0, leftPos + 10, topPos + 179, 30, 20, "--");
-		btnMinusMinus.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityCardPacket.class).setInteger(0).setBlockPos(tile.getBlockPos())));
+		btnMinusMinus.setPressListener(b -> ClientPacketDistributor.sendToServer(new SecurityCardActionMessage(tile.getBlockPos(), CardAction.CLEAR)));
 		addRenderableWidget(btnMinusMinus);
 		btnMinusMinus.visible = false;
 		btnMinus = new SmallGuiButton(1, leftPos + 10, topPos + 139, 30, 20, "-");
-		btnMinus.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityCardPacket.class).setInteger(1).setBlockPos(tile.getBlockPos())));
+		btnMinus.setPressListener(b -> ClientPacketDistributor.sendToServer(new SecurityCardActionMessage(tile.getBlockPos(), CardAction.TAKE_ONE)));
 		addRenderableWidget(btnMinus);
 		btnPlus = new SmallGuiButton(2, leftPos + 45, topPos + 139, 30, 20, "+");
-		btnPlus.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityCardPacket.class).setInteger(2).setBlockPos(tile.getBlockPos())));
+		btnPlus.setPressListener(b -> ClientPacketDistributor.sendToServer(new SecurityCardActionMessage(tile.getBlockPos(), CardAction.GIVE_ONE)));
 		addRenderableWidget(btnPlus);
 		btnPlusPlus = new SmallGuiButton(3, leftPos + 140, topPos + 179, 30, 20, "++");
-		btnPlusPlus.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityCardPacket.class).setInteger(3).setBlockPos(tile.getBlockPos())));
+		btnPlusPlus.setPressListener(b -> ClientPacketDistributor.sendToServer(new SecurityCardActionMessage(tile.getBlockPos(), CardAction.GIVE_STACK)));
 		addRenderableWidget(btnPlusPlus);
 		btnPlusPlus.visible = false;
 		btnOpen = new SmallGuiButton(4, leftPos + 241, topPos + 217, 30, 10, TextUtil.translate(GuiSecurityStation.PREFIX + "Open"));
@@ -110,13 +111,14 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		checkAllowCC.setPressListener(b -> {
 			tile.allowCC = !tile.allowCC;
 			refreshCheckBoxes();
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityStationCC.class).setInteger(tile.allowCC ? 1 : 0).setBlockPos(tile.getBlockPos()));
+			ClientPacketDistributor.sendToServer(
+				new ToggleSecurityStationFlagMessage(tile.getBlockPos(), SecurityFlag.ALLOW_CC));
 		});
 		addRenderableWidget(checkAllowCC);
 		btnEditTable = new SmallGuiButton(6, leftPos + 162, topPos + 60, 60, 10, TextUtil.translate(GuiSecurityStation.PREFIX + "EditTable"));
 		btnEditTable.setPressListener(b -> {
 			setSubGui(new GuiEditCCAccessTable(tile));
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityRequestCCIdsPacket.class).setBlockPos(tile.getBlockPos()));
+			ClientPacketDistributor.sendToServer(new RequestSecurityStationCCIdsMessage(tile.getBlockPos()));
 		});
 		addRenderableWidget(btnEditTable);
 		// ComputerCraft not available on 1.20.1 (former dummy isCC() was always false) — CC widgets only in DEBUG.
@@ -126,13 +128,15 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		}
 		btnAuthorize = new SmallGuiButton(7, leftPos + 55, topPos + 95, 70, 20, TextUtil.translate(GuiSecurityStation.PREFIX + "Authorize"));
 		btnAuthorize.setPressListener(b -> {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityAuthorizationPacket.class).setInteger(1).setBlockPos(tile.getBlockPos()));
+			ClientPacketDistributor.sendToServer(
+				new SetSecurityStationAuthorizedMessage(tile.getBlockPos(), true));
 			authorized = true;
 		});
 		addRenderableWidget(btnAuthorize);
 		btnDeauthorize = new SmallGuiButton(8, leftPos + 175, topPos + 95, 70, 20, TextUtil.translate(GuiSecurityStation.PREFIX + "Deauthorize"));
 		btnDeauthorize.setPressListener(b -> {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityAuthorizationPacket.class).setInteger(0).setBlockPos(tile.getBlockPos()));
+			ClientPacketDistributor.sendToServer(
+				new SetSecurityStationAuthorizedMessage(tile.getBlockPos(), false));
 			authorized = false;
 		});
 		addRenderableWidget(btnDeauthorize);
@@ -140,7 +144,8 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		checkAutoDestroy.setPressListener(b -> {
 			tile.allowAutoDestroy = !tile.allowAutoDestroy;
 			refreshCheckBoxes();
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityStationAutoDestroy.class).setInteger(tile.allowAutoDestroy ? 1 : 0).setBlockPos(tile.getBlockPos()));
+			ClientPacketDistributor.sendToServer(
+				new ToggleSecurityStationFlagMessage(tile.getBlockPos(), SecurityFlag.AUTO_DESTROY));
 		});
 		addRenderableWidget(checkAutoDestroy);
 		btnChannelManager = new SmallGuiButton(10, leftPos + 177, topPos + 230, 95, 20, TextUtil.translate(GuiSecurityStation.PREFIX + "ChannelManager"));

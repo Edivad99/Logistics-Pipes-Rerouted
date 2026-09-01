@@ -7,11 +7,10 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.SecurityAddCCIdPacket;
-import logisticspipes.network.packets.block.SecurityRemoveCCIdPacket;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_server.SetSecurityStationCCIdMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -196,7 +195,8 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 			case 2: {
 				Integer id1 = Integer.valueOf(searchInput1 + searchInput2);
 				tile.excludedCC.remove(id1);
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityRemoveCCIdPacket.class).putInt(id1).setBlockPos(tile.getBlockPos()));
+				ClientPacketDistributor.sendToServer(
+						new SetSecurityStationCCIdMessage(tile.getBlockPos(), id1, false));
 			}
 			break;
 			case 3: {
@@ -205,7 +205,8 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
 					tile.excludedCC.add(id2);
 					Collections.sort(tile.excludedCC);
 				}
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(SecurityAddCCIdPacket.class).putInt(id2).setBlockPos(tile.getBlockPos()));
+				ClientPacketDistributor.sendToServer(
+						new SetSecurityStationCCIdMessage(tile.getBlockPos(), id2, true));
 			}
 			break;
 			case 4:

@@ -1,6 +1,7 @@
 package logisticspipes.blocks;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,13 +32,11 @@ import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.ISecurityProvider;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.guis.block.SecurityStationGui;
-import logisticspipes.network.packets.block.SecurityStationAutoDestroy;
-import logisticspipes.network.packets.block.SecurityStationCC;
-import logisticspipes.network.packets.block.SecurityStationId;
 import logisticspipes.network.to_client.SecurityStationCCIdsMessage;
+import logisticspipes.network.to_client.SecurityStationFlagsMessage;
+import logisticspipes.network.to_client.SecurityStationIdMessage;
 import logisticspipes.network.to_client.SecurityStationSettingsMessage;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
@@ -104,9 +103,12 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 
 	@Override
 	public void guiOpenedByPlayer(Player player) {
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationCC.class).putInt(allowCC ? 1 : 0).setBlockPos(getBlockPos()), player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationAutoDestroy.class).putInt(allowAutoDestroy ? 1 : 0).setBlockPos(getBlockPos()), player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationId.class).setUuid(getSecId()).setBlockPos(getBlockPos()), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new SecurityStationFlagsMessage(getBlockPos(), allowCC, allowAutoDestroy));
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new SecurityStationIdMessage(getBlockPos(), Optional.ofNullable(getSecId())));
+		}
 		SimpleServiceLocator.securityStationManager.sendClientAuthorizationList();
 		listener.add(player);
 	}
@@ -183,15 +185,27 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		output.putIntArray("excludedCC", excludedCC.stream().mapToInt(Integer::intValue).toArray());
 	}
 
-	public void buttonFreqCard(int integer, Player player) {
-		switch (integer) {
-			case 0: //--
+	/** What the four buttons under the security station's card slot do. */
+	public enum CardAction {
+		/** Empty the slot. */
+		CLEAR,
+		/** Take one card out. */
+		TAKE_ONE,
+		/** Put one card in. */
+		GIVE_ONE,
+		/** Fill the slot. */
+		GIVE_STACK,
+	}
+
+	public void handleCardAction(CardAction action, Player player) {
+		switch (action) {
+			case CLEAR:
 				inv.setItem(0, ItemStack.EMPTY);
 				break;
-			case 1: //-
+			case TAKE_ONE:
 				inv.removeItem(0, 1);
 				break;
-			case 2: //+
+			case GIVE_ONE:
 				if (!useEnergy(10)) {
 					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 					return;
@@ -209,7 +223,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 					}
 				}
 				break;
-			case 3: //++
+			case GIVE_STACK:
 				if (!useEnergy(640)) {
 					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 					return;
@@ -260,14 +274,20 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		return setting;
 	}
 
-	public void changeCC() {
-		allowCC = !allowCC;
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(SecurityStationCC.class).putInt(allowCC ? 1 : 0).setBlockPos(getBlockPos()), listener);
+	/** One of the two checkboxes the station's GUI shows. */
+	public enum SecurityFlag {
+		/** Whether computers may talk to the network at all. */
+		ALLOW_CC,
+		/** Whether the station destroys itself when it loses power. */
+		AUTO_DESTROY,
 	}
 
-	public void changeDestroy() {
-		allowAutoDestroy = !allowAutoDestroy;
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(SecurityStationAutoDestroy.class).putInt(allowAutoDestroy ? 1 : 0).setBlockPos(getBlockPos()), listener);
+	public void toggleFlag(SecurityFlag flag) {
+		switch (flag) {
+			case ALLOW_CC -> allowCC = !allowCC;
+			case AUTO_DESTROY -> allowAutoDestroy = !allowAutoDestroy;
+		}
+		listener.send(new SecurityStationFlagsMessage(getBlockPos(), allowCC, allowAutoDestroy));
 	}
 
 	public void addCCToList(Integer id) {

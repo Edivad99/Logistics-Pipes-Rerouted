@@ -51,6 +51,8 @@ import logisticspipes.network.to_client.QuickSortStateMessage;
 import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.network.to_client.SecurityAuthorizedListMessage;
 import logisticspipes.network.to_client.SecurityStationCCIdsMessage;
+import logisticspipes.network.to_client.SecurityStationFlagsMessage;
+import logisticspipes.network.to_client.SecurityStationIdMessage;
 import logisticspipes.network.to_client.SecurityStationSettingsMessage;
 import logisticspipes.network.to_client.SlotFinderActivateMessage;
 import logisticspipes.network.to_client.SneakyDirectionMessage;
@@ -67,8 +69,10 @@ import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
+import logisticspipes.network.to_server.RequestSecurityStationCCIdsMessage;
 import logisticspipes.network.to_server.SaveDiskContentMessage;
 import logisticspipes.network.to_server.SaveSecuritySettingsMessage;
+import logisticspipes.network.to_server.SecurityCardActionMessage;
 import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.network.to_server.SetFirewallFlagsMessage;
@@ -77,6 +81,8 @@ import logisticspipes.network.to_server.SetModulePropertiesMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
 import logisticspipes.network.to_server.SetPipePropertiesMessage;
 import logisticspipes.network.to_server.SetSatelliteNameMessage;
+import logisticspipes.network.to_server.SetSecurityStationAuthorizedMessage;
+import logisticspipes.network.to_server.SetSecurityStationCCIdMessage;
 import logisticspipes.network.to_server.SetSneakyDirectionMessage;
 import logisticspipes.network.to_server.SetSneakyUpgradeSideMessage;
 import logisticspipes.network.to_server.SetStringBasedItemSinkListMessage;
@@ -86,6 +92,7 @@ import logisticspipes.network.to_server.SlotFinderSlotMessage;
 import logisticspipes.network.to_server.SubmitFluidRequestMessage;
 import logisticspipes.network.to_server.SubmitRequestMessage;
 import logisticspipes.network.to_server.ToggleDisconnectionUpgradeSideMessage;
+import logisticspipes.network.to_server.ToggleSecurityStationFlagMessage;
 import logisticspipes.network.to_server.UntraceRoutingMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -169,6 +176,16 @@ public class PacketHandler {
                 SetPipePropertiesMessage.STREAM_CODEC, SetPipePropertiesMessage::handle);
         registrar.playToServer(ChangeFluidSupplierAmountMessage.TYPE,
                 ChangeFluidSupplierAmountMessage.STREAM_CODEC, ChangeFluidSupplierAmountMessage::handle);
+        registrar.playToServer(RequestSecurityStationCCIdsMessage.TYPE,
+                RequestSecurityStationCCIdsMessage.STREAM_CODEC, RequestSecurityStationCCIdsMessage::handle);
+        registrar.playToServer(SecurityCardActionMessage.TYPE,
+                SecurityCardActionMessage.STREAM_CODEC, SecurityCardActionMessage::handle);
+        registrar.playToServer(SetSecurityStationAuthorizedMessage.TYPE,
+                SetSecurityStationAuthorizedMessage.STREAM_CODEC, SetSecurityStationAuthorizedMessage::handle);
+        registrar.playToServer(SetSecurityStationCCIdMessage.TYPE,
+                SetSecurityStationCCIdMessage.STREAM_CODEC, SetSecurityStationCCIdMessage::handle);
+        registrar.playToServer(ToggleSecurityStationFlagMessage.TYPE,
+                ToggleSecurityStationFlagMessage.STREAM_CODEC, ToggleSecurityStationFlagMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -238,6 +255,10 @@ public class PacketHandler {
                 PipePropertiesMessage.STREAM_CODEC, PipePropertiesMessage::handle);
         registrar.playToClient(FluidSupplierAmountMessage.TYPE,
                 FluidSupplierAmountMessage.STREAM_CODEC, FluidSupplierAmountMessage::handle);
+        registrar.playToClient(SecurityStationFlagsMessage.TYPE,
+                SecurityStationFlagsMessage.STREAM_CODEC, SecurityStationFlagsMessage::handle);
+        registrar.playToClient(SecurityStationIdMessage.TYPE,
+                SecurityStationIdMessage.STREAM_CODEC, SecurityStationIdMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
                 CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,
