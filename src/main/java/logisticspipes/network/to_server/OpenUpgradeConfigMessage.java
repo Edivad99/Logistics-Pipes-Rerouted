@@ -8,10 +8,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.network.TargetLookup;
-import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
 import logisticspipes.pipes.upgrades.IConfigPipeUpgrade;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
 import logisticspipes.utils.gui.UpgradeSlot;
 
 /**

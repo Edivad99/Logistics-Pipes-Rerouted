@@ -15,10 +15,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import logisticspipes.network.TargetLookup;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.TargetLookup;
 import logisticspipes.network.packets.gui.ProvideSatellitePipeListPacket;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;

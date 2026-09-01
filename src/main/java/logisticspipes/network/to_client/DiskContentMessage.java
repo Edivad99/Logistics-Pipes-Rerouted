@@ -8,8 +8,8 @@ import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
+import logisticspipes.LPConstants;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;

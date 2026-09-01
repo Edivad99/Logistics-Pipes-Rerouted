@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -14,6 +16,7 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.gui.hud.modules.HUDStringBasedItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
@@ -25,15 +28,14 @@ import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.interfaces.IWorldProvider;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.StringBasedItemSinkModuleGuiInHand;
 import logisticspipes.network.guis.module.inpipe.StringBasedItemSinkModuleGuiSlot;
-import logisticspipes.network.packets.module.ModuleBasedItemSinkList;
+import logisticspipes.network.to_client.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.ModuleWatchMessage;
+import logisticspipes.network.to_server.SetStringBasedItemSinkListMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
@@ -110,11 +112,10 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	@Override
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.registryAccess());
-		serialize(moduleOutput);
-		CompoundTag nbt = moduleOutput.buildResult();
-		MainProxy.sendPacketToPlayer(
-				PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+					new StringBasedItemSinkListMessage(ModuleTarget.of(this), List.copyOf(tabList)));
+		}
 	}
 
 	@Override
@@ -126,19 +127,12 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	public void listChanged() {
 		final IWorldProvider worldProvider = this.worldProvider;
 		if (worldProvider == null) return;
-		if (MainProxy.isServer(worldProvider.getWorld())) {
-			TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, worldProvider.getWorld().registryAccess());
-			serialize(moduleOutput);
-			CompoundTag nbt = moduleOutput.buildResult();
-			MainProxy.sendToPlayerList(
-					PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this),
-					localModeWatchers);
+		final List<String> names = List.copyOf(tabList);
+		if (worldProvider.getWorld() instanceof ServerLevel) {
+			localModeWatchers.send(new StringBasedItemSinkListMessage(ModuleTarget.of(this), names));
 		} else {
-			TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, worldProvider.getWorld().registryAccess());
-			serialize(moduleOutput);
-			CompoundTag nbt = moduleOutput.buildResult();
-			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this));
+			ClientPacketDistributor.sendToServer(
+					new SetStringBasedItemSinkListMessage(ModuleTarget.of(this), names));
 		}
 	}
 

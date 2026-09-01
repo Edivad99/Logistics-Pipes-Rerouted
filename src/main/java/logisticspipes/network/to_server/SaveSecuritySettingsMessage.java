@@ -8,10 +8,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import logisticspipes.network.TargetLookup;
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity.SecurityPermissions;
-import logisticspipes.network.TargetLookup;
 
 /**
  * The security station's per-player switches, as edited in its popup.

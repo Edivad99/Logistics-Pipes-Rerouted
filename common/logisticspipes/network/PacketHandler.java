@@ -39,6 +39,7 @@ import logisticspipes.network.to_client.FluidCraftingAmountMessage;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
+import logisticspipes.network.to_client.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.network.to_client.QuickSortStateMessage;
 import logisticspipes.network.to_client.SatelliteNameMessage;
@@ -61,6 +62,7 @@ import logisticspipes.network.to_server.BlockHudWatchMessage;
 import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
+import logisticspipes.network.to_server.SetStringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.SetSatelliteNameMessage;
 import logisticspipes.network.to_server.SetSneakyDirectionMessage;
 import logisticspipes.network.to_server.SetSneakyUpgradeSideMessage;
@@ -138,6 +140,9 @@ public class PacketHandler {
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
                 SetOreDictItemSinkListMessage.STREAM_CODEC, SetOreDictItemSinkListMessage::handle);
+        registrar.playToServer(SetStringBasedItemSinkListMessage.TYPE,
+                SetStringBasedItemSinkListMessage.STREAM_CODEC,
+                SetStringBasedItemSinkListMessage::handle);
         registrar.playToServer(SetCraftingSatelliteMessage.TYPE,
                 SetCraftingSatelliteMessage.STREAM_CODEC, SetCraftingSatelliteMessage::handle);
         registrar.playToServer(RequestPipeContentMessage.TYPE,
@@ -181,6 +186,9 @@ public class PacketHandler {
                 ModuleInventoryMessage.STREAM_CODEC, ModuleInventoryMessage::handle);
         registrar.playToClient(OreDictItemSinkListMessage.TYPE,
                 OreDictItemSinkListMessage.STREAM_CODEC, OreDictItemSinkListMessage::handle);
+        registrar.playToClient(StringBasedItemSinkListMessage.TYPE,
+                StringBasedItemSinkListMessage.STREAM_CODEC,
+                StringBasedItemSinkListMessage::handle);
         registrar.playToClient(ItemSinkDefaultRouteMessage.TYPE,
                 ItemSinkDefaultRouteMessage.STREAM_CODEC, ItemSinkDefaultRouteMessage::handle);
         registrar.playToClient(AdvancedExtractorIncludeMessage.TYPE,
