@@ -3,14 +3,15 @@ package logisticspipes.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.powertile.LogisticsPowerProviderTileEntity;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.string.StringUtils;
+import logisticspipes.world.inventory.PowerProviderMenu;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiPowerProvider extends LogisticsBaseGuiScreen {
@@ -19,14 +20,9 @@ public class GuiPowerProvider extends LogisticsBaseGuiScreen {
 
 	private final LogisticsPowerProviderTileEntity junction;
 
-	public GuiPowerProvider(Player player, LogisticsPowerProviderTileEntity junction) {
-		super(buildDummy(player, junction), 176, 166, 0, 0);
-		this.junction = junction;
-	}
-	private static DummyContainer buildDummy(Player player, LogisticsPowerProviderTileEntity junction) {
-		DummyContainer dummy = new DummyContainer(player, null, junction);
-		dummy.addNormalSlotsForPlayerInventory(8, 80);
-		return dummy;
+	public GuiPowerProvider(PowerProviderMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 176, 166, 0, 0);
+		this.junction = menu.getBlockEntity();
 	}
 
 

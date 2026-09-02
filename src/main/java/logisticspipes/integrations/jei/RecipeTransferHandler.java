@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -28,24 +29,28 @@ import logisticspipes.gui.GuiLogisticsCraftingTable;
 import logisticspipes.gui.orderer.GuiRequestTable;
 import logisticspipes.gui.popup.GuiRecipeImport;
 import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
-import logisticspipes.utils.gui.DummyContainer;
+import logisticspipes.utils.gui.IJeiScreenHolder;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 
-public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContainer, RecipeHolder<CraftingRecipe>> {
+public class RecipeTransferHandler<C extends AbstractContainerMenu & IJeiScreenHolder>
+    implements IRecipeTransferHandler<C, RecipeHolder<CraftingRecipe>> {
+
+    private final Class<C> menuClass;
 
     private final IRecipeTransferHandlerHelper recipeTransferHandlerHelper;
 
-    public RecipeTransferHandler(IRecipeTransferHandlerHelper recipeTransferHandlerHelper) {
+    public RecipeTransferHandler(Class<C> menuClass, IRecipeTransferHandlerHelper recipeTransferHandlerHelper) {
+        this.menuClass = menuClass;
         this.recipeTransferHandlerHelper = recipeTransferHandlerHelper;
     }
 
     @Override
-    public Class<? extends DummyContainer> getContainerClass() {
-        return DummyContainer.class;
+    public Class<? extends C> getContainerClass() {
+        return menuClass;
     }
 
     @Override
-    public Optional<MenuType<DummyContainer>> getMenuType() {
+    public Optional<MenuType<C>> getMenuType() {
         return Optional.empty();
     }
 
@@ -55,9 +60,9 @@ public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContai
     }
 
     @Override
-    public @Nullable IRecipeTransferError transferRecipe(DummyContainer container, RecipeHolder<CraftingRecipe> recipe,
+    public @Nullable IRecipeTransferError transferRecipe(C container, RecipeHolder<CraftingRecipe> recipe,
         IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
-        LogisticsBaseGuiScreen gui = container.guiHolderForJEI;
+        LogisticsBaseGuiScreen gui = container.getScreenForJEI();
 
         if (!(gui instanceof GuiLogisticsCraftingTable)
             && !(gui instanceof GuiRequestTable)) {

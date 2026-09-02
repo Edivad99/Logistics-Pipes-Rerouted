@@ -29,7 +29,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.interfaces.ISlotClick;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -45,16 +45,26 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.item.ItemModule;
 import network.rs485.logisticspipes.property.IBitSet;
 
-public class DummyContainer extends AbstractContainerMenu {
+public class DummyContainer extends AbstractContainerMenu implements IJeiScreenHolder {
 
-	public LogisticsBaseGuiScreen guiHolderForJEI; // This is not set for every GUI. Only for the one needed by JEI.
+	private @Nullable LogisticsBaseGuiScreen screenForJEI;
+
+	@Override
+	public @Nullable LogisticsBaseGuiScreen getScreenForJEI() {
+		return screenForJEI;
+	}
+
+	@Override
+	public void setScreenForJEI(LogisticsBaseGuiScreen screen) {
+		screenForJEI = screen;
+	}
 
 	public List<BitSet> slotsFuzzyFlags = new ArrayList<>();
     @Nullable
 	protected Container playerInventory;
     @Nullable
 	protected Container dummyInventory;
-	private final List<IGuiOpenController> controllers;
+	private final List<IScreenOpenController> controllers;
 	boolean wasDummyLookup;
 	boolean overrideMCAntiSend;
 	private final List<Slot> transferTop = new ArrayList<>();
@@ -71,13 +81,13 @@ public class DummyContainer extends AbstractContainerMenu {
 		controllers = List.of();
 	}
 
-	public DummyContainer(Player player, @Nullable Container dummyInventory, IGuiOpenController... controllers) {
+	public DummyContainer(Player player, @Nullable Container dummyInventory, IScreenOpenController... controllers) {
 		super(null, 0);
 		playerInventory = player.getInventory();
 		this.dummyInventory = dummyInventory;
 		this.controllers = List.of(controllers);
 		if (MainProxy.isServer(player.level())) {
-			this.controllers.forEach(element -> element.guiOpenedByPlayer(player));
+			this.controllers.forEach(element -> element.screenOpenedByPlayer(player));
 		}
 	}
 
@@ -477,7 +487,7 @@ public class DummyContainer extends AbstractContainerMenu {
 
 	@Override
 	public void removed(Player player) {
-		controllers.forEach(element -> element.guiClosedByPlayer(player));
+		controllers.forEach(element -> element.screenClosedByPlayer(player));
 		super.removed(player);
 	}
 

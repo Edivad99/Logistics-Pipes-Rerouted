@@ -9,11 +9,16 @@ import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -31,13 +36,10 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.IRoutedPowerProvider;
+import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.ICraftingRecipeGrid;
-import logisticspipes.interfaces.IGuiOpenController;
-import logisticspipes.interfaces.IGuiTileEntity;
-import logisticspipes.network.NewGuiHandler;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.guis.block.AutoCraftingGui;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -52,13 +54,14 @@ import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 
 public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
-    implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenController,
+    implements Container, IBlockEntityMenuProvider, ISimpleInventoryEventHandler, IScreenOpenController,
     ICraftingRecipeGrid {
 
     public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
@@ -518,17 +521,31 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    public CoordinatesGuiProvider getGuiProvider() {
-        return NewGuiHandler.getGui(AutoCraftingGui.class).setCraftingTable(this);
+    public Component getDisplayName() {
+        return Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
 
     @Override
-    public void guiOpenedByPlayer(Player player) {
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+        return new AutoCraftingMenu(containerId, inventory, this);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        IBlockEntityMenuProvider.super.writeClientSideData(menu, buffer);
+        ByteBufCodecs.optional(ItemIdentifier.STREAM_CODEC).encode(buffer, Optional.ofNullable(targetType));
+        if (isFuzzy()) {
+            buffer.writeLongArray(fuzzyFlags.copyValue().toLongArray());
+        }
+    }
+
+    @Override
+    public void screenOpenedByPlayer(Player player) {
         guiWatcher.add(player);
     }
 
     @Override
-    public void guiClosedByPlayer(Player player) {
+    public void screenClosedByPlayer(Player player) {
         guiWatcher.remove(player);
     }
 

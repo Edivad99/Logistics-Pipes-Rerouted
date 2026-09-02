@@ -15,7 +15,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -292,18 +292,18 @@ public class UpgradeManager
 		return combinedSneakyOrientation;
 	}
 
-	public IGuiOpenController getGuiController() {
-		return new IGuiOpenController() {
+	public IScreenOpenController getGuiController() {
+		return new IScreenOpenController() {
 
 			PlayerCollectionList players = new PlayerCollectionList();
 
 			@Override
-			public void guiOpenedByPlayer(Player player) {
+			public void screenOpenedByPlayer(Player player) {
 				players.add(player);
 			}
 
 			@Override
-			public void guiClosedByPlayer(Player player) {
+			public void screenClosedByPlayer(Player player) {
 				players.remove(player);
 				if (players.isEmpty() && !isCombinedSneakyUpgrade) {
 					sneakyInv.dropContents(pipe.getWorld(), pipe.getPos());

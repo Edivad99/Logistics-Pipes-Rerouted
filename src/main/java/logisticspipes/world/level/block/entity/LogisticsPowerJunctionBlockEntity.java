@@ -4,7 +4,10 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -20,18 +23,16 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConfigs;
 import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.gui.hud.HUDPowerLevel;
+import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IBlockWatchingHandler;
-import logisticspipes.interfaces.IGuiOpenController;
-import logisticspipes.interfaces.IGuiTileEntity;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IHeadUpDisplayBlockRendererProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IPowerLevelDisplay;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.guis.block.PowerJunctionGui;
 import logisticspipes.network.to_client.block.PowerJunctionLevelMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.world.inventory.PowerJunctionMenu;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.renderer.LogisticsHUDRenderer;
@@ -39,7 +40,7 @@ import logisticspipes.utils.PlayerCollectionList;
 
 @CCType(name = "LogisticsPowerJunction")
 public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
-    implements IGuiTileEntity, ILogisticsPowerProvider, IPowerLevelDisplay, IGuiOpenController,
+    implements IBlockEntityMenuProvider, ILogisticsPowerProvider, IPowerLevelDisplay, IScreenOpenController,
     IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
 
     public final static int MAX_STORAGE = 2_000_000;
@@ -269,13 +270,13 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    public void guiOpenedByPlayer(Player player) {
+    public void screenOpenedByPlayer(Player player) {
         guiListener.add(player);
         updateClients();
     }
 
     @Override
-    public void guiClosedByPlayer(Player player) {
+    public void screenClosedByPlayer(Player player) {
         guiListener.remove(player);
     }
 
@@ -342,8 +343,13 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    public CoordinatesGuiProvider getGuiProvider() {
-        return NewGuiHandler.getGui(PowerJunctionGui.class);
+    public Component getDisplayName() {
+        return Component.translatable(getBlockState().getBlock().getDescriptionId());
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+        return new PowerJunctionMenu(containerId, inventory, this);
     }
 
     public EnergyHandler getEnergyStorageCap(@Nullable Direction direction) {

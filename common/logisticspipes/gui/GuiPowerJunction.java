@@ -4,15 +4,16 @@ package logisticspipes.gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.to_server.block.PowerJunctionCheatMessage;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.world.inventory.PowerJunctionMenu;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -22,14 +23,9 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 
 	private final LogisticsPowerJunctionBlockEntity junction;
 
-	public GuiPowerJunction(Player player, LogisticsPowerJunctionBlockEntity junction) {
-		super(buildDummy(player, junction), 176, 166, 0, 0);
-		this.junction = junction;
-	}
-	private static DummyContainer buildDummy(Player player, LogisticsPowerJunctionBlockEntity junction) {
-		DummyContainer dummy = new DummyContainer(player, null, junction);
-		dummy.addNormalSlotsForPlayerInventory(8, 80);
-		return dummy;
+	public GuiPowerJunction(PowerJunctionMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 176, 166, 0, 0);
+		this.junction = menu.getBlockEntity();
 	}
 
 

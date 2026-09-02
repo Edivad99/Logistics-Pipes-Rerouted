@@ -7,8 +7,9 @@ import java.util.List;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -31,12 +32,12 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import logisticspipes.world.inventory.SecurityStationMenu;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSecurityStation extends LogisticsBaseGuiScreen implements PlayerListReciver {
@@ -69,16 +70,10 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 	protected final String title = "Request items";
 	protected boolean clickWasButton = false;
 
-	public GuiSecurityStation(LogisticsSecurityTileEntity tile, Player player) {
-		super(buildDummy(tile, player), 280, 260, 0, 0);
-		this.tile = tile;
+	public GuiSecurityStation(SecurityStationMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 280, 260, 0, 0);
+		this.tile = menu.getBlockEntity();
 		authorized = SimpleServiceLocator.securityStationManager.isAuthorized(tile.getSecId());
-	}
-	private static DummyContainer buildDummy(LogisticsSecurityTileEntity tile, Player player) {
-		DummyContainer dummy = new DummyContainer(player.getInventory(), tile.inv);
-		dummy.addRestrictedSlot(0, tile.inv, 82, 141, (Item) null);
-		dummy.addNormalSlotsForPlayerInventory(11, 176);
-		return dummy;
 	}
 
 

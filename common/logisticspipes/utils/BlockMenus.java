@@ -25,14 +25,18 @@ public final class BlockMenus {
      * block that refuses to open right now -- a chest with something sitting on top -- says so by
      * having no provider. Replaying a click stopped opening containers at all in 1.21.
      *
-     * <p>Our own blocks are asked first: they open through {@link IGuiTileEntity} rather than a
-     * vanilla {@link MenuProvider}, and have none of the latter to offer.
+     * <p>The block entity is asked before the block: our own blocks carry their own
+     * {@link MenuProvider}, and those not yet migrated still open through {@link IGuiTileEntity}
+     * with no vanilla provider to offer.
      *
      * @return whether a screen was opened
      */
     public static boolean openFor(ServerPlayer player, BlockPos pos) {
         ServerLevel level = player.level();
         final BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof MenuProvider menuProvider) {
+            return player.openMenu(menuProvider).isPresent();
+        }
         if (be instanceof IGuiTileEntity guiBlockEntity) {
             guiBlockEntity.getGuiProvider().setTilePos(be).open(player);
             return true;

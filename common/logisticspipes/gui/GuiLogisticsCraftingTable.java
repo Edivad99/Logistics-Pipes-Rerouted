@@ -4,12 +4,12 @@ import java.util.Arrays;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.to_server.crafting.CycleCraftingRecipeMessage;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -17,6 +17,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
+import logisticspipes.world.inventory.AutoCraftingMenu;
 
 public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
@@ -28,37 +29,11 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 
 	private AbstractButton[] cycleButtons = new AbstractButton[2];
 
-	public GuiLogisticsCraftingTable(Player player, LogisticsCraftingTableBlockEntity crafter) {
-		super(buildDummy(player, crafter), 176, 218, 0, 0);
-		this.crafter = crafter;
-		((DummyContainer) this.menu).guiHolderForJEI = this;
+	public GuiLogisticsCraftingTable(AutoCraftingMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 176, 218, 0, 0);
+		this.crafter = menu.getBlockEntity();
+		menu.setScreenForJEI(this);
 	}
-	private static DummyContainer buildDummy(Player player, LogisticsCraftingTableBlockEntity crafter) {
-		DummyContainer dummy = new DummyContainer(player.getInventory(), crafter.matrix);
-
-		for (int x = 0; x < 3; x++) {
-			for (int y = 0; y < 3; y++) {
-				if (crafter.isFuzzy()) {
-					dummy.addFuzzyDummySlot(y * 3 + x, 35 + x * 18, 10 + y * 18, crafter.inputFuzzy(y * 3 + x));
-				} else {
-					dummy.addDummySlot(y * 3 + x, 35 + x * 18, 10 + y * 18);
-				}
-			}
-		}
-		if (crafter.isFuzzy()) {
-			dummy.addFuzzyUnmodifiableSlot(0, crafter.resultInv, 125, 28, crafter.outputFuzzy());
-		} else {
-			dummy.addUnmodifiableSlot(0, crafter.resultInv, 125, 28);
-		}
-		for (int y = 0; y < 2; y++) {
-			for (int x = 0; x < 9; x++) {
-				dummy.addNormalSlot(y * 9 + x, crafter.inv, 8 + x * 18, 80 + y * 18);
-			}
-		}
-		dummy.addNormalSlotsForPlayerInventory(9, 136);
-		return dummy;
-	}
-
 
 	@Override
 	public void init() {

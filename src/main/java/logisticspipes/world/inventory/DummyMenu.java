@@ -19,15 +19,22 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IScreenOpenController;
+import network.rs485.logisticspipes.property.IBitSet;
 import logisticspipes.utils.gui.ColorSlot;
+import logisticspipes.utils.gui.IJeiScreenHolder;
+import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.DummySlot;
+import logisticspipes.utils.gui.FuzzyDummySlot;
+import logisticspipes.utils.gui.FuzzyUnmodifiableSlot;
 import logisticspipes.utils.gui.FluidSlot;
 import logisticspipes.utils.gui.HandelableSlot;
 import logisticspipes.utils.gui.ModuleSlot;
 import logisticspipes.utils.gui.RestrictedSlot;
 import logisticspipes.utils.gui.UnmodifiableSlot;
 
-public abstract class DummyMenu extends AbstractContainerMenu {
+public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScreenHolder {
+
+    private @Nullable LogisticsBaseGuiScreen screenForJEI;
 
     private final List<Slot> transferTop = new ArrayList<>();
     private final List<Slot> transferBottom = new ArrayList<>();
@@ -46,6 +53,16 @@ public abstract class DummyMenu extends AbstractContainerMenu {
                 openController.screenOpenedByPlayer(player);
             }
         }
+    }
+
+    @Override
+    public @Nullable LogisticsBaseGuiScreen getScreenForJEI() {
+        return screenForJEI;
+    }
+
+    @Override
+    public void setScreenForJEI(LogisticsBaseGuiScreen screen) {
+        screenForJEI = screen;
     }
 
     @Override
@@ -141,6 +158,32 @@ public abstract class DummyMenu extends AbstractContainerMenu {
 
     protected Slot addRestrictedSlot(int slotId, Container inventory, int xCoord, int yCoord, Item item) {
         return addSlot(new RestrictedSlot(inventory, slotId, xCoord, yCoord, item));
+    }
+
+    /** A slot that shows a stack without holding one, for filters and recipe grids. */
+    protected Slot addDummySlot(int slotId, Container inventory, int xCoord, int yCoord) {
+        return addSlot(new DummySlot(inventory, slotId, xCoord, yCoord));
+    }
+
+    protected Slot addFuzzyDummySlot(int slotId, Container inventory, int xCoord, int yCoord, IBitSet fuzzyFlags) {
+        return addSlot(new FuzzyDummySlot(inventory, slotId, xCoord, yCoord, fuzzyFlags));
+    }
+
+    /** A slot the player can take from but not put into, such as a crafting result. */
+    protected Slot addUnmodifiableSlot(int slotId, Container inventory, int xCoord, int yCoord) {
+        return addSlot(new UnmodifiableSlot(inventory, slotId, xCoord, yCoord));
+    }
+
+    protected Slot addFuzzyUnmodifiableSlot(int slotId, Container inventory, int xCoord, int yCoord,
+        IBitSet fuzzyFlags) {
+        return addSlot(new FuzzyUnmodifiableSlot(inventory, slotId, xCoord, yCoord, fuzzyFlags));
+    }
+
+    /** An ordinary slot, which quick-move can also reach. */
+    protected Slot addNormalSlot(int slotId, Container inventory, int xCoord, int yCoord) {
+        Slot slot = addSlot(new Slot(inventory, slotId, xCoord, yCoord));
+        transferTop.add(slot);
+        return slot;
     }
 
     protected void addNormalSlotsForPlayerInventory(Inventory inventory, int xOffset, int yOffset) {

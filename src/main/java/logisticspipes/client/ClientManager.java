@@ -37,7 +37,17 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
+import logisticspipes.gui.GuiLogisticsCraftingTable;
+import logisticspipes.gui.GuiPowerJunction;
+import logisticspipes.gui.GuiStatistics;
+import logisticspipes.gui.GuiPowerProvider;
+import logisticspipes.gui.GuiSecurityStation;
+import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.inventory.PowerJunctionMenu;
+import logisticspipes.world.inventory.PowerProviderMenu;
+import logisticspipes.world.inventory.SecurityStationMenu;
+import logisticspipes.world.inventory.StatisticsMenu;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
 import network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor;
@@ -118,5 +128,15 @@ public class ClientManager {
     private static void handleRegisterMenuScreens(RegisterMenuScreensEvent event) {
         event.register(LPMenuTypes.PROGRAM_COMPILER.get(),
             (MenuScreens.ScreenConstructor<ProgramCompilerMenu, AbstractContainerScreen<ProgramCompilerMenu>>) ProgramCompilerScreen::new);
+        event.register(LPMenuTypes.POWER_JUNCTION.get(),
+            (MenuScreens.ScreenConstructor<PowerJunctionMenu, AbstractContainerScreen<PowerJunctionMenu>>) GuiPowerJunction::new);
+        event.register(LPMenuTypes.POWER_PROVIDER.get(),
+            (MenuScreens.ScreenConstructor<PowerProviderMenu, AbstractContainerScreen<PowerProviderMenu>>) GuiPowerProvider::new);
+        event.register(LPMenuTypes.SECURITY_STATION.get(),
+            (MenuScreens.ScreenConstructor<SecurityStationMenu, AbstractContainerScreen<SecurityStationMenu>>) GuiSecurityStation::new);
+        event.register(LPMenuTypes.AUTO_CRAFTING.get(),
+            (MenuScreens.ScreenConstructor<AutoCraftingMenu, AbstractContainerScreen<AutoCraftingMenu>>) GuiLogisticsCraftingTable::new);
+        event.register(LPMenuTypes.STATISTICS.get(),
+            (MenuScreens.ScreenConstructor<StatisticsMenu, AbstractContainerScreen<StatisticsMenu>>) GuiStatistics::new);
     }
 }

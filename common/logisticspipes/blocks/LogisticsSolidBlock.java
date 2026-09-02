@@ -11,6 +11,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -71,6 +73,12 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         BlockHitResult hitResult) {
         if (!player.isCrouching()) {
             BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof MenuProvider menuProvider) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.openMenu(menuProvider);
+                }
+                return InteractionResult.SUCCESS;
+            }
             if (be instanceof IGuiTileEntity guiBlockEntity) {
                 if (!level.isClientSide()) {
                     CoordinatesGuiProvider gp = guiBlockEntity.getGuiProvider();

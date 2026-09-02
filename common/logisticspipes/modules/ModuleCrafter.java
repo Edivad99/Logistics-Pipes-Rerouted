@@ -30,7 +30,7 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IInventoryUtil;
@@ -119,7 +119,7 @@ import network.rs485.logisticspipes.property.UUIDProperty;
 import network.rs485.logisticspipes.property.UUIDPropertyKt;
 
 public class ModuleCrafter extends LogisticsModule
-		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IGuiOpenController, Gui {
+		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IScreenOpenController, Gui {
 
 	public final ItemIdentifierInventoryProperty dummyInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(11, "Requested items", 127), "dummyInv");
@@ -1183,12 +1183,12 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
+	public void screenOpenedByPlayer(Player player) {
 		guiWatcher.add(player);
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenClosedByPlayer(Player player) {
 		guiWatcher.remove(player);
 	}
 

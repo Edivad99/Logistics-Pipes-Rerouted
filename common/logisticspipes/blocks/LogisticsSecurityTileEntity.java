@@ -16,7 +16,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,12 +30,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.IRoutedPowerProvider;
-import logisticspipes.interfaces.IGuiOpenController;
-import logisticspipes.interfaces.IGuiTileEntity;
+import logisticspipes.interfaces.IBlockEntityMenuProvider;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISecurityProvider;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.guis.block.SecurityStationGui;
 import logisticspipes.network.to_client.security.SecurityStationCCIdsMessage;
 import logisticspipes.network.to_client.security.SecurityStationFlagsMessage;
 import logisticspipes.network.to_client.security.SecurityStationIdMessage;
@@ -44,12 +43,13 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import logisticspipes.world.inventory.SecurityStationMenu;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
-public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IGuiOpenController, ISecurityProvider, IGuiTileEntity {
+public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IScreenOpenController, ISecurityProvider, IBlockEntityMenuProvider {
 
 	public LogisticsSecurityTileEntity(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.SECURITY_STATION.get(), pos, state);
@@ -102,7 +102,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
+	public void screenOpenedByPlayer(Player player) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer,
 				new SecurityStationFlagsMessage(getBlockPos(), allowCC, allowAutoDestroy));
@@ -114,7 +114,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenClosedByPlayer(Player player) {
 		listener.remove(player);
 	}
 
@@ -349,8 +349,13 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	}
 
 	@Override
-	public CoordinatesGuiProvider getGuiProvider() {
-		return NewGuiHandler.getGui(SecurityStationGui.class);
+	public Component getDisplayName() {
+		return Component.translatable(getBlockState().getBlock().getDescriptionId());
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new SecurityStationMenu(containerId, inventory, this);
 	}
 
 	/**

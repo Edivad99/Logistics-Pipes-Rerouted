@@ -1,5 +1,7 @@
 package logisticspipes.blocks.stats;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -52,6 +54,21 @@ public class TrackingTask {
 		output.putInt("arrayPos", arrayPos);
 		ItemStackLoader.saveItemStack(output, item.makeNormalStack(1));
 	}
+
+	public static final StreamCodec<RegistryFriendlyByteBuf, TrackingTask> STREAM_CODEC =
+			StreamCodec.of((buffer, task) -> {
+				ItemIdentifier.STREAM_CODEC.encode(buffer, task.item);
+				buffer.writeVarInt(task.arrayPos);
+				buffer.writeLongArray(task.amountRecorded);
+			}, buffer -> {
+				TrackingTask task = new TrackingTask();
+				task.item = ItemIdentifier.STREAM_CODEC.decode(buffer);
+				task.arrayPos = buffer.readVarInt();
+				final long[] recorded = buffer.readLongArray();
+				System.arraycopy(recorded, 0, task.amountRecorded, 0,
+						Math.min(recorded.length, task.amountRecorded.length));
+				return task;
+			});
 
 	public void writeToLPData(LPDataOutput output) {
 		output.writeLongArray(amountRecorded);

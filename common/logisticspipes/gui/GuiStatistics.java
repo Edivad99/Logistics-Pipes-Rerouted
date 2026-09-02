@@ -18,6 +18,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import org.jspecify.annotations.Nullable;
 
@@ -37,6 +39,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.math.Vec2;
 import logisticspipes.utils.string.StringUtils;
+import logisticspipes.world.inventory.StatisticsMenu;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiStatistics extends LogisticsBaseGuiScreen {
@@ -53,9 +56,9 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 	private int prevMouseDragX;
 	private int prevMouseDragY;
 
-	public GuiStatistics(final LogisticsStatisticsTileEntity tile) {
-		super(180, 220, 0, 0);
-		this.tile = tile;
+	public GuiStatistics(StatisticsMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 220, 0, 0);
+		this.tile = menu.getBlockEntity();
 	}
 
 	@Override

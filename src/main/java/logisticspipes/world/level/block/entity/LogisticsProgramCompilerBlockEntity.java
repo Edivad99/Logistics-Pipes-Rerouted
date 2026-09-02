@@ -14,7 +14,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -28,6 +27,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.network.to_client.block.CompilerStatusMessage;
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
@@ -44,7 +44,7 @@ import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.component.LPDataComponents;
 
 public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEntity
-    implements IScreenOpenController, MenuProvider {
+    implements IScreenOpenController, IBlockEntityMenuProvider {
 
     public static class ProgramCategories {
 

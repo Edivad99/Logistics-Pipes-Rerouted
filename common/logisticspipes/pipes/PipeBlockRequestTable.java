@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.ICraftingRecipeGrid;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
@@ -67,7 +67,7 @@ import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.AutoCraftingContainer;
 
 public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements ISimpleInventoryEventHandler, IRequestWatcher,
-    IGuiOpenController, IRotationProvider, ICraftingRecipeGrid {
+    IScreenOpenController, IRotationProvider, ICraftingRecipeGrid {
 
 	public SimpleStackInventory diskInv = new SimpleStackInventory(1, "Disk Slot", 1);
 	public SimpleStackInventory inv = new SimpleStackInventory(27, "Crafting Resources", 64);
@@ -610,7 +610,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
+	public void screenOpenedByPlayer(Player player) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new OrdererWatchRemoveMessage(getPos(), -1));
 		}
@@ -628,7 +628,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenClosedByPlayer(Player player) {
 		localGuiWatcher.remove(player);
 	}
 

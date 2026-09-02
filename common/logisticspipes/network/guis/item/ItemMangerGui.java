@@ -3,7 +3,7 @@ package logisticspipes.network.guis.item;
 import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.gui.GuiCardManager;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.utils.CardManagementInventory;
 import logisticspipes.utils.StaticResolve;
@@ -26,13 +26,13 @@ public class ItemMangerGui extends GuiProvider {
 	@Override
 	public DummyContainer getContainer(Player player) {
 		final CardManagementInventory Cinv = new CardManagementInventory();
-		DummyContainer dummy = new DummyContainer(player, Cinv, new IGuiOpenController() {
+		DummyContainer dummy = new DummyContainer(player, Cinv, new IScreenOpenController() {
 
 			@Override
-			public void guiOpenedByPlayer(Player player) {}
+			public void screenOpenedByPlayer(Player player) {}
 
 			@Override
-			public void guiClosedByPlayer(Player player) {
+			public void screenClosedByPlayer(Player player) {
 				Cinv.close(player, (int) player.getX(), (int) player.getY(), (int) player.getZ());
 			}
 		});

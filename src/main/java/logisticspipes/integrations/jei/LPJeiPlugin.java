@@ -12,6 +12,8 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 
 import logisticspipes.LPConstants;
+import logisticspipes.utils.gui.DummyContainer;
+import logisticspipes.world.inventory.DummyMenu;
 import network.rs485.logisticspipes.gui.BaseGuiContainer;
 
 @JeiPlugin
@@ -38,7 +40,12 @@ public class LPJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         IRecipeTransferHandlerHelper transferHelper = registration.getTransferHelper();
-        registration.addRecipeTransferHandler(new RecipeTransferHandler(transferHelper), RecipeTypes.CRAFTING);
+        // Two menu bases while the GUIs move over to vanilla menus; the DummyContainer one goes
+        // with the last of them.
+        registration.addRecipeTransferHandler(
+            new RecipeTransferHandler<>(DummyContainer.class, transferHelper), RecipeTypes.CRAFTING);
+        registration.addRecipeTransferHandler(
+            new RecipeTransferHandler<>(DummyMenu.class, transferHelper), RecipeTypes.CRAFTING);
     }
 
     @Override

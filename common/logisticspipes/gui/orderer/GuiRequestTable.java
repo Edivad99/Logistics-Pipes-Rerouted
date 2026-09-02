@@ -99,7 +99,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		super(buildDummy(entityPlayer, table), 410, 240, 0, 0);
 		this.table = table;
 		this.entityPlayer = entityPlayer;
-        ((DummyContainer) this.menu).guiHolderForJEI = this;
+        ((DummyContainer) this.menu).setScreenForJEI(this);
         if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
 			dimension = this.table.getWorld().dimension().identifier();
 		} else {

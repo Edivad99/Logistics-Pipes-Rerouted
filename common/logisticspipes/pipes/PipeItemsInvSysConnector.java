@@ -30,7 +30,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.gui.hud.HUDInvSysConnector;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.interfaces.IInventoryUtil;
@@ -65,7 +65,7 @@ import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannelRoutingConnection, IHeadUpDisplayRendererProvider, IOrderManagerContentReceiver,
-        IGuiOpenController {
+        IScreenOpenController {
 
 	private boolean init = false;
 	private HashMap<ItemIdentifier, List<ItemRoutingInformation>> itemsOnRoute = new HashMap<>();
@@ -431,7 +431,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
+	public void screenOpenedByPlayer(Player player) {
 		localGuiWatchers.add(player);
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new InvSysConResistanceMessage(getPos(), resistance));
@@ -445,7 +445,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenClosedByPlayer(Player player) {
 		localGuiWatchers.remove(player);
 	}
 
