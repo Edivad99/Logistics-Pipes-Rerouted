@@ -261,7 +261,7 @@ public class LogisticsEventListener {
 
 	// Handle GuiReopen — Opening event (screen becoming visible)
 	@SubscribeEvent
-	public void onGuiOpen(ScreenEvent.Opening event) {
+	public void onScreenOpening(ScreenEvent.Opening event) {
 		// Guard: no server connection (e.g. main menu) — nothing to notify
 		if (Minecraft.getInstance().getConnection() == null) {
 			return;
@@ -272,15 +272,11 @@ public class LogisticsEventListener {
 		}
 		if (event.getScreen() instanceof AbstractContainerScreen) {
 			ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(true));
-		} else {
-			QuickSortChestMarkerStorage.getInstance().disable();
-			ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(false));
 		}
 	}
 
-	// Handle GuiReopen — Closing event (screen being dismissed without a replacement)
 	@SubscribeEvent
-	public void onGuiClose(ScreenEvent.Closing event) {
+	public void onScreenClosing(ScreenEvent.Closing event) {
 		// Guard: no server connection (e.g. main menu) — nothing to notify
 		if (Minecraft.getInstance().getConnection() == null) {
 			return;
@@ -294,6 +290,8 @@ public class LogisticsEventListener {
 			}
 		}
 		GuiOverlay.getInstance().setOverlaySlotActive(false);
+		QuickSortChestMarkerStorage.getInstance().disable();
+		ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(false));
 	}
 
 	public static void addGuiToReopen(int xCoord, int yCoord, int zCoord, int guiID) {

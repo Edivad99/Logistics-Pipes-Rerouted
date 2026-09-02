@@ -46,6 +46,7 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.renderer.GuiOverlay;
+import logisticspipes.renderer.QuickSortMarkerOverlay;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.debug.ClientViewController;
 import logisticspipes.util.DoubleCoordinates;
@@ -107,6 +108,7 @@ public class RenderTickHandler {
 		if (GuiOverlay.getInstance().isCompatibleGui()) {
 			GuiOverlay.getInstance().renderOverGui(event.getGuiGraphics());
 		}
+		QuickSortMarkerOverlay.render(event.getGuiGraphics());
 	}
 
 	/** The overlay takes the click that picks a slot, so the screen must not also see it: the player

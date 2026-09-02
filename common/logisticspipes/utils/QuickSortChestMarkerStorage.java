@@ -14,7 +14,7 @@ public class QuickSortChestMarkerStorage {
 
 	private QuickSortChestMarkerStorage() {}
 
-	private HashMap<Quartet<Integer, Integer, Integer, Integer>, Integer> marker = new HashMap<>();
+	private final HashMap<Quartet<Integer, Integer, Integer, Integer>, Integer> marker = new HashMap<>();
 
 	@Getter
 	private boolean isActivated = false;
@@ -26,6 +26,7 @@ public class QuickSortChestMarkerStorage {
 	}
 
 	public void enable() {
+		marker.clear();
 		isActivated = true;
 	}
 
