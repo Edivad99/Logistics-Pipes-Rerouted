@@ -19,7 +19,6 @@ import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.world.item.component.LPDataComponents;
 
 @StaticResolve
@@ -82,10 +81,7 @@ public class PipeController extends CoordinatesGuiProvider {
 			if (itemStack.isEmpty()) {
 				return false;
 			}
-			if (itemStack.getItem() != LPItems.ITEM_CARD.get()) {
-				return false;
-			}
-			if (itemStack.getDamageValue() != LogisticsItemCard.SEC_CARD) {
+			if (!itemStack.is(LPItems.SECURITY_CARD)) {
 				return false;
 			}
 			final UUID uuid = Objects.requireNonNull(itemStack.get(LPDataComponents.UUID));

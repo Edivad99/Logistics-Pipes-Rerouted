@@ -105,6 +105,8 @@ public class LPItems {
     // MISC
     public static final DeferredItem<LogisticsItemCard> ITEM_CARD =
         deferredRegister.registerItem("item_card", LogisticsItemCard::new);
+    public static final DeferredItem<LogisticsSecurityCard> SECURITY_CARD =
+        deferredRegister.registerItem("security_card", LogisticsSecurityCard::new);
     public static final DeferredItem<RemoteOrderer> REMOTE_ORDERER =
         deferredRegister.registerItem("remote_orderer", RemoteOrderer::new);
     public static final DeferredItem<ItemPipeSignCreator> SIGN_CREATOR =

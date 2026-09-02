@@ -31,7 +31,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.world.item.component.LPDataComponents;
 
 public class UpgradeManager
@@ -89,7 +88,7 @@ public class UpgradeManager
 		secInv.deserialize(input, "SecurityInventory_");
 
 		if (!sneakyInv.getItem(8).isEmpty()) {
-			if (sneakyInv.getItem(8).getItem() == LPItems.ITEM_CARD.get() && sneakyInv.getItem(8).getDamageValue() == LogisticsItemCard.SEC_CARD) {
+			if (sneakyInv.getItem(8).is(LPItems.SECURITY_CARD)) {
 				secInv.setItem(0, sneakyInv.getItem(8));
 				sneakyInv.setItem(8, ItemStack.EMPTY);
 			}
@@ -253,7 +252,7 @@ public class UpgradeManager
 		if (stack.isEmpty()) {
 			return;
 		}
-		if (stack.getItem() != LPItems.ITEM_CARD.get() || stack.getDamageValue() != LogisticsItemCard.SEC_CARD) {
+		if (!stack.is(LPItems.SECURITY_CARD)) {
 			return;
 		}
 
@@ -348,7 +347,7 @@ public class UpgradeManager
 				}
 			}
 		}
-		if (!itemStackInMainHand.isEmpty() && itemStackInMainHand.getItem() == LPItems.ITEM_CARD.get() && itemStackInMainHand.getDamageValue() == LogisticsItemCard.SEC_CARD) {
+		if (itemStackInMainHand.is(LPItems.SECURITY_CARD)) {
 			if (MainProxy.isClient(level)) {
 				return true;
 			}
@@ -387,7 +386,7 @@ public class UpgradeManager
 	}
 
 	public void insetSecurityID(UUID id) {
-		ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 1);
+		ItemStack stack = new ItemStack(LPItems.SECURITY_CARD.get(), 1);
 		stack.set(LPDataComponents.UUID, id);
 		secInv.setItem(0, stack);
 		InventoryChanged(secInv);

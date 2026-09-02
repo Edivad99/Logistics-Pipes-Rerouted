@@ -38,7 +38,6 @@ import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.world.item.LogisticsItemCard;
 import logisticspipes.world.item.component.LPDataComponents;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -181,10 +180,7 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 						if (itemStack.isEmpty()) {
 							return false;
 						}
-						if (itemStack.getItem() != LPItems.ITEM_CARD.get()) {
-							return false;
-						}
-						if (itemStack.getDamageValue() != LogisticsItemCard.SEC_CARD) {
+						if (!itemStack.is(LPItems.SECURITY_CARD)) {
 							return false;
 						}
 						return SimpleServiceLocator.securityStationManager

@@ -211,7 +211,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 					return;
 				}
 				if (inv.getIDStackInSlot(0) == null) {
-					ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 1);
+					ItemStack stack = new ItemStack(LPItems.SECURITY_CARD.get(), 1);
 					stack.set(LPDataComponents.UUID, getSecId());
 					inv.setItem(0, stack);
 				} else {
@@ -228,7 +228,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 					return;
 				}
-				ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 64);
+				ItemStack stack = new ItemStack(LPItems.SECURITY_CARD.get(), 64);
 				stack.set(LPDataComponents.UUID, getSecId());
 				inv.setItem(0, stack);
 				break;
