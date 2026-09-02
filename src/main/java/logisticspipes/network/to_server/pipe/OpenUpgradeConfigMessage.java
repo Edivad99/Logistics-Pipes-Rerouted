@@ -4,14 +4,16 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
 import logisticspipes.pipes.upgrades.IConfigPipeUpgrade;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
 import logisticspipes.utils.gui.UpgradeSlot;
 
 /**
@@ -43,9 +45,11 @@ public record OpenUpgradeConfigMessage(int slot) implements CustomPacketPayload 
         if (!(upgrade instanceof IConfigPipeUpgrade configurable)) {
             return;
         }
-        final UpgradeCoordinatesGuiProvider gui = configurable.getGUI();
-        if (gui != null) {
-            gui.setSlot(slot).setLPPos(slot.getManager().getPipePosition()).open(context.player());
+        if (context.player() instanceof ServerPlayer player) {
+            PacketDistributor.sendToPlayer(player, new UpgradeConfigPopupMessage(
+                    configurable.getConfigPopup(),
+                    slot.getManager().getPipePosition().getBlockPos(),
+                    message.slot));
         }
     }
 }

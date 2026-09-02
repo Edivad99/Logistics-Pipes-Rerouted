@@ -13,6 +13,24 @@ public interface ISubGuiController {
 	@Nullable SubGuiScreen getSubGui();
 
 	/**
+	 * Opens {@code popup} under the deepest sub GUI currently open.
+	 *
+	 * <p>A popup belongs to the bottom of the stack, not to this screen: opening one while another
+	 * is up would otherwise replace it.
+	 */
+	default void pushSubGui(SubGuiScreen popup) {
+		ISubGuiController deepest = this;
+		while (deepest.hasSubGui()) {
+			final SubGuiScreen sub = deepest.getSubGui();
+			if (sub == null) {
+				break;
+			}
+			deepest = sub;
+		}
+		deepest.setSubGui(popup);
+	}
+
+	/**
 	 * The nearest sub GUI of the given type in the stack below this one, or null when there is
 	 * none open.
 	 */

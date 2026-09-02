@@ -93,6 +93,7 @@ import logisticspipes.network.to_client.pipe.SatellitePipeListMessage;
 import logisticspipes.network.to_client.pipe.SendQueueContentMessage;
 import logisticspipes.network.to_client.pipe.TravellingItemContentMessage;
 import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
+import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
 import logisticspipes.network.to_client.security.PlayerListMessage;
 import logisticspipes.network.to_client.block.PowerJunctionLevelMessage;
 import logisticspipes.network.to_client.block.PowerProviderLevelMessage;
@@ -472,6 +473,8 @@ public class PacketHandler {
                 RemoteOrdererDimensionMessage.STREAM_CODEC, RemoteOrdererDimensionMessage::handle);
         registrar.playToClient(TravellingItemContentMessage.TYPE,
                 TravellingItemContentMessage.STREAM_CODEC, TravellingItemContentMessage::handle);
+        registrar.playToClient(UpgradeConfigPopupMessage.TYPE,
+                UpgradeConfigPopupMessage.STREAM_CODEC, UpgradeConfigPopupMessage::handle);
         registrar.playToClient(PipeStateMessage.TYPE,
                 PipeStateMessage.STREAM_CODEC, PipeStateMessage::handle);
         registrar.playToClient(MultiBlockPositionMessage.TYPE,

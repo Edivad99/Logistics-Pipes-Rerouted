@@ -1,19 +1,21 @@
 package logisticspipes.gui.popup;
 
 import java.util.List;
+import java.util.UUID;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.OpenAddChannelGUIPacket;
-import logisticspipes.network.packets.gui.OpenEditChannelGUIPacket;
+import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.network.to_server.channel.DeleteChannelMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -52,6 +54,22 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
 		});
 	}
 
+	/**
+	 * The station these channels answer to, or null when it has none yet.
+	 *
+	 * <p>Read from the client's own copy of the station: both popups used to be opened by asking
+	 * the server for this id and for a channel the client was already holding.
+	 */
+	private @Nullable UUID securityStationId() {
+		final Level level = Minecraft.getInstance().level;
+		if (level == null) {
+			return null;
+		}
+		return level.getBlockEntity(position) instanceof LogisticsSecurityTileEntity station
+				? station.getSecId()
+				: null;
+	}
+
 	@Override
 	public void init() {
 		super.init();
@@ -70,13 +88,13 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
 		exitBtn.setPressListener(b -> exitGui());
 		addRenderableWidget(exitBtn);
 		SmallGuiButton addBtn = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, "Add");
-		addBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenAddChannelGUIPacket.class).setBlockPos(position)));
+		addBtn.setPressListener(b -> setSubGui(new GuiAddChannelPopup(securityStationId())));
 		addRenderableWidget(addBtn);
 		SmallGuiButton editBtn = new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10, "Edit");
 		editBtn.setPressListener(b -> {
 			int selected = textList.getSelected();
 			if (selected >= 0) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenEditChannelGUIPacket.class).setIdentifier(channelList.get(selected).getChannelIdentifier().toString()).setBlockPos(position));
+				setSubGui(new GuiEditChannelPopup(securityStationId(), channelList.get(selected)));
 			}
 		});
 		addRenderableWidget(editBtn);

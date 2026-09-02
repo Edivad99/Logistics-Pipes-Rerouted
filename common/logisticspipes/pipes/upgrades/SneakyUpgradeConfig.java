@@ -18,9 +18,7 @@ import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.modules.ModuleModBasedItemSink;
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.modules.ModulePolymorphicItemSink;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
-import logisticspipes.network.guis.upgrade.SneakyUpgradeConfigGuiProvider;
+import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 
 public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
@@ -81,8 +79,8 @@ public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 	}
 
 	@Override
-	public UpgradeCoordinatesGuiProvider getGUI() {
-		return NewGuiHandler.getGui(SneakyUpgradeConfigGuiProvider.class);
+	public UpgradeConfigPopupMessage.Kind getConfigPopup() {
+		return UpgradeConfigPopupMessage.Kind.SNEAKY;
 	}
 
 	@Nullable
