@@ -44,6 +44,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -84,6 +85,22 @@ public class LogisticsEventListener {
 
 	public static final WeakHashMap<Player, List<WeakReference<AsyncQuicksortModule>>> chestQuickSortConnection = new WeakHashMap<>();
 	public static Map<ChunkPos, PlayerCollectionList> watcherList = new ConcurrentHashMap<>();
+
+	/**
+	 * Keeps an item that cannot lie in the world from being thrown away.
+	 *
+	 * <p>Without this the drop still happens and {@link #onEntitySpawn} refuses the entity, so the
+	 * stack is simply gone. Cancelling the toss leaves it where it was.
+	 */
+	@SubscribeEvent
+	public void onItemToss(ItemTossEvent event) {
+		final ItemStack stack = event.getEntity().getItem();
+		if (!stack.isEmpty() && stack.getItem() instanceof IItemAdvancedExistance existence
+				&& !existence.canExistInWorld(stack)) {
+			event.setCanceled(true);
+			event.getPlayer().getInventory().placeItemBackInInventory(stack);
+		}
+	}
 
 	@SubscribeEvent
 	public void onEntitySpawn(EntityJoinLevelEvent event) {
