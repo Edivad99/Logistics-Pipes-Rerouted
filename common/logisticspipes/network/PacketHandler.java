@@ -32,6 +32,8 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
+import logisticspipes.network.to_client.block.RunningCraftingTasksMessage;
+import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.block.BlockRotationMessage;
 import logisticspipes.network.to_client.pipe.ChassisOrientationMessage;
@@ -77,6 +79,8 @@ import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
 import logisticspipes.network.to_client.module.SneakyDirectionMessage;
 import logisticspipes.network.to_client.module.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
+import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage;
+import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
 import logisticspipes.network.to_server.orderer.DropDiskMessage;
 import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
@@ -242,6 +246,10 @@ public class PacketHandler {
                 PipeOrderWatchMessage.STREAM_CODEC, PipeOrderWatchMessage::handle);
         registrar.playToServer(RequestChassisOrientationMessage.TYPE,
                 RequestChassisOrientationMessage.STREAM_CODEC, RequestChassisOrientationMessage::handle);
+        registrar.playToServer(RequestRunningCraftingTasksMessage.TYPE,
+                RequestRunningCraftingTasksMessage.STREAM_CODEC, RequestRunningCraftingTasksMessage::handle);
+        registrar.playToServer(RequestTrackableItemsMessage.TYPE,
+                RequestTrackableItemsMessage.STREAM_CODEC, RequestTrackableItemsMessage::handle);
         registrar.playToServer(RequestPipeSignsMessage.TYPE,
                 RequestPipeSignsMessage.STREAM_CODEC, RequestPipeSignsMessage::handle);
         registrar.playToServer(DropDiskMessage.TYPE,
@@ -355,6 +363,10 @@ public class PacketHandler {
                 TravellingItemPositionMessage.STREAM_CODEC, TravellingItemPositionMessage::handle);
         registrar.playToClient(PipeFluidUpdateMessage.TYPE,
                 PipeFluidUpdateMessage.STREAM_CODEC, PipeFluidUpdateMessage::handle);
+        registrar.playToClient(RunningCraftingTasksMessage.TYPE,
+                RunningCraftingTasksMessage.STREAM_CODEC, RunningCraftingTasksMessage::handle);
+        registrar.playToClient(TrackableItemsMessage.TYPE,
+                TrackableItemsMessage.STREAM_CODEC, TrackableItemsMessage::handle);
         registrar.playToClient(PowerLaserMessage.TYPE,
                 PowerLaserMessage.STREAM_CODEC, PowerLaserMessage::handle);
         registrar.playToClient(PipeSignTypesMessage.TYPE,

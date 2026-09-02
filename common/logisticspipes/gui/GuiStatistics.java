@@ -26,11 +26,9 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
 import logisticspipes.gui.popup.GuiAddTracking;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.RequestAmountTaskSubGui;
-import logisticspipes.network.packets.block.RequestRunningCraftingTasks;
+import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage;
+import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.block.TrackItemMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -166,12 +164,12 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 		tabs.forEach(StatisticsTab::checkButtons);
 	}
 
-	public void handlePacket1(List<ItemIdentifierStack> identList) {
-		tabTracker.handlePacket(identList);
+	public void handleTrackableItems(List<ItemIdentifierStack> items) {
+		tabTracker.handlePacket(items);
 	}
 
-	public void handlePacket2(List<ItemIdentifierStack> identList) {
-		tabCrafting.handlePacket(identList);
+	public void handleRunningCraftingTasks(List<ItemIdentifierStack> tasks) {
+		tabCrafting.handlePacket(tasks);
 	}
 
 	private interface StatisticsTab {
@@ -223,7 +221,8 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 			b1.setPressListener(b -> itemDisplay.nextPage());
 			BUTTONS.add(addRenderableWidget(b1));
 			SmallGuiButton b2 = new SmallGuiButton(2, leftPos + 37, topPos + 70, 40, 20, "Add");
-			b2.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestAmountTaskSubGui.class).setTilePos(tile)));
+			b2.setPressListener(b -> ClientPacketDistributor.sendToServer(
+					new RequestTrackableItemsMessage(tile.getBlockPos())));
 			BUTTONS.add(addRenderableWidget(b2));
 			SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 83, topPos + 70, 60, 20, "Remove");
 			b3.setPressListener(b -> {
@@ -527,7 +526,8 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 		@Override
 		public void init() {
 			SmallGuiButton b6 = new SmallGuiButton(6, leftPos + 10, topPos + 40, 160, 20, TextUtil.translate(PREFIX + "gettasks"));
-			b6.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRunningCraftingTasks.class).setTilePos(tile)));
+			b6.setPressListener(b -> ClientPacketDistributor.sendToServer(
+					new RequestRunningCraftingTasksMessage(tile.getBlockPos())));
 			BUTTONS.add(addRenderableWidget(b6));
 			SmallGuiButton b7 = new SmallGuiButton(7, leftPos + 90, topPos + 65, 10, 10, "<");
 			b7.setPressListener(b -> itemDisplay.prevPage());

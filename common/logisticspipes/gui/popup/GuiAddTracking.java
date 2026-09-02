@@ -17,10 +17,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.RequestAmountTaskSubGui;
+import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.block.TrackItemMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -127,7 +125,7 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 	}
 
 	private void refreshItems() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestAmountTaskSubGui.class).setTilePos(tile));
+		ClientPacketDistributor.sendToServer(new RequestTrackableItemsMessage(tile.getBlockPos()));
 	}
 
 	@Override
