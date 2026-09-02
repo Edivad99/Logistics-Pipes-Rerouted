@@ -3,6 +3,8 @@ package logisticspipes.gui.hud;
 import java.io.IOException;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
 import lombok.SneakyThrows;
@@ -13,10 +15,10 @@ import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.network.to_server.config.SetHudSettingMessage.HudSetting;
 import logisticspipes.network.to_server.config.SetHudSettingMessage;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.world.inventory.HudSettingsMenu;
 import logisticspipes.world.item.LPItems;
 
 public class GuiHUDSettings extends LogisticsBaseGuiScreen {
@@ -24,16 +26,10 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 	private int slot;
 	private Player player;
 
-	public GuiHUDSettings(Player player, int slot) {
-		super(buildDummy(player, slot), 180, 160, 0, 0);
-		this.slot = slot;
-		this.player = player;
-	}
-	private static DummyContainer buildDummy(Player player, int slot) {
-		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
-		dummy.addRestrictedHotbarForPlayerInventory(10, 134);
-		dummy.addRestrictedArmorForPlayerInventory(10, 65);
-		return dummy;
+	public GuiHUDSettings(HudSettingsMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 160, 0, 0);
+		this.slot = menu.getSlot();
+		this.player = inventory.player;
 	}
 
 

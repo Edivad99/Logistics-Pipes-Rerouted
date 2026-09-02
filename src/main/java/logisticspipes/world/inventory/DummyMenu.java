@@ -68,7 +68,8 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
     private final Player player;
     private final BlockEntity blockEntity;
 
-    protected DummyMenu(@Nullable MenuType<?> menuType, int containerId, Player player, BlockEntity blockEntity) {
+    protected DummyMenu(@Nullable MenuType<?> menuType, int containerId, Player player,
+        @Nullable BlockEntity blockEntity) {
         super(menuType, containerId);
         this.player = player;
         this.blockEntity = blockEntity;
@@ -406,6 +407,20 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
 
     protected Slot addFuzzyDummySlot(int slotId, Container inventory, int xCoord, int yCoord, IBitSet fuzzyFlags) {
         return addSlot(new FuzzyDummySlot(inventory, slotId, xCoord, yCoord, fuzzyFlags));
+    }
+
+    /** The player's hotbar, shown but not reachable -- the screen only needs to display it. */
+    protected void addRestrictedHotbarForPlayerInventory(Inventory inventory, int xOffset, int yOffset) {
+        for (int slot = 0; slot < 9; slot++) {
+            addSlot(new UnmodifiableSlot(inventory, slot, xOffset + slot * 18, yOffset));
+        }
+    }
+
+    /** The player's armour, likewise shown but not reachable. */
+    protected void addRestrictedArmorForPlayerInventory(Inventory inventory, int xOffset, int yOffset) {
+        for (int slot = 0; slot < 4; slot++) {
+            addSlot(new UnmodifiableSlot(inventory, slot + 36, xOffset, yOffset - slot * 18));
+        }
     }
 
     /** A slot that shows a fluid as its item form, and is never taken from. */

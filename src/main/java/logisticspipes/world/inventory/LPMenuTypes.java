@@ -99,6 +99,16 @@ public class LPMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<FreqCardMenu>> FREQ_CARD =
         deferredRegister.register("freq_card", () -> pipeMenu(IFreqCardHolder.class, FreqCardMenu::new));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<HudSettingsMenu>> HUD_SETTINGS =
+        deferredRegister.register("hud_settings", () -> new MenuType<>(
+            (IContainerFactory<HudSettingsMenu>) (containerId, inventory, buffer) ->
+                new HudSettingsMenu(containerId, inventory, buffer.readVarInt()),
+            FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<LogicControllerMenu>> LOGIC_CONTROLLER =
+        deferredRegister.register("logic_controller",
+            () -> blockEntityMenu(LogisticsTileGenericPipe.class, LogicControllerMenu::new));
+
     public static final DeferredHolder<MenuType<?>, MenuType<PowerProviderMenu>> POWER_PROVIDER =
         deferredRegister.register("power_provider",
             () -> blockEntityMenu(LogisticsPowerProviderTileEntity.class, PowerProviderMenu::new));

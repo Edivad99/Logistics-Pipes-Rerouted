@@ -39,6 +39,8 @@ import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.gui.GuiFirewall;
 import logisticspipes.gui.GuiFreqCardContent;
+import logisticspipes.gui.hud.GuiHUDSettings;
+import logisticspipes.logic.gui.LogicLayoutGui;
 import logisticspipes.gui.GuiFluidBasic;
 import logisticspipes.gui.GuiFluidSupplierMk2Pipe;
 import logisticspipes.gui.GuiFluidSupplierPipe;
@@ -52,6 +54,8 @@ import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.inventory.FirewallMenu;
 import logisticspipes.world.inventory.FreqCardMenu;
+import logisticspipes.world.inventory.HudSettingsMenu;
+import logisticspipes.world.inventory.LogicControllerMenu;
 import logisticspipes.world.inventory.FluidSinkMenu;
 import logisticspipes.world.inventory.FluidSupplierMenu;
 import logisticspipes.world.inventory.FluidSupplierMk2Menu;
@@ -162,6 +166,10 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<FirewallMenu, AbstractContainerScreen<FirewallMenu>>) GuiFirewall::new);
         event.register(LPMenuTypes.FREQ_CARD.get(),
             (MenuScreens.ScreenConstructor<FreqCardMenu, AbstractContainerScreen<FreqCardMenu>>) GuiFreqCardContent::new);
+        event.register(LPMenuTypes.HUD_SETTINGS.get(),
+            (MenuScreens.ScreenConstructor<HudSettingsMenu, AbstractContainerScreen<HudSettingsMenu>>) GuiHUDSettings::new);
+        event.register(LPMenuTypes.LOGIC_CONTROLLER.get(),
+            (MenuScreens.ScreenConstructor<LogicControllerMenu, AbstractContainerScreen<LogicControllerMenu>>) LogicLayoutGui::new);
         event.register(LPMenuTypes.FLUID_SUPPLIER.get(),
             (MenuScreens.ScreenConstructor<FluidSupplierMenu, AbstractContainerScreen<FluidSupplierMenu>>) GuiFluidSupplierPipe::new);
         event.register(LPMenuTypes.FLUID_SUPPLIER_MK2.get(),

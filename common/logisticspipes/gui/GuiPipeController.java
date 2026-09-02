@@ -15,14 +15,12 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.LogicControllerPacket;
+import logisticspipes.network.to_server.block.OpenLogicControllerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.pipe.PipeOrderWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.util.DoubleCoordinates;
@@ -286,8 +284,8 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		@Override
 		public void buttonClicked(AbstractButton button) {
 			if (button == editButton) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(LogicControllerPacket.class)
-						.setTilePos(pipe.container));
+				ClientPacketDistributor.sendToServer(
+						new OpenLogicControllerMessage(pipe.container.getBlockPos()));
 			}
 		}
 

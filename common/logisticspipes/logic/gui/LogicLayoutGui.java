@@ -3,18 +3,18 @@ package logisticspipes.logic.gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
 
-import logisticspipes.logic.LogicController;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
+import logisticspipes.world.inventory.LogicControllerMenu;
 
 // import net.minecraft.client.gui.Gui; // removed — Gui is HUD class in 1.20.1, not GUI base
 
@@ -69,12 +69,9 @@ public class LogicLayoutGui extends LogisticsBaseGuiScreen {
 	private ZOOM_LEVEL zoom = ZOOM_LEVEL.NORMAL;
 
 
-	public LogicLayoutGui(LogicController controller, Player player) {
-		super(256, 202 + 90, 0, 0);
+	public LogicLayoutGui(LogicControllerMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 256, 202 + 90, 0, 0);
 		guiMapY = -200;
-		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
-		dummy.addNormalSlotsForPlayerInventory(50, 205);
-		// inventorySlots removed in 1.20.1 — menu set via super constructor
 	}
 
 	@Override
