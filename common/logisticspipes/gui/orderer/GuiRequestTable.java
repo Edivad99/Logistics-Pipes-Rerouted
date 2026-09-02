@@ -43,12 +43,13 @@ import logisticspipes.network.RemotePipeTarget;
 import logisticspipes.network.packets.block.ClearCraftingGridPacket;
 import logisticspipes.network.packets.block.CraftingCycleRecipe;
 import logisticspipes.network.packets.orderer.DiskRequestConectPacket;
-import logisticspipes.network.packets.orderer.OrdererRefreshRequestPacket;
 import logisticspipes.network.packets.orderer.RequestSubmitListPacket;
+import logisticspipes.network.to_server.RequestOrdererRefreshMessage;
 import logisticspipes.network.to_server.SimulateRequestMessage;
 import logisticspipes.network.to_server.SubmitRequestMessage;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
@@ -386,12 +387,8 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	public void refreshItems() {
-		int integer = switch (displayOptions) {
-            case Both -> 0;
-            case SupplyOnly -> 1;
-            case CraftOnly -> 2;
-        };
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setTilePos(table.container).setDimension(dimension));
+        ClientPacketDistributor.sendToServer(new RequestOrdererRefreshMessage(
+                new RemotePipeTarget(dimension, table.container.getBlockPos()), displayOptions));
 	}
 
 	private SmallGuiButton wire(SmallGuiButton btn, int id) {
@@ -698,9 +695,4 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		return itemDisplay;
 	}
 
-	private enum DisplayOptions {
-		Both,
-		SupplyOnly,
-		CraftOnly,
-	}
 }

@@ -44,6 +44,7 @@ import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.ItemSinkImportedItemsMessage;
 import logisticspipes.network.to_client.ModuleInventoryMessage;
 import logisticspipes.network.to_client.ModulePropertiesMessage;
+import logisticspipes.network.to_client.OrdererWatchRemoveMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
 import logisticspipes.network.to_client.PipePropertiesMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
@@ -67,6 +68,8 @@ import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
 import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.PipeHudWatchMessage;
+import logisticspipes.network.to_server.RequestFluidOrdererRefreshMessage;
+import logisticspipes.network.to_server.RequestOrdererRefreshMessage;
 import logisticspipes.network.to_server.RequestPipeContentMessage;
 import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
 import logisticspipes.network.to_server.RequestSecurityStationCCIdsMessage;
@@ -186,6 +189,10 @@ public class PacketHandler {
                 SetSecurityStationCCIdMessage.STREAM_CODEC, SetSecurityStationCCIdMessage::handle);
         registrar.playToServer(ToggleSecurityStationFlagMessage.TYPE,
                 ToggleSecurityStationFlagMessage.STREAM_CODEC, ToggleSecurityStationFlagMessage::handle);
+        registrar.playToServer(RequestFluidOrdererRefreshMessage.TYPE,
+                RequestFluidOrdererRefreshMessage.STREAM_CODEC, RequestFluidOrdererRefreshMessage::handle);
+        registrar.playToServer(RequestOrdererRefreshMessage.TYPE,
+                RequestOrdererRefreshMessage.STREAM_CODEC, RequestOrdererRefreshMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -259,6 +266,8 @@ public class PacketHandler {
                 SecurityStationFlagsMessage.STREAM_CODEC, SecurityStationFlagsMessage::handle);
         registrar.playToClient(SecurityStationIdMessage.TYPE,
                 SecurityStationIdMessage.STREAM_CODEC, SecurityStationIdMessage::handle);
+        registrar.playToClient(OrdererWatchRemoveMessage.TYPE,
+                OrdererWatchRemoveMessage.STREAM_CODEC, OrdererWatchRemoveMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
                 CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,

@@ -1,22 +1,19 @@
 package logisticspipes.gui.orderer;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.OrdererRefreshRequestPacket;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.RemotePipeTarget;
+import logisticspipes.network.to_server.RequestOrdererRefreshMessage;
+import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 
 public class NormalGuiOrderer extends GuiOrderer {
-
-	private enum DisplayOptions {
-		Both,
-		SupplyOnly,
-		CraftOnly,
-	}
 
 	private DisplayOptions displayOptions = DisplayOptions.Both;
 
@@ -56,12 +53,8 @@ public class NormalGuiOrderer extends GuiOrderer {
 
 	@Override
 	public void refreshItems() {
-		int integer = switch (displayOptions) {
-            case Both -> 0;
-            case SupplyOnly -> 1;
-            case CraftOnly -> 2;
-        };
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(OrdererRefreshRequestPacket.class).putInt(integer).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
+        ClientPacketDistributor.sendToServer(new RequestOrdererRefreshMessage(
+                new RemotePipeTarget(dimension, new BlockPos(xCoord, yCoord, zCoord)), displayOptions));
 	}
 
 	@Override

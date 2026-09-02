@@ -5,12 +5,10 @@ import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.RemotePipeTarget;
-import logisticspipes.network.packets.orderer.RequestFluidOrdererRefreshPacket;
+import logisticspipes.network.to_server.RequestFluidOrdererRefreshMessage;
 import logisticspipes.network.to_server.SubmitFluidRequestMessage;
 import logisticspipes.pipes.PipeFluidRequestLogistics;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -50,7 +48,8 @@ public class FluidGuiOrderer extends GuiOrderer {
 
 	@Override
 	public void refreshItems() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestFluidOrdererRefreshPacket.class).setPosX(xCoord).setPosY(yCoord).setPosZ(zCoord).setDimension(dimension));
+		ClientPacketDistributor.sendToServer(new RequestFluidOrdererRefreshMessage(
+				new RemotePipeTarget(dimension, new BlockPos(xCoord, yCoord, zCoord))));
 	}
 
 	@Override

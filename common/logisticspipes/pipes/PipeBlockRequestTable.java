@@ -28,6 +28,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
@@ -40,8 +41,8 @@ import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.CraftingSetType;
 import logisticspipes.network.packets.block.RequestRotationPacket;
-import logisticspipes.network.packets.orderer.OrderWatchRemovePacket;
 import logisticspipes.network.packets.orderer.OrdererWatchPacket;
+import logisticspipes.network.to_client.OrdererWatchRemoveMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
@@ -143,7 +144,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		while (iter.hasNext()) {
 			Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry = iter.next();
 			if (isDone(entry.getValue().getValue2())) {
-				MainProxy.sendToPlayerList(PacketHandler.getPacket(OrderWatchRemovePacket.class).putInt(entry.getKey()).setTilePos(container), localGuiWatcher);
+				localGuiWatcher.send(new OrdererWatchRemoveMessage(getPos(), entry.getKey()));
 				iter.remove();
 			}
 		}
@@ -584,7 +585,9 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 
 	@Override
 	public void guiOpenedByPlayer(Player player) {
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrderWatchRemovePacket.class).putInt(-1).setTilePos(container), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new OrdererWatchRemoveMessage(getPos(), -1));
+		}
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), player);
 		localGuiWatcher.add(player);
 		for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
