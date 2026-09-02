@@ -510,8 +510,12 @@ public class DummyContainer extends AbstractContainerMenu implements IJeiScreenH
 		}
 	}
 
-	// @Override // canDragIntoSlot may not be in AbstractContainerMenu in 1.20.1
-	public boolean canDragIntoSlot(Slot slot) {
+	/**
+	 * A drag either fills ghost slots or moves real items, never both: which one is decided by the
+	 * first slot the drag reaches.
+	 */
+	@Override
+	public boolean canDragTo(Slot slot) {
 		if (slot instanceof UnmodifiableSlot || slot instanceof FluidSlot || slot instanceof ColorSlot || slot instanceof HandelableSlot) {
 			return false;
 		}
