@@ -13,12 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.base.Preconditions;
 
@@ -34,12 +36,10 @@ import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleCrafter;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.OrdererManagerContent;
+import logisticspipes.network.to_client.orderer.OrderManagerContentMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.CraftingPipeSign;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCQueued;
 import logisticspipes.proxy.computers.interfaces.CCType;
@@ -180,7 +180,9 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 	public void playerStartWatching(Player player, WatchMode mode) {
 		if (mode == WatchMode.HUD) {
 			localModeWatchers.add(player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(oldList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new OrderManagerContentMessage(getPos(), List.copyOf(oldList)));
+			}
 			craftingModule.startWatching(player);
 		} else {
 			super.playerStartWatching(player, mode);
@@ -205,7 +207,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe implements ICraft
 		if (!oldList.equals(all)) {
 			oldList.clear();
 			oldList.addAll(all);
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(all).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+			localModeWatchers.send(new OrderManagerContentMessage(getPos(), List.copyOf(all)));
 		}
 	}
 

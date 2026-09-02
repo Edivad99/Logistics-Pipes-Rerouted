@@ -43,7 +43,7 @@ import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.guis.pipe.InvSysConGuiProvider;
 import logisticspipes.network.packets.gui.ChannelInformationPacket;
-import logisticspipes.network.packets.orderer.OrdererManagerContent;
+import logisticspipes.network.to_client.orderer.OrderManagerContentMessage;
 import logisticspipes.network.to_client.pipe.InvSysConResistanceMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.particle.Particles;
@@ -396,7 +396,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 			Set<ItemIdentifierStack> newList = getExpectedItems();
 			if (!newList.equals(oldList)) {
 				oldList = newList;
-				MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererManagerContent.class).setIdentSet(newList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+				localModeWatchers.send(new OrderManagerContentMessage(getPos(), List.copyOf(newList)));
 			}
 		}
 	}
@@ -405,7 +405,9 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 	public void playerStartWatching(Player player, WatchMode mode) {
 		if (mode == WatchMode.HUD) {
 			localModeWatchers.add(player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererManagerContent.class).setIdentSet(getExpectedItems()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new OrderManagerContentMessage(getPos(), List.copyOf(getExpectedItems())));
+			}
 		} else {
 			super.playerStartWatching(player, mode);
 		}

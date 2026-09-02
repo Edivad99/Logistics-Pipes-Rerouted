@@ -51,6 +51,9 @@ import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.block.BlockRotationMessage;
 import logisticspipes.network.to_client.module.QuickSortMarkerMessage;
+import logisticspipes.network.to_client.orderer.OrderManagerContentMessage;
+import logisticspipes.network.to_client.orderer.OrdererContentMessage;
+import logisticspipes.network.to_client.pipe.ChassisModuleContentMessage;
 import logisticspipes.network.to_client.pipe.ChassisOrientationMessage;
 import logisticspipes.network.to_client.block.CompilerStatusMessage;
 import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
@@ -110,6 +113,7 @@ import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.network.to_server.orderer.DropDiskMessage;
 import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
 import logisticspipes.network.to_server.orderer.RequestDiskMacroMessage;
+import logisticspipes.network.to_server.orderer.SubmitRequestListMessage;
 import logisticspipes.network.to_server.pipe.ChangeFluidSupplierAmountMessage;
 import logisticspipes.network.to_server.crafting.ClearCraftingGridMessage;
 import logisticspipes.network.to_server.crafting.CrafterCleanupImportMessage;
@@ -324,6 +328,8 @@ public class PacketHandler {
                 SaveSecuritySettingsMessage.STREAM_CODEC, SaveSecuritySettingsMessage::handle);
         registrar.playToServer(SubmitRequestMessage.TYPE,
                 SubmitRequestMessage.STREAM_CODEC, SubmitRequestMessage::handle);
+        registrar.playToServer(SubmitRequestListMessage.TYPE,
+                SubmitRequestListMessage.STREAM_CODEC, SubmitRequestListMessage::handle);
         registrar.playToServer(SimulateRequestMessage.TYPE,
                 SimulateRequestMessage.STREAM_CODEC, SimulateRequestMessage::handle);
         registrar.playToServer(SubmitFluidRequestMessage.TYPE,
@@ -421,6 +427,12 @@ public class PacketHandler {
                 InvSysConContentMessage.STREAM_CODEC, InvSysConContentMessage::handle);
         registrar.playToClient(SendQueueContentMessage.TYPE,
                 SendQueueContentMessage.STREAM_CODEC, SendQueueContentMessage::handle);
+        registrar.playToClient(ChassisModuleContentMessage.TYPE,
+                ChassisModuleContentMessage.STREAM_CODEC, ChassisModuleContentMessage::handle);
+        registrar.playToClient(OrdererContentMessage.TYPE,
+                OrdererContentMessage.STREAM_CODEC, OrdererContentMessage::handle);
+        registrar.playToClient(OrderManagerContentMessage.TYPE,
+                OrderManagerContentMessage.STREAM_CODEC, OrderManagerContentMessage::handle);
         registrar.playToClient(PlayerConfigMessage.TYPE,
                 PlayerConfigMessage.STREAM_CODEC, PlayerConfigMessage::handle);
         registrar.playToClient(AskForDebugTargetMessage.TYPE,

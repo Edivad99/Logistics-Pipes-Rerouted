@@ -32,6 +32,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.gui.popup.GuiRequestPopup;
+import logisticspipes.interfaces.IAvailableItemsReceiver;
 import logisticspipes.interfaces.ISpecialItemRenderer;
 import logisticspipes.network.RemotePipeTarget;
 import logisticspipes.network.to_server.orderer.SimulateRequestMessage;
@@ -51,7 +52,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer {
+public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer, IAvailableItemsReceiver {
 
 	public final Player entityPlayer;
 	public ItemDisplay itemDisplay;
@@ -86,7 +87,8 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 
 	public abstract void refreshItems();
 
-	public void handlePacket(Collection<ItemIdentifierStack> allItems) {
+	@Override
+	public void setAvailableItems(Collection<ItemIdentifierStack> allItems) {
 		itemDisplay.setItemList(allItems.stream().filter(Objects::nonNull).collect(Collectors.toList()));
 	}
 

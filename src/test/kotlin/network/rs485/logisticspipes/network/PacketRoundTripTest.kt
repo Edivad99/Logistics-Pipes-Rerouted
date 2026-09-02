@@ -45,14 +45,10 @@ import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
-import logisticspipes.network.packets.pipe.ChassisPipeModuleContent
 import logisticspipes.network.packets.pipe.RequestPipeDimension
-import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 import logisticspipes.util.LPDataIOWrapper
 import org.junit.jupiter.api.BeforeAll
 import kotlin.test.Test
@@ -178,25 +174,6 @@ class PacketRoundTripTest {
     fun `ModuleCoordinatesPacket round trip`() {
         assertModule(roundTrip(CraftingPipeOpenConnectedGuiPacket(ANY_ID).withModule()))
     }
-
-    @Test
-    fun `InventoryModuleCoordinatesPacket round trip`() {
-        val stacks = NonNullList.of(
-            ItemStack.EMPTY,
-            ItemStack(Items.COBBLESTONE, 5),
-            ItemStack(Items.STICK, 2),
-        )
-        val actual = roundTrip(ChassisPipeModuleContent(ANY_ID).withModule().apply { setStackList(stacks) })
-        assertModule(actual)
-        // A stack list goes out under STACK_MARKER and comes back as a stack list, not as the
-        // identifier list the same packet can also carry.
-        assertEquals(2, actual.stackList.size)
-        assertEquals(Items.COBBLESTONE, actual.stackList[0].item)
-        assertEquals(5, actual.stackList[0].count)
-        assertEquals(Items.STICK, actual.stackList[1].item)
-    }
-
-    // ── level 4+: the deepest chains ─────────────────────────────────────────
 
     // ── the null branches, which are where asymmetries hide ──────────────────
 

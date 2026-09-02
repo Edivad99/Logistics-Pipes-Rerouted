@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -21,12 +20,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.routing.IRequestFluid;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.OrdererContent;
+import logisticspipes.network.to_client.orderer.OrdererContentMessage;
 import logisticspipes.network.to_client.orderer.RequestAnswerMessage;
 import logisticspipes.network.to_client.orderer.RequestComponentsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.RequestTree.ActiveRequestType;
 import logisticspipes.request.resources.IResource;
@@ -124,7 +121,7 @@ public class RequestHandler {
 			}
 			allItems.add(item.makeStack(0));
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class).setIdentSet(allItems), player);
+		sendToPlayer(player, new OrdererContentMessage(List.copyOf(allItems)));
 	}
 
 	public static void requestList(final Player player, final List<ItemIdentifierStack> list, final CoreRoutedPipe pipe) {
@@ -221,13 +218,9 @@ public class RequestHandler {
 
 	public static void refreshFluid(Player player, CoreRoutedPipe pipe) {
 		TreeSet<FluidIdentifierStack> allItems = SimpleServiceLocator.logisticsFluidManager.getAvailableFluid(pipe.getRouter().getIRoutersByCost());
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class)
-						.setIdentSet(
-								allItems.stream()
-										.map(item -> new ItemIdentifierStack(item.getFluid().getItemIdentifier(), item.getAmount()))
-										.collect(Collectors.toCollection(TreeSet::new))
-						)
-				, player);
+		sendToPlayer(player, new OrdererContentMessage(allItems.stream()
+				.map(item -> new ItemIdentifierStack(item.getFluid().getItemIdentifier(), item.getAmount()))
+				.toList()));
 	}
 
 	public static void requestFluid(final Player player, final ItemIdentifierStack stack, CoreRoutedPipe pipe, IRequestFluid requester) {

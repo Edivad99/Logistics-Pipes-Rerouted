@@ -36,12 +36,12 @@ import logisticspipes.LPConfigs;
 import logisticspipes.gui.popup.GuiDiskPopup;
 import logisticspipes.gui.popup.GuiRequestPopup;
 import logisticspipes.gui.popup.RequestMonitorPopup;
+import logisticspipes.interfaces.IAvailableItemsReceiver;
 import logisticspipes.interfaces.IChainAddList;
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.interfaces.ISpecialItemRenderer;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.RemotePipeTarget;
-import logisticspipes.network.packets.orderer.RequestSubmitListPacket;
+import logisticspipes.network.to_server.orderer.SubmitRequestListMessage;
 import logisticspipes.network.to_server.crafting.ClearCraftingGridMessage;
 import logisticspipes.network.to_server.crafting.CycleCraftingRecipeMessage;
 import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
@@ -49,7 +49,6 @@ import logisticspipes.network.to_server.orderer.RequestOrdererRefreshMessage;
 import logisticspipes.network.to_server.orderer.SimulateRequestMessage;
 import logisticspipes.network.to_server.orderer.SubmitRequestMessage;
 import logisticspipes.pipes.PipeBlockRequestTable;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.IOrderInfoProvider;
@@ -74,7 +73,8 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.LPItems;
 import network.rs485.logisticspipes.util.TextUtil;
 
-public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer, IDiskProvider {
+public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer, IDiskProvider,
+		IAvailableItemsReceiver {
 
 	public final PipeBlockRequestTable table;
 	public final Player entityPlayer;
@@ -509,7 +509,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			}
 			list.removeIf(itemIdentifierStack -> itemIdentifierStack.getStackSize() <= 0);
 			if (!list.isEmpty()) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitListPacket.class).setIdentList(list).setTilePos(table.container));
+				ClientPacketDistributor.sendToServer(new SubmitRequestListMessage(table.getPos(), list));
 				refreshItems();
 			}
 		}
@@ -519,7 +519,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		ArrayList<ItemIdentifierStack> list = new ArrayList<>(9);
 		list.addAll(table.matrix.getItemsAndCount().entrySet().stream()
 				.map(e -> e.getKey().makeStack(e.getValue() * multiplier)).toList());
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSubmitListPacket.class).setIdentList(list).setTilePos(table.container));
+		ClientPacketDistributor.sendToServer(new SubmitRequestListMessage(table.getPos(), list));
 		refreshItems();
 	}
 
@@ -527,7 +527,8 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		return 64;
 	}
 
-	public void handlePacket(Collection<ItemIdentifierStack> allItems) {
+	@Override
+	public void setAvailableItems(Collection<ItemIdentifierStack> allItems) {
 		itemDisplay.setItemList(allItems.stream().filter(Objects::nonNull).collect(Collectors.toList()));
 	}
 

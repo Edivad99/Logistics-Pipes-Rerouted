@@ -66,9 +66,8 @@ import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.ChassisModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
+import logisticspipes.network.to_client.pipe.ChassisModuleContentMessage;
 import logisticspipes.network.to_client.pipe.ChassisOrientationMessage;
 import logisticspipes.network.to_client.pipe.SendQueueContentMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
@@ -434,10 +433,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		}
 		if (MainProxy.isServer(getWorld())) {
 			if (!localModeWatchers.isEmpty()) {
-				MainProxy.sendToPlayerList(PacketHandler.getPacket(ChassisPipeModuleContent.class)
-						.setIdentList(ItemIdentifierStack.getListFromInventory(moduleInventory))
-						.setPosX(getX()).setPosY(getY()).setPosZ(getZ()),
-						localModeWatchers);
+				localModeWatchers.send(new ChassisModuleContentMessage(getPos(),
+						ItemIdentifierStack.getListFromInventory(moduleInventory)));
 			}
 		}
 	}
@@ -593,8 +590,9 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		if (mode == WatchMode.HUD) {
 			updateModuleInventory(player.registryAccess());
 			localModeWatchers.add(player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChassisPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
 			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new ChassisModuleContentMessage(getPos(),
+						ItemIdentifierStack.getListFromInventory(moduleInventory)));
 				PacketDistributor.sendToPlayer(serverPlayer, new SendQueueContentMessage(
 					getPos(), ItemIdentifierStack.getListSendQueue(sendQueue)));
 			}
