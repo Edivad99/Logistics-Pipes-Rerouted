@@ -58,6 +58,7 @@ import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
 import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
 import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
+import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
 import logisticspipes.network.to_client.security.PlayerListMessage;
 import logisticspipes.network.to_client.block.PowerJunctionLevelMessage;
 import logisticspipes.network.to_client.block.PowerProviderLevelMessage;
@@ -348,6 +349,8 @@ public class PacketHandler {
                 OrderWatchMessage.STREAM_CODEC, OrderWatchMessage::handle);
         registrar.playToClient(PipeOrdersMessage.TYPE,
                 PipeOrdersMessage.STREAM_CODEC, PipeOrdersMessage::handle);
+        registrar.playToClient(TravellingItemPositionMessage.TYPE,
+                TravellingItemPositionMessage.STREAM_CODEC, TravellingItemPositionMessage::handle);
         registrar.playToClient(PipeSignTypesMessage.TYPE,
                 PipeSignTypesMessage.STREAM_CODEC, PipeSignTypesMessage::handle);
         registrar.playToClient(PipeItemBufferMessage.TYPE,

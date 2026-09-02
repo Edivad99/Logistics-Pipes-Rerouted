@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import net.minecraft.core.Direction;
@@ -46,9 +47,10 @@ import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.network.packets.pipe.PipeContentPacket;
-import logisticspipes.network.packets.pipe.PipePositionPacket;
 import logisticspipes.network.to_client.pipe.PipeItemBufferMessage;
+import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeContentMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -725,7 +727,12 @@ public class PipeTransportLogistics {
 				MainProxy.sendPacketToAllWatchingChunk(container, (PacketHandler.getPacket(PipeContentPacket.class).setItem(item.getItemIdentifierStack()).setTravelId(item.getId())));
 				LPTravelingItem.clientSideKnownIDs.set(item.getId());
 			}
-			MainProxy.sendPacketToAllWatchingChunk(container, (PacketHandler.getPacket(PipePositionPacket.class).setSpeed(item.getSpeed()).setPosition(item.getPosition()).setInput(item.input).setOutput(item.output).setTravelId(item.getId()).setYaw(item.getYaw()).setTilePos(container)));
+			TargetLookup.sendToChunkWatchers(container, new TravellingItemPositionMessage(
+				container.getBlockPos(),
+				item.getId(),
+				new TravellingItemPositionMessage.Motion(item.getPosition(), item.getSpeed(), item.getYaw()),
+				Optional.ofNullable(item.input),
+				Optional.ofNullable(item.output)));
 		}
 	}
 
