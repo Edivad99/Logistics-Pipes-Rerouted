@@ -7,19 +7,22 @@
 
 package logisticspipes.routing.order;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.PipeManagerContentPacket;
+import logisticspipes.network.to_client.PipeOrdersMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.PlayerCollectionList;
@@ -177,9 +180,17 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 		return orders.getFirst().isWatched();
 	}
 
+	private PipeOrdersMessage contentMessage() {
+		final List<IOrderInfoProvider> content = new ArrayList<>();
+		orders.forEach(content::add);
+		return new PipeOrdersMessage(pos.getLPPosition().getBlockPos(), content);
+	}
+
 	public void startWatching(Player player) {
 		watchingPlayers.add(player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeManagerContentPacket.class).setManager(this).setLPPos(pos.getLPPosition()), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, contentMessage());
+		}
 	}
 
 	public void stopWatching(Player player) {
@@ -197,7 +208,7 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 		//if(!oldOrders.equals(_orders)) {
 		//	oldOrders.clear();
 		//	oldOrders.addAll(_orders);
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PipeManagerContentPacket.class).setManager(this).setLPPos(pos.getLPPosition()), watchingPlayers);
+		watchingPlayers.send(contentMessage());
 		//}
 	}
 

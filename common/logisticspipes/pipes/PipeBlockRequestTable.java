@@ -41,9 +41,8 @@ import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.OrdererWatchPacket;
 import logisticspipes.network.to_client.CraftingTargetMessage;
+import logisticspipes.network.to_client.OrderWatchMessage;
 import logisticspipes.network.to_client.OrdererWatchRemoveMessage;
 import logisticspipes.network.to_server.RequestBlockRotationMessage;
 import logisticspipes.particle.Particles;
@@ -149,7 +148,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			checkForExpired();
 			if (getUpgradeManager().hasCraftingMonitoringUpgrade()) {
 				for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
-					MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).putInt(entry.getKey()).setTilePos(container), localGuiWatcher);
+					localGuiWatcher.send(new OrderWatchMessage(getPos(), entry.getKey(),
+						entry.getValue().getValue1(), entry.getValue().getValue2()));
 				}
 			}
 		} else if (tick % 20 == 0) {
@@ -601,7 +601,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 		orders.setWatched();
 		watchedRequests.put(++localLastUsedWatcherId, new Pair<>(stack, orders));
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(orders).setStack(stack).putInt(localLastUsedWatcherId).setTilePos(container), localGuiWatcher);
+		localGuiWatcher.send(new OrderWatchMessage(getPos(), localLastUsedWatcherId, stack, orders));
 	}
 
 	@Override
@@ -615,7 +615,10 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 		localGuiWatcher.add(player);
 		for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).putInt(entry.getKey()).setTilePos(container), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new OrderWatchMessage(getPos(), entry.getKey(),
+					entry.getValue().getValue1(), entry.getValue().getValue2()));
+			}
 		}
 	}
 
