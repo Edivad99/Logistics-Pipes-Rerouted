@@ -59,6 +59,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
 import logisticspipes.interfaces.ITubeOrientation;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockBlock;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.ticks.QueuedTasks;
@@ -207,7 +208,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = false;
 						LogisticsBlockGenericPipe.pipeSubMultiRemoved.put(new DoubleCoordinates(pos), pipe.container.getBlockPos());
 					} else {
-						MainProxy.sendPacketToAllWatchingChunk(tile, ((LogisticsTileGenericSubMultiBlock) tile).getLPDescriptionPacket());
+						TargetLookup.sendToChunkWatchers(tile, ((LogisticsTileGenericSubMultiBlock) tile).getDescriptionMessage());
 					}
 				}
 			}
@@ -291,7 +292,7 @@ public class LogisticsBlockGenericPipe extends LPMicroblockBlock {
 						if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
 							((LogisticsTileGenericSubMultiBlock) subTile).addMultiBlockMainPos(placeAt);
 							((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(pos.getType());
-							MainProxy.sendPacketToAllWatchingChunk(subTile, ((LogisticsTileGenericSubMultiBlock) subTile).getLPDescriptionPacket());
+							TargetLookup.sendToChunkWatchers(subTile, ((LogisticsTileGenericSubMultiBlock) subTile).getDescriptionMessage());
 						} else {
 							level.setBlock(pos.getBlockPos(), LPBlocks.SUB_MULTIBLOCK.get().defaultBlockState(), 3);
 							subTile = level.getBlockEntity(pos.getBlockPos());

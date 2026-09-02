@@ -9,12 +9,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.ValueInput;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -23,7 +20,6 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-import com.mojang.serialization.Codec;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
@@ -35,6 +31,7 @@ import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
+import logisticspipes.network.to_client.block.MultiBlockPositionMessage;
 import logisticspipes.network.to_client.block.RunningCraftingTasksMessage;
 import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.network.to_client.config.PlayerConfigMessage;
@@ -86,6 +83,7 @@ import logisticspipes.network.to_client.pipe.PipeOrdersMessage;
 import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
 import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
 import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
+import logisticspipes.network.to_client.pipe.PipeStateMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_client.pipe.PowerLaserMessage;
 import logisticspipes.network.to_client.pipe.RemoteOrdererDimensionMessage;
@@ -111,6 +109,7 @@ import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
 import logisticspipes.network.to_client.module.SneakyDirectionMessage;
 import logisticspipes.network.to_client.module.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
+import logisticspipes.network.to_server.block.PowerJunctionCheatMessage;
 import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage;
 import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.channel.DeleteChannelMessage;
@@ -121,6 +120,9 @@ import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessag
 import logisticspipes.network.to_server.crafting.FindLikelyRecipeComponentsMessage;
 import logisticspipes.network.to_server.debug.DebugTargetMessage;
 import logisticspipes.network.to_server.gui.DummySlotClickMessage;
+import logisticspipes.network.to_server.gui.SetGhostSlotMessage;
+import logisticspipes.network.to_server.module.OpenAttachedCrafterGuiMessage;
+import logisticspipes.network.to_server.module.OpenSneakyDirectionGuiMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.network.to_server.orderer.DropDiskMessage;
 import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
@@ -178,7 +180,6 @@ import logisticspipes.network.to_server.block.TriggerCompilerTaskMessage;
 import logisticspipes.network.to_server.pipe.UntraceRoutingMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.util.LPDataIOWrapper;
 import logisticspipes.util.LPDataInput;
 import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolverUtil;
@@ -347,6 +348,14 @@ public class PacketHandler {
                 RequestRoutingLasersMessage.STREAM_CODEC, RequestRoutingLasersMessage::handle);
         registrar.playToServer(FindLikelyRecipeComponentsMessage.TYPE,
                 FindLikelyRecipeComponentsMessage.STREAM_CODEC, FindLikelyRecipeComponentsMessage::handle);
+        registrar.playToServer(SetGhostSlotMessage.TYPE,
+                SetGhostSlotMessage.STREAM_CODEC, SetGhostSlotMessage::handle);
+        registrar.playToServer(PowerJunctionCheatMessage.TYPE,
+                PowerJunctionCheatMessage.STREAM_CODEC, PowerJunctionCheatMessage::handle);
+        registrar.playToServer(OpenAttachedCrafterGuiMessage.TYPE,
+                OpenAttachedCrafterGuiMessage.STREAM_CODEC, OpenAttachedCrafterGuiMessage::handle);
+        registrar.playToServer(OpenSneakyDirectionGuiMessage.TYPE,
+                OpenSneakyDirectionGuiMessage.STREAM_CODEC, OpenSneakyDirectionGuiMessage::handle);
         registrar.playToServer(SimulateRequestMessage.TYPE,
                 SimulateRequestMessage.STREAM_CODEC, SimulateRequestMessage::handle);
         registrar.playToServer(SubmitFluidRequestMessage.TYPE,
@@ -460,6 +469,10 @@ public class PacketHandler {
                 RemoteOrdererDimensionMessage.STREAM_CODEC, RemoteOrdererDimensionMessage::handle);
         registrar.playToClient(TravellingItemContentMessage.TYPE,
                 TravellingItemContentMessage.STREAM_CODEC, TravellingItemContentMessage::handle);
+        registrar.playToClient(PipeStateMessage.TYPE,
+                PipeStateMessage.STREAM_CODEC, PipeStateMessage::handle);
+        registrar.playToClient(MultiBlockPositionMessage.TYPE,
+                MultiBlockPositionMessage.STREAM_CODEC, MultiBlockPositionMessage::handle);
         registrar.playToClient(ToggleClientPipeDebugMessage.TYPE,
                 ToggleClientPipeDebugMessage.STREAM_CODEC, ToggleClientPipeDebugMessage::handle);
         registrar.playToClient(LikelyRecipeComponentsMessage.TYPE,
@@ -645,62 +658,6 @@ public class PacketHandler {
         packet.setDebugId(input.readInt());
         packet.readData(input);
         return packet;
-    }
-
-    /** NBT key holding the payload name of an embedded packet. */
-    private static final String NBT_PACKET_NAME = "LogisticsPipes:PacketName";
-    /** NBT key holding the debug id and body of an embedded packet. */
-    private static final String NBT_PACKET_DATA = "LogisticsPipes:PacketData";
-
-    /**
-     * Embeds a packet in a block entity's update tag, the one path that carries an LP packet
-     * outside the payload channel. The packet is named here too, for the same reason it is named
-     * when sent: nothing should depend on a numeric id whose value comes from a classpath scan.
-     *
-     * <p>This rides {@code getUpdateTag}, which is chunk sync and never reaches disk, so the
-     * encoding is free to change with the mod.
-     */
-    public static void addPacketToNBT(ModernPacket packet, CompoundTag nbt) {
-        nbt.putString(NBT_PACKET_NAME, LPPayloadTypes.entryFor(packet).name().toString());
-        nbt.putByteArray(NBT_PACKET_DATA, LPDataIOWrapper.collectData(output -> {
-            output.writeInt(packet.getDebugId());
-            packet.writeData(output);
-        }));
-    }
-
-    /**
-     * Reads back the packet {@link #addPacketToNBT} embedded in an update tag and queues it.
-     *
-     * <p>Takes a {@link ValueInput} because that is what {@code handleUpdateTag} hands out since
-     * 1.21.6. It has no byte-array accessor, so the payload comes back through
-     * {@code Codec.BYTE_BUFFER}, which NbtOps maps onto the same ByteArrayTag the writer produces.
-     * The keys are no longer removed afterwards -- a ValueInput is read-only, and leaving them
-     * costs nothing since the block entity ignores unknown keys.</p>
-     */
-    public static void queuePacketFromUpdateTag(ValueInput input) {
-        byte[] data = input.read(NBT_PACKET_DATA, Codec.BYTE_BUFFER)
-            .map(buffer -> {
-                byte[] copy = new byte[buffer.remaining()];
-                buffer.duplicate().get(copy);
-                return copy;
-            })
-            .orElse(new byte[0]);
-        if (data.length == 0) {
-            return;
-        }
-        final Identifier name = Identifier.parse(input.getStringOr(NBT_PACKET_NAME, ""));
-        final LPPayloadTypes.Entry entry = LPPayloadTypes.entryFor(name);
-        if (entry == null) {
-            LogisticsPipes.LOG.error("Update tag carries unknown LP packet {}", name);
-            return;
-        }
-        LPDataIOWrapper.provideData(data, Minecraft.getInstance().getConnection() != null ? Minecraft.getInstance().getConnection().registryAccess() : null, dataInput -> {
-            final ModernPacket packet = entry.template().template();
-            packet.setDebugId(dataInput.readInt());
-            packet.readData(dataInput);
-            Player localPlayer = Minecraft.getInstance().player;
-            SimpleServiceLocator.clientBufferHandler.queuePacket(packet, Objects.requireNonNull(localPlayer));
-        });
     }
 
     // ── Sending ──────────────────────────────────────────────────────────────

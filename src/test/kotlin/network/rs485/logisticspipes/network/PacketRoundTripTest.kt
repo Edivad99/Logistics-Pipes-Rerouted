@@ -43,9 +43,6 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType
 import logisticspipes.network.abstractpackets.CoordinatesPacket
 import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
-import logisticspipes.network.packets.ActivateNBTDebug
-import logisticspipes.network.packets.block.PowerJunctionCheatPacket
-import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
@@ -143,36 +140,35 @@ class PacketRoundTripTest {
 
     @Test
     fun `ModernPacket carries the dimension`() {
-        // Any packet that chains into ModernPacket.writeData picks the dimension up;
-        // PowerJunctionCheatPacket adds nothing of its own beyond the coordinates.
-        val actual = roundTrip(PowerJunctionCheatPacket(ANY_ID).withDimension())
+        // Any packet that chains into ModernPacket.writeData picks the dimension up.
+        val actual = roundTrip(SampleCoordsPacket(ANY_ID).withDimension())
         assertEquals(Identifier.parse("logisticspipes:test_dimension"), actual.dimension)
     }
 
     @Test
     fun `a packet that overrides writeData without super carries no payload at all`() {
-        // ActivateNBTDebug deliberately writes nothing -- not even the dimension, since
-        // it never chains into ModernPacket. Pinning that down so the day someone "fixes" the
-        // empty override, the asymmetry it would introduce is caught here and not in multiplayer.
+        // Such a packet writes nothing -- not even the dimension, since it never chains into
+        // ModernPacket. Pinning that down so the day someone "fixes" the empty override, the
+        // asymmetry it would introduce is caught here and not in multiplayer.
         val registries = registries()
         val data = LPDataIOWrapper.collectData(registries) { output ->
-            ActivateNBTDebug(ANY_ID).withDimension().writeData(output)
+            SampleSilentPacket(ANY_ID).withDimension().writeData(output)
         }
-        assertEquals(0, data.size, "ActivateNBTDebug is expected to serialize to nothing")
+        assertEquals(0, data.size, "a packet that does not chain is expected to serialize to nothing")
     }
 
     // ── level 2: CoordinatesPacket ───────────────────────────────────────────
 
     @Test
     fun `CoordinatesPacket round trip`() {
-        assertCoords(roundTrip(CraftingPipeOpenConnectedGuiPacket(ANY_ID).withModule()))
+        assertCoords(roundTrip(SampleCoordsPacket(ANY_ID).withCoords()))
     }
 
     // ── level 3: ModuleCoordinatesPacket ─────────────────────────────────────
 
     @Test
     fun `ModuleCoordinatesPacket round trip`() {
-        assertModule(roundTrip(CraftingPipeOpenConnectedGuiPacket(ANY_ID).withModule()))
+        assertModule(roundTrip(SampleModulePacket(ANY_ID).withModule()))
     }
 
     // ── the null branches, which are where asymmetries hide ──────────────────
@@ -181,7 +177,7 @@ class PacketRoundTripTest {
     fun `ModuleCoordinatesPacket with no module type round trips`() {
         // The module block is written behind a boolean; the unset branch is the one that
         // silently desyncs if the read side ever stops mirroring it.
-        val actual = roundTrip(CraftingPipeOpenConnectedGuiPacket(ANY_ID).withCoords())
+        val actual = roundTrip(SampleModulePacket(ANY_ID).withCoords())
         assertCoords(actual)
         assertEquals(null, actual.type)
     }

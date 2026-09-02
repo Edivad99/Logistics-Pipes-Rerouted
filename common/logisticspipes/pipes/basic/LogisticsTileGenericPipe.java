@@ -50,11 +50,10 @@ import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.logic.LogicController;
 import logisticspipes.logic.interfaces.ILogicControllerTile;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.pipe.PipeTileStatePacket;
+import logisticspipes.network.UpdateTagPayload;
 import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
+import logisticspipes.network.to_client.pipe.PipeStateMessage;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockTileEntity;
 import logisticspipes.proxy.MainProxy;
@@ -64,6 +63,7 @@ import logisticspipes.renderer.LogisticsTileRenderController;
 import logisticspipes.renderer.state.PipeRenderState;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.changedetection.TEControl;
+import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.util.DoubleCoordinates;
@@ -266,7 +266,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 		if (sendClientUpdate) {
 			sendClientUpdate = false;
-			MainProxy.sendPacketToAllWatchingChunk(this, getLPDescriptionPacket());
+			TargetLookup.sendToChunkWatchers(this, PipeStateMessage.of(this));
 		}
 
 		getRenderController().onUpdate();
@@ -298,17 +298,18 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
 		sendInitPacket = true;
 		CompoundTag nbt = saveWithoutMetadata(registries);
-		try {
-			PacketHandler.addPacketToNBT(getLPDescriptionPacket(), nbt);
-		} catch (Exception e) {
-			LogisticsPipes.LOG.error("Failed to embed LP description packet in update tag at {}", getBlockPos(), e);
-		}
+		UpdateTagPayload.write(nbt, PipeStateMessage.STREAM_CODEC, describeForClient());
 		return nbt;
 	}
 
 	@Override
 	public void handleUpdateTag(ValueInput input) {
-		PacketHandler.queuePacketFromUpdateTag(input);
+		PipeStateMessage message = UpdateTagPayload.read(input, PipeStateMessage.STREAM_CODEC);
+		if (message != null) {
+			// The block entity is still being placed: applying the state now would light a block
+			// update on a level that does not have it yet.
+			ClientTaskQueue.add(() -> message.applyTo(this));
+		}
 		super.handleUpdateTag(input);
 	}
 
@@ -716,7 +717,8 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 
 	/* SMP */
 
-	public ModernPacket getLPDescriptionPacket() {
+	/** The pipe's current client state, with the render state brought up to date first. */
+	public PipeStateMessage describeForClient() {
 		bindPipe();
 		// Ensure renderState carries fresh per-pipe data before snapshotting it into
 		// the description packet — otherwise the initial chunk-send (via getUpdateTag)
@@ -727,16 +729,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			refreshRenderState();
 		}
 
-		PipeTileStatePacket packet = PacketHandler.getPacket(PipeTileStatePacket.class);
-
-		packet.setTilePos(this);
-
-		packet.setCoreState(coreState);
-		packet.setRenderState(renderState);
-		packet.setPipe(pipe);
-		packet.setStatePacketId(statePacketId++);
-
-		return packet;
+		return PipeStateMessage.of(this);
 	}
 
 	public void afterStateUpdated() {

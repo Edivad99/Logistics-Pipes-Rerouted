@@ -10,7 +10,6 @@ import logisticspipes.commands.commands.ClearCommand;
 import logisticspipes.commands.commands.DebugCommand;
 import logisticspipes.commands.commands.DummyCommand;
 import logisticspipes.commands.commands.DumpCommand;
-import logisticspipes.commands.commands.NBTDebugCommand;
 import logisticspipes.commands.commands.NameLookupCommand;
 import logisticspipes.commands.commands.RoutingThreadCommand;
 import logisticspipes.commands.commands.TestCommand;
@@ -38,7 +37,6 @@ public class MainCommandHandler extends SubCommandHandler {
 	@Override
 	public void registerSubCommands() {
 		registerSubCommand(new DummyCommand());
-		registerSubCommand(new NBTDebugCommand());
 		registerSubCommand(new RoutingThreadCommand());
 		registerSubCommand(new NameLookupCommand());
 		registerSubCommand(new DumpCommand());

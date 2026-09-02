@@ -42,8 +42,6 @@ import io.netty.buffer.Unpooled
 import logisticspipes.network.LPPayloadTypes
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.abstractpackets.ModernPacket
-import logisticspipes.network.packets.ActivateNBTDebug
-import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -101,17 +99,17 @@ class LPPayloadTypesTest {
 
     @Test
     fun `a packet name is derived from its class, not its position`() {
-        buildTableOf(CraftingPipeOpenConnectedGuiPacket(0), ActivateNBTDebug(1))
-        val first = LPPayloadTypes.entryFor(CraftingPipeOpenConnectedGuiPacket(0)).name()
+        buildTableOf(SampleCoordsPacket(0), SampleModernPacket(1))
+        val first = LPPayloadTypes.entryFor(SampleCoordsPacket(0)).name()
 
         // Same class, different id, different neighbours in the table.
-        buildTableOf(ActivateNBTDebug(0), CraftingPipeOpenConnectedGuiPacket(7))
-        val second = LPPayloadTypes.entryFor(CraftingPipeOpenConnectedGuiPacket(7)).name()
+        buildTableOf(SampleModernPacket(0), SampleCoordsPacket(7))
+        val second = LPPayloadTypes.entryFor(SampleCoordsPacket(7)).name()
 
         assertEquals(first, second, "the payload name must not depend on the packet table")
         assertEquals(
             Identifier.parse(
-                "logisticspipes:logisticspipes/network/packets/cpipe/craftingpipeopenconnectedguipacket",
+                "logisticspipes:network/rs485/logisticspipes/network/samplecoordspacket",
             ),
             first,
         )
@@ -119,10 +117,10 @@ class LPPayloadTypesTest {
 
     @Test
     fun `different packets get different names`() {
-        buildTableOf(CraftingPipeOpenConnectedGuiPacket(0), ActivateNBTDebug(1))
+        buildTableOf(SampleCoordsPacket(0), SampleModernPacket(1))
         assertNotEquals(
-            LPPayloadTypes.entryFor(CraftingPipeOpenConnectedGuiPacket(0)).name(),
-            LPPayloadTypes.entryFor(ActivateNBTDebug(1)).name(),
+            LPPayloadTypes.entryFor(SampleCoordsPacket(0)).name(),
+            LPPayloadTypes.entryFor(SampleModernPacket(1)).name(),
         )
     }
 
@@ -130,7 +128,7 @@ class LPPayloadTypesTest {
     fun `null slots in the packet table are skipped`() {
         // A class that failed to construct on this side leaves a null. It used to be load-bearing:
         // the slot had to stay so every later id kept its value. Now it is simply skipped.
-        val table = listOf(null, CraftingPipeOpenConnectedGuiPacket(1), null)
+        val table = listOf(null, SampleCoordsPacket(1), null)
         PacketHandler.packetlist = table
         LPPayloadTypes.build(table)
 
@@ -140,8 +138,8 @@ class LPPayloadTypesTest {
 
     @Test
     fun `payload codec round trips a packet with its debug id`() {
-        buildTableOf(CraftingPipeOpenConnectedGuiPacket(0))
-        val packet = CraftingPipeOpenConnectedGuiPacket(0).apply {
+        buildTableOf(SampleCoordsPacket(0))
+        val packet = SampleCoordsPacket(0).apply {
             setDimension(Identifier.parse("logisticspipes:test_dimension"))
             posX = 1
             posY = 2
@@ -153,7 +151,7 @@ class LPPayloadTypesTest {
         val buf = buffer()
         try {
             entry.codec().encode(buf, LPPayloadTypes.payloadFor(packet))
-            val actual = entry.codec().decode(buf).packet() as CraftingPipeOpenConnectedGuiPacket
+            val actual = entry.codec().decode(buf).packet() as SampleCoordsPacket
 
             assertEquals(99, actual.debugId)
             assertEquals(3, actual.posZ)
@@ -165,8 +163,8 @@ class LPPayloadTypesTest {
 
     @Test
     fun `payloadFor reports a packet that was never registered`() {
-        buildTableOf(CraftingPipeOpenConnectedGuiPacket(0))
-        val error = runCatching { LPPayloadTypes.payloadFor(ActivateNBTDebug(1)) }.exceptionOrNull()
+        buildTableOf(SampleCoordsPacket(0))
+        val error = runCatching { LPPayloadTypes.payloadFor(SampleModernPacket(1)) }.exceptionOrNull()
         assertEquals(IllegalStateException::class, error!!::class)
     }
 }

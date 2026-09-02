@@ -40,7 +40,6 @@ package network.rs485.logisticspipes.network
 import network.rs485.logisticspipes.TestBootstrap
 import io.netty.buffer.Unpooled
 import logisticspipes.network.ModernPacketCodec
-import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -78,8 +77,8 @@ class ModernPacketCodecTest {
         RegistryFriendlyByteBuf(Unpooled.buffer(), registries(), ConnectionType.OTHER)
 
     /** A packet with a coordinate and a value, filled in at every level of its chain. */
-    private fun samplePacket(): CraftingPipeOpenConnectedGuiPacket =
-        CraftingPipeOpenConnectedGuiPacket(PACKET_ID).apply {
+    private fun samplePacket(): SampleCoordsPacket =
+        SampleCoordsPacket(PACKET_ID).apply {
             setDimension(Identifier.parse("logisticspipes:test_dimension"))
             posX = 12
             posY = -34

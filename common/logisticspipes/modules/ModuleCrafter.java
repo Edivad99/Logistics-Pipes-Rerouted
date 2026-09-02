@@ -57,13 +57,12 @@ import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.CraftingModuleInHand;
 import logisticspipes.network.guis.module.inpipe.CraftingModuleSlot;
-import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket;
+import logisticspipes.network.to_server.module.OpenAttachedCrafterGuiMessage;
 import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.crafting.FluidCraftingAmountMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
@@ -770,8 +769,7 @@ public class ModuleCrafter extends LogisticsModule
 	public boolean openAttachedGui(Player player) {
 		if (MainProxy.isClient(player.level())) {
 			player.closeContainer();
-			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(CraftingPipeOpenConnectedGuiPacket.class).setModulePos(this));
+			ClientPacketDistributor.sendToServer(new OpenAttachedCrafterGuiMessage(ModuleTarget.of(this)));
 			return false;
 		}
 

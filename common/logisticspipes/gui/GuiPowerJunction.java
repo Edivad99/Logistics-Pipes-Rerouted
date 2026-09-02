@@ -6,11 +6,11 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.PowerJunctionCheatPacket;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_server.block.PowerJunctionCheatMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
@@ -60,8 +60,8 @@ public class GuiPowerJunction extends LogisticsBaseGuiScreen {
 		super.init();
 		if (LogisticsPipes.isDEBUG()) {
 			logisticspipes.utils.gui.SmallGuiButton cheat = new logisticspipes.utils.gui.SmallGuiButton(0, leftPos + 140, topPos + 20, 20, 20, "+");
-			cheat.setPressListener(b -> MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(PowerJunctionCheatPacket.class).setTilePos(junction)));
+			cheat.setPressListener(b ->
+					ClientPacketDistributor.sendToServer(new PowerJunctionCheatMessage(junction.getBlockPos())));
 			addRenderableWidget(cheat);
 		}
 	}

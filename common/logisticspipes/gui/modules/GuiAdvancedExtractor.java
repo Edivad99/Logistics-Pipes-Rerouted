@@ -14,10 +14,8 @@ import net.minecraft.world.Container;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.module.AdvancedExtractorSneakyGuiPacket;
+import logisticspipes.network.to_server.module.OpenSneakyDirectionGuiMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
@@ -64,7 +62,8 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 				() -> itemsIncludedOverlay.write(BooleanProperty::toggle)));
 
 		logisticspipes.utils.gui.SmallGuiButton sneaky = new logisticspipes.utils.gui.SmallGuiButton(1, width / 2 - 25, height / 2 - 34, 40, 20, "Sneaky");
-		sneaky.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(AdvancedExtractorSneakyGuiPacket.class).setModulePos(advancedExtractor)));
+		sneaky.setPressListener(b -> ClientPacketDistributor.sendToServer(
+				new OpenSneakyDirectionGuiMessage(ModuleTarget.of(advancedExtractor))));
 		addRenderableWidget(sneaky);
 	}
 
