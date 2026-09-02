@@ -35,7 +35,7 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.guis.module.inhand.ActiveSupplierInHand;
 import logisticspipes.network.guis.module.inpipe.ActiveSupplierSlot;
-import logisticspipes.network.to_client.ModuleInventoryMessage;
+import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.basic.debug.StatusEntry;

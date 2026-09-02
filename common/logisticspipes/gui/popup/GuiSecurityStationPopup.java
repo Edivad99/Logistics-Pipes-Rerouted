@@ -6,7 +6,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.LogisticsSecurityTileEntity.SecurityPermissions;
-import logisticspipes.network.to_server.SaveSecuritySettingsMessage;
+import logisticspipes.network.to_server.security.SaveSecuritySettingsMessage;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;

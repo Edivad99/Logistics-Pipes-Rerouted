@@ -6,8 +6,8 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.RemotePipeTarget;
-import logisticspipes.network.to_server.RequestFluidOrdererRefreshMessage;
-import logisticspipes.network.to_server.SubmitFluidRequestMessage;
+import logisticspipes.network.to_server.orderer.RequestFluidOrdererRefreshMessage;
+import logisticspipes.network.to_server.orderer.SubmitFluidRequestMessage;
 import logisticspipes.pipes.PipeFluidRequestLogistics;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.SmallGuiButton;

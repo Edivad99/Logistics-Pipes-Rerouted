@@ -22,7 +22,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.network.to_client.PipeOrdersMessage;
+import logisticspipes.network.to_client.pipe.PipeOrdersMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.PlayerCollectionList;

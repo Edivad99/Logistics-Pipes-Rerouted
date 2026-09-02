@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.to_client.DiskContentMessage;
+import logisticspipes.network.to_client.block.DiskContentMessage;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;

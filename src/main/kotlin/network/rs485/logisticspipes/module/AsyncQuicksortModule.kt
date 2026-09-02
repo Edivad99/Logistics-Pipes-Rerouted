@@ -44,12 +44,10 @@ import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
 import logisticspipes.LPConfigs
 import logisticspipes.interfaces.IInventoryUtil
-import logisticspipes.network.PacketHandler
 import logisticspipes.network.ModuleTarget
-import logisticspipes.network.to_client.QuickSortStateMessage
+import logisticspipes.network.to_client.module.QuickSortStateMessage
 import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
-import logisticspipes.proxy.MainProxy
 import logisticspipes.routing.AsyncRouting
 import logisticspipes.routing.ServerRouter
 import logisticspipes.utils.PlayerCollectionList

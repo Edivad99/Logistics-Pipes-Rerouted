@@ -49,8 +49,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor
 
 import logisticspipes.modules.ModuleItemSink
 import logisticspipes.network.ModuleTarget
-import logisticspipes.network.to_server.ItemSinkImportRequestMessage
-import logisticspipes.network.to_server.SetModulePropertiesMessage
+import logisticspipes.network.to_server.module.ItemSinkImportRequestMessage
+import logisticspipes.network.to_server.module.SetModulePropertiesMessage
 import logisticspipes.utils.Color
 import logisticspipes.utils.item.ItemIdentifier
 import net.minecraft.client.Minecraft

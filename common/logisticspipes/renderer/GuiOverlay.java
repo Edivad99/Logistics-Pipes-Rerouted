@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.to_server.SlotFinderSlotMessage;
+import logisticspipes.network.to_server.crafting.SlotFinderSlotMessage;
 import logisticspipes.utils.gui.SimpleGraphics;
 
 /**

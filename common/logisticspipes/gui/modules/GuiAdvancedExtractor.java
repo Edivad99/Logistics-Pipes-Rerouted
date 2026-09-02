@@ -16,7 +16,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.module.AdvancedExtractorSneakyGuiPacket;
-import logisticspipes.network.to_server.SetModulePropertiesMessage;
+import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;

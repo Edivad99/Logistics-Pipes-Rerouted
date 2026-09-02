@@ -7,7 +7,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.gui.hud.BasicHUDGui;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
-import logisticspipes.network.to_server.UntraceRoutingMessage;
+import logisticspipes.network.to_server.pipe.UntraceRoutingMessage;
 import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;

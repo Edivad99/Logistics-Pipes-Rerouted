@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.to_server.SetPipePropertiesMessage;
+import logisticspipes.network.to_server.pipe.SetPipePropertiesMessage;
 import logisticspipes.pipes.PipeFluidTerminus;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;

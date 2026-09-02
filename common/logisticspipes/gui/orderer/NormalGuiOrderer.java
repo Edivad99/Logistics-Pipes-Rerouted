@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.RemotePipeTarget;
-import logisticspipes.network.to_server.RequestOrdererRefreshMessage;
+import logisticspipes.network.to_server.orderer.RequestOrdererRefreshMessage;
 import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;

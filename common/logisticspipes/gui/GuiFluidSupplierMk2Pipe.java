@@ -14,7 +14,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
-import logisticspipes.network.to_server.ChangeFluidSupplierAmountMessage;
+import logisticspipes.network.to_server.pipe.ChangeFluidSupplierAmountMessage;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
 import logisticspipes.utils.gui.DummyContainer;

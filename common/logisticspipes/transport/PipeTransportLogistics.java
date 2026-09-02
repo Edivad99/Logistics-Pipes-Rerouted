@@ -49,7 +49,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.ItemBufferSyncPacket;
 import logisticspipes.network.packets.pipe.PipeContentPacket;
 import logisticspipes.network.packets.pipe.PipePositionPacket;
-import logisticspipes.network.to_server.RequestPipeContentMessage;
+import logisticspipes.network.to_server.pipe.RequestPipeContentMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;

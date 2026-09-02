@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.to_client.PlayerListMessage;
+import logisticspipes.network.to_client.security.PlayerListMessage;
 import logisticspipes.util.LPDataInput;
 import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;

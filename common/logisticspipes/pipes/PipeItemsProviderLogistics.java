@@ -31,7 +31,7 @@ import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleProvider;
-import logisticspipes.network.to_server.PipeHudWatchMessage;
+import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;

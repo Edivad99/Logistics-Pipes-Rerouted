@@ -27,7 +27,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.gui.GuiLogisticsCraftingTable;
 import logisticspipes.gui.orderer.GuiRequestTable;
 import logisticspipes.gui.popup.GuiRecipeImport;
-import logisticspipes.network.to_server.ImportCraftingRecipeMessage;
+import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 

@@ -29,7 +29,7 @@ import logisticspipes.gui.popup.GuiAddTracking;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.RequestAmountTaskSubGui;
 import logisticspipes.network.packets.block.RequestRunningCraftingTasks;
-import logisticspipes.network.to_server.TrackItemMessage;
+import logisticspipes.network.to_server.block.TrackItemMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.ItemDisplay;

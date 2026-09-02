@@ -54,7 +54,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.pipe.PipeTileStatePacket;
-import logisticspipes.network.to_client.PipeRenderUpdateMessage;
+import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockTileEntity;
 import logisticspipes.proxy.MainProxy;

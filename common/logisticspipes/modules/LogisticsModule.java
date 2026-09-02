@@ -25,7 +25,7 @@ import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.interfaces.IWorldProvider;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.to_server.ModuleWatchMessage;
+import logisticspipes.network.to_server.module.ModuleWatchMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;

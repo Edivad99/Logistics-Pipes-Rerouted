@@ -20,7 +20,7 @@ import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.InvSysConContentRequest;
 import logisticspipes.network.packets.pipe.InvSysConOpenSelectChannelPopupPacket;
-import logisticspipes.network.to_server.SetInvSysConResistanceMessage;
+import logisticspipes.network.to_server.pipe.SetInvSysConResistanceMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;

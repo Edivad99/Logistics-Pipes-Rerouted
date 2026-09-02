@@ -22,7 +22,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.modules.ModuleActiveSupplier;
-import logisticspipes.network.to_client.SlotFinderActivateMessage;
+import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;

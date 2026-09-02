@@ -19,7 +19,7 @@ import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.RequestAmountTaskSubGui;
-import logisticspipes.network.to_server.TrackItemMessage;
+import logisticspipes.network.to_server.block.TrackItemMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;

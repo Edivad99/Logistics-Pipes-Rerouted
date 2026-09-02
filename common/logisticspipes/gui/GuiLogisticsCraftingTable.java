@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.to_server.CycleCraftingRecipeMessage;
+import logisticspipes.network.to_server.crafting.CycleCraftingRecipeMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;

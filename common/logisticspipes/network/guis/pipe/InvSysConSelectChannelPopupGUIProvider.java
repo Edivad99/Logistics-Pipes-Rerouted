@@ -7,7 +7,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.gui.popup.GuiSelectChannelPopup;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.network.abstractpackets.ChannelInformationListCoordinatesPopupGuiProvider;
-import logisticspipes.network.to_server.SetInvSysConChannelMessage;
+import logisticspipes.network.to_server.pipe.SetInvSysConChannelMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;

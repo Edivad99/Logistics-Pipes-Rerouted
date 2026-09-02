@@ -18,7 +18,7 @@ import net.minecraft.world.item.Items;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.to_server.TriggerCompilerTaskMessage;
+import logisticspipes.network.to_server.block.TriggerCompilerTaskMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;

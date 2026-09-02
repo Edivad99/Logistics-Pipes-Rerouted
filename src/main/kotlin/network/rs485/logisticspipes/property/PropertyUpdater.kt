@@ -42,7 +42,7 @@ import net.neoforged.neoforge.network.PacketDistributor
 
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.network.ModuleTarget
-import logisticspipes.network.to_client.ModulePropertiesMessage
+import logisticspipes.network.to_client.module.ModulePropertiesMessage
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.ProblemReporter
 import net.minecraft.world.entity.player.Player

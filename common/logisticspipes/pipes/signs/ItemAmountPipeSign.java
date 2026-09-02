@@ -27,7 +27,7 @@ import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.guis.item.ItemAmountSignGui;
-import logisticspipes.network.to_client.ItemAmountSignMessage;
+import logisticspipes.network.to_client.pipe.ItemAmountSignMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;

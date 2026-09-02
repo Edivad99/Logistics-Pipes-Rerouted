@@ -22,7 +22,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.LPConstants;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.to_server.SetSneakyDirectionMessage;
+import logisticspipes.network.to_server.module.SetSneakyDirectionMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import network.rs485.logisticspipes.module.SneakyDirection;
 

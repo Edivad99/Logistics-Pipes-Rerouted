@@ -10,7 +10,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.network.to_server.SetSecurityStationCCIdMessage;
+import logisticspipes.network.to_server.security.SetSecurityStationCCIdMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;

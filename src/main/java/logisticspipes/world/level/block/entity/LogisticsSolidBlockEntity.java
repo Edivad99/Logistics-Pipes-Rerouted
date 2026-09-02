@@ -14,7 +14,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
-import logisticspipes.network.to_server.RequestBlockRotationMessage;
+import logisticspipes.network.to_server.block.RequestBlockRotationMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.util.DoubleCoordinates;
 

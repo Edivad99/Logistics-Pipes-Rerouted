@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.FindMostLikelyRecipeComponents;
-import logisticspipes.network.to_server.ImportCraftingRecipeMessage;
+import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;

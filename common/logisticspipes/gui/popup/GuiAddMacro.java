@@ -19,7 +19,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.IDiskProvider;
-import logisticspipes.network.to_server.SaveDiskContentMessage;
+import logisticspipes.network.to_server.block.SaveDiskContentMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ItemTooltip;

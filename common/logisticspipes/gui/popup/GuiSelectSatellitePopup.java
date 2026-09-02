@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.to_server.RequestSatellitePipeListMessage;
+import logisticspipes.network.to_server.pipe.RequestSatellitePipeListMessage;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;

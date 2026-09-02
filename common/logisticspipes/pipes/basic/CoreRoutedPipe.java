@@ -93,7 +93,7 @@ import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.network.guis.pipe.PipeController;
 import logisticspipes.network.packets.pipe.PipeSignTypes;
 import logisticspipes.network.packets.pipe.RequestSignPacket;
-import logisticspipes.network.to_client.PipeStatsMessage;
+import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.pipes.basic.debug.DebugLogController;

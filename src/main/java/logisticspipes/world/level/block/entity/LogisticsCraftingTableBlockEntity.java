@@ -36,7 +36,7 @@ import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.guis.block.AutoCraftingGui;
-import logisticspipes.network.to_client.CraftingTargetMessage;
+import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.util.ItemStackLoader;

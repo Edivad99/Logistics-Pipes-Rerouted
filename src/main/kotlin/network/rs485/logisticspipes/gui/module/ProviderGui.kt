@@ -49,7 +49,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor
 
 import logisticspipes.modules.ModuleProvider
 import logisticspipes.network.ModuleTarget
-import logisticspipes.network.to_server.SetModulePropertiesMessage
+import logisticspipes.network.to_server.module.SetModulePropertiesMessage
 import logisticspipes.utils.Color
 import net.minecraft.client.Minecraft
 import net.minecraft.world.Container

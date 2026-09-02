@@ -27,7 +27,7 @@ import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
+import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.utils.item.ItemIdentifierStack;

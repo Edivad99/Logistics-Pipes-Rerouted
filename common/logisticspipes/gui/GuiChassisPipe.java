@@ -24,7 +24,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.guis.pipe.ChassisGuiProvider;
 import logisticspipes.network.packets.chassis.ChassisGUI;
 import logisticspipes.network.packets.gui.GuiClosePacket;
-import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
+import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.proxy.MainProxy;

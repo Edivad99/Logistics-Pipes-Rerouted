@@ -36,7 +36,7 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.orderer.OrdererManagerContent;
-import logisticspipes.network.to_server.PipeHudWatchMessage;
+import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.CraftingPipeSign;
 import logisticspipes.proxy.MainProxy;

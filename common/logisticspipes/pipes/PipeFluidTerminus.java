@@ -45,7 +45,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.guis.pipe.FluidTerminusGui;
-import logisticspipes.network.to_client.PipePropertiesMessage;
+import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.utils.FluidSinkReply.FixedFluidPriority;

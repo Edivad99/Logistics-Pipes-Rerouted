@@ -45,15 +45,13 @@ import network.rs485.logisticspipes.util.matchingSequence
 import logisticspipes.gui.hud.modules.HUDAdvancedExtractor
 import logisticspipes.interfaces.*
 import logisticspipes.network.NewGuiHandler
-import logisticspipes.network.PacketHandler
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
 import logisticspipes.network.guis.module.inhand.AdvancedExtractorModuleInHand
 import logisticspipes.network.guis.module.inpipe.AdvancedExtractorModuleSlot
-import logisticspipes.network.to_client.ModuleInventoryMessage
+import logisticspipes.network.to_client.module.ModuleInventoryMessage
 import logisticspipes.network.ModuleTarget
-import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage
-import logisticspipes.network.to_server.ModuleWatchMessage
+import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage
 import logisticspipes.proxy.MainProxy
 import logisticspipes.proxy.computers.interfaces.CCCommand
 import logisticspipes.utils.ISimpleInventoryEventHandler

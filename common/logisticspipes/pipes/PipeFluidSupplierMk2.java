@@ -18,7 +18,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
-import logisticspipes.network.to_client.FluidSupplierAmountMessage;
+import logisticspipes.network.to_client.pipe.FluidSupplierAmountMessage;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.RequestTree;

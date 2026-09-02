@@ -17,7 +17,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.SatellitePipe;
-import logisticspipes.network.to_server.SetSatelliteNameMessage;
+import logisticspipes.network.to_server.pipe.SetSatelliteNameMessage;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.InputBar;

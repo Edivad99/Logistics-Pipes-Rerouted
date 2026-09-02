@@ -10,7 +10,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.to_server.SetSneakyUpgradeSideMessage;
+import logisticspipes.network.to_server.pipe.SetSneakyUpgradeSideMessage;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
