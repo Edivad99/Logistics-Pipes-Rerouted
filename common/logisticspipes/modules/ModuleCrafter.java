@@ -15,20 +15,12 @@ import java.util.concurrent.DelayQueue;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -96,6 +88,7 @@ import logisticspipes.routing.LogisticsExtraPromise;
 import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrder;
+import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.CacheHolder.CacheTypes;
 import logisticspipes.utils.DelayedGeneric;
 import logisticspipes.utils.FluidIdentifier;
@@ -775,66 +768,15 @@ public class ModuleCrafter extends LogisticsModule
 
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return false;
-		final IWorldProvider worldProvider = this.worldProvider;
-		if (worldProvider == null) return false;
+		if (!(player instanceof ServerPlayer serverPlayer)) return false;
 
-		// hack to avoid wrenching blocks
-		int savedEquipped = player.getInventory().getSelectedSlot();
-		boolean foundSlot = false;
-		// try to find a empty slot
-		for (int i = 0; i < 9; i++) {
-			if (player.getInventory().getItem(i).isEmpty()) {
-				foundSlot = true;
-				player.getInventory().setSelectedSlot(i);
-				break;
-			}
-		}
-		// okay, anything that's a block?
-		if (!foundSlot) {
-			for (int i = 0; i < 9; i++) {
-				ItemStack is = player.getInventory().getItem(i);
-				if (is.getItem() instanceof BlockItem) {
-					foundSlot = true;
-					player.getInventory().setSelectedSlot(i);
-					break;
-				}
-			}
-		}
-		// give up and select whatever is right of the current slot
-		if (!foundSlot) {
-			player.getInventory().setSelectedSlot((player.getInventory().getSelectedSlot() + 1) % 9);
-		}
-
-		final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream().anyMatch(neighbor -> {
-			if (neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
-					.anyMatch(provider -> provider.canOpenGui(neighbor.getTileEntity()))) {
-				final BlockPos pos = neighbor.getTileEntity().getBlockPos();
-				Level level = worldProvider.getWorld();
-				BlockState blockState = level.getBlockState(pos);
-				if (blockState.isAir()) {
-					return false;
-				}
-				BlockHitResult hit = new BlockHitResult(
-						Vec3.atCenterOf(pos),
-						Direction.UP,
-						pos,
-						false
-				);
-				return blockState.useItemOn(
-						player.getMainHandItem(),
-						level,
-						player,
-						InteractionHand.MAIN_HAND,
-						hit
-				) != InteractionResult.PASS;
-			} else {
-				return false;
-			}
-		});
+		final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream()
+				.filter(neighbor -> neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
+						.anyMatch(provider -> provider.canOpenGui(neighbor.getTileEntity())))
+				.anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getTileEntity().getBlockPos()));
 		if (!guiOpened) {
-			LogisticsPipes.LOG.warn("Ignored open attached GUI request at " + player.level() + " @ " + getBlockPos());
+			LogisticsPipes.LOG.warn("Ignored open attached GUI request at {} @ {}", player.level(), getBlockPos());
 		}
-		player.getInventory().setSelectedSlot(savedEquipped);
 		return guiOpened;
 	}
 

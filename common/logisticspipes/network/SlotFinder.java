@@ -5,14 +5,12 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -26,6 +24,7 @@ import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
+import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.item.ItemIdentifier;
 
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
@@ -70,7 +69,7 @@ public final class SlotFinder {
                         }
                     }
                     final BlockPos pos = neighbor.getTileEntity().getBlockPos();
-                    if (!openMenu(serverPlayer, pos)) {
+                    if (!BlockMenus.openFor(serverPlayer, pos)) {
                         return false;
                     }
                     PacketDistributor.sendToPlayer(serverPlayer, new SlotFinderActivateMessage(target, pos, slot));
@@ -79,26 +78,6 @@ public final class SlotFinder {
         if (!opened) {
             LogisticsPipes.LOG.warn("Ignored slot finder request from {}: no adjacent inventory to open", player);
         }
-    }
-
-    /**
-     * Opens the block's own screen for the player, the way right-clicking it would.
-     *
-     * <p>Asking the block for its {@link MenuProvider} rather than replaying a right click is what
-     * makes this safe to do on the player's behalf: no item is used, so nothing gets placed or
-     * wrenched, and a block that refuses to open right now -- a chest with something sitting on top
-     * -- says so by having no provider.
-     */
-    private static boolean openMenu(ServerPlayer player, BlockPos pos) {
-        final BlockState state = player.level().getBlockState(pos);
-        if (state.isAir()) {
-            return false;
-        }
-        final MenuProvider provider = state.getMenuProvider(player.level(), pos);
-        if (provider == null) {
-            return false;
-        }
-        return player.openMenu(provider).isPresent();
     }
 
     /**
