@@ -44,6 +44,8 @@ import logisticspipes.network.to_client.debug.RoutingDebugDoneMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugFiltersMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugInitMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugSourceMessage;
+import logisticspipes.network.to_client.debug.SendLogLineMessage;
+import logisticspipes.network.to_client.debug.SendLogWindowMessage;
 import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.block.BlockRotationMessage;
@@ -406,6 +408,10 @@ public class PacketHandler {
                 AskForDebugTargetMessage.STREAM_CODEC, AskForDebugTargetMessage::handle);
         registrar.playToClient(OpenChatGuiMessage.TYPE,
                 OpenChatGuiMessage.STREAM_CODEC, OpenChatGuiMessage::handle);
+        registrar.playToClient(SendLogLineMessage.TYPE,
+                SendLogLineMessage.STREAM_CODEC, SendLogLineMessage::handle);
+        registrar.playToClient(SendLogWindowMessage.TYPE,
+                SendLogWindowMessage.STREAM_CODEC, SendLogWindowMessage::handle);
         registrar.playToClient(RoutingDebugCandidateListMessage.TYPE,
                 RoutingDebugCandidateListMessage.STREAM_CODEC, RoutingDebugCandidateListMessage::handle);
         registrar.playToClient(RoutingDebugCandidateMessage.TYPE,

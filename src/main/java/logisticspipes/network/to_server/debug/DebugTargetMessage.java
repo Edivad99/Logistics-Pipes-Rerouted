@@ -40,6 +40,8 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
         ROUTING_TABLE,
         /** Watch a block entity's or an entity's fields live. */
         INSPECTOR,
+        /** Follow a pipe's own log in a window. */
+        PIPE_LOG,
     }
 
     public static final Type<DebugTargetMessage> TYPE = new Type<>(LPConstants.rl("debug_target"));
@@ -63,6 +65,7 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
         switch (message.purpose) {
             case ROUTING_TABLE -> debugRoutingTable(player, message.target);
             case INSPECTOR -> inspect(player, message.target);
+            case PIPE_LOG -> openPipeLog(player, message.target);
         }
     }
 
@@ -86,6 +89,24 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
                     .withStyle(ChatFormatting.GREEN));
             DebugController.instance(player).debug(router);
         });
+    }
+
+    private static void openPipeLog(ServerPlayer player, DebugTarget target) {
+        if (!(target instanceof DebugTarget.Block block)) {
+            player.sendSystemMessage(Component.literal("Point at a pipe").withStyle(ChatFormatting.RED));
+            return;
+        }
+        final LogisticsTileGenericPipe be =
+                TargetLookup.blockEntityAt(player, block.pos(), LogisticsTileGenericPipe.class);
+        // The old packet cast the pipe to CoreRoutedPipe without asking first, so pointing at an
+        // unrouted pipe was a ClassCastException in the handler.
+        if (be == null || !(be.pipe instanceof CoreRoutedPipe pipe)) {
+            player.sendSystemMessage(
+                    Component.literal("No routed pipe at " + block.pos()).withStyle(ChatFormatting.RED));
+            return;
+        }
+        pipe.debug.openForPlayer(player);
+        player.sendSystemMessage(Component.literal("Debug log enabled."));
     }
 
     private static void inspect(ServerPlayer player, DebugTarget target) {

@@ -3,12 +3,15 @@ package logisticspipes.pipes.basic.debug;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.debug.SendNewLogLine;
-import logisticspipes.network.packets.debug.SendNewLogWindow;
 import logisticspipes.network.packets.debug.UpdateStatusEntries;
+import logisticspipes.network.to_client.debug.SendLogLineMessage;
+import logisticspipes.network.to_client.debug.SendLogWindowMessage;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.PlayerCollectionList;
@@ -30,7 +33,7 @@ public class DebugLogController {
 		if (players.isEmptyWithoutCheck()) {
 			return;
 		}
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(SendNewLogLine.class).setWindowID(ID).setLine(info), players);
+		players.send(new SendLogLineMessage(ID, info));
 	}
 
 	public void tick() {
@@ -53,7 +56,9 @@ public class DebugLogController {
 		players.add(player);
 		List<StatusEntry> status = new ArrayList<>();
 		pipe.addStatusInformation(status);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SendNewLogWindow.class).setWindowID(ID).setTitle(pipe.toString()), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new SendLogWindowMessage(ID, pipe.toString()));
+		}
 		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(UpdateStatusEntries.class).setWindowID(ID).setStatus(status), player);
 	}
 }

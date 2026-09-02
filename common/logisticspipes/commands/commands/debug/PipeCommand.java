@@ -3,12 +3,16 @@ package logisticspipes.commands.commands.debug;
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.commands.abstracts.ICommandHandler;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.debug.PipeDebugLogAskForTarget;
 import logisticspipes.network.packets.pipe.PipeDebugAskForTarget;
+import logisticspipes.network.to_client.debug.AskForDebugTargetMessage;
+import logisticspipes.network.to_server.debug.DebugTargetMessage.Purpose;
 import logisticspipes.proxy.MainProxy;
 
 public class PipeCommand implements ICommandHandler {
@@ -41,7 +45,9 @@ public class PipeCommand implements ICommandHandler {
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugAskForTarget.class).setServer(false), (Player) sender);
 			sender.sendSystemMessage(Component.literal("Asking for Target."));
 		} else if (args[0].equalsIgnoreCase("console") || args[0].equalsIgnoreCase("c")) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugLogAskForTarget.class), (Player) sender);
+			if (sender instanceof ServerPlayer player) {
+				PacketDistributor.sendToPlayer(player, new AskForDebugTargetMessage(Purpose.PIPE_LOG));
+			}
 			sender.sendSystemMessage(Component.literal("Asking for Target."));
 		} else {
 			boolean isClient = args[0].equalsIgnoreCase("client");
