@@ -5,11 +5,8 @@ import java.util.UUID;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
-import logisticspipes.utils.gui.SmallGuiButton;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiEditChannelPopup extends GuiAddChannelPopup {
@@ -25,26 +22,18 @@ public class GuiEditChannelPopup extends GuiAddChannelPopup {
 	}
 
 	@Override
+	protected Optional<UUID> channelToSave() {
+		return Optional.of(channelIdentifier);
+	}
+
+	@Override
+	protected int saveButtonY() {
+		return guiTop + 140;
+	}
+
+	@Override
 	public void init() {
 		super.init();
-		SmallGuiButton editSave = new SmallGuiButton(5, guiLeft + 58, guiTop + 140, 50, 10, TextUtil.translate(GUI_LANG_KEY + "save"));
-		editSave.setPressListener(b -> {
-			ChannelInformation.AccessRights rights = null;
-			UUID security = null;
-			if (checkPublic.getState()) {
-				rights = ChannelInformation.AccessRights.PUBLIC;
-			} else if (checkSecurity.getState()) {
-				rights = ChannelInformation.AccessRights.SECURED;
-				security = responsibleSecurityID;
-			} else if (checkPrivate.getState()) {
-				rights = ChannelInformation.AccessRights.PRIVATE;
-			}
-			ClientPacketDistributor.sendToServer(new SaveChannelMessage(
-					Optional.of(channelIdentifier), this.textInput.getValue(), rights,
-					Optional.ofNullable(security)));
-			exitGui();
-		});
-		addRenderableWidget(editSave);
 		if (toInit != null) {
 			this.textInput.setValue(toInit.getName());
 			checkPublic.setState(toInit.getRights() == ChannelInformation.AccessRights.PUBLIC);

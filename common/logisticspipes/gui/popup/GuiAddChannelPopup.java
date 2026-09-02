@@ -10,6 +10,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.GuiCheckBox;
@@ -54,20 +56,12 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 		addRenderableWidget(checkSecurity);
 		addRenderableWidget(checkPrivate);
 
-		SmallGuiButton saveBtn = new SmallGuiButton(4, guiLeft + 58, guiTop + 120, 50, 10, TextUtil.translate(GUI_LANG_KEY + "save"));
+		SmallGuiButton saveBtn = new SmallGuiButton(4, guiLeft + 58, saveButtonY(), 50, 10,
+				TextUtil.translate(GUI_LANG_KEY + "save"));
 		saveBtn.setPressListener(b -> {
-			ChannelInformation.AccessRights rights = null;
-			UUID security = null;
-			if (checkPublic.getState()) {
-				rights = ChannelInformation.AccessRights.PUBLIC;
-			} else if (checkSecurity.getState()) {
-				rights = ChannelInformation.AccessRights.SECURED;
-				security = responsibleSecurityID;
-			} else if (checkPrivate.getState()) {
-				rights = ChannelInformation.AccessRights.PRIVATE;
-			}
 			ClientPacketDistributor.sendToServer(new SaveChannelMessage(
-					Optional.empty(), this.textInput.getValue(), rights, Optional.ofNullable(security)));
+					channelToSave(), this.textInput.getValue(), selectedRights(),
+					Optional.ofNullable(selectedSecurityStation())));
 			exitGui();
 		});
 		addRenderableWidget(saveBtn);
@@ -79,6 +73,37 @@ public class GuiAddChannelPopup extends SubGuiScreen {
         addRenderableWidget(this.textInput);
 
 		checkSecurity.active = responsibleSecurityID != null;
+	}
+
+	/**
+	 * Which channel the Save button writes to; empty creates a new one.
+	 *
+	 * <p>The edit form is this form with an identifier, so it says so here rather than adding a
+	 * second Save button of its own -- which is what it used to do, leaving the inherited one in
+	 * place to duplicate the channel it was meant to edit.
+	 */
+	protected Optional<UUID> channelToSave() {
+		return Optional.empty();
+	}
+
+	/** Where the Save button sits. The edit form is taller and puts it lower. */
+	protected int saveButtonY() {
+		return guiTop + 120;
+	}
+
+	protected ChannelInformation.@Nullable AccessRights selectedRights() {
+		if (checkPublic.getState()) {
+			return ChannelInformation.AccessRights.PUBLIC;
+		}
+		if (checkSecurity.getState()) {
+			return ChannelInformation.AccessRights.SECURED;
+		}
+		return checkPrivate.getState() ? ChannelInformation.AccessRights.PRIVATE : null;
+	}
+
+	/** The station to answer to, which only a secured channel has. */
+	protected @Nullable UUID selectedSecurityStation() {
+		return checkSecurity.getState() ? responsibleSecurityID : null;
 	}
 
 	@Override
