@@ -48,6 +48,7 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import kotlin.Unit;
@@ -88,12 +89,11 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.network.guis.pipe.PipeController;
-import logisticspipes.network.packets.pipe.PipeSignTypes;
-import logisticspipes.network.packets.pipe.RequestSignPacket;
+import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
+import logisticspipes.network.to_server.pipe.RequestPipeSignsMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.pipes.basic.debug.DebugLogController;
@@ -381,7 +381,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public void firstInitialiseTick() {
 		getRouter();
 		if (MainProxy.isClient(getWorld())) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSignPacket.class).setTilePos(container));
+			ClientPacketDistributor.sendToServer(new RequestPipeSignsMessage(getPos()));
 		}
 	}
 
@@ -1585,11 +1585,12 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				}
 			}
 		}
-		ModernPacket packet = PacketHandler.getPacket(PipeSignTypes.class).setTypes(types).setTilePos(container);
+		final PipeSignTypesMessage message = new PipeSignTypesMessage(getPos(), types);
 		if (sendToAll) {
-			MainProxy.sendPacketToAllWatchingChunk(container, packet);
+			TargetLookup.sendToChunkWatchers(container, message);
+		} else if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, message);
 		}
-		MainProxy.sendPacketToPlayer(packet, player);
 		for (int i = 0; i < 6; i++) {
 			if (signItem[i] != null) {
 				final CustomPacketPayload signPayload = signItem[i].getPacket();
@@ -1641,7 +1642,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			return;
 		}
 		for (int i = 0; i < 6; i++) {
-			int integer = types.get(i);
+			// A message that named fewer than six sides used to walk off the end of the list.
+			int integer = i < types.size() ? types.get(i) : -1;
 			if (integer >= 0) {
 				Class<? extends IPipeSign> type = ItemPipeSignCreator.signTypes.get(integer);
 				if (signItem[i] == null || signItem[i].getClass() != type) {

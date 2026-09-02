@@ -56,6 +56,7 @@ import logisticspipes.network.to_client.pipe.PipeItemBufferMessage;
 import logisticspipes.network.to_client.pipe.PipeOrdersMessage;
 import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
 import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
+import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_client.security.PlayerListMessage;
 import logisticspipes.network.to_client.block.PowerJunctionLevelMessage;
@@ -85,6 +86,7 @@ import logisticspipes.network.to_server.crafting.CycleCraftingRecipeMessage;
 import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
 import logisticspipes.network.to_server.module.ItemSinkImportRequestMessage;
 import logisticspipes.network.to_server.module.ModuleWatchMessage;
+import logisticspipes.network.to_server.pipe.RequestPipeSignsMessage;
 import logisticspipes.network.to_server.security.OpenSecurityPlayerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
@@ -237,6 +239,8 @@ public class PacketHandler {
                 PipeOrderWatchMessage.STREAM_CODEC, PipeOrderWatchMessage::handle);
         registrar.playToServer(RequestChassisOrientationMessage.TYPE,
                 RequestChassisOrientationMessage.STREAM_CODEC, RequestChassisOrientationMessage::handle);
+        registrar.playToServer(RequestPipeSignsMessage.TYPE,
+                RequestPipeSignsMessage.STREAM_CODEC, RequestPipeSignsMessage::handle);
         registrar.playToServer(DropDiskMessage.TYPE,
                 DropDiskMessage.STREAM_CODEC, DropDiskMessage::handle);
         registrar.playToServer(RequestDiskContentMessage.TYPE,
@@ -344,6 +348,8 @@ public class PacketHandler {
                 OrderWatchMessage.STREAM_CODEC, OrderWatchMessage::handle);
         registrar.playToClient(PipeOrdersMessage.TYPE,
                 PipeOrdersMessage.STREAM_CODEC, PipeOrdersMessage::handle);
+        registrar.playToClient(PipeSignTypesMessage.TYPE,
+                PipeSignTypesMessage.STREAM_CODEC, PipeSignTypesMessage::handle);
         registrar.playToClient(PipeItemBufferMessage.TYPE,
                 PipeItemBufferMessage.STREAM_CODEC, PipeItemBufferMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
