@@ -33,12 +33,14 @@ import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
+import logisticspipes.network.to_client.BlockRotationMessage;
 import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.CraftingModuleUpdateMessage;
 import logisticspipes.network.to_client.DiskContentMessage;
 import logisticspipes.network.to_client.FirewallFlagsMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
 import logisticspipes.network.to_client.FluidSupplierAmountMessage;
+import logisticspipes.network.to_client.InvSysConResistanceMessage;
 import logisticspipes.network.to_client.ItemAmountSignMessage;
 import logisticspipes.network.to_client.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.ItemSinkImportedItemsMessage;
@@ -47,7 +49,10 @@ import logisticspipes.network.to_client.ModulePropertiesMessage;
 import logisticspipes.network.to_client.OrdererWatchRemoveMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
 import logisticspipes.network.to_client.PipePropertiesMessage;
+import logisticspipes.network.to_client.PipeRenderUpdateMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
+import logisticspipes.network.to_client.PowerJunctionLevelMessage;
+import logisticspipes.network.to_client.PowerProviderLevelMessage;
 import logisticspipes.network.to_client.QuickSortStateMessage;
 import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.network.to_client.SecurityAuthorizedListMessage;
@@ -68,6 +73,7 @@ import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
 import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.PipeHudWatchMessage;
+import logisticspipes.network.to_server.RequestBlockRotationMessage;
 import logisticspipes.network.to_server.RequestFluidOrdererRefreshMessage;
 import logisticspipes.network.to_server.RequestOrdererRefreshMessage;
 import logisticspipes.network.to_server.RequestPipeContentMessage;
@@ -80,6 +86,7 @@ import logisticspipes.network.to_server.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.SetDiskNameMessage;
 import logisticspipes.network.to_server.SetFirewallFlagsMessage;
 import logisticspipes.network.to_server.SetInvSysConChannelMessage;
+import logisticspipes.network.to_server.SetInvSysConResistanceMessage;
 import logisticspipes.network.to_server.SetModulePropertiesMessage;
 import logisticspipes.network.to_server.SetOreDictItemSinkListMessage;
 import logisticspipes.network.to_server.SetPipePropertiesMessage;
@@ -193,6 +200,10 @@ public class PacketHandler {
                 RequestFluidOrdererRefreshMessage.STREAM_CODEC, RequestFluidOrdererRefreshMessage::handle);
         registrar.playToServer(RequestOrdererRefreshMessage.TYPE,
                 RequestOrdererRefreshMessage.STREAM_CODEC, RequestOrdererRefreshMessage::handle);
+        registrar.playToServer(RequestBlockRotationMessage.TYPE,
+                RequestBlockRotationMessage.STREAM_CODEC, RequestBlockRotationMessage::handle);
+        registrar.playToServer(SetInvSysConResistanceMessage.TYPE,
+                SetInvSysConResistanceMessage.STREAM_CODEC, SetInvSysConResistanceMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -268,6 +279,16 @@ public class PacketHandler {
                 SecurityStationIdMessage.STREAM_CODEC, SecurityStationIdMessage::handle);
         registrar.playToClient(OrdererWatchRemoveMessage.TYPE,
                 OrdererWatchRemoveMessage.STREAM_CODEC, OrdererWatchRemoveMessage::handle);
+        registrar.playToClient(BlockRotationMessage.TYPE,
+                BlockRotationMessage.STREAM_CODEC, BlockRotationMessage::handle);
+        registrar.playToClient(InvSysConResistanceMessage.TYPE,
+                InvSysConResistanceMessage.STREAM_CODEC, InvSysConResistanceMessage::handle);
+        registrar.playToClient(PipeRenderUpdateMessage.TYPE,
+                PipeRenderUpdateMessage.STREAM_CODEC, PipeRenderUpdateMessage::handle);
+        registrar.playToClient(PowerJunctionLevelMessage.TYPE,
+                PowerJunctionLevelMessage.STREAM_CODEC, PowerJunctionLevelMessage::handle);
+        registrar.playToClient(PowerProviderLevelMessage.TYPE,
+                PowerProviderLevelMessage.STREAM_CODEC, PowerProviderLevelMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
                 CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,

@@ -29,10 +29,9 @@ import logisticspipes.interfaces.IPowerLevelDisplay;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.guis.block.PowerProviderGui;
-import logisticspipes.network.packets.block.PowerProviderLevel;
+import logisticspipes.network.to_client.PowerProviderLevelMessage;
 import logisticspipes.network.to_server.BlockHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -308,8 +307,9 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 	}
 
 	public void updateClients() {
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).putDouble(internalStorage).setTilePos(this), guiListener);
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).putDouble(internalStorage).setTilePos(this), watcherList);
+		final PowerProviderLevelMessage message = new PowerProviderLevelMessage(getBlockPos(), internalStorage);
+		guiListener.send(message);
+		watcherList.send(message);
 	}
 
 	public void handlePowerPacket(double d) {

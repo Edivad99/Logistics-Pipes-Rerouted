@@ -27,10 +27,9 @@ import logisticspipes.interfaces.IHeadUpDisplayBlockRendererProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IPowerLevelDisplay;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.guis.block.PowerJunctionGui;
-import logisticspipes.network.packets.block.PowerJunctionLevel;
+import logisticspipes.network.to_client.PowerJunctionLevelMessage;
 import logisticspipes.network.to_server.BlockHudWatchMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
@@ -169,12 +168,9 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     }
 
     public void updateClients() {
-        MainProxy.sendToPlayerList(
-            PacketHandler.getPacket(PowerJunctionLevel.class).putInt(internalStorage).setBlockPos(getBlockPos()),
-            guiListener);
-        MainProxy.sendToPlayerList(
-            PacketHandler.getPacket(PowerJunctionLevel.class).putInt(internalStorage).setBlockPos(getBlockPos()),
-            watcherList);
+        final PowerJunctionLevelMessage message = new PowerJunctionLevelMessage(getBlockPos(), internalStorage);
+        guiListener.send(message);
+        watcherList.send(message);
         lastUpdateStorage = internalStorage;
     }
 

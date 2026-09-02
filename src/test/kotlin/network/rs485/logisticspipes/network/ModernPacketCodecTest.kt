@@ -39,7 +39,7 @@ package network.rs485.logisticspipes.network
 
 import io.netty.buffer.Unpooled
 import logisticspipes.network.ModernPacketCodec
-import logisticspipes.network.packets.block.PowerJunctionLevel
+import logisticspipes.network.packets.orderer.DiskMacroRequestPacket
 import net.minecraft.SharedConstants
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
@@ -80,8 +80,8 @@ class ModernPacketCodecTest {
         RegistryFriendlyByteBuf(Unpooled.buffer(), registries(), ConnectionType.OTHER)
 
     /** A packet with a coordinate and a value, filled in at every level of its chain. */
-    private fun samplePacket(): PowerJunctionLevel =
-        PowerJunctionLevel(PACKET_ID).apply {
+    private fun samplePacket(): DiskMacroRequestPacket =
+        DiskMacroRequestPacket(PACKET_ID).apply {
             setDimension(Identifier.parse("logisticspipes:test_dimension"))
             posX = 12
             posY = -34

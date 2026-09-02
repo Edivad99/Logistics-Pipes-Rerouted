@@ -51,9 +51,10 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.logic.LogicController;
 import logisticspipes.logic.interfaces.ILogicControllerTile;
 import logisticspipes.network.PacketHandler;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.block.PipeSolidSideCheck;
 import logisticspipes.network.packets.pipe.PipeTileStatePacket;
+import logisticspipes.network.to_client.PipeRenderUpdateMessage;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.ltgpmodcompat.LPMicroblockTileEntity;
 import logisticspipes.proxy.MainProxy;
@@ -245,7 +246,7 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 			refreshRenderState = true;
 
 			if (MainProxy.isServer(level)) {
-				MainProxy.sendPacketToAllWatchingChunk(this, PacketHandler.getPacket(PipeSolidSideCheck.class).setTilePos(this));
+				TargetLookup.sendToChunkWatchers(this, new PipeRenderUpdateMessage(getBlockPos()));
 			}
 		}
 

@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
@@ -42,7 +44,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.guis.pipe.InvSysConGuiProvider;
 import logisticspipes.network.packets.gui.ChannelInformationPacket;
 import logisticspipes.network.packets.orderer.OrdererManagerContent;
-import logisticspipes.network.packets.pipe.InvSysConResistance;
+import logisticspipes.network.to_client.InvSysConResistanceMessage;
 import logisticspipes.network.to_server.PipeHudWatchMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -429,7 +431,9 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 	@Override
 	public void guiOpenedByPlayer(Player player) {
 		localGuiWatchers.add(player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(InvSysConResistance.class).putInt(this.resistance).setBlockPos(this.getPos()), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new InvSysConResistanceMessage(getPos(), resistance));
+		}
 
 		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(this.getWorld());
 		Optional<ChannelInformation> channel = manager.getChannels().stream()

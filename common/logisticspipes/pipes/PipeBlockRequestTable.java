@@ -27,6 +27,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -40,9 +41,9 @@ import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.CraftingSetType;
-import logisticspipes.network.packets.block.RequestRotationPacket;
 import logisticspipes.network.packets.orderer.OrdererWatchPacket;
 import logisticspipes.network.to_client.OrdererWatchRemoveMessage;
+import logisticspipes.network.to_server.RequestBlockRotationMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
@@ -119,7 +120,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 		if (MainProxy.isClient(getWorld())) {
 			if (!init) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRotationPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+				ClientPacketDistributor.sendToServer(new RequestBlockRotationMessage(getPos()));
 				init = true;
 			}
 			return;

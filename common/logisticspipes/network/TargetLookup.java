@@ -14,6 +14,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.gui.DummyContainer;
 
 /**
@@ -42,6 +43,25 @@ public final class TargetLookup {
     /** The same, in the receiving player's own level -- which is where all but the orderer look. */
     public static <T> @Nullable T blockEntityAt(Player player, BlockPos pos, Class<T> type) {
         return blockEntityAt(player.level(), pos, type);
+    }
+
+    /**
+     * The block entity at {@code pos}, or the pipe it holds, whichever matches.
+     *
+     * <p>Some things a message can address are implemented by a block entity in one place and by
+     * the pipe inside a {@link LogisticsTileGenericPipe} in another -- a rotation, for instance.
+     * Asking for the interface rather than the container keeps the caller from having to know
+     * which.
+     */
+    public static <T> @Nullable T blockEntityOrPipeAt(Player player, BlockPos pos, Class<T> type) {
+        final BlockEntity be = blockEntityAt(player.level(), pos, BlockEntity.class);
+        if (type.isInstance(be)) {
+            return type.cast(be);
+        }
+        if (be instanceof LogisticsTileGenericPipe container && type.isInstance(container.pipe)) {
+            return type.cast(container.pipe);
+        }
+        return null;
     }
 
     /**

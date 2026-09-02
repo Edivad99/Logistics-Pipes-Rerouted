@@ -14,11 +14,13 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.pipe.InvSysConContentRequest;
 import logisticspipes.network.packets.pipe.InvSysConOpenSelectChannelPopupPacket;
-import logisticspipes.network.packets.pipe.InvSysConResistance;
+import logisticspipes.network.to_server.SetInvSysConResistanceMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;
@@ -81,7 +83,8 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 		SmallGuiButton b5 = new SmallGuiButton(5, leftPos + 140, topPos + 55, 30, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Save"));
 		b5.setPressListener(b -> {
 			pipe.resistance = resistanceCountBar.getInteger();
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConResistance.class).putInt(pipe.resistance).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
+			ClientPacketDistributor.sendToServer(
+					new SetInvSysConResistanceMessage(pipe.getPos(), pipe.resistance));
 		});
 		addRenderableWidget(b5);
 		SmallGuiButton b6 = new SmallGuiButton(6, leftPos + 130, topPos + 20, 40, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Change"));
