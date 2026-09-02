@@ -23,7 +23,6 @@ import logisticspipes.proxy.interfaces.IProxy;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
-import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class ClientProxy implements IProxy {
@@ -32,17 +31,6 @@ public class ClientProxy implements IProxy {
 	public String getSide() {
 		return "Client";
 	}
-
-    @Override
-	public String getName(ItemIdentifier item) {
-		return item.getFriendlyName();
-	}
-
-	@Override
-	public void updateNames(ItemIdentifier item, String name) {}
-
-    @Override
-	public void sendNameUpdateRequest(Player player) {}
 
 	@Override
     @Nullable

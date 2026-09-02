@@ -5,19 +5,19 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.SatellitePipe;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.packets.satpipe.SetNameResult;
+import logisticspipes.network.to_client.pipe.SatelliteNameResultMessage;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.MainProxy;
 
 /**
  * A new name typed into a satellite pipe's GUI.
@@ -49,9 +49,9 @@ public record SetSatelliteNameMessage(BlockPos pos, String name) implements Cust
         }
         final SatelliteNamingResult result = rename(container, message.name);
         if (result != null) {
-            MainProxy.sendPacketToPlayer(
-                    PacketHandler.getPacket(SetNameResult.class).setResult(result).setNewName(message.name),
-                    context.player());
+            if (context.player() instanceof ServerPlayer player) {
+                PacketDistributor.sendToPlayer(player, new SatelliteNameResultMessage(result, message.name));
+            }
         }
     }
 

@@ -14,7 +14,6 @@ import logisticspipes.commands.commands.NBTDebugCommand;
 import logisticspipes.commands.commands.NameLookupCommand;
 import logisticspipes.commands.commands.RoutingThreadCommand;
 import logisticspipes.commands.commands.TestCommand;
-import logisticspipes.commands.commands.TransferNamesCommand;
 import logisticspipes.commands.commands.WrapperCommand;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
@@ -41,7 +40,6 @@ public class MainCommandHandler extends SubCommandHandler {
 		registerSubCommand(new DummyCommand());
 		registerSubCommand(new NBTDebugCommand());
 		registerSubCommand(new RoutingThreadCommand());
-		registerSubCommand(new TransferNamesCommand());
 		registerSubCommand(new NameLookupCommand());
 		registerSubCommand(new DumpCommand());
 		registerSubCommand(new BypassCommand());

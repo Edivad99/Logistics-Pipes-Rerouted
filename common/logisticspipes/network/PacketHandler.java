@@ -87,6 +87,8 @@ import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_client.pipe.PowerLaserMessage;
 import logisticspipes.network.to_client.pipe.RoutingLasersMessage;
+import logisticspipes.network.to_client.pipe.SatelliteNameResultMessage;
+import logisticspipes.network.to_client.pipe.SatellitePipeListMessage;
 import logisticspipes.network.to_client.pipe.SendQueueContentMessage;
 import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
 import logisticspipes.network.to_client.security.PlayerListMessage;
@@ -443,6 +445,10 @@ public class PacketHandler {
                 SendQueueContentMessage.STREAM_CODEC, SendQueueContentMessage::handle);
         registrar.playToClient(RoutingLasersMessage.TYPE,
                 RoutingLasersMessage.STREAM_CODEC, RoutingLasersMessage::handle);
+        registrar.playToClient(SatelliteNameResultMessage.TYPE,
+                SatelliteNameResultMessage.STREAM_CODEC, SatelliteNameResultMessage::handle);
+        registrar.playToClient(SatellitePipeListMessage.TYPE,
+                SatellitePipeListMessage.STREAM_CODEC, SatellitePipeListMessage::handle);
         registrar.playToClient(LikelyRecipeComponentsMessage.TYPE,
                 LikelyRecipeComponentsMessage.STREAM_CODEC, LikelyRecipeComponentsMessage::handle);
         registrar.playToClient(OpenDebugPanelMessage.TYPE,

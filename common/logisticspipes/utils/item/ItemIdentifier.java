@@ -57,7 +57,6 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.WeakInternCache;
 import logisticspipes.world.item.LogisticsFluidContainer;
@@ -445,10 +444,6 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
 
     public String getFriendlyName() {
         return getName(makeNormalStack(1));
-    }
-
-    public String getFriendlyNameCC() {
-        return MainProxy.proxy.getName(this);
     }
 
     public String getModName() {

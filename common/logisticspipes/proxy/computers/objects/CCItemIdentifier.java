@@ -69,7 +69,7 @@ public class CCItemIdentifier implements ILPCCTypeDefinition {
 
 		@CCCommand(description = "Returns the Name of this ItemIdentifier")
 		public String getName() {
-			return ident.getFriendlyNameCC();
+			return ident.getFriendlyName();
 		}
 
 		@CCCommand(description = "Returns the name of the mod this ItemIdentifier belongs to")

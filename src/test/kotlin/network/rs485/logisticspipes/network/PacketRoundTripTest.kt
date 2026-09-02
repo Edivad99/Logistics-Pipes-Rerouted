@@ -43,7 +43,7 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType
 import logisticspipes.network.abstractpackets.CoordinatesPacket
 import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
-import logisticspipes.network.packets.RequestUpdateNamesPacket
+import logisticspipes.network.packets.ActivateNBTDebug
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import logisticspipes.network.packets.pipe.RequestPipeDimension
 import net.minecraft.core.RegistryAccess
@@ -151,14 +151,14 @@ class PacketRoundTripTest {
 
     @Test
     fun `a packet that overrides writeData without super carries no payload at all`() {
-        // RequestUpdateNamesPacket deliberately writes nothing -- not even the dimension, since
+        // ActivateNBTDebug deliberately writes nothing -- not even the dimension, since
         // it never chains into ModernPacket. Pinning that down so the day someone "fixes" the
         // empty override, the asymmetry it would introduce is caught here and not in multiplayer.
         val registries = registries()
         val data = LPDataIOWrapper.collectData(registries) { output ->
-            RequestUpdateNamesPacket(ANY_ID).withDimension().writeData(output)
+            ActivateNBTDebug(ANY_ID).withDimension().writeData(output)
         }
-        assertEquals(0, data.size, "RequestUpdateNamesPacket is expected to serialize to nothing")
+        assertEquals(0, data.size, "ActivateNBTDebug is expected to serialize to nothing")
     }
 
     // ── level 2: CoordinatesPacket ───────────────────────────────────────────

@@ -1,6 +1,5 @@
 package logisticspipes.gui.popup;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -12,11 +11,11 @@ import net.minecraft.core.BlockPos;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.to_server.pipe.RequestSatellitePipeListMessage;
+import logisticspipes.pipes.SatelliteEntry;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
-import logisticspipes.utils.tuples.Pair;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSelectSatellitePopup extends SubGuiScreen {
@@ -24,7 +23,7 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 	String GUI_LANG_KEY = "gui.popup.selectsatellite.";
 
 	private final Consumer<UUID> handleResult;
-	private List<Pair<String, UUID>> pipeList = Collections.EMPTY_LIST;
+	private List<SatelliteEntry> pipeList = List.of();
 	private final TextListDisplay textList;
 
 	public GuiSelectSatellitePopup(BlockPos pos, boolean fluidSatellites, Consumer<UUID> handleResult) {
@@ -39,7 +38,7 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 
 			@Override
 			public String getTextAt(int index) {
-				return pipeList.get(index).getValue1();
+				return pipeList.get(index).name();
 			}
 
 			@Override
@@ -61,7 +60,7 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 		sel.setPressListener(b -> {
 			int selected = textList.getSelected();
 			if (selected >= 0) {
-				handleResult.accept(pipeList.get(selected).getValue2());
+				handleResult.accept(pipeList.get(selected).routerId());
 				exitGui();
 			}
 		});
@@ -99,7 +98,7 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 
 	// Deferred: scroll wheel handling not wired
 
-	public void handleSatelliteList(List<Pair<String, UUID>> list) {
+	public void handleSatelliteList(List<SatelliteEntry> list) {
 		pipeList = list;
 	}
 }

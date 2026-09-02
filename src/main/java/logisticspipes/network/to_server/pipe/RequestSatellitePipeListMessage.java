@@ -4,28 +4,27 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import logisticspipes.network.TargetLookup;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.SatellitePipe;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.ProvideSatellitePipeListPacket;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_client.pipe.SatellitePipeListMessage;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
+import logisticspipes.pipes.SatelliteEntry;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.routing.ExitRoute;
-import logisticspipes.utils.tuples.Pair;
 
 /**
  * The satellite picker popup asking for the satellites this pipe can actually reach.
@@ -58,11 +57,12 @@ public record RequestSatellitePipeListMessage(BlockPos pos, boolean fluid) imple
                 || pipe.getRouter().getRouteTable() == null) {
             return;
         }
-        final List<Pair<String, UUID>> satellites = message.fluid
+        final List<SatelliteEntry> satellites = message.fluid
                 ? reachableFrom(pipe, PipeFluidSatellite.AllSatellites)
                 : reachableFrom(pipe, PipeItemsSatelliteLogistics.AllSatellites);
-        PacketHandler.sendToPlayer(
-            PacketHandler.getPacket(ProvideSatellitePipeListPacket.class).setList(satellites), context.player());
+        if (context.player() instanceof ServerPlayer player) {
+            PacketDistributor.sendToPlayer(player, new SatellitePipeListMessage(satellites));
+        }
     }
 
     /**
@@ -71,7 +71,7 @@ public record RequestSatellitePipeListMessage(BlockPos pos, boolean fluid) imple
      * <p>One method for both kinds: the two branches this replaced were the same twenty lines
      * twice over, differing only in which set they read.
      */
-    private static <T extends CoreRoutedPipe & SatellitePipe> List<Pair<String, UUID>> reachableFrom(
+    private static <T extends CoreRoutedPipe & SatellitePipe> List<SatelliteEntry> reachableFrom(
             CoreRoutedPipe from,
             Collection<T> satellites
     ) {
@@ -81,8 +81,8 @@ public record RequestSatellitePipeListMessage(BlockPos pos, boolean fluid) imple
                 .filter(satellite -> satellite.getRouter() != null)
                 .filter(satellite -> routesTo(routeTable, satellite.getRouterId()))
                 .sorted(Comparator.comparingDouble(satellite -> nearestHop(routeTable, satellite.getRouterId())))
-                .map(satellite -> new Pair<>(satellite.getSatellitePipeName(), satellite.getRouter().getId()))
-                .collect(Collectors.toList());
+                .map(satellite -> new SatelliteEntry(satellite.getSatellitePipeName(), satellite.getRouter().getId()))
+                .toList();
     }
 
     private static boolean routesTo(List<List<ExitRoute>> routeTable, int routerId) {

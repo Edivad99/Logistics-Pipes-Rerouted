@@ -17,30 +17,13 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.interfaces.IProxy;
-import logisticspipes.utils.item.ItemIdentifier;
 
 public class ServerProxy implements IProxy {
-
-	// LangDatabase (server-side item name cache) is not implemented in 1.20.1.
-	// getName() falls back to getFriendlyName(); updateNames/tick/sendNameUpdateRequest are no-ops.
-	@SuppressWarnings("unused")
-	private long saveThreadTime = 0;
 
 	@Override
 	public String getSide() {
 		return "Server";
 	}
-
-    @Override
-	public String getName(ItemIdentifier item) {
-		return item.getFriendlyName();
-	}
-
-	@Override
-	public void updateNames(ItemIdentifier item, String name) {}
-
-    @Override
-	public void sendNameUpdateRequest(Player player) {}
 
 	@Override
     @Nullable
