@@ -24,9 +24,10 @@ public interface IOrderInfoProvider extends LPFinalSerializable {
 	 * client has no routers or crafting templates to hang a real order off, and only ever displays
 	 * one.
 	 *
-	 * <p>The fields are grouped so the codec fits {@code StreamCodec.composite}, but the grouping
-	 * is not arbitrary -- {@link Progress} is everything that answers "how far along is it", and
-	 * {@link Target} the two fields that are only meaningful together.
+	 * <p>Two of the components are groups rather than plain fields: {@link Progress} is everything
+	 * that answers "how far along is it", and {@link Target} the pair that is only meaningful
+	 * together -- an order either has a destination or has not, and the old format wrote both
+	 * fields behind one shared boolean to say so.
 	 */
 	StreamCodec<RegistryFriendlyByteBuf, IOrderInfoProvider> STREAM_CODEC =
 			StreamCodec.composite(
