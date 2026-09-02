@@ -106,7 +106,7 @@ import network.rs485.logisticspipes.connection.AdjacentUtilKt;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.module.Gui;
+import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.IBitSet;
@@ -119,7 +119,7 @@ import network.rs485.logisticspipes.property.UUIDProperty;
 import network.rs485.logisticspipes.property.UUIDPropertyKt;
 
 public class ModuleCrafter extends LogisticsModule
-		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IScreenOpenController, Gui {
+		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IScreenOpenController, LegacyModuleGui {
 
 	public final ItemIdentifierInventoryProperty dummyInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(11, "Requested items", 127), "dummyInv");

@@ -9,42 +9,32 @@ package logisticspipes.gui.modules;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.LPConstants;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.item.ItemIdentifierInventory;
-import network.rs485.logisticspipes.module.SimpleFilter;
+import logisticspipes.world.inventory.SimpleFilterMenu;
+import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
+import logisticspipes.modules.SimpleFilter;
 
 public class GuiSimpleFilter extends ModuleBaseGui {
 
 	private final SimpleFilter filter;
 
-	public GuiSimpleFilter(Container playerInventory, LogisticsModule filterModule) {
-		super(buildDummy(playerInventory, filterModule), filterModule);
-		if (!(filterModule instanceof SimpleFilter)) throw new IllegalArgumentException("Module is not a filter module");
-		filter = (SimpleFilter) filterModule;
-		panelWidth = 175;
-		panelHeight = 142;
-	}
-	private static DummyContainer buildDummy(Container playerInventory, LogisticsModule filterModule) {
-		SimpleFilter f = (filterModule instanceof SimpleFilter) ? (SimpleFilter) filterModule : null;
-		DummyContainer dummy = new DummyContainer(playerInventory, f != null ? f.getFilterInventory() : null);
-		dummy.addNormalSlotsForPlayerInventory(8, 60);
-
-		//Pipe slots
-		for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-			dummy.addDummySlot(pipeSlot, 8 + pipeSlot * 18, 18);
-		}
-		return dummy;
+	public GuiSimpleFilter(SimpleFilterMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, menu.getModule(), 175, 142);
+		filter = (SimpleFilter) menu.getModule();
 	}
 
 
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-		guiGraphics.text(minecraft.font, ((ItemIdentifierInventory) filter.getFilterInventory()).getName(), 8, 6, 0xFF404040, false);
+		// Asked of the interface, not of the concrete inventory: a module whose filter is a
+		// property wraps one rather than being one, and the cast that used to be here threw.
+		final String name = filter.getFilterInventory() instanceof IItemIdentifierInventory inventory
+				? inventory.getName() : "";
+		guiGraphics.text(minecraft.font, name, 8, 6, 0xFF404040, false);
 		guiGraphics.text(minecraft.font, "Inventory", 8, panelHeight - 92, 0xFF404040, false);
 	}
 

@@ -9,7 +9,7 @@ import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
-import network.rs485.logisticspipes.module.SimpleFilter;
+import logisticspipes.modules.SimpleFilter;
 
 public class HUDSimpleFilterModule implements IHUDModuleRenderer {
 

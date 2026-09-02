@@ -22,7 +22,7 @@ import logisticspipes.LPConfigs;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.guis.pipe.ChassisGuiProvider;
-import logisticspipes.network.packets.chassis.ChassisGUI;
+import logisticspipes.network.to_server.module.OpenChassisModuleGuiMessage;
 import logisticspipes.network.packets.gui.GuiClosePacket;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -34,7 +34,6 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.item.ItemModule;
-import network.rs485.logisticspipes.module.Gui;
 
 public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 
@@ -95,10 +94,9 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 			final int slot = i;
 			SmallGuiButton cfgBtn = new SmallGuiButton(i, left + 5, top + 12 + 20 * i, 10, 10, "!");
 			cfgBtn.setPressListener(b -> {
-				LogisticsModule module = chassisPipe.getSubModule(slot);
-				if (module != null) {
-					MainProxy.sendPacketToServer(PacketHandler.getPacket(ChassisGUI.class).setButtonID(slot)
-							.setPosX(chassisPipe.getX()).setPosY(chassisPipe.getY()).setPosZ(chassisPipe.getZ()));
+				if (chassisPipe.getSubModule(slot) != null) {
+					ClientPacketDistributor.sendToServer(
+							new OpenChassisModuleGuiMessage(chassisPipe.getPos(), slot));
 				}
 			});
 			moduleConfigButtons.add(addRenderableWidget(cfgBtn));
@@ -128,7 +126,7 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 		if (module.isEmpty() || subModule == null) {
 			moduleConfigButtons.get(slot).visible = false;
 		} else {
-			moduleConfigButtons.get(slot).visible = subModule instanceof Gui;
+			moduleConfigButtons.get(slot).visible = subModule.hasGui();
 		}
 	}
 

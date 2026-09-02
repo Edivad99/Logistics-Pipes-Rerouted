@@ -176,7 +176,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
 
 class AsyncExtractorModule(
     val inverseFilter: (ItemStack) -> Boolean = { stack -> stack.isEmpty },
-) : AsyncModule<ExtractorJob, Unit>(), Gui, SneakyDirection,
+) : AsyncModule<ExtractorJob, Unit>(), LegacyModuleGui, SneakyDirection,
     IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver {
 
     companion object {

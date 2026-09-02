@@ -10,7 +10,6 @@ import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.DummyModuleContainer;
 import logisticspipes.world.item.ItemModule;
-import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.SneakyDirection;
 
 @StaticResolve
@@ -23,7 +22,7 @@ public class SneakyModuleInHandGuiProvider extends ModuleInHandGuiProvider {
 	@Override
 	public Object getClientGui(Player player) {
 		LogisticsModule module = ItemModule.getLogisticsModule(player, getInvSlot());
-		if (!(module instanceof Gui && module instanceof SneakyDirection)) {
+		if (!(module.hasGui() && module instanceof SneakyDirection)) {
 			return null;
 		}
 		return new GuiSneakyConfigurator(player.getInventory(), module);

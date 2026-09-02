@@ -22,11 +22,11 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
-import network.rs485.logisticspipes.module.Gui;
+import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.Property;
 
-public class ModuleFluidSupplier extends LogisticsModule implements IClientInformationProvider, Gui {
+public class ModuleFluidSupplier extends LogisticsModule implements IClientInformationProvider, LegacyModuleGui {
 
 	private final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(9, "Requested liquids", 1), "filterInv");

@@ -52,7 +52,7 @@ import net.minecraft.world.level.storage.ValueOutput
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncResult?>(), Gui,
+class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncResult?>(), LegacyModuleGui,
     IClientInformationProvider, IModuleWatchReciver {
 
     companion object {

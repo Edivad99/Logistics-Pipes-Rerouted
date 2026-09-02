@@ -8,7 +8,9 @@ import java.util.Objects;
 import java.util.Set;
 
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
@@ -18,11 +20,10 @@ import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IModuleInventoryReceive;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.proxy.MainProxy;
@@ -35,16 +36,16 @@ import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.SimpleFilterMenu;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.module.Gui;
-import network.rs485.logisticspipes.module.SimpleFilter;
+import logisticspipes.modules.SimpleFilter;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.Property;
 
 @CCType(name = "Terminus Module")
 public class ModuleTerminus extends LogisticsModule
 		implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver,
-		ISimpleInventoryEventHandler, IModuleInventoryReceive, Gui {
+		ISimpleInventoryEventHandler, IModuleInventoryReceive, IModuleMenuProvider {
 
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(9, "Terminated items", 1), "filterInv");
@@ -174,13 +175,8 @@ public class ModuleTerminus extends LogisticsModule
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		return SimpleFilter.getPipeGuiProvider();
-	}
-
-	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return SimpleFilter.getInHandGuiProvider();
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new SimpleFilterMenu(containerId, inventory, target, this);
 	}
 
 }

@@ -44,11 +44,7 @@ import network.rs485.logisticspipes.property.Property
 import network.rs485.logisticspipes.util.matchingSequence
 import logisticspipes.gui.hud.modules.HUDAdvancedExtractor
 import logisticspipes.interfaces.*
-import logisticspipes.network.NewGuiHandler
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
-import logisticspipes.network.guis.module.inhand.AdvancedExtractorModuleInHand
-import logisticspipes.network.guis.module.inpipe.AdvancedExtractorModuleSlot
+import logisticspipes.modules.SimpleFilter
 import logisticspipes.network.to_client.module.ModuleInventoryMessage
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage
@@ -57,7 +53,12 @@ import logisticspipes.proxy.computers.interfaces.CCCommand
 import logisticspipes.utils.ISimpleInventoryEventHandler
 import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
+import logisticspipes.interfaces.IModuleMenuProvider
+import logisticspipes.world.inventory.AdvancedExtractorMenu
 import net.minecraft.core.Direction
+import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.Container
 import net.neoforged.neoforge.network.PacketDistributor
 import net.minecraft.server.level.ServerPlayer
@@ -67,7 +68,7 @@ import kotlinx.coroutines.Deferred
 
 class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, SneakyDirection,
     IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, IModuleInventoryReceive,
-    ISimpleInventoryEventHandler, Gui {
+    ISimpleInventoryEventHandler, IModuleMenuProvider {
 
     companion object {
         @JvmStatic
@@ -95,13 +96,12 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
     override val everyNthTick: Int
         get() = extractor.everyNthTick
 
-    override val module = this
+    override fun createMenu(containerId: Int, inventory: Inventory, target: ModuleTarget): AbstractContainerMenu =
+        AdvancedExtractorMenu(containerId, inventory, target, this)
 
-    override val pipeGuiProvider: ModuleCoordinatesGuiProvider
-        get() = NewGuiHandler.getGui(AdvancedExtractorModuleSlot::class.java).setAreItemsIncluded(itemsIncluded.value)
-
-    override val inHandGuiProvider: ModuleInHandGuiProvider
-        get() = NewGuiHandler.getGui(AdvancedExtractorModuleInHand::class.java)
+    override fun writeMenuData(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeBoolean(itemsIncluded.value)
+    }
 
     override fun finishInit() {
         val isInitialized = super.initialized

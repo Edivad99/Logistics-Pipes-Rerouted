@@ -65,6 +65,7 @@ import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.ILPPositionProvider;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.IQueueCCEvent;
@@ -136,10 +137,10 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.item.LPItems;
+import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.connection.Adjacent;
 import network.rs485.logisticspipes.connection.AdjacentFactory;
 import network.rs485.logisticspipes.connection.NoAdjacent;
-import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.PropertyHolder;
 import network.rs485.logisticspipes.property.UtilKt;
 
@@ -931,8 +932,10 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openGui) {
 					final LogisticsModule module = getLogisticsModule();
-					if (module instanceof Gui) {
-						Gui.getPipeGuiProvider((Gui) module).setTilePos(container).open(entityplayer);
+					if (module instanceof IModuleMenuProvider && entityplayer instanceof ServerPlayer serverPlayer) {
+						IModuleMenuProvider.open(serverPlayer, module);
+					} else if (module instanceof LegacyModuleGui legacy) {
+						LegacyModuleGui.getPipeGuiProvider(legacy).setTilePos(container).open(entityplayer);
 					} else {
 						onWrenchClicked(entityplayer);
 					}

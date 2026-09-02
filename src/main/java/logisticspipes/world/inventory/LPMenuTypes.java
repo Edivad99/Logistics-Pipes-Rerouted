@@ -18,6 +18,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IFreqCardHolder;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidTerminus;
@@ -26,6 +27,9 @@ import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.utils.item.ItemIdentifier;
+
+import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
+import logisticspipes.modules.SimpleFilter;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
@@ -109,6 +113,22 @@ public class LPMenuTypes {
         deferredRegister.register("logic_controller",
             () -> blockEntityMenu(LogisticsTileGenericPipe.class, LogicControllerMenu::new));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<AdvancedExtractorMenu>> ADVANCED_EXTRACTOR =
+        deferredRegister.register("advanced_extractor", () -> new MenuType<>(
+            (IContainerFactory<AdvancedExtractorMenu>) (containerId, inventory, buffer) -> {
+                final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+                final AsyncAdvancedExtractor module = target.resolve(inventory.player, AsyncAdvancedExtractor.class);
+                if (module == null) {
+                    throw new IllegalStateException("Cannot find advanced extractor at %s".formatted(target));
+                }
+                // Which way the filter reads is the server's copy of the module, not the client's.
+                module.getItemsIncluded().setValue(buffer.readBoolean());
+                return new AdvancedExtractorMenu(containerId, inventory, target, module);
+            }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<SimpleFilterMenu>> SIMPLE_FILTER =
+        deferredRegister.register("simple_filter", () -> moduleMenu(SimpleFilter.class, SimpleFilterMenu::new));
+
     public static final DeferredHolder<MenuType<?>, MenuType<PowerProviderMenu>> POWER_PROVIDER =
         deferredRegister.register("power_provider",
             () -> blockEntityMenu(LogisticsPowerProviderTileEntity.class, PowerProviderMenu::new));
@@ -133,6 +153,23 @@ public class LPMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<ProgramCompilerMenu>> PROGRAM_COMPILER =
         deferredRegister.register("program_compiler",
             () -> blockEntityMenu(LogisticsProgramCompilerBlockEntity.class, ProgramCompilerMenu::new));
+
+    /**
+     * A menu belonging to a module, wherever the module happens to be.
+     */
+    private static <T extends AbstractContainerMenu, M> MenuType<T>
+    moduleMenu(Class<M> moduleType, ModuleMenuFactory<T, M> factory) {
+        IContainerFactory<T> containerFactory = (containerId, inventory, buffer) -> {
+            final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+            final M module = target.resolve(inventory.player, moduleType);
+            if (module == null) {
+                throw new IllegalStateException(
+                    "Cannot find module of type %s at %s".formatted(moduleType.getName(), target));
+            }
+            return factory.create(containerId, inventory, target, module);
+        };
+        return new MenuType<>(containerFactory, FeatureFlags.DEFAULT_FLAGS);
+    }
 
     /**
      * A menu belonging to the pipe inside a block entity rather than to the block entity itself.
@@ -163,6 +200,11 @@ public class LPMenuTypes {
                 "Cannot find block entity of type %s at [%s]".formatted(entityType.getName(), blockPos));
         };
         return new MenuType<>(containerFactory, FeatureFlags.DEFAULT_FLAGS);
+    }
+
+    private interface ModuleMenuFactory<C extends AbstractContainerMenu, M> {
+
+        C create(int containerId, Inventory inventory, ModuleTarget target, M module);
     }
 
     private interface CustomMenuFactory<C extends AbstractContainerMenu, T> {

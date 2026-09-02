@@ -9,16 +9,17 @@ package logisticspipes.gui.modules;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.world.Container;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.OpenSneakyDirectionGuiMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.world.inventory.AdvancedExtractorMenu;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
@@ -30,26 +31,11 @@ public class GuiAdvancedExtractor extends ModuleBaseGui {
 	private final PropertyLayer propertyLayer;
 	private final ValuePropertyOverlay<Boolean, BooleanProperty> itemsIncludedOverlay;
 
-	public GuiAdvancedExtractor(Container playerInventory, AsyncAdvancedExtractor advancedExtractor) {
-		super(buildDummy(playerInventory, advancedExtractor), advancedExtractor);
-		this.advancedExtractor = advancedExtractor;
-
+	public GuiAdvancedExtractor(AdvancedExtractorMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, menu.getModule(), 175, 142);
+		this.advancedExtractor = menu.getExtractor();
 		propertyLayer = new PropertyLayer(this.advancedExtractor.getProperties());
-
 		itemsIncludedOverlay = propertyLayer.overlay(this.advancedExtractor.getItemsIncluded());
-
-		panelWidth = 175;
-		panelHeight = 142;
-	}
-	private static DummyContainer buildDummy(Container playerInventory, AsyncAdvancedExtractor advancedExtractor) {
-		DummyContainer dummy = new DummyContainer(playerInventory, advancedExtractor.getFilterInventory());
-		dummy.addNormalSlotsForPlayerInventory(8, 60);
-
-		//Pipe slots
-		for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-			dummy.addDummySlot(pipeSlot, 8 + pipeSlot * 18, 18);
-		}
-		return dummy;
 	}
 
 

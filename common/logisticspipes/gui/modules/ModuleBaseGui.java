@@ -1,6 +1,8 @@
 package logisticspipes.gui.modules;
 
 import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import lombok.Getter;
@@ -19,6 +21,12 @@ public abstract class ModuleBaseGui extends LogisticsBaseGuiScreen {
 
 	public ModuleBaseGui(AbstractContainerMenu par1Container, LogisticsModule module) {
 		super(par1Container);
+		this.module = module;
+	}
+
+	public ModuleBaseGui(AbstractContainerMenu menu, Inventory inventory, Component title, LogisticsModule module,
+			int panelWidth, int panelHeight) {
+		super(menu, inventory, title, panelWidth, panelHeight, 0, 0);
 		this.module = module;
 	}
 

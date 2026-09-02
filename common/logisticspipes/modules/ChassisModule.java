@@ -22,14 +22,14 @@ import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.module.Gui;
+import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.SlottedModule;
 import network.rs485.logisticspipes.property.SlottedModuleListProperty;
 import network.rs485.logisticspipes.property.UpgradeManagerListProperty;
 
-public class ChassisModule extends LogisticsModule implements Gui {
+public class ChassisModule extends LogisticsModule implements LegacyModuleGui {
 
 	private final PipeLogisticsChassis parentChassis;
 	private final SlottedModuleListProperty modules;

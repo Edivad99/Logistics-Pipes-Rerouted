@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IHUDModuleHandler;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.interfaces.IWorldProvider;
@@ -36,7 +37,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
-import network.rs485.logisticspipes.module.Gui;
+import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
 import network.rs485.logisticspipes.property.UtilKt;
@@ -190,7 +191,7 @@ public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeH
 
 	@CCCommand(description = "Returns true if the Pipe has a gui")
 	public boolean hasGui() {
-		return this instanceof Gui;
+		return this instanceof IModuleMenuProvider || this instanceof LegacyModuleGui;
 	}
 
 	public LogisticsModule getModule() {

@@ -11,6 +11,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IWorldProvider;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
@@ -35,7 +37,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.DummyLevelProvider;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
-import network.rs485.logisticspipes.module.Gui;
+import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemModule extends LogisticsItem {
@@ -71,10 +73,15 @@ public class ItemModule extends LogisticsItem {
 
     private void openConfigGui(ItemStack stack, Player player, Level level) {
         LogisticsModule module = getModuleForItem(stack, null, new DummyLevelProvider(level), null);
-        if (module instanceof Gui && !stack.isEmpty()) {
-            module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().getSelectedSlot());
-            ItemModuleInformationManager.readInformation(stack, module);
-            Gui.getInHandGuiProvider((Gui) module).open(player);
+        if (stack.isEmpty() || module == null) {
+            return;
+        }
+        module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().getSelectedSlot());
+        ItemModuleInformationManager.readInformation(stack, module);
+        if (module instanceof IModuleMenuProvider && player instanceof ServerPlayer serverPlayer) {
+            IModuleMenuProvider.open(serverPlayer, module);
+        } else if (module instanceof LegacyModuleGui legacy) {
+            LegacyModuleGui.getInHandGuiProvider(legacy).open(player);
         }
     }
 

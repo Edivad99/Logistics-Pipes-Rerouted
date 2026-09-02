@@ -13,7 +13,6 @@ import logisticspipes.util.LPDataInput;
 import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.DummyContainer;
-import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.SneakyDirection;
 
 @StaticResolve
@@ -45,7 +44,7 @@ public class SneakyModuleInSlotGuiProvider extends ModuleCoordinatesGuiProvider 
 	@Override
 	public Object getClientGui(Player player) {
 		LogisticsModule module = this.getLogisticsModule(player.level(), LogisticsModule.class);
-		if (!(module instanceof SneakyDirection && module instanceof Gui)) {
+		if (!(module instanceof SneakyDirection && module.hasGui())) {
 			return null;
 		}
 		((SneakyDirection) module).setSneakyDirection(sneakyOrientation);
@@ -55,7 +54,7 @@ public class SneakyModuleInSlotGuiProvider extends ModuleCoordinatesGuiProvider 
 	@Override
 	public DummyContainer getContainer(Player player) {
 		LogisticsModule module = this.getLogisticsModule(player.level(), LogisticsModule.class);
-		if (!(module instanceof SneakyDirection && module instanceof Gui)) {
+		if (!(module instanceof SneakyDirection && module.hasGui())) {
 			return null;
 		}
 		return new DummyContainer(player.getInventory(), null);

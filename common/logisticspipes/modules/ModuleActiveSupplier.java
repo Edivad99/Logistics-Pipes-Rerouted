@@ -48,7 +48,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.connection.AdjacentUtilKt;
-import network.rs485.logisticspipes.module.Gui;
+import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.EnumProperty;
 import network.rs485.logisticspipes.property.IntListProperty;
@@ -57,7 +57,7 @@ import network.rs485.logisticspipes.property.Property;
 
 public class ModuleActiveSupplier extends LogisticsModule
 		implements IRequestItems, IRequireReliableTransport, IClientInformationProvider, IHUDModuleHandler,
-		IModuleWatchReciver, IModuleInventoryReceive, ISimpleInventoryEventHandler, Gui {
+		IModuleWatchReciver, IModuleInventoryReceive, ISimpleInventoryEventHandler, LegacyModuleGui {
 
 	public static final int SUPPLIER_SLOTS = 9;
 
