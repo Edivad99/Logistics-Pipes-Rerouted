@@ -26,8 +26,6 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.chathelper.LPChatListener;
 import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.OpenChatGui;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateListMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugClearMessage;
@@ -36,18 +34,17 @@ import logisticspipes.network.to_client.debug.RoutingDebugDoneMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugFiltersMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugInitMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugSourceMessage;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.ServerRouter;
-import logisticspipes.routing.debug.RouteDebugInfo;
 import logisticspipes.ticks.QueuedTasks;
 
 public class DebugController implements IRoutingDebugAdapter {
 
-	private void sendToSender(CustomPacketPayload payload) {
+	private void sendToPlayer(CustomPacketPayload payload) {
 		if (sender instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, payload);
 		}
@@ -119,7 +116,9 @@ public class DebugController implements IRoutingDebugAdapter {
 							return;
 						}
 					}
-					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), sender);
+					if (sender instanceof ServerPlayer openChatFor) {
+			PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+		}
 					// This used to be oldThread.stop(), which throws UnsupportedOperationException
 					// outright since Java 20. The previous run is canceled cooperatively instead:
 					// wait() turns the interrupt into a CancellationException that unwinds
@@ -173,7 +172,9 @@ public class DebugController implements IRoutingDebugAdapter {
 			sender.sendSystemMessage(Component.literal(reason));
 			LPChatListener.addTask(() -> {
 				state = DebugWaitState.CONTINUE;
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), sender);
+				if (sender instanceof ServerPlayer openChatFor) {
+			PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+		}
 				return true;
 			}, sender);
 			return null;
@@ -204,7 +205,7 @@ public class DebugController implements IRoutingDebugAdapter {
 		this.candidatesCost = candidatesCost;
 		this.closedSet = closedSet;
 		this.filterList = filterList;
-		sendToSender(new RoutingDebugCandidateListMessage(
+		sendToPlayer(new RoutingDebugCandidateListMessage(
 				candidatesCost.stream().map(RouteDebugInfo::of).toList()));
 		wait("Start?");
 	}
@@ -217,8 +218,8 @@ public class DebugController implements IRoutingDebugAdapter {
 		}
 		pipeHandled = false;
 		prevNode = lowestCostNode;
-		sendToSender(new RoutingDebugClearMessage());
-		sendToSender(new RoutingDebugSourceMessage(RouteDebugInfo.of(lowestCostNode)));
+		sendToPlayer(new RoutingDebugClearMessage());
+		sendToPlayer(new RoutingDebugSourceMessage(RouteDebugInfo.of(lowestCostNode)));
 	}
 
 	@Override
@@ -240,7 +241,7 @@ public class DebugController implements IRoutingDebugAdapter {
 			if (set != null) {
 				IRouter router = SimpleServiceLocator.routerManager.getRouter(i);
 				if (router != null) {
-					sendToSender(new RoutingDebugClosedSetMessage(router.getLPPosition().getBlockPos(), set));
+					sendToPlayer(new RoutingDebugClosedSetMessage(router.getLPPosition().getBlockPos(), set));
 				}
 			}
 		}
@@ -249,7 +250,7 @@ public class DebugController implements IRoutingDebugAdapter {
 			if (filters != null) {
 				IRouter router = SimpleServiceLocator.routerManager.getRouter(i);
 				if (router != null) {
-					sendToSender(new RoutingDebugFiltersMessage(router.getLPPosition().getBlockPos(),
+					sendToPlayer(new RoutingDebugFiltersMessage(router.getLPPosition().getBlockPos(),
 						filterPositions(filters)));
 				}
 			}
@@ -260,7 +261,7 @@ public class DebugController implements IRoutingDebugAdapter {
 		if (flag && nextNode != null) {
 			exitRoutes.addFirst(nextNode);
 		}
-		sendToSender(new RoutingDebugCandidateListMessage(
+		sendToPlayer(new RoutingDebugCandidateListMessage(
 				exitRoutes.stream().map(RouteDebugInfo::of).toList()));
 		if (prevNode == null || prevNode.debug.isTraced) {
 			//Display Information On Client Side
@@ -274,7 +275,7 @@ public class DebugController implements IRoutingDebugAdapter {
 	public void newCanidate(ExitRoute next) {
 		next.debug.index = cachedRoutes.size();
 		cachedRoutes.add(new WeakReference<>(next));
-		sendToSender(new RoutingDebugCandidateMessage(RouteDebugInfo.of(next)));
+		sendToPlayer(new RoutingDebugCandidateMessage(RouteDebugInfo.of(next)));
 	}
 
 	@Override
@@ -290,15 +291,15 @@ public class DebugController implements IRoutingDebugAdapter {
 	@Override
 	public void done() {
 		sendMsg("Update Done");
-		sendToSender(new RoutingDebugClearMessage());
-		sendToSender(new RoutingDebugDoneMessage());
+		sendToPlayer(new RoutingDebugClearMessage());
+		sendToPlayer(new RoutingDebugDoneMessage());
 		cachedRoutes.clear();
 	}
 
 	@Override
 	public void init() {
 		sendMsg("Initialising variables");
-		sendToSender(new RoutingDebugInitMessage());
+		sendToPlayer(new RoutingDebugInitMessage());
 	}
 
 	@Override

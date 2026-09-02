@@ -35,6 +35,7 @@ import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_client.block.RunningCraftingTasksMessage;
 import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.network.to_client.config.PlayerConfigMessage;
+import logisticspipes.network.to_client.debug.AskForDebugTargetMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateListMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugClearMessage;
@@ -43,6 +44,7 @@ import logisticspipes.network.to_client.debug.RoutingDebugDoneMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugFiltersMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugInitMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugSourceMessage;
+import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.block.BlockRotationMessage;
 import logisticspipes.network.to_client.module.QuickSortMarkerMessage;
@@ -96,6 +98,7 @@ import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage
 import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.debug.DebugTargetMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.network.to_server.orderer.DropDiskMessage;
 import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
@@ -266,6 +269,8 @@ public class PacketHandler {
                 RequestRunningCraftingTasksMessage.STREAM_CODEC, RequestRunningCraftingTasksMessage::handle);
         registrar.playToServer(RequestTrackableItemsMessage.TYPE,
                 RequestTrackableItemsMessage.STREAM_CODEC, RequestTrackableItemsMessage::handle);
+        registrar.playToServer(DebugTargetMessage.TYPE,
+                DebugTargetMessage.STREAM_CODEC, DebugTargetMessage::handle);
         registrar.playToServer(SetPlayerConfigMessage.TYPE,
                 SetPlayerConfigMessage.STREAM_CODEC, SetPlayerConfigMessage::handle);
         registrar.playToServer(QuickSortChestWatchMessage.TYPE,
@@ -397,6 +402,10 @@ public class PacketHandler {
                 SendQueueContentMessage.STREAM_CODEC, SendQueueContentMessage::handle);
         registrar.playToClient(PlayerConfigMessage.TYPE,
                 PlayerConfigMessage.STREAM_CODEC, PlayerConfigMessage::handle);
+        registrar.playToClient(AskForDebugTargetMessage.TYPE,
+                AskForDebugTargetMessage.STREAM_CODEC, AskForDebugTargetMessage::handle);
+        registrar.playToClient(OpenChatGuiMessage.TYPE,
+                OpenChatGuiMessage.STREAM_CODEC, OpenChatGuiMessage::handle);
         registrar.playToClient(RoutingDebugCandidateListMessage.TYPE,
                 RoutingDebugCandidateListMessage.STREAM_CODEC, RoutingDebugCandidateListMessage::handle);
         registrar.playToClient(RoutingDebugCandidateMessage.TYPE,
