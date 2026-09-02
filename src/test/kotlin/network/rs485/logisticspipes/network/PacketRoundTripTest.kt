@@ -37,6 +37,7 @@
 
 package network.rs485.logisticspipes.network
 
+import network.rs485.logisticspipes.TestBootstrap
 import io.netty.buffer.Unpooled
 import logisticspipes.modules.LogisticsModule.ModulePositionType
 import logisticspipes.network.abstractpackets.CoordinatesPacket
@@ -46,12 +47,10 @@ import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import logisticspipes.network.packets.pipe.ChassisPipeModuleContent
 import logisticspipes.network.packets.pipe.RequestPipeDimension
-import net.minecraft.SharedConstants
 import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
-import net.minecraft.server.Bootstrap
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import logisticspipes.util.LPDataIOWrapper
@@ -77,8 +76,7 @@ class PacketRoundTripTest {
         @JvmStatic
         @BeforeAll
         fun bootstrap() {
-            SharedConstants.tryDetectVersion()
-            Bootstrap.bootStrap()
+            TestBootstrap.boot()
         }
 
         private const val ANY_ID = 0

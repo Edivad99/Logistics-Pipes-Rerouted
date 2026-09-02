@@ -1,15 +1,14 @@
 package network.rs485.logisticspipes.network
 
+import network.rs485.logisticspipes.TestBootstrap
 import io.netty.buffer.Unpooled
 import logisticspipes.request.resources.DictResource
 import logisticspipes.request.resources.IResource
 import logisticspipes.request.resources.ItemResource
 import logisticspipes.utils.item.ItemIdentifierStack
-import net.minecraft.SharedConstants
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.RegistryFriendlyByteBuf
-import net.minecraft.server.Bootstrap
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.neoforged.neoforge.network.connection.ConnectionType
@@ -32,8 +31,7 @@ class ResourceCodecTest {
         @JvmStatic
         @BeforeAll
         fun bootstrap() {
-            SharedConstants.tryDetectVersion()
-            Bootstrap.bootStrap()
+            TestBootstrap.boot()
         }
     }
 

@@ -37,15 +37,14 @@
 
 package network.rs485.logisticspipes.network
 
+import network.rs485.logisticspipes.TestBootstrap
 import io.netty.buffer.Unpooled
 import logisticspipes.network.ModernPacketCodec
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
-import net.minecraft.SharedConstants
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.Identifier
-import net.minecraft.server.Bootstrap
 import net.neoforged.neoforge.network.connection.ConnectionType
 import logisticspipes.util.LPDataIOWrapper
 import org.junit.jupiter.api.BeforeAll
@@ -66,8 +65,7 @@ class ModernPacketCodecTest {
         @JvmStatic
         @BeforeAll
         fun bootstrap() {
-            SharedConstants.tryDetectVersion()
-            Bootstrap.bootStrap()
+            TestBootstrap.boot()
         }
 
         private const val PACKET_ID = 0

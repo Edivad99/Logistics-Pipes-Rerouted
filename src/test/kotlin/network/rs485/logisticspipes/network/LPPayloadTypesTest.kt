@@ -37,18 +37,17 @@
 
 package network.rs485.logisticspipes.network
 
+import network.rs485.logisticspipes.TestBootstrap
 import io.netty.buffer.Unpooled
 import logisticspipes.network.LPPayloadTypes
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
-import net.minecraft.SharedConstants
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.Identifier
-import net.minecraft.server.Bootstrap
 import net.neoforged.neoforge.network.connection.ConnectionType
 import org.junit.jupiter.api.BeforeAll
 import kotlin.test.AfterTest
@@ -71,8 +70,7 @@ class LPPayloadTypesTest {
         @JvmStatic
         @BeforeAll
         fun bootstrap() {
-            SharedConstants.tryDetectVersion()
-            Bootstrap.bootStrap()
+            TestBootstrap.boot()
         }
     }
 
