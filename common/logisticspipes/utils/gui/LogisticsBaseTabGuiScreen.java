@@ -184,7 +184,18 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 			return slot;
 		}
 
+		/**
+		 * Adds a button to this tab, and routes its press to {@link #buttonClicked}.
+		 *
+		 * <p>Tabs answer their buttons in one place rather than one listener each -- that used to
+		 * be {@code actionPerformed}, which 1.20.1 replaced with per-button listeners. Nothing
+		 * called {@code buttonClicked} after the port, so every tab button that relied on it did
+		 * nothing at all. A button that brought its own listener keeps it; both run.
+		 */
 		public AbstractButton addRenderableWidget(AbstractButton button) {
+			if (button instanceof SmallGuiButton smallButton) {
+				smallButton.setPressListener(smallButton.getPressListener().andThen(this::buttonClicked));
+			}
 			TAB_BUTTONS.add(LogisticsBaseTabGuiScreen.this.addRenderableWidget(button));
 			return button;
 		}
