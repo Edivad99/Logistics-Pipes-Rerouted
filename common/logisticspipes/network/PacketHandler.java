@@ -98,6 +98,8 @@ import logisticspipes.network.to_client.module.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage;
 import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
+import logisticspipes.network.to_server.channel.DeleteChannelMessage;
+import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
 import logisticspipes.network.to_server.debug.DebugTargetMessage;
@@ -125,6 +127,7 @@ import logisticspipes.network.to_server.orderer.RequestFluidOrdererRefreshMessag
 import logisticspipes.network.to_server.orderer.RequestOrdererRefreshMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeContentMessage;
 import logisticspipes.network.to_server.pipe.RequestSatellitePipeListMessage;
+import logisticspipes.network.to_server.security.RequestPlayerListMessage;
 import logisticspipes.network.to_server.security.RequestSecurityStationCCIdsMessage;
 import logisticspipes.network.to_server.block.SaveDiskContentMessage;
 import logisticspipes.network.to_server.security.SaveSecuritySettingsMessage;
@@ -271,6 +274,12 @@ public class PacketHandler {
                 RequestRunningCraftingTasksMessage.STREAM_CODEC, RequestRunningCraftingTasksMessage::handle);
         registrar.playToServer(RequestTrackableItemsMessage.TYPE,
                 RequestTrackableItemsMessage.STREAM_CODEC, RequestTrackableItemsMessage::handle);
+        registrar.playToServer(DeleteChannelMessage.TYPE,
+                DeleteChannelMessage.STREAM_CODEC, DeleteChannelMessage::handle);
+        registrar.playToServer(RequestPlayerListMessage.TYPE,
+                RequestPlayerListMessage.STREAM_CODEC, RequestPlayerListMessage::handle);
+        registrar.playToServer(SaveChannelMessage.TYPE,
+                SaveChannelMessage.STREAM_CODEC, SaveChannelMessage::handle);
         registrar.playToServer(DebugTargetMessage.TYPE,
                 DebugTargetMessage.STREAM_CODEC, DebugTargetMessage::handle);
         registrar.playToServer(SetPlayerConfigMessage.TYPE,

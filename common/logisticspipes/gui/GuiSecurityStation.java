@@ -20,9 +20,9 @@ import logisticspipes.gui.popup.GuiEditCCAccessTable;
 import logisticspipes.gui.popup.GuiSecurityStationPopup;
 import logisticspipes.interfaces.PlayerListReciver;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.PlayerListRequest;
 import logisticspipes.network.packets.gui.OpenSecurityChannelManagerPacket;
 import logisticspipes.network.to_server.security.OpenSecurityPlayerMessage;
+import logisticspipes.network.to_server.security.RequestPlayerListMessage;
 import logisticspipes.network.to_server.security.RequestSecurityStationCCIdsMessage;
 import logisticspipes.network.to_server.security.SecurityCardActionMessage;
 import logisticspipes.network.to_server.security.SetSecurityStationAuthorizedMessage;
@@ -158,7 +158,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		}
 		searchBar.reposition(leftPos + 180, bottom - 120, right - 8 + addition - leftPos - 180, 17);
         addRenderableWidget(searchBar);
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(PlayerListRequest.class));
+		ClientPacketDistributor.sendToServer(new RequestPlayerListMessage());
 	}
 
 	@Override

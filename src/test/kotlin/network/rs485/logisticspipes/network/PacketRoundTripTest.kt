@@ -42,10 +42,10 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType
 import logisticspipes.network.abstractpackets.CoordinatesPacket
 import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
-import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import logisticspipes.network.packets.pipe.ChassisPipeModuleContent
+import logisticspipes.network.packets.pipe.RequestPipeDimension
 import net.minecraft.SharedConstants
 import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
@@ -150,8 +150,8 @@ class PacketRoundTripTest {
     @Test
     fun `ModernPacket carries the dimension`() {
         // Any packet that chains into ModernPacket.writeData picks the dimension up;
-        // DeleteChannelPacket is one of the shallowest that does.
-        val actual = roundTrip(DeleteChannelPacket(ANY_ID).withDimension())
+        // RequestPipeDimension is one of the shallowest that does.
+        val actual = roundTrip(RequestPipeDimension(ANY_ID).withDimension())
         assertEquals(Identifier.parse("logisticspipes:test_dimension"), actual.dimension)
     }
 

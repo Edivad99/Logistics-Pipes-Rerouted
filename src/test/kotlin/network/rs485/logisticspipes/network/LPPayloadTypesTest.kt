@@ -41,7 +41,7 @@ import io.netty.buffer.Unpooled
 import logisticspipes.network.LPPayloadTypes
 import logisticspipes.network.PacketHandler
 import logisticspipes.network.abstractpackets.ModernPacket
-import logisticspipes.network.packets.DeleteChannelPacket
+import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import net.minecraft.SharedConstants
 import net.minecraft.core.RegistryAccess
@@ -103,11 +103,11 @@ class LPPayloadTypesTest {
 
     @Test
     fun `a packet name is derived from its class, not its position`() {
-        buildTableOf(CraftingPipeOpenConnectedGuiPacket(0), DeleteChannelPacket(1))
+        buildTableOf(CraftingPipeOpenConnectedGuiPacket(0), RequestUpdateNamesPacket(1))
         val first = LPPayloadTypes.entryFor(CraftingPipeOpenConnectedGuiPacket(0)).name()
 
         // Same class, different id, different neighbours in the table.
-        buildTableOf(DeleteChannelPacket(0), CraftingPipeOpenConnectedGuiPacket(7))
+        buildTableOf(RequestUpdateNamesPacket(0), CraftingPipeOpenConnectedGuiPacket(7))
         val second = LPPayloadTypes.entryFor(CraftingPipeOpenConnectedGuiPacket(7)).name()
 
         assertEquals(first, second, "the payload name must not depend on the packet table")
@@ -121,10 +121,10 @@ class LPPayloadTypesTest {
 
     @Test
     fun `different packets get different names`() {
-        buildTableOf(CraftingPipeOpenConnectedGuiPacket(0), DeleteChannelPacket(1))
+        buildTableOf(CraftingPipeOpenConnectedGuiPacket(0), RequestUpdateNamesPacket(1))
         assertNotEquals(
             LPPayloadTypes.entryFor(CraftingPipeOpenConnectedGuiPacket(0)).name(),
-            LPPayloadTypes.entryFor(DeleteChannelPacket(1)).name(),
+            LPPayloadTypes.entryFor(RequestUpdateNamesPacket(1)).name(),
         )
     }
 
@@ -168,7 +168,7 @@ class LPPayloadTypesTest {
     @Test
     fun `payloadFor reports a packet that was never registered`() {
         buildTableOf(CraftingPipeOpenConnectedGuiPacket(0))
-        val error = runCatching { LPPayloadTypes.payloadFor(DeleteChannelPacket(1)) }.exceptionOrNull()
+        val error = runCatching { LPPayloadTypes.payloadFor(RequestUpdateNamesPacket(1)) }.exceptionOrNull()
         assertEquals(IllegalStateException::class, error!!::class)
     }
 }

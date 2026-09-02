@@ -6,11 +6,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.DeleteChannelPacket;
 import logisticspipes.network.packets.gui.OpenAddChannelGUIPacket;
 import logisticspipes.network.packets.gui.OpenEditChannelGUIPacket;
+import logisticspipes.network.to_server.channel.DeleteChannelMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -58,7 +60,8 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
 			int selected = textList.getSelected();
 			if (selected >= 0) {
 				this.setSubGui(new ActionChoicePopup(TextUtil.translate(GUI_LANG_KEY + "deletedialog.title"), TextUtil.translate(GUI_LANG_KEY + "deletedialog.yes"), () ->
-						MainProxy.sendPacketToServer(PacketHandler.getPacket(DeleteChannelPacket.class).setChannelIdentifier(channelList.get(selected).getChannelIdentifier())),
+						ClientPacketDistributor.sendToServer(
+								new DeleteChannelMessage(channelList.get(selected).getChannelIdentifier())),
 						TextUtil.translate(GUI_LANG_KEY + "deletedialog.no"), () -> {}));
 			}
 		});

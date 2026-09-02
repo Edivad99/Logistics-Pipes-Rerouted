@@ -1,5 +1,6 @@
 package logisticspipes.gui.popup;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.client.Minecraft;
@@ -7,9 +8,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.AddNewChannelPacket;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
@@ -65,7 +66,8 @@ public class GuiAddChannelPopup extends SubGuiScreen {
 			} else if (checkPrivate.getState()) {
 				rights = ChannelInformation.AccessRights.PRIVATE;
 			}
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(AddNewChannelPacket.class).setName(this.textInput.getValue()).setRights(rights).setSecurityStationID(security));
+			ClientPacketDistributor.sendToServer(new SaveChannelMessage(
+					Optional.empty(), this.textInput.getValue(), rights, Optional.ofNullable(security)));
 			exitGui();
 		});
 		addRenderableWidget(saveBtn);

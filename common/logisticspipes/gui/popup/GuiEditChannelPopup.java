@@ -1,12 +1,13 @@
 package logisticspipes.gui.popup;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.EditChannelPacket;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.SmallGuiButton;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -38,8 +39,9 @@ public class GuiEditChannelPopup extends GuiAddChannelPopup {
 			} else if (checkPrivate.getState()) {
 				rights = ChannelInformation.AccessRights.PRIVATE;
 			}
-			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(EditChannelPacket.class).setChannelIdentifier(channelIdentifier).setName(this.textInput.getValue()).setRights(rights).setSecurityStationID(security));
+			ClientPacketDistributor.sendToServer(new SaveChannelMessage(
+					Optional.of(channelIdentifier), this.textInput.getValue(), rights,
+					Optional.ofNullable(security)));
 			exitGui();
 		});
 		addRenderableWidget(editSave);
