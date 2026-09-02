@@ -34,6 +34,7 @@ import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.BlockRotationMessage;
+import logisticspipes.network.to_client.ChassisOrientationMessage;
 import logisticspipes.network.to_client.CompilerStatusMessage;
 import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.CraftingModuleUpdateMessage;
@@ -52,6 +53,7 @@ import logisticspipes.network.to_client.OrdererWatchRemoveMessage;
 import logisticspipes.network.to_client.OreDictItemSinkListMessage;
 import logisticspipes.network.to_client.PipePropertiesMessage;
 import logisticspipes.network.to_client.PipeRenderUpdateMessage;
+import logisticspipes.network.to_client.PipeStatsMessage;
 import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.network.to_client.PowerJunctionLevelMessage;
 import logisticspipes.network.to_client.PowerProviderLevelMessage;
@@ -78,7 +80,9 @@ import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
 import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.PipeHudWatchMessage;
+import logisticspipes.network.to_server.PipeOrderWatchMessage;
 import logisticspipes.network.to_server.RequestBlockRotationMessage;
+import logisticspipes.network.to_server.RequestChassisOrientationMessage;
 import logisticspipes.network.to_server.RequestFluidOrdererRefreshMessage;
 import logisticspipes.network.to_server.RequestOrdererRefreshMessage;
 import logisticspipes.network.to_server.RequestPipeContentMessage;
@@ -221,6 +225,10 @@ public class PacketHandler {
                 TrackItemMessage.STREAM_CODEC, TrackItemMessage::handle);
         registrar.playToServer(TriggerCompilerTaskMessage.TYPE,
                 TriggerCompilerTaskMessage.STREAM_CODEC, TriggerCompilerTaskMessage::handle);
+        registrar.playToServer(PipeOrderWatchMessage.TYPE,
+                PipeOrderWatchMessage.STREAM_CODEC, PipeOrderWatchMessage::handle);
+        registrar.playToServer(RequestChassisOrientationMessage.TYPE,
+                RequestChassisOrientationMessage.STREAM_CODEC, RequestChassisOrientationMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -310,6 +318,10 @@ public class PacketHandler {
                 CraftingTargetMessage.STREAM_CODEC, CraftingTargetMessage::handle);
         registrar.playToClient(CompilerStatusMessage.TYPE,
                 CompilerStatusMessage.STREAM_CODEC, CompilerStatusMessage::handle);
+        registrar.playToClient(ChassisOrientationMessage.TYPE,
+                ChassisOrientationMessage.STREAM_CODEC, ChassisOrientationMessage::handle);
+        registrar.playToClient(PipeStatsMessage.TYPE,
+                PipeStatsMessage.STREAM_CODEC, PipeStatsMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
                 CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,

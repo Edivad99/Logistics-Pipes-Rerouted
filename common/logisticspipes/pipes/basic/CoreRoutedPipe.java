@@ -29,7 +29,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -90,7 +93,7 @@ import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.network.guis.pipe.PipeController;
 import logisticspipes.network.packets.pipe.PipeSignTypes;
 import logisticspipes.network.packets.pipe.RequestSignPacket;
-import logisticspipes.network.packets.pipe.StatUpdate;
+import logisticspipes.network.to_client.PipeStatsMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.pipes.basic.debug.DebugLogController;
@@ -152,9 +155,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public boolean textureBufferPowered;
 	public long delayTo = 0;
 	public int repeatFor = 0;
-	public int stat_session_sent;
-	public int stat_session_received;
-	public int stat_session_relayed;
+	public long stat_session_sent;
+	public long stat_session_received;
+	public long stat_session_relayed;
 	public long stat_lifetime_sent;
 	public long stat_lifetime_received;
 	public long stat_lifetime_relayed;
@@ -983,11 +986,62 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		updateStats();
 	}
 
+	/**
+	 * How many items went through a pipe, over one window of time.
+	 *
+	 * <p>The same three counters are kept twice: once since the server started, once for the
+	 * pipe's whole life.
+	 */
+	public record TrafficCounts(long sent, long received, long relayed) {
+
+		public static final StreamCodec<RegistryFriendlyByteBuf, TrafficCounts> STREAM_CODEC =
+				StreamCodec.composite(
+						ByteBufCodecs.VAR_LONG, TrafficCounts::sent,
+						ByteBufCodecs.VAR_LONG, TrafficCounts::received,
+						ByteBufCodecs.VAR_LONG, TrafficCounts::relayed,
+						TrafficCounts::new);
+	}
+
+	public TrafficCounts sessionCounts() {
+		return new TrafficCounts(stat_session_sent, stat_session_received, stat_session_relayed);
+	}
+
+	public TrafficCounts lifetimeCounts() {
+		return new TrafficCounts(stat_lifetime_sent, stat_lifetime_received, stat_lifetime_relayed);
+	}
+
+	/** How many other pipes this one can reach. */
+	public int routingTableSize() {
+		int reachable = 0;
+		for (List<ExitRoute> route : getRouter().getRouteTable()) {
+			if (route != null && !route.isEmpty()) {
+				reachable++;
+			}
+		}
+		return reachable;
+	}
+
+	public void applyStats(TrafficCounts session, TrafficCounts lifetime, int routingTableSize) {
+		stat_session_sent = session.sent();
+		stat_session_received = session.received();
+		stat_session_relayed = session.relayed();
+		stat_lifetime_sent = lifetime.sent();
+		stat_lifetime_received = lifetime.received();
+		stat_lifetime_relayed = lifetime.relayed();
+		server_routing_table_size = routingTableSize;
+	}
+
+	private PipeStatsMessage statsMessage() {
+		return new PipeStatsMessage(getPos(), sessionCounts(), lifetimeCounts(), routingTableSize());
+	}
+
 	@Override
 	public void playerStartWatching(Player player, WatchMode mode) {
 		if (mode == WatchMode.GUI) {
 			watchers.add(player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(StatUpdate.class).setPipe(this), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, statsMessage());
+			}
 		}
 	}
 
@@ -999,8 +1053,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	public void updateStats() {
-		if (watchers.size() > 0) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(StatUpdate.class).setPipe(this), watchers);
+		if (!watchers.isEmpty()) {
+			watchers.send(statsMessage());
 		}
 	}
 

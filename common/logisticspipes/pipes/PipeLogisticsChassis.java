@@ -65,11 +65,12 @@ import logisticspipes.modules.ChassisModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.ChassisOrientationPacket;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
-import logisticspipes.network.packets.pipe.RequestChassisOrientationPacket;
 import logisticspipes.network.packets.pipe.SendQueueContent;
+import logisticspipes.network.to_client.ChassisOrientationMessage;
 import logisticspipes.network.to_server.PipeHudWatchMessage;
+import logisticspipes.network.to_server.RequestChassisOrientationMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
@@ -213,16 +214,16 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	public void nextOrientation() {
 		final Direction pointedDirection = pointedAdjacentProperty.getDirectionOrNull();
 		Pair<NeighborTileEntity<BlockEntity>, ConnectionType> newNeighbor = nextPointedOrientation(pointedDirection);
-		final ChassisOrientationPacket packet = PacketHandler.getPacket(ChassisOrientationPacket.class);
+		final Direction newDirection;
 		if (newNeighbor == null) {
 			pointedAdjacentProperty.setValue(NoAdjacent.INSTANCE);
-			packet.setDir(null);
+			newDirection = null;
 		} else {
-			pointedAdjacentProperty.setValue(
-				new SingleAdjacent(this, newNeighbor.getValue1().getDirection(), newNeighbor.getValue2()));
-			packet.setDir(newNeighbor.getValue1().getDirection());
+			newDirection = newNeighbor.getValue1().getDirection();
+			pointedAdjacentProperty.setValue(new SingleAdjacent(this, newDirection, newNeighbor.getValue2()));
 		}
-		MainProxy.sendPacketToAllWatchingChunk(module, packet.setTilePos(container));
+		TargetLookup.sendToChunkWatchers(getWorld(), getPos(),
+			new ChassisOrientationMessage(getPos(), Optional.ofNullable(newDirection)));
 		refreshRender(true);
 	}
 
@@ -444,7 +445,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		if (!init) {
 			init = true;
 			if (MainProxy.isClient(getWorld())) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestChassisOrientationPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+				ClientPacketDistributor.sendToServer(new RequestChassisOrientationMessage(getPos()));
 			}
 		}
 	}

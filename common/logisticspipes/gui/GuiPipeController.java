@@ -17,8 +17,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.block.LogicControllerPacket;
-import logisticspipes.network.packets.pipe.PipeManagerWatchingPacket;
 import logisticspipes.network.to_server.OpenUpgradeConfigMessage;
+import logisticspipes.network.to_server.PipeOrderWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
@@ -348,7 +348,8 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		public void leavingTab() {
 			if (managerWatching) {
 				managerWatching = false;
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeManagerWatchingPacket.class).setStart(false).setTilePos(pipe.container));
+				ClientPacketDistributor.sendToServer(
+						new PipeOrderWatchMessage(pipe.getPos(), false));
 			}
 		}
 
@@ -356,7 +357,8 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 		public void enteringTab() {
 			if (!managerWatching) {
 				managerWatching = true;
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeManagerWatchingPacket.class).setStart(true).setTilePos(pipe.container));
+				ClientPacketDistributor.sendToServer(
+						new PipeOrderWatchMessage(pipe.getPos(), true));
 			}
 		}
 
