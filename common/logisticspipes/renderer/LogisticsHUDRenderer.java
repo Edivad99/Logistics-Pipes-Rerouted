@@ -342,9 +342,9 @@ public class LogisticsHUDRenderer {
 			Vec3 cam = mc.gameRenderer.getMainCamera().position();
 			for (LaserData data : lasers) {
 				poseStack.pushPose();
-				double x = data.getPosX() + 0.5 - cam.x;
-				double y = data.getPosY() + 0.5 - cam.y;
-				double z = data.getPosZ() + 0.5 - cam.z;
+				double x = data.getPos().getX() + 0.5 - cam.x;
+				double y = data.getPos().getY() + 0.5 - cam.y;
+				double z = data.getPos().getZ() + 0.5 - cam.z;
 				poseStack.translate((float) x, (float) y, (float) z);
 				switch (data.getDir()) {
 					case NORTH: poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians( 90.0F))); break;

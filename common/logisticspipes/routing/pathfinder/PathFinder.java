@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -363,7 +364,7 @@ public class PathFinder {
 					}
 				}
 				if (foundPipes.size() > beforeRecurseCount && pathPainter != null) {
-					pathPainter.addLaser(startPipe.getWorld(), new LaserData(startPipe.getX(), startPipe.getY(), startPipe.getZ(), direction, connectionFlags));
+					pathPainter.addLaser(startPipe.getWorld(), new LaserData(new BlockPos(startPipe.getX(), startPipe.getY(), startPipe.getZ()), direction, connectionFlags));
 				}
 			}
 		}

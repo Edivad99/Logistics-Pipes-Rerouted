@@ -3,161 +3,120 @@ package logisticspipes.routing;
 import java.util.EnumSet;
 import java.util.Objects;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
+/**
+ * One segment of the routing beam drawn between two pipes.
+ *
+ * <p>Mutable on purpose: the builder walks the network adding segments and then merges the
+ * collinear ones in place.
+ */
 public class LaserData {
 
-	private int posX;
-	private int posY;
-	private int posZ;
-	private boolean finalPipe = true;
-	private boolean startPipe = false;
-	private int length = 1;
+    public static final StreamCodec<RegistryFriendlyByteBuf, LaserData> STREAM_CODEC =
+            StreamCodec.composite(
+                    BlockPos.STREAM_CODEC, LaserData::getPos,
+                    Direction.STREAM_CODEC, LaserData::getDir,
+                    ByteBufCodecs.collection(
+                            size -> EnumSet.noneOf(PipeRoutingConnectionType.class),
+                            NeoForgeStreamCodecs.enumCodec(PipeRoutingConnectionType.class)),
+                    LaserData::getConnectionType,
+                    ByteBufCodecs.BOOL, LaserData::isFinalPipe,
+                    ByteBufCodecs.BOOL, LaserData::isStartPipe,
+                    ByteBufCodecs.VAR_INT, LaserData::getLength,
+                    LaserData::new);
 
-	private Direction dir;
-	private EnumSet<PipeRoutingConnectionType> connectionType;
+    private final BlockPos pos;
+    private final Direction dir;
+    private final EnumSet<PipeRoutingConnectionType> connectionType;
 
-	public LaserData(int posX, int posY, int posZ, Direction dir, EnumSet<PipeRoutingConnectionType> connectionType) {
-		this.posX = posX;
-		this.posY = posY;
-		this.posZ = posZ;
-		this.dir = dir;
-		this.connectionType = connectionType;
-	}
+    private boolean finalPipe = true;
+    private boolean startPipe = false;
+    private int length = 1;
 
-	public LaserData(LPDataInput input) {
-		posX = input.readInt();
-		posY = input.readInt();
-		posZ = input.readInt();
-		dir = Objects.requireNonNull(input.readFacing());
-		finalPipe = input.readBoolean();
-		startPipe = input.readBoolean();
-		length = input.readInt();
-		connectionType = EnumSet.noneOf(PipeRoutingConnectionType.class);
-		for (PipeRoutingConnectionType type : PipeRoutingConnectionType.values()) {
-			if (input.readBoolean()) {
-				connectionType.add(type);
-			}
-		}
-	}
+    public LaserData(BlockPos pos, Direction dir, EnumSet<PipeRoutingConnectionType> connectionType) {
+        this.pos = pos;
+        this.dir = dir;
+        this.connectionType = connectionType;
+    }
 
-	public void writeData(LPDataOutput output) {
-		output.writeInt(posX);
-		output.writeInt(posY);
-		output.writeInt(posZ);
-		output.writeFacing(dir);
-		output.writeBoolean(finalPipe);
-		output.writeBoolean(startPipe);
-		output.writeInt(length);
-		for (PipeRoutingConnectionType type : PipeRoutingConnectionType.values()) {
-			output.writeBoolean(connectionType.contains(type));
-		}
-	}
+    private LaserData(BlockPos pos, Direction dir, EnumSet<PipeRoutingConnectionType> connectionType,
+            boolean finalPipe, boolean startPipe, int length) {
+        this(pos, dir, connectionType);
+        this.finalPipe = finalPipe;
+        this.startPipe = startPipe;
+        this.length = length;
+    }
 
-	public int getPosX() {
-		return this.posX;
-	}
+    public BlockPos getPos() {
+        return pos;
+    }
 
-	public LaserData setPosX(int posX) {
-		this.posX = posX;
-		return this;
-	}
+    public Direction getDir() {
+        return dir;
+    }
 
-	public int getPosY() {
-		return this.posY;
-	}
+    public EnumSet<PipeRoutingConnectionType> getConnectionType() {
+        return connectionType;
+    }
 
-	public LaserData setPosY(int posY) {
-		this.posY = posY;
-		return this;
-	}
+    public boolean isFinalPipe() {
+        return finalPipe;
+    }
 
-	public int getPosZ() {
-		return this.posZ;
-	}
+    public LaserData setFinalPipe(boolean finalPipe) {
+        this.finalPipe = finalPipe;
+        return this;
+    }
 
-	public LaserData setPosZ(int posZ) {
-		this.posZ = posZ;
-		return this;
-	}
+    public boolean isStartPipe() {
+        return startPipe;
+    }
 
-	public Direction getDir() {
-		return this.dir;
-	}
+    public LaserData setStartPipe(boolean startPipe) {
+        this.startPipe = startPipe;
+        return this;
+    }
 
-	public LaserData setDir(Direction dir) {
-		this.dir = dir;
-		return this;
-	}
+    public int getLength() {
+        return length;
+    }
 
-	public EnumSet<PipeRoutingConnectionType> getConnectionType() {
-		return this.connectionType;
-	}
+    public LaserData setLength(int length) {
+        this.length = length;
+        return this;
+    }
 
-	public LaserData setConnectionType(EnumSet<PipeRoutingConnectionType> connectionType) {
-		this.connectionType = connectionType;
-		return this;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof LaserData other)) {
+            return false;
+        }
+        return pos.equals(other.pos)
+                && dir == other.dir
+                && connectionType.equals(other.connectionType)
+                && finalPipe == other.finalPipe
+                && startPipe == other.startPipe
+                && length == other.length;
+    }
 
-	public boolean isFinalPipe() {
-		return this.finalPipe;
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(pos, dir, connectionType, finalPipe, startPipe, length);
+    }
 
-	public LaserData setFinalPipe(boolean finalPipe) {
-		this.finalPipe = finalPipe;
-		return this;
-	}
-
-	public boolean isStartPipe() {
-		return this.startPipe;
-	}
-
-	public LaserData setStartPipe(boolean startPipe) {
-		this.startPipe = startPipe;
-		return this;
-	}
-
-	public int getLength() {
-		return this.length;
-	}
-
-	public LaserData setLength(int length) {
-		this.length = length;
-		return this;
-	}
-
-	public boolean equals(final Object o) {
-		if (o == this) return true;
-		if (!(o instanceof LaserData)) return false;
-		final LaserData other = (LaserData) o;
-		if (this.getPosX() != other.getPosX()) return false;
-		if (this.getPosY() != other.getPosY()) return false;
-		if (this.getPosZ() != other.getPosZ()) return false;
-		if (!Objects.equals(this.getDir(), other.getDir())) return false;
-		if (!Objects.equals(this.getConnectionType(), other.getConnectionType())) return false;
-		if (this.isFinalPipe() != other.isFinalPipe()) return false;
-		if (this.isStartPipe() != other.isStartPipe()) return false;
-		return this.getLength() == other.getLength();
-	}
-
-	public int hashCode() {
-		final int PRIME = 59;
-		int result = 1;
-		result = result * PRIME + this.getPosX();
-		result = result * PRIME + this.getPosY();
-		result = result * PRIME + this.getPosZ();
-		result = result * PRIME + this.getDir().hashCode();
-		result = result * PRIME + this.getConnectionType().hashCode();
-		result = result * PRIME + (this.isFinalPipe() ? 79 : 97);
-		result = result * PRIME + (this.isStartPipe() ? 79 : 97);
-		result = result * PRIME + this.getLength();
-		return result;
-	}
-
-	public String toString() {
-		return "LaserData(posX=" + this.getPosX() + ", posY=" + this.getPosY() + ", posZ=" + this.getPosZ() + ", dir=" + this.getDir() + ", connectionType=" + this.getConnectionType() + ", finalPipe=" + this.isFinalPipe() + ", startPipe=" + this.isStartPipe() + ", length=" + this.getLength() + ")";
-	}
+    @Override
+    public String toString() {
+        return "LaserData(pos=" + pos + ", dir=" + dir + ", connectionType=" + connectionType
+                + ", finalPipe=" + finalPipe + ", startPipe=" + startPipe + ", length=" + length + ")";
+    }
 }

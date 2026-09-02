@@ -82,6 +82,7 @@ import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
 import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_client.pipe.PowerLaserMessage;
+import logisticspipes.network.to_client.pipe.RoutingLasersMessage;
 import logisticspipes.network.to_client.pipe.SendQueueContentMessage;
 import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
 import logisticspipes.network.to_client.security.PlayerListMessage;
@@ -124,6 +125,7 @@ import logisticspipes.network.to_server.module.ItemSinkImportRequestMessage;
 import logisticspipes.network.to_server.module.ModuleWatchMessage;
 import logisticspipes.network.to_server.pipe.RequestInvSysConContentMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeSignsMessage;
+import logisticspipes.network.to_server.pipe.RequestRoutingLasersMessage;
 import logisticspipes.network.to_server.security.OpenSecurityPlayerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
@@ -330,6 +332,8 @@ public class PacketHandler {
                 SubmitRequestMessage.STREAM_CODEC, SubmitRequestMessage::handle);
         registrar.playToServer(SubmitRequestListMessage.TYPE,
                 SubmitRequestListMessage.STREAM_CODEC, SubmitRequestListMessage::handle);
+        registrar.playToServer(RequestRoutingLasersMessage.TYPE,
+                RequestRoutingLasersMessage.STREAM_CODEC, RequestRoutingLasersMessage::handle);
         registrar.playToServer(SimulateRequestMessage.TYPE,
                 SimulateRequestMessage.STREAM_CODEC, SimulateRequestMessage::handle);
         registrar.playToServer(SubmitFluidRequestMessage.TYPE,
@@ -427,6 +431,8 @@ public class PacketHandler {
                 InvSysConContentMessage.STREAM_CODEC, InvSysConContentMessage::handle);
         registrar.playToClient(SendQueueContentMessage.TYPE,
                 SendQueueContentMessage.STREAM_CODEC, SendQueueContentMessage::handle);
+        registrar.playToClient(RoutingLasersMessage.TYPE,
+                RoutingLasersMessage.STREAM_CODEC, RoutingLasersMessage::handle);
         registrar.playToClient(ChassisModuleContentMessage.TYPE,
                 ChassisModuleContentMessage.STREAM_CODEC, ChassisModuleContentMessage::handle);
         registrar.playToClient(OrdererContentMessage.TYPE,

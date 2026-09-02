@@ -87,13 +87,13 @@ import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.network.guis.pipe.PipeController;
 import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeSignsMessage;
+import logisticspipes.network.to_server.pipe.RequestRoutingLasersMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.pipes.basic.debug.DebugLogController;
@@ -107,6 +107,7 @@ import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCDirectCall;
 import logisticspipes.proxy.computers.interfaces.CCSecurtiyCheck;
 import logisticspipes.proxy.computers.interfaces.CCType;
+import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
@@ -899,15 +900,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			if (!entityplayer.isCrouching()) {
 				return false;
 			}
-			/*
 			if (MainProxy.isClient(entityplayer.level())) {
-				if (!LogisticsHUDRenderer.instance().hasLasers()) {
-					MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRoutingLasersPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
-				} else {
+				if (LogisticsHUDRenderer.instance().hasLasers()) {
 					LogisticsHUDRenderer.instance().resetLasers();
+				} else {
+					ClientPacketDistributor.sendToServer(new RequestRoutingLasersMessage(getPos()));
 				}
 			}
-			*/
 			if (LogisticsPipes.isDEBUG()) {
 				doDebugStuff(entityplayer);
 			}
