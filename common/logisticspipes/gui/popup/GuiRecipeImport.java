@@ -2,6 +2,7 @@ package logisticspipes.gui.popup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -13,10 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.FindMostLikelyRecipeComponents;
+import logisticspipes.network.to_server.crafting.FindLikelyRecipeComponentsMessage;
 import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -94,7 +93,9 @@ public class GuiRecipeImport extends SubGuiScreen {
 		});
 		addRenderableWidget(done);
 		SmallGuiButton ml = new SmallGuiButton(1, guiLeft + 10, guiTop + 180, 60, 10, "Most likely");
-		ml.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(FindMostLikelyRecipeComponents.class).setContent(list).setTilePos(tile)));
+		ml.setPressListener(b -> ClientPacketDistributor.sendToServer(new FindLikelyRecipeComponentsMessage(
+				tile.getBlockPos(),
+				list.stream().map(candidate -> candidate.order.stream().map(ItemIdentifierStack::getItem).toList()).toList())));
 		addRenderableWidget(ml);
 		int x = 0;
 		int y = 0;
@@ -199,14 +200,13 @@ public class GuiRecipeImport extends SubGuiScreen {
 		}
 	}
 
-public void handleProposePacket(List<Integer> response) {
-		if (list.size() != response.size()) return;
+public void selectComponents(List<Optional<Integer>> choices) {
+		if (list.size() != choices.size()) return;
 		for (int slot = 0; slot < list.size(); slot++) {
 			Candidates candidate = list.get(slot);
-			int newPos = response.get(slot);
-			if (newPos != -1) {
-				candidate.pos = newPos;
-			}
+			choices.get(slot)
+					.filter(pos -> pos >= 0 && pos < candidate.order.size())
+					.ifPresent(pos -> candidate.pos = pos);
 		}
 	}
 

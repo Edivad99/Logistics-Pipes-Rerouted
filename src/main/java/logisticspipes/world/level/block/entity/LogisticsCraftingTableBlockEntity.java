@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -34,9 +35,13 @@ import logisticspipes.interfaces.ICraftingRecipeGrid;
 import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.network.NewGuiHandler;
+import logisticspipes.network.TargetLookup;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.guis.block.AutoCraftingGui;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
+import logisticspipes.pipes.PipeItemsCraftingLogistics;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.util.ItemStackLoader;
@@ -62,6 +67,22 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     public ItemIdentifierInventory matrix = new ItemIdentifierInventory(9, "Crafting Matrix", 1);
     public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
     public @Nullable ItemIdentifier targetType = null;
+
+    @Override
+    public @Nullable CoreRoutedPipe getAttachedPipe() {
+        final Level level = getLevel();
+        if (level == null) {
+            return null;
+        }
+        for (Direction dir : Direction.values()) {
+            final LogisticsTileGenericPipe container =
+                    TargetLookup.blockEntityAt(level, getBlockPos().relative(dir), LogisticsTileGenericPipe.class);
+            if (container != null && container.pipe instanceof PipeItemsCraftingLogistics pipe) {
+                return pipe;
+            }
+        }
+        return null;
+    }
 
     @Override
     public ItemIdentifierInventory getMatrix() {

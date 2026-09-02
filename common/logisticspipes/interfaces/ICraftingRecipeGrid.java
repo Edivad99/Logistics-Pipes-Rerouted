@@ -5,6 +5,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 
@@ -32,4 +33,12 @@ public interface ICraftingRecipeGrid {
 
 	/** Fills the grid from a recipe the player picked in a recipe viewer. */
 	void handleRecipeViewerImport(NonNullList<ItemStack> content);
+
+	/**
+	 * The pipe whose network supplies the grid, or null when it is not attached to one.
+	 *
+	 * <p>The request table is its own pipe; the crafting table block has to find the crafting
+	 * pipe next to it.
+	 */
+	@Nullable CoreRoutedPipe getAttachedPipe();
 }

@@ -36,6 +36,7 @@ import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.network.to_client.block.RunningCraftingTasksMessage;
 import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.network.to_client.config.PlayerConfigMessage;
+import logisticspipes.network.to_client.crafting.LikelyRecipeComponentsMessage;
 import logisticspipes.network.to_client.debug.AskForDebugTargetMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateListMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateMessage;
@@ -108,6 +109,7 @@ import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.network.to_server.config.SetHudSettingMessage;
 import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.crafting.FindLikelyRecipeComponentsMessage;
 import logisticspipes.network.to_server.debug.DebugTargetMessage;
 import logisticspipes.network.to_server.gui.DummySlotClickMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
@@ -334,6 +336,8 @@ public class PacketHandler {
                 SubmitRequestListMessage.STREAM_CODEC, SubmitRequestListMessage::handle);
         registrar.playToServer(RequestRoutingLasersMessage.TYPE,
                 RequestRoutingLasersMessage.STREAM_CODEC, RequestRoutingLasersMessage::handle);
+        registrar.playToServer(FindLikelyRecipeComponentsMessage.TYPE,
+                FindLikelyRecipeComponentsMessage.STREAM_CODEC, FindLikelyRecipeComponentsMessage::handle);
         registrar.playToServer(SimulateRequestMessage.TYPE,
                 SimulateRequestMessage.STREAM_CODEC, SimulateRequestMessage::handle);
         registrar.playToServer(SubmitFluidRequestMessage.TYPE,
@@ -433,6 +437,8 @@ public class PacketHandler {
                 SendQueueContentMessage.STREAM_CODEC, SendQueueContentMessage::handle);
         registrar.playToClient(RoutingLasersMessage.TYPE,
                 RoutingLasersMessage.STREAM_CODEC, RoutingLasersMessage::handle);
+        registrar.playToClient(LikelyRecipeComponentsMessage.TYPE,
+                LikelyRecipeComponentsMessage.STREAM_CODEC, LikelyRecipeComponentsMessage::handle);
         registrar.playToClient(ChassisModuleContentMessage.TYPE,
                 ChassisModuleContentMessage.STREAM_CODEC, ChassisModuleContentMessage::handle);
         registrar.playToClient(OrdererContentMessage.TYPE,

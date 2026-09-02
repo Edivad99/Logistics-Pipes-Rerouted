@@ -89,6 +89,11 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	public @Nullable ItemIdentifier targetType = null;
 
 	@Override
+	public CoreRoutedPipe getAttachedPipe() {
+		return this;
+	}
+
+	@Override
 	public ItemIdentifierInventory getMatrix() {
 		return matrix;
 	}
