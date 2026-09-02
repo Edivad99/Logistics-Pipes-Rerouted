@@ -34,9 +34,8 @@ import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleSatellite;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.packets.hud.ChestContent;
+import logisticspipes.network.to_client.pipe.ChestContentMessage;
 import logisticspipes.network.to_client.pipe.SatelliteNameMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -122,7 +121,7 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 		if (!itemList.equals(oldList) || force) {
 			oldList.clear();
 			oldList.addAll(itemList);
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(ChestContent.class).setIdentList(itemList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+			localModeWatchers.send(new ChestContentMessage(getPos(), List.copyOf(itemList)));
 		}
 	}
 

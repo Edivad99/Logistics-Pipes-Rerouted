@@ -25,6 +25,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -67,8 +69,8 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
-import logisticspipes.network.packets.pipe.SendQueueContent;
 import logisticspipes.network.to_client.pipe.ChassisOrientationMessage;
+import logisticspipes.network.to_client.pipe.SendQueueContentMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.network.to_server.pipe.RequestChassisOrientationMessage;
 import logisticspipes.particle.Particles;
@@ -592,7 +594,10 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			updateModuleInventory(player.registryAccess());
 			localModeWatchers.add(player);
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChassisPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SendQueueContent.class).setIdentList(ItemIdentifierStack.getListSendQueue(sendQueue)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new SendQueueContentMessage(
+					getPos(), ItemIdentifierStack.getListSendQueue(sendQueue)));
+			}
 		} else {
 			super.playerStartWatching(player, mode);
 		}
@@ -616,7 +621,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			} else {
 				if (localModeWatchers.size() > 0) {
 					LinkedList<ItemIdentifierStack> items = ItemIdentifierStack.getListSendQueue(sendQueue);
-					MainProxy.sendToPlayerList(PacketHandler.getPacket(SendQueueContent.class).setIdentList(items).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+					localModeWatchers.send(new SendQueueContentMessage(getPos(), items));
 					return items.size();
 				}
 			}

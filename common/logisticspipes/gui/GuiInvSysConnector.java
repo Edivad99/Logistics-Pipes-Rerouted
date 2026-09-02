@@ -18,8 +18,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.InvSysConContentRequest;
 import logisticspipes.network.packets.pipe.InvSysConOpenSelectChannelPopupPacket;
+import logisticspipes.network.to_server.pipe.RequestInvSysConContentMessage;
 import logisticspipes.network.to_server.pipe.SetInvSysConResistanceMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.proxy.MainProxy;
@@ -148,7 +148,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 	}
 
 	private void refreshPacket() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConContentRequest.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
+		ClientPacketDistributor.sendToServer(new RequestInvSysConContentMessage(pipe.getPos()));
 	}
 
 	private void pageDown() {

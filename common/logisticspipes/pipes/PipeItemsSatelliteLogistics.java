@@ -41,9 +41,8 @@ import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleSatellite;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.packets.hud.ChestContent;
+import logisticspipes.network.to_client.pipe.ChestContentMessage;
 import logisticspipes.network.to_client.pipe.SatelliteNameMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -135,7 +134,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 						.collect(Collectors.toList())
 		);
 		if (!oldList.equals(itemList) || force) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(ChestContent.class).setIdentList(itemList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+			localModeWatchers.send(new ChestContentMessage(getPos(), List.copyOf(itemList)));
 		}
 	}
 

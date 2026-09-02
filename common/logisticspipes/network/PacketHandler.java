@@ -42,9 +42,11 @@ import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.crafting.CraftingModuleUpdateMessage;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
 import logisticspipes.network.to_client.block.DiskContentMessage;
+import logisticspipes.network.to_client.pipe.ChestContentMessage;
 import logisticspipes.network.to_client.pipe.FirewallFlagsMessage;
 import logisticspipes.network.to_client.crafting.FluidCraftingAmountMessage;
 import logisticspipes.network.to_client.pipe.FluidSupplierAmountMessage;
+import logisticspipes.network.to_client.pipe.InvSysConContentMessage;
 import logisticspipes.network.to_client.pipe.InvSysConResistanceMessage;
 import logisticspipes.network.to_client.pipe.ItemAmountSignMessage;
 import logisticspipes.network.to_client.module.ItemSinkDefaultRouteMessage;
@@ -62,6 +64,7 @@ import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
 import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_client.pipe.PowerLaserMessage;
+import logisticspipes.network.to_client.pipe.SendQueueContentMessage;
 import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
 import logisticspipes.network.to_client.security.PlayerListMessage;
 import logisticspipes.network.to_client.block.PowerJunctionLevelMessage;
@@ -93,6 +96,7 @@ import logisticspipes.network.to_server.crafting.CycleCraftingRecipeMessage;
 import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
 import logisticspipes.network.to_server.module.ItemSinkImportRequestMessage;
 import logisticspipes.network.to_server.module.ModuleWatchMessage;
+import logisticspipes.network.to_server.pipe.RequestInvSysConContentMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeSignsMessage;
 import logisticspipes.network.to_server.security.OpenSecurityPlayerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
@@ -250,6 +254,8 @@ public class PacketHandler {
                 RequestRunningCraftingTasksMessage.STREAM_CODEC, RequestRunningCraftingTasksMessage::handle);
         registrar.playToServer(RequestTrackableItemsMessage.TYPE,
                 RequestTrackableItemsMessage.STREAM_CODEC, RequestTrackableItemsMessage::handle);
+        registrar.playToServer(RequestInvSysConContentMessage.TYPE,
+                RequestInvSysConContentMessage.STREAM_CODEC, RequestInvSysConContentMessage::handle);
         registrar.playToServer(RequestPipeSignsMessage.TYPE,
                 RequestPipeSignsMessage.STREAM_CODEC, RequestPipeSignsMessage::handle);
         registrar.playToServer(DropDiskMessage.TYPE,
@@ -367,6 +373,12 @@ public class PacketHandler {
                 RunningCraftingTasksMessage.STREAM_CODEC, RunningCraftingTasksMessage::handle);
         registrar.playToClient(TrackableItemsMessage.TYPE,
                 TrackableItemsMessage.STREAM_CODEC, TrackableItemsMessage::handle);
+        registrar.playToClient(ChestContentMessage.TYPE,
+                ChestContentMessage.STREAM_CODEC, ChestContentMessage::handle);
+        registrar.playToClient(InvSysConContentMessage.TYPE,
+                InvSysConContentMessage.STREAM_CODEC, InvSysConContentMessage::handle);
+        registrar.playToClient(SendQueueContentMessage.TYPE,
+                SendQueueContentMessage.STREAM_CODEC, SendQueueContentMessage::handle);
         registrar.playToClient(PowerLaserMessage.TYPE,
                 PowerLaserMessage.STREAM_CODEC, PowerLaserMessage::handle);
         registrar.playToClient(PipeSignTypesMessage.TYPE,

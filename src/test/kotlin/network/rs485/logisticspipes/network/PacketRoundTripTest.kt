@@ -45,7 +45,7 @@ import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
-import logisticspipes.network.packets.pipe.SendQueueContent
+import logisticspipes.network.packets.pipe.ChassisPipeModuleContent
 import net.minecraft.SharedConstants
 import net.minecraft.core.NonNullList
 import net.minecraft.core.RegistryAccess
@@ -188,7 +188,7 @@ class PacketRoundTripTest {
             ItemStack(Items.COBBLESTONE, 5),
             ItemStack(Items.STICK, 2),
         )
-        val actual = roundTrip(SendQueueContent(ANY_ID).withModule().apply { setStackList(stacks) })
+        val actual = roundTrip(ChassisPipeModuleContent(ANY_ID).withModule().apply { setStackList(stacks) })
         assertModule(actual)
         // A stack list goes out under STACK_MARKER and comes back as a stack list, not as the
         // identifier list the same packet can also carry.
