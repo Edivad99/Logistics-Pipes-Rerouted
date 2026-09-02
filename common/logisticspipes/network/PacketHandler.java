@@ -35,6 +35,14 @@ import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_client.block.RunningCraftingTasksMessage;
 import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.network.to_client.config.PlayerConfigMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugCandidateListMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugCandidateMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugClearMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugClosedSetMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugDoneMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugFiltersMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugInitMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugSourceMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.block.BlockRotationMessage;
 import logisticspipes.network.to_client.module.QuickSortMarkerMessage;
@@ -389,6 +397,22 @@ public class PacketHandler {
                 SendQueueContentMessage.STREAM_CODEC, SendQueueContentMessage::handle);
         registrar.playToClient(PlayerConfigMessage.TYPE,
                 PlayerConfigMessage.STREAM_CODEC, PlayerConfigMessage::handle);
+        registrar.playToClient(RoutingDebugCandidateListMessage.TYPE,
+                RoutingDebugCandidateListMessage.STREAM_CODEC, RoutingDebugCandidateListMessage::handle);
+        registrar.playToClient(RoutingDebugCandidateMessage.TYPE,
+                RoutingDebugCandidateMessage.STREAM_CODEC, RoutingDebugCandidateMessage::handle);
+        registrar.playToClient(RoutingDebugClearMessage.TYPE,
+                RoutingDebugClearMessage.STREAM_CODEC, RoutingDebugClearMessage::handle);
+        registrar.playToClient(RoutingDebugClosedSetMessage.TYPE,
+                RoutingDebugClosedSetMessage.STREAM_CODEC, RoutingDebugClosedSetMessage::handle);
+        registrar.playToClient(RoutingDebugDoneMessage.TYPE,
+                RoutingDebugDoneMessage.STREAM_CODEC, RoutingDebugDoneMessage::handle);
+        registrar.playToClient(RoutingDebugFiltersMessage.TYPE,
+                RoutingDebugFiltersMessage.STREAM_CODEC, RoutingDebugFiltersMessage::handle);
+        registrar.playToClient(RoutingDebugInitMessage.TYPE,
+                RoutingDebugInitMessage.STREAM_CODEC, RoutingDebugInitMessage::handle);
+        registrar.playToClient(RoutingDebugSourceMessage.TYPE,
+                RoutingDebugSourceMessage.STREAM_CODEC, RoutingDebugSourceMessage::handle);
         registrar.playToClient(QuickSortMarkerMessage.TYPE,
                 QuickSortMarkerMessage.STREAM_CODEC, QuickSortMarkerMessage::handle);
         registrar.playToClient(PowerLaserMessage.TYPE,

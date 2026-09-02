@@ -9,7 +9,6 @@ import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.network.to_server.pipe.UntraceRoutingMessage;
 import logisticspipes.renderer.HUDDrawContext;
-import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.debug.ClientViewController.DebugInformation;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -111,11 +110,11 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 			line += 10;
 		}
 		if (route.routes != null) {
-			for (ExitRoute exit : route.routes) {
+			for (RouteDebugInfo exit : route.routes) {
 				context.drawString(mc.font, "Possible: ", -55, line, 0xFFffffff);
 				int left = -55 + mc.font.width("Possible: ");
 				for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
-					if (exit.containsFlag(flag)) {
+					if (exit.flags().contains(flag)) {
 						context.drawString(mc.font, "+", left, line, getColorForFlag(flag));
 						left += mc.font.width("+");
 					} else {
@@ -124,7 +123,7 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 					}
 				}
 				line += 10;
-				write(context, "  " + exit.debug.filterPosition, mc);
+				write(context, "  " + exit.filterPositions(), mc);
 			}
 		}
 	}
