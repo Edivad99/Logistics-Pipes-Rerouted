@@ -29,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.bidirectional.BufferedPacketsMessage;
 import logisticspipes.network.bidirectional.DebugConnectionDataMessage;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
@@ -92,6 +93,7 @@ import logisticspipes.network.to_client.pipe.RoutingLasersMessage;
 import logisticspipes.network.to_client.pipe.SatelliteNameResultMessage;
 import logisticspipes.network.to_client.pipe.SatellitePipeListMessage;
 import logisticspipes.network.to_client.pipe.SendQueueContentMessage;
+import logisticspipes.network.to_client.pipe.TravellingItemContentMessage;
 import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
 import logisticspipes.network.to_client.security.PlayerListMessage;
 import logisticspipes.network.to_client.block.PowerJunctionLevelMessage;
@@ -382,6 +384,9 @@ public class PacketHandler {
         registrar.playBidirectional(DebugConnectionDataMessage.TYPE,
                 DebugConnectionDataMessage.STREAM_CODEC,
                 DebugConnectionDataMessage::handle, DebugConnectionDataMessage::handle);
+        registrar.playBidirectional(BufferedPacketsMessage.TYPE,
+                BufferedPacketsMessage.STREAM_CODEC,
+                BufferedPacketsMessage::handle, BufferedPacketsMessage::handle);
     }
 
     private static void registerServerToClient(PayloadRegistrar registrar) {
@@ -453,6 +458,8 @@ public class PacketHandler {
                 SatellitePipeListMessage.STREAM_CODEC, SatellitePipeListMessage::handle);
         registrar.playToClient(RemoteOrdererDimensionMessage.TYPE,
                 RemoteOrdererDimensionMessage.STREAM_CODEC, RemoteOrdererDimensionMessage::handle);
+        registrar.playToClient(TravellingItemContentMessage.TYPE,
+                TravellingItemContentMessage.STREAM_CODEC, TravellingItemContentMessage::handle);
         registrar.playToClient(ToggleClientPipeDebugMessage.TYPE,
                 ToggleClientPipeDebugMessage.STREAM_CODEC, ToggleClientPipeDebugMessage::handle);
         registrar.playToClient(LikelyRecipeComponentsMessage.TYPE,

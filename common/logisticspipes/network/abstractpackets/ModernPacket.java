@@ -26,9 +26,6 @@ public abstract class ModernPacket {
 	@Getter
 	@Setter
 	private boolean isChunkDataPacket;
-	@Getter
-	@Setter
-	private boolean compressable;
 	//@Getter
 	//private byte[] data = null;
 	@Getter

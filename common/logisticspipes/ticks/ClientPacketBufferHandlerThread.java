@@ -13,11 +13,12 @@ import java.util.zip.GZIPOutputStream;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LPConstants;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.BufferTransfer;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.bidirectional.BufferedPacketsMessage;
 import logisticspipes.util.LPDataIOWrapper;
 import logisticspipes.utils.tuples.Pair;
 
@@ -124,12 +125,12 @@ public class ClientPacketBufferHandlerThread {
 						byte[] sendbuffer = Arrays.copyOf(clientBuffer, 1024 * 32);
 						clientBuffer = Arrays.copyOfRange(clientBuffer, 1024 * 32, clientBuffer.length);
 						byte[] compressed = ClientPacketBufferHandlerThread.compress(sendbuffer);
-						MainProxy.sendPacketToServer(PacketHandler.getPacket(BufferTransfer.class).setContent(compressed));
+						ClientPacketDistributor.sendToServer(new BufferedPacketsMessage(compressed));
 					}
 					byte[] sendbuffer = clientBuffer;
 					clientBuffer = new byte[] {};
 					byte[] compressed = ClientPacketBufferHandlerThread.compress(sendbuffer);
-					MainProxy.sendPacketToServer(PacketHandler.getPacket(BufferTransfer.class).setContent(compressed));
+					ClientPacketDistributor.sendToServer(new BufferedPacketsMessage(compressed));
 				}
 				synchronized (clientList) {
 					while (pause || clientList.isEmpty()) {

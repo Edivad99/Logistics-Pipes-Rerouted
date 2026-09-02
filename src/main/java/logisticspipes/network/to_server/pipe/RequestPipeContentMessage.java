@@ -6,13 +6,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.PipeContentPacket;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_client.pipe.TravellingItemContentMessage;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 
@@ -44,11 +44,10 @@ public record RequestPipeContentMessage(int travelId) implements CustomPacketPay
         }
         final LPTravelingItemServer item = ref.get();
         if (item != null) {
-            MainProxy.sendPacketToPlayer(
-                    PacketHandler.getPacket(PipeContentPacket.class)
-                            .setItem(item.getItemIdentifierStack())
-                            .setTravelId(item.getId()),
-                    context.player());
+            if (context.player() instanceof ServerPlayer player) {
+                PacketDistributor.sendToPlayer(player,
+                        new TravellingItemContentMessage(item.getId(), item.getItemIdentifierStack()));
+            }
         }
     }
 }

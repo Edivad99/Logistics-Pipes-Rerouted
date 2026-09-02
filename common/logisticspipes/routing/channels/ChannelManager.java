@@ -120,8 +120,7 @@ public class ChannelManager implements IChannelManager {
 
     private void sendUpdatePacketToClients(ChannelInformation channel) {
         MainProxy.sendToAllPlayers(
-            PacketHandler.getPacket(ChannelInformationPacket.class).setInformation(channel).setTargeted(false)
-                .setCompressable(true));
+            PacketHandler.getPacket(ChannelInformationPacket.class).setInformation(channel).setTargeted(false));
     }
 
     public static class ChannelSavedData extends SavedData {

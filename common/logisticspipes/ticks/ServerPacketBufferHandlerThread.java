@@ -14,13 +14,15 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.BufferTransfer;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.bidirectional.BufferedPacketsMessage;
 import logisticspipes.util.LPDataIOWrapper;
 import logisticspipes.utils.tuples.Pair;
 
@@ -130,11 +132,15 @@ public class ServerPacketBufferHandlerThread {
 						byte[] newbuffer = Arrays.copyOfRange(player.getValue(), 1024 * 32, player.getValue().length);
 						player.setValue(newbuffer);
 						byte[] compressed = ServerPacketBufferHandlerThread.compress(sendbuffer);
-						MainProxy.sendPacketToPlayer(PacketHandler.getPacket(BufferTransfer.class).setContent(compressed), player.getKey());
+						if (player.getKey() instanceof ServerPlayer serverPlayer) {
+						    PacketDistributor.sendToPlayer(serverPlayer, new BufferedPacketsMessage(compressed));
+					    }
 					}
 					byte[] sendbuffer = player.getValue();
 					byte[] compressed = ServerPacketBufferHandlerThread.compress(sendbuffer);
-					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(BufferTransfer.class).setContent(compressed), player.getKey());
+					if (player.getKey() instanceof ServerPlayer serverPlayer) {
+						PacketDistributor.sendToPlayer(serverPlayer, new BufferedPacketsMessage(compressed));
+					}
 				}
 				serverBuffer.clear();
 				synchronized (serverList) {
