@@ -7,13 +7,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.gui.popup.GuiDiskPopup;
 import logisticspipes.interfaces.IDiskProvider;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.DiskDropPacket;
-import logisticspipes.network.packets.orderer.DiskRequestConectPacket;
+import logisticspipes.network.to_server.orderer.DropDiskMessage;
+import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -27,7 +27,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 	public NormalMk2GuiOrderer(PipeItemsRequestLogisticsMk2 RequestPipeMK2, Player entityPlayer) {
 		super(RequestPipeMK2.getX(), RequestPipeMK2.getY(), RequestPipeMK2.getZ(), RequestPipeMK2.getWorld().dimension().identifier(), entityPlayer);
 		pipe = RequestPipeMK2;
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
+		ClientPacketDistributor.sendToServer(new RequestDiskContentMessage(pipe.getPos()));
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 		super.init();
 		macroButton = new SmallGuiButton(12, right - 55, bottom - 60, 50, 10, "Disk");
 		macroButton.setPressListener(b -> {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
+			ClientPacketDistributor.sendToServer(new RequestDiskContentMessage(pipe.getPos()));
 			setSubGui(new GuiDiskPopup(this));
 		});
 		addRenderableWidget(macroButton);
@@ -63,7 +63,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 		double y = event.y();
 		int k = event.button();
 		if (x >= right - 39 && x < right - 19 && y >= bottom - 47 && y < bottom - 27) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskDropPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
+			ClientPacketDistributor.sendToServer(new DropDiskMessage(pipe.getPos()));
 			return true;
 		} else {
 			return super.mouseClicked(event, doubleClick);

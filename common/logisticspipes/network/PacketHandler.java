@@ -74,6 +74,8 @@ import logisticspipes.network.to_client.module.SneakyDirectionMessage;
 import logisticspipes.network.to_client.module.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_server.orderer.DropDiskMessage;
+import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
 import logisticspipes.network.to_server.orderer.RequestDiskMacroMessage;
 import logisticspipes.network.to_server.pipe.ChangeFluidSupplierAmountMessage;
 import logisticspipes.network.to_server.crafting.ClearCraftingGridMessage;
@@ -235,6 +237,10 @@ public class PacketHandler {
                 PipeOrderWatchMessage.STREAM_CODEC, PipeOrderWatchMessage::handle);
         registrar.playToServer(RequestChassisOrientationMessage.TYPE,
                 RequestChassisOrientationMessage.STREAM_CODEC, RequestChassisOrientationMessage::handle);
+        registrar.playToServer(DropDiskMessage.TYPE,
+                DropDiskMessage.STREAM_CODEC, DropDiskMessage::handle);
+        registrar.playToServer(RequestDiskContentMessage.TYPE,
+                RequestDiskContentMessage.STREAM_CODEC, RequestDiskContentMessage::handle);
         registrar.playToServer(RequestDiskMacroMessage.TYPE,
                 RequestDiskMacroMessage.STREAM_CODEC, RequestDiskMacroMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,

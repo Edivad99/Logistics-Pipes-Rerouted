@@ -41,10 +41,10 @@ import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.interfaces.ISpecialItemRenderer;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.RemotePipeTarget;
-import logisticspipes.network.packets.orderer.DiskRequestConectPacket;
 import logisticspipes.network.packets.orderer.RequestSubmitListPacket;
 import logisticspipes.network.to_server.crafting.ClearCraftingGridMessage;
 import logisticspipes.network.to_server.crafting.CycleCraftingRecipeMessage;
+import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
 import logisticspipes.network.to_server.orderer.RequestOrdererRefreshMessage;
 import logisticspipes.network.to_server.orderer.SimulateRequestMessage;
 import logisticspipes.network.to_server.orderer.SubmitRequestMessage;
@@ -482,7 +482,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 			extensionControllerLeft.retract();
 			setSubGui(new RequestMonitorPopup(table, orderIdForButton));
 		} else if (id == 18) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(table.getX()).setPosY(table.getY()).setPosZ(table.getZ()));
+			ClientPacketDistributor.sendToServer(new RequestDiskContentMessage(table.getPos()));
 			setSubGui(new GuiDiskPopup(this));
 		} else if (id == 20) {
 			itemDisplay.cycle();
