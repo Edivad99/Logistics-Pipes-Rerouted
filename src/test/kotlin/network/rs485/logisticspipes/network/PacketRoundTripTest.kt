@@ -44,8 +44,8 @@ import logisticspipes.network.abstractpackets.CoordinatesPacket
 import logisticspipes.network.abstractpackets.ModernPacket
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.ActivateNBTDebug
+import logisticspipes.network.packets.block.PowerJunctionCheatPacket
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
-import logisticspipes.network.packets.pipe.RequestPipeDimension
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
@@ -144,8 +144,8 @@ class PacketRoundTripTest {
     @Test
     fun `ModernPacket carries the dimension`() {
         // Any packet that chains into ModernPacket.writeData picks the dimension up;
-        // RequestPipeDimension is one of the shallowest that does.
-        val actual = roundTrip(RequestPipeDimension(ANY_ID).withDimension())
+        // PowerJunctionCheatPacket adds nothing of its own beyond the coordinates.
+        val actual = roundTrip(PowerJunctionCheatPacket(ANY_ID).withDimension())
         assertEquals(Identifier.parse("logisticspipes:test_dimension"), actual.dimension)
     }
 

@@ -50,6 +50,7 @@ import logisticspipes.network.to_client.debug.RoutingDebugInitMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugSourceMessage;
 import logisticspipes.network.to_client.debug.SendLogLineMessage;
 import logisticspipes.network.to_client.debug.SendLogWindowMessage;
+import logisticspipes.network.to_client.debug.ToggleClientPipeDebugMessage;
 import logisticspipes.network.to_client.debug.UpdateStatusEntriesMessage;
 import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
@@ -86,6 +87,7 @@ import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
 import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_client.pipe.PowerLaserMessage;
+import logisticspipes.network.to_client.pipe.RemoteOrdererDimensionMessage;
 import logisticspipes.network.to_client.pipe.RoutingLasersMessage;
 import logisticspipes.network.to_client.pipe.SatelliteNameResultMessage;
 import logisticspipes.network.to_client.pipe.SatellitePipeListMessage;
@@ -449,6 +451,10 @@ public class PacketHandler {
                 SatelliteNameResultMessage.STREAM_CODEC, SatelliteNameResultMessage::handle);
         registrar.playToClient(SatellitePipeListMessage.TYPE,
                 SatellitePipeListMessage.STREAM_CODEC, SatellitePipeListMessage::handle);
+        registrar.playToClient(RemoteOrdererDimensionMessage.TYPE,
+                RemoteOrdererDimensionMessage.STREAM_CODEC, RemoteOrdererDimensionMessage::handle);
+        registrar.playToClient(ToggleClientPipeDebugMessage.TYPE,
+                ToggleClientPipeDebugMessage.STREAM_CODEC, ToggleClientPipeDebugMessage::handle);
         registrar.playToClient(LikelyRecipeComponentsMessage.TYPE,
                 LikelyRecipeComponentsMessage.STREAM_CODEC, LikelyRecipeComponentsMessage::handle);
         registrar.playToClient(OpenDebugPanelMessage.TYPE,

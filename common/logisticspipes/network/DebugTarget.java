@@ -1,9 +1,13 @@
 package logisticspipes.network;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
@@ -15,6 +19,23 @@ import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
  * first, and nothing stopped the two from disagreeing.
  */
 public sealed interface DebugTarget {
+
+    /**
+     * What the client's crosshair is on right now.
+     *
+     * <p>Client side only: the server has no ray trace for a player's view, which is why every
+     * debug tool has to ask.
+     */
+    static DebugTarget lookedAt() {
+        final HitResult hit = Minecraft.getInstance().hitResult;
+        if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK) {
+            return new Block(block.getBlockPos());
+        }
+        if (hit instanceof EntityHitResult entity && hit.getType() == HitResult.Type.ENTITY) {
+            return new Entity(entity.getEntity().getId());
+        }
+        return new Nothing();
+    }
 
     /** The crosshair was on nothing. */
     record Nothing() implements DebugTarget {

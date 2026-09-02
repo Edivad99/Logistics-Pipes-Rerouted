@@ -1,12 +1,8 @@
 package logisticspipes.network.to_client.debug;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
@@ -41,17 +37,6 @@ public record AskForDebugTargetMessage(Purpose purpose) implements CustomPacketP
     }
 
     public static void handle(AskForDebugTargetMessage message, IPayloadContext context) {
-        ClientPacketDistributor.sendToServer(new DebugTargetMessage(message.purpose, lookedAt()));
-    }
-
-    private static DebugTarget lookedAt() {
-        final HitResult hit = Minecraft.getInstance().hitResult;
-        if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK) {
-            return new DebugTarget.Block(block.getBlockPos());
-        }
-        if (hit instanceof EntityHitResult entity && hit.getType() == HitResult.Type.ENTITY) {
-            return new DebugTarget.Entity(entity.getEntity().getId());
-        }
-        return new DebugTarget.Nothing();
+        ClientPacketDistributor.sendToServer(new DebugTargetMessage(message.purpose, DebugTarget.lookedAt()));
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -16,15 +17,15 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.guis.pipe.NormalOrdererGui;
-import logisticspipes.network.packets.pipe.RequestPipeDimension;
+import logisticspipes.network.to_client.pipe.RemoteOrdererDimensionMessage;
 import logisticspipes.pipes.PipeItemsRemoteOrdererLogistics;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.world.item.component.LPDataComponents;
 
 public class RemoteOrderer extends LogisticsItem {
@@ -86,9 +87,10 @@ public class RemoteOrderer extends LogisticsItem {
                     Math.pow(pipe.getZ() - player.getZ(), 2)
                 ));
                 if (pipe.useEnergy(energyUse)) {
-                    RequestPipeDimension dimPkt = PacketHandler.getPacket(RequestPipeDimension.class);
-                    dimPkt.setDimension(pipe.getWorld());
-                    MainProxy.sendPacketToPlayer(dimPkt, player);
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        PacketDistributor.sendToPlayer(serverPlayer, new RemoteOrdererDimensionMessage(
+                                pipe.getWorld().dimension().identifier()));
+                    }
                     NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
                     gui.setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ());
                     gui.setDim(pipe.getWorld().dimension().identifier());

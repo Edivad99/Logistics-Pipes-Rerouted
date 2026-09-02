@@ -42,6 +42,8 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
         INSPECTOR,
         /** Follow a pipe's own log in a window. */
         PIPE_LOG,
+        /** Turn the pipe log on or off for the server's copy of the pipe. */
+        PIPE_DEBUG,
     }
 
     public static final Type<DebugTargetMessage> TYPE = new Type<>(LPConstants.rl("debug_target"));
@@ -66,6 +68,7 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
             case ROUTING_TABLE -> debugRoutingTable(player, message.target);
             case INSPECTOR -> inspect(player, message.target);
             case PIPE_LOG -> openPipeLog(player, message.target);
+            case PIPE_DEBUG -> togglePipeDebug(player, message.target);
         }
     }
 
@@ -107,6 +110,23 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
         }
         pipe.debug.openForPlayer(player);
         player.sendSystemMessage(Component.literal("Debug log enabled."));
+    }
+
+    private static void togglePipeDebug(ServerPlayer player, DebugTarget target) {
+        if (!(target instanceof DebugTarget.Block block)) {
+            player.sendSystemMessage(Component.literal("Point at a pipe").withStyle(ChatFormatting.RED));
+            return;
+        }
+        final LogisticsTileGenericPipe be =
+                TargetLookup.blockEntityAt(player, block.pos(), LogisticsTileGenericPipe.class);
+        if (be == null || !be.isInitialized()) {
+            player.sendSystemMessage(
+                    Component.literal("No pipe at " + block.pos()).withStyle(ChatFormatting.RED));
+            return;
+        }
+        be.pipe.debug.debugThisPipe = !be.pipe.debug.debugThisPipe;
+        player.sendSystemMessage(Component.literal(
+                be.pipe.debug.debugThisPipe ? "Debug enabled on server" : "Debug disabled on server"));
     }
 
     private static void inspect(ServerPlayer player, DebugTarget target) {
