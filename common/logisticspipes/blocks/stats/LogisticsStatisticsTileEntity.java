@@ -15,6 +15,7 @@ import logisticspipes.network.guis.block.StatisticsGui;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
@@ -27,6 +28,24 @@ public class LogisticsStatisticsTileEntity extends LogisticsSolidBlockEntity imp
 	}
 
 	public List<TrackingTask> tasks = new ArrayList<>();
+
+	/**
+	 * Starts or stops tracking an item.
+	 *
+	 * <p>Adding an item already tracked does nothing rather than tracking it twice, which is what
+	 * the two packets that used to do this each checked for in their own way.
+	 */
+	public void setTracked(ItemIdentifier item, boolean tracked) {
+		if (tracked) {
+			if (tasks.stream().noneMatch(task -> task.item.equals(item))) {
+				final TrackingTask task = new TrackingTask();
+				task.item = item;
+				tasks.add(task);
+			}
+		} else {
+			tasks.removeIf(task -> task.item.equals(item));
+		}
+	}
 	private int tickCount;
 	private CoreRoutedPipe cachedConnectedPipe;
 

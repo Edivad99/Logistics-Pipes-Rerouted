@@ -21,13 +21,15 @@ import net.minecraft.client.input.MouseButtonEvent;
 
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
 import logisticspipes.gui.popup.GuiAddTracking;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.RemoveAmoundTask;
 import logisticspipes.network.packets.block.RequestAmountTaskSubGui;
 import logisticspipes.network.packets.block.RequestRunningCraftingTasks;
+import logisticspipes.network.to_server.TrackItemMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -226,7 +228,8 @@ public class GuiStatistics extends LogisticsBaseGuiScreen {
 			SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 83, topPos + 70, 60, 20, "Remove");
 			b3.setPressListener(b -> {
 				if (itemDisplay.getSelectedItem() != null) {
-					MainProxy.sendPacketToServer(PacketHandler.getPacket(RemoveAmoundTask.class).setItem(itemDisplay.getSelectedItem().getItem()).setTilePos(tile));
+					ClientPacketDistributor.sendToServer(new TrackItemMessage(
+							tile.getBlockPos(), itemDisplay.getSelectedItem().getItem(), false));
 					Iterator<TrackingTask> iter = tile.tasks.iterator();
 					while (iter.hasNext()) {
 						TrackingTask task = iter.next();

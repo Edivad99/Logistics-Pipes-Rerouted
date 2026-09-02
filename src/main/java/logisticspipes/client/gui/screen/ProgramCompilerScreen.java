@@ -16,9 +16,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.CompilerTriggerTaskPacket;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.to_server.TriggerCompilerTaskMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -29,6 +29,7 @@ import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.ItemLogisticsPipe;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.ItemUpgrade;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity.CompilerTask;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -147,12 +148,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                     .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                     .skip(categoryList.getSelected())
                     .findFirst()
-                    .ifPresent(it -> MainProxy.sendPacketToServer(
-                        PacketHandler.getPacket(CompilerTriggerTaskPacket.class)
-                            .setCategory(it)
-                            .setType("category")
-                            .setTilePos(compiler))
-                    );
+                    .ifPresent(it -> ClientPacketDistributor.sendToServer(
+                        new TriggerCompilerTaskMessage(compiler.getBlockPos(), it, CompilerTask.CATEGORY)));
             }
         });
         addRenderableWidget(unlock);
@@ -186,8 +183,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
                 boolean flag = listPrograms.stream()
                     .anyMatch(it -> Identifier.parse(it.asString().orElse("")).equals(sel));
-                MainProxy.sendPacketToServer(PacketHandler.getPacket(CompilerTriggerTaskPacket.class).setCategory(sel)
-                    .setType(flag ? "flash" : "program").setTilePos(compiler));
+                ClientPacketDistributor.sendToServer(new TriggerCompilerTaskMessage(
+                    compiler.getBlockPos(), sel, flag ? CompilerTask.FLASH : CompilerTask.PROGRAM));
             }
         });
         addRenderableWidget(programmerButton);

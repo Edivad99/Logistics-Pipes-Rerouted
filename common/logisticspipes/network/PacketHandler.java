@@ -34,6 +34,7 @@ import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.BlockRotationMessage;
+import logisticspipes.network.to_client.CompilerStatusMessage;
 import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.CraftingModuleUpdateMessage;
 import logisticspipes.network.to_client.CraftingTargetMessage;
@@ -107,6 +108,8 @@ import logisticspipes.network.to_server.SubmitFluidRequestMessage;
 import logisticspipes.network.to_server.SubmitRequestMessage;
 import logisticspipes.network.to_server.ToggleDisconnectionUpgradeSideMessage;
 import logisticspipes.network.to_server.ToggleSecurityStationFlagMessage;
+import logisticspipes.network.to_server.TrackItemMessage;
+import logisticspipes.network.to_server.TriggerCompilerTaskMessage;
 import logisticspipes.network.to_server.UntraceRoutingMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -214,6 +217,10 @@ public class PacketHandler {
                 CycleCraftingRecipeMessage.STREAM_CODEC, CycleCraftingRecipeMessage::handle);
         registrar.playToServer(ImportCraftingRecipeMessage.TYPE,
                 ImportCraftingRecipeMessage.STREAM_CODEC, ImportCraftingRecipeMessage::handle);
+        registrar.playToServer(TrackItemMessage.TYPE,
+                TrackItemMessage.STREAM_CODEC, TrackItemMessage::handle);
+        registrar.playToServer(TriggerCompilerTaskMessage.TYPE,
+                TriggerCompilerTaskMessage.STREAM_CODEC, TriggerCompilerTaskMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -301,6 +308,8 @@ public class PacketHandler {
                 PowerProviderLevelMessage.STREAM_CODEC, PowerProviderLevelMessage::handle);
         registrar.playToClient(CraftingTargetMessage.TYPE,
                 CraftingTargetMessage.STREAM_CODEC, CraftingTargetMessage::handle);
+        registrar.playToClient(CompilerStatusMessage.TYPE,
+                CompilerStatusMessage.STREAM_CODEC, CompilerStatusMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
                 CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,

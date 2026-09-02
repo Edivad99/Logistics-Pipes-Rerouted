@@ -13,11 +13,13 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
 import logisticspipes.blocks.stats.TrackingTask;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.AddItemToTrackPacket;
 import logisticspipes.network.packets.block.RequestAmountTaskSubGui;
+import logisticspipes.network.to_server.TrackItemMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;
@@ -63,7 +65,8 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 			if (found) {
 				setSubGui(new GuiMessagePopup(TextUtil.translate(PREFIX + "alreadytracked")));
 			} else {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(AddItemToTrackPacket.class).setItem(itemDisplay.getSelectedItem().getItem()).setTilePos(tile));
+				ClientPacketDistributor.sendToServer(new TrackItemMessage(
+						tile.getBlockPos(), itemDisplay.getSelectedItem().getItem(), true));
 				TrackingTask task = new TrackingTask();
 				task.item = itemDisplay.getSelectedItem().getItem();
 				tile.tasks.add(task);
