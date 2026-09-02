@@ -40,10 +40,10 @@ import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.interfaces.ISpecialItemRenderer;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.RemotePipeTarget;
-import logisticspipes.network.packets.block.ClearCraftingGridPacket;
-import logisticspipes.network.packets.block.CraftingCycleRecipe;
 import logisticspipes.network.packets.orderer.DiskRequestConectPacket;
 import logisticspipes.network.packets.orderer.RequestSubmitListPacket;
+import logisticspipes.network.to_server.ClearCraftingGridMessage;
+import logisticspipes.network.to_server.CycleCraftingRecipeMessage;
 import logisticspipes.network.to_server.RequestOrdererRefreshMessage;
 import logisticspipes.network.to_server.SimulateRequestMessage;
 import logisticspipes.network.to_server.SubmitRequestMessage;
@@ -486,9 +486,10 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		} else if (id == 20) {
 			itemDisplay.cycle();
 		} else if (id == 21 || id == 22) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(id == 22).setTilePos(table.container));
+			ClientPacketDistributor.sendToServer(
+					new CycleCraftingRecipeMessage(table.container.getBlockPos(), id == 22));
 		} else if (id == 30) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(ClearCraftingGridPacket.class).setTilePos(table.container));
+			ClientPacketDistributor.sendToServer(new ClearCraftingGridMessage(table.container.getBlockPos()));
 			table.cacheRecipe();
 		} else if (id == 31) {
 			ArrayList<ItemIdentifierStack> list = new ArrayList<>(9);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,13 +30,13 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.IRoutedPowerProvider;
+import logisticspipes.interfaces.ICraftingRecipeGrid;
 import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.guis.block.AutoCraftingGui;
-import logisticspipes.network.packets.block.CraftingSetType;
+import logisticspipes.network.to_client.CraftingTargetMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.util.ItemStackLoader;
@@ -52,15 +53,30 @@ import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 
 public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
-    implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenController {
+    implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenController,
+    ICraftingRecipeGrid {
 
     public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
     private final PlayerCollectionList guiWatcher = new PlayerCollectionList();
     public ItemIdentifierInventory inv = new ItemIdentifierInventory(18, "Crafting Resources", 64);
     public ItemIdentifierInventory matrix = new ItemIdentifierInventory(9, "Crafting Matrix", 1);
     public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
-    @Nullable
-    public ItemIdentifier targetType = null;
+    public @Nullable ItemIdentifier targetType = null;
+
+    @Override
+    public ItemIdentifierInventory getMatrix() {
+        return matrix;
+    }
+
+    @Override
+    public @Nullable ItemIdentifier getTargetType() {
+        return targetType;
+    }
+
+    @Override
+    public void setTargetType(@Nullable ItemIdentifier targetType) {
+        this.targetType = targetType;
+    }
     @Nullable
     private RecipeHolder<CraftingRecipe> cache;
     @Nullable
@@ -73,6 +89,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         matrix.addListener(this);
     }
 
+    @Override
     public void cacheRecipe() {
         ItemIdentifier oldTargetType = targetType;
         cache = null;
@@ -126,12 +143,11 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
         if (((targetType == null && oldTargetType != null) || (targetType != null && !targetType.equals(oldTargetType)))
             && !guiWatcher.isEmpty() && MainProxy.isServer(getWorld())) {
-            MainProxy.sendToPlayerList(
-                PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(this),
-                guiWatcher);
+            guiWatcher.send(new CraftingTargetMessage(getBlockPos(), Optional.ofNullable(targetType)));
         }
     }
 
+    @Override
     public void cycleRecipe(boolean down) {
         cacheRecipe();
         if (targetType == null) {
@@ -197,9 +213,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
 
         if (!guiWatcher.isEmpty() && MainProxy.isServer(getWorld())) {
-            MainProxy.sendToPlayerList(
-                PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(this),
-                guiWatcher);
+            guiWatcher.send(new CraftingTargetMessage(getBlockPos(), Optional.ofNullable(targetType)));
         }
 
         cacheRecipe();
@@ -357,7 +371,8 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
     }
 
-    public void handleNEIRecipePacket(NonNullList<ItemStack> content) {
+    @Override
+    public void handleRecipeViewerImport(NonNullList<ItemStack> content) {
         if (matrix.getContainerSize() != content.size()) {
             throw new IllegalStateException("Different sizes of matrix and inventory from packet");
         }

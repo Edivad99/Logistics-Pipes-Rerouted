@@ -6,9 +6,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.world.entity.player.Player;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.CraftingCycleRecipe;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.to_server.CycleCraftingRecipeMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
@@ -64,10 +64,12 @@ public class GuiLogisticsCraftingTable extends LogisticsBaseGuiScreen {
 	public void init() {
 		super.init();
 		SmallGuiButton upBtn = new SmallGuiButton(0, leftPos + 144, topPos + 25, 15, 10, "/\\");
-		upBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(false).setTilePos(crafter)));
+		upBtn.setPressListener(b -> ClientPacketDistributor.sendToServer(
+				new CycleCraftingRecipeMessage(crafter.getBlockPos(), false)));
 		(cycleButtons[0] = addRenderableWidget(upBtn)).visible = false;
 		SmallGuiButton dnBtn = new SmallGuiButton(1, leftPos + 144, topPos + 37, 15, 10, "\\/");
-		dnBtn.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(CraftingCycleRecipe.class).setDown(true).setTilePos(crafter)));
+		dnBtn.setPressListener(b -> ClientPacketDistributor.sendToServer(
+				new CycleCraftingRecipeMessage(crafter.getBlockPos(), true)));
 		(cycleButtons[1] = addRenderableWidget(dnBtn)).visible = false;
 	}
 

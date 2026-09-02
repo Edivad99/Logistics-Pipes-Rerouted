@@ -11,9 +11,11 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.NEISetCraftingRecipe;
 import logisticspipes.network.packets.pipe.FindMostLikelyRecipeComponents;
+import logisticspipes.network.to_server.ImportCraftingRecipeMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -77,8 +79,7 @@ public class GuiRecipeImport extends SubGuiScreen {
 		super.init();
 		SmallGuiButton done = new SmallGuiButton(0, guiLeft + 100, guiTop + 180, 40, 10, "Done");
 		done.setPressListener(b -> {
-			NEISetCraftingRecipe packet = PacketHandler.getPacket(NEISetCraftingRecipe.class);
-			NonNullList<ItemStack> stackList = packet.getStackList();
+			NonNullList<ItemStack> stackList = NonNullList.withSize(9, ItemStack.EMPTY);
 			int i = 0;
 			for (Candidates candidate : grid) {
 				if (candidate == null) {
@@ -87,7 +88,8 @@ public class GuiRecipeImport extends SubGuiScreen {
 				}
 				stackList.set(i++, candidate.order.get(candidate.pos).makeNormalStack());
 			}
-			MainProxy.sendPacketToServer(packet.setBlockPos(tile.getBlockPos()));
+			ClientPacketDistributor.sendToServer(
+					new ImportCraftingRecipeMessage(tile.getBlockPos(), stackList));
 			exitGui();
 		});
 		addRenderableWidget(done);

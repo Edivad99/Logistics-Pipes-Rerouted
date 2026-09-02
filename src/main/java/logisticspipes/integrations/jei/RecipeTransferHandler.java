@@ -22,12 +22,12 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.gui.GuiLogisticsCraftingTable;
 import logisticspipes.gui.orderer.GuiRequestTable;
 import logisticspipes.gui.popup.GuiRecipeImport;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.NEISetCraftingRecipe;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_server.ImportCraftingRecipeMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 
@@ -80,10 +80,7 @@ public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContai
             return null;
         }
 
-        NEISetCraftingRecipe packet =
-            PacketHandler.getPacket(NEISetCraftingRecipe.class);
-
-        NonNullList<ItemStack> stackList = packet.getStackList();
+        NonNullList<ItemStack> stackList = NonNullList.withSize(9, ItemStack.EMPTY);
 
         ItemStack[][] stacks = new ItemStack[9][];
 
@@ -130,7 +127,8 @@ public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContai
         if (hasCandidates) {
             gui.setSubGui(new GuiRecipeImport(be, stacks));
         } else {
-            MainProxy.sendPacketToServer(packet.setTilePos(be));
+            ClientPacketDistributor.sendToServer(
+                new ImportCraftingRecipeMessage(be.getBlockPos(), stackList));
         }
         return null;
     }

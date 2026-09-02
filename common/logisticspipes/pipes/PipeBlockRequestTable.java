@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,14 +35,15 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
+import logisticspipes.interfaces.ICraftingRecipeGrid;
 import logisticspipes.interfaces.IGuiOpenController;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.CraftingSetType;
 import logisticspipes.network.packets.orderer.OrdererWatchPacket;
+import logisticspipes.network.to_client.CraftingTargetMessage;
 import logisticspipes.network.to_client.OrdererWatchRemoveMessage;
 import logisticspipes.network.to_server.RequestBlockRotationMessage;
 import logisticspipes.particle.Particles;
@@ -66,7 +68,7 @@ import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.AutoCraftingContainer;
 
 public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements ISimpleInventoryEventHandler, IRequestWatcher,
-    IGuiOpenController, IRotationProvider {
+    IGuiOpenController, IRotationProvider, ICraftingRecipeGrid {
 
 	public SimpleStackInventory diskInv = new SimpleStackInventory(1, "Disk Slot", 1);
 	public SimpleStackInventory inv = new SimpleStackInventory(27, "Crafting Resources", 64);
@@ -85,7 +87,22 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	public Map<Integer, Pair<IResource, LinkedLogisticsOrderList>> watchedRequests = new HashMap<>();
 	private int localLastUsedWatcherId = 0;
 
-	public ItemIdentifier targetType = null;
+	public @Nullable ItemIdentifier targetType = null;
+
+	@Override
+	public ItemIdentifierInventory getMatrix() {
+		return matrix;
+	}
+
+	@Override
+	public @Nullable ItemIdentifier getTargetType() {
+		return targetType;
+	}
+
+	@Override
+	public void setTargetType(@Nullable ItemIdentifier targetType) {
+		this.targetType = targetType;
+	}
 
 	public PipeBlockRequestTable(Item item) {
 		super(item);
@@ -272,6 +289,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 	}
 
+	@Override
 	public void cacheRecipe() {
 		ItemIdentifier oldTargetType = targetType;
 		cache = null;
@@ -317,10 +335,11 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			targetType = null;
 		}
 		if (targetType != oldTargetType && !localGuiWatcher.isEmpty() && getWorld() != null && MainProxy.isServer(getWorld())) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), localGuiWatcher);
+			localGuiWatcher.send(new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
 		}
 	}
 
+	@Override
 	public void cycleRecipe(boolean down) {
 		cacheRecipe();
 		if (targetType == null) {
@@ -376,7 +395,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			targetType = ItemIdentifier.get(cache.value().assemble(craftingInput));
 		}
 		if (!localGuiWatcher.isEmpty() && getWorld() != null && MainProxy.isServer(getWorld())) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), localGuiWatcher);
+			localGuiWatcher.send(new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
 		}
 		cacheRecipe();
 	}
@@ -511,7 +530,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 	}
 
-	public void handleNEIRecipePacket(NonNullList<ItemStack> content) {
+	@Override
+	public void handleRecipeViewerImport(NonNullList<ItemStack> content) {
 		if (matrix.getContainerSize() != content.size()) throw new IllegalStateException("Different sizes of matrix and inventory from packet");
 		for (int i = 0; i < content.size(); i++) {
 			matrix.setItem(i, content.get(i));
@@ -589,7 +609,10 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new OrdererWatchRemoveMessage(getPos(), -1));
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
+		}
 		localGuiWatcher.add(player);
 		for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
 			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).putInt(entry.getKey()).setTilePos(container), player);

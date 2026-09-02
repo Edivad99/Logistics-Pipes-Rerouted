@@ -36,6 +36,7 @@ import logisticspipes.network.to_client.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.BlockRotationMessage;
 import logisticspipes.network.to_client.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.CraftingModuleUpdateMessage;
+import logisticspipes.network.to_client.CraftingTargetMessage;
 import logisticspipes.network.to_client.DiskContentMessage;
 import logisticspipes.network.to_client.FirewallFlagsMessage;
 import logisticspipes.network.to_client.FluidCraftingAmountMessage;
@@ -66,8 +67,11 @@ import logisticspipes.network.to_client.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.BlockHudWatchMessage;
 import logisticspipes.network.to_server.ChangeFluidCraftingAmountMessage;
 import logisticspipes.network.to_server.ChangeFluidSupplierAmountMessage;
+import logisticspipes.network.to_server.ClearCraftingGridMessage;
 import logisticspipes.network.to_server.CrafterCleanupImportMessage;
 import logisticspipes.network.to_server.CrafterImportRecipeMessage;
+import logisticspipes.network.to_server.CycleCraftingRecipeMessage;
+import logisticspipes.network.to_server.ImportCraftingRecipeMessage;
 import logisticspipes.network.to_server.ItemSinkImportRequestMessage;
 import logisticspipes.network.to_server.ModuleWatchMessage;
 import logisticspipes.network.to_server.OpenSecurityPlayerMessage;
@@ -204,6 +208,12 @@ public class PacketHandler {
                 RequestBlockRotationMessage.STREAM_CODEC, RequestBlockRotationMessage::handle);
         registrar.playToServer(SetInvSysConResistanceMessage.TYPE,
                 SetInvSysConResistanceMessage.STREAM_CODEC, SetInvSysConResistanceMessage::handle);
+        registrar.playToServer(ClearCraftingGridMessage.TYPE,
+                ClearCraftingGridMessage.STREAM_CODEC, ClearCraftingGridMessage::handle);
+        registrar.playToServer(CycleCraftingRecipeMessage.TYPE,
+                CycleCraftingRecipeMessage.STREAM_CODEC, CycleCraftingRecipeMessage::handle);
+        registrar.playToServer(ImportCraftingRecipeMessage.TYPE,
+                ImportCraftingRecipeMessage.STREAM_CODEC, ImportCraftingRecipeMessage::handle);
         registrar.playToServer(ModuleWatchMessage.TYPE,
                 ModuleWatchMessage.STREAM_CODEC, ModuleWatchMessage::handle);
         registrar.playToServer(SetOreDictItemSinkListMessage.TYPE,
@@ -289,6 +299,8 @@ public class PacketHandler {
                 PowerJunctionLevelMessage.STREAM_CODEC, PowerJunctionLevelMessage::handle);
         registrar.playToClient(PowerProviderLevelMessage.TYPE,
                 PowerProviderLevelMessage.STREAM_CODEC, PowerProviderLevelMessage::handle);
+        registrar.playToClient(CraftingTargetMessage.TYPE,
+                CraftingTargetMessage.STREAM_CODEC, CraftingTargetMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
                 CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,
