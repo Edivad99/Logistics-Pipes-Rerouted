@@ -1686,24 +1686,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public void addStatusInformation(List<StatusEntry> status) {
-		StatusEntry entry = new StatusEntry();
-		entry.name = "Send Queue";
-		entry.subEntry = new ArrayList<>();
-		for (Triplet<IRoutedItem, Direction, ItemSendMode> part : sendQueue) {
-			StatusEntry subEntry = new StatusEntry();
-			subEntry.name = part.toString();
-			entry.subEntry.add(subEntry);
-		}
-		status.add(entry);
-		entry = new StatusEntry();
-		entry.name = "In Transit To Me";
-		entry.subEntry = new ArrayList<>();
-		for (ItemRoutingInformation part : inTransitToMe) {
-			StatusEntry subEntry = new StatusEntry();
-			subEntry.name = part.toString();
-			entry.subEntry.add(subEntry);
-		}
-		status.add(entry);
+		status.add(StatusEntry.of("Send Queue", sendQueue));
+		status.add(StatusEntry.of("In Transit To Me", inTransitToMe));
 	}
 
 	@Override

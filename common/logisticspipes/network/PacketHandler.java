@@ -29,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.bidirectional.DebugConnectionDataMessage;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
@@ -38,6 +39,7 @@ import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_client.crafting.LikelyRecipeComponentsMessage;
 import logisticspipes.network.to_client.debug.AskForDebugTargetMessage;
+import logisticspipes.network.to_client.debug.OpenDebugPanelMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateListMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugClearMessage;
@@ -48,6 +50,7 @@ import logisticspipes.network.to_client.debug.RoutingDebugInitMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugSourceMessage;
 import logisticspipes.network.to_client.debug.SendLogLineMessage;
 import logisticspipes.network.to_client.debug.SendLogWindowMessage;
+import logisticspipes.network.to_client.debug.UpdateStatusEntriesMessage;
 import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.block.BlockRotationMessage;
@@ -372,6 +375,9 @@ public class PacketHandler {
         registrar.playBidirectional(FluidSupplierPartialsMessage.TYPE,
                 FluidSupplierPartialsMessage.STREAM_CODEC,
                 FluidSupplierPartialsMessage::handle, FluidSupplierPartialsMessage::handle);
+        registrar.playBidirectional(DebugConnectionDataMessage.TYPE,
+                DebugConnectionDataMessage.STREAM_CODEC,
+                DebugConnectionDataMessage::handle, DebugConnectionDataMessage::handle);
     }
 
     private static void registerServerToClient(PayloadRegistrar registrar) {
@@ -439,6 +445,10 @@ public class PacketHandler {
                 RoutingLasersMessage.STREAM_CODEC, RoutingLasersMessage::handle);
         registrar.playToClient(LikelyRecipeComponentsMessage.TYPE,
                 LikelyRecipeComponentsMessage.STREAM_CODEC, LikelyRecipeComponentsMessage::handle);
+        registrar.playToClient(OpenDebugPanelMessage.TYPE,
+                OpenDebugPanelMessage.STREAM_CODEC, OpenDebugPanelMessage::handle);
+        registrar.playToClient(UpdateStatusEntriesMessage.TYPE,
+                UpdateStatusEntriesMessage.STREAM_CODEC, UpdateStatusEntriesMessage::handle);
         registrar.playToClient(ChassisModuleContentMessage.TYPE,
                 ChassisModuleContentMessage.STREAM_CODEC, ChassisModuleContentMessage::handle);
         registrar.playToClient(OrdererContentMessage.TYPE,

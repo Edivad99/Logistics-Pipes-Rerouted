@@ -441,15 +441,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	public void addStatusInformation(List<StatusEntry> status) {
-		StatusEntry entry = new StatusEntry();
-		entry.name = "Requested Items";
-		entry.subEntry = new ArrayList<>();
-		for (Entry<ItemIdentifier, Integer> part : requestedItems.entrySet()) {
-			StatusEntry subEntry = new StatusEntry();
-			subEntry.name = part.toString();
-			entry.subEntry.add(subEntry);
-		}
-		status.add(entry);
+		status.add(StatusEntry.of("Requested Items", requestedItems.entrySet()));
 	}
 
 	@Override

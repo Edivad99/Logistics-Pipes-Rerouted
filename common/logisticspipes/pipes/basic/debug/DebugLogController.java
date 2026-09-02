@@ -8,12 +8,10 @@ import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.debug.UpdateStatusEntries;
 import logisticspipes.network.to_client.debug.SendLogLineMessage;
 import logisticspipes.network.to_client.debug.SendLogWindowMessage;
+import logisticspipes.network.to_client.debug.UpdateStatusEntriesMessage;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.PlayerCollectionList;
 
 public class DebugLogController {
@@ -47,7 +45,7 @@ public class DebugLogController {
 		List<StatusEntry> status = new ArrayList<>();
 		pipe.addStatusInformation(status);
 		if (!status.equals(oldList)) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(UpdateStatusEntries.class).setWindowID(ID).setStatus(status), players);
+			players.send(new UpdateStatusEntriesMessage(ID, status));
 			oldList = status;
 		}
 	}
@@ -59,6 +57,8 @@ public class DebugLogController {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new SendLogWindowMessage(ID, pipe.toString()));
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(UpdateStatusEntries.class).setWindowID(ID).setStatus(status), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new UpdateStatusEntriesMessage(ID, status));
+		}
 	}
 }
