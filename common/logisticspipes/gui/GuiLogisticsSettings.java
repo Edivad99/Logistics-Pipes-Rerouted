@@ -4,10 +4,10 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LogisticsPipes;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.PlayerConfigToServerPacket;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
@@ -110,8 +110,7 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 			//config.setUseNewRenderer(useNewRendererButton.getState());
 			//config.setUseFallbackRenderer(useFallbackRendererButton.getState());
 
-			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(PlayerConfigToServerPacket.class).setConfig(config));
+			ClientPacketDistributor.sendToServer(SetPlayerConfigMessage.of(config));
 
 		}
 	}

@@ -34,6 +34,7 @@ import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_client.block.RunningCraftingTasksMessage;
 import logisticspipes.network.to_client.block.TrackableItemsMessage;
+import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.block.BlockRotationMessage;
 import logisticspipes.network.to_client.module.QuickSortMarkerMessage;
@@ -85,6 +86,7 @@ import logisticspipes.network.to_client.module.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage;
 import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
+import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.network.to_server.orderer.DropDiskMessage;
@@ -256,6 +258,8 @@ public class PacketHandler {
                 RequestRunningCraftingTasksMessage.STREAM_CODEC, RequestRunningCraftingTasksMessage::handle);
         registrar.playToServer(RequestTrackableItemsMessage.TYPE,
                 RequestTrackableItemsMessage.STREAM_CODEC, RequestTrackableItemsMessage::handle);
+        registrar.playToServer(SetPlayerConfigMessage.TYPE,
+                SetPlayerConfigMessage.STREAM_CODEC, SetPlayerConfigMessage::handle);
         registrar.playToServer(QuickSortChestWatchMessage.TYPE,
                 QuickSortChestWatchMessage.STREAM_CODEC, QuickSortChestWatchMessage::handle);
         registrar.playToServer(RequestInvSysConContentMessage.TYPE,
@@ -383,6 +387,8 @@ public class PacketHandler {
                 InvSysConContentMessage.STREAM_CODEC, InvSysConContentMessage::handle);
         registrar.playToClient(SendQueueContentMessage.TYPE,
                 SendQueueContentMessage.STREAM_CODEC, SendQueueContentMessage::handle);
+        registrar.playToClient(PlayerConfigMessage.TYPE,
+                PlayerConfigMessage.STREAM_CODEC, PlayerConfigMessage::handle);
         registrar.playToClient(QuickSortMarkerMessage.TYPE,
                 QuickSortMarkerMessage.STREAM_CODEC, QuickSortMarkerMessage::handle);
         registrar.playToClient(PowerLaserMessage.TYPE,

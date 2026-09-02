@@ -23,6 +23,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -49,6 +50,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforgespi.language.IModInfo;
 
 import lombok.AllArgsConstructor;
@@ -58,8 +60,8 @@ import vazkii.patchouli.api.PatchouliAPI;
 
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.PlayerConfigToClientPacket;
 import logisticspipes.network.packets.gui.GuiReopenPacket;
+import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -228,7 +230,9 @@ public class LogisticsEventListener {
 
 		SimpleServiceLocator.serverBufferHandler.clear(event.getEntity());
 		ClientConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(PlayerIdentifier.get(event.getEntity()));
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PlayerConfigToClientPacket.class).setConfig(config), event.getEntity());
+		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, PlayerConfigMessage.of(config));
+		}
 	}
 
 	@SubscribeEvent
