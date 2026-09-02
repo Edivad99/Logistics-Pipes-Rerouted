@@ -32,6 +32,7 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
+import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.network.to_client.block.RunningCraftingTasksMessage;
 import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.network.to_client.config.PlayerConfigMessage;
@@ -100,9 +101,11 @@ import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage
 import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.channel.DeleteChannelMessage;
 import logisticspipes.network.to_server.channel.SaveChannelMessage;
+import logisticspipes.network.to_server.config.SetHudSettingMessage;
 import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
 import logisticspipes.network.to_server.debug.DebugTargetMessage;
+import logisticspipes.network.to_server.gui.DummySlotClickMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.network.to_server.orderer.DropDiskMessage;
 import logisticspipes.network.to_server.orderer.RequestDiskContentMessage;
@@ -274,6 +277,10 @@ public class PacketHandler {
                 RequestRunningCraftingTasksMessage.STREAM_CODEC, RequestRunningCraftingTasksMessage::handle);
         registrar.playToServer(RequestTrackableItemsMessage.TYPE,
                 RequestTrackableItemsMessage.STREAM_CODEC, RequestTrackableItemsMessage::handle);
+        registrar.playToServer(DummySlotClickMessage.TYPE,
+                DummySlotClickMessage.STREAM_CODEC, DummySlotClickMessage::handle);
+        registrar.playToServer(SetHudSettingMessage.TYPE,
+                SetHudSettingMessage.STREAM_CODEC, SetHudSettingMessage::handle);
         registrar.playToServer(DeleteChannelMessage.TYPE,
                 DeleteChannelMessage.STREAM_CODEC, DeleteChannelMessage::handle);
         registrar.playToServer(RequestPlayerListMessage.TYPE,
@@ -342,6 +349,9 @@ public class PacketHandler {
      * handler. See {@code logisticspipes.network.bidirectional} for what belongs here.
      */
     private static void registerBidirectional(PayloadRegistrar registrar) {
+        registrar.playBidirectional(FuzzySlotFlagsMessage.TYPE,
+                FuzzySlotFlagsMessage.STREAM_CODEC,
+                FuzzySlotFlagsMessage::handle, FuzzySlotFlagsMessage::handle);
         registrar.playBidirectional(FluidSupplierMinModeMessage.TYPE,
                 FluidSupplierMinModeMessage.STREAM_CODEC,
                 FluidSupplierMinModeMessage::handle, FluidSupplierMinModeMessage::handle);

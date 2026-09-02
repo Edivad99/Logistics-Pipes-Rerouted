@@ -7,11 +7,12 @@ import net.minecraft.world.entity.player.Player;
 
 import lombok.SneakyThrows;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IHUDConfig;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.hud.HUDSettingsPacket;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_server.config.SetHudSettingMessage.HudSetting;
+import logisticspipes.network.to_server.config.SetHudSettingMessage;
 import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -54,7 +55,8 @@ public class GuiHUDSettings extends LogisticsBaseGuiScreen {
 	}
 
 	private GuiCheckBox wire(GuiCheckBox cb) {
-		cb.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDSettingsPacket.class).setButtonId(b.id).setState(b.getState()).setSlot(slot)));
+		cb.setPressListener(b -> ClientPacketDistributor.sendToServer(
+				new SetHudSettingMessage(slot, HudSetting.values()[b.id], b.getState())));
 		return cb;
 	}
 

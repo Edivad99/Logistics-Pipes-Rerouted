@@ -25,6 +25,8 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.interfaces.IGuiOpenController;
@@ -33,8 +35,7 @@ import logisticspipes.interfaces.ISlotClick;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.ChassisModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.FuzzySlotSettingsPacket;
+import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.proxy.MainProxy;
@@ -542,11 +543,12 @@ public class DummyContainer extends AbstractContainerMenu {
 				BitSet slotFlags = fuzzySlot.getFuzzyFlags().copyValue();
 				BitSet savedFlags = slotsFuzzyFlags.get(i);
 				if (savedFlags == null || !savedFlags.equals(slotFlags)) {
-					MainProxy.sendToPlayerList(
-							PacketHandler.getPacket(FuzzySlotSettingsPacket.class)
-									.setSlotNumber(fuzzySlot.getSlotId())
-									.setFlags(slotFlags),
-							getListeners().stream().filter(o -> o instanceof Player).map(o -> (Player) o));
+					final FuzzySlotFlagsMessage message =
+							FuzzySlotFlagsMessage.of(fuzzySlot.getSlotId(), slotFlags);
+					getListeners().stream()
+							.filter(ServerPlayer.class::isInstance)
+							.map(ServerPlayer.class::cast)
+							.forEach(listener -> PacketDistributor.sendToPlayer(listener, message));
 					slotsFuzzyFlags.set(i, slotFlags);
 				}
 			}

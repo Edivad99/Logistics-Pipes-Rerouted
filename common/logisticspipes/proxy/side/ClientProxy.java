@@ -12,10 +12,11 @@ import net.minecraft.world.level.Level;
 
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.gui.popup.SelectItemOutOfList;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.DummyContainerSlotClick;
+import logisticspipes.network.to_server.gui.DummySlotClickMessage;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.interfaces.IProxy;
@@ -130,7 +131,8 @@ public class ClientProxy implements IProxy {
 				if (slot == -1) {
 					return;
 				}
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(DummyContainerSlotClick.class).setSlotId(slotId).setStack(list.get(slot).makeNormalStack()).setButton(0));
+				ClientPacketDistributor.sendToServer(
+						new DummySlotClickMessage(slotId, list.get(slot).makeNormalStack(), 0));
 			});
 			LogisticsBaseGuiScreen gui = (LogisticsBaseGuiScreen) Minecraft.getInstance().screen;
 			if (!gui.hasSubGui()) {

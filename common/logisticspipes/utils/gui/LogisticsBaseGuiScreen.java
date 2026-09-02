@@ -32,11 +32,11 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IFuzzySlot;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.FuzzySlotSettingsPacket;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.extension.GuiExtensionController;
 import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
@@ -504,10 +504,8 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
                 return false;
             }
             set.flip(flag.getBit());
-            MainProxy.sendPacketToServer(
-                PacketHandler.getPacket(FuzzySlotSettingsPacket.class)
-                    .setSlotNumber(fuzzySlot.getSlotId())
-                    .setFlags(set.copyValue()));
+            ClientPacketDistributor.sendToServer(
+                FuzzySlotFlagsMessage.of(fuzzySlot.getSlotId(), set.copyValue()));
             return true;
         }
         // Button presses are handled by AbstractContainerScreen/Screen's own widget dispatch
