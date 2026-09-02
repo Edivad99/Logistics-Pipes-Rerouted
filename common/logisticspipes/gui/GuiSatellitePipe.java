@@ -13,17 +13,19 @@ import java.util.Objects;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.to_server.pipe.SetSatelliteNameMessage;
 import logisticspipes.pipes.SatelliteNamingResult;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import logisticspipes.world.inventory.SatelliteMenu;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
@@ -34,11 +36,9 @@ public class GuiSatellitePipe extends LogisticsBaseGuiScreen {
 
 	private InputBar input;
 
-	public GuiSatellitePipe(SatellitePipe satellitePipe) {
-		super(new DummyContainer(null, null));
-		panelWidth = 116;
-		panelHeight = 77;
-		this.satellitePipe = satellitePipe;
+	public GuiSatellitePipe(SatelliteMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 116, 77, 0, 0);
+		this.satellitePipe = menu.getPipe();
 	}
 
 	@Override

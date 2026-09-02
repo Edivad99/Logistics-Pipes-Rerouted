@@ -2,13 +2,14 @@
 package logisticspipes.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.pipes.PipeItemsFirewall;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.world.inventory.FirewallMenu;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiFirewall extends LogisticsBaseGuiScreen {
@@ -17,20 +18,11 @@ public class GuiFirewall extends LogisticsBaseGuiScreen {
 
 	private PipeItemsFirewall pipe;
 
-	public GuiFirewall(PipeItemsFirewall pipe, Player player) {
-		super(buildDummy(pipe, player), 230, 260, 0, 0);
-		this.pipe = pipe;
+	public GuiFirewall(FirewallMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 230, 260, 0, 0);
+		this.pipe = menu.getPipe();
 	}
-	private static DummyContainer buildDummy(PipeItemsFirewall pipe, Player player) {
-		DummyContainer dummy = new DummyContainer(player.getInventory(), pipe.inv);
-		dummy.addNormalSlotsForPlayerInventory(33, 175);
-		for (int x = 0; x < 6; x++) {
-			for (int y = 0; y < 6; y++) {
-				dummy.addDummySlot(x * 6 + y, x * 18 + 17, y * 18 + 41);
-			}
-		}
-		return dummy;
-	}
+
 
 
 	@Override

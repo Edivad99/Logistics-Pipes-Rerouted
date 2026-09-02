@@ -13,7 +13,9 @@ import java.util.Objects;
 import java.util.Set;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -29,6 +31,7 @@ import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
@@ -47,8 +50,9 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.SatelliteMenu;
 
-public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid, IRequireReliableFluidTransport, IHeadUpDisplayRendererProvider, IChestContentReceiver, SatellitePipe {
+public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid, IRequireReliableFluidTransport, IHeadUpDisplayRendererProvider, IChestContentReceiver, SatellitePipe, IPipeMenuProvider {
 
 	// from baseLogicLiquidSatellite
 	public static final Set<PipeFluidSatellite> AllSatellites = new HashSet<>();
@@ -217,10 +221,13 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 		if (entityplayer instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer,
 					new SatelliteNameMessage(getPos(), satellitePipeName));
+			serverPlayer.openMenu(this);
 		}
-		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.SatelliteGui.class)
-				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-				.open(entityplayer);
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new SatelliteMenu(containerId, inventory, this);
 	}
 
 	@Override

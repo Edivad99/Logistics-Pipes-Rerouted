@@ -2,26 +2,17 @@
 package logisticspipes.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import logisticspipes.world.item.LPItems;
-import logisticspipes.world.item.LogisticsItemCard;
+import logisticspipes.world.inventory.FreqCardMenu;
 
 public class GuiFreqCardContent extends LogisticsBaseGuiScreen {
 
-	public GuiFreqCardContent(Player player, Container card) {
-		super(buildDummy(player, card), 180, 130, 0, 0);
-	}
-	private static DummyContainer buildDummy(Player player, Container card) {
-		DummyContainer dummy = new DummyContainer(player.getInventory(), card);
-		dummy.addRestrictedSlot(0, card, 82, 15, itemStack ->
-				!itemStack.isEmpty() && itemStack.getItem() == LPItems.ITEM_CARD.get() && itemStack.getDamageValue() == LogisticsItemCard.FREQ_CARD);
-		dummy.addNormalSlotsForPlayerInventory(10, 45);
-		return dummy;
+	public GuiFreqCardContent(FreqCardMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 130, 0, 0);
 	}
 
 

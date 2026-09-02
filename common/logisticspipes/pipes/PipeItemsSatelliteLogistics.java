@@ -19,7 +19,9 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -35,6 +37,7 @@ import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -52,9 +55,10 @@ import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.SatelliteMenu;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 
-public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport, IHeadUpDisplayRendererProvider, IChestContentReceiver, SatellitePipe {
+public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport, IHeadUpDisplayRendererProvider, IChestContentReceiver, SatellitePipe, IPipeMenuProvider {
 
 	public static final Set<PipeItemsSatelliteLogistics> AllSatellites = Collections.newSetFromMap(new WeakHashMap<>());
 
@@ -220,10 +224,13 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 		if (entityplayer instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer,
 					new SatelliteNameMessage(getPos(), satellitePipeName));
+			serverPlayer.openMenu(this);
 		}
-		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.SatelliteGui.class)
-				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-				.open(entityplayer);
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new SatelliteMenu(containerId, inventory, this);
 	}
 
 	@Override

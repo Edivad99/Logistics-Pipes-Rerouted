@@ -17,6 +17,14 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import logisticspipes.LPConstants;
+import logisticspipes.interfaces.IFreqCardHolder;
+import logisticspipes.interfaces.SatellitePipe;
+import logisticspipes.pipes.PipeFluidSupplierMk2;
+import logisticspipes.pipes.PipeFluidTerminus;
+import logisticspipes.pipes.PipeItemsFirewall;
+import logisticspipes.pipes.PipeItemsFluidSupplier;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
@@ -57,6 +65,40 @@ public class LPMenuTypes {
                 return new AutoCraftingMenu(containerId, inventory, crafter);
             }, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidSinkMenu>> FLUID_SINK =
+        deferredRegister.register("fluid_sink", () -> pipeMenu(FluidSinkPipe.class, FluidSinkMenu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidTerminusMenu>> FLUID_TERMINUS =
+        deferredRegister.register("fluid_terminus",
+            () -> pipeMenu(PipeFluidTerminus.class, FluidTerminusMenu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<SatelliteMenu>> SATELLITE =
+        deferredRegister.register("satellite", () -> pipeMenu(SatellitePipe.class, SatelliteMenu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FirewallMenu>> FIREWALL =
+        deferredRegister.register("firewall", () -> pipeMenu(PipeItemsFirewall.class, FirewallMenu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidSupplierMenu>> FLUID_SUPPLIER =
+        deferredRegister.register("fluid_supplier", () -> new MenuType<>(
+            (IContainerFactory<FluidSupplierMenu>) (containerId, inventory, buffer) -> {
+                final BlockPos pos = buffer.readBlockPos();
+                final BlockEntity entity = inventory.player.level().getBlockEntity(pos);
+                if (!(entity instanceof LogisticsTileGenericPipe container)
+                    || !(container.pipe instanceof PipeItemsFluidSupplier pipe)) {
+                    throw new IllegalStateException("No fluid supplier at [%s]".formatted(pos));
+                }
+                // Which the screen draws a button for; it is not part of the pipe's client state.
+                pipe.setRequestingPartials(buffer.readBoolean());
+                return new FluidSupplierMenu(containerId, inventory, pipe);
+            }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidSupplierMk2Menu>> FLUID_SUPPLIER_MK2 =
+        deferredRegister.register("fluid_supplier_mk2",
+            () -> pipeMenu(PipeFluidSupplierMk2.class, FluidSupplierMk2Menu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FreqCardMenu>> FREQ_CARD =
+        deferredRegister.register("freq_card", () -> pipeMenu(IFreqCardHolder.class, FreqCardMenu::new));
+
     public static final DeferredHolder<MenuType<?>, MenuType<PowerProviderMenu>> POWER_PROVIDER =
         deferredRegister.register("power_provider",
             () -> blockEntityMenu(LogisticsPowerProviderTileEntity.class, PowerProviderMenu::new));
@@ -81,6 +123,23 @@ public class LPMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<ProgramCompilerMenu>> PROGRAM_COMPILER =
         deferredRegister.register("program_compiler",
             () -> blockEntityMenu(LogisticsProgramCompilerBlockEntity.class, ProgramCompilerMenu::new));
+
+    /**
+     * A menu belonging to the pipe inside a block entity rather than to the block entity itself.
+     */
+    private static <T extends AbstractContainerMenu, P> MenuType<T>
+    pipeMenu(Class<P> pipeType, CustomMenuFactory<T, P> factory) {
+        IContainerFactory<T> containerFactory = (containerId, inventory, buffer) -> {
+            final BlockPos pos = buffer.readBlockPos();
+            final BlockEntity entity = inventory.player.level().getBlockEntity(pos);
+            if (entity instanceof LogisticsTileGenericPipe container && pipeType.isInstance(container.pipe)) {
+                return factory.create(containerId, inventory, pipeType.cast(container.pipe));
+            }
+            throw new IllegalStateException(
+                "Cannot find pipe of type %s at [%s]".formatted(pipeType.getName(), pos));
+        };
+        return new MenuType<>(containerFactory, FeatureFlags.DEFAULT_FLAGS);
+    }
 
     private static <T extends AbstractContainerMenu, E extends BlockEntity> MenuType<T>
     blockEntityMenu(Class<E> entityType, CustomMenuFactory<T, E> factory) {

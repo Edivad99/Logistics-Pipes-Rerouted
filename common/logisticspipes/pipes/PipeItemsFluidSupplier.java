@@ -6,7 +6,11 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -19,6 +23,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.ITankUtil;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -38,11 +43,12 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.FluidSupplierMenu;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
-public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport {
+public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport, IPipeMenuProvider {
 
 	/** The transfer API reports "no fluid" as an empty stack; the callers below expect null. */
 	@Nullable
@@ -310,9 +316,20 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 
 	@Override
 	public void onWrenchClicked(Player entityplayer) {
-		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.FluidSupplierGui.class)
-				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-				.open(entityplayer);
+		if (entityplayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(this);
+		}
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new FluidSupplierMenu(containerId, inventory, this);
+	}
+
+	@Override
+	public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+		IPipeMenuProvider.super.writeClientSideData(menu, buffer);
+		buffer.writeBoolean(isRequestingPartials());
 	}
 
 	/*** GUI ***/

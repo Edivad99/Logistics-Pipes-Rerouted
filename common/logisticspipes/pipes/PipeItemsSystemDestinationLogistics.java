@@ -2,8 +2,11 @@ package logisticspipes.pipes;
 
 import java.util.UUID;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
@@ -11,6 +14,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IFreqCardHolder;
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -18,9 +23,10 @@ import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.FreqCardMenu;
 import logisticspipes.world.item.component.LPDataComponents;
 
-public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe {
+public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe implements IFreqCardHolder, IPipeMenuProvider {
 
 	public ItemIdentifierInventory inv = new ItemIdentifierInventory(1, "Freq Slot", 1);
 
@@ -85,8 +91,18 @@ public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe {
 
 	@Override
 	public void onWrenchClicked(Player entityplayer) {
-		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.FreqCardGui.class)
-				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-				.open(entityplayer);
+		if (entityplayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(this);
+		}
+	}
+
+	@Override
+	public ItemIdentifierInventory getFreqCardInventory() {
+		return inv;
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new FreqCardMenu(containerId, inventory, this);
 	}
 }

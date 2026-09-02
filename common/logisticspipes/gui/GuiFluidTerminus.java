@@ -3,16 +3,17 @@ package logisticspipes.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.to_server.pipe.SetPipePropertiesMessage;
 import logisticspipes.pipes.PipeFluidTerminus;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import logisticspipes.world.inventory.FluidTerminusMenu;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
@@ -23,25 +24,14 @@ public class GuiFluidTerminus extends LogisticsBaseGuiScreen {
 	private final BlockPos pipePosition;
 	private final PropertyOverlay<ItemIdentifierInventory, ItemIdentifierInventoryProperty> sinkInventoryOverlay;
 
-	public GuiFluidTerminus(Player player, PipeFluidTerminus pipe) {
-		super(buildDummy(player, pipe));
+	public GuiFluidTerminus(FluidTerminusMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 130, 0, 0);
+		final PipeFluidTerminus pipe = menu.getPipe();
 
 		pipePosition = pipe.getPos();
 		propertyLayer = new PropertyLayer(pipe.getProperties());
 		sinkInventoryOverlay = propertyLayer.overlay(pipe.getSinkInv());
 
-		panelWidth = 180;
-		panelHeight = 130;
-	}
-	private static DummyContainer buildDummy(Player player, PipeFluidTerminus pipe) {
-		// propertyLayer is not yet available during static construction; use pipe.getSinkInv() directly
-		DummyContainer dummy = new DummyContainer(player.getInventory(), pipe.getSinkInv());
-		// Pipe slots
-		for (int pipeSlot = 0; pipeSlot < pipe.getSinkInv().getContainerSize(); ++pipeSlot) {
-			dummy.addFluidSlot(pipeSlot, 10 + pipeSlot * 18, 19);
-		}
-		dummy.addNormalSlotsForPlayerInventory(10, 45);
-		return dummy;
 	}
 
 

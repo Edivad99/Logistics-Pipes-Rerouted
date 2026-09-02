@@ -19,18 +19,19 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IScreenOpenController;
-import network.rs485.logisticspipes.property.IBitSet;
+import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.utils.gui.ColorSlot;
-import logisticspipes.utils.gui.IJeiScreenHolder;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.DummySlot;
+import logisticspipes.utils.gui.FluidSlot;
 import logisticspipes.utils.gui.FuzzyDummySlot;
 import logisticspipes.utils.gui.FuzzyUnmodifiableSlot;
-import logisticspipes.utils.gui.FluidSlot;
 import logisticspipes.utils.gui.HandelableSlot;
+import logisticspipes.utils.gui.IJeiScreenHolder;
+import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.ModuleSlot;
 import logisticspipes.utils.gui.RestrictedSlot;
 import logisticspipes.utils.gui.UnmodifiableSlot;
+import network.rs485.logisticspipes.property.IBitSet;
 
 public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScreenHolder {
 
@@ -160,6 +161,10 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
         return addSlot(new RestrictedSlot(inventory, slotId, xCoord, yCoord, item));
     }
 
+    protected Slot addRestrictedSlot(int slotId, Container inventory, int xCoord, int yCoord, ISlotCheck slotCheck) {
+        return addSlot(new RestrictedSlot(inventory, slotId, xCoord, yCoord, slotCheck));
+    }
+
     /** A slot that shows a stack without holding one, for filters and recipe grids. */
     protected Slot addDummySlot(int slotId, Container inventory, int xCoord, int yCoord) {
         return addSlot(new DummySlot(inventory, slotId, xCoord, yCoord));
@@ -167,6 +172,11 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
 
     protected Slot addFuzzyDummySlot(int slotId, Container inventory, int xCoord, int yCoord, IBitSet fuzzyFlags) {
         return addSlot(new FuzzyDummySlot(inventory, slotId, xCoord, yCoord, fuzzyFlags));
+    }
+
+    /** A slot that shows a fluid as its item form, and is never taken from. */
+    protected Slot addFluidSlot(int slotId, Container inventory, int xCoord, int yCoord) {
+        return addSlot(new FluidSlot(inventory, slotId, xCoord, yCoord));
     }
 
     /** A slot the player can take from but not put into, such as a crafting result. */

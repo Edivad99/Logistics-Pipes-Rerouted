@@ -6,7 +6,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -17,10 +19,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.guis.pipe.FirewallGui;
 import logisticspipes.network.to_client.pipe.FirewallFlagsMessage;
 import logisticspipes.network.to_server.pipe.SetFirewallFlagsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -32,8 +33,9 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.inventory.FirewallMenu;
 
-public class PipeItemsFirewall extends CoreRoutedPipe {
+public class PipeItemsFirewall extends CoreRoutedPipe implements IPipeMenuProvider {
 
 	public ItemIdentifierInventory inv = new ItemIdentifierInventory(6 * 6, "Filter Inv", 1);
 	@Getter
@@ -61,10 +63,13 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 	public void onWrenchClicked(Player player) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new FirewallFlagsMessage(getPos(), getFlags()));
+			serverPlayer.openMenu(this);
 		}
-		NewGuiHandler.getGui(FirewallGui.class)
-				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-				.open(player);
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new FirewallMenu(containerId, inventory, this);
 	}
 
 	@Override

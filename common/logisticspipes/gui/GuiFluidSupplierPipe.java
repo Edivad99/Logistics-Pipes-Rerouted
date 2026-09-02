@@ -10,15 +10,15 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.world.inventory.FluidSupplierMenu;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
@@ -27,27 +27,11 @@ public class GuiFluidSupplierPipe extends LogisticsBaseGuiScreen {
 
 	private PipeItemsFluidSupplier logic;
 
-	public GuiFluidSupplierPipe(Container playerInventory, Container dummyInventory, PipeItemsFluidSupplier logic) {
-		super(buildDummy(playerInventory, dummyInventory, logic));
-
-		this.logic = logic;
-		panelWidth = 194;
-		panelHeight = 186;
+	public GuiFluidSupplierPipe(FluidSupplierMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 194, 186, 0, 0);
+		this.logic = menu.getPipe();
 	}
-	private static DummyContainer buildDummy(Container playerInventory, Container dummyInventory, PipeItemsFluidSupplier logic) {
-		DummyContainer dummy = new DummyContainer(playerInventory, dummyInventory);
-		dummy.addNormalSlotsForPlayerInventory(18, 97);
 
-		int xOffset = 72;
-		int yOffset = 18;
-
-		for (int row = 0; row < 3; row++) {
-			for (int column = 0; column < 3; column++) {
-				dummy.addDummySlot(column + row * 3, xOffset + column * 18, yOffset + row * 18);
-			}
-		}
-		return dummy;
-	}
 
 
 	@Override

@@ -37,13 +37,27 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
+import logisticspipes.gui.GuiFirewall;
+import logisticspipes.gui.GuiFreqCardContent;
+import logisticspipes.gui.GuiFluidBasic;
+import logisticspipes.gui.GuiFluidSupplierMk2Pipe;
+import logisticspipes.gui.GuiFluidSupplierPipe;
+import logisticspipes.gui.GuiFluidTerminus;
 import logisticspipes.gui.GuiLogisticsCraftingTable;
+import logisticspipes.gui.GuiSatellitePipe;
 import logisticspipes.gui.GuiPowerJunction;
 import logisticspipes.gui.GuiStatistics;
 import logisticspipes.gui.GuiPowerProvider;
 import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.world.inventory.AutoCraftingMenu;
+import logisticspipes.world.inventory.FirewallMenu;
+import logisticspipes.world.inventory.FreqCardMenu;
+import logisticspipes.world.inventory.FluidSinkMenu;
+import logisticspipes.world.inventory.FluidSupplierMenu;
+import logisticspipes.world.inventory.FluidSupplierMk2Menu;
+import logisticspipes.world.inventory.FluidTerminusMenu;
 import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.inventory.SatelliteMenu;
 import logisticspipes.world.inventory.PowerJunctionMenu;
 import logisticspipes.world.inventory.PowerProviderMenu;
 import logisticspipes.world.inventory.SecurityStationMenu;
@@ -138,5 +152,19 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<AutoCraftingMenu, AbstractContainerScreen<AutoCraftingMenu>>) GuiLogisticsCraftingTable::new);
         event.register(LPMenuTypes.STATISTICS.get(),
             (MenuScreens.ScreenConstructor<StatisticsMenu, AbstractContainerScreen<StatisticsMenu>>) GuiStatistics::new);
+        event.register(LPMenuTypes.FLUID_SINK.get(),
+            (MenuScreens.ScreenConstructor<FluidSinkMenu, AbstractContainerScreen<FluidSinkMenu>>) GuiFluidBasic::new);
+        event.register(LPMenuTypes.FLUID_TERMINUS.get(),
+            (MenuScreens.ScreenConstructor<FluidTerminusMenu, AbstractContainerScreen<FluidTerminusMenu>>) GuiFluidTerminus::new);
+        event.register(LPMenuTypes.SATELLITE.get(),
+            (MenuScreens.ScreenConstructor<SatelliteMenu, AbstractContainerScreen<SatelliteMenu>>) GuiSatellitePipe::new);
+        event.register(LPMenuTypes.FIREWALL.get(),
+            (MenuScreens.ScreenConstructor<FirewallMenu, AbstractContainerScreen<FirewallMenu>>) GuiFirewall::new);
+        event.register(LPMenuTypes.FREQ_CARD.get(),
+            (MenuScreens.ScreenConstructor<FreqCardMenu, AbstractContainerScreen<FreqCardMenu>>) GuiFreqCardContent::new);
+        event.register(LPMenuTypes.FLUID_SUPPLIER.get(),
+            (MenuScreens.ScreenConstructor<FluidSupplierMenu, AbstractContainerScreen<FluidSupplierMenu>>) GuiFluidSupplierPipe::new);
+        event.register(LPMenuTypes.FLUID_SUPPLIER_MK2.get(),
+            (MenuScreens.ScreenConstructor<FluidSupplierMk2Menu, AbstractContainerScreen<FluidSupplierMk2Menu>>) GuiFluidSupplierMk2Pipe::new);
     }
 }

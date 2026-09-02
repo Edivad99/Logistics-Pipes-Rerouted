@@ -8,7 +8,7 @@ package logisticspipes.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -17,10 +17,10 @@ import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_server.pipe.ChangeFluidSupplierAmountMessage;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import logisticspipes.world.inventory.FluidSupplierMk2Menu;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
@@ -29,21 +29,12 @@ public class GuiFluidSupplierMk2Pipe extends LogisticsBaseGuiScreen {
 
 	private PipeFluidSupplierMk2 logic;
 
-	public GuiFluidSupplierMk2Pipe(Container playerInventory, Container dummyInventory, PipeFluidSupplierMk2 logic) {
-		super(buildDummy(playerInventory, dummyInventory, logic));
-
-		this.logic = logic;
-		panelWidth = 184;
-		panelHeight = 176;
+	public GuiFluidSupplierMk2Pipe(FluidSupplierMk2Menu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 184, 176, 0, 0);
+		this.logic = menu.getPipe();
 		ClientPacketDistributor.sendToServer(new ChangeFluidSupplierAmountMessage(this.logic.getPos(), 0));
 	}
-	private static DummyContainer buildDummy(Container playerInventory, Container dummyInventory, PipeFluidSupplierMk2 logic) {
-		DummyContainer dummy = new DummyContainer(playerInventory, dummyInventory);
-		dummy.addNormalSlotsForPlayerInventory(13, 92);
 
-		dummy.addFluidSlot(0, dummyInventory, 60, 18);
-		return dummy;
-	}
 
 
 	@Override
