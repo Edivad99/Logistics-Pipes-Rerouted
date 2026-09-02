@@ -41,6 +41,7 @@ import net.neoforged.fml.VersionChecker;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -58,9 +59,8 @@ import vazkii.patchouli.api.PatchouliAPI;
 import logisticspipes.interfaces.IItemAdvancedExistance;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.packets.PlayerConfigToClientPacket;
-import logisticspipes.network.packets.chassis.ChestGuiClosed;
-import logisticspipes.network.packets.chassis.ChestGuiOpened;
 import logisticspipes.network.packets.gui.GuiReopenPacket;
+import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -267,10 +267,10 @@ public class LogisticsEventListener {
 			part.setActive(true);
 		}
 		if (event.getScreen() instanceof AbstractContainerScreen) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(ChestGuiOpened.class));
+			ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(true));
 		} else {
 			QuickSortChestMarkerStorage.getInstance().disable();
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(ChestGuiClosed.class));
+			ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(false));
 		}
 	}
 
