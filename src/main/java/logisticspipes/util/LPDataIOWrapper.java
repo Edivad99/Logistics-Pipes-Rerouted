@@ -44,7 +44,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
 
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
     /**
-     * Cap on the initial capacity of a collection sized from the wire. The length prefix is
+     * Cap on the initial capacity of a collection sized from a message. The length prefix is
      * attacker-controlled, so pre-sizing to it lets a single small packet claiming
      * {@code Integer.MAX_VALUE} entries exhaust the heap before a single element is read.
      * Collections grow on demand, so a bounded initial capacity only costs a few resizes on
@@ -503,7 +503,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
     /**
      * Reads a length prefix for an allocation that must be exactly that size, so it cannot be
      * bounded by {@link #MAX_INITIAL_CAPACITY} the way a growable collection can. Every element
-     * needs at least {@code minBytesPerElement} bytes on the wire, which gives a hard upper bound
+     * needs at least {@code minBytesPerElement} encoded bytes, which gives a hard upper bound
      * from what is actually left in the buffer.
      *
      * @return the length, or -1 for the null marker
@@ -668,7 +668,7 @@ public final class LPDataIOWrapper implements LPDataInput, LPDataOutput {
     @Override
     public <T> NonNullList<T> readNonNullList(IReadListObject<T> reader, T fillItem) {
         // withSize allocates the full length up front, so this needs the hard bound rather than
-        // a capped initial capacity. Every element costs at least one byte on the wire.
+        // a capped initial capacity. Every element costs at least one encoded byte.
         int size = readLengthPrefix(Byte.BYTES);
         if (size == -1) {
             return null;

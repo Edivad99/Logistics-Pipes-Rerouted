@@ -39,7 +39,7 @@ import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
  * GUI asks the server to open the neighbour, the server tells the client to highlight it, and the
  * click comes back here to be resolved against the real inventory.
  *
- * <p>This used to live inside the packets themselves. It is server logic, not wire format.
+ * <p>This used to live inside the packets themselves. It is server logic, not serialization.
  */
 public final class SlotFinder {
 

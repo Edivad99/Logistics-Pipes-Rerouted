@@ -64,7 +64,7 @@ public class ClientProxy implements IProxy {
 		BlockPos pos = new BlockPos(x, y, z);
 		// isLoaded before anything that reads the block: getBlockState and getBlockEntity both
 		// go through getChunkAt, which loads -- or generates -- an absent chunk, and these
-		// coordinates come off the wire.
+		// coordinates were sent by the server.
 		if (!level.isLoaded(pos) || level.isEmptyBlock(pos)) {
             return null;
         }

@@ -58,6 +58,8 @@ import logisticspipes.network.to_client.PlayerListMessage;
 import logisticspipes.network.to_client.PowerJunctionLevelMessage;
 import logisticspipes.network.to_client.PowerProviderLevelMessage;
 import logisticspipes.network.to_client.QuickSortStateMessage;
+import logisticspipes.network.to_client.RequestAnswerMessage;
+import logisticspipes.network.to_client.RequestComponentsMessage;
 import logisticspipes.network.to_client.SatelliteNameMessage;
 import logisticspipes.network.to_client.SecurityAuthorizedListMessage;
 import logisticspipes.network.to_client.SecurityStationCCIdsMessage;
@@ -322,6 +324,10 @@ public class PacketHandler {
                 ChassisOrientationMessage.STREAM_CODEC, ChassisOrientationMessage::handle);
         registrar.playToClient(PipeStatsMessage.TYPE,
                 PipeStatsMessage.STREAM_CODEC, PipeStatsMessage::handle);
+        registrar.playToClient(RequestAnswerMessage.TYPE,
+                RequestAnswerMessage.STREAM_CODEC, RequestAnswerMessage::handle);
+        registrar.playToClient(RequestComponentsMessage.TYPE,
+                RequestComponentsMessage.STREAM_CODEC, RequestComponentsMessage::handle);
         registrar.playToClient(CraftingModuleUpdateMessage.TYPE,
                 CraftingModuleUpdateMessage.STREAM_CODEC, CraftingModuleUpdateMessage::handle);
         registrar.playToClient(ModuleInventoryMessage.TYPE,
@@ -468,8 +474,8 @@ public class PacketHandler {
 
     /**
      * Embeds a packet in a block entity's update tag, the one path that carries an LP packet
-     * outside the payload channel. The packet is named here too, for the same reason it is on the
-     * wire: nothing should depend on a numeric id whose value comes from a classpath scan.
+     * outside the payload channel. The packet is named here too, for the same reason it is named
+     * when sent: nothing should depend on a numeric id whose value comes from a classpath scan.
      *
      * <p>This rides {@code getUpdateTag}, which is chunk sync and never reaches disk, so the
      * encoding is free to change with the mod.

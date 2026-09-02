@@ -18,7 +18,7 @@ import logisticspipes.network.ModuleTarget;
  * The player edited the ore dictionary list in the module's GUI.
  *
  * <p>The names travel as themselves. The obvious alternative -- shipping the module's serialized
- * form -- would put a whole {@code CompoundTag} on the wire to carry a list of strings, with no
+ * form -- would send a whole {@code CompoundTag} to carry a list of strings, with no
  * schema for the receiver to check and, on this direction, arbitrary NBT handed to
  * {@code deserialize}.
  */

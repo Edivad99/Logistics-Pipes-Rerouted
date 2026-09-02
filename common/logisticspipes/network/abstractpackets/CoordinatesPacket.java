@@ -53,7 +53,7 @@ public abstract class CoordinatesPacket extends ModernPacket {
 			throw new TargetNotFoundException("World was null", whosAsking);
 		}
 		// isLoaded first: isEmptyBlock reads the block state, which loads the chunk when it is
-		// absent, and these coordinates come off the wire. Not loaded is treated like a missing
+		// absent, and these coordinates come from a message. Not loaded is treated like a missing
 		// target, so a client-side packet still gets its few retries while the chunk arrives.
 		if (!level.isLoaded(blockPos)) {
 			throw new TargetNotFoundException("Chunk not loaded at: " + blockPos, whosAsking);

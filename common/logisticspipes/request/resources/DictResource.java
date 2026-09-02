@@ -4,6 +4,13 @@ import java.util.BitSet;
 
 import com.google.common.base.Objects;
 
+
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.routing.IRouter;
 import logisticspipes.util.LPDataInput;
@@ -17,11 +24,46 @@ import network.rs485.logisticspipes.util.FuzzyUtil;
 public class DictResource implements IResource {
 
 	private final Object[] ccTypeHolder = new Object[1];
-	private final IRequestItems requester;
+	/** Null on the client, which only ever displays a resource. */
+	private final @Nullable IRequestItems requester;
 	public ItemIdentifierStack stack;
 	private BitSet fuzzyFlags = new BitSet(4);
 
-	public DictResource(ItemIdentifierStack stack, IRequestItems requester) {
+	/**
+	 * The four fuzzy flags are named rather than sent as the {@link BitSet} that holds them.
+	 *
+	 * <p>The old encoding wrote {@code fuzzyFlags.get(0, 3)}, which silently dropped
+	 * {@link FuzzyFlag#USE_ORE_CATEGORY} -- a leftover from when there were three flags. Naming
+	 * them makes a fourth one impossible to forget, and leaves nothing to read a bit index from.
+	 */
+	public static final StreamCodec<RegistryFriendlyByteBuf, DictResource> STREAM_CODEC =
+			StreamCodec.composite(
+					ItemIdentifierStack.STREAM_CODEC, resource -> resource.stack,
+					ByteBufCodecs.BOOL, resource -> resource.hasFuzzyFlag(FuzzyFlag.USE_ORE_DICT),
+					ByteBufCodecs.BOOL, resource -> resource.hasFuzzyFlag(FuzzyFlag.IGNORE_DAMAGE),
+					ByteBufCodecs.BOOL, resource -> resource.hasFuzzyFlag(FuzzyFlag.IGNORE_NBT),
+					ByteBufCodecs.BOOL, resource -> resource.hasFuzzyFlag(FuzzyFlag.USE_ORE_CATEGORY),
+					DictResource::new);
+
+	/** Rebuilt on the client, where a resource has no requester to answer to. */
+	private DictResource(ItemIdentifierStack stack, boolean useOreDict, boolean ignoreDamage,
+			boolean ignoreNbt, boolean useOreCategory) {
+		this(stack, null);
+		setFuzzyFlag(FuzzyFlag.USE_ORE_DICT, useOreDict);
+		setFuzzyFlag(FuzzyFlag.IGNORE_DAMAGE, ignoreDamage);
+		setFuzzyFlag(FuzzyFlag.IGNORE_NBT, ignoreNbt);
+		setFuzzyFlag(FuzzyFlag.USE_ORE_CATEGORY, useOreCategory);
+	}
+
+	public boolean hasFuzzyFlag(FuzzyFlag flag) {
+		return FuzzyUtil.INSTANCE.get(fuzzyFlags, flag);
+	}
+
+	private void setFuzzyFlag(FuzzyFlag flag, boolean value) {
+		FuzzyUtil.INSTANCE.set(fuzzyFlags, flag, value);
+	}
+
+	public DictResource(ItemIdentifierStack stack, @Nullable IRequestItems requester) {
 		this.stack = stack;
 		this.requester = requester;
 	}

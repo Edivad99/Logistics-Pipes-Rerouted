@@ -17,8 +17,8 @@ import logisticspipes.network.ModuleTarget;
 /**
  * The player edited the mod or creative tab list in the module's GUI.
  *
- * <p>The names travel as themselves. Shipping the module's serialized form instead would put a
- * whole {@code CompoundTag} on the wire to carry a list of strings, and would hand arbitrary NBT
+ * <p>The names travel as themselves. Shipping the module's serialized form instead would send a
+ * whole {@code CompoundTag} to carry a list of strings, and would hand arbitrary NBT
  * to {@code deserialize} on the direction the client controls.
  */
 public record SetStringBasedItemSinkListMessage(ModuleTarget target, List<String> names)

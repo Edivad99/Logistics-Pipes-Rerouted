@@ -19,7 +19,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 /**
  * A pipe addressed from a GUI that may not be standing next to it.
  *
- * <p>This is the one place a dimension belongs on the wire. {@code ModernPacket} writes one for
+ * <p>This is the one place a dimension belongs in a message. {@code ModernPacket} writes one for
  * every packet, but the receiving side almost always uses the player's own level; the remote
  * orderer is the exception -- it opens a request GUI on a pipe in another dimension entirely, so
  * the message has to say which.

@@ -58,7 +58,7 @@ import kotlin.test.assertEquals
  *
  * The point of the adapter is that it is a pure re-housing: the same bytes, produced by the same
  * code, reached through a different interface. The byte-identity test below is what makes that
- * claim checkable rather than merely intended -- without it, "no wire change" is a hope.
+ * claim checkable rather than merely intended -- without it, "nothing changed" is a hope.
  */
 class ModernPacketCodecTest {
 

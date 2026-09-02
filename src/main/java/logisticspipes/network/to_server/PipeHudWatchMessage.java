@@ -17,7 +17,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 /**
  * The client's HUD subscribes to a pipe, or lets go of it.
  *
- * <p>The watching mode is not on the wire: the HUD is the only thing that sends this, so the mode
+ * <p>The watching mode is not sent: the HUD is the only thing that sends this, so the mode
  * is always {@link WatchMode#HUD}. The GUI's own mode is set from the server side.
  */
 public record PipeHudWatchMessage(BlockPos pos, boolean watching) implements CustomPacketPayload {

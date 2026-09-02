@@ -12,7 +12,7 @@ import logisticspipes.util.LPDataIOWrapper;
  * <p>Those two methods already <em>are</em> a codec: they just happen to be imperative and to
  * compose by inheritance rather than by construction. Wrapping them means every LP packet has a
  * real {@code StreamCodec} today, without touching any of the ~150 packet classes, and without
- * moving a single byte on the wire.
+ * changing a single byte of what is sent.
  *
  * <p>This is deliberately a stepping stone. Packets migrate off {@link #body} one at a time, each
  * one replacing its adapter with a composed codec of its own; when the last one goes, so does

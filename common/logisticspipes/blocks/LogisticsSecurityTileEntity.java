@@ -358,7 +358,7 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	*
 	* <p>The same six switches {@link SecuritySettings} holds, as a value that can travel. The
 	* settings themselves stay mutable and keep their own NBT shape for the save file; this is only
-	* the wire form, so a message never has to hand a raw {@code CompoundTag} to the security store.
+	* the sent form, so a message never has to hand a raw {@code CompoundTag} to the security store.
 	*/
 	public record SecurityPermissions(
 			boolean openGui,
