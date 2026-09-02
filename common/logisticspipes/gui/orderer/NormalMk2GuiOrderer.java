@@ -3,6 +3,7 @@ package logisticspipes.gui.orderer;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -35,7 +36,7 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 		macroButton = new SmallGuiButton(12, right - 55, bottom - 60, 50, 10, "Disk");
 		macroButton.setPressListener(b -> {
 			MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskRequestConectPacket.class).setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ()));
-			minecraft.setScreen(new GuiDiskPopup(this));
+			setSubGui(new GuiDiskPopup(this));
 		});
 		addRenderableWidget(macroButton);
 		macroButton.active = false;
@@ -80,18 +81,8 @@ public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvid
 	}
 
 	@Override
-	public int getX() {
-		return pipe.getX();
-	}
-
-	@Override
-	public int getY() {
-		return pipe.getY();
-	}
-
-	@Override
-	public int getZ() {
-		return pipe.getZ();
+	public BlockPos getBlockPos() {
+		return pipe.getPos();
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -143,7 +142,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
 			compTag.put("macroList", list);
 			diskProvider.getDisk().set(DataComponents.CUSTOM_DATA, CustomData.of(compTag));
 			ClientPacketDistributor.sendToServer(new SaveDiskContentMessage(
-					new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), diskProvider.getDisk()));
+					diskProvider.getBlockPos(), diskProvider.getDisk()));
 			exitGui();
 		} else if (macroItems.size() != 0) {
 			setSubGui(new GuiMessagePopup("Please enter a name"));

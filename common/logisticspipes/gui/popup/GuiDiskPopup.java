@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,11 +15,9 @@ import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.IDiskProvider;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.DiskMacroRequestPacket;
 import logisticspipes.network.to_server.block.SaveDiskContentMessage;
 import logisticspipes.network.to_server.block.SetDiskNameMessage;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_server.orderer.RequestDiskMacroMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -125,10 +122,10 @@ public class GuiDiskPopup extends SubGuiScreen {
 	private void writeDiskName() {
 		editName = false;
 		ClientPacketDistributor.sendToServer(new SetDiskNameMessage(
-				new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), name1 + name2));
+				diskProvider.getBlockPos(), name1 + name2));
 		diskProvider.getDisk().set(DataComponents.CUSTOM_NAME, Component.literal(name1 + name2));
 		ClientPacketDistributor.sendToServer(new SaveDiskContentMessage(
-				new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), diskProvider.getDisk()));
+				diskProvider.getBlockPos(), diskProvider.getDisk()));
 	}
 
 	@Override
@@ -189,7 +186,9 @@ public class GuiDiskPopup extends SubGuiScreen {
 	// Deferred: scroll wheel handling not wired
 
 	private void handleRequest() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(DiskMacroRequestPacket.class).putInt(textList.getSelected()).setPosX(diskProvider.getX()).setPosY(diskProvider.getY()).setPosZ(diskProvider.getZ()));
+		ClientPacketDistributor.sendToServer(new RequestDiskMacroMessage(
+				diskProvider.getBlockPos(),
+				textList.getSelected()));
 	}
 
 	private void handleDelete() {
@@ -219,7 +218,7 @@ public class GuiDiskPopup extends SubGuiScreen {
 		);
 
 		ClientPacketDistributor.sendToServer(new SaveDiskContentMessage(
-				new BlockPos(diskProvider.getX(), diskProvider.getY(), diskProvider.getZ()), diskProvider.getDisk()));
+				diskProvider.getBlockPos(), diskProvider.getDisk()));
 	}
 
 	private void handleAddEdit() {

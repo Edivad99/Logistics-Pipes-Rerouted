@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -677,18 +678,8 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	}
 
 	@Override
-	public int getX() {
-		return table.getX();
-	}
-
-	@Override
-	public int getY() {
-		return table.getY();
-	}
-
-	@Override
-	public int getZ() {
-		return table.getZ();
+	public BlockPos getBlockPos() {
+		return table.getPos();
 	}
 
 	@Override

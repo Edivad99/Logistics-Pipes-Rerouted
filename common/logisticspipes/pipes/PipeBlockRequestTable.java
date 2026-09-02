@@ -645,6 +645,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 	}
 
+	@Override
 	public ItemStack getDisk() {
 		return diskInv.getItem(0);
 	}

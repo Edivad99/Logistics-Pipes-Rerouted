@@ -76,6 +76,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 		return Textures.LOGISTICSPIPE_REQUESTERMK2_TEXTURE;
 	}
 
+	@Override
 	public ItemStack getDisk() {
 		return disk;
 	}

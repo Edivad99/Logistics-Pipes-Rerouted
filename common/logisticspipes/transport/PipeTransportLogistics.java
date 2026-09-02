@@ -46,9 +46,9 @@ import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.ItemBufferSyncPacket;
 import logisticspipes.network.packets.pipe.PipeContentPacket;
 import logisticspipes.network.packets.pipe.PipePositionPacket;
+import logisticspipes.network.to_client.pipe.PipeItemBufferMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeContentMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -106,9 +106,9 @@ public class PipeTransportLogistics {
 			chunk = getWorld().getChunkSource().getChunkNow(
 					SectionPos.blockToSectionCoord(container.getBlockPos().getX()),
 					SectionPos.blockToSectionCoord(container.getBlockPos().getZ()));
-			ItemBufferSyncPacket packet = PacketHandler.getPacket(ItemBufferSyncPacket.class);
-			packet.setTilePos(container);
-			itemBuffer.setPacketType(packet, getWorld().dimension().identifier().hashCode(), container.getX(), container.getZ());
+			itemBuffer.syncTo(getWorld(), container.getBlockPos(), buffered -> new PipeItemBufferMessage(
+				container.getBlockPos(),
+				buffered.stream().map(Triplet::getValue1).toList()));
 		}
 	}
 
@@ -144,6 +144,12 @@ public class PipeTransportLogistics {
 		return (CoreRoutedPipe) container.pipe;
 	}
 
+	/** Replaces what the client thinks is buffered. The timeout and travelling item stay server-side. */
+	public void setClientItemBuffer(List<ItemIdentifierStack> contents) {
+		itemBuffer.clear();
+		contents.forEach(stack -> itemBuffer.add(new Triplet<>(stack, null, null)));
+	}
+
 	public void updateEntity() {
 		moveSolids();
 		if (MainProxy.isServer(getWorld())) {
@@ -176,7 +182,7 @@ public class PipeTransportLogistics {
 					this.injectItem(item, Direction.UP);
 				}
 			}
-			itemBuffer.sendUpdateToWaters();
+			itemBuffer.sendUpdateToWatchers();
 		}
 	}
 

@@ -39,7 +39,7 @@ package network.rs485.logisticspipes.network
 
 import io.netty.buffer.Unpooled
 import logisticspipes.network.ModernPacketCodec
-import logisticspipes.network.packets.orderer.DiskMacroRequestPacket
+import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
 import net.minecraft.SharedConstants
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
@@ -80,13 +80,12 @@ class ModernPacketCodecTest {
         RegistryFriendlyByteBuf(Unpooled.buffer(), registries(), ConnectionType.OTHER)
 
     /** A packet with a coordinate and a value, filled in at every level of its chain. */
-    private fun samplePacket(): DiskMacroRequestPacket =
-        DiskMacroRequestPacket(PACKET_ID).apply {
+    private fun samplePacket(): CraftingPipeOpenConnectedGuiPacket =
+        CraftingPipeOpenConnectedGuiPacket(PACKET_ID).apply {
             setDimension(Identifier.parse("logisticspipes:test_dimension"))
             posX = 12
             posY = -34
             posZ = 5678
-            putInt(101)
             debugId = 77
         }
 
@@ -104,7 +103,6 @@ class ModernPacketCodecTest {
             assertEquals(12, actual.posX)
             assertEquals(-34, actual.posY)
             assertEquals(5678, actual.posZ)
-            assertEquals(101, actual.integer)
             assertEquals(Identifier.parse("logisticspipes:test_dimension"), actual.dimension)
             assertEquals(0, buf.readableBytes(), "the body codec must consume exactly what it wrote")
         } finally {

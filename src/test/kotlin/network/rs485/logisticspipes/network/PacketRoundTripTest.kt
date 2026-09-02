@@ -45,7 +45,6 @@ import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket
 import logisticspipes.network.packets.DeleteChannelPacket
 import logisticspipes.network.packets.RequestUpdateNamesPacket
 import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket
-import logisticspipes.network.packets.orderer.DiskMacroRequestPacket
 import logisticspipes.network.packets.pipe.SendQueueContent
 import net.minecraft.SharedConstants
 import net.minecraft.core.NonNullList
@@ -173,15 +172,6 @@ class PacketRoundTripTest {
     @Test
     fun `CoordinatesPacket round trip`() {
         assertCoords(roundTrip(CraftingPipeOpenConnectedGuiPacket(ANY_ID).withModule()))
-    }
-
-    // ── level 3: IntegerCoordinatesPacket ────────────────────────────────────
-
-    @Test
-    fun `IntegerCoordinatesPacket round trip`() {
-        val actual = roundTrip(DiskMacroRequestPacket(ANY_ID).withCoords().apply { integer = 9001 })
-        assertCoords(actual)
-        assertEquals(9001, actual.integer)
     }
 
     // ── level 3: ModuleCoordinatesPacket ─────────────────────────────────────
