@@ -9,6 +9,6 @@ public class PlayerSettingsMenu extends DummyMenu {
 
     public PlayerSettingsMenu(int containerId, Inventory inventory) {
         super(LPMenuTypes.PLAYER_SETTINGS.get(), containerId, inventory.player, null);
-        addNormalSlotsForPlayerInventory(inventory, 10, 135);
+        addNormalSlotsForPlayerInventory(inventory, 10, 95);
     }
 }

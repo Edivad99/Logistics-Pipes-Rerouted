@@ -401,7 +401,7 @@
   "gui.compiler.nopower.2": "$REDConnect to LP network$RESET",
   "gui.settings.pipenewrenderer": "Use New Renderer",
   "gui.settings.pipefallbackrenderer": "Use Fallback Renderer",
-  "gui.settings.piperenderdistance": "Max. Distance for new Renderer",
+  "gui.settings.piperenderdistance": "Max. Distance for Renderer",
   "gui.settings.pipecontentrenderdistance": "Max. Distance for Pipe Content",
   "gui.popup.selectchannel.title": "Channel Selection",
   "gui.popup.addchannel.title": "Add Channel",

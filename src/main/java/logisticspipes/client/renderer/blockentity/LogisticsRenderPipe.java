@@ -69,7 +69,6 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     private static final WoodType TYPE = WoodType.OAK;
     private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
     public static LogisticsNewPipeItemBoxRenderer boxRenderer = new LogisticsNewPipeItemBoxRenderer();
-    public static ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
     @Nullable
     private static TextureAtlasSprite requestTableSprite = null;
 
@@ -124,12 +123,28 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         return new PipeRenderState();
     }
 
+    /**
+     * How far away a pipe is still drawn, from the player's own settings.
+     *
+     * <p>Read per frame rather than cached: the settings screen edits the live configuration.
+     */
+    @Override
+    public int getViewDistance() {
+        return LogisticsPipes.getClientPlayerConfig().getRenderPipeDistance();
+    }
+
     @Override
     public void extractRenderState(LogisticsTileGenericPipe blockEntity, PipeRenderState state, float partialTicks,
         Vec3 cameraPos, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPos, breakProgress);
         state.blockEntity = blockEntity.pipe == null ? null : blockEntity;
         state.partialTicks = partialTicks;
+        // The items traveling inside a pipe are the expensive half of this renderer, and they are
+        // unreadable long before the pipe itself stops being visible, so they get their own
+        // shorter distance.
+        final int contentDistance = LogisticsPipes.getClientPlayerConfig().getRenderPipeContentDistance();
+        state.renderContent = Vec3.atCenterOf(blockEntity.getBlockPos()).distanceToSqr(cameraPos)
+            <= (double) contentDistance * contentDistance;
     }
 
     @Override
@@ -145,7 +160,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.pushPose();
         try {
             submitInternal(state.blockEntity, 0, 0, 0, state.partialTicks, poseStack, collector, state.lightCoords,
-                OverlayTexture.NO_OVERLAY);
+                OverlayTexture.NO_OVERLAY, state.renderContent);
         } finally {
             poseStack.popPose();
         }
@@ -223,7 +238,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     }
 
     private void submitInternal(@Nullable LogisticsTileGenericPipe blockEntity, double x, double y, double z,
-        float partialTicks, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
+        float partialTicks, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay,
+        boolean renderContent) {
         // In 1.20.1 the BER PoseStack is pre-translated, so we always pass (0,0,0).
         // Use blockEntity==null as the sole in-hand signal instead.
         boolean inHand = (blockEntity == null);
@@ -257,7 +273,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
                 submitTubeGeometry(blockEntity, poseStack, collector, packedLight, packedOverlay);
             }
 
-            if (!inHand && !blockEntity.isOpaque()) {
+            if (!inHand && !blockEntity.isOpaque() && renderContent) {
                 if (blockEntity.pipe.transport != null) {
                     submitSolids(blockEntity.pipe, x, y, z, partialTicks, poseStack, collector, packedLight,
                         packedOverlay);

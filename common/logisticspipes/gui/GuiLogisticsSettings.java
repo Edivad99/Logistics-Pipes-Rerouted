@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.world.item.LPItems;
 import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
@@ -20,9 +21,21 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 
 	private static final String PREFIX = "gui.settings.";
 
+	/**
+	 * The panel is only as tall as it needs to be. The two renderer checkboxes that used to sit
+	 * above these fields have been commented out upstream since 2014, and leaving their space empty
+	 * made the screen look cut off.
+	 */
+	private static final int PLAYER_INVENTORY_Y = 95;
+
 	public GuiLogisticsSettings(PlayerSettingsMenu menu, Inventory inventory, Component title) {
-		super(menu, inventory, title, 180, 220, 0, 0);
+		super(menu, inventory, title, 180, 180, 0, 0);
 		addTab(new PipeRenderSettings());
+	}
+
+	@Override
+	protected int playerInventoryY() {
+		return PLAYER_INVENTORY_Y;
 	}
 
 
@@ -41,15 +54,15 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 
 			ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
 			if (renderDistance == null) {
-				renderDistance = new InputBar(font, getBaseScreen(), getLeftPos() + 15, getTopPos() + 75, 30, 15, false, true, InputBar.Align.RIGHT);
+				renderDistance = new InputBar(font, getBaseScreen(), getLeftPos() + 15, getTopPos() + 40, 30, 15, false, true, InputBar.Align.RIGHT);
 				renderDistance.setInteger(config.getRenderPipeDistance());
 			}
-			renderDistance.reposition(getLeftPos() + 15, getTopPos() + 80, 30, 15);
+			renderDistance.reposition(getLeftPos() + 15, getTopPos() + 40, 30, 15);
 			if (contentRenderDistance == null) {
-				contentRenderDistance = new InputBar(font, getBaseScreen(), getLeftPos() + 15, getTopPos() + 105, 30, 15, false, true, InputBar.Align.RIGHT);
+				contentRenderDistance = new InputBar(font, getBaseScreen(), getLeftPos() + 15, getTopPos() + 70, 30, 15, false, true, InputBar.Align.RIGHT);
 				contentRenderDistance.setInteger(config.getRenderPipeContentDistance());
 			}
-			contentRenderDistance.reposition(getLeftPos() + 15, getTopPos() + 110, 30, 15);
+			contentRenderDistance.reposition(getLeftPos() + 15, getTopPos() + 70, 30, 15);
             GuiLogisticsSettings.this.addRenderableWidget(renderDistance);
             GuiLogisticsSettings.this.addRenderableWidget(contentRenderDistance);
 			//useNewRendererButton = (GuiCheckBox) addRenderableWidget(new GuiCheckBox(0, leftPos + 15, topPos + 30, 16, 16, config.isUseNewRenderer()));
@@ -58,7 +71,7 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 
 		@Override
 		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
-			// Deferred: tab icon requires an LP item texture selection; left blank for now.
+			guiGraphics.item(LPItems.PIPE_BASIC.get().getDefaultInstance(), x, y);
 		}
 
 		@Override
@@ -78,8 +91,8 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 		public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
 			//guiGraphics.text(font, StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0xFF404040, false);
 			//guiGraphics.text(font, StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0xFF404040, false);
-			guiGraphics.text(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 70, 0xFF404040, false);
-			guiGraphics.text(font, TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 100, 0xFF404040, false);
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 30, 0xFF404040, false);
+			guiGraphics.text(font, TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 60, 0xFF404040, false);
 		}
 
 		@Override

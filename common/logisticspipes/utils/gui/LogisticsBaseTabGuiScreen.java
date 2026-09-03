@@ -55,6 +55,14 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 		return buttonNextFreeId++;
 	}
 
+	/**
+	 * Where the player's inventory sits inside the panel, which decides how much room the tab
+	 * above it gets. The menu has to place its slots at the same height.
+	 */
+	protected int playerInventoryY() {
+		return 135;
+	}
+
 	@Override
 	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouse_x, int mouse_y, float f) {
 		for (int i = 0; i < tabList.size(); i++) {
@@ -62,7 +70,7 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 		}
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 20, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * current_Tab) + 2, topPos - 2, leftPos + 27 + (25 * current_Tab), topPos + 38, 0.0f, true, true, true, false, true);
-		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 135);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + playerInventoryY());
 
 		int x = 6;
 		for (TabSubGui aTabList : tabList) {
