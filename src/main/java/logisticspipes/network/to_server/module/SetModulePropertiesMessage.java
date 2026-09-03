@@ -9,7 +9,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 
@@ -66,8 +65,7 @@ public record SetModulePropertiesMessage(ModuleTarget target, CompoundTag proper
         }
         final RegistryAccess registries = player.level().registryAccess();
         module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, message.properties));
-        if (message.target.slot().filter(ModulePositionType::isInWorld).isEmpty()
-                && player.containerMenu instanceof InventoryMenu) {
+        if (message.target.slot().filter(ModulePositionType::isInWorld).isEmpty()) {
             // A module held in hand lives in the item stack, so its properties have to go back into it.
             ItemModuleInformationManager.saveInformation(
                     player.getInventory().getItem(message.target.positionInt()), module, registries);

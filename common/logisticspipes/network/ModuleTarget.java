@@ -4,13 +4,16 @@ import java.util.Objects;
 import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
@@ -25,7 +28,10 @@ import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.gui.DummyModuleContainer;
+import logisticspipes.world.inventory.ModuleMenu;
 import logisticspipes.world.item.ItemModule;
+
+import network.rs485.logisticspipes.inventory.container.LPBaseContainer;
 
 public record ModuleTarget(
         BlockPos pos,
@@ -54,6 +60,16 @@ public record ModuleTarget(
                 inWorld ? Objects.requireNonNullElse(module.getBlockPos(), BlockPos.ZERO) : BlockPos.ZERO,
                 Optional.ofNullable(slot),
                 module.getPositionInt());
+    }
+
+    /**
+     * The stack a module held in hand lives in, so its own slot can be locked while its screen is
+     * open; empty for a module that sits in the world.
+     */
+    public ItemStack heldStack(Inventory inventory) {
+        return slot.orElse(null) == ModulePositionType.IN_HAND
+                ? inventory.getItem(positionInt)
+                : ItemStack.EMPTY;
     }
 
     /**
@@ -88,8 +104,17 @@ public record ModuleTarget(
 
     private @Nullable LogisticsModule inHand(Player player) {
         if (player instanceof ServerPlayer) {
+            // A module in hand has no position to look it up by, so the module being configured is
+            // the one its open menu holds -- rebuilding it from the stack would drop the edits made
+            // since the screen opened.
             if (player.containerMenu instanceof DummyModuleContainer dummy) {
                 return dummy.getModule();
+            }
+            if (player.containerMenu instanceof ModuleMenu menu) {
+                return menu.getModule();
+            }
+            if (player.containerMenu instanceof LPBaseContainer<?> menu) {
+                return menu.getModule();
             }
             if (player.containerMenu instanceof InventoryMenu) {
                 return ItemModule.getLogisticsModule(player, positionInt);
@@ -109,6 +134,14 @@ public record ModuleTarget(
      */
     private static @Nullable LogisticsModule fromOpenScreen() {
         final var screen = Minecraft.getInstance().screen;
+        if (screen instanceof AbstractContainerScreen<?> containerScreen) {
+            if (containerScreen.getMenu() instanceof ModuleMenu menu) {
+                return menu.getModule();
+            }
+            if (containerScreen.getMenu() instanceof LPBaseContainer<?> menu) {
+                return menu.getModule();
+            }
+        }
         if (screen instanceof ModuleBaseGui gui) {
             return gui.getModule();
         }
