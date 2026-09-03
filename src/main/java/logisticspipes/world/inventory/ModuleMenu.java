@@ -1,5 +1,6 @@
 package logisticspipes.world.inventory;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -7,6 +8,7 @@ import net.minecraft.world.inventory.Slot;
 
 import lombok.Getter;
 
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
@@ -34,6 +36,12 @@ public abstract class ModuleMenu extends DummyMenu {
         super(menuType, containerId, inventory.player, null);
         this.target = target;
         this.module = module;
+        // A module that pushes updates to open screens -- the crafter sends satellite names this
+        // way -- needs to know who is watching. Its block entity is the pipe's and says nothing
+        // about the module, so the module is told directly.
+        if (inventory.player instanceof ServerPlayer && module instanceof IScreenOpenController controller) {
+            controller.screenOpenedByPlayer(inventory.player);
+        }
     }
 
     private boolean heldInHand() {
@@ -59,6 +67,9 @@ public abstract class ModuleMenu extends DummyMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
+        if (player instanceof ServerPlayer && module instanceof IScreenOpenController controller) {
+            controller.screenClosedByPlayer(player);
+        }
         if (heldInHand()) {
             ItemModuleInformationManager.saveInformation(
                 player.getInventory().getItem(target.positionInt()), module, player.registryAccess());
