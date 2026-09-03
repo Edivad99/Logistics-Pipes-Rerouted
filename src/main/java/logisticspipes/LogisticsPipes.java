@@ -35,7 +35,6 @@ import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
-import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
@@ -142,7 +141,6 @@ public class LogisticsPipes {
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {
         PacketHandler.initialize();
-        NewGuiHandler.initialize();
 
         SimpleServiceLocator.setConfigToolHandler(new ConfigToolHandler());
         SimpleServiceLocator.setPowerProxy(new PowerProxy());

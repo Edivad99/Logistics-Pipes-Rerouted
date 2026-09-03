@@ -7,7 +7,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import logisticspipes.interfaces.IGuiTileEntity;
 
 /**
  * Opening a block's own screen on a player's behalf.
@@ -26,8 +25,7 @@ public final class BlockMenus {
      * having no provider. Replaying a click stopped opening containers at all in 1.21.
      *
      * <p>The block entity is asked before the block: our own blocks carry their own
-     * {@link MenuProvider}, and those not yet migrated still open through {@link IGuiTileEntity}
-     * with no vanilla provider to offer.
+     * {@link MenuProvider}, which a vanilla block state lookup would not find.
      *
      * @return whether a screen was opened
      */
@@ -36,10 +34,6 @@ public final class BlockMenus {
         final BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof MenuProvider menuProvider) {
             return player.openMenu(menuProvider).isPresent();
-        }
-        if (be instanceof IGuiTileEntity guiBlockEntity) {
-            guiBlockEntity.getGuiProvider().setTilePos(be).open(player);
-            return true;
         }
         final BlockState state = level.getBlockState(pos);
         if (state.isAir()) {

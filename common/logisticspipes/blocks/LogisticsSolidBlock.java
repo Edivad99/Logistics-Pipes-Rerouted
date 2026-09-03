@@ -32,10 +32,8 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
-import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
@@ -76,13 +74,6 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
             if (be instanceof MenuProvider menuProvider) {
                 if (player instanceof ServerPlayer serverPlayer) {
                     serverPlayer.openMenu(menuProvider);
-                }
-                return InteractionResult.SUCCESS;
-            }
-            if (be instanceof IGuiTileEntity guiBlockEntity) {
-                if (!level.isClientSide()) {
-                    CoordinatesGuiProvider gp = guiBlockEntity.getGuiProvider();
-                    gp.setTilePos(be).open(player);
                 }
                 return InteractionResult.SUCCESS;
             }

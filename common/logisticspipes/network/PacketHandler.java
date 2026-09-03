@@ -123,6 +123,11 @@ import logisticspipes.network.to_server.debug.DebugTargetMessage;
 import logisticspipes.network.to_server.gui.DummySlotClickMessage;
 import logisticspipes.network.to_server.gui.SetGhostSlotMessage;
 import logisticspipes.network.to_server.module.OpenAttachedCrafterGuiMessage;
+import logisticspipes.network.to_client.channel.ChannelInformationMessage;
+import logisticspipes.network.to_client.channel.ChannelManagerPopupMessage;
+import logisticspipes.network.to_client.channel.ChannelSelectPopupMessage;
+import logisticspipes.network.to_server.channel.RequestChannelManagerMessage;
+import logisticspipes.network.to_server.channel.RequestChannelSelectMessage;
 import logisticspipes.network.to_server.module.OpenChassisGuiMessage;
 import logisticspipes.network.to_server.module.OpenChassisModuleGuiMessage;
 import logisticspipes.network.to_server.module.OpenSneakyDirectionGuiMessage;
@@ -359,6 +364,16 @@ public class PacketHandler {
                 OpenLogicControllerMessage.STREAM_CODEC, OpenLogicControllerMessage::handle);
         registrar.playToServer(OpenChassisModuleGuiMessage.TYPE,
                 OpenChassisModuleGuiMessage.STREAM_CODEC, OpenChassisModuleGuiMessage::handle);
+        registrar.playToServer(RequestChannelSelectMessage.TYPE,
+                RequestChannelSelectMessage.STREAM_CODEC, RequestChannelSelectMessage::handle);
+        registrar.playToServer(RequestChannelManagerMessage.TYPE,
+                RequestChannelManagerMessage.STREAM_CODEC, RequestChannelManagerMessage::handle);
+        registrar.playToClient(ChannelInformationMessage.TYPE,
+                ChannelInformationMessage.STREAM_CODEC, ChannelInformationMessage::handle);
+        registrar.playToClient(ChannelSelectPopupMessage.TYPE,
+                ChannelSelectPopupMessage.STREAM_CODEC, ChannelSelectPopupMessage::handle);
+        registrar.playToClient(ChannelManagerPopupMessage.TYPE,
+                ChannelManagerPopupMessage.STREAM_CODEC, ChannelManagerPopupMessage::handle);
         registrar.playToServer(OpenChassisGuiMessage.TYPE,
                 OpenChassisGuiMessage.STREAM_CODEC, OpenChassisGuiMessage::handle);
         registrar.playToServer(OpenAttachedCrafterGuiMessage.TYPE,
@@ -597,16 +612,18 @@ public class PacketHandler {
      *
      * <p>Idempotent: it runs from {@code RegisterPayloadHandlersEvent}, which needs the table to
      * register the payloads, and the later call from common setup then finds it already built.
+     *
+     * <p>Finding none is now the normal case: every packet has moved to a {@code CustomPacketPayload}
+     * record registered above, and the scan only still turns up the abstract bases. What is left of
+     * this channel -- the templates, the payload table and the compressing buffer threads -- has
+     * nothing to carry and is due to be removed.
      */
     public static void initialize() {
-        if (PacketHandler.packetmap != null && !PacketHandler.packetmap.isEmpty()) {
+        if (PacketHandler.packetmap != null) {
             return;
         }
         Set<Class<? extends ModernPacket>> classes = StaticResolverUtil.findClassesByType(ModernPacket.class);
         loadPackets(classes);
-        if (PacketHandler.packetmap.isEmpty()) {
-            throw new RuntimeException("Cannot load Packet Classes");
-        }
         LPPayloadTypes.build(PacketHandler.packetlist);
     }
 

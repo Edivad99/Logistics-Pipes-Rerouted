@@ -4,10 +4,8 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,14 +52,9 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforgespi.language.IModInfo;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import vazkii.patchouli.api.PatchouliAPI;
 
 import logisticspipes.interfaces.IItemAdvancedExistance;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.GuiReopenPacket;
 import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -257,35 +250,11 @@ public class LogisticsEventListener {
 		SimpleServiceLocator.serverBufferHandler.clear(event.getEntity());
 	}
 
-	@AllArgsConstructor
-	private static class GuiEntry {
-
-		@Getter
-		private final int xCoord;
-		@Getter
-		private final int yCoord;
-		@Getter
-		private final int zCoord;
-		@Getter
-		private final int guiID;
-		@Getter
-		@Setter
-		private boolean isActive;
-	}
-
-	@Getter(lazy = true)
-	private static final Queue<GuiEntry> guiPos = new LinkedList<>();
-
-	// Handle GuiReopen — Opening event (screen becoming visible)
 	@SubscribeEvent
 	public void onScreenOpening(ScreenEvent.Opening event) {
 		// Guard: no server connection (e.g. main menu) — nothing to notify
 		if (Minecraft.getInstance().getConnection() == null) {
 			return;
-		}
-		if (!LogisticsEventListener.getGuiPos().isEmpty()) {
-			GuiEntry part = LogisticsEventListener.getGuiPos().peek();
-			part.setActive(true);
 		}
 		if (event.getScreen() instanceof AbstractContainerScreen) {
 			ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(true));
@@ -298,21 +267,9 @@ public class LogisticsEventListener {
 		if (Minecraft.getInstance().getConnection() == null) {
 			return;
 		}
-		if (!LogisticsEventListener.getGuiPos().isEmpty()) {
-			GuiEntry part = LogisticsEventListener.getGuiPos().peek();
-			if (part.isActive()) {
-				part = LogisticsEventListener.getGuiPos().poll();
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(GuiReopenPacket.class).setGuiID(part.getGuiID()).setPosX(part.getXCoord()).setPosY(part.getYCoord()).setPosZ(part.getZCoord()));
-				GuiOverlay.getInstance().setOverlaySlotActive(false);
-			}
-		}
 		GuiOverlay.getInstance().setOverlaySlotActive(false);
 		QuickSortChestMarkerStorage.getInstance().disable();
 		ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(false));
-	}
-
-	public static void addGuiToReopen(int xCoord, int yCoord, int zCoord, int guiID) {
-		LogisticsEventListener.getGuiPos().add(new GuiEntry(xCoord, yCoord, zCoord, guiID, false));
 	}
 
 	@SubscribeEvent

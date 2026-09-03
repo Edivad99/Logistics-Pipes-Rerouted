@@ -16,7 +16,9 @@ import java.util.UUID;
 
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -30,6 +32,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.gui.hud.HUDInvSysConnector;
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
@@ -39,16 +42,12 @@ import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.interfaces.routing.IChannelRoutingConnection;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.guis.pipe.InvSysConGuiProvider;
-import logisticspipes.network.packets.gui.ChannelInformationPacket;
+import logisticspipes.network.to_client.channel.ChannelInformationMessage;
 import logisticspipes.network.to_client.orderer.OrderManagerContentMessage;
 import logisticspipes.network.to_client.pipe.InvSysConResistanceMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.channels.ChannelInformation;
@@ -58,6 +57,7 @@ import logisticspipes.transport.TransportInvConnection;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.InvSysConMenu;
 import logisticspipes.utils.transactor.ITransactor;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
@@ -65,7 +65,7 @@ import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannelRoutingConnection, IHeadUpDisplayRendererProvider, IOrderManagerContentReceiver,
-        IScreenOpenController {
+        IScreenOpenController, IPipeMenuProvider {
 
 	private boolean init = false;
 	private HashMap<ItemIdentifier, List<ItemRoutingInformation>> itemsOnRoute = new HashMap<>();
@@ -236,7 +236,9 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 
 	@Override
 	public void onWrenchClicked(Player entityplayer) {
-		NewGuiHandler.getGui(InvSysConGuiProvider.class).setTilePos(this.container).open(entityplayer);
+		if (entityplayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(this);
+		}
 	}
 
 	@Override
@@ -431,17 +433,24 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 	}
 
 	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new InvSysConMenu(containerId, inventory, this);
+	}
+
+	@Override
 	public void screenOpenedByPlayer(Player player) {
 		localGuiWatchers.add(player);
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new InvSysConResistanceMessage(getPos(), resistance));
 		}
-
-		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(this.getWorld());
-		Optional<ChannelInformation> channel = manager.getChannels().stream()
-				.filter(chan -> chan.getChannelIdentifier().equals(getConnectionUUID()))
-				.findFirst();
-		channel.ifPresent(chan -> MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChannelInformationPacket.class).setInformation(chan).setTargeted(true), player));
+		if (player instanceof ServerPlayer serverPlayer) {
+			IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(this.getWorld());
+			manager.getChannels().stream()
+					.filter(chan -> chan.getChannelIdentifier().equals(getConnectionUUID()))
+					.findFirst()
+					.ifPresent(chan -> PacketDistributor.sendToPlayer(serverPlayer,
+							new ChannelInformationMessage(chan, true)));
+		}
 	}
 
 	@Override
@@ -454,6 +463,6 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 		Optional<ChannelInformation> channel = manager.getChannels().stream()
 				.filter(chan -> chan.getChannelIdentifier().equals(getConnectionUUID()))
 				.findFirst();
-		channel.ifPresent(chan -> MainProxy.sendToPlayerList(PacketHandler.getPacket(ChannelInformationPacket.class).setInformation(chan).setTargeted(true), localGuiWatchers));
+		channel.ifPresent(chan -> localGuiWatchers.send(new ChannelInformationMessage(chan, true)));
 	}
 }

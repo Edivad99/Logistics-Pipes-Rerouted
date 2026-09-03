@@ -9,7 +9,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
@@ -17,20 +18,18 @@ import org.jspecify.annotations.Nullable;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.InvSysConOpenSelectChannelPopupPacket;
+import logisticspipes.network.to_server.channel.RequestChannelSelectMessage;
 import logisticspipes.network.to_server.pipe.RequestInvSysConContentMessage;
 import logisticspipes.network.to_server.pipe.SetInvSysConResistanceMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.InvSysConMenu;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -47,16 +46,9 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
     @Nullable
 	private ChannelInformation connectedChannel = null;
 
-	public GuiInvSysConnector(Player player, PipeItemsInvSysConnector pipe) {
-		super(buildDummy(player, pipe), 180, 220, 0, 0);
-		this.pipe = pipe;
-
-	}
-	private static DummyContainer buildDummy(Player player, PipeItemsInvSysConnector pipe) {
-		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
-
-		dummy.addNormalSlotsForPlayerInventory(11, 136);
-		return dummy;
+	public GuiInvSysConnector(InvSysConMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 220, 0, 0);
+		this.pipe = menu.getPipe();
 	}
 
 
@@ -88,7 +80,7 @@ public class GuiInvSysConnector extends LogisticsBaseGuiScreen implements IGUICh
 		});
 		addRenderableWidget(b5);
 		SmallGuiButton b6 = new SmallGuiButton(6, leftPos + 130, topPos + 20, 40, 10, TextUtil.translate(GuiInvSysConnector.PREFIX + "Change"));
-		b6.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(InvSysConOpenSelectChannelPopupPacket.class).setTilePos(pipe.container)));
+		b6.setPressListener(b -> ClientPacketDistributor.sendToServer(new RequestChannelSelectMessage(pipe.getPos())));
 		addRenderableWidget(b6);
 
 		if (this.resistanceCountBar == null) {

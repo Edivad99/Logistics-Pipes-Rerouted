@@ -20,15 +20,13 @@ import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.gui.popup.GuiEditCCAccessTable;
 import logisticspipes.gui.popup.GuiSecurityStationPopup;
 import logisticspipes.interfaces.PlayerListReciver;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.OpenSecurityChannelManagerPacket;
+import logisticspipes.network.to_server.channel.RequestChannelManagerMessage;
 import logisticspipes.network.to_server.security.OpenSecurityPlayerMessage;
 import logisticspipes.network.to_server.security.RequestPlayerListMessage;
 import logisticspipes.network.to_server.security.RequestSecurityStationCCIdsMessage;
 import logisticspipes.network.to_server.security.SecurityCardActionMessage;
 import logisticspipes.network.to_server.security.SetSecurityStationAuthorizedMessage;
 import logisticspipes.network.to_server.security.ToggleSecurityStationFlagMessage;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.Color;
@@ -144,7 +142,7 @@ public class GuiSecurityStation extends LogisticsBaseGuiScreen implements Player
 		});
 		addRenderableWidget(checkAutoDestroy);
 		btnChannelManager = new SmallGuiButton(10, leftPos + 177, topPos + 230, 95, 20, TextUtil.translate(GuiSecurityStation.PREFIX + "ChannelManager"));
-		btnChannelManager.setPressListener(b -> MainProxy.sendPacketToServer(PacketHandler.getPacket(OpenSecurityChannelManagerPacket.class).setBlockPos(tile.getBlockPos())));
+		btnChannelManager.setPressListener(b -> ClientPacketDistributor.sendToServer(new RequestChannelManagerMessage(tile.getBlockPos())));
 		addRenderableWidget(btnChannelManager);
 		if (searchBar == null) {
 			searchBar = new InputBar(this.font, this, leftPos + 180, bottom - 120, right - 8 + addition - leftPos - 180, 17);

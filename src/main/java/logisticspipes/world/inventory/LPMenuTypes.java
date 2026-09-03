@@ -48,6 +48,7 @@ import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -202,6 +203,10 @@ public class LPMenuTypes {
                 module.slotAssignmentPattern.replaceContent(buffer.readVarIntArray());
                 return new ActiveSupplierMenu(containerId, inventory, target, module, patternUpgrade);
             }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<InvSysConMenu>> INV_SYS_CON =
+        deferredRegister.register("inv_sys_con",
+            () -> pipeMenu(PipeItemsInvSysConnector.class, InvSysConMenu::new));
 
     public static final DeferredHolder<MenuType<?>, MenuType<PipeControllerMenu>> PIPE_CONTROLLER =
         deferredRegister.register("pipe_controller",
