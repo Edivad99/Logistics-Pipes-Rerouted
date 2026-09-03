@@ -154,7 +154,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			if (getUpgradeManager().hasCraftingMonitoringUpgrade()) {
 				for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
 					localGuiWatcher.send(new OrderWatchMessage(getPos(), entry.getKey(),
-						entry.getValue().getValue1(), entry.getValue().getValue2()));
+						Optional.ofNullable(entry.getValue().getValue1()), entry.getValue().getValue2()));
 				}
 			}
 		} else if (tick % 20 == 0) {
@@ -606,7 +606,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 		orders.setWatched();
 		watchedRequests.put(++localLastUsedWatcherId, new Pair<>(stack, orders));
-		localGuiWatcher.send(new OrderWatchMessage(getPos(), localLastUsedWatcherId, stack, orders));
+		localGuiWatcher.send(new OrderWatchMessage(getPos(), localLastUsedWatcherId,
+			Optional.ofNullable(stack), orders));
 	}
 
 	@Override
@@ -622,7 +623,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
 			if (player instanceof ServerPlayer serverPlayer) {
 				PacketDistributor.sendToPlayer(serverPlayer, new OrderWatchMessage(getPos(), entry.getKey(),
-					entry.getValue().getValue1(), entry.getValue().getValue2()));
+					Optional.ofNullable(entry.getValue().getValue1()), entry.getValue().getValue2()));
 			}
 		}
 	}

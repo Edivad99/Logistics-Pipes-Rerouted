@@ -1,5 +1,7 @@
 package logisticspipes.network.to_client.orderer;
 
+import java.util.Optional;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -22,9 +24,11 @@ import logisticspipes.routing.order.LinkedLogisticsOrderList;
  * open it. {@link OrdererWatchRemoveMessage} takes one back off the list when it finishes.
  *
  * @param watcherId the request's id, which is what the remove message names
+ * @param resource  empty for a request made from a list rather than of one thing, which the
+ *                  monitor shows as "List"
  */
-public record OrderWatchMessage(BlockPos pos, int watcherId, IResource resource, LinkedLogisticsOrderList orders)
-        implements CustomPacketPayload {
+public record OrderWatchMessage(BlockPos pos, int watcherId, Optional<IResource> resource,
+        LinkedLogisticsOrderList orders) implements CustomPacketPayload {
 
     public static final Type<OrderWatchMessage> TYPE = new Type<>(LPConstants.rl("order_watch"));
 
@@ -32,7 +36,7 @@ public record OrderWatchMessage(BlockPos pos, int watcherId, IResource resource,
             StreamCodec.composite(
                     BlockPos.STREAM_CODEC, OrderWatchMessage::pos,
                     ByteBufCodecs.VAR_INT, OrderWatchMessage::watcherId,
-                    IResource.STREAM_CODEC, OrderWatchMessage::resource,
+                    ByteBufCodecs.optional(IResource.STREAM_CODEC), OrderWatchMessage::resource,
                     LinkedLogisticsOrderList.STREAM_CODEC, OrderWatchMessage::orders,
                     OrderWatchMessage::new);
 
@@ -45,7 +49,7 @@ public record OrderWatchMessage(BlockPos pos, int watcherId, IResource resource,
         final LogisticsTileGenericPipe be =
                 TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
         if (be != null && be.pipe instanceof IRequestWatcher watcher) {
-            watcher.handleClientSideListInfo(message.watcherId, message.resource, message.orders);
+            watcher.handleClientSideListInfo(message.watcherId, message.resource.orElse(null), message.orders);
         }
     }
 }
