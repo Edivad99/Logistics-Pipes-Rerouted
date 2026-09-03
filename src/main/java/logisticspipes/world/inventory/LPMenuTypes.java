@@ -27,6 +27,7 @@ import logisticspipes.interfaces.IFreqCardHolder;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleActiveSupplier;
+import logisticspipes.modules.ModuleFluidSupplier;
 import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
 import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
 import logisticspipes.modules.ModuleOreDictItemSink;
@@ -169,7 +170,14 @@ public class LPMenuTypes {
             () -> analysisMenu(() -> LPMenuTypes.STRING_BASED_ITEM_SINK.get(), IStringBasedModule.class));
 
     public static final DeferredHolder<MenuType<?>, MenuType<SimpleFilterMenu>> SIMPLE_FILTER =
-        deferredRegister.register("simple_filter", () -> moduleMenu(SimpleFilter.class, SimpleFilterMenu::new));
+        deferredRegister.register("simple_filter", () -> moduleMenu(SimpleFilter.class,
+            (containerId, inventory, target, module) -> new SimpleFilterMenu(
+                LPMenuTypes.SIMPLE_FILTER.get(), containerId, inventory, target, module)));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<SimpleFilterMenu>> FLUID_SUPPLIER_MODULE =
+        deferredRegister.register("fluid_supplier_module", () -> moduleMenu(ModuleFluidSupplier.class,
+            (containerId, inventory, target, module) -> new SimpleFilterMenu(
+                LPMenuTypes.FLUID_SUPPLIER_MODULE.get(), containerId, inventory, target, module)));
 
     public static final DeferredHolder<MenuType<?>, MenuType<PowerProviderMenu>> POWER_PROVIDER =
         deferredRegister.register("power_provider",

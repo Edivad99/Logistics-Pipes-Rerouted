@@ -38,6 +38,7 @@ import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import logisticspipes.modules.SimpleFilter;
@@ -193,7 +194,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 
 	@Override
 	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		return new SimpleFilterMenu(containerId, inventory, target, this);
+		return new SimpleFilterMenu(LPMenuTypes.SIMPLE_FILTER.get(), containerId, inventory, target, this);
 	}
 
 }

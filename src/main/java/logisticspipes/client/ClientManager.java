@@ -41,6 +41,7 @@ import logisticspipes.gui.GuiFirewall;
 import logisticspipes.gui.GuiFreqCardContent;
 import logisticspipes.gui.GuiSupplierPipe;
 import logisticspipes.gui.modules.GuiAdvancedExtractor;
+import logisticspipes.gui.modules.GuiFluidSupplier;
 import logisticspipes.gui.modules.GuiOreDictItemSink;
 import logisticspipes.gui.modules.GuiStringBasedItemSink;
 import logisticspipes.gui.modules.GuiSimpleFilter;
@@ -177,6 +178,8 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<FreqCardMenu, AbstractContainerScreen<FreqCardMenu>>) GuiFreqCardContent::new);
         event.register(LPMenuTypes.SIMPLE_FILTER.get(),
             (MenuScreens.ScreenConstructor<SimpleFilterMenu, AbstractContainerScreen<SimpleFilterMenu>>) GuiSimpleFilter::new);
+        event.register(LPMenuTypes.FLUID_SUPPLIER_MODULE.get(),
+            (MenuScreens.ScreenConstructor<SimpleFilterMenu, AbstractContainerScreen<SimpleFilterMenu>>) GuiFluidSupplier::new);
         event.register(LPMenuTypes.ACTIVE_SUPPLIER.get(),
             (MenuScreens.ScreenConstructor<ActiveSupplierMenu, AbstractContainerScreen<ActiveSupplierMenu>>) GuiSupplierPipe::new);
         event.register(LPMenuTypes.ORE_DICT_ITEM_SINK.get(),

@@ -9,32 +9,21 @@ package logisticspipes.gui.modules;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.LPConstants;
 import logisticspipes.modules.ModuleFluidSupplier;
-import logisticspipes.utils.gui.DummyContainer;
+import logisticspipes.world.inventory.SimpleFilterMenu;
 
 public class GuiFluidSupplier extends ModuleBaseGui {
 
 	private final ModuleFluidSupplier liquidSupplier;
 
-	public GuiFluidSupplier(Container playerInventory, ModuleFluidSupplier module) {
-		super(buildDummy(playerInventory, module), module);
-		liquidSupplier = module;
-		panelWidth = 175;
-		panelHeight = 142;
-	}
-	private static DummyContainer buildDummy(Container playerInventory, ModuleFluidSupplier module) {
-		DummyContainer dummy = new DummyContainer(playerInventory, module.getFilterInventory());
-		dummy.addNormalSlotsForPlayerInventory(8, 60);
-
-		//Pipe slots
-		for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-			dummy.addDummySlot(pipeSlot, 8 + pipeSlot * 18, 18);
-		}
-		return dummy;
+	public GuiFluidSupplier(SimpleFilterMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, menu.getModule(), 175, 142);
+		liquidSupplier = (ModuleFluidSupplier) menu.getModule();
 	}
 
 
