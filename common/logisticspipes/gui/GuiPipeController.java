@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -19,13 +21,10 @@ import logisticspipes.network.to_server.block.OpenLogicControllerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.pipe.PipeOrderWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.upgrades.IPipeUpgrade;
-import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
@@ -34,7 +33,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
-import logisticspipes.world.item.ItemUpgrade;
+import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
 import network.rs485.logisticspipes.util.TextUtil;
@@ -45,17 +44,15 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 	private final CoreRoutedPipe pipe;
 
-	public GuiPipeController(final Player player, final CoreRoutedPipe pipe) {
-		super(buildDummy(player, pipe), 180, 220);
-		this.pipe = pipe;
-		DummyContainer dummy = (DummyContainer) this.menu;
+	public GuiPipeController(PipeControllerMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 220, 0, 0);
+		this.pipe = menu.getPipe();
 
-		//Order is important here: (Slot Server/Client sync)
-		Upgrades upgrades = new Upgrades(dummy);
-		Security security = new Security(dummy);
+		Upgrades upgrades = new Upgrades(menu);
+		Security security = new Security(menu);
 		Statistics statistics = new Statistics();
 		//Logic logic = new Logic();
-		addHiddenSlot(dummy.addRestrictedSlot(0, pipe.container.logicController.diskInv, 14, 36, LPItems.DISK.get())); //Keep it for now, but hidden. Maybe it will be used again later
+		addHiddenSlot(menu.getDiskSlot()); //Keep it for now, but hidden. Maybe it will be used again later
 		Tasks tasks = new Tasks();
 
 		//Here order doesn't matter/can be changed to reorganise tabs
@@ -73,37 +70,18 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 			addTab(tasks);
 		}
 	}
-	private static DummyContainer buildDummy(final Player player, final CoreRoutedPipe pipe) {
-		DummyContainer dummy = new DummyContainer(player, null, pipe.getOriginalUpgradeManager().getGuiController());
-		dummy.addNormalSlotsForPlayerInventory(11, 136);
-		return dummy;
-	}
-
-
 	private class Upgrades extends TabSubGui {
 
 		private final List<Slot> TAB_SLOTS_SNEAKY_INV = new ArrayList<>();
 		private final Slot[] upgradeSlot = new Slot[18];
 		private AbstractButton[] upgradeConfig = new AbstractButton[18];
 
-		private Upgrades(DummyContainer dummy) {
+		private Upgrades(PipeControllerMenu menu) {
 			for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-				addSlot(upgradeSlot[pipeSlot] = dummy.addUpgradeSlot(pipeSlot, pipe.getOriginalUpgradeManager(), pipeSlot, 10 + pipeSlot * 18, 42, itemStack ->
-						!itemStack.isEmpty() && itemStack.getItem() instanceof ItemUpgrade && ((ItemUpgrade) itemStack.getItem()).getUpgradeForItem(itemStack, null).isAllowedForPipe(pipe)));
+				addSlot(upgradeSlot[pipeSlot] = menu.getUpgradeSlots().get(pipeSlot));
 			}
-
-			for (int pipeSlot = 0; pipeSlot < 9; pipeSlot++) {
-				TAB_SLOTS_SNEAKY_INV.add(addSlot(upgradeSlot[pipeSlot + 9] = dummy.addSneakyUpgradeSlot(pipeSlot, pipe.getOriginalUpgradeManager(), pipeSlot + 9, 10 + pipeSlot * 18, 88, itemStack -> {
-					if (itemStack.isEmpty()) {
-						return false;
-					}
-					if (itemStack.getItem() instanceof ItemUpgrade) {
-						IPipeUpgrade upgrade = ((ItemUpgrade) itemStack.getItem()).getUpgradeForItem(itemStack, null);
-						return upgrade instanceof SneakyUpgradeConfig && upgrade.isAllowedForPipe(pipe);
-					} else {
-						return false;
-					}
-				})));
+			for (int pipeSlot = 9; pipeSlot < 18; pipeSlot++) {
+				TAB_SLOTS_SNEAKY_INV.add(addSlot(upgradeSlot[pipeSlot] = menu.getUpgradeSlots().get(pipeSlot)));
 			}
 		}
 
@@ -137,7 +115,8 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 		@Override
 		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
-			// Deferred: tab icon requires an LP item texture selection; left blank for now.
+			// A sneaky upgrade, the icon this tab had before the port.
+			guiGraphics.item(LPItems.UPGRADE_SNEAKY.get().getDefaultInstance(), x, y);
 		}
 
 		@Override
@@ -172,18 +151,8 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 	private class Security extends TabSubGui {
 
-		public Security(DummyContainer dummy) {
-			addSlot(dummy
-					.addStaticRestrictedSlot(0, pipe.getOriginalUpgradeManager().secInv, 10, 42, itemStack -> {
-						if (itemStack.isEmpty()) {
-							return false;
-						}
-						if (!itemStack.is(LPItems.SECURITY_CARD)) {
-							return false;
-						}
-						return SimpleServiceLocator.securityStationManager
-								.isAuthorized(itemStack.get(LPDataComponents.UUID));
-					}, 1));
+		public Security(PipeControllerMenu menu) {
+			addSlot(menu.getSecuritySlot());
 		}
 
 		@Override
@@ -278,7 +247,8 @@ public class GuiPipeController extends LogisticsBaseTabGuiScreen {
 
 		@Override
 		public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
-			// Deferred: tab icon requires an LP item texture selection; left blank for now.
+			// A redstone torch, the icon this tab had before the port.
+			guiGraphics.item(Blocks.REDSTONE_TORCH.asItem().getDefaultInstance(), x, y);
 		}
 
 		@Override

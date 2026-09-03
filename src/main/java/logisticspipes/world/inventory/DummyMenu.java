@@ -42,8 +42,11 @@ import logisticspipes.utils.gui.HandelableSlot;
 import logisticspipes.utils.gui.IJeiScreenHolder;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.pipes.PipeLogisticsChassis;
+import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.utils.gui.ModuleSlot;
 import logisticspipes.utils.gui.RestrictedSlot;
+import logisticspipes.utils.gui.SneakyUpgradeSlot;
+import logisticspipes.utils.gui.StaticRestrictedSlot;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.UnmodifiableSlot;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -446,6 +449,20 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
     protected Slot addCallableSlotHandler(int slotId, Container inventory, int xCoord, int yCoord,
         ISlotClick handler) {
         return addSlot(new HandelableSlot(inventory, slotId, xCoord, yCoord, handler));
+    }
+
+    /** A slot holding one of a pipe's sneaky upgrades, which live in their own inventory. */
+    protected Slot addSneakyUpgradeSlot(int slotId, UpgradeManager manager, int upgradeSlotId, int xCoord,
+        int yCoord, ISlotCheck slotCheck) {
+        Slot slot = addSlot(new SneakyUpgradeSlot(manager, upgradeSlotId, slotId, xCoord, yCoord, slotCheck));
+        transferTop.add(slot);
+        return slot;
+    }
+
+    /** A restricted slot that also caps how much it holds. */
+    protected Slot addStaticRestrictedSlot(int slotId, Container inventory, int xCoord, int yCoord,
+        ISlotCheck slotCheck, int stackLimit) {
+        return addSlot(new StaticRestrictedSlot(inventory, slotId, xCoord, yCoord, slotCheck, stackLimit));
     }
 
     /** A chassis module slot, which writes the module's settings back into the item when taken. */

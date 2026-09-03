@@ -56,6 +56,7 @@ import logisticspipes.gui.hud.GuiHUDSettings;
 import logisticspipes.logic.gui.LogicLayoutGui;
 import logisticspipes.gui.GuiFluidBasic;
 import logisticspipes.gui.GuiLogisticsSettings;
+import logisticspipes.gui.GuiPipeController;
 import logisticspipes.gui.ItemAmountSignCreationGui;
 import logisticspipes.gui.GuiFluidSupplierMk2Pipe;
 import logisticspipes.gui.GuiFluidSupplierPipe;
@@ -72,6 +73,7 @@ import logisticspipes.world.inventory.FluidOrdererMenu;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.inventory.OrdererMk2Menu;
 import logisticspipes.world.inventory.ItemAmountSignMenu;
+import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.inventory.PlayerSettingsMenu;
 import logisticspipes.world.inventory.RequestTableMenu;
 import logisticspipes.world.inventory.FirewallMenu;
@@ -209,6 +211,8 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<SneakyDirectionMenu, AbstractContainerScreen<SneakyDirectionMenu>>) GuiSneakyConfigurator::new);
         event.register(LPMenuTypes.ACTIVE_SUPPLIER.get(),
             (MenuScreens.ScreenConstructor<ActiveSupplierMenu, AbstractContainerScreen<ActiveSupplierMenu>>) GuiSupplierPipe::new);
+        event.register(LPMenuTypes.PIPE_CONTROLLER.get(),
+            (MenuScreens.ScreenConstructor<PipeControllerMenu, AbstractContainerScreen<PipeControllerMenu>>) GuiPipeController::new);
         event.register(LPMenuTypes.PLAYER_SETTINGS.get(),
             (MenuScreens.ScreenConstructor<PlayerSettingsMenu, AbstractContainerScreen<PlayerSettingsMenu>>) GuiLogisticsSettings::new);
         event.register(LPMenuTypes.ITEM_AMOUNT_SIGN.get(),

@@ -203,6 +203,10 @@ public class LPMenuTypes {
                 return new ActiveSupplierMenu(containerId, inventory, target, module, patternUpgrade);
             }, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<PipeControllerMenu>> PIPE_CONTROLLER =
+        deferredRegister.register("pipe_controller",
+            () -> pipeMenu(CoreRoutedPipe.class, PipeControllerMenu::new));
+
     public static final DeferredHolder<MenuType<?>, MenuType<PlayerSettingsMenu>> PLAYER_SETTINGS =
         deferredRegister.register("player_settings", () -> new MenuType<>(
             (IContainerFactory<PlayerSettingsMenu>) (containerId, inventory, buffer) ->

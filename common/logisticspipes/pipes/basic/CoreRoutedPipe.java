@@ -37,6 +37,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -87,9 +88,7 @@ import logisticspipes.logisticspipes.RouteLayer;
 import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.guis.pipe.PipeController;
 import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeSignsMessage;
@@ -133,6 +132,7 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.OrdererMenu;
+import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.item.ItemPipeSignCreator;
@@ -884,7 +884,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (MainProxy.isPipeControllerEquipped(entityplayer)) {
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openNetworkMonitor) {
-					NewGuiHandler.getGui(PipeController.class).setTilePos(container).open(entityplayer);
+					if (entityplayer instanceof ServerPlayer serverPlayer) {
+						serverPlayer.openMenu(new SimpleMenuProvider(
+								(containerId, inventory, viewer) ->
+										new PipeControllerMenu(containerId, inventory, this),
+								Component.empty()),
+							buffer -> buffer.writeBlockPos(getPos()));
+					}
 				} else {
 					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
