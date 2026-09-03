@@ -15,7 +15,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.utils.IPositionRotateble;
@@ -82,10 +81,6 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 
     public DoubleCoordinates(IPipeInformationProvider pipe) {
         this(pipe.getX(), pipe.getY(), pipe.getZ());
-    }
-
-    public DoubleCoordinates(CoordinatesPacket packet) {
-        this(packet.getPosX(), packet.getPosY(), packet.getPosZ());
     }
 
     public DoubleCoordinates(Entity entity) {

@@ -238,7 +238,6 @@ public class LogisticsEventListener {
 			SimpleServiceLocator.securityStationManager.sendClientAuthorizationList(event.getEntity());
 		}
 
-		SimpleServiceLocator.serverBufferHandler.clear(event.getEntity());
 		ClientConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(PlayerIdentifier.get(event.getEntity()));
 		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, PlayerConfigMessage.of(config));
@@ -247,7 +246,6 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-		SimpleServiceLocator.serverBufferHandler.clear(event.getEntity());
 	}
 
 	@SubscribeEvent
@@ -274,7 +272,6 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void clientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
-		SimpleServiceLocator.clientBufferHandler.clear();
 
         IModInfo modInfo = ModList.get().getModFileById(LPConstants.ID).getMods().getFirst();
         VersionChecker.CheckResult result = VersionChecker.getResult(modInfo);

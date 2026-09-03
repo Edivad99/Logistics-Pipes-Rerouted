@@ -6,7 +6,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import lombok.Getter;
 
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 
@@ -37,11 +36,6 @@ public class DoubleCoordinatesType<T> extends DoubleCoordinates {
 
     public DoubleCoordinatesType(IPipeInformationProvider pipe, T type) {
         super(pipe);
-        this.type = type;
-    }
-
-    public DoubleCoordinatesType(CoordinatesPacket packet, T type) {
-        super(packet);
         this.type = type;
     }
 

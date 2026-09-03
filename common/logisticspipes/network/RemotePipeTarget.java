@@ -19,10 +19,9 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 /**
  * A pipe addressed from a GUI that may not be standing next to it.
  *
- * <p>This is the one place a dimension belongs in a message. {@code ModernPacket} writes one for
- * every packet, but the receiving side almost always uses the player's own level; the remote
- * orderer is the exception -- it opens a request GUI on a pipe in another dimension entirely, so
- * the message has to say which.
+ * <p>This is the one place a dimension belongs in a message: the receiving side almost always
+ * uses the player's own level. The remote orderer is the exception -- it opens a request GUI on a
+ * pipe in another dimension entirely, so the message has to say which.
  */
 public record RemotePipeTarget(Identifier dimension, BlockPos pos) {
 

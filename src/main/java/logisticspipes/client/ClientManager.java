@@ -33,9 +33,7 @@ import logisticspipes.client.renderer.item.properties.CreatorMode;
 import logisticspipes.client.renderer.item.properties.FluidTint;
 import logisticspipes.client.renderer.item.properties.HasFluid;
 import logisticspipes.particle.LPParticleTypes;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.textures.TextureRegistrar;
-import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.gui.GuiFirewall;
 import logisticspipes.gui.GuiChassisPipe;
@@ -133,7 +131,6 @@ public class ClientManager {
         NeoForge.EVENT_BUS.register(new RenderTickHandler());
         NeoForge.EVENT_BUS.register(ModuleTooltipPlacement.class);
         NeoForge.EVENT_BUS.register(WidgetScreenHudSuppressor.INSTANCE);
-        SimpleServiceLocator.setClientPacketBufferHandlerThread(new ClientPacketBufferHandlerThread());
     }
 
     // Mod events

@@ -60,7 +60,6 @@ import logisticspipes.ticks.HudUpdateTick;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.ticks.RoutingTableUpdateThread;
-import logisticspipes.ticks.ServerPacketBufferHandlerThread;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.InventoryUtilFactory;
 import logisticspipes.utils.RoutedItemHelper;
@@ -140,7 +139,6 @@ public class LogisticsPipes {
     }
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {
-        PacketHandler.initialize();
 
         SimpleServiceLocator.setConfigToolHandler(new ConfigToolHandler());
         SimpleServiceLocator.setPowerProxy(new PowerProxy());
@@ -176,7 +174,6 @@ public class LogisticsPipes {
         NeoForge.EVENT_BUS.register(new BlockChangeListener());
         NeoForge.EVENT_BUS.register(PropertyUpdaterEventListener.INSTANCE);
 
-        SimpleServiceLocator.setServerPacketBufferHandlerThread(new ServerPacketBufferHandlerThread());
         for (int i = 0; i < LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt(); i++) {
             new RoutingTableUpdateThread(i);
         }

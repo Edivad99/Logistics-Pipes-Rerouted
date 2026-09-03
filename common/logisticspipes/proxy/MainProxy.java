@@ -3,7 +3,6 @@ package logisticspipes.proxy;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,19 +23,13 @@ import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsEventListener;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.entity.FakePlayerLP;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.interfaces.IProxy;
 import logisticspipes.proxy.side.ClientProxy;
 import logisticspipes.proxy.side.ServerProxy;
@@ -77,7 +70,6 @@ public class MainProxy {
         }
         return serverProxy;
     }
-
 
 	@Getter
 	private static int globalTick;
@@ -164,26 +156,6 @@ public class MainProxy {
 		if (isClient(level)) runnableConsumer.get().run();
 	}
 
-	// ── Networking ────────────────────────────────────────────────────────────
-
-	/** Sends a packet from the client to the server. */
-	public static void sendPacketToServer(ModernPacket packet) {
-		if (MainProxy.isServer()) {
-			LogisticsPipes.LOG.error("sendPacketToServer called server-side!");
-			return;
-		}
-		PacketHandler.sendToServer(packet);
-	}
-
-	/** Sends a packet from the server to a specific player. */
-	public static void sendPacketToPlayer(ModernPacket packet, Player player) {
-		if (!MainProxy.isServer()) {
-			LogisticsPipes.LOG.error("sendPacketToPlayer called client-side!");
-			return;
-		}
-		PacketHandler.sendToPlayer(packet, player);
-	}
-
 	// ── Chunk-watch / broadcast helpers ──────────────────────────────────────
 
 	public static boolean isAnyoneWatching(BlockPos pos, int dimensionID) {
@@ -196,73 +168,6 @@ public class MainProxy {
 		ChunkPos chunkPos = new ChunkPos(SectionPos.blockToSectionCoord(X), SectionPos.blockToSectionCoord(Z));
 		PlayerCollectionList list = LogisticsEventListener.watcherList.get(chunkPos);
 		return list != null && !list.isEmpty();
-	}
-
-	public static void sendPacketToAllWatchingChunk(@Nullable LogisticsModule module, ModernPacket packet) {
-		if (module == null || module.getBlockPos() == null) return;
-		ChunkPos chunkPos = ChunkPos.containing(module.getBlockPos());
-		sendPacketToChunkWatchers(chunkPos, packet);
-	}
-
-	public static void sendPacketToAllWatchingChunk(@Nullable BlockEntity tile, ModernPacket packet) {
-		if (tile == null) return;
-		Level lvl = tile.getLevel();
-		if (lvl instanceof ServerLevel serverLevel) {
-			// The chunk position is derived from the block position rather than by asking the
-			// level for the chunk: getChunkAt() is a *blocking full-status chunk load*, and this
-			// runs whenever a pipe notifies its watchers. During shutdown that re-requests the
-			// promotion of an already-unloading chunk, leaving ChunkHolder.fullChunkFuture — and
-			// therefore saveSync — permanently incomplete. ChunkMap.processUnloads then busy-
-			// retries scheduleUnload forever, because only the server thread could complete that
-			// future and it is the thread stuck in the retry loop. The game hangs on
-			// "Saving world" at 100% CPU, and only for worlds containing pipes.
-			PacketDistributor.sendToPlayersTrackingChunk(
-                serverLevel,
-                ChunkPos.containing(tile.getBlockPos()),
-                PacketHandler.buildPayloadPublic(packet)
-			);
-			return;
-		}
-		ChunkPos chunkPos = ChunkPos.containing(tile.getBlockPos());
-		sendPacketToChunkWatchers(chunkPos, packet);
-	}
-
-	public static void sendPacketToAllWatchingChunk(int X, int Z, int dimensionId, ModernPacket packet) {
-		ChunkPos chunkPos = new ChunkPos(SectionPos.blockToSectionCoord(X), SectionPos.blockToSectionCoord(Z));
-		sendPacketToChunkWatchers(chunkPos, packet);
-	}
-
-	private static void sendPacketToChunkWatchers(ChunkPos chunkPos, ModernPacket packet) {
-		PlayerCollectionList list = logisticspipes.LogisticsEventListener.watcherList.get(chunkPos);
-		if (list != null) {
-			list.players().forEach(p -> sendPacketToPlayer(packet, p));
-		}
-	}
-
-	public static void sendToPlayerList(ModernPacket packet, PlayerCollectionList players) {
-		players.players().forEach(p -> sendPacketToPlayer(packet, p));
-	}
-
-	public static void sendToPlayerList(ModernPacket packet, Iterable<Player> players) {
-		players.forEach(p -> sendPacketToPlayer(packet, p));
-	}
-
-	public static void sendToPlayerList(ModernPacket packet, Stream<Player> players) {
-		players.forEach(p -> sendPacketToPlayer(packet, p));
-	}
-
-	public static void sendToAllPlayers(ModernPacket packet) {
-		if (!MainProxy.isServer()) {
-			LogisticsPipes.LOG.error("sendToAllPlayers called client-side!");
-			return;
-		}
-		var server = ServerLifecycleHooks.getCurrentServer();
-		if (server == null) return;
-		for (ServerLevel level : server.getAllLevels()) {
-			for (Player player : level.players()) {
-				MainProxy.sendPacketToPlayer(packet, player);
-			}
-		}
 	}
 
 	// ── Fake player ──────────────────────────────────────────────────────────
@@ -316,7 +221,4 @@ public class MainProxy {
 		}
 	}
 
-	private static boolean needsToBeCompressed(ModernPacket packet) {
-		return false;
-	}
 }

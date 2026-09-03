@@ -1,33 +1,12 @@
 package logisticspipes.network;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-
-import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.bidirectional.BufferedPacketsMessage;
 import logisticspipes.network.bidirectional.DebugConnectionDataMessage;
-import logisticspipes.network.exception.DelayPacketException;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
@@ -186,60 +165,25 @@ import logisticspipes.network.to_server.security.ToggleSecurityStationFlagMessag
 import logisticspipes.network.to_server.block.TrackItemMessage;
 import logisticspipes.network.to_server.block.TriggerCompilerTaskMessage;
 import logisticspipes.network.to_server.pipe.UntraceRoutingMessage;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
-import logisticspipes.utils.StaticResolverUtil;
 
 /**
- * Central packet registry and dispatcher for LogisticsPipes.
+ * Where every LogisticsPipes packet is registered, by hand and by direction.
  *
- * Each LP packet registers as its own named {@link LPPayload} type; see {@link LPPayloadTypes}.
- * Registration happens in {@link LogisticsPipes} via {@code RegisterPayloadHandlersEvent}.
+ * <p>Registration happens from {@code RegisterPayloadHandlersEvent}. A payload record knows which
+ * way it travels, so it is registered one way only and the wrong-way case stops being
+ * representable.
  */
 public class PacketHandler {
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, event -> {
-            // The packet table has to exist before the payloads can be registered, and this event
-            // fires well before FMLCommonSetup. Building it here is safe: it only scans the
-            // classpath and constructs templates, with no game state involved.
-            initialize();
             var registrar = event.registrar(LPConstants.ID).versioned("1");
-            int registered = 0;
-            for (LPPayloadTypes.Entry entry : LPPayloadTypes.all()) {
-                // Both directions get the handler explicitly. The three-argument playBidirectional
-                // only registers the *server* one and leaves the clientbound side null, which
-                // 1.21.8 now rejects outright: "Some clientbound payloads are missing client-side
-                // handlers". Every LP packet dispatches by its own type, so the same handler is
-                // correct for both.
-                registrar.playBidirectional(
-                        entry.type(),
-                        entry.codec(),
-                        PacketHandler::handlePayload,
-                        PacketHandler::handlePayload
-                );
-                registered++;
-            }
-            // Worth a line: a client and a server that registered different counts will fail to
-            // negotiate, and this is the only place that number is visible.
-            LogisticsPipes.LOG.info("Registered {} LogisticsPipes packet payloads", registered);
-
             registerClientToServer(registrar);
             registerServerToClient(registrar);
             registerBidirectional(registrar);
         });
     }
 
-    /**
-     * Messages that have left the {@link ModernPacket} hierarchy behind.
-     *
-     * <p>Listed by hand, and by direction: a payload record knows which way it travels, so it is
-     * registered one way only and the wrong-way case stops being representable. The loop above
-     * keeps serving the packets that have not migrated yet, which have to stay bidirectional
-     * because a {@code ModernPacket} carries no direction.
-     */
     private static void registerClientToServer(PayloadRegistrar registrar) {
         registrar.playToServer(ChangeFluidCraftingAmountMessage.TYPE,
                 ChangeFluidCraftingAmountMessage.STREAM_CODEC, ChangeFluidCraftingAmountMessage::handle);
@@ -417,9 +361,6 @@ public class PacketHandler {
         registrar.playBidirectional(DebugConnectionDataMessage.TYPE,
                 DebugConnectionDataMessage.STREAM_CODEC,
                 DebugConnectionDataMessage::handle, DebugConnectionDataMessage::handle);
-        registrar.playBidirectional(BufferedPacketsMessage.TYPE,
-                BufferedPacketsMessage.STREAM_CODEC,
-                BufferedPacketsMessage::handle, BufferedPacketsMessage::handle);
     }
 
     private static void registerServerToClient(PayloadRegistrar registrar) {
@@ -578,174 +519,5 @@ public class PacketHandler {
                 ItemAmountSignMessage.STREAM_CODEC, ItemAmountSignMessage::handle);
         registrar.playToClient(SecurityAuthorizedListMessage.TYPE,
                 SecurityAuthorizedListMessage.STREAM_CODEC, SecurityAuthorizedListMessage::handle);
-    }
-
-    private static void handlePayload(LPPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> onPacketData(payload.packet(), context.player()));
-    }
-
-    public static final Map<Integer, StackTraceElement[]> debugMap = new HashMap<>();
-    /** Null until {@link #initialize()} has run; null slots are packets absent on this side. */
-    public static @Nullable List<@Nullable ModernPacket> packetlist;
-    /** Null until {@link #initialize()} has run. */
-    public static @Nullable Map<Class<? extends ModernPacket>, ModernPacket> packetmap;
-    private static int packetDebugID = 1;
-
-    // ── Registration ─────────────────────────────────────────────────────────
-
-    @SuppressWarnings("unchecked")
-    public static <T extends ModernPacket> T getPacket(Class<T> clazz) {
-        T packet = (T) PacketHandler.packetmap.get(clazz).template();
-        if (LogisticsPipes.isDEBUG() && MainProxy.proxy.getSide().equals("Client")) {
-            StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-            synchronized (PacketHandler.debugMap) {
-                int id = PacketHandler.packetDebugID++;
-                PacketHandler.debugMap.put(id, trace);
-                packet.setDebugId(id);
-            }
-        }
-        return packet;
-    }
-
-    /**
-     * Enumerates all ModernPacket subclasses, builds the templates and derives the payload types.
-     *
-     * <p>Idempotent: it runs from {@code RegisterPayloadHandlersEvent}, which needs the table to
-     * register the payloads, and the later call from common setup then finds it already built.
-     *
-     * <p>Finding none is now the normal case: every packet has moved to a {@code CustomPacketPayload}
-     * record registered above, and the scan only still turns up the abstract bases. What is left of
-     * this channel -- the templates, the payload table and the compressing buffer threads -- has
-     * nothing to carry and is due to be removed.
-     */
-    public static void initialize() {
-        if (PacketHandler.packetmap != null) {
-            return;
-        }
-        Set<Class<? extends ModernPacket>> classes = StaticResolverUtil.findClassesByType(ModernPacket.class);
-        loadPackets(classes);
-        LPPayloadTypes.build(PacketHandler.packetlist);
-    }
-
-    private static void loadPackets(Set<Class<? extends ModernPacket>> classesIn) {
-        List<Class<? extends ModernPacket>> classes = classesIn.stream()
-                .sorted(Comparator.comparing(Class::getCanonicalName))
-                .collect(Collectors.toList());
-
-        // Packet IDs are the index in the sorted class list, so they are IDENTICAL on the client
-        // and the dedicated server even if a packet fails to construct on one side (e.g. a class
-        // the RuntimeDistCleaner refuses to link). A success-counter would shift every later ID
-        // and desync the protocol. Failed slots stay null; the dispatch path guards against that.
-        PacketHandler.packetlist = new ArrayList<>(java.util.Collections.nCopies(classes.size(), (ModernPacket) null));
-        PacketHandler.packetmap = new HashMap<>(classes.size());
-
-        for (int id = 0; id < classes.size(); id++) {
-            Class<? extends ModernPacket> cls = classes.get(id);
-            try {
-                final ModernPacket instance = cls.getConstructor(int.class).newInstance(id);
-                PacketHandler.packetlist.set(id, instance);
-                PacketHandler.packetmap.put(cls, instance);
-            } catch (Throwable t) {
-                LogisticsPipes.LOG.error("Failed to load packet (id " + id + ") " + cls.getName(), t);
-            }
-        }
-    }
-
-    // ── Binary serialization ─────────────────────────────────────────────────
-
-    /**
-     * Writes a self-describing packet: payload name, debug id, body.
-     *
-     * <p>Used by the buffered/compressed channel, which batches several packets into one blob and
-     * so has to carry its own discriminator. It is a name rather than the old numeric id for the
-     * same reason the payload types are: the number was an index into a classpath scan.
-     */
-    public static void writeNamedPacket(LPDataOutput output, ModernPacket packet) {
-        output.writeUTF(LPPayloadTypes.entryFor(packet).name().toString());
-        output.writeInt(packet.getDebugId());
-        packet.writeData(output);
-    }
-
-    /**
-     * Reads back what {@link #writeNamedPacket} wrote.
-     *
-     * @return the decoded packet, or null when this side has no packet class under that name --
-     *         which no longer disturbs the packets batched after it, since each one re-announces
-     *         its own name
-     */
-    public static @Nullable ModernPacket readNamedPacket(LPDataInput input) {
-        final Identifier name = Identifier.parse(Objects.requireNonNull(input.readUTF()));
-        final LPPayloadTypes.Entry entry = LPPayloadTypes.entryFor(name);
-        if (entry == null) {
-            LogisticsPipes.LOG.error("Received unknown LP packet {}", name);
-            return null;
-        }
-        final ModernPacket packet = entry.template().template();
-        packet.setDebugId(input.readInt());
-        packet.readData(input);
-        return packet;
-    }
-
-    // ── Sending ──────────────────────────────────────────────────────────────
-
-    private static LPPayload buildPayload(ModernPacket msg) {
-        return LPPayloadTypes.payloadFor(msg);
-    }
-
-    public static LPPayload buildPayloadPublic(ModernPacket msg) {
-        return buildPayload(msg);
-    }
-
-    /** Sends a packet from the client to the server. Must only be called client-side. */
-    public static void sendToServer(ModernPacket msg) {
-        ClientPacketDistributor.sendToServer(buildPayload(msg));
-    }
-
-    /** Sends a packet from the server to a specific player. Must only be called server-side. */
-    public static void sendToPlayer(ModernPacket msg, Player player) {
-        if (!(player instanceof ServerPlayer sp)) {
-            LogisticsPipes.LOG.warn("sendToPlayer: player is not a ServerPlayer, skipping");
-            return;
-        }
-
-        PacketDistributor.sendToPlayer(
-                sp,
-                buildPayload(msg)
-        );
-    }
-
-    /** Sends a packet to every connected player. Must only be called server-side. */
-    public static void sendToAll(ModernPacket msg) {
-        PacketDistributor.sendToAllPlayers(
-                buildPayload(msg)
-        );
-    }
-
-    /** Decodes one packet of the buffered/compressed channel and dispatches it. */
-    public static void onPacketData(final LPDataInput data, final Player player) {
-        final ModernPacket packet = readNamedPacket(data);
-        if (packet != null) {
-            onPacketData(packet, player);
-        }
-    }
-
-    /** Processes a fully-decoded ModernPacket on the correct thread. */
-    public static void onPacketData(ModernPacket packet, final Player player) {
-        try {
-            packet.processPacket(player);
-            if (LogisticsPipes.isDEBUG()) {
-                PacketHandler.debugMap.remove(packet.getDebugId());
-            }
-        } catch (DelayPacketException e) {
-            if (packet.retry() && MainProxy.isClient(player.level())) {
-                SimpleServiceLocator.clientBufferHandler.queuePacket(packet, player);
-            } else if (LogisticsPipes.isDEBUG()) {
-                LogisticsPipes.LOG.error(packet.getClass().getName());
-                LogisticsPipes.LOG.error(packet.toString());
-                LogisticsPipes.LOG.error("Packet handling error", e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }
