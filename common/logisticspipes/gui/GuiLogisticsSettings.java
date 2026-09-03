@@ -2,16 +2,17 @@ package logisticspipes.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
+import logisticspipes.world.inventory.PlayerSettingsMenu;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.util.TextUtil;
 
@@ -19,14 +20,9 @@ public class GuiLogisticsSettings extends LogisticsBaseTabGuiScreen {
 
 	private static final String PREFIX = "gui.settings.";
 
-	public GuiLogisticsSettings(final Player player) {
-		super(buildDummy(player), 180, 220);
+	public GuiLogisticsSettings(PlayerSettingsMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 220, 0, 0);
 		addTab(new PipeRenderSettings());
-	}
-	private static DummyContainer buildDummy(final Player player) {
-		DummyContainer dummy = new DummyContainer(player.getInventory(), null);
-		dummy.addNormalSlotsForPlayerInventory(10, 135);
-		return dummy;
 	}
 
 

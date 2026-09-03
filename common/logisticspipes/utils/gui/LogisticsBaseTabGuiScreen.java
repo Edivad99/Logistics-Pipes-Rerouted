@@ -10,6 +10,8 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 
@@ -28,6 +30,11 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 
 	public LogisticsBaseTabGuiScreen(AbstractContainerMenu container, int xSize, int ySize) {
 		super(container, xSize, ySize, 0, 0);
+	}
+
+	public LogisticsBaseTabGuiScreen(AbstractContainerMenu container, Inventory inventory, Component title,
+		int xSize, int ySize, int xCenterOffset, int yCenterOffset) {
+		super(container, inventory, title, xSize, ySize, xCenterOffset, yCenterOffset);
 	}
 
 	@Override

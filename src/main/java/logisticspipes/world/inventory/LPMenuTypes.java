@@ -46,6 +46,7 @@ import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidTerminus;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
@@ -200,6 +201,24 @@ public class LPMenuTypes {
                 }
                 module.slotAssignmentPattern.replaceContent(buffer.readVarIntArray());
                 return new ActiveSupplierMenu(containerId, inventory, target, module, patternUpgrade);
+            }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<PlayerSettingsMenu>> PLAYER_SETTINGS =
+        deferredRegister.register("player_settings", () -> new MenuType<>(
+            (IContainerFactory<PlayerSettingsMenu>) (containerId, inventory, buffer) ->
+                new PlayerSettingsMenu(containerId, inventory), FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<ItemAmountSignMenu>> ITEM_AMOUNT_SIGN =
+        deferredRegister.register("item_amount_sign", () -> new MenuType<>(
+            (IContainerFactory<ItemAmountSignMenu>) (containerId, inventory, buffer) -> {
+                final BlockPos pos = buffer.readBlockPos();
+                final BlockEntity entity = inventory.player.level().getBlockEntity(pos);
+                if (!(entity instanceof LogisticsTileGenericPipe container)
+                    || !(container.pipe instanceof CoreRoutedPipe pipe)) {
+                    throw new IllegalStateException("No routed pipe at [%s]".formatted(pos));
+                }
+                return new ItemAmountSignMenu(containerId, inventory, pipe,
+                    Direction.STREAM_CODEC.decode(buffer));
             }, FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredHolder<MenuType<?>, MenuType<RequestTableMenu>> REQUEST_TABLE =

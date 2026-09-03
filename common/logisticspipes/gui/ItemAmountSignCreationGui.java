@@ -2,26 +2,17 @@
 package logisticspipes.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.signs.ItemAmountPipeSign;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.world.inventory.ItemAmountSignMenu;
 
 public class ItemAmountSignCreationGui extends LogisticsBaseGuiScreen {
 
-	public ItemAmountSignCreationGui(Player player, CoreRoutedPipe pipe, Direction dir) {
-		super(buildDummy(player, pipe, dir), 180, 125, 0, 0);
-	}
-	private static DummyContainer buildDummy(Player player, CoreRoutedPipe pipe, Direction dir) {
-		ItemAmountPipeSign sign = ((ItemAmountPipeSign) pipe.getPipeSign(dir));
-		DummyContainer dummy = new DummyContainer(player.getInventory(), sign.itemTypeInv);
-		dummy.addDummySlot(0, 10, 13);
-		dummy.addNormalSlotsForPlayerInventory(11, 41);
-		return dummy;
+	public ItemAmountSignCreationGui(ItemAmountSignMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 125, 0, 0);
 	}
 
 

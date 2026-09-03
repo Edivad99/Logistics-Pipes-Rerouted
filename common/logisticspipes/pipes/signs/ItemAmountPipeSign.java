@@ -13,6 +13,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.Container;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,9 +26,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
-import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.guis.item.ItemAmountSignGui;
 import logisticspipes.network.to_client.pipe.ItemAmountSignMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
@@ -34,6 +34,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.world.inventory.ItemAmountSignMenu;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -73,7 +74,16 @@ public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandl
 	}
 
 	private void openGUI(CoreRoutedPipe pipe, Direction dir, Player player) {
-		NewGuiHandler.getGui(ItemAmountSignGui.class).setDir(dir).setTilePos(pipe.container).open(player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(new SimpleMenuProvider(
+					(containerId, inventory, viewer) ->
+							new ItemAmountSignMenu(containerId, inventory, pipe, dir),
+					Component.empty()),
+				buffer -> {
+					buffer.writeBlockPos(pipe.getPos());
+					Direction.STREAM_CODEC.encode(buffer, dir);
+				});
+		}
 	}
 
 	@Override
