@@ -50,6 +50,7 @@ import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
 import logisticspipes.LPConfigs
 import logisticspipes.interfaces.*
+import logisticspipes.modules.SneakyDirection
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.module.SneakyDirectionMessage
 import logisticspipes.particle.Particles
@@ -190,12 +191,12 @@ class AsyncExtractorModule(
     override val properties: List<Property<*>>
         get() = listOf(sneakyDirectionProp)
 
-    override var sneakyDirection: Direction?
-        get() = sneakyDirectionProp.value
-        set(value) {
-            sneakyDirectionProp.value = value
-            localModeWatchers.send(SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(value)))
-        }
+    override fun getSneakyDirection(): Direction? = sneakyDirectionProp.value
+
+    override fun setSneakyDirection(direction: Direction?) {
+        sneakyDirectionProp.value = direction
+        localModeWatchers.send(SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(direction)))
+    }
 
     private val hudRenderer: IHUDModuleRenderer = HUDAsyncExtractor(this)
     val localModeWatchers = PlayerCollectionList()
@@ -212,7 +213,7 @@ class AsyncExtractorModule(
 
     override fun writeMenuData(buffer: RegistryFriendlyByteBuf) {
         ByteBufCodecs.optional(Direction.STREAM_CODEC)
-            .encode(buffer, Optional.ofNullable(sneakyDirection))
+            .encode(buffer, Optional.ofNullable(getSneakyDirection()))
     }
 
     override val everyNthTick: Int
@@ -236,7 +237,7 @@ class AsyncExtractorModule(
         } ?: CoreRoutedPipe.ItemSendMode.Normal
 
     private val connectedInventory: IInventoryUtil?
-        get() = service?.availableSneakyInventories(sneakyDirection)?.firstOrNull()
+        get() = service?.availableSneakyInventories(getSneakyDirection())?.firstOrNull()
 
     override fun getLPName(): String = name
 
@@ -269,7 +270,7 @@ class AsyncExtractorModule(
     override fun interestedInAttachedInventory(): Boolean = true
 
     override fun getClientInformation(): MutableList<String> =
-        mutableListOf("Extraction: ${sneakyDirection?.name ?: "DEFAULT"}")
+        mutableListOf("Extraction: ${getSneakyDirection()?.name ?: "DEFAULT"}")
 
 
     override fun getHUDRenderer(): IHUDModuleRenderer = hudRenderer
@@ -280,7 +281,7 @@ class AsyncExtractorModule(
         if (player is ServerPlayer) {
             PacketDistributor.sendToPlayer(
                 player,
-                SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(sneakyDirection)),
+                SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(getSneakyDirection())),
             )
         }
     }
@@ -293,7 +294,7 @@ class AsyncExtractorModule(
         override fun renderContent(context: HUDDrawContext, shifted: Boolean) {
             val mc = Minecraft.getInstance()
 
-            val d: Direction? = module.sneakyDirection
+            val d: Direction? = module.getSneakyDirection()
             // TODO: deferred -- this panel has never drawn anything; the sneaky direction still
             // needs a line of text through context.drawString.
         }

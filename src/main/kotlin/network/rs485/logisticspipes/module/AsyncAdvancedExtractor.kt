@@ -45,6 +45,7 @@ import network.rs485.logisticspipes.util.matchingSequence
 import logisticspipes.gui.hud.modules.HUDAdvancedExtractor
 import logisticspipes.interfaces.*
 import logisticspipes.modules.SimpleFilter
+import logisticspipes.modules.SneakyDirection
 import logisticspipes.network.to_client.module.ModuleInventoryMessage
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage
@@ -87,11 +88,11 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         },
     )
 
-    override var sneakyDirection: Direction?
-        get() = extractor.sneakyDirection
-        set(value) {
-            extractor.sneakyDirection = value
-        }
+    override fun getSneakyDirection(): Direction? = extractor.getSneakyDirection()
+
+    override fun setSneakyDirection(direction: Direction?) {
+        extractor.setSneakyDirection(direction)
+    }
 
     override val everyNthTick: Int
         get() = extractor.everyNthTick

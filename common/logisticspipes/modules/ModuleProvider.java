@@ -71,7 +71,7 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 import network.rs485.logisticspipes.module.LegacyModuleGui;
-import network.rs485.logisticspipes.module.SneakyDirection;
+import logisticspipes.modules.SneakyDirection;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.EnumProperty;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;

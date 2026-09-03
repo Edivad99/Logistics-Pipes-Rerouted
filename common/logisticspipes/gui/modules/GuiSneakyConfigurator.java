@@ -23,7 +23,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetSneakyDirectionMessage;
 import logisticspipes.world.inventory.SneakyDirectionMenu;
-import network.rs485.logisticspipes.module.SneakyDirection;
+import logisticspipes.modules.SneakyDirection;
 
 public class GuiSneakyConfigurator extends ModuleBaseGui {
 

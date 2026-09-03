@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.ModuleTarget;
 
-import network.rs485.logisticspipes.module.SneakyDirection;
+import logisticspipes.modules.SneakyDirection;
 
 /**
  * The sneaky direction a module settled on, for the players watching its HUD.

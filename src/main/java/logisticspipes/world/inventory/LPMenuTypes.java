@@ -44,7 +44,7 @@ import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
-import network.rs485.logisticspipes.module.SneakyDirection;
+import logisticspipes.modules.SneakyDirection;
 import logisticspipes.modules.SimpleFilter;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;

@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.ModuleTarget;
-import network.rs485.logisticspipes.module.SneakyDirection;
+import logisticspipes.modules.SneakyDirection;
 
 /**
  * The player picked a side in the sneaky configurator.
