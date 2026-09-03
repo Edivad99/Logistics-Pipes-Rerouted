@@ -63,6 +63,7 @@ import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.logisticspipes.ChassisTransportLayer;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.logisticspipes.TransportLayer;
+import logisticspipes.modules.PipeServiceProviderUtil;
 import logisticspipes.modules.ChassisModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
@@ -106,7 +107,6 @@ import network.rs485.logisticspipes.connection.ConnectionType;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.connection.NoAdjacent;
 import network.rs485.logisticspipes.connection.SingleAdjacent;
-import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.AdjacentProperty;
 import network.rs485.logisticspipes.property.Property;
@@ -659,7 +659,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			LogisticsModule module = getSubModule(moduleIndex);
 			if (module != null && module.interestedInAttachedInventory()) {
 				final ISlotUpgradeManager upgradeManager = getUpgradeManager(module.getSlot(), module.getPositionInt());
-				IInventoryUtil inv = PipeServiceProviderUtilKt.availableSneakyInventories(this, upgradeManager).stream().findFirst().orElse(null);
+				IInventoryUtil inv = PipeServiceProviderUtil.availableSneakyInventories(this, upgradeManager).stream().findFirst().orElse(null);
 				if (inv == null) {
 					continue;
 				}

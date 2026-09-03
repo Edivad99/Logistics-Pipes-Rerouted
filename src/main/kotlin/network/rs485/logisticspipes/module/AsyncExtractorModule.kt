@@ -50,6 +50,7 @@ import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
 import logisticspipes.LPConfigs
 import logisticspipes.interfaces.*
+import logisticspipes.modules.PipeServiceProviderUtil
 import logisticspipes.modules.SneakyDirection
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.module.SneakyDirectionMessage
@@ -237,7 +238,8 @@ class AsyncExtractorModule(
         } ?: CoreRoutedPipe.ItemSendMode.Normal
 
     private val connectedInventory: IInventoryUtil?
-        get() = service?.availableSneakyInventories(getSneakyDirection())?.firstOrNull()
+        get() = service?.let { PipeServiceProviderUtil.availableSneakyInventories(it, getSneakyDirection()) }
+            ?.firstOrNull()
 
     override fun getLPName(): String = name
 

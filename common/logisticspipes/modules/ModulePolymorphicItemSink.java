@@ -15,7 +15,6 @@ import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.Property;
 
 public class ModulePolymorphicItemSink extends LogisticsModule {
@@ -60,7 +59,7 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
-		IInventoryUtil targetInventory = PipeServiceProviderUtilKt.availableSneakyInventories(service, upgradeManager)
+		IInventoryUtil targetInventory = PipeServiceProviderUtil.availableSneakyInventories(service, upgradeManager)
 				.stream().findFirst().orElse(null);
 		if (targetInventory == null) {
 			return null;

@@ -23,7 +23,6 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.module.LegacyModuleGui;
-import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.SlottedModule;
 import network.rs485.logisticspipes.property.SlottedModuleListProperty;
@@ -108,7 +107,7 @@ public class ChassisModule extends LogisticsModule implements LegacyModuleGui {
 		//Always deny items when we can't put the item anywhere
 		final ISlotUpgradeManager upgradeManager = parentChassis.getUpgradeManager(ModulePositionType.SLOT,
 				((ChassiTargetInformation) bestresult.addInfo).getModuleSlot());
-		IInventoryUtil invUtil = PipeServiceProviderUtilKt.availableSneakyInventories(parentChassis, upgradeManager)
+		IInventoryUtil invUtil = PipeServiceProviderUtil.availableSneakyInventories(parentChassis, upgradeManager)
 				.stream().findFirst().orElse(null);
 		if (invUtil == null) {
 			return null;

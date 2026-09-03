@@ -40,7 +40,6 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
-import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import logisticspipes.modules.SimpleFilter;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.Property;
@@ -99,7 +98,7 @@ public class ModulePassiveSupplier extends LogisticsModule
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
-		IInventoryUtil targetUtil = PipeServiceProviderUtilKt.availableSneakyInventories(service, upgradeManager)
+		IInventoryUtil targetUtil = PipeServiceProviderUtil.availableSneakyInventories(service, upgradeManager)
 				.stream().findFirst().orElse(null);
 		if (targetUtil == null) {
 			return null;

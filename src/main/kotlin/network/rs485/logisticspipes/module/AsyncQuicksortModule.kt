@@ -44,6 +44,7 @@ import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
 import logisticspipes.LPConfigs
 import logisticspipes.interfaces.IInventoryUtil
+import logisticspipes.modules.PipeServiceProviderUtil
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.module.QuickSortStateMessage
 import logisticspipes.particle.Particles
@@ -98,7 +99,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
 
     override fun jobSetup(): Pair<Int, ItemStack>? {
         val serverRouter = this.service?.router as? ServerRouter ?: return null
-        val inventory = service?.availableInventories()?.firstOrNull() ?: return null
+        val inventory = service?.let { PipeServiceProviderUtil.availableInventories(it) }?.firstOrNull() ?: return null
         if (inventory.containerSize == 0) return null
         if (currentSlot >= inventory.containerSize) currentSlot = 0
         val slot = currentSlot++
@@ -130,7 +131,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
     @ExperimentalCoroutinesApi
     override fun completeJob(deferred: Deferred<QuicksortAsyncResult?>) {
         val result = deferred.getCompleted() ?: return
-        val inventory = service?.availableInventories()?.firstOrNull() ?: return
+        val inventory = service?.let { PipeServiceProviderUtil.availableInventories(it) }?.firstOrNull() ?: return
         if (result.slot >= inventory.containerSize) return
         val stack = inventory.getItem(result.slot)
         if (result.itemid.equalsWithNBT(stack)) {
