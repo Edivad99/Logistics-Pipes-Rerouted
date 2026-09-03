@@ -42,6 +42,9 @@ import network.rs485.logisticspipes.gui.Margin
 import network.rs485.logisticspipes.gui.Size
 import network.rs485.logisticspipes.gui.VerticalAlignment
 import network.rs485.logisticspipes.gui.Drawable
+import network.rs485.logisticspipes.gui.GuiDrawer
+import network.rs485.logisticspipes.util.FuzzyFlag
+import network.rs485.logisticspipes.util.FuzzyUtil
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.utils.gui.LPGuiGraphics
 import net.minecraft.client.gui.GuiGraphicsExtractor
@@ -92,7 +95,44 @@ class SlotGroup(
         val startY = absoluteBody.roundedY
         for (row in 0 until rows) {
             for (column in 0 until columns) {
-                LPGuiGraphics.drawSlotBackground(guiGraphics, startX + column * 18, startY + row * 18)
+                val x = startX + column * 18
+                val y = startY + row * 18
+                LPGuiGraphics.drawSlotBackground(guiGraphics, x, y)
+                (slots[column + row * columns] as? FuzzyItemSlot)?.also { slot ->
+                    drawFuzzyCorners(guiGraphics, slot, x + 1, y + 1)
+                }
+            }
+        }
+    }
+
+    /**
+     * The corner marks telling which fuzzy flags a slot has set, one corner per flag, in the same
+     * places and colours the older screens draw them.
+     *
+     * Only the flags the slot actually offers get a corner: a slot that cannot use the ore
+     * dictionary should not claim a corner for it.
+     */
+    private fun drawFuzzyCorners(guiGraphics: GuiGraphicsExtractor, slot: FuzzyItemSlot, x: Int, y: Int) {
+        val flags = slot.flagGetter.invoke()
+        slot.usedFlags.filter { FuzzyUtil.get(flags, it) }.forEach { flag ->
+            val color = GuiDrawer.getFuzzyColor(flag)
+            when (flag) {
+                FuzzyFlag.USE_ORE_DICT -> {
+                    guiGraphics.fill(x + 8, y - 1, x + 17, y, color)
+                    guiGraphics.fill(x + 16, y, x + 17, y + 8, color)
+                }
+                FuzzyFlag.IGNORE_DAMAGE -> {
+                    guiGraphics.fill(x - 1, y - 1, x + 8, y, color)
+                    guiGraphics.fill(x - 1, y, x, y + 8, color)
+                }
+                FuzzyFlag.IGNORE_NBT -> {
+                    guiGraphics.fill(x - 1, y + 16, x + 8, y + 17, color)
+                    guiGraphics.fill(x - 1, y + 8, x, y + 17, color)
+                }
+                FuzzyFlag.USE_ORE_CATEGORY -> {
+                    guiGraphics.fill(x + 8, y + 16, x + 17, y + 17, color)
+                    guiGraphics.fill(x + 16, y + 8, x + 17, y + 17, color)
+                }
             }
         }
     }
