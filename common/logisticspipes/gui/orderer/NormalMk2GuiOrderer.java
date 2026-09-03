@@ -4,7 +4,8 @@ package logisticspipes.gui.orderer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -18,15 +19,16 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.inventory.OrdererMk2Menu;
 
 public class NormalMk2GuiOrderer extends NormalGuiOrderer implements IDiskProvider {
 
-	public PipeItemsRequestLogisticsMk2 pipe;
+	public final PipeItemsRequestLogisticsMk2 pipe;
 	private SmallGuiButton macroButton;
 
-	public NormalMk2GuiOrderer(PipeItemsRequestLogisticsMk2 RequestPipeMK2, Player entityPlayer) {
-		super(RequestPipeMK2.getX(), RequestPipeMK2.getY(), RequestPipeMK2.getZ(), RequestPipeMK2.getWorld().dimension().identifier(), entityPlayer);
-		pipe = RequestPipeMK2;
+	public NormalMk2GuiOrderer(OrdererMk2Menu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title);
+		pipe = menu.getPipe();
 		ClientPacketDistributor.sendToServer(new RequestDiskContentMessage(pipe.getPos()));
 	}
 

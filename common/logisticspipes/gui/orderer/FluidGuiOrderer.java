@@ -1,23 +1,24 @@
 package logisticspipes.gui.orderer;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.RemotePipeTarget;
 import logisticspipes.network.to_server.orderer.RequestFluidOrdererRefreshMessage;
 import logisticspipes.network.to_server.orderer.SubmitFluidRequestMessage;
-import logisticspipes.pipes.PipeFluidRequestLogistics;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.inventory.FluidOrdererMenu;
 
 public class FluidGuiOrderer extends GuiOrderer {
 
-	public FluidGuiOrderer(PipeFluidRequestLogistics pipe, Player entityPlayer) {
-		super(pipe.getX(), pipe.getY(), pipe.getZ(), pipe.getWorld().dimension().identifier(), entityPlayer);
-		title = "Request Fluid";
+	public FluidGuiOrderer(FluidOrdererMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title);
+		this.title = "Request Fluid";
 		refreshItems();
 	}
 

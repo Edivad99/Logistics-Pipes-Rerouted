@@ -100,11 +100,7 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 		this.table = table;
 		this.entityPlayer = entityPlayer;
         ((DummyContainer) this.menu).setScreenForJEI(this);
-        if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
-			dimension = this.table.getWorld().dimension().identifier();
-		} else {
-			dimension = GuiOrderer.dimensioncache;
-		}
+        dimension = this.table.getWorld().dimension().identifier();
 		refreshItems();
 	}
 

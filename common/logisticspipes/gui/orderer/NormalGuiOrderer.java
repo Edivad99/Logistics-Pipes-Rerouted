@@ -2,8 +2,7 @@ package logisticspipes.gui.orderer;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -12,13 +11,14 @@ import logisticspipes.network.to_server.orderer.RequestOrdererRefreshMessage;
 import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.inventory.OrdererMenu;
 
 public class NormalGuiOrderer extends GuiOrderer {
 
 	private DisplayOptions displayOptions = DisplayOptions.Both;
 
-	public NormalGuiOrderer(int x, int y, int z, Identifier dim, Player entityPlayer) {
-		super(x, y, z, dim, entityPlayer);
+	public NormalGuiOrderer(OrdererMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title);
 		refreshItems();
 	}
 

@@ -17,15 +17,12 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.guis.pipe.NormalOrdererGui;
-import logisticspipes.network.to_client.pipe.RemoteOrdererDimensionMessage;
 import logisticspipes.pipes.PipeItemsRemoteOrdererLogistics;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.item.component.LPDataComponents;
 
 public class RemoteOrderer extends LogisticsItem {
@@ -88,13 +85,8 @@ public class RemoteOrderer extends LogisticsItem {
                 ));
                 if (pipe.useEnergy(energyUse)) {
                     if (player instanceof ServerPlayer serverPlayer) {
-                        PacketDistributor.sendToPlayer(serverPlayer, new RemoteOrdererDimensionMessage(
-                                pipe.getWorld().dimension().identifier()));
+                        OrdererMenu.open(serverPlayer, pipe);
                     }
-                    NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
-                    gui.setPosX(pipe.getX()).setPosY(pipe.getY()).setPosZ(pipe.getZ());
-                    gui.setDim(pipe.getWorld().dimension().identifier());
-                    gui.open(player);
                 }
             }
         }

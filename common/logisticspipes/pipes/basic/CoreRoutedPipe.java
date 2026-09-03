@@ -89,7 +89,6 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.network.guis.pipe.PipeController;
 import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
@@ -133,6 +132,7 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.item.ItemPipeSignCreator;
@@ -916,10 +916,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openRequest) {
-					NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
-					gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-					gui.setDim(entityplayer.level().dimension().identifier());
-					gui.open(entityplayer);
+					if (entityplayer instanceof ServerPlayer serverPlayer) {
+						OrdererMenu.open(serverPlayer, this);
+					}
 				} else {
 					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}

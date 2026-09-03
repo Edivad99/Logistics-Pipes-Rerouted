@@ -39,6 +39,9 @@ import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.gui.GuiFirewall;
 import logisticspipes.gui.GuiChassisPipe;
+import logisticspipes.gui.orderer.FluidGuiOrderer;
+import logisticspipes.gui.orderer.NormalGuiOrderer;
+import logisticspipes.gui.orderer.NormalMk2GuiOrderer;
 import logisticspipes.gui.GuiCraftingPipe;
 import logisticspipes.gui.GuiFreqCardContent;
 import logisticspipes.gui.GuiSupplierPipe;
@@ -62,6 +65,9 @@ import logisticspipes.gui.GuiPowerProvider;
 import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.inventory.ChassisMenu;
+import logisticspipes.world.inventory.FluidOrdererMenu;
+import logisticspipes.world.inventory.OrdererMenu;
+import logisticspipes.world.inventory.OrdererMk2Menu;
 import logisticspipes.world.inventory.FirewallMenu;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
 import logisticspipes.world.inventory.AdvancedExtractorMenu;
@@ -197,6 +203,12 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<SneakyDirectionMenu, AbstractContainerScreen<SneakyDirectionMenu>>) GuiSneakyConfigurator::new);
         event.register(LPMenuTypes.ACTIVE_SUPPLIER.get(),
             (MenuScreens.ScreenConstructor<ActiveSupplierMenu, AbstractContainerScreen<ActiveSupplierMenu>>) GuiSupplierPipe::new);
+        event.register(LPMenuTypes.ORDERER.get(),
+            (MenuScreens.ScreenConstructor<OrdererMenu, AbstractContainerScreen<OrdererMenu>>) NormalGuiOrderer::new);
+        event.register(LPMenuTypes.ORDERER_MK2.get(),
+            (MenuScreens.ScreenConstructor<OrdererMk2Menu, AbstractContainerScreen<OrdererMk2Menu>>) NormalMk2GuiOrderer::new);
+        event.register(LPMenuTypes.FLUID_ORDERER.get(),
+            (MenuScreens.ScreenConstructor<FluidOrdererMenu, AbstractContainerScreen<FluidOrdererMenu>>) FluidGuiOrderer::new);
         event.register(LPMenuTypes.CHASSIS.get(),
             (MenuScreens.ScreenConstructor<ChassisMenu, AbstractContainerScreen<ChassisMenu>>) GuiChassisPipe::new);
         event.register(LPMenuTypes.ITEM_SINK.get(),

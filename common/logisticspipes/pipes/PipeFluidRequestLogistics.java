@@ -1,11 +1,15 @@
 package logisticspipes.pipes;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.MainProxy;
@@ -13,17 +17,23 @@ import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.FluidIdentifier;
+import logisticspipes.world.inventory.FluidOrdererMenu;
 
-public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IRequestFluid {
+public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IRequestFluid, IPipeMenuProvider {
 
 	public PipeFluidRequestLogistics(Item item) {
 		super(item);
 	}
 
 	public void openGui(Player entityplayer) {
-		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.FluidOrdererGui.class)
-				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-				.open(entityplayer);
+		if (entityplayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(this);
+		}
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new FluidOrdererMenu(containerId, inventory, this);
 	}
 
 	@Override

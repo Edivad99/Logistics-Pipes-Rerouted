@@ -86,7 +86,6 @@ import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
 import logisticspipes.network.to_client.pipe.PipeStateMessage;
 import logisticspipes.network.to_client.pipe.PipeStatsMessage;
 import logisticspipes.network.to_client.pipe.PowerLaserMessage;
-import logisticspipes.network.to_client.pipe.RemoteOrdererDimensionMessage;
 import logisticspipes.network.to_client.pipe.RoutingLasersMessage;
 import logisticspipes.network.to_client.pipe.SatelliteNameResultMessage;
 import logisticspipes.network.to_client.pipe.SatellitePipeListMessage;
@@ -475,8 +474,6 @@ public class PacketHandler {
                 SatelliteNameResultMessage.STREAM_CODEC, SatelliteNameResultMessage::handle);
         registrar.playToClient(SatellitePipeListMessage.TYPE,
                 SatellitePipeListMessage.STREAM_CODEC, SatellitePipeListMessage::handle);
-        registrar.playToClient(RemoteOrdererDimensionMessage.TYPE,
-                RemoteOrdererDimensionMessage.STREAM_CODEC, RemoteOrdererDimensionMessage::handle);
         registrar.playToClient(TravellingItemContentMessage.TYPE,
                 TravellingItemContentMessage.STREAM_CODEC, TravellingItemContentMessage::handle);
         registrar.playToClient(UpgradeConfigPopupMessage.TYPE,

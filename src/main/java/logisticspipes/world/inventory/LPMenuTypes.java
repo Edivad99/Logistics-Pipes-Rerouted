@@ -38,12 +38,15 @@ import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.RemotePipeTarget;
 import logisticspipes.interfaces.SatellitePipe;
+import logisticspipes.pipes.PipeFluidRequestLogistics;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidTerminus;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 
@@ -197,6 +200,20 @@ public class LPMenuTypes {
                 module.slotAssignmentPattern.replaceContent(buffer.readVarIntArray());
                 return new ActiveSupplierMenu(containerId, inventory, target, module, patternUpgrade);
             }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<OrdererMenu>> ORDERER =
+        deferredRegister.register("orderer", () -> new MenuType<>(
+            (IContainerFactory<OrdererMenu>) (containerId, inventory, buffer) -> new OrdererMenu(
+                LPMenuTypes.ORDERER.get(), containerId, inventory,
+                RemotePipeTarget.STREAM_CODEC.decode(buffer)), FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<OrdererMk2Menu>> ORDERER_MK2 =
+        deferredRegister.register("orderer_mk2",
+            () -> pipeMenu(PipeItemsRequestLogisticsMk2.class, OrdererMk2Menu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidOrdererMenu>> FLUID_ORDERER =
+        deferredRegister.register("fluid_orderer",
+            () -> pipeMenu(PipeFluidRequestLogistics.class, FluidOrdererMenu::new));
 
     public static final DeferredHolder<MenuType<?>, MenuType<ChassisMenu>> CHASSIS =
         deferredRegister.register("chassis", () -> new MenuType<>(

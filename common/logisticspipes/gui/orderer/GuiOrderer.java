@@ -22,6 +22,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
@@ -39,7 +41,6 @@ import logisticspipes.network.to_server.orderer.SimulateRequestMessage;
 import logisticspipes.network.to_server.orderer.SubmitRequestMessage;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ISubGuiController;
@@ -51,6 +52,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.OrdererMenu;
 
 public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItemSearch, ISpecialItemRenderer, IAvailableItemsReceiver {
 
@@ -65,24 +67,14 @@ public abstract class GuiOrderer extends LogisticsBaseGuiScreen implements IItem
 	public final int zCoord;
 	public Identifier dimension;
 
-	public static Identifier dimensioncache;
-	public static long cachetime;
-
-	public GuiOrderer(int x, int y, int z, Identifier dim, Player entityPlayer) {
-		super(buildDummy(entityPlayer), 220, 240, 0, 0);
-		xCoord = x;
-		yCoord = y;
-		zCoord = z;
-		if (GuiOrderer.cachetime + 100 < System.currentTimeMillis()) {
-			dimension = dim;
-		} else {
-			dimension = GuiOrderer.dimensioncache != null ? GuiOrderer.dimensioncache : dim;
-		}
-		this.entityPlayer = entityPlayer;
-	}
-
-	private static DummyContainer buildDummy(Player entityPlayer) {
-		return new DummyContainer(entityPlayer.getInventory(), null);
+	public GuiOrderer(OrdererMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 220, 240, 0, 0);
+		final BlockPos pos = menu.getTarget().pos();
+		xCoord = pos.getX();
+		yCoord = pos.getY();
+		zCoord = pos.getZ();
+		dimension = menu.getTarget().dimension();
+		entityPlayer = inventory.player;
 	}
 
 	public abstract void refreshItems();
