@@ -1,5 +1,6 @@
 package logisticspipes.network.to_server.crafting;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.core.UUIDUtil;
@@ -21,7 +22,13 @@ import logisticspipes.network.ModuleTarget;
  * encoded it: 0 is the item satellite, 10-19 the advanced item ones, 100 the fluid satellite and
  * 110-120 the advanced fluid ones.
  */
-public record SetCraftingSatelliteMessage(ModuleTarget target, int slot, UUID satellite)
+/**
+ * Which satellite a crafting module should send to, or none.
+ *
+ * <p>Empty means the player pressed unset: the module keeps a satellite until told otherwise, so
+ * clearing one has to be sayable.
+ */
+public record SetCraftingSatelliteMessage(ModuleTarget target, int slot, Optional<UUID> satellite)
         implements CustomPacketPayload {
 
     public static final Type<SetCraftingSatelliteMessage> TYPE =
@@ -31,7 +38,7 @@ public record SetCraftingSatelliteMessage(ModuleTarget target, int slot, UUID sa
             StreamCodec.composite(
                     ModuleTarget.STREAM_CODEC, SetCraftingSatelliteMessage::target,
                     ByteBufCodecs.VAR_INT, SetCraftingSatelliteMessage::slot,
-                    UUIDUtil.STREAM_CODEC, SetCraftingSatelliteMessage::satellite,
+                    ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), SetCraftingSatelliteMessage::satellite,
                     SetCraftingSatelliteMessage::new);
 
     @Override
@@ -44,14 +51,15 @@ public record SetCraftingSatelliteMessage(ModuleTarget target, int slot, UUID sa
         if (module == null) {
             return;
         }
+        final UUID satellite = message.satellite.orElse(null);
         if (message.slot == 0) {
-            module.setSatelliteUUID(message.satellite);
+            module.setSatelliteUUID(satellite);
         } else if (message.slot >= 10 && message.slot < 20) {
-            module.setAdvancedSatelliteUUID(message.slot - 10, message.satellite);
+            module.setAdvancedSatelliteUUID(message.slot - 10, satellite);
         } else if (message.slot == 100) {
-            module.setFluidSatelliteUUID(message.satellite);
+            module.setFluidSatelliteUUID(satellite);
         } else if (message.slot >= 110 && message.slot <= 120) {
-            module.setAdvancedFluidSatelliteUUID(message.slot - 110, message.satellite);
+            module.setAdvancedFluidSatelliteUUID(message.slot - 110, satellite);
         }
     }
 }

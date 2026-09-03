@@ -8,6 +8,7 @@
 package logisticspipes.gui;
 
 import java.util.List;
+import java.util.Optional;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -335,7 +336,8 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 		if (module.getSlot().isInWorld()) {
 			this.setSubGui(new GuiSelectSatellitePopup(module.getBlockPos(), fluidSatellite, uuid ->
 					ClientPacketDistributor.sendToServer(
-							new SetCraftingSatelliteMessage(ModuleTarget.of(module), id, uuid))));
+							new SetCraftingSatelliteMessage(ModuleTarget.of(module), id,
+									Optional.ofNullable(uuid)))));
 		}
 	}
 
