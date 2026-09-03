@@ -2,6 +2,7 @@ package logisticspipes.pipes.tubes;
 
 import java.util.List;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -29,8 +30,6 @@ import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.util.CoordinateUtils;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.util.DoubleCoordinatesType;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.IPositionRotateble;
 import logisticspipes.utils.LPPositionSet;
 
@@ -76,13 +75,13 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public void writeData(LPDataOutput output) {
-		output.writeEnum(orientation);
+	public void writeState(FriendlyByteBuf buffer) {
+		buffer.writeEnum(orientation);
 	}
 
 	@Override
-	public void readData(LPDataInput input) {
-		orientation = input.readEnum(SpeedupDirection.class);
+	public void readState(FriendlyByteBuf buffer) {
+		orientation = buffer.readEnum(SpeedupDirection.class);
 	}
 
 	@Override

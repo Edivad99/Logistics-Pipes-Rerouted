@@ -1,9 +1,10 @@
 package logisticspipes.renderer.state;
 
 import net.minecraft.core.Direction;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
+import io.netty.buffer.ByteBuf;
 
 public class ConnectionMatrix {
 
@@ -72,30 +73,37 @@ public class ConnectionMatrix {
 		dirty = false;
 	}
 
-	public void writeData(LPDataOutput output) {
-		output.writeByte(mask);
-		output.writeByte(isBCPipeMask);
-		output.writeByte(isTDPipeMask);
+	/** What the client needs: three side masks, one bit per direction. */
+	public record Wire(int mask, int bcMask, int tdMask) {
+
+		public static final StreamCodec<ByteBuf, Wire> STREAM_CODEC = StreamCodec.composite(
+				ByteBufCodecs.BYTE, wire -> (byte) wire.mask,
+				ByteBufCodecs.BYTE, wire -> (byte) wire.bcMask,
+				ByteBufCodecs.BYTE, wire -> (byte) wire.tdMask,
+				(mask, bcMask, tdMask) -> new Wire(mask, bcMask, tdMask));
 	}
 
-	public void readData(LPDataInput input) {
-		byte newMask = input.readByte();
+	public Wire snapshot() {
+		return new Wire(mask, isBCPipeMask, isTDPipeMask);
+	}
 
-		if (newMask != mask) {
-			mask = newMask;
+	/**
+	 * Takes what arrived, and marks itself dirty only for what actually changed -- the render
+	 * cache is rebuilt from that flag, so a state packet that says nothing new must cost nothing.
+	 */
+	public void apply(Wire wire) {
+		if (wire.mask() != mask) {
+			mask = wire.mask();
 			dirty = true;
 		}
-
-		newMask = input.readByte();
-		if (newMask != isBCPipeMask) {
-			isBCPipeMask = newMask;
+		if (wire.bcMask() != isBCPipeMask) {
+			isBCPipeMask = wire.bcMask();
 			dirty = true;
 		}
-
-		newMask = input.readByte();
-		if (newMask != isTDPipeMask) {
-			isTDPipeMask = newMask;
+		if (wire.tdMask() != isTDPipeMask) {
+			isTDPipeMask = wire.tdMask();
 			dirty = true;
 		}
 	}
+
 }

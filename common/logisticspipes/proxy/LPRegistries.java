@@ -14,8 +14,8 @@ import org.jspecify.annotations.Nullable;
  * Resolves a {@link RegistryAccess} for code that has no world, player or connection in hand.
  * <p>
  * Data component codecs need registry access to encode values that reference datapack registries
- * (enchantments, for instance), but {@code LPDataIOWrapper} wraps a bare netty buffer. Prefer
- * threading a provider explicitly wherever one is already available; this is the fallback.
+ * (enchantments, for instance), and a plain {@code FriendlyByteBuf} carries none. Prefer threading
+ * a provider explicitly wherever one is already available; this is the fallback.
  */
 public final class LPRegistries {
 

@@ -29,6 +29,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -64,7 +65,6 @@ import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
@@ -121,8 +121,6 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.util.DoubleCoordinates;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.DirectionUtil;
 import logisticspipes.utils.FluidIdentifierStack;
@@ -145,7 +143,7 @@ import network.rs485.logisticspipes.property.UtilKt;
 
 @CCType(name = "LogisticsPipes:Normal")
 public abstract class CoreRoutedPipe extends CoreUnroutedPipe
-		implements IClientState, IRequestItems, ITrackStatistics, IWorldProvider, IWatchingHandler, IPipeServiceProvider, IQueueCCEvent, ILPPositionProvider {
+		implements IRequestItems, ITrackStatistics, IWorldProvider, IWatchingHandler, IPipeServiceProvider, IQueueCCEvent, ILPPositionProvider {
 
 	private static int pipecount = 0;
 	public final PlayerCollectionList watchers = new PlayerCollectionList();
@@ -1671,13 +1669,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public void writeData(LPDataOutput output) {
-		output.writeBoolean(isOpaque());
+	public void writeState(FriendlyByteBuf buffer) {
+		buffer.writeBoolean(isOpaque());
 	}
 
 	@Override
-	public void readData(LPDataInput input) {
-		isOpaqueClientSide = input.readBoolean();
+	public void readState(FriendlyByteBuf buffer) {
+		isOpaqueClientSide = buffer.readBoolean();
 	}
 
 	@Override

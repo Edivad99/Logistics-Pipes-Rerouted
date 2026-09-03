@@ -46,7 +46,6 @@ import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.asm.te.LPTileEntityObject;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelProperties;
-import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.logic.LogicController;
 import logisticspipes.logic.interfaces.ILogicControllerTile;
@@ -67,8 +66,6 @@ import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.util.DoubleCoordinates;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.TileBuffer;
@@ -977,18 +974,9 @@ public class LogisticsTileGenericPipe extends LPMicroblockTileEntity
 		return null;
 	}
 
-	public static class CoreState implements IClientState {
+	/** Which pipe this is, by registry name: the client needs it to build the right pipe object. */
+	public static class CoreState {
 
 		public String pipeIdName = "";
-
-		@Override
-		public void writeData(LPDataOutput output) {
-			output.writeUTF(pipeIdName == null ? "" : pipeIdName);
-		}
-
-		@Override
-		public void readData(LPDataInput input) {
-			pipeIdName = input.readUTF();
-		}
 	}
 }

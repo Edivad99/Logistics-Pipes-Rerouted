@@ -8,20 +8,12 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.textures.Textures;
 import logisticspipes.transport.PipeTransportLogistics;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 
 public class PipeItemsBasicTransport extends CoreUnroutedPipe {
 
 	public PipeItemsBasicTransport(Item item) {
 		super(new PipeTransportLogistics(false), item);
 	}
-
-	@Override
-	public void writeData(LPDataOutput output) {}
-
-	@Override
-	public void readData(LPDataInput input) {}
 
 	@Override
 	public int getIconIndex(@Nullable Direction direction) {

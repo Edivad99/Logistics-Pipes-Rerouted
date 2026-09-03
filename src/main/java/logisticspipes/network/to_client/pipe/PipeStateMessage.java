@@ -8,26 +8,27 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import io.netty.buffer.Unpooled;
+
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.util.LPDataIOWrapper;
+import logisticspipes.renderer.state.PipeRenderState;
 
 /**
  * Everything the client needs to draw a pipe: how it connects, which pipe it is, and whatever the
  * pipe itself keeps client side.
  *
- * <p>The three blocks stay opaque here on purpose. They are not decoded into new objects but read
- * back into the ones the client already has, and the last of them is written by the pipe class
- * itself, so its shape depends on which pipe this is. They are the last users of the old data
- * stream, and go when {@code IClientState} does.
+ * <p>The last block stays opaque, and has to. Its shape depends on which pipe wrote it, and the
+ * pipe is only known once the block entity has been found -- which happens on the main thread,
+ * long after this has been decoded off the network one.
  *
  * @param stateId counts up per pipe, so a state that overtook a newer one on the way is dropped
  */
 public record PipeStateMessage(
         BlockPos pos,
-        byte[] renderState,
-        byte[] coreState,
+        PipeRenderState.Wire renderState,
+        String pipeIdName,
         byte[] pipeState,
         int stateId
 ) implements CustomPacketPayload {
@@ -37,19 +38,25 @@ public record PipeStateMessage(
     public static final StreamCodec<FriendlyByteBuf, PipeStateMessage> STREAM_CODEC =
             StreamCodec.composite(
                     BlockPos.STREAM_CODEC, PipeStateMessage::pos,
-                    ByteBufCodecs.BYTE_ARRAY, PipeStateMessage::renderState,
-                    ByteBufCodecs.BYTE_ARRAY, PipeStateMessage::coreState,
+                    PipeRenderState.Wire.STREAM_CODEC.cast(), PipeStateMessage::renderState,
+                    ByteBufCodecs.STRING_UTF8, PipeStateMessage::pipeIdName,
                     ByteBufCodecs.BYTE_ARRAY, PipeStateMessage::pipeState,
                     ByteBufCodecs.VAR_INT, PipeStateMessage::stateId,
                     PipeStateMessage::new);
 
     /** Snapshots the pipe's current client state. Server side. */
     public static PipeStateMessage of(LogisticsTileGenericPipe container) {
+        final FriendlyByteBuf pipeBuffer = new FriendlyByteBuf(Unpooled.buffer());
+        if (container.pipe != null) {
+            container.pipe.writeState(pipeBuffer);
+        }
+        final byte[] pipeState = new byte[pipeBuffer.readableBytes()];
+        pipeBuffer.readBytes(pipeState);
         return new PipeStateMessage(
                 container.getBlockPos(),
-                LPDataIOWrapper.collectData(container.renderState::writeData),
-                LPDataIOWrapper.collectData(container.coreState::writeData),
-                container.pipe == null ? new byte[0] : LPDataIOWrapper.collectData(container.pipe::writeData),
+                container.renderState.snapshot(),
+                container.coreState.pipeIdName == null ? "" : container.coreState.pipeIdName,
+                pipeState,
                 container.statePacketId++);
     }
 
@@ -71,11 +78,11 @@ public record PipeStateMessage(
         if (container.statePacketId > stateId) {
             return;
         }
-        LPDataIOWrapper.provideData(renderState, container.renderState::readData);
-        LPDataIOWrapper.provideData(coreState, container.coreState::readData);
+        container.renderState.apply(renderState);
+        container.coreState.pipeIdName = pipeIdName;
         container.afterStateUpdated();
         if (container.pipe != null && pipeState.length != 0) {
-            LPDataIOWrapper.provideData(pipeState, container.pipe::readData);
+            container.pipe.readState(new FriendlyByteBuf(Unpooled.wrappedBuffer(pipeState)));
         }
         container.statePacketId = stateId;
     }

@@ -2,6 +2,7 @@ package logisticspipes.pipes.tubes;
 
 import java.util.List;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -21,8 +22,6 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.util.DoubleCoordinatesType;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.IPositionRotateble;
 import logisticspipes.utils.LPPositionSet;
 
@@ -36,19 +35,15 @@ public class HSTubeLine extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public void writeData(LPDataOutput output) {
-		if (orientation == null) {
-			output.writeBoolean(false);
-		} else {
-			output.writeBoolean(true);
-			output.writeEnum(orientation);
-		}
+	public void writeState(FriendlyByteBuf buffer) {
+		buffer.writeNullable(orientation, FriendlyByteBuf::writeEnum);
 	}
 
 	@Override
-	public void readData(LPDataInput input) {
-		if (input.readBoolean()) {
-			orientation = input.readEnum(TubeLineOrientation.class);
+	public void readState(FriendlyByteBuf buffer) {
+		final TubeLineOrientation read = buffer.readNullable(inner -> inner.readEnum(TubeLineOrientation.class));
+		if (read != null) {
+			orientation = read;
 		}
 	}
 
