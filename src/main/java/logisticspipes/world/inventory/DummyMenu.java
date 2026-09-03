@@ -27,6 +27,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISlotCheck;
+import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.FluidIdentifier;
@@ -39,8 +40,10 @@ import logisticspipes.utils.gui.FuzzyUnmodifiableSlot;
 import logisticspipes.utils.gui.HandelableSlot;
 import logisticspipes.utils.gui.IJeiScreenHolder;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.utils.gui.ModuleSlot;
 import logisticspipes.utils.gui.RestrictedSlot;
+import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.UnmodifiableSlot;
 import logisticspipes.utils.item.ItemIdentifier;
 import network.rs485.logisticspipes.property.IBitSet;
@@ -436,6 +439,22 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
     protected Slot addFuzzyUnmodifiableSlot(int slotId, Container inventory, int xCoord, int yCoord,
         IBitSet fuzzyFlags) {
         return addSlot(new FuzzyUnmodifiableSlot(inventory, slotId, xCoord, yCoord, fuzzyFlags));
+    }
+
+    /** A chassis module slot, which writes the module's settings back into the item when taken. */
+    protected Slot addModuleSlot(int slotId, Container inventory, int xCoord, int yCoord,
+        PipeLogisticsChassis pipe) {
+        Slot slot = addSlot(new ModuleSlot(inventory, slotId, xCoord, yCoord, pipe));
+        transferTop.add(slot);
+        return slot;
+    }
+
+    /** A slot holding one of a module's or a pipe's upgrades. */
+    protected Slot addUpgradeSlot(int slotId, ISlotUpgradeManager manager, int upgradeSlotId, int xCoord,
+        int yCoord, ISlotCheck slotCheck) {
+        Slot slot = addSlot(new UpgradeSlot(manager, upgradeSlotId, slotId, xCoord, yCoord, slotCheck));
+        transferTop.add(slot);
+        return slot;
     }
 
     /** An ordinary slot, which quick-move can also reach. */

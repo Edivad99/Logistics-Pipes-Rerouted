@@ -38,6 +38,7 @@ import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.gui.GuiFirewall;
+import logisticspipes.gui.GuiChassisPipe;
 import logisticspipes.gui.GuiCraftingPipe;
 import logisticspipes.gui.GuiFreqCardContent;
 import logisticspipes.gui.GuiSupplierPipe;
@@ -60,6 +61,7 @@ import logisticspipes.gui.GuiStatistics;
 import logisticspipes.gui.GuiPowerProvider;
 import logisticspipes.gui.GuiSecurityStation;
 import logisticspipes.world.inventory.AutoCraftingMenu;
+import logisticspipes.world.inventory.ChassisMenu;
 import logisticspipes.world.inventory.FirewallMenu;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
 import logisticspipes.world.inventory.AdvancedExtractorMenu;
@@ -195,6 +197,8 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<SneakyDirectionMenu, AbstractContainerScreen<SneakyDirectionMenu>>) GuiSneakyConfigurator::new);
         event.register(LPMenuTypes.ACTIVE_SUPPLIER.get(),
             (MenuScreens.ScreenConstructor<ActiveSupplierMenu, AbstractContainerScreen<ActiveSupplierMenu>>) GuiSupplierPipe::new);
+        event.register(LPMenuTypes.CHASSIS.get(),
+            (MenuScreens.ScreenConstructor<ChassisMenu, AbstractContainerScreen<ChassisMenu>>) GuiChassisPipe::new);
         event.register(LPMenuTypes.ITEM_SINK.get(),
             (MenuScreens.ScreenConstructor<ItemSinkContainer, AbstractContainerScreen<ItemSinkContainer>>) ItemSinkGui::new);
         event.register(LPMenuTypes.PROVIDER.get(),

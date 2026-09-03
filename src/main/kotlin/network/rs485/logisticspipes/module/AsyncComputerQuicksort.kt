@@ -41,8 +41,6 @@ import logisticspipes.interfaces.IClientInformationProvider
 import logisticspipes.interfaces.IModuleWatchReciver
 import logisticspipes.interfaces.IPipeServiceProvider
 import logisticspipes.interfaces.IWorldProvider
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
 import logisticspipes.proxy.MainProxy
 import logisticspipes.utils.PlayerCollectionList
 import net.minecraft.world.entity.player.Player
@@ -52,7 +50,7 @@ import net.minecraft.world.level.storage.ValueOutput
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncResult?>(), LegacyModuleGui,
+class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncResult?>(),
     IClientInformationProvider, IModuleWatchReciver {
 
     companion object {
@@ -86,12 +84,6 @@ class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsync
                 }
             }
         }
-
-    override val module = this
-    override val pipeGuiProvider: ModuleCoordinatesGuiProvider
-        get() = TODO("Reimplement CCBasedQuickSortSlot")
-    override val inHandGuiProvider: ModuleInHandGuiProvider
-        get() = TODO("Reimplement CCBasedQuickSortInHand")
 
     init {
         TODO("Class still needs to be implemented")

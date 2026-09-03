@@ -12,75 +12,43 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import logisticspipes.LPConfigs;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.guis.pipe.ChassisGuiProvider;
 import logisticspipes.network.to_server.module.OpenChassisModuleGuiMessage;
-import logisticspipes.network.packets.gui.GuiClosePacket;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.string.StringUtils;
+import logisticspipes.world.inventory.ChassisMenu;
 import logisticspipes.world.item.ItemModule;
 
 public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 
 	private final PipeLogisticsChassis chassisPipe;
 	private final Container moduleInventory;
-	//private final Screen _previousGui;
 	private final List<SmallGuiButton> moduleConfigButtons = new LinkedList<>();
 
-	private final Slot[] upgradeSlots = new Slot[2 * LPConfigs.CHASSIS_SLOTS_ARRAY[4]];
+	private final List<Slot> upgradeSlots;
 	private final AbstractButton[] upgradeConfig;
 
 	private final boolean hasUpgradeModuleUpgrade;
 
-	public GuiChassisPipe(Player player, PipeLogisticsChassis chassis, boolean hasUpgradeModuleUpgrade) { //, Screen previousGui) {
-		super(buildDummy(player, chassis, hasUpgradeModuleUpgrade));
-		chassisPipe = chassis;
-		moduleInventory = chassis.getModuleInventory(player.registryAccess());
-		//_previousGui = previousGui;
-		this.hasUpgradeModuleUpgrade = hasUpgradeModuleUpgrade;
-
-		int playerInventoryWidth = 162;
-		int playerInventoryHeight = 76;
-
-		panelWidth = playerInventoryWidth + 26;
-		panelHeight = playerInventoryHeight + 14 + (20 * chassisPipe.getChassisSize());
-
-        this.upgradeConfig = new AbstractButton[chassisPipe.getChassisSize() * 2];
-    }
-
-	private static DummyContainer buildDummy(Player player, PipeLogisticsChassis chassis, boolean hasUpgradeModuleUpgrade) {
-		Container moduleInventory = chassis.getModuleInventory(player.registryAccess());
-		DummyContainer dummy = new DummyContainer(player.getInventory(), moduleInventory);
-		dummy.addNormalSlotsForPlayerInventory(19, 10 + 20 * chassis.getChassisSize());
-		for (int i = 0; i < chassis.getChassisSize(); i++)
-			dummy.addModuleSlot(i, moduleInventory, 18, 9 + 20 * i, chassis);
-
-		if (hasUpgradeModuleUpgrade) {
-			for (int i = 0; i < chassis.getChassisSize(); i++) {
-				final int fI = i;
-				ModuleUpgradeManager upgradeManager = chassis.getModuleUpgradeManager(i);
-				dummy.addUpgradeSlot(0, upgradeManager, 0, 145, 9 + i * 20, itemStack -> ChassisGuiProvider.checkStack(itemStack, chassis, fI));
-				dummy.addUpgradeSlot(1, upgradeManager, 1, 165, 9 + i * 20, itemStack -> ChassisGuiProvider.checkStack(itemStack, chassis, fI));
-			}
-		}
-		return dummy;
+	public GuiChassisPipe(ChassisMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 162 + 26, 76 + 14 + 20 * menu.getPipe().getChassisSize(), 0, 0);
+		chassisPipe = menu.getPipe();
+		moduleInventory = menu.getModuleInventory();
+		hasUpgradeModuleUpgrade = menu.hasUpgradeModuleUpgrade();
+		upgradeSlots = menu.getUpgradeSlots();
+		upgradeConfig = new AbstractButton[chassisPipe.getChassisSize() * 2];
 	}
-
 
 	@Override
 	public void init() {
@@ -108,12 +76,12 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 			if (hasUpgradeModuleUpgrade) {
 				final int idxA = i * 2;
 				SmallGuiButton upA = new SmallGuiButton(100 + i, leftPos + 134, topPos + 12 + i * 20, 10, 10, "!");
-				upA.setPressListener(b -> ClientPacketDistributor.sendToServer(new OpenUpgradeConfigMessage(upgradeSlots[idxA].index)));
+				upA.setPressListener(b -> ClientPacketDistributor.sendToServer(new OpenUpgradeConfigMessage(upgradeSlots.get(idxA).index)));
 				upgradeConfig[idxA] = addRenderableWidget(upA);
 				upgradeConfig[idxA].visible = chassisPipe.getModuleUpgradeManager(i).hasGuiUpgrade(0);
 				final int idxB = i * 2 + 1;
 				SmallGuiButton upB = new SmallGuiButton(120 + i, leftPos + 182, topPos + 12 + i * 20, 10, 10, "!");
-				upB.setPressListener(b -> ClientPacketDistributor.sendToServer(new OpenUpgradeConfigMessage(upgradeSlots[idxB].index)));
+				upB.setPressListener(b -> ClientPacketDistributor.sendToServer(new OpenUpgradeConfigMessage(upgradeSlots.get(idxB).index)));
 				upgradeConfig[idxB] = addRenderableWidget(upB);
 				upgradeConfig[idxB].visible = chassisPipe.getModuleUpgradeManager(i).hasGuiUpgrade(1);
 			}
@@ -128,12 +96,6 @@ public class GuiChassisPipe extends LogisticsBaseGuiScreen {
 		} else {
 			moduleConfigButtons.get(slot).visible = subModule.hasGui();
 		}
-	}
-
-	@Override
-	public void onClose() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(GuiClosePacket.class).setTilePos(chassisPipe.container));
-		super.onClose();
 	}
 
 	@Override

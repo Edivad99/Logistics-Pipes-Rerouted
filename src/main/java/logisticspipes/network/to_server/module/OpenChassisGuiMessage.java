@@ -2,7 +2,6 @@ package logisticspipes.network.to_server.module;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,33 +14,30 @@ import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeLogisticsChassis;
 
 /**
- * Opens the settings screen of one module sitting in a chassis.
+ * Goes back from a module's screen to the chassis holding it.
  *
- * <p>The chassis screen shows a button per slot; which module is in that slot is the server's to
- * know.
+ * <p>The way in is {@link OpenChassisModuleGuiMessage}; this is the way back out.
  */
-public record OpenChassisModuleGuiMessage(BlockPos pos, int slot) implements CustomPacketPayload {
+public record OpenChassisGuiMessage(BlockPos pos) implements CustomPacketPayload {
 
-    public static final Type<OpenChassisModuleGuiMessage> TYPE =
-            new Type<>(LPConstants.rl("open_chassis_module_gui"));
+    public static final Type<OpenChassisGuiMessage> TYPE = new Type<>(LPConstants.rl("open_chassis_gui"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, OpenChassisModuleGuiMessage> STREAM_CODEC =
+    public static final StreamCodec<RegistryFriendlyByteBuf, OpenChassisGuiMessage> STREAM_CODEC =
             StreamCodec.composite(
-                    BlockPos.STREAM_CODEC, OpenChassisModuleGuiMessage::pos,
-                    ByteBufCodecs.VAR_INT, OpenChassisModuleGuiMessage::slot,
-                    OpenChassisModuleGuiMessage::new);
+                    BlockPos.STREAM_CODEC, OpenChassisGuiMessage::pos,
+                    OpenChassisGuiMessage::new);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    public static void handle(OpenChassisModuleGuiMessage message, IPayloadContext context) {
+    public static void handle(OpenChassisGuiMessage message, IPayloadContext context) {
         final PipeLogisticsChassis chassis =
                 TargetLookup.blockEntityOrPipeAt(context.player(), message.pos, PipeLogisticsChassis.class);
         if (chassis == null || !(context.player() instanceof ServerPlayer player)) {
             return;
         }
-        IModuleMenuProvider.open(player, chassis.getSubModule(message.slot));
+        IModuleMenuProvider.open(player, chassis.getLogisticsModule());
     }
 }

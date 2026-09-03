@@ -137,7 +137,6 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.item.LPItems;
-import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.connection.Adjacent;
 import network.rs485.logisticspipes.connection.AdjacentFactory;
 import network.rs485.logisticspipes.connection.NoAdjacent;
@@ -934,8 +933,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 					final LogisticsModule module = getLogisticsModule();
 					if (module instanceof IModuleMenuProvider && entityplayer instanceof ServerPlayer serverPlayer) {
 						IModuleMenuProvider.open(serverPlayer, module);
-					} else if (module instanceof LegacyModuleGui legacy) {
-						LegacyModuleGui.getPipeGuiProvider(legacy).setTilePos(container).open(entityplayer);
 					} else {
 						onWrenchClicked(entityplayer);
 					}

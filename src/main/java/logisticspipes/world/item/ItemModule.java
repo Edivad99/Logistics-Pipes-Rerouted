@@ -37,7 +37,6 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.DummyLevelProvider;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
-import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemModule extends LogisticsItem {
@@ -78,10 +77,8 @@ public class ItemModule extends LogisticsItem {
         }
         module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().getSelectedSlot());
         ItemModuleInformationManager.readInformation(stack, module);
-        if (module instanceof IModuleMenuProvider && player instanceof ServerPlayer serverPlayer) {
+        if (player instanceof ServerPlayer serverPlayer) {
             IModuleMenuProvider.open(serverPlayer, module);
-        } else if (module instanceof LegacyModuleGui legacy) {
-            LegacyModuleGui.getInHandGuiProvider(legacy).open(player);
         }
     }
 

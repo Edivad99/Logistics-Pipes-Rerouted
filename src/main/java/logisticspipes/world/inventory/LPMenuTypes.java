@@ -27,6 +27,7 @@ import net.minecraft.world.level.storage.TagValueInput;
 
 import logisticspipes.interfaces.IFreqCardHolder;
 import logisticspipes.interfaces.IStringBasedModule;
+import logisticspipes.modules.ChassisModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleCrafter;
@@ -195,6 +196,17 @@ public class LPMenuTypes {
                 }
                 module.slotAssignmentPattern.replaceContent(buffer.readVarIntArray());
                 return new ActiveSupplierMenu(containerId, inventory, target, module, patternUpgrade);
+            }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<ChassisMenu>> CHASSIS =
+        deferredRegister.register("chassis", () -> new MenuType<>(
+            (IContainerFactory<ChassisMenu>) (containerId, inventory, buffer) -> {
+                final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+                final ChassisModule module = target.resolve(inventory.player, ChassisModule.class);
+                if (module == null) {
+                    throw new IllegalStateException("Cannot find a chassis at %s".formatted(target));
+                }
+                return new ChassisMenu(containerId, inventory, module.getParentChassis(), buffer.readBoolean());
             }, FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredHolder<MenuType<?>, MenuType<ItemSinkContainer>> ITEM_SINK =

@@ -124,6 +124,7 @@ import logisticspipes.network.to_server.debug.DebugTargetMessage;
 import logisticspipes.network.to_server.gui.DummySlotClickMessage;
 import logisticspipes.network.to_server.gui.SetGhostSlotMessage;
 import logisticspipes.network.to_server.module.OpenAttachedCrafterGuiMessage;
+import logisticspipes.network.to_server.module.OpenChassisGuiMessage;
 import logisticspipes.network.to_server.module.OpenChassisModuleGuiMessage;
 import logisticspipes.network.to_server.module.OpenSneakyDirectionGuiMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
@@ -359,6 +360,8 @@ public class PacketHandler {
                 OpenLogicControllerMessage.STREAM_CODEC, OpenLogicControllerMessage::handle);
         registrar.playToServer(OpenChassisModuleGuiMessage.TYPE,
                 OpenChassisModuleGuiMessage.STREAM_CODEC, OpenChassisModuleGuiMessage::handle);
+        registrar.playToServer(OpenChassisGuiMessage.TYPE,
+                OpenChassisGuiMessage.STREAM_CODEC, OpenChassisGuiMessage::handle);
         registrar.playToServer(OpenAttachedCrafterGuiMessage.TYPE,
                 OpenAttachedCrafterGuiMessage.STREAM_CODEC, OpenAttachedCrafterGuiMessage::handle);
         registrar.playToServer(OpenSneakyDirectionGuiMessage.TYPE,

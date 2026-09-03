@@ -5,13 +5,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import lombok.Getter;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.GuiOpenChassis;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_server.module.OpenChassisGuiMessage;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 
 public abstract class ModuleBaseGui extends LogisticsBaseGuiScreen {
@@ -39,7 +39,7 @@ public abstract class ModuleBaseGui extends LogisticsBaseGuiScreen {
 		}
 		if (keyCode == 1 || typedChar == 'e') {
 			if (module.getSlot() == ModulePositionType.SLOT) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(GuiOpenChassis.class).setBlockPos(module.getBlockPos()));
+				ClientPacketDistributor.sendToServer(new OpenChassisGuiMessage(module.getBlockPos()));
 			}
 			return super.charTyped(event);
 		}
