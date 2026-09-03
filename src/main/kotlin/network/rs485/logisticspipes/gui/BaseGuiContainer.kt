@@ -42,26 +42,28 @@ import network.rs485.logisticspipes.inventory.container.LPBaseContainer
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.LPGuiGraphics
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.Slot
 
 // TODO: Rendering deferred — full 1.20.1 rendering migration (PoseStack, AbstractContainerScreen API) pending.
 
-abstract class BaseGuiContainer(
-    private val baseContainer: LPBaseContainer<LogisticsModule>,
+abstract class BaseGuiContainer<C : LPBaseContainer<LogisticsModule>>(
+    private val baseContainer: C,
+    playerInventory: Inventory,
+    title: Component,
     val xOffset: Int = 0,
     val yOffset: Int = 0,
     private val widgetScreen: WidgetScreen,
-) : AbstractContainerScreen<LPBaseContainer<LogisticsModule>>(
+) : AbstractContainerScreen<C>(
     baseContainer,
-    Minecraft.getInstance().player!!.inventory,
-    Component.empty(),
+    playerInventory,
+    title,
 ), Drawable by widgetScreen {
 
     open val fuzzySelector: FuzzySelectionWidget? = null

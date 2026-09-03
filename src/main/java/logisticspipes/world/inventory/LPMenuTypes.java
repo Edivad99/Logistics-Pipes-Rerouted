@@ -5,6 +5,7 @@ import java.util.BitSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
@@ -30,9 +31,11 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.modules.ModuleFluidSupplier;
+import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
 import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
 import logisticspipes.modules.ModuleOreDictItemSink;
+import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
@@ -43,6 +46,8 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 
+import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
+import network.rs485.logisticspipes.inventory.container.ProviderContainer;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 import logisticspipes.modules.SneakyDirection;
 import logisticspipes.modules.SimpleFilter;
@@ -192,6 +197,35 @@ public class LPMenuTypes {
                 return new ActiveSupplierMenu(containerId, inventory, target, module, patternUpgrade);
             }, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<ItemSinkContainer>> ITEM_SINK =
+        deferredRegister.register("item_sink", () -> new MenuType<>(
+            (IContainerFactory<ItemSinkContainer>) (containerId, inventory, buffer) -> {
+                final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+                final ModuleItemSink module = target.resolve(inventory.player, ModuleItemSink.class);
+                if (module == null) {
+                    throw new IllegalStateException("Cannot find item sink at %s".formatted(target));
+                }
+                // Whether the pipe carries a fuzzy upgrade decides which kind of filter slot the
+                // menu builds, so it has to be known before the slots are added.
+                final boolean fuzzy = buffer.readBoolean();
+                readProperties(module, inventory, buffer);
+                return new ItemSinkContainer(LPMenuTypes.ITEM_SINK.get(), containerId, inventory, module, target,
+                    fuzzy, target.heldStack(inventory));
+            }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<ProviderContainer>> PROVIDER =
+        deferredRegister.register("provider", () -> new MenuType<>(
+            (IContainerFactory<ProviderContainer>) (containerId, inventory, buffer) -> {
+                final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+                final ModuleProvider module = target.resolve(inventory.player, ModuleProvider.class);
+                if (module == null) {
+                    throw new IllegalStateException("Cannot find provider module at %s".formatted(target));
+                }
+                readProperties(module, inventory, buffer);
+                return new ProviderContainer(LPMenuTypes.PROVIDER.get(), containerId, inventory, module, target,
+                    target.heldStack(inventory));
+            }, FeatureFlags.DEFAULT_FLAGS));
+
     public static final DeferredHolder<MenuType<?>, MenuType<ModuleAnalysisMenu>> ORE_DICT_ITEM_SINK =
         deferredRegister.register("ore_dict_item_sink",
             () -> analysisMenu(() -> LPMenuTypes.ORE_DICT_ITEM_SINK.get(), ModuleOreDictItemSink.class));
@@ -236,8 +270,16 @@ public class LPMenuTypes {
             () -> blockEntityMenu(LogisticsProgramCompilerBlockEntity.class, ProgramCompilerMenu::new));
 
     /**
-     * The name-list menu, which also carries the module's settings: the client's copy of a module
-     * in a pipe is not the one being configured, and the list is what the screen shows.
+     * The module's own settings, as the server has them: the client's copy of a module in a pipe
+     * is not the one being configured, and its properties are what the screen draws.
+     */
+    private static void readProperties(LogisticsModule module, Inventory inventory, RegistryFriendlyByteBuf buffer) {
+        module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
+            inventory.player.level().registryAccess(), Objects.requireNonNull(buffer.readNbt())));
+    }
+
+    /**
+     * The name-list menu, shared by every module that filters on a list of names.
      */
     private static <M> MenuType<ModuleAnalysisMenu> analysisMenu(
         Supplier<MenuType<ModuleAnalysisMenu>> self, Class<M> moduleType) {
@@ -248,8 +290,7 @@ public class LPMenuTypes {
                 throw new IllegalStateException(
                     "Cannot find module of type %s at %s".formatted(moduleType.getName(), target));
             }
-            logisticsModule.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
-                inventory.player.level().registryAccess(), Objects.requireNonNull(buffer.readNbt())));
+            readProperties(logisticsModule, inventory, buffer);
             return new ModuleAnalysisMenu(self.get(), containerId, inventory, target, logisticsModule);
         };
         return new MenuType<>(containerFactory, FeatureFlags.DEFAULT_FLAGS);

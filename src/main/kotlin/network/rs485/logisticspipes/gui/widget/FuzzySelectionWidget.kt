@@ -99,7 +99,7 @@ class FuzzySelectionWidget(
             if ((isMouseHovering(
                     mouseX,
                     mouseY,
-                ) || (Minecraft.getInstance().screen as? BaseGuiContainer)?.currentHoveredSlot == currentSlot) && currentSlot != null
+                ) || (Minecraft.getInstance().screen as? BaseGuiContainer<*>)?.currentHoveredSlot == currentSlot) && currentSlot != null
             ) {
                 currentSlot?.let { slot ->
                     GuiDrawer.drawGuiBackground(guiGraphics, relativeBody)

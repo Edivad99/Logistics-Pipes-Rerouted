@@ -8,10 +8,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.TagValueOutput;
 
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -23,15 +28,11 @@ import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IModuleInventoryReceive;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.guis.module.inhand.ItemSinkInHand;
-import logisticspipes.network.guis.module.inpipe.ItemSinkSlot;
 import logisticspipes.network.to_client.module.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
@@ -46,9 +47,10 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.inventory.LPMenuTypes;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.module.LegacyModuleGui;
+import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
 import logisticspipes.modules.SimpleFilter;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.BooleanProperty;
@@ -61,7 +63,7 @@ import network.rs485.logisticspipes.util.FuzzyUtil;
 @CCType(name = "ItemSink Module")
 public class ModuleItemSink extends LogisticsModule
 	implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver,
-	ISimpleInventoryEventHandler, IModuleInventoryReceive, LegacyModuleGui {
+	ISimpleInventoryEventHandler, IModuleInventoryReceive, IModuleMenuProvider {
 
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
 		new ItemIdentifierInventory(9, "Requested items", 1), "filterInv");
@@ -306,14 +308,28 @@ public class ModuleItemSink extends LogisticsModule
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		return NewGuiHandler.getGui(ItemSinkSlot.class).setDefaultRoute(defaultRoute.getValue())
-			.setFuzzyFlags(fuzzyFlags.copyValue()).setHasFuzzyUpgrade(getUpgradeManager().isFuzzyUpgrade());
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new ItemSinkContainer(LPMenuTypes.ITEM_SINK.get(), containerId, inventory, this, target,
+			hasFuzzyUpgradeForScreen(), target.heldStack(inventory));
 	}
 
 	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return NewGuiHandler.getGui(ItemSinkInHand.class);
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		buffer.writeBoolean(hasFuzzyUpgradeForScreen());
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(
+			ProblemReporter.DISCARDING, buffer.registryAccess());
+		serialize(moduleOutput);
+		buffer.writeNbt(moduleOutput.buildResult());
+	}
+
+	/**
+	 * Whether the filter slots take fuzzy flags.
+	 *
+	 * <p>Upgrades belong to the pipe the module sits in; one held in hand has no pipe, so asking
+	 * for its upgrade manager would fail rather than answer no.
+	 */
+	private boolean hasFuzzyUpgradeForScreen() {
+		return getSlot() != ModulePositionType.IN_HAND && getUpgradeManager().isFuzzyUpgrade();
 	}
 
 	public IBitSet getSlotFuzzyFlags(int slotId) {

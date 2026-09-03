@@ -44,7 +44,7 @@ object WidgetScreenHudSuppressor {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderOverlay(event: RenderGuiLayerEvent.Pre) {
-        if (Minecraft.getInstance().screen !is BaseGuiContainer) return
+        if (Minecraft.getInstance().screen !is BaseGuiContainer<*>) return
         if (event.layer.toString() in SUPPRESSED) {
             event.isCanceled = true
         }

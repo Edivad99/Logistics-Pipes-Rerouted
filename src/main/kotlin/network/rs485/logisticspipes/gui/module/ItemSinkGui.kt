@@ -47,6 +47,7 @@ import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import net.neoforged.neoforge.client.network.ClientPacketDistributor
 
+import logisticspipes.modules.LogisticsModule.ModulePositionType
 import logisticspipes.modules.ModuleItemSink
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_server.module.ItemSinkImportRequestMessage
@@ -54,7 +55,8 @@ import logisticspipes.network.to_server.module.SetModulePropertiesMessage
 import logisticspipes.utils.Color
 import logisticspipes.utils.item.ItemIdentifier
 import net.minecraft.client.Minecraft
-import net.minecraft.world.Container
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.item.ItemStack
 import java.util.concurrent.atomic.AtomicReference
 
@@ -117,39 +119,21 @@ class ItemSinkWidgetScreen(private val guiReference: AtomicReference<ItemSinkGui
 }
 
 class ItemSinkGui private constructor(
-    internal val itemSinkModule: ModuleItemSink,
     internal val itemSinkContainer: ItemSinkContainer,
-    internal val propertyLayer: PropertyLayer,
-    internal val inHand: Boolean,
-    guiReference: AtomicReference<ItemSinkGui> = AtomicReference(),
-) : BaseGuiContainer(itemSinkContainer, widgetScreen = ItemSinkWidgetScreen(guiReference)) {
+    playerInventory: Inventory,
+    title: Component,
+    guiReference: AtomicReference<ItemSinkGui>,
+) : BaseGuiContainer<ItemSinkContainer>(itemSinkContainer, playerInventory, title, widgetScreen = ItemSinkWidgetScreen(guiReference)) {
 
-    companion object {
-        @JvmStatic
-        fun create(
-            playerInventory: Container,
-            itemSinkModule: ModuleItemSink,
-            lockedStack: ItemStack,
-            isFuzzy: Boolean,
-            inHand: Boolean,
-        ): ItemSinkGui {
-            val propertyLayer = PropertyLayer(itemSinkModule.properties)
-            val filterInventoryOverlay = propertyLayer.overlay(itemSinkModule.filterInventory)
-            return ItemSinkGui(
-                itemSinkModule = itemSinkModule,
-                itemSinkContainer = ItemSinkContainer(
-                    playerInventory = playerInventory,
-                    filterInventoryOverlay = filterInventoryOverlay,
-                    itemSinkModule = itemSinkModule,
-                    propertyLayer = propertyLayer,
-                    isFuzzy = isFuzzy,
-                    moduleInHand = lockedStack,
-                ),
-                propertyLayer = propertyLayer,
-                inHand = inHand,
-            )
-        }
-    }
+    constructor(menu: ItemSinkContainer, playerInventory: Inventory, title: Component) :
+        this(menu, playerInventory, title, AtomicReference())
+
+    internal val itemSinkModule: ModuleItemSink = itemSinkContainer.module
+    internal val propertyLayer: PropertyLayer = itemSinkContainer.propertyLayer
+
+    /** The import button only makes sense next to a pipe, which a module in hand has none of. */
+    internal val inHand: Boolean =
+        itemSinkContainer.target.slot().orElse(null) == ModulePositionType.IN_HAND
 
     internal val prefix: String = "gui.itemsink."
 

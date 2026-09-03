@@ -75,6 +75,11 @@ import logisticspipes.world.inventory.FluidSupplierMk2Menu;
 import logisticspipes.world.inventory.FluidTerminusMenu;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
+
+import network.rs485.logisticspipes.gui.module.ItemSinkGui;
+import network.rs485.logisticspipes.gui.module.ProviderGui;
+import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
+import network.rs485.logisticspipes.inventory.container.ProviderContainer;
 import logisticspipes.world.inventory.SatelliteMenu;
 import logisticspipes.world.inventory.PowerJunctionMenu;
 import logisticspipes.world.inventory.PowerProviderMenu;
@@ -190,6 +195,10 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<SneakyDirectionMenu, AbstractContainerScreen<SneakyDirectionMenu>>) GuiSneakyConfigurator::new);
         event.register(LPMenuTypes.ACTIVE_SUPPLIER.get(),
             (MenuScreens.ScreenConstructor<ActiveSupplierMenu, AbstractContainerScreen<ActiveSupplierMenu>>) GuiSupplierPipe::new);
+        event.register(LPMenuTypes.ITEM_SINK.get(),
+            (MenuScreens.ScreenConstructor<ItemSinkContainer, AbstractContainerScreen<ItemSinkContainer>>) ItemSinkGui::new);
+        event.register(LPMenuTypes.PROVIDER.get(),
+            (MenuScreens.ScreenConstructor<ProviderContainer, AbstractContainerScreen<ProviderContainer>>) ProviderGui::new);
         event.register(LPMenuTypes.ORE_DICT_ITEM_SINK.get(),
             (MenuScreens.ScreenConstructor<ModuleAnalysisMenu, AbstractContainerScreen<ModuleAnalysisMenu>>) GuiOreDictItemSink::new);
         event.register(LPMenuTypes.STRING_BASED_ITEM_SINK.get(),

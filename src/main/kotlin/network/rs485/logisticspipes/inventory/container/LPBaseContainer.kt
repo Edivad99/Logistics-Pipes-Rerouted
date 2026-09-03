@@ -42,18 +42,28 @@ import network.rs485.logisticspipes.property.IBitSet
 import network.rs485.logisticspipes.property.InventoryProperty
 import network.rs485.logisticspipes.util.FuzzyFlag
 import logisticspipes.LogisticsPipes
+import logisticspipes.logisticspipes.ItemModuleInformationManager
 import logisticspipes.modules.LogisticsModule
+import logisticspipes.modules.LogisticsModule.ModulePositionType
+import logisticspipes.network.ModuleTarget
 import logisticspipes.utils.gui.ModuleSlot
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.ContainerInput
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 import java.util.*
 import kotlin.math.min
 
-abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : AbstractContainerMenu(null, 0) {
+abstract class LPBaseContainer<out M : LogisticsModule>(
+    menuType: MenuType<*>,
+    containerId: Int,
+    val module: M,
+    val target: ModuleTarget,
+) : AbstractContainerMenu(menuType, containerId) {
 
     val slotSize = 18
 
@@ -346,6 +356,22 @@ abstract class LPBaseContainer<out M : LogisticsModule>(val module: M) : Abstrac
     fun setAll(slotStacks: MutableList<ItemStack>) {
         for (slotIdx in slotStacks.indices) {
             putStackInSlot(slotIdx, slotStacks[slotIdx])
+        }
+    }
+
+    /**
+     * A module held in hand has nowhere to live but its item, so what was configured is written
+     * back when the screen closes.
+     */
+    override fun removed(player: Player) {
+        super.removed(player)
+        if (player is ServerPlayer && target.slot().orElse(null) == ModulePositionType.IN_HAND) {
+            ItemModuleInformationManager.saveInformation(
+                player.inventory.getItem(target.positionInt()),
+                module,
+                player.registryAccess(),
+            )
+            player.inventory.setChanged()
         }
     }
 }

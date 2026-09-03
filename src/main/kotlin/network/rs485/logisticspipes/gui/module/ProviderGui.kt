@@ -52,8 +52,8 @@ import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage
 import logisticspipes.utils.Color
 import net.minecraft.client.Minecraft
-import net.minecraft.world.Container
-import net.minecraft.world.item.ItemStack
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
 import java.util.concurrent.atomic.AtomicReference
 
 
@@ -120,29 +120,17 @@ class ProviderWidgetScreen(private val guiReference: AtomicReference<ProviderGui
 
 // TODO create different buttons.
 class ProviderGui private constructor(
-    internal val providerModule: ModuleProvider,
     internal val providerContainer: ProviderContainer,
-    internal val propertyLayer: PropertyLayer,
-    guiReference: AtomicReference<ProviderGui> = AtomicReference(),
-) : BaseGuiContainer(providerContainer, widgetScreen = ProviderWidgetScreen(guiReference)) {
+    playerInventory: Inventory,
+    title: Component,
+    guiReference: AtomicReference<ProviderGui>,
+) : BaseGuiContainer<ProviderContainer>(providerContainer, playerInventory, title, widgetScreen = ProviderWidgetScreen(guiReference)) {
 
-    companion object {
-        @JvmStatic
-        fun create(playerInventory: Container, providerModule: ModuleProvider, lockedStack: ItemStack): ProviderGui {
-            val propertyLayer = PropertyLayer(providerModule.propertyList)
-            val filterInventoryOverlay = propertyLayer.overlay(providerModule.filterInventory)
-            return ProviderGui(
-                providerModule = providerModule,
-                providerContainer = ProviderContainer(
-                    providerModule = providerModule,
-                    playerInventoryIn = playerInventory,
-                    filterInventoryOverlay = filterInventoryOverlay,
-                    moduleInHand = lockedStack,
-                ),
-                propertyLayer = propertyLayer,
-            )
-        }
-    }
+    constructor(menu: ProviderContainer, playerInventory: Inventory, title: Component) :
+        this(menu, playerInventory, title, AtomicReference())
+
+    internal val providerModule: ModuleProvider = providerContainer.module
+    internal val propertyLayer: PropertyLayer = providerContainer.propertyLayer
 
     internal val prefix: String = "gui.providerpipe."
 

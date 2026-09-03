@@ -40,25 +40,32 @@ package network.rs485.logisticspipes.inventory.container
 import network.rs485.logisticspipes.gui.widget.GhostItemSlot
 import network.rs485.logisticspipes.gui.widget.GhostSlot
 import network.rs485.logisticspipes.property.InventoryProperty
-import network.rs485.logisticspipes.property.layer.PropertyOverlay
+import network.rs485.logisticspipes.property.layer.PropertyLayer
 import network.rs485.logisticspipes.property.layer.PropertyOverlayInventoryAdapter
 import logisticspipes.modules.ModuleProvider
-import logisticspipes.utils.item.ItemIdentifierInventory
+import logisticspipes.network.ModuleTarget
 import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 
 class ProviderContainer(
+    menuType: MenuType<*>,
+    containerId: Int,
+    playerInventoryIn: Inventory,
     providerModule: ModuleProvider,
-    playerInventoryIn: Container,
-    filterInventoryOverlay: PropertyOverlay<ItemIdentifierInventory, out InventoryProperty<ItemIdentifierInventory>>,
+    target: ModuleTarget,
     moduleInHand: ItemStack,
-) : LPBaseContainer<ModuleProvider>(providerModule) {
+) : LPBaseContainer<ModuleProvider>(menuType, containerId, providerModule, target) {
+
+    /** The screen's edit buffer; see [ItemSinkContainer.propertyLayer]. */
+    val propertyLayer = PropertyLayer(providerModule.propertyList)
 
     val playerSlots = addPlayerSlotsToContainer(playerInventoryIn, 0, 0, moduleInHand)
 
     val filterSlots = addDummySlotsToContainer(
-        overlayInventory = PropertyOverlayInventoryAdapter(filterInventoryOverlay),
+        overlayInventory = PropertyOverlayInventoryAdapter(propertyLayer.overlay(providerModule.filterInventory)),
         baseProperty = module.filterInventory,
         startX = 0,
         startY = 0,
