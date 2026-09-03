@@ -508,6 +508,16 @@ public abstract class LogisticsBaseGuiScreen extends AbstractContainerScreen imp
                 FuzzySlotFlagsMessage.of(fuzzySlot.getSlotId(), set.copyValue()));
             return true;
         }
+        // A click beside the panel opens or closes the flyout panel on that side. Restored from
+        // LP1: the port left the controllers wired for drawing but never handed them a click, so
+        // an extension could not be opened at all and its slots stayed out of reach.
+        if (par3 == 0 && !mouseCanPressButton((int) par1, (int) par2) && !isOverSlot((int) par1, (int) par2)) {
+            if (par1 < leftPos) {
+                extensionControllerLeft.mouseClicked(par1, par2, par3);
+            } else if (par1 > leftPos + panelWidth) {
+                extensionControllerRight.mouseClicked(par1, par2, par3);
+            }
+        }
         // Button presses are handled by AbstractContainerScreen/Screen's own widget dispatch
         // (addRenderableWidget wires SmallGuiButton/GuiCheckBox press listeners in this class).
         return super.mouseClicked(event, doubleClick);
