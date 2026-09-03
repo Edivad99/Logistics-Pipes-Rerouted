@@ -100,7 +100,7 @@ public class HudChassisPipe extends BasicHUDGui {
 	public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
 		LPGuiGraphics.drawGuiBackGround(context, -50, -50, 50, 50, 0, false);
 		super.renderHeadUpDisplay(context, distance, day, shifted, minecraft, config);
-		int textColor = day ? 0xff404040 : 0xff7f7f7f;
+		int textColor = day ? 0xFF404040 : 0xff7f7f7f;
 		if (selected != -1) {
 			LogisticsModule selectedmodule = pipe.getSubModule(selected);
 			if (selectedmodule == null) {

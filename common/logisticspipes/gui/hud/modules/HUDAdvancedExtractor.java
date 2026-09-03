@@ -36,12 +36,12 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 		if (selected == 0) {
 			Direction d = module.getSneakyDirection();
 			String label = "Sneaky: " + (d == null ? "Default" : d.getName());
-			context.drawString(mc.font, label, -mc.font.width(label) / 2, -30, 0xff404040, false);
+			context.drawString(mc.font, label, -mc.font.width(label) / 2, -30, 0xFF404040, false);
 		} else {
 			ItemStackRenderer.renderItemIdentifierStackListIntoHud(context,
 					ItemIdentifierStack.getListFromInventory(module.getFilterInventory()), null, 0, HudChassisPipe.MODULE_CONTENT_LEFT, -32, 3, 9, 18,
 					18, 100.0F, DisplayAmount.NEVER, false, shifted);
-			context.drawString(mc.font, "Filter", -mc.font.width("Filter") / 2, 25, 0xff404040, false);
+			context.drawString(mc.font, "Filter", -mc.font.width("Filter") / 2, 25, 0xFF404040, false);
 		}
 	}
 

@@ -22,7 +22,7 @@ public class HUDInvSysConnector extends BasicHUDGui {
 	public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted, Minecraft minecraft, IHUDConfig config) {
         LPGuiGraphics.drawGuiBackGround(context, -50, -50, 50, 50, 0, false);
 		super.renderHeadUpDisplay(context, distance, day, shifted, minecraft, config);
-		int textColor = day ? 0xff404040 : 0xff7f7f7f;
+		int textColor = day ? 0xFF404040 : 0xff7f7f7f;
 		context.drawString(minecraft.font, "Expected:", -28, -25, textColor, false);
 		ItemStackRenderer.renderItemIdentifierStackListIntoHud(context, pipe.displayList, null, 0, -37, -18, 3, 9, 18, 18, 100.0F, DisplayAmount.ALWAYS, false, shifted);
 	}
