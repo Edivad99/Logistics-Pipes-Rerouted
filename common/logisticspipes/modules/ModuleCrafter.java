@@ -17,7 +17,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
@@ -30,6 +32,7 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -48,12 +51,7 @@ import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.guis.module.inhand.CraftingModuleInHand;
-import logisticspipes.network.guis.module.inpipe.CraftingModuleSlot;
 import logisticspipes.network.to_server.module.OpenAttachedCrafterGuiMessage;
 import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.crafting.FluidCraftingAmountMessage;
@@ -100,13 +98,13 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.inventory.CraftingModuleMenu;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import network.rs485.logisticspipes.connection.AdjacentUtilKt;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.module.LegacyModuleGui;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.IBitSet;
@@ -119,7 +117,7 @@ import network.rs485.logisticspipes.property.UUIDProperty;
 import network.rs485.logisticspipes.property.UUIDPropertyKt;
 
 public class ModuleCrafter extends LogisticsModule
-		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IScreenOpenController, LegacyModuleGui {
+		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IScreenOpenController, IModuleMenuProvider {
 
 	public final ItemIdentifierInventoryProperty dummyInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(11, "Requested items", 127), "dummyInv");
@@ -672,21 +670,33 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		return NewGuiHandler.getGui(CraftingModuleSlot.class)
-				.setAdvancedSat(getUpgradeManager().isAdvancedSatelliteCrafter())
-				.setLiquidCrafter(getUpgradeManager().getFluidCrafter())
-				.setAmount(liquidAmounts.getArray())
-				.setHasByproductExtractor(getUpgradeManager().hasByproductExtractor())
-				.setFuzzy(getUpgradeManager().isFuzzyUpgrade())
-				.setCleanupSize(getUpgradeManager().getCrafterCleanup())
-				.setCleanupExclude(cleanupModeIsExclude.getValue());
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		if (inventory.player instanceof ServerPlayer serverPlayer) {
+			// What the screen shows besides the slots: satellites, priority, the fluid amounts.
+			PacketDistributor.sendToPlayer(serverPlayer, getUpdateMessage());
+		}
+		return new CraftingModuleMenu(containerId, inventory, target, this, screenLayout());
 	}
 
 	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return NewGuiHandler.getGui(CraftingModuleInHand.class).setAmount(liquidAmounts.getArray())
-				.setCleanupExclude(cleanupModeIsExclude.getValue());
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		CraftingModuleMenu.Layout.STREAM_CODEC.encode(buffer, screenLayout());
+	}
+
+	/**
+	 * What the module's upgrades make of its screen. A module held in hand has no upgrades, so it
+	 * gets the plain grid.
+	 */
+	private CraftingModuleMenu.Layout screenLayout() {
+		final boolean inWorld = getSlot() != ModulePositionType.IN_HAND;
+		return new CraftingModuleMenu.Layout(
+				inWorld && getUpgradeManager().isAdvancedSatelliteCrafter(),
+				inWorld ? getUpgradeManager().getFluidCrafter() : 0,
+				inWorld && getUpgradeManager().hasByproductExtractor(),
+				inWorld && getUpgradeManager().isFuzzyUpgrade(),
+				inWorld ? getUpgradeManager().getCrafterCleanup() : 0,
+				cleanupModeIsExclude.getValue(),
+				liquidAmounts.getArray());
 	}
 
 	public void importFromCraftingTable(@Nullable Player player) {

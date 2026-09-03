@@ -28,6 +28,7 @@ import logisticspipes.interfaces.IFreqCardHolder;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleActiveSupplier;
+import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.modules.ModuleFluidSupplier;
 import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
 import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
@@ -139,6 +140,20 @@ public class LPMenuTypes {
                 // Which way the filter reads is the server's copy of the module, not the client's.
                 module.getItemsIncluded().setValue(buffer.readBoolean());
                 return new AdvancedExtractorMenu(containerId, inventory, target, module);
+            }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<CraftingModuleMenu>> CRAFTING_MODULE =
+        deferredRegister.register("crafting_module", () -> new MenuType<>(
+            (IContainerFactory<CraftingModuleMenu>) (containerId, inventory, buffer) -> {
+                final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+                final ModuleCrafter module = target.resolve(inventory.player, ModuleCrafter.class);
+                if (module == null) {
+                    throw new IllegalStateException("Cannot find crafting module at %s".formatted(target));
+                }
+                final CraftingModuleMenu.Layout layout = CraftingModuleMenu.Layout.STREAM_CODEC.decode(buffer);
+                module.cleanupModeIsExclude.setValue(layout.cleanupExcludes());
+                module.liquidAmounts.replaceContent(layout.fluidAmounts());
+                return new CraftingModuleMenu(containerId, inventory, target, module, layout);
             }, FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredHolder<MenuType<?>, MenuType<SneakyDirectionMenu>> SNEAKY_DIRECTION =

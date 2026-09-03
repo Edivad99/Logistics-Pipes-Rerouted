@@ -7,12 +7,13 @@
 
 package logisticspipes.gui;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -27,10 +28,10 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.crafting.CrafterCleanupImportMessage;
 import logisticspipes.network.to_server.crafting.SetCraftingSatelliteMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extension.GuiExtension;
+import logisticspipes.world.inventory.CraftingModuleMenu;
 import network.rs485.logisticspipes.gui.widget.Label;
 import network.rs485.logisticspipes.gui.widget.VerticalLabel;
 import network.rs485.logisticspipes.property.BooleanProperty;
@@ -68,17 +69,16 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 	private final Label[] satellitePipeLabels;
 	private Label satellitePipeLabel;
 
-	public GuiCraftingPipe(Player player, ModuleCrafter module, boolean isAdvancedSat,
-			int liquidCrafter, int[] amount, boolean hasByproductExtractor, boolean isFuzzy, int cleanupSize,
-			boolean cleanupExclude) {
-		super(buildDummy(player, module, isAdvancedSat, liquidCrafter, amount, hasByproductExtractor, isFuzzy, cleanupSize, cleanupExclude), module);
-		craftingModule = module;
-		this.player = player;
-		this.isAdvancedSat = isAdvancedSat;
-		this.liquidCrafter = liquidCrafter;
-		this.hasByproductExtractor = hasByproductExtractor;
-		this.cleanupSize = cleanupSize;
-		craftingModule.cleanupModeIsExclude.setValue(cleanupExclude);
+	public GuiCraftingPipe(CraftingModuleMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, menu.getModule(), 177, 187);
+		final CraftingModuleMenu.Layout layout = menu.getLayout();
+		craftingModule = menu.getCrafter();
+		this.player = inventory.player;
+		this.isAdvancedSat = layout.advancedSatellite();
+		this.liquidCrafter = layout.fluidSlots();
+		this.hasByproductExtractor = layout.byproductExtractor();
+		this.cleanupSize = layout.cleanupSize();
+		
 
 		propertyLayer = new PropertyLayer(craftingModule.getProperties());
 		cleanupModeIsExcludeOverlay = propertyLayer.overlay(craftingModule.cleanupModeIsExclude);
@@ -98,7 +98,7 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 			panelHeight = 187 + 30;
 		}
 
-		craftingModule.liquidAmounts.replaceContent(amount);
+		
 		normalButtonArray = new AbstractButton[7];
 		advancedSatButtonArray = new AbstractButton[9][2];
 		for (int i = 0; i < 9; i++) {
@@ -125,54 +125,6 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 			cleanupSlotIDs[i] = extensionControllerLeft.registerControlledSlot(this.menu.slots.get(cleanupBase + i));
 		}
 	}
-	private static DummyContainer buildDummy(Player player, ModuleCrafter module, boolean isAdvancedSat,
-			int liquidCrafter, int[] amount, boolean hasByproductExtractor, boolean isFuzzy, int cleanupSize,
-			boolean cleanupExclude) {
-		// Use module.dummyInventory directly; propertyLayer is not yet available during static construction
-		DummyContainer dummy = new DummyContainer(player.getInventory(), module.dummyInventory);
-		int computedImageHeight = isAdvancedSat ? 217 : 187;
-		dummy.addNormalSlotsForPlayerInventory(9, computedImageHeight - 81);
-
-		// Input slots
-		for (int l = 0; l < 9; l++) {
-			if (isFuzzy) {
-				dummy.addFuzzyDummySlot(l, 8 + l * 18, 18, module.inputFuzzy(l));
-			} else {
-				dummy.addDummySlot(l, 8 + l * 18, 18);
-			}
-		}
-
-		// Output slot
-		int yPosOutput = 55;
-		if (isAdvancedSat) yPosOutput = 105;
-		if (isFuzzy) {
-			dummy.addFuzzyDummySlot(9, 85, yPosOutput, module.outputFuzzy());
-		} else {
-			dummy.addDummySlot(9, 85, yPosOutput);
-		}
-
-		// Fluid slots (extensionControllerLeft registration happens in constructor after super())
-		for (int i = 0; i < liquidCrafter; i++) {
-			int liquidLeft;
-			if (isAdvancedSat) {
-				liquidLeft = -40;
-			} else {
-				liquidLeft = -(liquidCrafter * 40) + (i * 40);
-			}
-			dummy.addFluidSlot(i, module.liquidInventory, liquidLeft + 11, 24);
-		}
-
-		if (hasByproductExtractor) {
-			dummy.addDummySlot(10, -26, 29);
-		}
-
-		for (int y = 0; y < cleanupSize; y++) {
-			for (int x = 0; x < 3; x++) {
-				dummy.addDummySlot(y * 3 + x, module.cleanupInventory, x * 18 - 57, y * 18 + 13);
-			}
-		}
-		return dummy;
-	}
 
 
 	@Override
@@ -193,11 +145,11 @@ public class GuiCraftingPipe extends ModuleBaseGui {
 			if (liquidCrafter != 0) {
 				extension.registerButton(extensionControllerLeft.registerControlledButton(addRenderableWidget(normalButtonArray[5] = new SmallGuiButton(22, leftPos - (liquidCrafter * 40) / 2 - 18, topPos + 158, 37, 10, TextUtil.translate(PREFIX + "Select")))));
 			}
-			satellitePipeLabel = new Label(craftingModule.clientSideSatelliteNames.satelliteName(), 115, 43, 55, 0x404040, 0xff8b8b8b);
+			satellitePipeLabel = new Label(craftingModule.clientSideSatelliteNames.satelliteName(), 115, 43, 55, 0xFF404040, 0xff8b8b8b);
 		} else {
 			for (int i = 0; i < 9; i++) {
 				addRenderableWidget(advancedSatButtonArray[i][0] = new SmallGuiButton(30 + i, (width - panelWidth) / 2 + 9 + 18 * i, (height - panelHeight) / 2 + 75, 17, 10, TextUtil.translate(PREFIX + "Sel")));
-				satellitePipeLabels[i] = new VerticalLabel(craftingModule.clientSideSatelliteNames.advancedSatelliteNames().get(i), 11 + (i * 18), 37, 36, 0x404040, 0xffc6c6c6);
+				satellitePipeLabels[i] = new VerticalLabel(craftingModule.clientSideSatelliteNames.advancedSatelliteNames().get(i), 11 + (i * 18), 37, 36, 0xFF404040, 0xffc6c6c6);
 			}
 			addRenderableWidget(normalButtonArray[1] = new SmallGuiButton(3, (width - panelWidth) / 2 + 39, (height - panelHeight) / 2 + 100, 37, 10, TextUtil.translate(GuiCraftingPipe.PREFIX + "Import")));
 			addRenderableWidget(normalButtonArray[2] = new SmallGuiButton(4, (width - panelWidth) / 2 + 6, (height - panelHeight) / 2 + 100, 28, 10, TextUtil

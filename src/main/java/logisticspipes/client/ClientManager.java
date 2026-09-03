@@ -38,6 +38,7 @@ import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.ClientPacketBufferHandlerThread;
 import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.gui.GuiFirewall;
+import logisticspipes.gui.GuiCraftingPipe;
 import logisticspipes.gui.GuiFreqCardContent;
 import logisticspipes.gui.GuiSupplierPipe;
 import logisticspipes.gui.modules.GuiAdvancedExtractor;
@@ -62,6 +63,7 @@ import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.inventory.FirewallMenu;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
 import logisticspipes.world.inventory.AdvancedExtractorMenu;
+import logisticspipes.world.inventory.CraftingModuleMenu;
 import logisticspipes.world.inventory.FreqCardMenu;
 import logisticspipes.world.inventory.SimpleFilterMenu;
 import logisticspipes.world.inventory.SneakyDirectionMenu;
@@ -182,6 +184,8 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<SimpleFilterMenu, AbstractContainerScreen<SimpleFilterMenu>>) GuiSimpleFilter::new);
         event.register(LPMenuTypes.FLUID_SUPPLIER_MODULE.get(),
             (MenuScreens.ScreenConstructor<SimpleFilterMenu, AbstractContainerScreen<SimpleFilterMenu>>) GuiFluidSupplier::new);
+        event.register(LPMenuTypes.CRAFTING_MODULE.get(),
+            (MenuScreens.ScreenConstructor<CraftingModuleMenu, AbstractContainerScreen<CraftingModuleMenu>>) GuiCraftingPipe::new);
         event.register(LPMenuTypes.SNEAKY_DIRECTION.get(),
             (MenuScreens.ScreenConstructor<SneakyDirectionMenu, AbstractContainerScreen<SneakyDirectionMenu>>) GuiSneakyConfigurator::new);
         event.register(LPMenuTypes.ACTIVE_SUPPLIER.get(),
