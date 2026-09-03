@@ -26,6 +26,9 @@ import net.minecraft.world.level.storage.TagValueInput;
 import logisticspipes.interfaces.IFreqCardHolder;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.modules.LogisticsModule;
+import logisticspipes.modules.ModuleActiveSupplier;
+import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
+import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.interfaces.SatellitePipe;
@@ -133,6 +136,28 @@ public class LPMenuTypes {
                 // Which way the filter reads is the server's copy of the module, not the client's.
                 module.getItemsIncluded().setValue(buffer.readBoolean());
                 return new AdvancedExtractorMenu(containerId, inventory, target, module);
+            }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<ActiveSupplierMenu>> ACTIVE_SUPPLIER =
+        deferredRegister.register("active_supplier", () -> new MenuType<>(
+            (IContainerFactory<ActiveSupplierMenu>) (containerId, inventory, buffer) -> {
+                final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+                final ModuleActiveSupplier module = target.resolve(inventory.player, ModuleActiveSupplier.class);
+                if (module == null) {
+                    throw new IllegalStateException("Cannot find active supplier at %s".formatted(target));
+                }
+                // Everything the screen shows besides the filter: which mode it is in, whether it
+                // limits, and where each filter slot points.
+                final boolean patternUpgrade = buffer.readBoolean();
+                module.isLimited.setValue(buffer.readBoolean());
+                final int mode = buffer.readVarInt();
+                if (patternUpgrade) {
+                    module.patternMode.setValue(PatternMode.values()[mode]);
+                } else {
+                    module.requestMode.setValue(SupplyMode.values()[mode]);
+                }
+                module.slotAssignmentPattern.replaceContent(buffer.readVarIntArray());
+                return new ActiveSupplierMenu(containerId, inventory, target, module, patternUpgrade);
             }, FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredHolder<MenuType<?>, MenuType<ModuleAnalysisMenu>> ORE_DICT_ITEM_SINK =

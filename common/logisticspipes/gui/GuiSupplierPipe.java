@@ -14,7 +14,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -27,10 +27,10 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.network.to_server.crafting.SlotFinderOpenGuiMessage;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
+import logisticspipes.world.inventory.ActiveSupplierMenu;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.EnumProperty;
 import network.rs485.logisticspipes.property.IntListProperty;
@@ -53,42 +53,16 @@ public class GuiSupplierPipe extends LogisticsBaseGuiScreen {
 	private SmallGuiButton modeBtn;
 	private SmallGuiButton limBtn;
 
-	public GuiSupplierPipe(Container playerInventory, Container dummyInventory, ModuleActiveSupplier module,
-			Boolean flag, int[] slots) {
-		super(buildDummy(playerInventory, dummyInventory, module, flag, slots));
-		hasPatternUpgrade = flag;
-		supplierModule = module;
+	public GuiSupplierPipe(ActiveSupplierMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 194, 186, 0, 0);
+		hasPatternUpgrade = menu.isPatternUpgrade();
+		supplierModule = menu.getSupplier();
 
 		propertyLayer = new PropertyLayer(supplierModule.getProperties());
-
 		slotAssignmentPatternOverlay = propertyLayer.overlay(supplierModule.slotAssignmentPattern);
-		slotAssignmentPatternOverlay.write((p) -> p.replaceContent(slots));
-		panelWidth = 194;
-		panelHeight = 186;
-		patternModeOverlay = propertyLayer
-				.overlay(supplierModule.patternMode);
+		patternModeOverlay = propertyLayer.overlay(supplierModule.patternMode);
 		requestModeOverlay = propertyLayer.overlay(supplierModule.requestMode);
 		limitedPropertyOverlay = propertyLayer.overlay(supplierModule.isLimited);
-	}
-	private static DummyContainer buildDummy(Container playerInventory, Container dummyInventory, ModuleActiveSupplier module,
-			Boolean flag, int[] slots) {
-		DummyContainer dummy = new DummyContainer(playerInventory, dummyInventory);
-		dummy.addNormalSlotsForPlayerInventory(18, 97);
-
-		if (flag) {
-			for (int i = 0; i < 9; i++) {
-				dummy.addDummySlot(i, 18 + i * 18, 20);
-			}
-		} else {
-			int xOffset = 72;
-			int yOffset = 18;
-			for (int row = 0; row < 3; row++) {
-				for (int column = 0; column < 3; column++) {
-					dummy.addDummySlot(column + row * 3, xOffset + column * 18, yOffset + row * 18);
-				}
-			}
-		}
-		return dummy;
 	}
 
 
