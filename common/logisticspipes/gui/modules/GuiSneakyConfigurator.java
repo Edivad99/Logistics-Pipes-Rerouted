@@ -15,15 +15,14 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LPConstants;
-import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetSneakyDirectionMessage;
-import logisticspipes.utils.gui.DummyContainer;
+import logisticspipes.world.inventory.SneakyDirectionMenu;
 import network.rs485.logisticspipes.module.SneakyDirection;
 
 public class GuiSneakyConfigurator extends ModuleBaseGui {
@@ -31,12 +30,9 @@ public class GuiSneakyConfigurator extends ModuleBaseGui {
 	private final SneakyDirection directionReceiver;
 	private final logisticspipes.utils.gui.SmallGuiButton[] dirButtons = new logisticspipes.utils.gui.SmallGuiButton[7];
 
-	public GuiSneakyConfigurator(Container playerInventory, LogisticsModule module) {
-		super(new DummyContainer(playerInventory, null), module);
-		if (!(module instanceof SneakyDirection)) throw new IllegalArgumentException("Module is not sneaky");
-		directionReceiver = (SneakyDirection) module;
-		panelWidth = 160;
-		panelHeight = 200;
+	public GuiSneakyConfigurator(SneakyDirectionMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, menu.getModule(), 160, 200);
+		directionReceiver = (SneakyDirection) menu.getModule();
 	}
 
 	@Override

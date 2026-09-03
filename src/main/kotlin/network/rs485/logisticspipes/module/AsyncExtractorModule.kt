@@ -37,6 +37,12 @@
 
 package network.rs485.logisticspipes.module
 
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.network.codec.ByteBufCodecs
+import net.minecraft.network.RegistryFriendlyByteBuf
+import logisticspipes.world.inventory.SneakyDirectionMenu
+import logisticspipes.interfaces.IModuleMenuProvider
 import network.rs485.logisticspipes.logistics.LogisticsManager
 import network.rs485.logisticspipes.property.NullableEnumProperty
 import network.rs485.logisticspipes.property.Property
@@ -44,11 +50,6 @@ import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
 import logisticspipes.LPConfigs
 import logisticspipes.interfaces.*
-import logisticspipes.network.NewGuiHandler
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
-import logisticspipes.network.guis.module.inhand.SneakyModuleInHandGuiProvider
-import logisticspipes.network.guis.module.inpipe.SneakyModuleInSlotGuiProvider
 import logisticspipes.network.ModuleTarget
 import logisticspipes.network.to_client.module.SneakyDirectionMessage
 import logisticspipes.particle.Particles
@@ -176,7 +177,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
 
 class AsyncExtractorModule(
     val inverseFilter: (ItemStack) -> Boolean = { stack -> stack.isEmpty },
-) : AsyncModule<ExtractorJob, Unit>(), LegacyModuleGui, SneakyDirection,
+) : AsyncModule<ExtractorJob, Unit>(), IModuleMenuProvider, SneakyDirection,
     IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver {
 
     companion object {
@@ -198,7 +199,6 @@ class AsyncExtractorModule(
 
     private val hudRenderer: IHUDModuleRenderer = HUDAsyncExtractor(this)
     val localModeWatchers = PlayerCollectionList()
-    override val module = this
     private var currentJob: ExtractorJob? = null
 
     internal val serverRouter: ServerRouter?
@@ -207,13 +207,13 @@ class AsyncExtractorModule(
     internal val pipeService: IPipeServiceProvider?
         get() = service
 
-    override val pipeGuiProvider: ModuleCoordinatesGuiProvider
-        get() =
-            NewGuiHandler.getGui(SneakyModuleInSlotGuiProvider::class.java).setSneakyOrientation(sneakyDirection)
+    override fun createMenu(containerId: Int, inventory: Inventory, target: ModuleTarget): AbstractContainerMenu =
+        SneakyDirectionMenu(containerId, inventory, target, this)
 
-    override val inHandGuiProvider: ModuleInHandGuiProvider
-        get() =
-            NewGuiHandler.getGui(SneakyModuleInHandGuiProvider::class.java)
+    override fun writeMenuData(buffer: RegistryFriendlyByteBuf) {
+        ByteBufCodecs.optional(Direction.STREAM_CODEC)
+            .encode(buffer, Optional.ofNullable(sneakyDirection))
+    }
 
     override val everyNthTick: Int
         get() = (80 / upgradeManager.let { 2.0.pow(it.actionSpeedUpgrade) }).toInt() + LPConfigs.COMMON.MINIMUM_JOB_TICK_LENGTH.asInt
@@ -254,7 +254,7 @@ class AsyncExtractorModule(
     }
 
     override fun completeJob(deferred: Deferred<Unit?>) {
-        val serverRouter = module.serverRouter ?: return
+        val serverRouter = this.serverRouter ?: return
         val inventory = connectedInventory ?: return
         serverRouter.ensureLatestRoutingTable()
         currentJob?.extractAndSend(serverRouter, inventory)

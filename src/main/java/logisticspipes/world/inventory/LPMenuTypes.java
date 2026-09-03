@@ -3,6 +3,7 @@ package logisticspipes.world.inventory;
 import java.util.BitSet;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.player.Inventory;
@@ -42,6 +43,7 @@ import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.utils.item.ItemIdentifier;
 
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
+import network.rs485.logisticspipes.module.SneakyDirection;
 import logisticspipes.modules.SimpleFilter;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
@@ -137,6 +139,20 @@ public class LPMenuTypes {
                 // Which way the filter reads is the server's copy of the module, not the client's.
                 module.getItemsIncluded().setValue(buffer.readBoolean());
                 return new AdvancedExtractorMenu(containerId, inventory, target, module);
+            }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<SneakyDirectionMenu>> SNEAKY_DIRECTION =
+        deferredRegister.register("sneaky_direction", () -> new MenuType<>(
+            (IContainerFactory<SneakyDirectionMenu>) (containerId, inventory, buffer) -> {
+                final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+                final SneakyDirection module = target.resolve(inventory.player, SneakyDirection.class);
+                if (!(module instanceof LogisticsModule logisticsModule)) {
+                    throw new IllegalStateException("Cannot find a sneaky module at %s".formatted(target));
+                }
+                // Which side it currently extracts from; the client's copy does not know.
+                module.setSneakyDirection(
+                    ByteBufCodecs.optional(Direction.STREAM_CODEC).decode(buffer).orElse(null));
+                return new SneakyDirectionMenu(containerId, inventory, target, logisticsModule);
             }, FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredHolder<MenuType<?>, MenuType<ActiveSupplierMenu>> ACTIVE_SUPPLIER =
