@@ -40,6 +40,7 @@ import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.RemotePipeTarget;
 import logisticspipes.interfaces.SatellitePipe;
+import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.PipeFluidRequestLogistics;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidTerminus;
@@ -200,6 +201,10 @@ public class LPMenuTypes {
                 module.slotAssignmentPattern.replaceContent(buffer.readVarIntArray());
                 return new ActiveSupplierMenu(containerId, inventory, target, module, patternUpgrade);
             }, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<RequestTableMenu>> REQUEST_TABLE =
+        deferredRegister.register("request_table",
+            () -> pipeMenu(PipeBlockRequestTable.class, RequestTableMenu::new));
 
     public static final DeferredHolder<MenuType<?>, MenuType<OrdererMenu>> ORDERER =
         deferredRegister.register("orderer", () -> new MenuType<>(

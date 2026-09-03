@@ -27,6 +27,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISlotCheck;
+import logisticspipes.interfaces.ISlotClick;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.proxy.MainProxy;
@@ -439,6 +440,12 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
     protected Slot addFuzzyUnmodifiableSlot(int slotId, Container inventory, int xCoord, int yCoord,
         IBitSet fuzzyFlags) {
         return addSlot(new FuzzyUnmodifiableSlot(inventory, slotId, xCoord, yCoord, fuzzyFlags));
+    }
+
+    /** A slot whose click is answered by the pipe rather than by moving the stack. */
+    protected Slot addCallableSlotHandler(int slotId, Container inventory, int xCoord, int yCoord,
+        ISlotClick handler) {
+        return addSlot(new HandelableSlot(inventory, slotId, xCoord, yCoord, handler));
     }
 
     /** A chassis module slot, which writes the module's settings back into the item when taken. */

@@ -23,6 +23,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -55,7 +57,6 @@ import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.ChainAddArrayList;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ISubGuiController;
@@ -68,6 +69,7 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extension.GuiExtension;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.RequestTableMenu;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.LPItems;
@@ -95,36 +97,14 @@ public class GuiRequestTable extends LogisticsBaseGuiScreen implements IItemSear
 	private AbstractButton hideShowButton;
 	private GuiCheckBox popupCheck;
 
-	public GuiRequestTable(Player entityPlayer, PipeBlockRequestTable table) {
-		super(buildDummy(entityPlayer, table), 410, 240, 0, 0);
-		this.table = table;
-		this.entityPlayer = entityPlayer;
-        ((DummyContainer) this.menu).setScreenForJEI(this);
-        dimension = this.table.getWorld().dimension().identifier();
+	public GuiRequestTable(RequestTableMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 410, 240, 0, 0);
+		table = menu.getTable();
+		entityPlayer = inventory.player;
+		dimension = table.getWorld().dimension().identifier();
+		menu.setScreenForJEI(this);
 		refreshItems();
 	}
-
-	private static DummyContainer buildDummy(Player entityPlayer, PipeBlockRequestTable table) {
-		DummyContainer dummy = new DummyContainer(entityPlayer.getInventory(), table.matrix);
-		int i = 0;
-		for (int y = 0; y < 3; y++) {
-			for (int x = 0; x < 9; x++) {
-				dummy.addNormalSlot(i++, table.inv, (x * 18) + 20, (y * 18) + 80);
-			}
-		}
-		i = 0;
-		for (int y = 0; y < 3; y++) {
-			for (int x = 0; x < 3; x++) {
-				dummy.addDummySlot(i++, (x * 18) + 20, (y * 18) + 15);
-			}
-		}
-		dummy.addCallableSlotHandler(0, table.resultInv, 101, 33, table::getResultForClick);
-		dummy.addNormalSlot(0, table.toSortInv, 164, 51);
-		dummy.addNormalSlot(0, table.diskInv, 164, 25);
-		dummy.addNormalSlotsForPlayerInventory(21, 151);
-		return dummy;
-	}
-
 
 	@Override
 	public void init() {

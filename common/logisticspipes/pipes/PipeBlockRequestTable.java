@@ -15,7 +15,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.item.Item;
@@ -36,6 +38,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.ICraftingRecipeGrid;
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
@@ -61,13 +64,19 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.RequestTableMenu;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.AutoCraftingContainer;
 
 public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements ISimpleInventoryEventHandler, IRequestWatcher,
-    IScreenOpenController, IRotationProvider, ICraftingRecipeGrid {
+    IScreenOpenController, IRotationProvider, ICraftingRecipeGrid, IPipeMenuProvider {
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new RequestTableMenu(containerId, inventory, this);
+	}
 
 	public SimpleStackInventory diskInv = new SimpleStackInventory(1, "Disk Slot", 1);
 	public SimpleStackInventory inv = new SimpleStackInventory(27, "Crafting Resources", 64);
@@ -225,11 +234,10 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				flag = false;
 			}
 		}
-		if (flag) {
-			logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.RequestTableGui.class)
-					.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-					.open(entityplayer);
+		if (flag && entityplayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(this);
 		}
+		
 	}
 
 	@Override
