@@ -4,7 +4,6 @@ import java.util.BitSet;
 
 import com.google.common.base.Objects;
 
-
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,8 +12,6 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.routing.IRouter;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
@@ -66,18 +63,6 @@ public class DictResource implements IResource {
 	public DictResource(ItemIdentifierStack stack, @Nullable IRequestItems requester) {
 		this.stack = stack;
 		this.requester = requester;
-	}
-
-	public DictResource(LPDataInput input) {
-		stack = input.readItemIdentifierStack();
-		requester = null;
-		fuzzyFlags = input.readBitSet().get(0, 3);
-	}
-
-	@Override
-	public void writeData(LPDataOutput output) {
-		output.writeItemIdentifierStack(stack);
-		output.writeBitSet(fuzzyFlags);
 	}
 
 	@Override

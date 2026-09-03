@@ -38,7 +38,7 @@ import logisticspipes.utils.IPositionRotateble;
  */
 @Deprecated(forRemoval = true)
 @Data
-public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSerializable {
+public class DoubleCoordinates implements IPositionRotateble, ICoordinates {
 
     private double xCoord;
     private double yCoord;
@@ -61,10 +61,6 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
         setXCoord(xCoord);
         setYCoord(yCoord);
         setZCoord(zCoord);
-    }
-
-    public DoubleCoordinates(LPDataInput input) {
-        read(input);
     }
 
     public DoubleCoordinates(ICoordinates coords) {
@@ -215,17 +211,4 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
         return Math.sqrt(getXDouble() * getXDouble() + getYDouble() * getYDouble() + getZDouble() * getZDouble());
     }
 
-    @Override
-    public void read(LPDataInput input) {
-        xCoord = input.readDouble();
-        yCoord = input.readDouble();
-        zCoord = input.readDouble();
-    }
-
-    @Override
-    public void write(LPDataOutput output) {
-        output.writeDouble(xCoord);
-        output.writeDouble(yCoord);
-        output.writeDouble(zCoord);
-    }
 }

@@ -101,10 +101,6 @@ public interface LPDataOutput {
 
     <T> void writeCollection(@Nullable Collection<T> collection, IWriteListObject<T> handler);
 
-    default <T extends LPFinalSerializable> void writeCollection(Collection<T> collection) {
-        writeCollection(collection, LPDataOutput::writeSerializable);
-    }
-
     <T extends Enum<T>> void writeEnum(T obj);
 
     void writeBytes(byte[] arr);
@@ -114,10 +110,6 @@ public interface LPDataOutput {
     void writeUUID(@Nullable UUID uuid);
 
     void writePlayerIdentifier(PlayerIdentifier playerIdentifier);
-
-    default void writeSerializable(LPFinalSerializable finalSerializable) {
-        finalSerializable.write(this);
-    }
 
     interface LPDataOutputConsumer {
 

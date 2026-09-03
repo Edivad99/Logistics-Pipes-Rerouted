@@ -21,12 +21,10 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.util.DoubleCoordinates;
-import logisticspipes.util.LPDataOutput;
-import logisticspipes.util.LPFinalSerializable;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.tuples.Pair;
 
-public interface IRouter extends LPFinalSerializable {
+public interface IRouter {
 
 	void destroy();
 
@@ -83,10 +81,5 @@ public interface IRouter extends LPFinalSerializable {
 	List<ExitRoute> getRoutersOnSide(Direction direction);
 
 	void queueTask(int i, IRouterQueuedTask callable);
-
-	@Override
-	default void write(LPDataOutput output) {
-		output.writeSerializable(getLPPosition());
-	}
 
 }

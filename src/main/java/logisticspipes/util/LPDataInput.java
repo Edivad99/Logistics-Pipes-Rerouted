@@ -126,10 +126,6 @@ public interface LPDataInput {
 
     PlayerIdentifier readPlayerIdentifier();
 
-    default void readSerializable(LPSerializable serializable) {
-        serializable.read(this);
-    }
-
     interface LPDataInputConsumer {
 
         void accept(LPDataInput dataInput);

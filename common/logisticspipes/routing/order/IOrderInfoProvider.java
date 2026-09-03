@@ -10,12 +10,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import logisticspipes.util.DoubleCoordinates;
-import logisticspipes.util.LPDataOutput;
-import logisticspipes.util.LPFinalSerializable;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-public interface IOrderInfoProvider extends LPFinalSerializable {
+public interface IOrderInfoProvider {
 
 	/**
 	 * One order, as the client's monitor shows it.
@@ -99,23 +97,6 @@ public interface IOrderInfoProvider extends LPFinalSerializable {
 
 	DoubleCoordinates getTargetPosition();
 
-	@Override
-	default void write(LPDataOutput output) {
-		output.writeItemIdentifierStack(getAsDisplayItem());
-		output.writeInt(getRouterId());
-		output.writeBoolean(isFinished());
-		output.writeBoolean(isInProgress());
-		output.writeEnum(getType());
-		output.writeCollection(getProgresses(), LPDataOutput::writeFloat);
-		output.writeByte(getMachineProgress());
-		if (getTargetPosition() != null) {
-			output.writeBoolean(true);
-			output.writeSerializable(getTargetPosition());
-			output.writeItemIdentifier(getTargetType());
-		} else {
-			output.writeBoolean(false);
-		}
-	}
 
 	enum ResourceType {
 		PROVIDER,

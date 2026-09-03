@@ -8,8 +8,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.util.ItemStackLoader;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.item.ItemIdentifier;
 
 public class TrackingTask {
@@ -70,15 +68,4 @@ public class TrackingTask {
 				return task;
 			});
 
-	public void writeToLPData(LPDataOutput output) {
-		output.writeLongArray(amountRecorded);
-		output.writeInt(arrayPos);
-		output.writeItemIdentifier(item);
-	}
-
-	public void readFromLPData(LPDataInput input) {
-		amountRecorded = input.readLongArray();
-		arrayPos = input.readInt();
-		item = input.readItemIdentifier();
-	}
 }

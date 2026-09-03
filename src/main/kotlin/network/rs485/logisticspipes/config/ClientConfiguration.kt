@@ -37,23 +37,10 @@
 
 package network.rs485.logisticspipes.config
 
-import logisticspipes.util.LPDataInput
-import logisticspipes.util.LPDataOutput
-import logisticspipes.util.LPSerializable
 
-open class ClientConfiguration : LPSerializable {
+open class ClientConfiguration {
     var renderPipeDistance = 48
     var renderPipeContentDistance = 24
-
-    override fun write(output: LPDataOutput) {
-        output.writeInt(renderPipeDistance)
-        output.writeInt(renderPipeContentDistance)
-    }
-
-    override fun read(input: LPDataInput) {
-        renderPipeDistance = input.readInt()
-        renderPipeContentDistance = input.readInt()
-    }
 
     fun merge(configuration: ClientConfiguration) {
         renderPipeDistance = configuration.renderPipeDistance

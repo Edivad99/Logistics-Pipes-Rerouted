@@ -7,8 +7,6 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.routing.IRouter;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
@@ -33,16 +31,6 @@ public class ItemResource implements IResource {
 	public ItemResource(ItemIdentifierStack stack, @Nullable IRequestItems requester) {
 		this.stack = stack;
 		this.requester = requester;
-	}
-
-	public ItemResource(LPDataInput input) {
-		stack = input.readItemIdentifierStack();
-		requester = null;
-	}
-
-	@Override
-	public void writeData(LPDataOutput output) {
-		output.writeItemIdentifierStack(stack);
 	}
 
 	@Override
