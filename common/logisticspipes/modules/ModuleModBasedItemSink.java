@@ -5,11 +5,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.TagValueOutput;
 
@@ -22,16 +24,12 @@ import logisticspipes.gui.hud.modules.HUDStringBasedItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.interfaces.IWorldProvider;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.guis.module.inhand.StringBasedItemSinkModuleGuiInHand;
-import logisticspipes.network.guis.module.inpipe.StringBasedItemSinkModuleGuiSlot;
 import logisticspipes.network.to_client.module.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.module.SetStringBasedItemSinkListMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
@@ -39,12 +37,13 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.module.LegacyModuleGui;
+import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.inventory.ModuleAnalysisMenu;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.StringListProperty;
 
 public class ModuleModBasedItemSink extends LogisticsModule
-		implements IStringBasedModule, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, LegacyModuleGui {
+		implements IStringBasedModule, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, IModuleMenuProvider {
 
 	public final StringListProperty modList = new StringListProperty("");
 
@@ -171,16 +170,16 @@ public class ModuleModBasedItemSink extends LogisticsModule
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, getWorld().registryAccess());
-		serialize(moduleOutput);
-		CompoundTag nbt = moduleOutput.buildResult();
-		return NewGuiHandler.getGui(StringBasedItemSinkModuleGuiSlot.class).setNbt(nbt);
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new ModuleAnalysisMenu(LPMenuTypes.STRING_BASED_ITEM_SINK.get(), containerId, inventory, target, this);
 	}
 
 	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return NewGuiHandler.getGui(StringBasedItemSinkModuleGuiInHand.class);
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(
+				ProblemReporter.DISCARDING, buffer.registryAccess());
+		serialize(moduleOutput);
+		buffer.writeNbt(moduleOutput.buildResult());
 	}
 
 }

@@ -6,28 +6,27 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.world.Container;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.interfaces.IStringBasedModule;
-import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.ModuleAnalysisMenu;
 import network.rs485.logisticspipes.property.StringListProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
 
 public class GuiStringBasedItemSink extends ModuleBaseGui {
 
-	private static ItemIdentifierInventory tmpInvStatic; // set by buildDummy before super()
 	private final ItemIdentifierInventory tmpInv;
 	private final PropertyLayer propertyLayer;
 	private final IStringBasedModule stringBasedModule;
@@ -42,26 +41,14 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 	private final List<String> labelTexts = new ArrayList<>();
 	private final List<int[]> labelPositions = new ArrayList<>(); // {x, y, color}
 
-	public GuiStringBasedItemSink(Container playerInventory, LogisticsModule module) {
-		super(buildDummy(playerInventory, module), module);
-		if (!(module instanceof IStringBasedModule)) throw new IllegalArgumentException("Module must be string based");
-		stringBasedModule = (IStringBasedModule) module;
+	public GuiStringBasedItemSink(ModuleAnalysisMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, menu.getModule(), 175, 208);
+		stringBasedModule = (IStringBasedModule) menu.getModule();
 		propertyLayer = new PropertyLayer(Collections.singletonList(stringBasedModule.stringListProperty()));
 		stringListOverlay = propertyLayer.overlay(stringBasedModule.stringListProperty());
-
-		tmpInv = tmpInvStatic;
-
-		panelWidth = 175;
-		panelHeight = 208;
+		tmpInv = menu.getAnalysisInventory();
 	}
-	private static DummyContainer buildDummy(Container playerInventory, LogisticsModule module) {
-		tmpInvStatic = new ItemIdentifierInventory(1, "Analyse Slot", 1);
-		DummyContainer dummy = new DummyContainer(playerInventory, tmpInvStatic);
-		dummy.addDummySlot(0, 7, 8);
 
-		dummy.addNormalSlotsForPlayerInventory(7, 126);
-		return dummy;
-	}
 
 
 	@Override
@@ -115,7 +102,7 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 			if (analyseStack != null) {
 				name = "";
 				labelTexts.add(stringBasedModule.getStringForItem(analyseStack.getItem()));
-				labelPositions.add(new int[]{28, 7, 0x404040});
+				labelPositions.add(new int[]{28, 7, 0xFF404040});
 				if (strings.contains(stringBasedModule.getStringForItem(analyseStack.getItem()))) {
 					addButton.active = false;
 					removeButton.active = true;
@@ -132,7 +119,7 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 			} else {
 				if (strings.contains(name)) {
 					labelTexts.add(name);
-					labelPositions.add(new int[]{28, 7, 0x404040});
+					labelPositions.add(new int[]{28, 7, 0xFF404040});
 					addButton.active = false;
 					removeButton.active = true;
 				} else {
@@ -149,7 +136,7 @@ public class GuiStringBasedItemSink extends ModuleBaseGui {
 					guiGraphics.fill(leftPos + 6, topPos + 31 + (10 * i), leftPos + 168, topPos + 31 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
 				}
 				labelTexts.add(strings.get(i));
-				labelPositions.add(new int[]{7, 32 + (10 * i), 0x404040});
+				labelPositions.add(new int[]{7, 32 + (10 * i), 0xFF404040});
 				if (6 <= mouseX && mouseX < 168 && 31 + (10 * i) <= mouseY && mouseY < 31 + (10 * (i + 1))) {
 					name = strings.get(i);
 					mouseX = 0;

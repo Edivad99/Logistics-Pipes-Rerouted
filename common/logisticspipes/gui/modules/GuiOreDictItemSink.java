@@ -5,7 +5,8 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.world.Container;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 import kotlin.Unit;
@@ -16,17 +17,16 @@ import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.gui.DummyContainer;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import logisticspipes.world.inventory.ModuleAnalysisMenu;
 import network.rs485.logisticspipes.property.StringListProperty;
 import network.rs485.logisticspipes.property.layer.PropertyLayer;
 import network.rs485.logisticspipes.property.layer.PropertyOverlay;
 
 public class GuiOreDictItemSink extends ModuleBaseGui {
 
-	private static ItemIdentifierInventory tmpInvStatic; // set by buildDummy before super()
 	private final ItemIdentifierInventory tmpInv;
 	private final PropertyLayer propertyLayer;
 	private final PropertyOverlay<List<String>, StringListProperty> oreListOverlay;
@@ -43,25 +43,14 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 	private final List<String> labelTexts = new ArrayList<>();
 	private final List<int[]> labelPositions = new ArrayList<>(); // {x, y, color}
 
-	public GuiOreDictItemSink(Container playerInventory, ModuleOreDictItemSink oreDictModule) {
-		super(buildDummy(playerInventory, oreDictModule), oreDictModule);
-
+	public GuiOreDictItemSink(ModuleAnalysisMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, menu.getModule(), 175, 208);
+		final ModuleOreDictItemSink oreDictModule = (ModuleOreDictItemSink) menu.getModule();
 		propertyLayer = new PropertyLayer(oreDictModule.getProperties());
 		oreListOverlay = propertyLayer.overlay(oreDictModule.getOreList());
-
-		tmpInv = tmpInvStatic;
-
-		panelWidth = 175;
-		panelHeight = 208;
+		tmpInv = menu.getAnalysisInventory();
 	}
-	private static DummyContainer buildDummy(Container playerInventory, ModuleOreDictItemSink oreDictModule) {
-		tmpInvStatic = new ItemIdentifierInventory(1, "Analyse Slot", 1);
-		DummyContainer dummy = new DummyContainer(playerInventory, tmpInvStatic);
-		dummy.addDummySlot(0, 7, 8);
 
-		dummy.addNormalSlotsForPlayerInventory(7, 126);
-		return dummy;
-	}
 
 
 	@Override
@@ -131,7 +120,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 					guiGraphics.fill(leftPos + 27, topPos + 6 + (10 * i), leftPos + 158, topPos + 6 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
 				}
 				labelTexts.add(unsunkNames.get(currentOffset + i));
-				labelPositions.add(new int[]{28, 7 + (10 * i), 0x404040});
+				labelPositions.add(new int[]{28, 7 + (10 * i), 0xFF404040});
 				if (27 <= mouseX && mouseX < 158 && 6 + (10 * i) <= mouseY && mouseY < 6 + (10 * (i + 1))) {
 					mouseX = 0;
 					mouseY = 0;
@@ -162,7 +151,7 @@ public class GuiOreDictItemSink extends ModuleBaseGui {
 					guiGraphics.fill(leftPos + 6, topPos + 31 + (10 * i), leftPos + 168, topPos + 31 + (10 * (i + 1)), Color.LIGHT_GREY.getValue());
 				}
 				labelTexts.add(oreList.get(i));
-				labelPositions.add(new int[]{7, 32 + (10 * i), 0x404040});
+				labelPositions.add(new int[]{7, 32 + (10 * i), 0xFF404040});
 				if (6 <= mouseX && mouseX < 168 && 31 + (10 * i) <= mouseY && mouseY < 31 + (10 * (i + 1))) {
 					mouseX = 0;
 					mouseY = 0;

@@ -40,6 +40,8 @@ import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.gui.GuiFirewall;
 import logisticspipes.gui.GuiFreqCardContent;
 import logisticspipes.gui.modules.GuiAdvancedExtractor;
+import logisticspipes.gui.modules.GuiOreDictItemSink;
+import logisticspipes.gui.modules.GuiStringBasedItemSink;
 import logisticspipes.gui.modules.GuiSimpleFilter;
 import logisticspipes.gui.hud.GuiHUDSettings;
 import logisticspipes.logic.gui.LogicLayoutGui;
@@ -65,6 +67,7 @@ import logisticspipes.world.inventory.FluidSupplierMenu;
 import logisticspipes.world.inventory.FluidSupplierMk2Menu;
 import logisticspipes.world.inventory.FluidTerminusMenu;
 import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.inventory.ModuleAnalysisMenu;
 import logisticspipes.world.inventory.SatelliteMenu;
 import logisticspipes.world.inventory.PowerJunctionMenu;
 import logisticspipes.world.inventory.PowerProviderMenu;
@@ -172,6 +175,10 @@ public class ClientManager {
             (MenuScreens.ScreenConstructor<FreqCardMenu, AbstractContainerScreen<FreqCardMenu>>) GuiFreqCardContent::new);
         event.register(LPMenuTypes.SIMPLE_FILTER.get(),
             (MenuScreens.ScreenConstructor<SimpleFilterMenu, AbstractContainerScreen<SimpleFilterMenu>>) GuiSimpleFilter::new);
+        event.register(LPMenuTypes.ORE_DICT_ITEM_SINK.get(),
+            (MenuScreens.ScreenConstructor<ModuleAnalysisMenu, AbstractContainerScreen<ModuleAnalysisMenu>>) GuiOreDictItemSink::new);
+        event.register(LPMenuTypes.STRING_BASED_ITEM_SINK.get(),
+            (MenuScreens.ScreenConstructor<ModuleAnalysisMenu, AbstractContainerScreen<ModuleAnalysisMenu>>) GuiStringBasedItemSink::new);
         event.register(LPMenuTypes.ADVANCED_EXTRACTOR.get(),
             (MenuScreens.ScreenConstructor<AdvancedExtractorMenu, AbstractContainerScreen<AdvancedExtractorMenu>>) GuiAdvancedExtractor::new);
         event.register(LPMenuTypes.HUD_SETTINGS.get(),

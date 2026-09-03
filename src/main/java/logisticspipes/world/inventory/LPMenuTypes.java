@@ -17,7 +17,16 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import logisticspipes.LPConstants;
+import java.util.Objects;
+import java.util.function.Supplier;
+
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
+
 import logisticspipes.interfaces.IFreqCardHolder;
+import logisticspipes.interfaces.IStringBasedModule;
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
@@ -126,6 +135,14 @@ public class LPMenuTypes {
                 return new AdvancedExtractorMenu(containerId, inventory, target, module);
             }, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<ModuleAnalysisMenu>> ORE_DICT_ITEM_SINK =
+        deferredRegister.register("ore_dict_item_sink",
+            () -> analysisMenu(() -> LPMenuTypes.ORE_DICT_ITEM_SINK.get(), ModuleOreDictItemSink.class));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<ModuleAnalysisMenu>> STRING_BASED_ITEM_SINK =
+        deferredRegister.register("string_based_item_sink",
+            () -> analysisMenu(() -> LPMenuTypes.STRING_BASED_ITEM_SINK.get(), IStringBasedModule.class));
+
     public static final DeferredHolder<MenuType<?>, MenuType<SimpleFilterMenu>> SIMPLE_FILTER =
         deferredRegister.register("simple_filter", () -> moduleMenu(SimpleFilter.class, SimpleFilterMenu::new));
 
@@ -153,6 +170,26 @@ public class LPMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<ProgramCompilerMenu>> PROGRAM_COMPILER =
         deferredRegister.register("program_compiler",
             () -> blockEntityMenu(LogisticsProgramCompilerBlockEntity.class, ProgramCompilerMenu::new));
+
+    /**
+     * The name-list menu, which also carries the module's settings: the client's copy of a module
+     * in a pipe is not the one being configured, and the list is what the screen shows.
+     */
+    private static <M> MenuType<ModuleAnalysisMenu> analysisMenu(
+        Supplier<MenuType<ModuleAnalysisMenu>> self, Class<M> moduleType) {
+        IContainerFactory<ModuleAnalysisMenu> containerFactory = (containerId, inventory, buffer) -> {
+            final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
+            final M module = target.resolve(inventory.player, moduleType);
+            if (!(module instanceof LogisticsModule logisticsModule)) {
+                throw new IllegalStateException(
+                    "Cannot find module of type %s at %s".formatted(moduleType.getName(), target));
+            }
+            logisticsModule.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
+                inventory.player.level().registryAccess(), Objects.requireNonNull(buffer.readNbt())));
+            return new ModuleAnalysisMenu(self.get(), containerId, inventory, target, logisticsModule);
+        };
+        return new MenuType<>(containerFactory, FeatureFlags.DEFAULT_FLAGS);
+    }
 
     /**
      * A menu belonging to a module, wherever the module happens to be.
