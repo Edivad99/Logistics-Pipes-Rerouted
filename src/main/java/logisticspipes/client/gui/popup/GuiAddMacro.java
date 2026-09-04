@@ -35,6 +35,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
     private static final int NAME_WIDTH = 122;
     private static final int SEARCH_WIDTH = 138;
     private final IDiskProvider diskProvider;
+    private final LinkedList<ItemIdentifierStack> macroItems = new LinkedList<>();
     private int mousePosX = 0;
     private int mousePosY = 0;
     private int mouseButton = 0;
@@ -46,7 +47,6 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
     private int wheelDown = 0;
     private boolean editSearch = false;
     private boolean editName = false;
-    private final LinkedList<ItemIdentifierStack> macroItems = new LinkedList<>();
     private String name1;
     private String name2 = "";
     private String Search1 = "";

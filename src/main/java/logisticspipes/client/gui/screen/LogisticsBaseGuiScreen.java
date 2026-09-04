@@ -28,13 +28,16 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-
-import logisticspipes.utils.gui.GuiCheckBox;
+import logisticspipes.LPConstants;
+import logisticspipes.interfaces.IFuzzySlot;
+import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
+import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.IGuiAccess;
 import logisticspipes.utils.gui.IItemTextureRenderSlot;
 import logisticspipes.utils.gui.IRenderSlot;
@@ -42,12 +45,7 @@ import logisticspipes.utils.gui.ISmallColorRenderSlot;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
-import logisticspipes.LPConstants;
-import logisticspipes.interfaces.IFuzzySlot;
-import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
-import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.extension.GuiExtensionController;
 import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
 import network.rs485.logisticspipes.property.IBitSet;
@@ -62,6 +60,7 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
     protected final int xCenterOffset;
     protected final int yCenterOffset;
     private final List<EditBox> textFields = new ArrayList<>();
+    private final Queue<Runnable> renderAtTheEnd = new LinkedList<>();
     @Getter
     protected int right;
     @Getter
@@ -96,7 +95,6 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
     private IFuzzySlot fuzzySlot;
     private boolean fuzzySlotActiveGui;
     private int fuzzySlotGuiHoverTime;
-    private final Queue<Runnable> renderAtTheEnd = new LinkedList<>();
 
     public LogisticsBaseGuiScreen(T container) {
         super(container, Minecraft.getInstance().player.getInventory(), Component.empty());

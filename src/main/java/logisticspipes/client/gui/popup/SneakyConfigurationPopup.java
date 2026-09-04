@@ -23,11 +23,10 @@ import network.rs485.logisticspipes.util.TextUtil;
 public class SneakyConfigurationPopup extends SubGuiScreen {
 
     private static final String PREFIX = "gui.pipecontroller.popup.";
-
-    private SideConfigDisplay configDisplay;
     private final List<DoubleCoordinates> config;
-    private Rectangle bounds;
     private final UpgradeSlot pos;
+    private SideConfigDisplay configDisplay;
+    private Rectangle bounds;
 
     public SneakyConfigurationPopup(List<DoubleCoordinates> config, UpgradeSlot pos) {
         super(250, 250, 0, 0);

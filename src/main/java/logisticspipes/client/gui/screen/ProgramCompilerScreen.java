@@ -28,8 +28,8 @@ import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.ItemLogisticsPipe;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.ItemUpgrade;
-import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity.CompilerTask;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity.CompilerTask;
 import network.rs485.logisticspipes.util.TextUtil;
 
 //TODO: Config Option for disabling program compilation
@@ -62,7 +62,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
                 }
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 return (int) LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
+                    .filter(
+                        it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                     .count();
             }
 
@@ -74,7 +75,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 return TextUtil.translate(
                     "gui.compiler." + LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                        .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
+                        .filter(it -> list.stream()
+                            .noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                         .skip(index)
                         .findFirst()
                         .map(it -> String.format("%s.%s", it.getNamespace(), it.getPath()))
@@ -144,7 +146,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
             if (categoryList.getSelected() != -1) {
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
+                    .filter(
+                        it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                     .skip(categoryList.getSelected())
                     .findFirst()
                     .ifPresent(it -> ClientPacketDistributor.sendToServer(
@@ -266,7 +269,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
             .filter(it -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(it).getDescriptionId()).toLowerCase()
                 .contains(search.getValue().toLowerCase()))
             .sorted(Comparator.<Identifier, Integer>comparing(o -> getSortingClass(BuiltInRegistries.ITEM.getValue(o)))
-                .thenComparing(o -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(o).getDescriptionId()).toLowerCase())
+                .thenComparing(
+                    o -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(o).getDescriptionId()).toLowerCase())
             )
             .collect(Collectors.toList());
     }

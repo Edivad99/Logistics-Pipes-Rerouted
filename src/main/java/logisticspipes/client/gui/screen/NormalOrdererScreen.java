@@ -15,23 +15,23 @@ import logisticspipes.world.inventory.OrdererMenu;
 
 public class NormalOrdererScreen<T extends OrdererMenu> extends OrdererScreen<T> {
 
-	private DisplayOptions displayOptions = DisplayOptions.Both;
+    private DisplayOptions displayOptions = DisplayOptions.Both;
 
-	public NormalOrdererScreen(T menu, Inventory inventory, Component title) {
-		super(menu, inventory, title);
-		refreshItems();
-	}
+    public NormalOrdererScreen(T menu, Inventory inventory, Component title) {
+        super(menu, inventory, title);
+        refreshItems();
+    }
 
-	@Override
-	public void init() {
-		super.init();
-		SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 15, 46, 10, "Refresh");
-		refreshBtn.setPressListener(b -> refreshItems());
-		addRenderableWidget(refreshBtn);
-		addRenderableWidget(new SmallGuiButton(13, leftPos + 10, bottom - 28, 46, 10, "Content"));
-		SmallGuiButton modeBtn = new SmallGuiButton(9, leftPos + 10, bottom - 41, 46, 10, "Both");
-		modeBtn.setPressListener(b -> {
-			String displayString = switch (displayOptions) {
+    @Override
+    public void init() {
+        super.init();
+        SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 15, 46, 10, "Refresh");
+        refreshBtn.setPressListener(b -> refreshItems());
+        addRenderableWidget(refreshBtn);
+        addRenderableWidget(new SmallGuiButton(13, leftPos + 10, bottom - 28, 46, 10, "Content"));
+        SmallGuiButton modeBtn = new SmallGuiButton(9, leftPos + 10, bottom - 41, 46, 10, "Both");
+        modeBtn.setPressListener(b -> {
+            String displayString = switch (displayOptions) {
                 case Both -> {
                     displayOptions = DisplayOptions.CraftOnly;
                     yield "Craft";
@@ -46,17 +46,18 @@ public class NormalOrdererScreen<T extends OrdererMenu> extends OrdererScreen<T>
                 }
             };
             b.setMessage(Component.literal(displayString));
-			refreshItems();
-		});
-		addRenderableWidget(modeBtn);
-	}
+            refreshItems();
+        });
+        addRenderableWidget(modeBtn);
+    }
 
-	@Override
-	public void refreshItems() {
+    @Override
+    public void refreshItems() {
         ClientPacketDistributor.sendToServer(new RequestOrdererRefreshMessage(
-                new RemotePipeTarget(dimension, new BlockPos(xCoord, yCoord, zCoord)), displayOptions));
-	}
+            new RemotePipeTarget(dimension, new BlockPos(xCoord, yCoord, zCoord)), displayOptions));
+    }
 
-	@Override
-	public void specialItemRendering(ItemIdentifier item, int x, int y) {}
+    @Override
+    public void specialItemRendering(ItemIdentifier item, int x, int y) {
+    }
 }

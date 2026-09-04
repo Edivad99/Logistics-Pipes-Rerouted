@@ -67,7 +67,8 @@ public class GuiAddChannelPopup extends SubGuiScreen {
         addRenderableWidget(checkSecurity);
         addRenderableWidget(checkPrivate);
 
-        SmallGuiButton saveBtn = new SmallGuiButton(4, guiLeft + 58, saveButtonY(), 50, 10, TextUtil.translate(GUI_LANG_KEY + "save"));
+        SmallGuiButton saveBtn = new SmallGuiButton(4, guiLeft + 58, saveButtonY(), 50, 10,
+            TextUtil.translate(GUI_LANG_KEY + "save"));
         saveBtn.setPressListener(b -> {
             ClientPacketDistributor.sendToServer(new SaveChannelMessage(
                 channelToSave(), this.textInput.getValue(), selectedRights(),

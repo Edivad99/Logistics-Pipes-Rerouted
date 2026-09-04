@@ -21,11 +21,10 @@ import network.rs485.logisticspipes.util.TextUtil;
 public class DisconnectionConfigurationPopup extends SubGuiScreen {
 
     private static final String PREFIX = "gui.pipecontroller.popup.";
-
-    private SideConfigDisplay configDisplay;
     private final CoreRoutedPipe pipe;
-    private Rectangle bounds;
     private final UpgradeSlot pos;
+    private SideConfigDisplay configDisplay;
+    private Rectangle bounds;
 
     public DisconnectionConfigurationPopup(CoreRoutedPipe pipe, UpgradeSlot pos) {
         super(250, 250, 0, 0);

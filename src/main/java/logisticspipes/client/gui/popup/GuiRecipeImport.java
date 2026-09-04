@@ -27,6 +27,7 @@ public class GuiRecipeImport extends SubGuiScreen {
     private final BlockEntity tile;
     private final Candidates[] grid = new Candidates[9];
     private final List<Candidates> list;
+
     public GuiRecipeImport(BlockEntity tile, ItemStack[][] stacks) {
         super(150, 200, 0, 0);
         this.tile = tile;
@@ -245,6 +246,7 @@ public class GuiRecipeImport extends SubGuiScreen {
         public List<ItemIdentifierStack> order;
         Set<ItemIdentifierStack> set;
         int pos = 0;
+
         public Candidates(Set<ItemIdentifierStack> set) {
             this.set = set;
         }

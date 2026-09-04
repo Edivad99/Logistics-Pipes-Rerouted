@@ -30,6 +30,7 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
     private final IHandleItemChoice handler;
     private ItemDisplay itemDisplay = null;
     private InputBar search;
+
     public SelectItemOutOfList(List<ItemIdentifierStack> candidate, IHandleItemChoice handler) {
         super(156, 188, 0, 0);
         this.candidate = candidate;

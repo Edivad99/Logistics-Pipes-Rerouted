@@ -37,12 +37,12 @@ public class RequestMonitorPopup extends SubGuiScreen {
     private static final Identifier achievementTextures = LPConstants.rl("textures/gui/gui_border.png");
     private final PipeBlockRequestTable table;
     private final int orderId;
+    private final int minY = -230;
     private int isMouseButtonDown;
     private int mouseX;
     private int mouseY;
     private double guiMapX;
     private double guiMapY;
-    private final int minY = -230;
     private int maxY = 0;
     private int minX = -800;
     private int maxX = 800;
@@ -502,6 +502,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
         final int moveY;
         final int maxX;
         final int maxY;
+
         ZOOM_LEVEL(float zoom, int bottom, int right, int line, int moveY, int maxX, int maxY) {
             this.zoom = zoom;
             bottomRenderBorder = bottom;
