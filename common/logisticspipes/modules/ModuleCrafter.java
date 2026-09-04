@@ -2,34 +2,38 @@ package logisticspipes.modules;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.DelayQueue;
 
-import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IModuleMenuProvider;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IInventoryUtil;
@@ -46,21 +50,14 @@ import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.guis.module.inhand.CraftingModuleInHand;
-import logisticspipes.network.guis.module.inpipe.CraftingModuleSlot;
-import logisticspipes.network.packets.cpipe.CPipeSatelliteImport;
-import logisticspipes.network.packets.cpipe.CPipeSatelliteImportBack;
-import logisticspipes.network.packets.cpipe.CraftingPipeOpenConnectedGuiPacket;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
-import logisticspipes.network.packets.pipe.CraftingPipeUpdatePacket;
-import logisticspipes.network.packets.pipe.FluidCraftingAmount;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_server.module.OpenAttachedCrafterGuiMessage;
+import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
+import logisticspipes.network.to_client.crafting.FluidCraftingAmountMessage;
+import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
+import logisticspipes.network.to_client.crafting.CraftingModuleUpdateMessage;
+import logisticspipes.network.to_server.crafting.CrafterImportRecipeMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
@@ -89,6 +86,7 @@ import logisticspipes.routing.LogisticsExtraPromise;
 import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrder;
+import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.CacheHolder.CacheTypes;
 import logisticspipes.utils.DelayedGeneric;
 import logisticspipes.utils.FluidIdentifier;
@@ -100,13 +98,13 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.inventory.CraftingModuleMenu;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import network.rs485.logisticspipes.connection.AdjacentUtilKt;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.IBitSet;
@@ -119,7 +117,7 @@ import network.rs485.logisticspipes.property.UUIDProperty;
 import network.rs485.logisticspipes.property.UUIDPropertyKt;
 
 public class ModuleCrafter extends LogisticsModule
-		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IGuiOpenController, Gui {
+		implements ICraftItems, IHUDModuleHandler, IModuleWatchReciver, IScreenOpenController, IModuleMenuProvider {
 
 	public final ItemIdentifierInventoryProperty dummyInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(11, "Requested items", 127), "dummyInv");
@@ -154,7 +152,7 @@ public class ModuleCrafter extends LogisticsModule
 	protected final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	protected final PlayerCollectionList guiWatcher = new PlayerCollectionList();
 
-	public ClientSideSatelliteNames clientSideSatelliteNames = new ClientSideSatelliteNames();
+	public ClientSideSatelliteNames clientSideSatelliteNames = ClientSideSatelliteNames.EMPTY;
 
 	protected SinkReply sinkReply;
 
@@ -630,13 +628,17 @@ public class ModuleCrafter extends LogisticsModule
 		return fuzzyFlags.get(startIdx, startIdx + 3);
 	}
 
-	public ModernPacket getCPipePacket() {
-		return PacketHandler.getPacket(CraftingPipeUpdatePacket.class).setAmount(liquidAmounts.getArray())
-				.setLiquidSatelliteNameArray(getSatelliteNamesForUUIDs(liquidSatelliteUUIDList))
-				.setLiquidSatelliteName(getSatelliteNameForUUID(liquidSatelliteUUID.getValue()))
-				.setSatelliteName(getSatelliteNameForUUID(satelliteUUID.getValue()))
-				.setAdvancedSatelliteNameArray(getSatelliteNamesForUUIDs(advancedSatelliteUUIDList))
-				.setPriority(priority.getValue()).setModulePos(this);
+	/** Everything about this crafter the client cannot work out for itself. */
+	public CraftingModuleUpdateMessage getUpdateMessage() {
+		return new CraftingModuleUpdateMessage(
+				ModuleTarget.of(this),
+				List.of(Arrays.stream(liquidAmounts.getArray()).boxed().toArray(Integer[]::new)),
+				new ClientSideSatelliteNames(
+						getSatelliteNameForUUID(satelliteUUID.getValue()),
+						getSatelliteNamesForUUIDs(advancedSatelliteUUIDList),
+						getSatelliteNameForUUID(liquidSatelliteUUID.getValue()),
+						getSatelliteNamesForUUIDs(liquidSatelliteUUIDList)),
+				priority.getValue());
 	}
 
 	private String getSatelliteNameForUUID(UUID uuid) {
@@ -656,46 +658,51 @@ public class ModuleCrafter extends LogisticsModule
 		return "UNKNOWN NAME";
 	}
 
-	private String[] getSatelliteNamesForUUIDs(UUIDListProperty list) {
-		return list.stream().map(this::getSatelliteNameForUUID).toArray(String[]::new);
+	private List<String> getSatelliteNamesForUUIDs(UUIDListProperty list) {
+		return list.stream().map(this::getSatelliteNameForUUID).toList();
 	}
 
-	public void handleCraftingUpdatePacket(CraftingPipeUpdatePacket packet) {
-		if (MainProxy.isClient(getWorld())) {
-			liquidAmounts.replaceContent(packet.getAmount());
-			clientSideSatelliteNames.liquidSatelliteNameArray = packet.getLiquidSatelliteNameArray();
-			clientSideSatelliteNames.liquidSatelliteName = packet.getLiquidSatelliteName();
-			clientSideSatelliteNames.satelliteName = packet.getSatelliteName();
-			clientSideSatelliteNames.advancedSatelliteNameArray = packet.getAdvancedSatelliteNameArray();
-			priority.setValue(packet.getPriority());
-		} else {
-			throw new UnsupportedOperationException();
+	/** Applies an update from the server. */
+	public void applyUpdate(List<Integer> liquidAmountList, ClientSideSatelliteNames names, int newPriority) {
+		liquidAmounts.replaceContent(liquidAmountList);
+		clientSideSatelliteNames = names;
+		priority.setValue(newPriority);
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		if (inventory.player instanceof ServerPlayer serverPlayer) {
+			// What the screen shows besides the slots: satellites, priority, the fluid amounts.
+			PacketDistributor.sendToPlayer(serverPlayer, getUpdateMessage());
 		}
+		return new CraftingModuleMenu(containerId, inventory, target, this, screenLayout());
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		return NewGuiHandler.getGui(CraftingModuleSlot.class)
-				.setAdvancedSat(getUpgradeManager().isAdvancedSatelliteCrafter())
-				.setLiquidCrafter(getUpgradeManager().getFluidCrafter())
-				.setAmount(liquidAmounts.getArray())
-				.setHasByproductExtractor(getUpgradeManager().hasByproductExtractor())
-				.setFuzzy(getUpgradeManager().isFuzzyUpgrade())
-				.setCleanupSize(getUpgradeManager().getCrafterCleanup())
-				.setCleanupExclude(cleanupModeIsExclude.getValue());
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		CraftingModuleMenu.Layout.STREAM_CODEC.encode(buffer, screenLayout());
 	}
 
-	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return NewGuiHandler.getGui(CraftingModuleInHand.class).setAmount(liquidAmounts.getArray())
-				.setCleanupExclude(cleanupModeIsExclude.getValue());
+	/**
+	 * What the module's upgrades make of its screen. A module held in hand has no upgrades, so it
+	 * gets the plain grid.
+	 */
+	private CraftingModuleMenu.Layout screenLayout() {
+		final boolean inWorld = getSlot() != ModulePositionType.IN_HAND;
+		return new CraftingModuleMenu.Layout(
+				inWorld && getUpgradeManager().isAdvancedSatelliteCrafter(),
+				inWorld ? getUpgradeManager().getFluidCrafter() : 0,
+				inWorld && getUpgradeManager().hasByproductExtractor(),
+				inWorld && getUpgradeManager().isFuzzyUpgrade(),
+				inWorld ? getUpgradeManager().getCrafterCleanup() : 0,
+				cleanupModeIsExclude.getValue(),
+				liquidAmounts.getArray());
 	}
 
 	public void importFromCraftingTable(@Nullable Player player) {
 		if (MainProxy.isClient(getWorld())) {
 			// Send packet asking for import
-			final CoordinatesPacket packet = PacketHandler.getPacket(CPipeSatelliteImport.class).setModulePos(this);
-			MainProxy.sendPacketToServer(packet);
+			ClientPacketDistributor.sendToServer(new CrafterImportRecipeMessage(ModuleTarget.of(this)));
 		} else {
 			final IPipeServiceProvider service = this.service;
 			if (service == null) return;
@@ -711,13 +718,17 @@ public class ModuleCrafter extends LogisticsModule
 						}
 					});
 
-			// Send inventory as packet
-			final CoordinatesPacket packet = PacketHandler.getPacket(CPipeSatelliteImportBack.class)
-					.setInventory(dummyInventory).setModulePos(this);
-			if (player != null) {
-				MainProxy.sendPacketToPlayer(packet, player);
+			// Send inventory as message
+			final List<ItemStack> slots = new ArrayList<>(dummyInventory.getContainerSize());
+			for (int slot = 0; slot < dummyInventory.getContainerSize(); slot++) {
+				slots.add(dummyInventory.getItem(slot));
 			}
-			MainProxy.sendPacketToAllWatchingChunk(this, packet);
+			final CraftingDummyInventoryMessage message =
+					new CraftingDummyInventoryMessage(ModuleTarget.of(this), slots);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, message);
+			}
+			TargetLookup.sendToChunkWatchers(getWorld(), getBlockPos(), message);
 		}
 	}
 
@@ -734,18 +745,17 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	public void changeFluidAmount(int change, int slot, Player player) {
-		if (MainProxy.isClient(player.level())) {
-			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(FluidCraftingAmount.class).setInteger2(slot).putInt(change)
-							.setModulePos(this));
-		} else {
-			liquidAmounts.increase(slot, change);
-			if (liquidAmounts.get(slot) <= 0) {
-				liquidAmounts.set(slot, 0);
-			}
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FluidCraftingAmount.class).setInteger2(slot)
-					.putInt(liquidAmounts.get(slot)).setModulePos(this), player);
-		}
+        if (player instanceof ServerPlayer serverPlayer) {
+            liquidAmounts.increase(slot, change);
+            if (liquidAmounts.get(slot) <= 0) {
+                liquidAmounts.set(slot, 0);
+            }
+            PacketDistributor.sendToPlayer(serverPlayer,
+                new FluidCraftingAmountMessage(ModuleTarget.of(this), slot, liquidAmounts.get(slot)));
+        } else {
+            ClientPacketDistributor.sendToServer(
+                new ChangeFluidCraftingAmountMessage(ModuleTarget.of(this), slot, change));
+        }
 	}
 
 	private IRouter getFluidSatelliteRouter(int x) {
@@ -762,73 +772,21 @@ public class ModuleCrafter extends LogisticsModule
 	public boolean openAttachedGui(Player player) {
 		if (MainProxy.isClient(player.level())) {
 			player.closeContainer();
-			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(CraftingPipeOpenConnectedGuiPacket.class).setModulePos(this));
+			ClientPacketDistributor.sendToServer(new OpenAttachedCrafterGuiMessage(ModuleTarget.of(this)));
 			return false;
 		}
 
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return false;
-		final IWorldProvider worldProvider = this.worldProvider;
-		if (worldProvider == null) return false;
+		if (!(player instanceof ServerPlayer serverPlayer)) return false;
 
-		// hack to avoid wrenching blocks
-		int savedEquipped = player.getInventory().getSelectedSlot();
-		boolean foundSlot = false;
-		// try to find a empty slot
-		for (int i = 0; i < 9; i++) {
-			if (player.getInventory().getItem(i).isEmpty()) {
-				foundSlot = true;
-				player.getInventory().setSelectedSlot(i);
-				break;
-			}
-		}
-		// okay, anything that's a block?
-		if (!foundSlot) {
-			for (int i = 0; i < 9; i++) {
-				ItemStack is = player.getInventory().getItem(i);
-				if (is.getItem() instanceof BlockItem) {
-					foundSlot = true;
-					player.getInventory().setSelectedSlot(i);
-					break;
-				}
-			}
-		}
-		// give up and select whatever is right of the current slot
-		if (!foundSlot) {
-			player.getInventory().setSelectedSlot((player.getInventory().getSelectedSlot() + 1) % 9);
-		}
-
-		final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream().anyMatch(neighbor -> {
-			if (neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
-					.anyMatch(provider -> provider.canOpenGui(neighbor.getTileEntity()))) {
-				final BlockPos pos = neighbor.getTileEntity().getBlockPos();
-				Level level = worldProvider.getWorld();
-				BlockState blockState = level.getBlockState(pos);
-				if (blockState.isAir()) {
-					return false;
-				}
-				BlockHitResult hit = new BlockHitResult(
-						Vec3.atCenterOf(pos),
-						Direction.UP,
-						pos,
-						false
-				);
-				return blockState.useItemOn(
-						player.getMainHandItem(),
-						level,
-						player,
-						InteractionHand.MAIN_HAND,
-						hit
-				) != InteractionResult.PASS;
-			} else {
-				return false;
-			}
-		});
+		final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream()
+				.filter(neighbor -> neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
+						.anyMatch(provider -> provider.canOpenGui(neighbor.getTileEntity())))
+				.anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getTileEntity().getBlockPos()));
 		if (!guiOpened) {
-			LogisticsPipes.LOG.warn("Ignored open attached GUI request at " + player.level() + " @ " + getBlockPos());
+			LogisticsPipes.LOG.warn("Ignored open attached GUI request at {} @ {}", player.level(), getBlockPos());
 		}
-		player.getInventory().setSelectedSlot(savedEquipped);
 		return guiOpened;
 	}
 
@@ -1173,15 +1131,7 @@ public class ModuleCrafter extends LogisticsModule
 		cleanupModeIsExclude.setValue(false);
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {
@@ -1199,7 +1149,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	private void updateSatellitesOnClient() {
-		MainProxy.sendToPlayerList(getCPipePacket(), guiWatcher);
+		guiWatcher.send(getUpdateMessage());
 	}
 
 	public void setSatelliteUUID(@Nullable UUID pipeID) {
@@ -1243,12 +1193,12 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
+	public void screenOpenedByPlayer(Player player) {
 		guiWatcher.add(player);
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenClosedByPlayer(Player player) {
 		guiWatcher.remove(player);
 	}
 
@@ -1263,16 +1213,37 @@ public class ModuleCrafter extends LogisticsModule
 		}
 	}
 
-	public static class ClientSideSatelliteNames {
+	/**
+	 * The satellite names the client shows, resolved by the server.
+	 *
+	 * <p>A satellite is referenced by UUID, and only the server can turn one into the name the
+	 * player typed, so the client is told the names outright and keeps them here.
+	 */
+	public record ClientSideSatelliteNames(
+			String satelliteName,
+			List<String> advancedSatelliteNames,
+			String liquidSatelliteName,
+			List<String> liquidSatelliteNames
+	) {
 
-		public
-        String satelliteName = "";
-		public
-        String[] advancedSatelliteNameArray = {};
-		public
-        String liquidSatelliteName = "";
-		public
-        String[] liquidSatelliteNameArray = {};
+		/**
+		 * What the client holds before the first update arrives.
+		 *
+		 * <p>The lists are full-length and blank rather than empty: the GUI indexes them by slot
+		 * while it builds its labels, which it does before any update can have arrived.
+		 */
+		public static final ClientSideSatelliteNames EMPTY = new ClientSideSatelliteNames(
+				"", Collections.nCopies(9, ""), "", Collections.nCopies(ItemUpgrade.MAX_LIQUID_CRAFTER, ""));
+
+		public static final StreamCodec<RegistryFriendlyByteBuf, ClientSideSatelliteNames> STREAM_CODEC =
+				StreamCodec.composite(
+						ByteBufCodecs.STRING_UTF8, ClientSideSatelliteNames::satelliteName,
+						ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
+						ClientSideSatelliteNames::advancedSatelliteNames,
+						ByteBufCodecs.STRING_UTF8, ClientSideSatelliteNames::liquidSatelliteName,
+						ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
+						ClientSideSatelliteNames::liquidSatelliteNames,
+						ClientSideSatelliteNames::new);
 	}
 
 	public boolean hasByproductUpgrade() {

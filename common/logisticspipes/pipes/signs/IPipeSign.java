@@ -2,15 +2,16 @@ package logisticspipes.pipes.signs;
 
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 import com.mojang.blaze3d.pipeline.RenderTarget; // was net.minecraft.client.shader.Framebuffer
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
-import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 
 public interface IPipeSign extends ValueIOSerializable {
@@ -25,7 +26,9 @@ public interface IPipeSign extends ValueIOSerializable {
 
 	void activate(Player player);
 
-	ModernPacket getPacket();
+	/** The message that tells clients what this sign shows, or null when it has nothing to say. */
+	@Nullable
+	CustomPacketPayload getPacket();
 
 	void updateServerSide();
 

@@ -1,6 +1,7 @@
 package logisticspipes.blocks;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -10,49 +11,45 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.ProblemReporter;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.IRoutedPowerProvider;
-import logisticspipes.interfaces.IGuiOpenController;
-import logisticspipes.interfaces.IGuiTileEntity;
+import logisticspipes.interfaces.IBlockEntityMenuProvider;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISecurityProvider;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.guis.block.SecurityStationGui;
-import logisticspipes.network.packets.block.SecurityStationAutoDestroy;
-import logisticspipes.network.packets.block.SecurityStationCC;
-import logisticspipes.network.packets.block.SecurityStationCCIDs;
-import logisticspipes.network.packets.block.SecurityStationId;
-import logisticspipes.network.packets.block.SecurityStationOpenPlayer;
+import logisticspipes.network.to_client.security.SecurityStationCCIdsMessage;
+import logisticspipes.network.to_client.security.SecurityStationFlagsMessage;
+import logisticspipes.network.to_client.security.SecurityStationIdMessage;
+import logisticspipes.network.to_client.security.SecurityStationSettingsMessage;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
+import logisticspipes.world.inventory.SecurityStationMenu;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
-public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IGuiOpenController, ISecurityProvider, IGuiTileEntity {
+public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity implements IScreenOpenController, ISecurityProvider, IBlockEntityMenuProvider {
 
 	public LogisticsSecurityTileEntity(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.SECURITY_STATION.get(), pos, state);
@@ -105,16 +102,19 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationCC.class).putInt(allowCC ? 1 : 0).setBlockPos(getBlockPos()), player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationAutoDestroy.class).putInt(allowAutoDestroy ? 1 : 0).setBlockPos(getBlockPos()), player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationId.class).setUuid(getSecId()).setBlockPos(getBlockPos()), player);
+	public void screenOpenedByPlayer(Player player) {
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new SecurityStationFlagsMessage(getBlockPos(), allowCC, allowAutoDestroy));
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new SecurityStationIdMessage(getBlockPos(), Optional.ofNullable(getSecId())));
+		}
 		SimpleServiceLocator.securityStationManager.sendClientAuthorizationList();
 		listener.add(player);
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenClosedByPlayer(Player player) {
 		listener.remove(player);
 	}
 
@@ -185,21 +185,33 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		output.putIntArray("excludedCC", excludedCC.stream().mapToInt(Integer::intValue).toArray());
 	}
 
-	public void buttonFreqCard(int integer, Player player) {
-		switch (integer) {
-			case 0: //--
+	/** What the four buttons under the security station's card slot do. */
+	public enum CardAction {
+		/** Empty the slot. */
+		CLEAR,
+		/** Take one card out. */
+		TAKE_ONE,
+		/** Put one card in. */
+		GIVE_ONE,
+		/** Fill the slot. */
+		GIVE_STACK,
+	}
+
+	public void handleCardAction(CardAction action, Player player) {
+		switch (action) {
+			case CLEAR:
 				inv.setItem(0, ItemStack.EMPTY);
 				break;
-			case 1: //-
+			case TAKE_ONE:
 				inv.removeItem(0, 1);
 				break;
-			case 2: //+
+			case GIVE_ONE:
 				if (!useEnergy(10)) {
 					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 					return;
 				}
 				if (inv.getIDStackInSlot(0) == null) {
-					ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 1);
+					ItemStack stack = new ItemStack(LPItems.SECURITY_CARD.get(), 1);
 					stack.set(LPDataComponents.UUID, getSecId());
 					inv.setItem(0, stack);
 				} else {
@@ -211,12 +223,12 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 					}
 				}
 				break;
-			case 3: //++
+			case GIVE_STACK:
 				if (!useEnergy(640)) {
 					player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
 					return;
 				}
-				ItemStack stack = new ItemStack(LPItems.ITEM_CARD.get(), 64);
+				ItemStack stack = new ItemStack(LPItems.SECURITY_CARD.get(), 64);
 				stack.set(LPDataComponents.UUID, getSecId());
 				inv.setItem(0, stack);
 				break;
@@ -230,22 +242,19 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 			setting = new SecuritySettings(string);
 			settingsList.put(string, setting);
 		}
-		// The packet carries a raw CompoundTag while SecuritySettings serialises to a
-		// ValueOutput; TagValueOutput is the adapter vanilla itself uses at that boundary.
-		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING,
-			player.level().registryAccess());
-		setting.serialize(output);
-		MainProxy.sendPacketToPlayer(
-			PacketHandler.getPacket(SecurityStationOpenPlayer.class).put(output.buildResult()), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new SecurityStationSettingsMessage(
+				string, SecurityPermissions.of(setting)));
+		}
 	}
 
-	public void saveNewSecuritySettings(CompoundTag tag, HolderLookup.Provider provider) {
-		SecuritySettings setting = settingsList.get(tag.getStringOr("name", ""));
+	public void saveSecuritySettings(String playerName, SecurityPermissions permissions) {
+		SecuritySettings setting = settingsList.get(playerName);
 		if (setting == null) {
-			setting = new SecuritySettings(tag.getStringOr("name", ""));
-			settingsList.put(tag.getStringOr("name", ""), setting);
+			setting = new SecuritySettings(playerName);
+			settingsList.put(playerName, setting);
 		}
-		setting.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, provider, tag));
+		permissions.applyTo(setting);
 	}
 
 	public SecuritySettings getSecuritySettingsForPlayer(Player entityplayer, boolean usePower) {
@@ -265,14 +274,20 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 		return setting;
 	}
 
-	public void changeCC() {
-		allowCC = !allowCC;
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(SecurityStationCC.class).putInt(allowCC ? 1 : 0).setBlockPos(getBlockPos()), listener);
+	/** One of the two checkboxes the station's GUI shows. */
+	public enum SecurityFlag {
+		/** Whether computers may talk to the network at all. */
+		ALLOW_CC,
+		/** Whether the station destroys itself when it loses power. */
+		AUTO_DESTROY,
 	}
 
-	public void changeDestroy() {
-		allowAutoDestroy = !allowAutoDestroy;
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(SecurityStationAutoDestroy.class).putInt(allowAutoDestroy ? 1 : 0).setBlockPos(getBlockPos()), listener);
+	public void toggleFlag(SecurityFlag flag) {
+		switch (flag) {
+			case ALLOW_CC -> allowCC = !allowCC;
+			case AUTO_DESTROY -> allowAutoDestroy = !allowAutoDestroy;
+		}
+		listener.send(new SecurityStationFlagsMessage(getBlockPos(), allowCC, allowAutoDestroy));
 	}
 
 	public void addCCToList(Integer id) {
@@ -287,22 +302,15 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	}
 
 	public void requestList(Player player) {
-		CompoundTag tag = new CompoundTag();
-		ListTag list = new ListTag();
-		for (Integer i : excludedCC) {
-			list.add(IntTag.valueOf(i));
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new SecurityStationCCIdsMessage(getBlockPos(), List.copyOf(excludedCC)));
 		}
-		tag.put("list", list);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationCCIDs.class).put(tag).setBlockPos(getBlockPos()), player);
 	}
 
-	public void handleListPacket(CompoundTag tag) {
+	public void setExcludedCC(List<Integer> ids) {
 		excludedCC.clear();
-		ListTag list = tag.getListOrEmpty("list");
-		while (list.size() > 0) {
-			Tag base = list.remove(0);
-			excludedCC.add(((IntTag) base).intValue());
-		}
+		excludedCC.addAll(ids);
 	}
 
 	@Override
@@ -341,7 +349,58 @@ public class LogisticsSecurityTileEntity extends LogisticsSolidBlockEntity imple
 	}
 
 	@Override
-	public CoordinatesGuiProvider getGuiProvider() {
-		return NewGuiHandler.getGui(SecurityStationGui.class);
+	public Component getDisplayName() {
+		return Component.translatable(getBlockState().getBlock().getDescriptionId());
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new SecurityStationMenu(containerId, inventory, this);
+	}
+
+	/**
+	* What one player is allowed to do at a security station.
+	*
+	* <p>The same six switches {@link SecuritySettings} holds, as a value that can travel. The
+	* settings themselves stay mutable and keep their own NBT shape for the save file; this is only
+	* the sent form, so a message never has to hand a raw {@code CompoundTag} to the security store.
+	*/
+	public record SecurityPermissions(
+			boolean openGui,
+			boolean openRequest,
+			boolean openUpgrades,
+			boolean openNetworkMonitor,
+			boolean removePipes,
+			boolean accessRoutingChannels
+	) {
+
+		public static final StreamCodec<RegistryFriendlyByteBuf, SecurityPermissions> STREAM_CODEC =
+				StreamCodec.composite(
+						ByteBufCodecs.BOOL, SecurityPermissions::openGui,
+						ByteBufCodecs.BOOL, SecurityPermissions::openRequest,
+						ByteBufCodecs.BOOL, SecurityPermissions::openUpgrades,
+						ByteBufCodecs.BOOL, SecurityPermissions::openNetworkMonitor,
+						ByteBufCodecs.BOOL, SecurityPermissions::removePipes,
+						ByteBufCodecs.BOOL, SecurityPermissions::accessRoutingChannels,
+						SecurityPermissions::new);
+
+		public static SecurityPermissions of(SecuritySettings settings) {
+			return new SecurityPermissions(
+					settings.openGui,
+					settings.openRequest,
+					settings.openUpgrades,
+					settings.openNetworkMonitor,
+					settings.removePipes,
+					settings.accessRoutingChannels);
+		}
+
+		public void applyTo(SecuritySettings settings) {
+			settings.openGui = openGui;
+			settings.openRequest = openRequest;
+			settings.openUpgrades = openUpgrades;
+			settings.openNetworkMonitor = openNetworkMonitor;
+			settings.removePipes = removePipes;
+			settings.accessRoutingChannels = accessRoutingChannels;
+		}
 	}
 }

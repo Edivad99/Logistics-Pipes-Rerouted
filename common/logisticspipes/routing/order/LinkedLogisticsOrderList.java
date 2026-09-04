@@ -3,91 +3,104 @@ package logisticspipes.routing.order;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
-import logisticspipes.util.LPFinalSerializable;
+public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> {
 
-public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> implements LPFinalSerializable {
+    /**
+     * An order and everything it had to be broken down into, all the way down.
+     *
+     * <p>Recursive because the structure is: a request for a crafted item becomes requests for its
+     * ingredients, which may themselves be crafted.
+     */
+    public static final StreamCodec<RegistryFriendlyByteBuf, LinkedLogisticsOrderList> STREAM_CODEC =
+        StreamCodec.recursive(self -> StreamCodec.composite(
+            IOrderInfoProvider.STREAM_CODEC.apply(ByteBufCodecs.list()), List::copyOf,
+            self.apply(ByteBufCodecs.list()), LinkedLogisticsOrderList::getSubOrders,
+            LinkedLogisticsOrderList::new));
 
-	private static final long serialVersionUID = 4328359512757178338L;
+    @Getter
+    private final List<LinkedLogisticsOrderList> subOrders;
 
-	@Getter
-	private List<LinkedLogisticsOrderList> subOrders = new ArrayList<>();
+    /**
+     * Null until first asked for; see {@link #getList()}.
+     */
+    private @Nullable List<IOrderInfoProvider> cachedList;
 
-	private List<IOrderInfoProvider> cachedList = null;
-	private List<Float> cachedProgress = null;
+    /**
+     * Null until first asked for; see {@link #getProgresses()}.
+     */
+    private @Nullable List<Float> cachedProgress;
 
-	public LinkedLogisticsOrderList() { }
+    public LinkedLogisticsOrderList() {
+        subOrders = new ArrayList<>();
+    }
 
-	public LinkedLogisticsOrderList(LPDataInput input) {
-		List<IOrderInfoProvider> orderInfoProviders = input.readArrayList(ClientSideOrderInfo::new);
-		if (orderInfoProviders == null) {
-			throw new NullPointerException("Null order info providers read");
-		}
-		this.addAll(orderInfoProviders);
+    public LinkedLogisticsOrderList(List<IOrderInfoProvider> orders, List<LinkedLogisticsOrderList> subOrders) {
+        addAll(orders);
+        this.subOrders = new ArrayList<>(subOrders);
+    }
 
-		List<LinkedLogisticsOrderList> orderLists = input.readArrayList(LinkedLogisticsOrderList::new);
-		if (orderLists == null) {
-			throw new NullPointerException("Null order lists read");
-		}
-		subOrders.addAll(orderLists);
-	}
+    /**
+     * Every order in the tree, this list's own first and then each sub-list's, flattened.
+     *
+     * <p>Built once and kept: the monitor asks for it every frame. Nothing adds to a list after it
+     * has been shown, so there is no cache to invalidate.
+     */
+    public List<IOrderInfoProvider> getList() {
+        List<IOrderInfoProvider> flattened = cachedList;
+        if (flattened == null) {
+            flattened = new ArrayList<>(this);
+            for (LinkedLogisticsOrderList sub : subOrders) {
+                flattened.addAll(sub.getList());
+            }
+            cachedList = flattened;
+        }
+        return flattened;
+    }
 
-	@Override
-	public void write(LPDataOutput output) {
-		output.writeCollection(this);
-		output.writeCollection(subOrders);
-	}
+    public int getTreeRootSize() {
+        int subSize = 0;
+        for (LinkedLogisticsOrderList sub : subOrders) {
+            subSize += sub.getTreeRootSize();
+        }
+        return Math.max(size(), subSize);
+    }
 
-	private void generateCache() {
-		cachedList = new ArrayList<>();
-		cachedList.addAll(this);
-		for (LinkedLogisticsOrderList sub : subOrders) {
-			cachedList.addAll(sub.getList());
-		}
-	}
+    public int getSubTreeRootSize() {
+        int subSize = 0;
+        for (LinkedLogisticsOrderList sub : subOrders) {
+            subSize += sub.getTreeRootSize();
+        }
+        return subSize;
+    }
 
-	public List<IOrderInfoProvider> getList() {
-		if (cachedList == null) {
-			generateCache();
-		}
-		return cachedList;
-	}
+    public void setWatched() {
+        this.forEach(IOrderInfoProvider::setWatched);
+        subOrders.forEach(LinkedLogisticsOrderList::setWatched);
+    }
 
-	public int getTreeRootSize() {
-		int subSize = 0;
-		for (LinkedLogisticsOrderList sub : subOrders) {
-			subSize += sub.getTreeRootSize();
-		}
-		return Math.max(size(), subSize);
-	}
-
-	public int getSubTreeRootSize() {
-		int subSize = 0;
-		for (LinkedLogisticsOrderList sub : subOrders) {
-			subSize += sub.getTreeRootSize();
-		}
-		return subSize;
-	}
-
-	public void setWatched() {
-		this.forEach(IOrderInfoProvider::setWatched);
-		subOrders.forEach(LinkedLogisticsOrderList::setWatched);
-	}
-
-	private void createProgressCache() {
-		cachedProgress = new ArrayList<>();
-		for (IOrderInfoProvider order : this) {
-			order.getProgresses().stream().filter(n -> !cachedProgress.contains(n)).forEach(n -> cachedProgress.add(n));
-		}
-	}
-
-	public List<Float> getProgresses() {
-		if (cachedProgress == null) {
-			createProgressCache();
-		}
-		return cachedProgress;
-	}
+    /**
+     * The distinct progress points of this list's own orders, in the order first seen.
+     */
+    public List<Float> getProgresses() {
+        List<Float> distinct = cachedProgress;
+        if (distinct == null) {
+            distinct = new ArrayList<>();
+            for (IOrderInfoProvider order : this) {
+                for (Float point : order.getProgresses()) {
+                    if (!distinct.contains(point)) {
+                        distinct.add(point);
+                    }
+                }
+            }
+            cachedProgress = distinct;
+        }
+        return distinct;
+    }
 }

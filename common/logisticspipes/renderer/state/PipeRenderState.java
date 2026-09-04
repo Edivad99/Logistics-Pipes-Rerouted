@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.BlockGetter; // was BlockGetter
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,15 +12,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import io.netty.buffer.ByteBuf;
 
-import logisticspipes.interfaces.IClientState;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.util.CoordinateUtils;
 import logisticspipes.util.DoubleCoordinates;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 
-public class PipeRenderState implements IClientState {
+public class PipeRenderState {
 
 	public enum LocalCacheType {
 		QUADS
@@ -100,15 +99,21 @@ public class PipeRenderState implements IClientState {
 		objectCache.cleanUp();
 	}
 
-	@Override
-	public void writeData(LPDataOutput output) {
-		pipeConnectionMatrix.writeData(output);
-		textureMatrix.writeData(output);
+	/** The two matrices, which together are everything the renderer reads off this state. */
+	public record Wire(ConnectionMatrix.Wire connections, TextureMatrix.Wire textures) {
+
+		public static final StreamCodec<ByteBuf, Wire> STREAM_CODEC = StreamCodec.composite(
+				ConnectionMatrix.Wire.STREAM_CODEC, Wire::connections,
+				TextureMatrix.Wire.STREAM_CODEC, Wire::textures,
+				Wire::new);
 	}
 
-	@Override
-	public void readData(LPDataInput input) {
-		pipeConnectionMatrix.readData(input);
-		textureMatrix.readData(input);
+	public Wire snapshot() {
+		return new Wire(pipeConnectionMatrix.snapshot(), textureMatrix.snapshot());
+	}
+
+	public void apply(Wire wire) {
+		pipeConnectionMatrix.apply(wire.connections());
+		textureMatrix.apply(wire.textures());
 	}
 }

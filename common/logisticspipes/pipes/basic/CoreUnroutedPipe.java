@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +20,6 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.ILPPipe;
-import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.pipes.basic.debug.StatusEntry;
@@ -34,7 +34,19 @@ import logisticspipes.util.CoordinateUtils;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.item.ItemIdentifier;
 
-public abstract class CoreUnroutedPipe implements IClientState, ILPPipe, ILPCCTypeHolder {
+public abstract class CoreUnroutedPipe implements ILPPipe, ILPCCTypeHolder {
+
+	/**
+	 * What this pipe keeps client side, beyond what every pipe has.
+	 *
+	 * <p>Written straight into the state packet's own buffer: the shape is the pipe's business,
+	 * and the reading side does not know which pipe it is until it has found the block entity.
+	 */
+	public void writeState(FriendlyByteBuf buffer) {
+	}
+
+	public void readState(FriendlyByteBuf buffer) {
+	}
 
 	private final Object[] ccTypeHolder = new Object[1];
 	@Nullable

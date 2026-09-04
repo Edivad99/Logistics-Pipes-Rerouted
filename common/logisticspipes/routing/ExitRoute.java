@@ -15,23 +15,16 @@ import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.routing.debug.ExitRouteDebug;
-import logisticspipes.util.DoubleCoordinates;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
-import logisticspipes.util.LPFinalSerializable;
 
 /**
  * Defines direction with a cost
  */
-public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
+public class ExitRoute implements Comparable<ExitRoute> {
 
 	public final double destinationDistanceToRoot;
 	public final int blockDistance;
@@ -68,44 +61,6 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 		this.blockDistance = blockDistance;
 	}
 
-	public ExitRoute(LPDataInput input) {
-		if (!input.readBoolean()) {
-			throw new RuntimeException("Cannot read an ExitRoute without destination");
-		}
-		final IRouter destinationRouter = readRouter(input);
-		if (destinationRouter == null) {
-			throw new RuntimeException("Destination of the ExitRoute could not be determined");
-		}
-		destination = destinationRouter;
-
-		if (input.readBoolean()) {
-			root = readRouter(input);
-		} else {
-			root = null;
-		}
-
-		exitOrientation = input.readFacing();
-		insertOrientation = input.readFacing();
-
-		connectionDetails = input.readEnumSet(PipeRoutingConnectionType.class);
-
-		distanceToDestination = input.readDouble();
-
-		double metric = input.readDouble();
-		if (!connectionDetails.contains(PipeRoutingConnectionType.canRequestFrom)) {
-			metric = Integer.MAX_VALUE;
-		}
-		destinationDistanceToRoot = metric;
-
-		blockDistance = input.readInt();
-
-		debug.filterPosition = input.readArrayList(DoubleCoordinates::new);
-		debug.toStringNetwork = input.readUTF();
-		debug.isNewlyAddedCanidate = input.readBoolean();
-		debug.isTraced = input.readBoolean();
-		debug.index = input.readInt();
-	}
-
 	public ExitRoute(IRouter source, IRouter destination, double distance, EnumSet<PipeRoutingConnectionType> enumSet, List<IFilter> filterA,
 			List<IFilter> filterB, int blockDistance) {
 		this(source, destination, null, null, distance, enumSet, blockDistance);
@@ -113,45 +68,6 @@ public class ExitRoute implements Comparable<ExitRoute>, LPFinalSerializable {
 		filter.addAll(filterA);
 		filter.addAll(filterB);
 		filters = Collections.unmodifiableList(filter);
-	}
-
-	private IRouter readRouter(LPDataInput input) {
-		DoubleCoordinates pos = new DoubleCoordinates(input);
-		BlockEntity tile = pos.getTileEntity(Minecraft.getInstance().level);
-		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe instanceof CoreRoutedPipe) {
-			return ((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).getRouter();
-		}
-		return null;
-	}
-
-	@Override
-	public void write(LPDataOutput output) {
-		output.writeBoolean(true);
-		destination.write(output);
-
-		if (root == null) {
-			output.writeBoolean(false);
-		} else {
-			output.writeBoolean(true);
-			root.write(output);
-		}
-
-		output.writeFacing(exitOrientation);
-		output.writeFacing(insertOrientation);
-
-		output.writeEnumSet(connectionDetails, PipeRoutingConnectionType.class);
-
-		output.writeDouble(distanceToDestination);
-
-		output.writeDouble(destinationDistanceToRoot);
-
-		output.writeInt(blockDistance);
-
-		output.writeCollection(filters, (innerOutput, filter) -> innerOutput.writeSerializable(filter.getLPPosition()));
-		output.writeUTF(toString());
-		output.writeBoolean(debug.isNewlyAddedCanidate);
-		output.writeBoolean(debug.isTraced);
-		output.writeInt(debug.index);
 	}
 
 	@Override

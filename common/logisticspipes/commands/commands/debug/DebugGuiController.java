@@ -1,22 +1,27 @@
 package logisticspipes.commands.commands.debug;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-import lombok.AllArgsConstructor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.exception.DelayPacketException;
-import logisticspipes.network.packets.debuggui.DebugDataPacket;
-import logisticspipes.network.packets.debuggui.DebugPanelOpen;
+import lombok.AllArgsConstructor;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.network.bidirectional.DebugConnectionDataMessage;
+import logisticspipes.network.to_client.debug.OpenDebugPanelMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -38,6 +43,7 @@ public class DebugGuiController {
 	}
 
 	public void execClient() {
+		flushClientData();
 		if (clientController != null) {
 			clientController.exec();
 		}
@@ -52,6 +58,7 @@ public class DebugGuiController {
 
 	private IDebugGuiEntry clientController = null;
 	private final List<Future<IDataConnection>> clientList = new LinkedList<>();
+	private final Map<Integer, List<byte[]>> pendingClientData = new HashMap<>();
 
 	public void startWatchingOf(Object object, Player player) {
 		if (object == null) {
@@ -70,12 +77,14 @@ public class DebugGuiController {
 			System.out.println("DebugGui could not be loaded");
 			return;
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DebugPanelOpen.class).setName(object.getClass().getSimpleName()), player);
 		synchronized (serverList) {
 			int identification = serverList.size();
 			IDataConnection conIn = new DataConnectionServer(identification, player);
-			while (serverList.size() <= identification) serverList.add(null);
-			serverList.set(identification, entry.startServerDebugging(object, conIn, new ObjectIdentification()));
+			serverList.add(entry.startServerDebugging(object, conIn, new ObjectIdentification()));
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer,
+						new OpenDebugPanelMessage(object.getClass().getSimpleName(), identification));
+			}
 		}
 	}
 
@@ -94,38 +103,57 @@ public class DebugGuiController {
 		}
 	}
 
-	public void handleDataPacket(byte[] payload, int identifier, Player player) {
+	public void handleDataPacket(byte[] payload, int connectionId, Player player) {
 		if (MainProxy.isServer(player.level())) {
 			synchronized (serverList) {
-				IDataConnection connection = serverList.get(identifier);
+				if (connectionId < 0 || connectionId >= serverList.size()) {
+					return;
+				}
+				IDataConnection connection = serverList.get(connectionId);
 				if (connection != null) {
 					connection.passData(payload);
 				}
 			}
 		} else {
 			synchronized (clientList) {
-				Future<IDataConnection> connectionFuture;
-				try {
-					connectionFuture = clientList.get(identifier);
-				} catch (IndexOutOfBoundsException e) {
-					System.out.println(clientList);
-					throw e;
-				}
-				if (connectionFuture == null || !connectionFuture.isDone()) {
-					throw new DelayPacketException();
-				}
-				IDataConnection connection = null;
-				try {
-					connection = connectionFuture.get();
-				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
-				}
-				if (connection != null) {
-					connection.passData(payload);
-				} else {
-					throw new DelayPacketException();
-				}
+				pendingClientData.computeIfAbsent(connectionId, id -> new ArrayList<>()).add(payload);
+				flushClientData();
 			}
+		}
+	}
+
+	/**
+	 * Hands the buffered data to every panel that has finished opening.
+	 *
+	 * <p>The panel is built on another thread, so its first messages can arrive before it exists.
+	 * Payloads are never retried, so holding them here is the only way they survive the wait.
+	 */
+	private void flushClientData() {
+		synchronized (clientList) {
+			pendingClientData.entrySet().removeIf(pending -> {
+				IDataConnection connection = clientConnection(pending.getKey());
+				if (connection == null) {
+					return false;
+				}
+				pending.getValue().forEach(connection::passData);
+				return true;
+			});
+		}
+	}
+
+	private @Nullable IDataConnection clientConnection(int connectionId) {
+		if (connectionId < 0 || connectionId >= clientList.size()) {
+			return null;
+		}
+		Future<IDataConnection> future = clientList.get(connectionId);
+		if (future == null || !future.isDone()) {
+			return null;
+		}
+		try {
+			return future.get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 
@@ -137,7 +165,9 @@ public class DebugGuiController {
 
 		@Override
 		public void passData(byte[] packet) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(DebugDataPacket.class).setPayload(packet).setIdentifier(identification), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new DebugConnectionDataMessage(identification, packet));
+			}
 		}
 
 		@Override
@@ -153,7 +183,7 @@ public class DebugGuiController {
 
 		@Override
 		public void passData(byte[] packet) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(DebugDataPacket.class).setPayload(packet).setIdentifier(identification));
+			ClientPacketDistributor.sendToServer(new DebugConnectionDataMessage(identification, packet));
 		}
 
 		@Override

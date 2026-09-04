@@ -40,26 +40,35 @@ package network.rs485.logisticspipes.inventory.container
 import network.rs485.logisticspipes.gui.widget.GhostSlot
 import network.rs485.logisticspipes.property.InventoryProperty
 import network.rs485.logisticspipes.property.layer.PropertyLayer
-import network.rs485.logisticspipes.property.layer.PropertyOverlay
 import network.rs485.logisticspipes.property.layer.PropertyOverlayInventoryAdapter
 import network.rs485.logisticspipes.util.FuzzyFlag
 import logisticspipes.modules.ModuleItemSink
-import logisticspipes.utils.item.ItemIdentifierInventory
+import logisticspipes.network.ModuleTarget
 import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import java.util.*
 
 class ItemSinkContainer(
-    playerInventory: Container,
-    filterInventoryOverlay: PropertyOverlay<ItemIdentifierInventory, out InventoryProperty<ItemIdentifierInventory>>,
+    menuType: MenuType<*>,
+    containerId: Int,
+    playerInventory: Inventory,
     itemSinkModule: ModuleItemSink,
-    propertyLayer: PropertyLayer, // FIXME: property layer should not be passed into the container, it is a client GUI thing
+    target: ModuleTarget,
     val isFuzzy: Boolean,
-    val moduleInHand: ItemStack,
-) : LPBaseContainer<ModuleItemSink>(itemSinkModule) {
+    moduleInHand: ItemStack,
+) : LPBaseContainer<ModuleItemSink>(menuType, containerId, itemSinkModule, target) {
 
     private val flags = EnumSet.of(FuzzyFlag.IGNORE_NBT, FuzzyFlag.IGNORE_DAMAGE)
+
+    /**
+     * The buffer the screen edits: a property is only written back to the module when the screen
+     * closes. The server builds one too and throws it away, which is what keeps a click on a ghost
+     * slot from reaching the module behind the player's back.
+     */
+    val propertyLayer = PropertyLayer(itemSinkModule.properties)
 
     val fuzzyFlagOverlay = propertyLayer.overlay(itemSinkModule.fuzzyFlags)
 
@@ -71,7 +80,7 @@ class ItemSinkContainer(
     )
 
     val filterSlots = addDummySlotsToContainer(
-        overlayInventory = PropertyOverlayInventoryAdapter(filterInventoryOverlay),
+        overlayInventory = PropertyOverlayInventoryAdapter(propertyLayer.overlay(itemSinkModule.filterInventory)),
         baseProperty = module.filterInventory,
         startX = 0,
         startY = 0,

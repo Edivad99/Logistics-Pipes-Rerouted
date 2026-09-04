@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.OpenChatGui;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.utils.string.ChatColor;
 
 // Player removed — use net.minecraft.commands.CommandSourceStack
@@ -172,7 +173,9 @@ public class MorePageDisplay {
 				display(sender, currentpage);
 			}
 			if (sender instanceof Player) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), (Player) sender);
+				if (sender instanceof ServerPlayer openChatFor) {
+					PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+				}
 			}
 		} else if (input.equalsIgnoreCase("previous") || input.equalsIgnoreCase("prev") || input.equalsIgnoreCase("pre") || input.equalsIgnoreCase("p")) {
 			if (currentpage < 2) {
@@ -198,20 +201,26 @@ public class MorePageDisplay {
 			sender.sendSystemMessage(Component.literal(ChatColor.AQUA + "Added '" + ChatColor.YELLOW + input.substring(5) + ChatColor.AQUA + "' to your chat history."));
 			printLastLine(sender, false);
 			if (sender instanceof Player) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), (Player) sender);
+				if (sender instanceof ServerPlayer openChatFor) {
+					PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+				}
 			}
 		} else if (input.equals("save")) {
 			display(sender, currentpage, true, false, 2);
 			sender.sendSystemMessage(Component.literal(ChatColor.AQUA + "Add an command after the '" + ChatColor.YELLOW + "save " + ChatColor.AQUA + "' and it will be added to your chat history."));
 			printLastLine(sender, false);
 			if (sender instanceof Player) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), (Player) sender);
+				if (sender instanceof ServerPlayer openChatFor) {
+					PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+				}
 			}
 		} else {
 			//display(sender,currentpage,true);
 			printLastLine(sender, true);
 			if (sender instanceof Player) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), (Player) sender);
+				if (sender instanceof ServerPlayer openChatFor) {
+					PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+				}
 			}
 		}
 		return true;
@@ -319,7 +328,9 @@ public class MorePageDisplay {
 			printLastLine(sender);
 		}
 		if (sender instanceof Player) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), (Player) sender);
+			if (sender instanceof ServerPlayer openChatFor) {
+					PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+				}
 		}
 	}
 

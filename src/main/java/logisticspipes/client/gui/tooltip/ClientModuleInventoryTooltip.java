@@ -29,12 +29,16 @@ public class ClientModuleInventoryTooltip implements ClientTooltipComponent {
     private static final Identifier SLOT_SPRITE =
         Identifier.withDefaultNamespace("container/bundle/slot_background");
 
-    /** The sprite is a 24x24 nine-slice with a 4px border, so the item sits in the inner 16x16. */
+    /**
+     * The sprite is a 24x24 nine-slice with a 4px border, so the item sits in the inner 16x16.
+     */
     private static final int SLOT_SIZE = 24;
     private static final int SLOT_BORDER = 4;
     private static final int MARGIN_Y = 4;
 
-    /** Filter inventories are laid out nine wide in the GUIs, so the tooltip matches that. */
+    /**
+     * Filter inventories are laid out nine wide in the GUIs, so the tooltip matches that.
+     */
     private static final int MAX_COLUMNS = 9;
 
     private final List<ItemStack> items;

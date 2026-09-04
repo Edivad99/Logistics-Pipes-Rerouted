@@ -25,16 +25,18 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.interfaces.ISlotClick;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.ChassisModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.FuzzySlotSettingsPacket;
+import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.proxy.MainProxy;
@@ -44,16 +46,26 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.item.ItemModule;
 import network.rs485.logisticspipes.property.IBitSet;
 
-public class DummyContainer extends AbstractContainerMenu {
+public class DummyContainer extends AbstractContainerMenu implements IJeiScreenHolder {
 
-	public LogisticsBaseGuiScreen guiHolderForJEI; // This is not set for every GUI. Only for the one needed by JEI.
+	private @Nullable LogisticsBaseGuiScreen<?> screenForJEI;
+
+	@Override
+	public @Nullable LogisticsBaseGuiScreen<?> getScreenForJEI() {
+		return screenForJEI;
+	}
+
+	@Override
+	public void setScreenForJEI(LogisticsBaseGuiScreen<?> screen) {
+		screenForJEI = screen;
+	}
 
 	public List<BitSet> slotsFuzzyFlags = new ArrayList<>();
     @Nullable
 	protected Container playerInventory;
     @Nullable
 	protected Container dummyInventory;
-	private final List<IGuiOpenController> controllers;
+	private final List<IScreenOpenController> controllers;
 	boolean wasDummyLookup;
 	boolean overrideMCAntiSend;
 	private final List<Slot> transferTop = new ArrayList<>();
@@ -70,13 +82,13 @@ public class DummyContainer extends AbstractContainerMenu {
 		controllers = List.of();
 	}
 
-	public DummyContainer(Player player, @Nullable Container dummyInventory, IGuiOpenController... controllers) {
+	public DummyContainer(Player player, @Nullable Container dummyInventory, IScreenOpenController... controllers) {
 		super(null, 0);
 		playerInventory = player.getInventory();
 		this.dummyInventory = dummyInventory;
 		this.controllers = List.of(controllers);
 		if (MainProxy.isServer(player.level())) {
-			this.controllers.forEach(element -> element.guiOpenedByPlayer(player));
+			this.controllers.forEach(element -> element.screenOpenedByPlayer(player));
 		}
 	}
 
@@ -476,7 +488,7 @@ public class DummyContainer extends AbstractContainerMenu {
 
 	@Override
 	public void removed(Player player) {
-		controllers.forEach(element -> element.guiClosedByPlayer(player));
+		controllers.forEach(element -> element.screenClosedByPlayer(player));
 		super.removed(player);
 	}
 
@@ -499,8 +511,12 @@ public class DummyContainer extends AbstractContainerMenu {
 		}
 	}
 
-	// @Override // canDragIntoSlot may not be in AbstractContainerMenu in 1.20.1
-	public boolean canDragIntoSlot(Slot slot) {
+	/**
+	 * A drag either fills ghost slots or moves real items, never both: which one is decided by the
+	 * first slot the drag reaches.
+	 */
+	@Override
+	public boolean canDragTo(Slot slot) {
 		if (slot instanceof UnmodifiableSlot || slot instanceof FluidSlot || slot instanceof ColorSlot || slot instanceof HandelableSlot) {
 			return false;
 		}
@@ -542,11 +558,12 @@ public class DummyContainer extends AbstractContainerMenu {
 				BitSet slotFlags = fuzzySlot.getFuzzyFlags().copyValue();
 				BitSet savedFlags = slotsFuzzyFlags.get(i);
 				if (savedFlags == null || !savedFlags.equals(slotFlags)) {
-					MainProxy.sendToPlayerList(
-							PacketHandler.getPacket(FuzzySlotSettingsPacket.class)
-									.setSlotNumber(fuzzySlot.getSlotId())
-									.setFlags(slotFlags),
-							getListeners().stream().filter(o -> o instanceof Player).map(o -> (Player) o));
+					final FuzzySlotFlagsMessage message =
+							FuzzySlotFlagsMessage.of(fuzzySlot.getSlotId(), slotFlags);
+					getListeners().stream()
+							.filter(ServerPlayer.class::isInstance)
+							.map(ServerPlayer.class::cast)
+							.forEach(listener -> PacketDistributor.sendToPlayer(listener, message));
 					slotsFuzzyFlags.set(i, slotFlags);
 				}
 			}

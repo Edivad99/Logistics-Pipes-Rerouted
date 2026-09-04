@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +15,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.item.Item;
@@ -27,21 +30,24 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.ICraftingRecipeGrid;
+import logisticspipes.interfaces.IPipeMenuProvider;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.CraftingSetType;
-import logisticspipes.network.packets.block.RequestRotationPacket;
-import logisticspipes.network.packets.orderer.OrderWatchRemovePacket;
-import logisticspipes.network.packets.orderer.OrdererWatchPacket;
+import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
+import logisticspipes.network.to_client.orderer.OrderWatchMessage;
+import logisticspipes.network.to_client.orderer.OrdererWatchRemoveMessage;
+import logisticspipes.network.to_server.block.RequestBlockRotationMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
@@ -58,13 +64,19 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.RequestTableMenu;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.AutoCraftingContainer;
 
 public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements ISimpleInventoryEventHandler, IRequestWatcher,
-    IGuiOpenController, IRotationProvider {
+    IScreenOpenController, IRotationProvider, ICraftingRecipeGrid, IPipeMenuProvider {
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new RequestTableMenu(containerId, inventory, this);
+	}
 
 	public SimpleStackInventory diskInv = new SimpleStackInventory(1, "Disk Slot", 1);
 	public SimpleStackInventory inv = new SimpleStackInventory(27, "Crafting Resources", 64);
@@ -83,7 +95,27 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	public Map<Integer, Pair<IResource, LinkedLogisticsOrderList>> watchedRequests = new HashMap<>();
 	private int localLastUsedWatcherId = 0;
 
-	public ItemIdentifier targetType = null;
+	public @Nullable ItemIdentifier targetType = null;
+
+	@Override
+	public CoreRoutedPipe getAttachedPipe() {
+		return this;
+	}
+
+	@Override
+	public ItemIdentifierInventory getMatrix() {
+		return matrix;
+	}
+
+	@Override
+	public @Nullable ItemIdentifier getTargetType() {
+		return targetType;
+	}
+
+	@Override
+	public void setTargetType(@Nullable ItemIdentifier targetType) {
+		this.targetType = targetType;
+	}
 
 	public PipeBlockRequestTable(Item item) {
 		super(item);
@@ -118,7 +150,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 		if (MainProxy.isClient(getWorld())) {
 			if (!init) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRotationPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+				ClientPacketDistributor.sendToServer(new RequestBlockRotationMessage(getPos()));
 				init = true;
 			}
 			return;
@@ -130,7 +162,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			checkForExpired();
 			if (getUpgradeManager().hasCraftingMonitoringUpgrade()) {
 				for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
-					MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).putInt(entry.getKey()).setTilePos(container), localGuiWatcher);
+					localGuiWatcher.send(new OrderWatchMessage(getPos(), entry.getKey(),
+						Optional.ofNullable(entry.getValue().getValue1()), entry.getValue().getValue2()));
 				}
 			}
 		} else if (tick % 20 == 0) {
@@ -143,7 +176,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		while (iter.hasNext()) {
 			Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry = iter.next();
 			if (isDone(entry.getValue().getValue2())) {
-				MainProxy.sendToPlayerList(PacketHandler.getPacket(OrderWatchRemovePacket.class).putInt(entry.getKey()).setTilePos(container), localGuiWatcher);
+				localGuiWatcher.send(new OrdererWatchRemoveMessage(getPos(), entry.getKey()));
 				iter.remove();
 			}
 		}
@@ -201,11 +234,10 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				flag = false;
 			}
 		}
-		if (flag) {
-			logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.RequestTableGui.class)
-					.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-					.open(entityplayer);
+		if (flag && entityplayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(this);
 		}
+		
 	}
 
 	@Override
@@ -270,6 +302,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 	}
 
+	@Override
 	public void cacheRecipe() {
 		ItemIdentifier oldTargetType = targetType;
 		cache = null;
@@ -315,10 +348,11 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			targetType = null;
 		}
 		if (targetType != oldTargetType && !localGuiWatcher.isEmpty() && getWorld() != null && MainProxy.isServer(getWorld())) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), localGuiWatcher);
+			localGuiWatcher.send(new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
 		}
 	}
 
+	@Override
 	public void cycleRecipe(boolean down) {
 		cacheRecipe();
 		if (targetType == null) {
@@ -374,7 +408,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			targetType = ItemIdentifier.get(cache.value().assemble(craftingInput));
 		}
 		if (!localGuiWatcher.isEmpty() && getWorld() != null && MainProxy.isServer(getWorld())) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), localGuiWatcher);
+			localGuiWatcher.send(new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
 		}
 		cacheRecipe();
 	}
@@ -509,7 +543,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 	}
 
-	public void handleNEIRecipePacket(NonNullList<ItemStack> content) {
+	@Override
+	public void handleRecipeViewerImport(NonNullList<ItemStack> content) {
 		if (matrix.getContainerSize() != content.size()) throw new IllegalStateException("Different sizes of matrix and inventory from packet");
 		for (int i = 0; i < content.size(); i++) {
 			matrix.setItem(i, content.get(i));
@@ -579,21 +614,30 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 		orders.setWatched();
 		watchedRequests.put(++localLastUsedWatcherId, new Pair<>(stack, orders));
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(orders).setStack(stack).putInt(localLastUsedWatcherId).setTilePos(container), localGuiWatcher);
+		localGuiWatcher.send(new OrderWatchMessage(getPos(), localLastUsedWatcherId,
+			Optional.ofNullable(stack), orders));
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrderWatchRemovePacket.class).putInt(-1).setTilePos(container), player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(container), player);
+	public void screenOpenedByPlayer(Player player) {
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new OrdererWatchRemoveMessage(getPos(), -1));
+		}
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
+		}
 		localGuiWatcher.add(player);
 		for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererWatchPacket.class).setOrders(entry.getValue().getValue2()).setStack(entry.getValue().getValue1()).putInt(entry.getKey()).setTilePos(container), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new OrderWatchMessage(getPos(), entry.getKey(),
+					Optional.ofNullable(entry.getValue().getValue1()), entry.getValue().getValue2()));
+			}
 		}
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenClosedByPlayer(Player player) {
 		localGuiWatcher.remove(player);
 	}
 
@@ -615,6 +659,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		}
 	}
 
+	@Override
 	public ItemStack getDisk() {
 		return diskInv.getItem(0);
 	}

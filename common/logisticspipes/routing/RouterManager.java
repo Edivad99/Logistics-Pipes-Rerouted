@@ -20,8 +20,11 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
@@ -29,8 +32,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.ISecurityStationManager;
 import logisticspipes.interfaces.routing.IChannelConnectionManager;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.SecurityStationAuthorizedList;
+import logisticspipes.network.to_client.security.SecurityAuthorizedListMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.channels.ChannelConnection;
@@ -290,12 +292,14 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 
 	@Override
 	public void sendClientAuthorizationList() {
-		MainProxy.sendToAllPlayers(PacketHandler.getPacket(SecurityStationAuthorizedList.class).setStringList(authorized));
+		PacketDistributor.sendToAllPlayers(new SecurityAuthorizedListMessage(List.copyOf(authorized)));
 	}
 
 	@Override
 	public void sendClientAuthorizationList(Player player) {
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SecurityStationAuthorizedList.class).setStringList(authorized), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new SecurityAuthorizedListMessage(List.copyOf(authorized)));
+		}
 	}
 
 	public void printAllRouters() {

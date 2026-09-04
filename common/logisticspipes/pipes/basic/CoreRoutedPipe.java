@@ -29,9 +29,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -42,6 +49,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import kotlin.Unit;
 import lombok.Getter;
@@ -55,8 +65,8 @@ import logisticspipes.api.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.interfaces.IClientState;
 import logisticspipes.interfaces.ILPPositionProvider;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.IQueueCCEvent;
@@ -78,14 +88,11 @@ import logisticspipes.logisticspipes.RouteLayer;
 import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.guis.pipe.NormalOrdererGui;
-import logisticspipes.network.guis.pipe.PipeController;
-import logisticspipes.network.packets.pipe.PipeSignTypes;
-import logisticspipes.network.packets.pipe.RequestSignPacket;
-import logisticspipes.network.packets.pipe.StatUpdate;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_client.pipe.PipeSignTypesMessage;
+import logisticspipes.network.to_client.pipe.PipeStatsMessage;
+import logisticspipes.network.to_server.pipe.RequestPipeSignsMessage;
+import logisticspipes.network.to_server.pipe.RequestRoutingLasersMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.pipes.basic.debug.DebugLogController;
@@ -99,6 +106,7 @@ import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCDirectCall;
 import logisticspipes.proxy.computers.interfaces.CCSecurtiyCheck;
 import logisticspipes.proxy.computers.interfaces.CCType;
+import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
@@ -113,8 +121,6 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.util.DoubleCoordinates;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.DirectionUtil;
 import logisticspipes.utils.FluidIdentifierStack;
@@ -123,6 +129,8 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.OrdererMenu;
+import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.item.ItemPipeSignCreator;
@@ -130,13 +138,12 @@ import logisticspipes.world.item.LPItems;
 import network.rs485.logisticspipes.connection.Adjacent;
 import network.rs485.logisticspipes.connection.AdjacentFactory;
 import network.rs485.logisticspipes.connection.NoAdjacent;
-import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.PropertyHolder;
 import network.rs485.logisticspipes.property.UtilKt;
 
 @CCType(name = "LogisticsPipes:Normal")
 public abstract class CoreRoutedPipe extends CoreUnroutedPipe
-		implements IClientState, IRequestItems, ITrackStatistics, IWorldProvider, IWatchingHandler, IPipeServiceProvider, IQueueCCEvent, ILPPositionProvider {
+		implements IRequestItems, ITrackStatistics, IWorldProvider, IWatchingHandler, IPipeServiceProvider, IQueueCCEvent, ILPPositionProvider {
 
 	private static int pipecount = 0;
 	public final PlayerCollectionList watchers = new PlayerCollectionList();
@@ -147,9 +154,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public boolean textureBufferPowered;
 	public long delayTo = 0;
 	public int repeatFor = 0;
-	public int stat_session_sent;
-	public int stat_session_received;
-	public int stat_session_relayed;
+	public long stat_session_sent;
+	public long stat_session_received;
+	public long stat_session_relayed;
 	public long stat_lifetime_sent;
 	public long stat_lifetime_received;
 	public long stat_lifetime_relayed;
@@ -373,7 +380,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public void firstInitialiseTick() {
 		getRouter();
 		if (MainProxy.isClient(getWorld())) {
-			MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestSignPacket.class).setTilePos(container));
+			ClientPacketDistributor.sendToServer(new RequestPipeSignsMessage(getPos()));
 		}
 	}
 
@@ -875,7 +882,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (MainProxy.isPipeControllerEquipped(entityplayer)) {
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openNetworkMonitor) {
-					NewGuiHandler.getGui(PipeController.class).setTilePos(container).open(entityplayer);
+					if (entityplayer instanceof ServerPlayer serverPlayer) {
+						serverPlayer.openMenu(new SimpleMenuProvider(
+								(containerId, inventory, viewer) ->
+										new PipeControllerMenu(containerId, inventory, this),
+								Component.empty()),
+							buffer -> buffer.writeBlockPos(getPos()));
+					}
 				} else {
 					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
@@ -891,15 +904,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			if (!entityplayer.isCrouching()) {
 				return false;
 			}
-			/*
 			if (MainProxy.isClient(entityplayer.level())) {
-				if (!LogisticsHUDRenderer.instance().hasLasers()) {
-					MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRoutingLasersPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
-				} else {
+				if (LogisticsHUDRenderer.instance().hasLasers()) {
 					LogisticsHUDRenderer.instance().resetLasers();
+				} else {
+					ClientPacketDistributor.sendToServer(new RequestRoutingLasersMessage(getPos()));
 				}
 			}
-			*/
 			if (LogisticsPipes.isDEBUG()) {
 				doDebugStuff(entityplayer);
 			}
@@ -909,10 +920,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openRequest) {
-					NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
-					gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-					gui.setDim(entityplayer.level().dimension().identifier());
-					gui.open(entityplayer);
+					if (entityplayer instanceof ServerPlayer serverPlayer) {
+						OrdererMenu.open(serverPlayer, this);
+					}
 				} else {
 					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
@@ -924,8 +934,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			if (MainProxy.isServer(entityplayer.level())) {
 				if (settings == null || settings.openGui) {
 					final LogisticsModule module = getLogisticsModule();
-					if (module instanceof Gui) {
-						Gui.getPipeGuiProvider((Gui) module).setTilePos(container).open(entityplayer);
+					if (module instanceof IModuleMenuProvider && entityplayer instanceof ServerPlayer serverPlayer) {
+						IModuleMenuProvider.open(serverPlayer, module);
 					} else {
 						onWrenchClicked(entityplayer);
 					}
@@ -978,24 +988,75 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		updateStats();
 	}
 
+	/**
+	 * How many items went through a pipe, over one window of time.
+	 *
+	 * <p>The same three counters are kept twice: once since the server started, once for the
+	 * pipe's whole life.
+	 */
+	public record TrafficCounts(long sent, long received, long relayed) {
+
+		public static final StreamCodec<RegistryFriendlyByteBuf, TrafficCounts> STREAM_CODEC =
+				StreamCodec.composite(
+						ByteBufCodecs.VAR_LONG, TrafficCounts::sent,
+						ByteBufCodecs.VAR_LONG, TrafficCounts::received,
+						ByteBufCodecs.VAR_LONG, TrafficCounts::relayed,
+						TrafficCounts::new);
+	}
+
+	public TrafficCounts sessionCounts() {
+		return new TrafficCounts(stat_session_sent, stat_session_received, stat_session_relayed);
+	}
+
+	public TrafficCounts lifetimeCounts() {
+		return new TrafficCounts(stat_lifetime_sent, stat_lifetime_received, stat_lifetime_relayed);
+	}
+
+	/** How many other pipes this one can reach. */
+	public int routingTableSize() {
+		int reachable = 0;
+		for (List<ExitRoute> route : getRouter().getRouteTable()) {
+			if (route != null && !route.isEmpty()) {
+				reachable++;
+			}
+		}
+		return reachable;
+	}
+
+	public void applyStats(TrafficCounts session, TrafficCounts lifetime, int routingTableSize) {
+		stat_session_sent = session.sent();
+		stat_session_received = session.received();
+		stat_session_relayed = session.relayed();
+		stat_lifetime_sent = lifetime.sent();
+		stat_lifetime_received = lifetime.received();
+		stat_lifetime_relayed = lifetime.relayed();
+		server_routing_table_size = routingTableSize;
+	}
+
+	private PipeStatsMessage statsMessage() {
+		return new PipeStatsMessage(getPos(), sessionCounts(), lifetimeCounts(), routingTableSize());
+	}
+
 	@Override
-	public void playerStartWatching(Player player, int mode) {
-		if (mode == 0) {
+	public void playerStartWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.GUI) {
 			watchers.add(player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(StatUpdate.class).setPipe(this), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, statsMessage());
+			}
 		}
 	}
 
 	@Override
-	public void playerStopWatching(Player player, int mode) {
-		if (mode == 0) {
+	public void playerStopWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.GUI) {
 			watchers.remove(player);
 		}
 	}
 
 	public void updateStats() {
-		if (watchers.size() > 0) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(StatUpdate.class).setPipe(this), watchers);
+		if (!watchers.isEmpty()) {
+			watchers.send(statsMessage());
 		}
 	}
 
@@ -1526,17 +1587,20 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				}
 			}
 		}
-		ModernPacket packet = PacketHandler.getPacket(PipeSignTypes.class).setTypes(types).setTilePos(container);
+		final PipeSignTypesMessage message = new PipeSignTypesMessage(getPos(), types);
 		if (sendToAll) {
-			MainProxy.sendPacketToAllWatchingChunk(container, packet);
+			TargetLookup.sendToChunkWatchers(container, message);
+		} else if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, message);
 		}
-		MainProxy.sendPacketToPlayer(packet, player);
 		for (int i = 0; i < 6; i++) {
 			if (signItem[i] != null) {
-				packet = signItem[i].getPacket();
-				if (packet != null) {
-					MainProxy.sendPacketToAllWatchingChunk(container, packet);
-					MainProxy.sendPacketToPlayer(packet, player);
+				final CustomPacketPayload signPayload = signItem[i].getPacket();
+				if (signPayload != null) {
+					TargetLookup.sendToChunkWatchers(container, signPayload);
+					if (player instanceof ServerPlayer serverPlayer) {
+						PacketDistributor.sendToPlayer(serverPlayer, signPayload);
+					}
 				}
 			}
 		}
@@ -1580,7 +1644,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			return;
 		}
 		for (int i = 0; i < 6; i++) {
-			int integer = types.get(i);
+			// A message that named fewer than six sides used to walk off the end of the list.
+			int integer = i < types.size() ? types.get(i) : -1;
 			if (integer >= 0) {
 				Class<? extends IPipeSign> type = ItemPipeSignCreator.signTypes.get(integer);
 				if (signItem[i] == null || signItem[i].getClass() != type) {
@@ -1604,13 +1669,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	@Override
-	public void writeData(LPDataOutput output) {
-		output.writeBoolean(isOpaque());
+	public void writeState(FriendlyByteBuf buffer) {
+		buffer.writeBoolean(isOpaque());
 	}
 
 	@Override
-	public void readData(LPDataInput input) {
-		isOpaqueClientSide = input.readBoolean();
+	public void readState(FriendlyByteBuf buffer) {
+		isOpaqueClientSide = buffer.readBoolean();
 	}
 
 	@Override
@@ -1624,24 +1689,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public void addStatusInformation(List<StatusEntry> status) {
-		StatusEntry entry = new StatusEntry();
-		entry.name = "Send Queue";
-		entry.subEntry = new ArrayList<>();
-		for (Triplet<IRoutedItem, Direction, ItemSendMode> part : sendQueue) {
-			StatusEntry subEntry = new StatusEntry();
-			subEntry.name = part.toString();
-			entry.subEntry.add(subEntry);
-		}
-		status.add(entry);
-		entry = new StatusEntry();
-		entry.name = "In Transit To Me";
-		entry.subEntry = new ArrayList<>();
-		for (ItemRoutingInformation part : inTransitToMe) {
-			StatusEntry subEntry = new StatusEntry();
-			subEntry.name = part.toString();
-			entry.subEntry.add(subEntry);
-		}
-		status.add(entry);
+		status.add(StatusEntry.of("Send Queue", sendQueue));
+		status.add(StatusEntry.of("In Transit To Me", inTransitToMe));
 	}
 
 	@Override

@@ -12,6 +12,8 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 
 import logisticspipes.LPConstants;
+import logisticspipes.world.inventory.AutoCraftingMenu;
+import logisticspipes.world.inventory.RequestTableMenu;
 import network.rs485.logisticspipes.gui.BaseGuiContainer;
 
 @JeiPlugin
@@ -38,7 +40,12 @@ public class LPJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         IRecipeTransferHandlerHelper transferHelper = registration.getTransferHelper();
-        registration.addRecipeTransferHandler(new RecipeTransferHandler(transferHelper), RecipeTypes.CRAFTING);
+        // One per concrete menu: JEI looks a handler up by the menu's exact class, so registering
+        // the base they share would never match. These are the two screens with a recipe grid.
+        registration.addRecipeTransferHandler(
+            new RecipeTransferHandler<>(AutoCraftingMenu.class, transferHelper), RecipeTypes.CRAFTING);
+        registration.addRecipeTransferHandler(
+            new RecipeTransferHandler<>(RequestTableMenu.class, transferHelper), RecipeTypes.CRAFTING);
     }
 
     @Override

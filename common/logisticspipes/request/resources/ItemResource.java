@@ -1,9 +1,12 @@
 package logisticspipes.request.resources;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.routing.IRouter;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
@@ -12,21 +15,22 @@ public class ItemResource implements IResource {
 
 	private final Object[] ccTypeHolder = new Object[1];
 	private final ItemIdentifierStack stack;
-	private final IRequestItems requester;
+	/** Null on the client, which only ever displays a resource. */
+	private final @Nullable IRequestItems requester;
 
-	public ItemResource(ItemIdentifierStack stack, IRequestItems requester) {
+	public static final StreamCodec<RegistryFriendlyByteBuf, ItemResource> STREAM_CODEC =
+			StreamCodec.composite(
+					ItemIdentifierStack.STREAM_CODEC, resource -> resource.stack,
+					ItemResource::new);
+
+	/** Rebuilt on the client, where a resource has no requester to answer to. */
+	private ItemResource(ItemIdentifierStack stack) {
+		this(stack, null);
+	}
+
+	public ItemResource(ItemIdentifierStack stack, @Nullable IRequestItems requester) {
 		this.stack = stack;
 		this.requester = requester;
-	}
-
-	public ItemResource(LPDataInput input) {
-		stack = input.readItemIdentifierStack();
-		requester = null;
-	}
-
-	@Override
-	public void writeData(LPDataOutput output) {
-		output.writeItemIdentifierStack(stack);
 	}
 
 	@Override

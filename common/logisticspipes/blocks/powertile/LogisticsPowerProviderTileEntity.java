@@ -10,29 +10,29 @@ import java.util.stream.Stream;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.gui.hud.HUDPowerLevel;
+import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IBlockWatchingHandler;
-import logisticspipes.interfaces.IGuiOpenController;
-import logisticspipes.interfaces.IGuiTileEntity;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IHeadUpDisplayBlockRendererProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IPowerLevelDisplay;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.guis.block.PowerProviderGui;
-import logisticspipes.network.packets.block.PowerProviderLevel;
-import logisticspipes.network.packets.hud.HUDStartBlockWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopBlockWatchingPacket;
+import logisticspipes.network.to_client.block.PowerProviderLevelMessage;
+import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
@@ -47,6 +47,7 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import logisticspipes.world.inventory.PowerProviderMenu;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
@@ -54,7 +55,7 @@ import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 @CCType(name = "LogisticsPowerProvider")
 public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlockEntity
-		implements IGuiTileEntity, ISubSystemPowerProvider, IPowerLevelDisplay, IGuiOpenController, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
+		implements IBlockEntityMenuProvider, ISubSystemPowerProvider, IPowerLevelDisplay, IScreenOpenController, IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
 
 	public static final int BC_COLOR = 0x00ffff;
 	public static final int RF_COLOR = 0xff0000;
@@ -271,12 +272,12 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartBlockWatchingPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new BlockHudWatchMessage(getBlockPos(), true));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopBlockWatchingPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new BlockHudWatchMessage(getBlockPos(), false));
 	}
 
 	@Override
@@ -296,19 +297,20 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
+	public void screenOpenedByPlayer(Player player) {
 		guiListener.add(player);
 		updateClients();
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenClosedByPlayer(Player player) {
 		guiListener.remove(player);
 	}
 
 	public void updateClients() {
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).putDouble(internalStorage).setTilePos(this), guiListener);
-		MainProxy.sendToPlayerList(PacketHandler.getPacket(PowerProviderLevel.class).putDouble(internalStorage).setTilePos(this), watcherList);
+		final PowerProviderLevelMessage message = new PowerProviderLevelMessage(getBlockPos(), internalStorage);
+		guiListener.send(message);
+		watcherList.send(message);
 	}
 
 	public void handlePowerPacket(double d) {
@@ -333,7 +335,12 @@ public abstract class LogisticsPowerProviderTileEntity extends LogisticsSolidBlo
 	}
 
 	@Override
-	public CoordinatesGuiProvider getGuiProvider() {
-		return NewGuiHandler.getGui(PowerProviderGui.class);
+	public Component getDisplayName() {
+		return Component.translatable(getBlockState().getBlock().getDescriptionId());
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new PowerProviderMenu(containerId, inventory, this);
 	}
 }

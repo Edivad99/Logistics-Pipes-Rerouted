@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -26,8 +27,6 @@ import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.util.DoubleCoordinatesType;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.IPositionRotateble;
 import logisticspipes.utils.LPPositionSet;
 
@@ -42,19 +41,15 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public void writeData(LPDataOutput output) {
-		if (orientation == null) {
-			output.writeBoolean(false);
-		} else {
-			output.writeBoolean(true);
-			output.writeEnum(orientation);
-		}
+	public void writeState(FriendlyByteBuf buffer) {
+		buffer.writeNullable(orientation, FriendlyByteBuf::writeEnum);
 	}
 
 	@Override
-	public void readData(LPDataInput input) {
-		if (input.readBoolean()) {
-			orientation = input.readEnum(CurveSOrientation.class);
+	public void readState(FriendlyByteBuf buffer) {
+		final CurveSOrientation read = buffer.readNullable(inner -> inner.readEnum(CurveSOrientation.class));
+		if (read != null) {
+			orientation = read;
 		}
 	}
 

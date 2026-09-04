@@ -16,13 +16,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.CompilerTriggerTaskPacket;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.to_server.block.TriggerCompilerTaskMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
@@ -30,10 +29,11 @@ import logisticspipes.world.item.ItemLogisticsPipe;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity.CompilerTask;
 import network.rs485.logisticspipes.util.TextUtil;
 
 //TODO: Config Option for disabling program compilation
-public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
+public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompilerMenu> {
 
     private final LogisticsProgramCompilerBlockEntity compiler;
     private final TextListDisplay.List categoryTextList;
@@ -62,7 +62,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 }
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 return (int) LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
+                    .filter(
+                        it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                     .count();
             }
 
@@ -74,7 +75,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 return TextUtil.translate(
                     "gui.compiler." + LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                        .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
+                        .filter(it -> list.stream()
+                            .noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                         .skip(index)
                         .findFirst()
                         .map(it -> String.format("%s.%s", it.getNamespace(), it.getPath()))
@@ -144,15 +146,12 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
             if (categoryList.getSelected() != -1) {
                 ListTag list = compiler.getListTagForKey("compilerCategories");
                 LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                    .filter(it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
+                    .filter(
+                        it -> list.stream().noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
                     .skip(categoryList.getSelected())
                     .findFirst()
-                    .ifPresent(it -> MainProxy.sendPacketToServer(
-                        PacketHandler.getPacket(CompilerTriggerTaskPacket.class)
-                            .setCategory(it)
-                            .setType("category")
-                            .setTilePos(compiler))
-                    );
+                    .ifPresent(it -> ClientPacketDistributor.sendToServer(
+                        new TriggerCompilerTaskMessage(compiler.getBlockPos(), it, CompilerTask.CATEGORY)));
             }
         });
         addRenderableWidget(unlock);
@@ -186,8 +185,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
                 ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
                 boolean flag = listPrograms.stream()
                     .anyMatch(it -> Identifier.parse(it.asString().orElse("")).equals(sel));
-                MainProxy.sendPacketToServer(PacketHandler.getPacket(CompilerTriggerTaskPacket.class).setCategory(sel)
-                    .setType(flag ? "flash" : "program").setTilePos(compiler));
+                ClientPacketDistributor.sendToServer(new TriggerCompilerTaskMessage(
+                    compiler.getBlockPos(), sel, flag ? CompilerTask.FLASH : CompilerTask.PROGRAM));
             }
         });
         addRenderableWidget(programmerButton);
@@ -270,7 +269,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
             .filter(it -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(it).getDescriptionId()).toLowerCase()
                 .contains(search.getValue().toLowerCase()))
             .sorted(Comparator.<Identifier, Integer>comparing(o -> getSortingClass(BuiltInRegistries.ITEM.getValue(o)))
-                .thenComparing(o -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(o).getDescriptionId()).toLowerCase())
+                .thenComparing(
+                    o -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(o).getDescriptionId()).toLowerCase())
             )
             .collect(Collectors.toList());
     }

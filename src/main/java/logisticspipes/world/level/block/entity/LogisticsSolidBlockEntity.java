@@ -10,10 +10,11 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.block.RequestRotationPacket;
+import logisticspipes.network.to_server.block.RequestBlockRotationMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.util.DoubleCoordinates;
 
@@ -50,8 +51,7 @@ public class LogisticsSolidBlockEntity extends BlockEntity implements ITickable,
     public void update() {
         if (MainProxy.isClient(getWorld())) {
             if (!init) {
-                MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestRotationPacket.class)
-                    .setBlockPos(getBlockPos()));
+                ClientPacketDistributor.sendToServer(new RequestBlockRotationMessage(getBlockPos()));
                 init = true;
             }
         }

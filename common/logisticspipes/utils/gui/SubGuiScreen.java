@@ -1,5 +1,7 @@
 package logisticspipes.utils.gui;
 
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -159,7 +161,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 		this.extractLabels(guiGraphics, mouseX, mouseY);
 		if (subGui != null) {
 			if (!subGui.hasSubGui()) {
-				// Same intent as in LogisticsBaseGuiScreen: dim what this popup covers, nothing else.
+				// Same intent as in LogisticsBaseGuiScreen<?>: dim what this popup covers, nothing else.
 				extractTransparentBackground(guiGraphics);
 			}
 			// Nested popups stack: each one lifts itself another step above the one it covers.
@@ -207,7 +209,7 @@ public abstract class SubGuiScreen extends Screen implements ISubGuiController, 
 	}
 
 	@Override
-	public LogisticsBaseGuiScreen getBaseScreen() {
+	public LogisticsBaseGuiScreen<?> getBaseScreen() {
 		return controller.getBaseScreen();
 	}
 }

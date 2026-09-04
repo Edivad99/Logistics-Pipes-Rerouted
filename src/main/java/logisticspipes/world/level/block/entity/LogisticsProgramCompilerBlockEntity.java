@@ -3,6 +3,7 @@ package logisticspipes.world.level.block.entity;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
@@ -13,7 +14,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -27,12 +27,11 @@ import net.minecraft.world.level.storage.ValueOutput;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IBlockEntityMenuProvider;
+import logisticspipes.network.to_client.block.CompilerStatusMessage;
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IScreenOpenController;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
-import logisticspipes.network.packets.block.CompilerStatusPacket;
 import logisticspipes.pipes.PipeItemsBasicLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -45,7 +44,7 @@ import logisticspipes.world.inventory.ProgramCompilerMenu;
 import logisticspipes.world.item.component.LPDataComponents;
 
 public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEntity
-    implements IScreenOpenController, MenuProvider {
+    implements IScreenOpenController, IBlockEntityMenuProvider {
 
     public static class ProgramCategories {
 
@@ -80,10 +79,29 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
 
     public static final Map<Identifier, Set<Identifier>> programByCategory = new LinkedHashMap<>();
     private final PlayerCollectionList playerList = new PlayerCollectionList();
-    private String taskType = "";
+    /**
+     * What the compiler is working towards. Not persisted: an interrupted task starts over.
+     *
+     * @param progressPerTick how fast this kind of task advances per unit of power consumed
+     */
+    public enum CompilerTask {
+        /** Unlocks a whole category of programs on the disk. */
+        CATEGORY(0.0005),
+        /** Unlocks one program on the disk. */
+        PROGRAM(0.0025),
+        /** Writes a program onto the programmer in the slot. */
+        FLASH(0.01);
+
+        private final double progressPerTick;
+
+        CompilerTask(double progressPerTick) {
+            this.progressPerTick = progressPerTick;
+        }
+    }
+
+    private @Nullable CompilerTask taskType = null;
     @Getter
-    @Nullable
-    private Identifier currentTask = null;
+    private @Nullable Identifier currentTask = null;
     @Getter
     private double taskProgress = 0;
     @Getter
@@ -102,7 +120,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
         }
     }
 
-    public void triggerNewTask(Identifier category, String taskType) {
+    public void triggerNewTask(Identifier category, CompilerTask taskType) {
         if (currentTask != null) {
             return;
         }
@@ -165,13 +183,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
             }
             CoreRoutedPipe pipe = (CoreRoutedPipe) tPipe.pipe;
             if (pipe.useEnergy(10)) {
-                double multiplier = switch (taskType) {
-                    case "category" -> 0.0005;
-                    case "program" -> 0.0025;
-                    case "flash" -> 0.01;
-                    default -> 1;
-                };
-                taskProgress += multiplier * LPConfigs.COMMON.COMPILER_SPEED.getAsDouble();
+                taskProgress += taskType.progressPerTick * LPConfigs.COMMON.COMPILER_SPEED.getAsDouble();
                 wasAbleToConsumePower = true;
             }
             break;
@@ -179,18 +191,17 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
 
         if (taskProgress >= 1) {
             switch (taskType) {
-                case "category" -> addStringToDiskList("compilerCategories", currentTask.toString());
-                case "program" -> addStringToDiskList("compilerPrograms", currentTask.toString());
-                case "flash" -> {
+                case CATEGORY -> addStringToDiskList("compilerCategories", currentTask.toString());
+                case PROGRAM -> addStringToDiskList("compilerPrograms", currentTask.toString());
+                case FLASH -> {
                     ItemStack programmer = getInventory().getItem(PROGRAMMER_SLOT);
                     if (!programmer.isEmpty()) {
                         programmer.set(LPDataComponents.RECIPE_TARGET, currentTask.toString());
                     }
                 }
-                default -> throw new UnsupportedOperationException(taskType);
             }
 
-            taskType = "";
+            taskType = null;
             currentTask = null;
             taskProgress = 0;
             wasAbleToConsumePower = false;
@@ -198,18 +209,14 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
         updateClient();
     }
 
-    private CoordinatesPacket getClientUpdatePacket() {
-        return PacketHandler.getPacket(CompilerStatusPacket.class)
-            .setCategory(currentTask)
-            .setProgress(taskProgress)
-            .setWasAbleToConsumePower(wasAbleToConsumePower)
-            .setDisk(getInventory().getItem(0))
-            .setProgrammer(getInventory().getItem(PROGRAMMER_SLOT))
-            .setTilePos(this);
-    }
-
     public void updateClient() {
-        MainProxy.sendToPlayerList(getClientUpdatePacket(), playerList);
+        playerList.send(new CompilerStatusMessage(
+            getBlockPos(),
+            Optional.ofNullable(currentTask),
+            taskProgress,
+            wasAbleToConsumePower,
+            getInventory().getItem(0),
+            getInventory().getItem(PROGRAMMER_SLOT)));
     }
 
     @Override
@@ -217,12 +224,12 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
         inventory.dropContents(level, getBlockPos());
     }
 
-    public void setStateOnClient(CompilerStatusPacket compilerStatusPacket) {
-        getInventory().setItem(0, compilerStatusPacket.getDisk());
-        getInventory().setItem(1, compilerStatusPacket.getProgrammer());
-        currentTask = compilerStatusPacket.getCategory();
-        taskProgress = compilerStatusPacket.getProgress();
-        wasAbleToConsumePower = compilerStatusPacket.isWasAbleToConsumePower();
+    public void setStateOnClient(CompilerStatusMessage status) {
+        getInventory().setItem(0, status.disk());
+        getInventory().setItem(PROGRAMMER_SLOT, status.programmer());
+        currentTask = status.currentTask().orElse(null);
+        taskProgress = status.progress();
+        wasAbleToConsumePower = status.hadPower();
     }
 
     @Override

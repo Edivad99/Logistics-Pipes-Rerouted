@@ -4,17 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
 import com.google.common.collect.ImmutableList;
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IInventoryUtil;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.guis.pipe.ChassisGuiProvider;
+import logisticspipes.network.ModuleTarget;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
@@ -22,15 +24,15 @@ import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.module.Gui;
-import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
+import logisticspipes.world.inventory.ChassisMenu;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.SlottedModule;
 import network.rs485.logisticspipes.property.SlottedModuleListProperty;
 import network.rs485.logisticspipes.property.UpgradeManagerListProperty;
 
-public class ChassisModule extends LogisticsModule implements Gui {
+public class ChassisModule extends LogisticsModule implements IModuleMenuProvider {
 
+	@Getter
 	private final PipeLogisticsChassis parentChassis;
 	private final SlottedModuleListProperty modules;
 	private final UpgradeManagerListProperty slotUpgradeManagers;
@@ -108,7 +110,7 @@ public class ChassisModule extends LogisticsModule implements Gui {
 		//Always deny items when we can't put the item anywhere
 		final ISlotUpgradeManager upgradeManager = parentChassis.getUpgradeManager(ModulePositionType.SLOT,
 				((ChassiTargetInformation) bestresult.addInfo).getModuleSlot());
-		IInventoryUtil invUtil = PipeServiceProviderUtilKt.availableSneakyInventories(parentChassis, upgradeManager)
+		IInventoryUtil invUtil = PipeServiceProviderUtil.availableSneakyInventories(parentChassis, upgradeManager)
 				.stream().findFirst().orElse(null);
 		if (invUtil == null) {
 			return null;
@@ -189,14 +191,17 @@ public class ChassisModule extends LogisticsModule implements Gui {
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		return NewGuiHandler.getGui(ChassisGuiProvider.class)
-				.setFlag(parentChassis.getUpgradeManager().hasUpgradeModuleUpgrade());
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new ChassisMenu(containerId, inventory, parentChassis, hasUpgradeModuleUpgrade());
 	}
 
 	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		throw new UnsupportedOperationException("Chassis GUI can never be opened in hand");
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		buffer.writeBoolean(hasUpgradeModuleUpgrade());
+	}
+
+	private boolean hasUpgradeModuleUpgrade() {
+		return parentChassis.getUpgradeManager().hasUpgradeModuleUpgrade();
 	}
 
 	public ModuleUpgradeManager getModuleUpgradeManager(int slot) {

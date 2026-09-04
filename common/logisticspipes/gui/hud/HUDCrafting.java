@@ -29,7 +29,7 @@ public class HUDCrafting extends BasicHUDGui {
 			LPGuiGraphics.drawGuiBackGround(context, -30, -22, 30, 25, 0, false);
 		}
 		super.renderHeadUpDisplay(context, d, day, shifted, minecraft, config);
-		int textColor = day ? 0xff404040 : 0xff7f7f7f;
+		int textColor = day ? 0xFF404040 : 0xff7f7f7f;
 		if (!pipe.displayList.isEmpty()) {
 			context.drawString(minecraft.font, "Result:", -20, -25, textColor, false);
 			context.drawString(minecraft.font, "Todo:", -20, 0, textColor, false);

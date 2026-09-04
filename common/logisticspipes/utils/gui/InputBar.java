@@ -1,5 +1,7 @@
 package logisticspipes.utils.gui;
 
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
+
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.CharacterEvent;
@@ -21,21 +23,21 @@ public class InputBar extends EditBox {
     @Setter
     private int minNumber = 0;
 
-    public InputBar(Font font, LogisticsBaseGuiScreen screen, int left, int top, int width, int height) {
+    public InputBar(Font font, LogisticsBaseGuiScreen<?> screen, int left, int top, int width, int height) {
         this(font, screen, left, top, width, height, true);
     }
 
-    public InputBar(Font font, LogisticsBaseGuiScreen screen, int left, int top, int width, int height,
+    public InputBar(Font font, LogisticsBaseGuiScreen<?> screen, int left, int top, int width, int height,
         boolean isActive) {
         this(font, screen, left, top, width, height, isActive, false);
     }
 
-    public InputBar(Font font, LogisticsBaseGuiScreen screen, int left, int top, int width, int height,
+    public InputBar(Font font, LogisticsBaseGuiScreen<?> screen, int left, int top, int width, int height,
         boolean isActive, boolean numberOnly) {
         this(font, screen, left, top, width, height, isActive, numberOnly, Align.LEFT);
     }
 
-    public InputBar(Font font, LogisticsBaseGuiScreen screen, int left, int top, int width, int height,
+    public InputBar(Font font, LogisticsBaseGuiScreen<?> screen, int left, int top, int width, int height,
         boolean isActive, boolean numberOnly, Align align) {
         super(font, left + 2, top, width - 4, height - 2, Component.empty());
         screen.registerTextField(this);

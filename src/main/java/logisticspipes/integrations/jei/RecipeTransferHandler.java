@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -22,30 +23,34 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.gui.GuiLogisticsCraftingTable;
-import logisticspipes.gui.orderer.GuiRequestTable;
-import logisticspipes.gui.popup.GuiRecipeImport;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.NEISetCraftingRecipe;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.gui.DummyContainer;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContainer, RecipeHolder<CraftingRecipe>> {
+import logisticspipes.client.gui.screen.LogisticsCraftingTableScreen;
+import logisticspipes.client.gui.screen.RequestTableScreen;
+import logisticspipes.client.gui.popup.GuiRecipeImport;
+import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
+import logisticspipes.utils.gui.IJeiScreenHolder;
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
+
+public class RecipeTransferHandler<C extends AbstractContainerMenu & IJeiScreenHolder>
+    implements IRecipeTransferHandler<C, RecipeHolder<CraftingRecipe>> {
+
+    private final Class<C> menuClass;
 
     private final IRecipeTransferHandlerHelper recipeTransferHandlerHelper;
 
-    public RecipeTransferHandler(IRecipeTransferHandlerHelper recipeTransferHandlerHelper) {
+    public RecipeTransferHandler(Class<C> menuClass, IRecipeTransferHandlerHelper recipeTransferHandlerHelper) {
+        this.menuClass = menuClass;
         this.recipeTransferHandlerHelper = recipeTransferHandlerHelper;
     }
 
     @Override
-    public Class<? extends DummyContainer> getContainerClass() {
-        return DummyContainer.class;
+    public Class<? extends C> getContainerClass() {
+        return menuClass;
     }
 
     @Override
-    public Optional<MenuType<DummyContainer>> getMenuType() {
+    public Optional<MenuType<C>> getMenuType() {
         return Optional.empty();
     }
 
@@ -55,21 +60,21 @@ public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContai
     }
 
     @Override
-    public @Nullable IRecipeTransferError transferRecipe(DummyContainer container, RecipeHolder<CraftingRecipe> recipe,
+    public @Nullable IRecipeTransferError transferRecipe(C container, RecipeHolder<CraftingRecipe> recipe,
         IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
-        LogisticsBaseGuiScreen gui = container.guiHolderForJEI;
+        LogisticsBaseGuiScreen<?> gui = container.getScreenForJEI();
 
-        if (!(gui instanceof GuiLogisticsCraftingTable)
-            && !(gui instanceof GuiRequestTable)) {
+        if (!(gui instanceof LogisticsCraftingTableScreen)
+            && !(gui instanceof RequestTableScreen)) {
             return recipeTransferHandlerHelper.createInternalError();
         }
 
         BlockEntity be;
 
-        if (gui instanceof GuiLogisticsCraftingTable craftingTable) {
+        if (gui instanceof LogisticsCraftingTableScreen craftingTable) {
             be = craftingTable.crafter;
         } else {
-            be = ((GuiRequestTable) gui).table.container;
+            be = ((RequestTableScreen) gui).table.container;
         }
 
         if (be == null) {
@@ -80,10 +85,7 @@ public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContai
             return null;
         }
 
-        NEISetCraftingRecipe packet =
-            PacketHandler.getPacket(NEISetCraftingRecipe.class);
-
-        NonNullList<ItemStack> stackList = packet.getStackList();
+        NonNullList<ItemStack> stackList = NonNullList.withSize(9, ItemStack.EMPTY);
 
         ItemStack[][] stacks = new ItemStack[9][];
 
@@ -130,7 +132,8 @@ public class RecipeTransferHandler implements IRecipeTransferHandler<DummyContai
         if (hasCandidates) {
             gui.setSubGui(new GuiRecipeImport(be, stacks));
         } else {
-            MainProxy.sendPacketToServer(packet.setTilePos(be));
+            ClientPacketDistributor.sendToServer(
+                new ImportCraftingRecipeMessage(be.getBlockPos(), stackList));
         }
         return null;
     }

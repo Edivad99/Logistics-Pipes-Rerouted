@@ -25,6 +25,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -35,12 +36,15 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.gui.GuiChassisPipe;
+import logisticspipes.client.gui.screen.ChassisPipeScreen;
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IBufferItems;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -59,16 +63,16 @@ import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.logisticspipes.ChassisTransportLayer;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.logisticspipes.TransportLayer;
+import logisticspipes.modules.PipeServiceProviderUtil;
 import logisticspipes.modules.ChassisModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
-import logisticspipes.network.packets.pipe.ChassisOrientationPacket;
-import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
-import logisticspipes.network.packets.pipe.RequestChassisOrientationPacket;
-import logisticspipes.network.packets.pipe.SendQueueContent;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_client.pipe.ChassisModuleContentMessage;
+import logisticspipes.network.to_client.pipe.ChassisOrientationMessage;
+import logisticspipes.network.to_client.pipe.SendQueueContentMessage;
+import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
+import logisticspipes.network.to_server.pipe.RequestChassisOrientationMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
@@ -103,7 +107,6 @@ import network.rs485.logisticspipes.connection.ConnectionType;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.connection.NoAdjacent;
 import network.rs485.logisticspipes.connection.SingleAdjacent;
-import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.AdjacentProperty;
 import network.rs485.logisticspipes.property.Property;
@@ -212,16 +215,16 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	public void nextOrientation() {
 		final Direction pointedDirection = pointedAdjacentProperty.getDirectionOrNull();
 		Pair<NeighborTileEntity<BlockEntity>, ConnectionType> newNeighbor = nextPointedOrientation(pointedDirection);
-		final ChassisOrientationPacket packet = PacketHandler.getPacket(ChassisOrientationPacket.class);
+		final Direction newDirection;
 		if (newNeighbor == null) {
 			pointedAdjacentProperty.setValue(NoAdjacent.INSTANCE);
-			packet.setDir(null);
+			newDirection = null;
 		} else {
-			pointedAdjacentProperty.setValue(
-				new SingleAdjacent(this, newNeighbor.getValue1().getDirection(), newNeighbor.getValue2()));
-			packet.setDir(newNeighbor.getValue1().getDirection());
+			newDirection = newNeighbor.getValue1().getDirection();
+			pointedAdjacentProperty.setValue(new SingleAdjacent(this, newDirection, newNeighbor.getValue2()));
 		}
-		MainProxy.sendPacketToAllWatchingChunk(module, packet.setTilePos(container));
+		TargetLookup.sendToChunkWatchers(getWorld(), getPos(),
+			new ChassisOrientationMessage(getPos(), Optional.ofNullable(newDirection)));
 		refreshRender(true);
 	}
 
@@ -423,17 +426,15 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		}
 		if (reInitGui) {
 			if (MainProxy.isClient(getWorld())) {
-				if (Minecraft.getInstance().screen instanceof GuiChassisPipe) {
+				if (Minecraft.getInstance().screen instanceof ChassisPipeScreen) {
 					Minecraft.getInstance().setScreen(Minecraft.getInstance().screen); // re-init screen (1.20.1: init() is no longer public no-arg)
 				}
 			}
 		}
 		if (MainProxy.isServer(getWorld())) {
 			if (!localModeWatchers.isEmpty()) {
-				MainProxy.sendToPlayerList(PacketHandler.getPacket(ChassisPipeModuleContent.class)
-						.setIdentList(ItemIdentifierStack.getListFromInventory(moduleInventory))
-						.setPosX(getX()).setPosY(getY()).setPosZ(getZ()),
-						localModeWatchers);
+				localModeWatchers.send(new ChassisModuleContentMessage(getPos(),
+						ItemIdentifierStack.getListFromInventory(moduleInventory)));
 			}
 		}
 	}
@@ -443,7 +444,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		if (!init) {
 			init = true;
 			if (MainProxy.isClient(getWorld())) {
-				MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestChassisOrientationPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+				ClientPacketDistributor.sendToServer(new RequestChassisOrientationMessage(getPos()));
 			}
 		}
 	}
@@ -575,29 +576,33 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), true));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), false));
 		hud.stopWatching();
 	}
 
 	@Override
-	public void playerStartWatching(Player player, int mode) {
-		if (mode == 1) {
+	public void playerStartWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.HUD) {
 			updateModuleInventory(player.registryAccess());
 			localModeWatchers.add(player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChassisPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SendQueueContent.class).setIdentList(ItemIdentifierStack.getListSendQueue(sendQueue)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new ChassisModuleContentMessage(getPos(),
+						ItemIdentifierStack.getListFromInventory(moduleInventory)));
+				PacketDistributor.sendToPlayer(serverPlayer, new SendQueueContentMessage(
+					getPos(), ItemIdentifierStack.getListSendQueue(sendQueue)));
+			}
 		} else {
 			super.playerStartWatching(player, mode);
 		}
 	}
 
 	@Override
-	public void playerStopWatching(Player player, int mode) {
+	public void playerStopWatching(Player player, WatchMode mode) {
 		super.playerStopWatching(player, mode);
 		localModeWatchers.remove(player);
 	}
@@ -614,7 +619,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			} else {
 				if (localModeWatchers.size() > 0) {
 					LinkedList<ItemIdentifierStack> items = ItemIdentifierStack.getListSendQueue(sendQueue);
-					MainProxy.sendToPlayerList(PacketHandler.getPacket(SendQueueContent.class).setIdentList(items).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+					localModeWatchers.send(new SendQueueContentMessage(getPos(), items));
 					return items.size();
 				}
 			}
@@ -654,7 +659,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 			LogisticsModule module = getSubModule(moduleIndex);
 			if (module != null && module.interestedInAttachedInventory()) {
 				final ISlotUpgradeManager upgradeManager = getUpgradeManager(module.getSlot(), module.getPositionInt());
-				IInventoryUtil inv = PipeServiceProviderUtilKt.availableSneakyInventories(this, upgradeManager).stream().findFirst().orElse(null);
+				IInventoryUtil inv = PipeServiceProviderUtil.availableSneakyInventories(this, upgradeManager).stream().findFirst().orElse(null);
 				if (inv == null) {
 					continue;
 				}

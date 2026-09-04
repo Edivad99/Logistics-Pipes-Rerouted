@@ -1,5 +1,6 @@
 package logisticspipes.interfaces;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.utils.gui.ItemDisplay;
@@ -8,11 +9,7 @@ public interface IDiskProvider {
 
 	ItemStack getDisk();
 
-	int getX();
-
-	int getY();
-
-	int getZ();
+	BlockPos getBlockPos();
 
 	ItemDisplay getItemDisplay();
 }

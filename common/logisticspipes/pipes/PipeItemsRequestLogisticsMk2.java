@@ -3,22 +3,32 @@ package logisticspipes.pipes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.util.ItemStackLoader;
+import logisticspipes.world.inventory.OrdererMk2Menu;
 import logisticspipes.world.item.LPItems;
 
-public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
+public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics implements IPipeMenuProvider {
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new OrdererMk2Menu(containerId, inventory, this);
+	}
 
 	private ItemStack disk = ItemStack.EMPTY;
 
@@ -52,10 +62,8 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 				flag = false;
 			}
 		}
-		if (flag) {
-			logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.NormalMk2OrdererGui.class)
-					.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-					.open(entityplayer);
+		if (flag && entityplayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(this);
 		}
 	}
 
@@ -76,6 +84,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics {
 		return Textures.LOGISTICSPIPE_REQUESTERMK2_TEXTURE;
 	}
 
+	@Override
 	public ItemStack getDisk() {
 		return disk;
 	}

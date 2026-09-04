@@ -2,26 +2,20 @@ package logisticspipes.routing.debug;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import logisticspipes.interfaces.IDebugHUDProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateCanidatePipe;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateDebugCanidateList;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateDebugClosedSet;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateDebugFilters;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateDoneDebug;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateInitDebug;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateSourcePipe;
 import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.renderer.LogisticsHUDRenderer;
-import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import net.minecraft.core.BlockPos;
+
 import logisticspipes.util.DoubleCoordinates;
 
 public class ClientViewController implements IDebugHUDProvider {
@@ -43,10 +37,10 @@ public class ClientViewController implements IDebugHUDProvider {
 		public boolean isNew = false;
 		public int newIndex = -1;
 		public List<Integer> positions = new ArrayList<>();
-		public List<ExitRoute> routes = new ArrayList<>();
-		public EnumSet<PipeRoutingConnectionType> closedSet;
-		public EnumMap<PipeRoutingConnectionType, List<List<DoubleCoordinates>>> filters;
-		public EnumSet<PipeRoutingConnectionType> nextFlags;
+		public List<RouteDebugInfo> routes = new ArrayList<>();
+		public Set<PipeRoutingConnectionType> closedSet;
+		public Map<PipeRoutingConnectionType, List<List<BlockPos>>> filters;
+		public Set<PipeRoutingConnectionType> nextFlags;
 	}
 
 	public static ClientViewController instance() {
@@ -84,25 +78,26 @@ public class ClientViewController implements IDebugHUDProvider {
 		HUDPositions.clear();
 	}
 
-	public void handlePacket(RoutingUpdateSourcePipe routingUpdateSourcePipe) {
-		mainPipe = routingUpdateSourcePipe.getExitRoute().destination.getLPPosition();
-		getDebugInformation(mainPipe).nextFlags = routingUpdateSourcePipe.getExitRoute().getFlags();
+	public void setSource(RouteDebugInfo route) {
+		mainPipe = new DoubleCoordinates(route.destination().getX(), route.destination().getY(),
+				route.destination().getZ());
+		getDebugInformation(mainPipe).nextFlags = route.flags();
 	}
 
-	public void handlePacket(RoutingUpdateCanidatePipe routingUpdateCanidatePipe) {
-		DoubleCoordinates pos = routingUpdateCanidatePipe.getExitRoute().destination.getLPPosition();
-		canidates.add(routingUpdateCanidatePipe.getExitRoute().destination.getLPPosition());
-		//listHUD.add(new HUDRoutingTableDebugProvider(new HUDRoutingTableNewCandateUntrace(routingUpdateCanidatePipe.getExitRoute()), pos));
+	public void addCandidate(RouteDebugInfo route) {
+		DoubleCoordinates pos = new DoubleCoordinates(route.destination().getX(), route.destination().getY(),
+				route.destination().getZ());
+		canidates.add(pos);
 		getDebugInformation(pos).isNew = true;
-		getDebugInformation(pos).newIndex = routingUpdateCanidatePipe.getExitRoute().debug.index;
+		getDebugInformation(pos).newIndex = route.index();
 	}
 
-	public void init(RoutingUpdateInitDebug routingUpdateInitDebug) {
+	public void init() {
 		debugWindow = new DebugWindow("Debug Code", 500, 250);
 		LogisticsHUDRenderer.instance().debugHUD = this;
 	}
 
-	public void done(RoutingUpdateDoneDebug routingUpdateDoneDebug) {
+	public void done() {
 		if (debugWindow != null) {
 			debugWindow.setVisible(false);
 			debugWindow = null;
@@ -112,32 +107,30 @@ public class ClientViewController implements IDebugHUDProvider {
 		HUDPositions.clear();
 	}
 
-	public void handlePacket(RoutingUpdateDebugClosedSet routingUpdateDebugClosedSet) {
-		getDebugInformation(routingUpdateDebugClosedSet.getPos()).closedSet = routingUpdateDebugClosedSet.getSet();
+	public void setClosedSet(BlockPos pos, Set<PipeRoutingConnectionType> closed) {
+		getDebugInformation(new DoubleCoordinates(pos.getX(), pos.getY(), pos.getZ())).closedSet = closed;
 	}
 
-	public void handlePacket(RoutingUpdateDebugFilters routingUpdateDebugFilters) {
-		getDebugInformation(routingUpdateDebugFilters.getPos()).filters = routingUpdateDebugFilters.getFilterPositions();
+	public void setFilters(BlockPos pos, Map<PipeRoutingConnectionType, List<List<BlockPos>>> filters) {
+		getDebugInformation(new DoubleCoordinates(pos.getX(), pos.getY(), pos.getZ())).filters = filters;
 	}
 
-	public void updateList(RoutingUpdateDebugCanidateList routingUpdateDebugCanidateList) {
+	public void updateList(List<RouteDebugInfo> routes) {
 		debugWindow.clear();
 		int i = 0;
-		for (ExitRoute exit : routingUpdateDebugCanidateList.getExitRoutes()) {
+		for (RouteDebugInfo route : routes) {
 			i++;
-			Color color = Color.BLACK;
-			if (exit.debug.isNewlyAddedCanidate) {
-				color = Color.BLUE;
-			}
-			debugWindow.showInfo(exit.destination.toString(), color);
+			Color color = route.newlyAddedCandidate() ? Color.BLUE : Color.BLACK;
+			debugWindow.showInfo(route.destinationName(), color);
 			debugWindow.showInfo("\n", color);
 			for (int j = 0; j < 2; j++) {
 				debugWindow.showInfo("\t", color);
 			}
-			debugWindow.showInfo(exit.debug.toStringNetwork, color);
+			debugWindow.showInfo(route.networkDescription(), color);
 			debugWindow.showInfo("\n", color);
-			DoubleCoordinates pos = exit.destination.getLPPosition();
-			getDebugInformation(pos).routes.add(exit);
+			DoubleCoordinates pos = new DoubleCoordinates(route.destination().getX(),
+					route.destination().getY(), route.destination().getZ());
+			getDebugInformation(pos).routes.add(route);
 			getDebugInformation(pos).positions.add(i);
 		}
 		listHUD.addAll(HUDPositions.entrySet().stream()

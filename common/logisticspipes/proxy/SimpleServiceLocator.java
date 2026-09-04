@@ -22,8 +22,6 @@ import logisticspipes.proxy.specialconnection.SpecialTileConnection;
 import logisticspipes.proxy.specialtankhandler.SpecialTankHandler;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.pathfinder.PipeInformationManager;
-import logisticspipes.ticks.ClientPacketBufferHandlerThread;
-import logisticspipes.ticks.ServerPacketBufferHandlerThread;
 import logisticspipes.utils.InventoryUtilFactory;
 import logisticspipes.utils.RoutedItemHelper;
 
@@ -89,18 +87,6 @@ public final class SimpleServiceLocator {
 
 	public static void setSpecialTankHandler(SpecialTankHandler proxy) {
 		SimpleServiceLocator.specialTankHandler = proxy;
-	}
-
-	public static ClientPacketBufferHandlerThread clientBufferHandler;
-
-	public static void setClientPacketBufferHandlerThread(ClientPacketBufferHandlerThread proxy) {
-		SimpleServiceLocator.clientBufferHandler = proxy;
-	}
-
-	public static ServerPacketBufferHandlerThread serverBufferHandler;
-
-	public static void setServerPacketBufferHandlerThread(ServerPacketBufferHandlerThread proxy) {
-		SimpleServiceLocator.serverBufferHandler = proxy;
 	}
 
 	public static PipeInformationManager pipeInformationManager;

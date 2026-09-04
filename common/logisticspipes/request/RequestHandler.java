@@ -1,7 +1,6 @@
 package logisticspipes.request;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,21 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.routing.IRequestFluid;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.ComponentList;
-import logisticspipes.network.packets.orderer.MissingItems;
-import logisticspipes.network.packets.orderer.OrdererContent;
+import logisticspipes.network.to_client.orderer.OrdererContentMessage;
+import logisticspipes.network.to_client.orderer.RequestAnswerMessage;
+import logisticspipes.network.to_client.orderer.RequestComponentsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.RequestTree.ActiveRequestType;
 import logisticspipes.request.resources.IResource;
@@ -34,6 +34,13 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class RequestHandler {
+
+	/** Answers reach a player, not a position: the request may have come from another dimension. */
+	private static void sendToPlayer(Player player, CustomPacketPayload payload) {
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, payload);
+		}
+	}
 
 	public enum DisplayOptions {
 		Both,
@@ -50,14 +57,12 @@ public class RequestHandler {
 
 			@Override
 			public void handleMissingItems(List<IResource> resources) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(MissingItems.class).setItems(resources).setFlag(true), player);
+				sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), true));
 			}
 
 			@Override
 			public void handleSucessfullRequestOf(IResource item, LinkedLogisticsOrderList parts) {
-				Collection<IResource> coll = new ArrayList<>(1);
-				coll.add(item);
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(MissingItems.class).setItems(coll).setFlag(false), player);
+				sendToPlayer(player, new RequestAnswerMessage(List.of(item), false));
 				if (pipe instanceof IRequestWatcher) {
 					((IRequestWatcher) pipe).handleOrderList(item, parts);
 				}
@@ -86,7 +91,7 @@ public class RequestHandler {
 				usedList.addAll(resources);
 			}
 		});
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ComponentList.class).setUsed(usedList).setMissing(missingList), player);
+		sendToPlayer(player, new RequestComponentsMessage(List.copyOf(usedList), List.copyOf(missingList)));
 	}
 
 	public static void refresh(Player player, CoreRoutedPipe pipe, DisplayOptions option) {
@@ -116,7 +121,7 @@ public class RequestHandler {
 			}
 			allItems.add(item.makeStack(0));
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class).setIdentSet(allItems), player);
+		sendToPlayer(player, new OrdererContentMessage(List.copyOf(allItems)));
 	}
 
 	public static void requestList(final Player player, final List<ItemIdentifierStack> list, final CoreRoutedPipe pipe) {
@@ -128,7 +133,7 @@ public class RequestHandler {
 
 			@Override
 			public void handleMissingItems(List<IResource> resources) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(MissingItems.class).setItems(resources).setFlag(true), player);
+				sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), true));
 			}
 
 			@Override
@@ -136,7 +141,7 @@ public class RequestHandler {
 
 			@Override
 			public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList parts) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(MissingItems.class).setItems(resources).setFlag(false), player);
+				sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), false));
 				if (pipe instanceof IRequestWatcher) {
 					((IRequestWatcher) pipe).handleOrderList(null, parts);
 				}
@@ -161,7 +166,7 @@ public class RequestHandler {
 
 			@Override
 			public void handleMissingItems(List<IResource> resources) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(MissingItems.class).setItems(resources).setFlag(true), player);
+				sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), true));
 			}
 
 			@Override
@@ -169,7 +174,7 @@ public class RequestHandler {
 
 			@Override
 			public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList parts) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(MissingItems.class).setItems(resources).setFlag(false), player);
+				sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), false));
 				if (requester instanceof IRequestWatcher) {
 					((IRequestWatcher) requester).handleOrderList(null, parts);
 				}
@@ -213,13 +218,9 @@ public class RequestHandler {
 
 	public static void refreshFluid(Player player, CoreRoutedPipe pipe) {
 		TreeSet<FluidIdentifierStack> allItems = SimpleServiceLocator.logisticsFluidManager.getAvailableFluid(pipe.getRouter().getIRoutersByCost());
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererContent.class)
-						.setIdentSet(
-								allItems.stream()
-										.map(item -> new ItemIdentifierStack(item.getFluid().getItemIdentifier(), item.getAmount()))
-										.collect(Collectors.toCollection(TreeSet::new))
-						)
-				, player);
+		sendToPlayer(player, new OrdererContentMessage(allItems.stream()
+				.map(item -> new ItemIdentifierStack(item.getFluid().getItemIdentifier(), item.getAmount()))
+				.toList()));
 	}
 
 	public static void requestFluid(final Player player, final ItemIdentifierStack stack, CoreRoutedPipe pipe, IRequestFluid requester) {
@@ -232,14 +233,12 @@ public class RequestHandler {
 
 			@Override
 			public void handleMissingItems(List<IResource> resources) {
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(MissingItems.class).setItems(resources).setFlag(true), player);
+				sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), true));
 			}
 
 			@Override
 			public void handleSucessfullRequestOf(IResource item, LinkedLogisticsOrderList parts) {
-				Collection<IResource> coll = new ArrayList<>(1);
-				coll.add(item);
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(MissingItems.class).setItems(coll).setFlag(false), player);
+				sendToPlayer(player, new RequestAnswerMessage(List.of(item), false));
 			}
 
 			@Override

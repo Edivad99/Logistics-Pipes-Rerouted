@@ -3,13 +3,15 @@ package logisticspipes.commands.commands.debug;
 // Player removed — use net.minecraft.commands.CommandSourceStack
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import logisticspipes.commands.abstracts.ICommandHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.debug.PipeDebugLogAskForTarget;
-import logisticspipes.network.packets.pipe.PipeDebugAskForTarget;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_client.debug.AskForDebugTargetMessage;
+import logisticspipes.network.to_client.debug.ToggleClientPipeDebugMessage;
+import logisticspipes.network.to_server.debug.DebugTargetMessage.Purpose;
 
 public class PipeCommand implements ICommandHandler {
 
@@ -36,16 +38,17 @@ public class PipeCommand implements ICommandHandler {
 		}
 		if (args[0].equalsIgnoreCase("help")) {
 			sender.sendSystemMessage(Component.literal("client, server, both or console"));
-		} else if (args[0].equalsIgnoreCase("both")) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugAskForTarget.class).setServer(true), (Player) sender);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugAskForTarget.class).setServer(false), (Player) sender);
-			sender.sendSystemMessage(Component.literal("Asking for Target."));
-		} else if (args[0].equalsIgnoreCase("console") || args[0].equalsIgnoreCase("c")) {
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugLogAskForTarget.class), (Player) sender);
-			sender.sendSystemMessage(Component.literal("Asking for Target."));
-		} else {
-			boolean isClient = args[0].equalsIgnoreCase("client");
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(PipeDebugAskForTarget.class).setServer(!isClient), (Player) sender);
+		} else if (sender instanceof ServerPlayer player) {
+			if (args[0].equalsIgnoreCase("console") || args[0].equalsIgnoreCase("c")) {
+				PacketDistributor.sendToPlayer(player, new AskForDebugTargetMessage(Purpose.PIPE_LOG));
+			} else {
+				if (!args[0].equalsIgnoreCase("client")) {
+					PacketDistributor.sendToPlayer(player, new AskForDebugTargetMessage(Purpose.PIPE_DEBUG));
+				}
+				if (!args[0].equalsIgnoreCase("server")) {
+					PacketDistributor.sendToPlayer(player, new ToggleClientPipeDebugMessage());
+				}
+			}
 			sender.sendSystemMessage(Component.literal("Asking for Target."));
 		}
 	}

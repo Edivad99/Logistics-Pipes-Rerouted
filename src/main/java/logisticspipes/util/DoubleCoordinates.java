@@ -1,5 +1,8 @@
 package logisticspipes.util;
 
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -12,17 +15,41 @@ import net.minecraft.world.level.storage.ValueOutput;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.utils.IPositionRotateble;
 
+/**
+ * A position held as three doubles.
+ *
+ * <p>Everything that builds one gives it whole numbers: routers hand over their block coordinates,
+ * {@link CoordinateUtils} steps by a {@link net.minecraft.core.Direction}, and every reader either
+ * truncates back to ints or asks for {@link #getBlockPos()}. The one method that produced a
+ * fractional value, {@link #center()}, is reachable only from a branch that no longer has any
+ * handlers registered.
+ *
+ * <p>So this is a {@link net.minecraft.core.BlockPos} in a heavier shape: 24 bytes instead of a
+ * packed long, no equality with vanilla positions, and its own serialization.
+ *
+ * @deprecated use {@link net.minecraft.core.BlockPos}. Replacing this class means changing the
+ *         signatures it appears in -- {@code IRouter.getLPPosition}, {@code
+ *         IOrderInfoProvider.getTargetPosition} and the {@code ICoordinates} hierarchy -- so it is
+ *         a job of its own rather than something to do in passing.
+ */
+@Deprecated(forRemoval = true)
 @Data
-public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSerializable {
+public class DoubleCoordinates implements IPositionRotateble, ICoordinates {
 
     private double xCoord;
     private double yCoord;
     private double zCoord;
+
+    public static final StreamCodec<ByteBuf, DoubleCoordinates> STREAM_CODEC =
+        StreamCodec.composite(
+            ByteBufCodecs.DOUBLE, DoubleCoordinates::getXDouble,
+            ByteBufCodecs.DOUBLE, DoubleCoordinates::getYDouble,
+            ByteBufCodecs.DOUBLE, DoubleCoordinates::getZDouble,
+            DoubleCoordinates::new);
 
     public DoubleCoordinates() {
         setXCoord(0.0);
@@ -34,10 +61,6 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
         setXCoord(xCoord);
         setYCoord(yCoord);
         setZCoord(zCoord);
-    }
-
-    public DoubleCoordinates(LPDataInput input) {
-        read(input);
     }
 
     public DoubleCoordinates(ICoordinates coords) {
@@ -54,10 +77,6 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
 
     public DoubleCoordinates(IPipeInformationProvider pipe) {
         this(pipe.getX(), pipe.getY(), pipe.getZ());
-    }
-
-    public DoubleCoordinates(CoordinatesPacket packet) {
-        this(packet.getPosX(), packet.getPosY(), packet.getPosZ());
     }
 
     public DoubleCoordinates(Entity entity) {
@@ -123,8 +142,9 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
         return "(" + getXCoord() + ", " + getYCoord() + ", " + getZCoord() + ")";
     }
 
+    /** The block these coordinates fall in, for display. Truncates, where {@link #toString} does not. */
     public String toIntBasedString() {
-        return "(" + getXCoord() + ", " + getYCoord() + ", " + getZCoord() + ")";
+        return "(" + getXInt() + ", " + getYInt() + ", " + getZInt() + ")";
     }
 
     public BlockState getBlockState(BlockGetter world) {
@@ -141,12 +161,9 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
                 .pow(targetPos.getZCoord() - getZCoord(), 2));
     }
 
+    /** The middle of the block these coordinates fall in. Leaves this instance alone. */
     public DoubleCoordinates center() {
-        DoubleCoordinates coords = new DoubleCoordinates();
-        coords.setXCoord(getXInt() + 0.5);
-        coords.setYCoord(getYInt() + 0.5);
-        coords.setYCoord(getZInt() + 0.5);
-        return this;
+        return new DoubleCoordinates(getXInt() + 0.5, getYInt() + 0.5, getZInt() + 0.5);
     }
 
     public void serialize(String prefix, ValueOutput output) {
@@ -194,17 +211,4 @@ public class DoubleCoordinates implements IPositionRotateble, ICoordinates, LPSe
         return Math.sqrt(getXDouble() * getXDouble() + getYDouble() * getYDouble() + getZDouble() * getZDouble());
     }
 
-    @Override
-    public void read(LPDataInput input) {
-        xCoord = input.readDouble();
-        yCoord = input.readDouble();
-        zCoord = input.readDouble();
-    }
-
-    @Override
-    public void write(LPDataOutput output) {
-        output.writeDouble(xCoord);
-        output.writeDouble(yCoord);
-        output.writeDouble(zCoord);
-    }
 }

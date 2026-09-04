@@ -7,30 +7,34 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.CancellationException;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import org.jspecify.annotations.Nullable;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.chathelper.LPChatListener;
 import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.OpenChatGui;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateCanidatePipe;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateClearClient;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateDebugCanidateList;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateDebugClosedSet;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateDebugFilters;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateDoneDebug;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateInitDebug;
-import logisticspipes.network.packets.routingdebug.RoutingUpdateSourcePipe;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_client.debug.RoutingDebugCandidateListMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugCandidateMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugClearMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugClosedSetMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugDoneMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugFiltersMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugInitMessage;
+import logisticspipes.network.to_client.debug.RoutingDebugSourceMessage;
+import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
@@ -39,6 +43,23 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.ticks.QueuedTasks;
 
 public class DebugController implements IRoutingDebugAdapter {
+
+	private void sendToPlayer(CustomPacketPayload payload) {
+		if (sender instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, payload);
+		}
+	}
+
+	/** Filters travel as the positions of the pipes holding them; the client has no filters. */
+	private static Map<PipeRoutingConnectionType, List<List<BlockPos>>> filterPositions(
+			EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters) {
+		final Map<PipeRoutingConnectionType, List<List<BlockPos>>> positions =
+				new EnumMap<>(PipeRoutingConnectionType.class);
+		filters.forEach((type, chains) -> positions.put(type, chains.stream()
+				.map(chain -> chain.stream().map(filter -> filter.getLPPosition().getBlockPos()).toList())
+				.toList()));
+		return positions;
+	}
 
 	private static final HashMap<Player, DebugController> instances = new HashMap<>();
 	public List<WeakReference<ExitRoute>> cachedRoutes = new LinkedList<>();
@@ -95,7 +116,9 @@ public class DebugController implements IRoutingDebugAdapter {
 							return;
 						}
 					}
-					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), sender);
+					if (sender instanceof ServerPlayer openChatFor) {
+			PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+		}
 					// This used to be oldThread.stop(), which throws UnsupportedOperationException
 					// outright since Java 20. The previous run is canceled cooperatively instead:
 					// wait() turns the interrupt into a CancellationException that unwinds
@@ -149,7 +172,9 @@ public class DebugController implements IRoutingDebugAdapter {
 			sender.sendSystemMessage(Component.literal(reason));
 			LPChatListener.addTask(() -> {
 				state = DebugWaitState.CONTINUE;
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), sender);
+				if (sender instanceof ServerPlayer openChatFor) {
+			PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+		}
 				return true;
 			}, sender);
 			return null;
@@ -180,7 +205,8 @@ public class DebugController implements IRoutingDebugAdapter {
 		this.candidatesCost = candidatesCost;
 		this.closedSet = closedSet;
 		this.filterList = filterList;
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateDebugCanidateList.class).setExitRoutes(new ArrayList<>(candidatesCost)), sender);
+		sendToPlayer(new RoutingDebugCandidateListMessage(
+				candidatesCost.stream().map(RouteDebugInfo::of).toList()));
 		wait("Start?");
 	}
 
@@ -192,8 +218,8 @@ public class DebugController implements IRoutingDebugAdapter {
 		}
 		pipeHandled = false;
 		prevNode = lowestCostNode;
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateClearClient.class), sender);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateSourcePipe.class).setExitRoute(lowestCostNode), sender);
+		sendToPlayer(new RoutingDebugClearMessage());
+		sendToPlayer(new RoutingDebugSourceMessage(RouteDebugInfo.of(lowestCostNode)));
 	}
 
 	@Override
@@ -215,7 +241,7 @@ public class DebugController implements IRoutingDebugAdapter {
 			if (set != null) {
 				IRouter router = SimpleServiceLocator.routerManager.getRouter(i);
 				if (router != null) {
-					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateDebugClosedSet.class).setPos(router.getLPPosition()).setSet(set), sender);
+					sendToPlayer(new RoutingDebugClosedSetMessage(router.getLPPosition().getBlockPos(), set));
 				}
 			}
 		}
@@ -224,7 +250,8 @@ public class DebugController implements IRoutingDebugAdapter {
 			if (filters != null) {
 				IRouter router = SimpleServiceLocator.routerManager.getRouter(i);
 				if (router != null) {
-					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateDebugFilters.class).setPos(router.getLPPosition()).setFilters(filters), sender);
+					sendToPlayer(new RoutingDebugFiltersMessage(router.getLPPosition().getBlockPos(),
+						filterPositions(filters)));
 				}
 			}
 		}
@@ -234,7 +261,8 @@ public class DebugController implements IRoutingDebugAdapter {
 		if (flag && nextNode != null) {
 			exitRoutes.addFirst(nextNode);
 		}
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateDebugCanidateList.class).setExitRoutes(exitRoutes), sender);
+		sendToPlayer(new RoutingDebugCandidateListMessage(
+				exitRoutes.stream().map(RouteDebugInfo::of).toList()));
 		if (prevNode == null || prevNode.debug.isTraced) {
 			//Display Information On Client Side
 
@@ -247,7 +275,7 @@ public class DebugController implements IRoutingDebugAdapter {
 	public void newCanidate(ExitRoute next) {
 		next.debug.index = cachedRoutes.size();
 		cachedRoutes.add(new WeakReference<>(next));
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateCanidatePipe.class).setExitRoute(next), sender);
+		sendToPlayer(new RoutingDebugCandidateMessage(RouteDebugInfo.of(next)));
 	}
 
 	@Override
@@ -263,15 +291,15 @@ public class DebugController implements IRoutingDebugAdapter {
 	@Override
 	public void done() {
 		sendMsg("Update Done");
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateClearClient.class), sender);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateDoneDebug.class), sender);
+		sendToPlayer(new RoutingDebugClearMessage());
+		sendToPlayer(new RoutingDebugDoneMessage());
 		cachedRoutes.clear();
 	}
 
 	@Override
 	public void init() {
 		sendMsg("Initialising variables");
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(RoutingUpdateInitDebug.class), sender);
+		sendToPlayer(new RoutingDebugInitMessage());
 	}
 
 	@Override

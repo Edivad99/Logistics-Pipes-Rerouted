@@ -14,9 +14,9 @@ import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.SetGhostItemPacket;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.network.to_server.gui.SetGhostSlotMessage;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.gui.DummySlot;
 import logisticspipes.utils.gui.FluidSlot;
@@ -84,11 +84,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
                 public void accept(I ignored) {
                     ItemStack copy = ingredient.copyWithCount(1);
                     slot.set(copy);
-                    MainProxy.sendPacketToServer(
-                        PacketHandler.getPacket(SetGhostItemPacket.class)
-                            .putInt(slot.index)
-                            .setStack(copy)
-                    );
+                    ClientPacketDistributor.sendToServer(new SetGhostSlotMessage(slot.index, copy));
                 }
             });
         }
@@ -130,11 +126,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
 
                     fluidSlot.set(stack);
 
-                    MainProxy.sendPacketToServer(
-                        PacketHandler.getPacket(SetGhostItemPacket.class)
-                            .putInt(fluidSlot.index)
-                            .setStack(stack)
-                    );
+                    ClientPacketDistributor.sendToServer(new SetGhostSlotMessage(fluidSlot.index, stack));
                 }
             });
         }
@@ -177,11 +169,7 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
 
                     fluidSlot.set(stack);
 
-                    MainProxy.sendPacketToServer(
-                        PacketHandler.getPacket(SetGhostItemPacket.class)
-                            .putInt(fluidSlot.index)
-                            .setStack(stack)
-                    );
+                    ClientPacketDistributor.sendToServer(new SetGhostSlotMessage(fluidSlot.index, stack));
                 }
             });
         }

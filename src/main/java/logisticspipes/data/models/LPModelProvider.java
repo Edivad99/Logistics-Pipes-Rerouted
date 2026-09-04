@@ -11,6 +11,7 @@ import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -49,10 +50,24 @@ public class LPModelProvider extends ModelProvider {
         for (Item item : flatItems()) {
             itemModels.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
         }
+        sharedTextureItem(itemModels, LPItems.SECURITY_CARD.get(), LPItems.ITEM_CARD.get());
         signCreator(itemModels);
         fluidContainer(itemModels);
         handWrittenItems(itemModels);
         specialItems(itemModels);
+    }
+
+    /**
+     * A flat model for {@code item} drawn with another item's texture.
+     *
+     * <p>The two cards look alike; only what they authorise differs.
+     */
+    private static void sharedTextureItem(ItemModelGenerators itemModels, Item item, Item textureOf) {
+        final Identifier model = ModelLocationUtils.getModelLocation(item);
+        ModelTemplates.FLAT_ITEM.create(model,
+            TextureMapping.layer0(textureOf),
+            itemModels.modelOutput);
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
     }
 
     private static void specialItems(ItemModelGenerators itemModels) {

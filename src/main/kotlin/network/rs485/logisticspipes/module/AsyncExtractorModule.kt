@@ -37,6 +37,12 @@
 
 package network.rs485.logisticspipes.module
 
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.network.codec.ByteBufCodecs
+import net.minecraft.network.RegistryFriendlyByteBuf
+import logisticspipes.world.inventory.SneakyDirectionMenu
+import logisticspipes.interfaces.IModuleMenuProvider
 import network.rs485.logisticspipes.logistics.LogisticsManager
 import network.rs485.logisticspipes.property.NullableEnumProperty
 import network.rs485.logisticspipes.property.Property
@@ -44,18 +50,12 @@ import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
 import logisticspipes.LPConfigs
 import logisticspipes.interfaces.*
-import logisticspipes.network.NewGuiHandler
-import logisticspipes.network.PacketHandler
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
-import logisticspipes.network.guis.module.inhand.SneakyModuleInHandGuiProvider
-import logisticspipes.network.guis.module.inpipe.SneakyModuleInSlotGuiProvider
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket
-import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate
+import logisticspipes.modules.PipeServiceProviderUtil
+import logisticspipes.modules.SneakyDirection
+import logisticspipes.network.ModuleTarget
+import logisticspipes.network.to_client.module.SneakyDirectionMessage
 import logisticspipes.particle.Particles
 import logisticspipes.pipes.basic.CoreRoutedPipe
-import logisticspipes.proxy.MainProxy
 import logisticspipes.renderer.HUDDrawContext
 import logisticspipes.routing.AsyncRouting
 import logisticspipes.routing.ServerRouter
@@ -64,6 +64,9 @@ import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
 import net.minecraft.client.Minecraft
 import net.minecraft.core.Direction
+import java.util.Optional
+import net.neoforged.neoforge.network.PacketDistributor
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import java.util.*
@@ -176,7 +179,7 @@ class ExtractorJob(private val module: AsyncExtractorModule, private val invento
 
 class AsyncExtractorModule(
     val inverseFilter: (ItemStack) -> Boolean = { stack -> stack.isEmpty },
-) : AsyncModule<ExtractorJob, Unit>(), Gui, SneakyDirection,
+) : AsyncModule<ExtractorJob, Unit>(), IModuleMenuProvider, SneakyDirection,
     IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver {
 
     companion object {
@@ -189,21 +192,15 @@ class AsyncExtractorModule(
     override val properties: List<Property<*>>
         get() = listOf(sneakyDirectionProp)
 
-    override var sneakyDirection: Direction?
-        get() = sneakyDirectionProp.value
-        set(value) {
-            sneakyDirectionProp.value = value
-            MainProxy.sendToPlayerList(
-                PacketHandler.getPacket(SneakyModuleDirectionUpdate::class.java)
-                    .setDirection(sneakyDirection)
-                    .setModulePos(this),
-                localModeWatchers,
-            )
-        }
+    override fun getSneakyDirection(): Direction? = sneakyDirectionProp.value
+
+    override fun setSneakyDirection(direction: Direction?) {
+        sneakyDirectionProp.value = direction
+        localModeWatchers.send(SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(direction)))
+    }
 
     private val hudRenderer: IHUDModuleRenderer = HUDAsyncExtractor(this)
     val localModeWatchers = PlayerCollectionList()
-    override val module = this
     private var currentJob: ExtractorJob? = null
 
     internal val serverRouter: ServerRouter?
@@ -212,13 +209,13 @@ class AsyncExtractorModule(
     internal val pipeService: IPipeServiceProvider?
         get() = service
 
-    override val pipeGuiProvider: ModuleCoordinatesGuiProvider
-        get() =
-            NewGuiHandler.getGui(SneakyModuleInSlotGuiProvider::class.java).setSneakyOrientation(sneakyDirection)
+    override fun createMenu(containerId: Int, inventory: Inventory, target: ModuleTarget): AbstractContainerMenu =
+        SneakyDirectionMenu(containerId, inventory, target, this)
 
-    override val inHandGuiProvider: ModuleInHandGuiProvider
-        get() =
-            NewGuiHandler.getGui(SneakyModuleInHandGuiProvider::class.java)
+    override fun writeMenuData(buffer: RegistryFriendlyByteBuf) {
+        ByteBufCodecs.optional(Direction.STREAM_CODEC)
+            .encode(buffer, Optional.ofNullable(getSneakyDirection()))
+    }
 
     override val everyNthTick: Int
         get() = (80 / upgradeManager.let { 2.0.pow(it.actionSpeedUpgrade) }).toInt() + LPConfigs.COMMON.MINIMUM_JOB_TICK_LENGTH.asInt
@@ -241,7 +238,8 @@ class AsyncExtractorModule(
         } ?: CoreRoutedPipe.ItemSendMode.Normal
 
     private val connectedInventory: IInventoryUtil?
-        get() = service?.availableSneakyInventories(sneakyDirection)?.firstOrNull()
+        get() = service?.let { PipeServiceProviderUtil.availableSneakyInventories(it, getSneakyDirection()) }
+            ?.firstOrNull()
 
     override fun getLPName(): String = name
 
@@ -259,7 +257,7 @@ class AsyncExtractorModule(
     }
 
     override fun completeJob(deferred: Deferred<Unit?>) {
-        val serverRouter = module.serverRouter ?: return
+        val serverRouter = this.serverRouter ?: return
         val inventory = connectedInventory ?: return
         serverRouter.ensureLatestRoutingTable()
         currentJob?.extractAndSend(serverRouter, inventory)
@@ -274,29 +272,20 @@ class AsyncExtractorModule(
     override fun interestedInAttachedInventory(): Boolean = true
 
     override fun getClientInformation(): MutableList<String> =
-        mutableListOf("Extraction: ${sneakyDirection?.name ?: "DEFAULT"}")
+        mutableListOf("Extraction: ${getSneakyDirection()?.name ?: "DEFAULT"}")
 
-    override fun stopHUDWatching() {
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(HUDStopModuleWatchingPacket::class.java).setModulePos(this),
-        )
-    }
 
     override fun getHUDRenderer(): IHUDModuleRenderer = hudRenderer
 
-    override fun startHUDWatching() {
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(HUDStartModuleWatchingPacket::class.java).setModulePos(this),
-        )
-    }
 
     override fun startWatching(player: Player) {
         localModeWatchers.add(player)
-        MainProxy.sendPacketToPlayer(
-            PacketHandler.getPacket(SneakyModuleDirectionUpdate::class.java).setDirection(sneakyDirection)
-                .setModulePos(this),
-            player,
-        )
+        if (player is ServerPlayer) {
+            PacketDistributor.sendToPlayer(
+                player,
+                SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(getSneakyDirection())),
+            )
+        }
     }
 
     override fun stopWatching(player: Player) {
@@ -307,7 +296,7 @@ class AsyncExtractorModule(
         override fun renderContent(context: HUDDrawContext, shifted: Boolean) {
             val mc = Minecraft.getInstance()
 
-            val d: Direction? = module.sneakyDirection
+            val d: Direction? = module.getSneakyDirection()
             // TODO: deferred -- this panel has never drawn anything; the sneaky direction still
             // needs a line of text through context.drawString.
         }

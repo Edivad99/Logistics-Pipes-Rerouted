@@ -5,10 +5,12 @@ import java.util.Objects;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.routing.IRouter;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -23,22 +25,21 @@ public class FluidResource implements IResource {
 	private final IRequestFluid target;
 	private int amount;
 
+	public static final StreamCodec<RegistryFriendlyByteBuf, FluidResource> STREAM_CODEC =
+			StreamCodec.composite(
+					ItemIdentifier.STREAM_CODEC, resource -> resource.liquid.getItemIdentifier(),
+					ByteBufCodecs.VAR_INT, resource -> resource.amount,
+					FluidResource::new);
+
+	/** Rebuilt on the client, where a resource has no target to deliver to. */
+	private FluidResource(ItemIdentifier liquid, int amount) {
+		this(Objects.requireNonNull(FluidIdentifier.get(liquid), "unknown fluid in the message"), amount, null);
+	}
+
 	public FluidResource(FluidIdentifier liquid, int amount, @Nullable IRequestFluid target) {
 		this.liquid = liquid;
 		this.amount = amount;
 		this.target = target;
-	}
-
-	public FluidResource(LPDataInput input) {
-		liquid = Objects.requireNonNull(FluidIdentifier.get(Objects.requireNonNull(input.readItemIdentifier())));
-		amount = input.readInt();
-		target = null;
-	}
-
-	@Override
-	public void writeData(LPDataOutput output) {
-		output.writeItemIdentifier(liquid.getItemIdentifier());
-		output.writeInt(amount);
 	}
 
 	@Override

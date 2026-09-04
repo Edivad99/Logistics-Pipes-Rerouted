@@ -5,84 +5,67 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.Function;
 
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.level.Level;
 
-import logisticspipes.network.abstractpackets.ListSyncPacket;
-import logisticspipes.proxy.MainProxy;
+import org.jspecify.annotations.Nullable;
 
+import logisticspipes.network.TargetLookup;
+
+/**
+ * A list that tells the clients watching its chunk whenever it changes.
+ *
+ * <p>Every mutating method marks the list dirty; the owner decides when to actually send, by
+ * calling {@link #sendUpdateToWatchers()} on its own tick.
+ */
 public class SyncList<E> implements List<E> {
 
 	private final List<E> list;
-	private ListSyncPacket<E> packetType;
-	private PlayerCollectionList watcherList = null;
+
+	/** Where the list lives, and how to say what is in it. Null until {@link #syncTo} is called. */
+	private @Nullable Sync<E> sync;
+
 	private boolean dirty = false;
-	private int dim, x, z;
+
+	private record Sync<E>(Level level, BlockPos pos, Function<List<E>, CustomPacketPayload> message) {
+	}
 
 	public SyncList() {
-		this(null, new ArrayList<>());
+		this(new ArrayList<>());
 	}
 
-	public SyncList(ListSyncPacket<E> type) {
-		this(type, new ArrayList<>());
-	}
-
-	public SyncList(ListSyncPacket<E> type, List<E> list) {
-		this.packetType = type;
+	public SyncList(List<E> list) {
 		this.list = list;
 	}
 
 	/**
-	 * Can be used to trigger update manualy
+	 * Starts sending updates, and sends one now.
+	 *
+	 * @param message builds the message that describes the list's contents
 	 */
-	public void setChanged() {
-		if (packetType == null) {
-			return;
-		}
-		dirty = true;
+	public void syncTo(Level level, BlockPos pos, Function<List<E>, CustomPacketPayload> message) {
+		sync = new Sync<>(level, pos, message);
+		send(sync);
 	}
 
-	public void sendUpdateToWaters() {
-		if (packetType == null) {
-			return;
-		}
-		if (dirty) {
+	public void sendUpdateToWatchers() {
+		final Sync<E> target = sync;
+		if (dirty && target != null) {
 			dirty = false;
-			if (watcherList != null) {
-				MainProxy.sendToPlayerList(packetType.template().setList(list), watcherList);
-			} else {
-				MainProxy.sendPacketToAllWatchingChunk(x, z, dim, packetType.template().setList(list));
-			}
+			send(target);
 		}
 	}
 
-	public void setPacketType(ListSyncPacket<E> type, int dim, int x, int z) {
-		packetType = type;
-		this.dim = dim;
-		this.x = x;
-		this.z = z;
-		if (watcherList != null) {
-			MainProxy.sendToPlayerList(packetType.template().setList(list), watcherList);
-		} else {
-			MainProxy.sendPacketToAllWatchingChunk(x, z, dim, packetType.template().setList(list));
-		}
+	private void send(Sync<E> target) {
+		TargetLookup.sendToChunkWatchers(target.level(), target.pos(), target.message().apply(list));
 	}
 
-	public void addWatcher(Player player) {
-		if (watcherList == null) {
-			watcherList = new PlayerCollectionList();
-		}
-		if (packetType != null) {
-			MainProxy.sendPacketToPlayer(packetType.template().setList(list), player);
-		}
-		watcherList.add(player);
-	}
-
-	public boolean removeWatcher(Player player) {
-		if (watcherList == null) {
-			watcherList = new PlayerCollectionList();
-		}
-		return watcherList.remove(player);
+	/** Marks the list changed without going through one of its own methods. */
+	public void setChanged() {
+		dirty = true;
 	}
 
 	@Override

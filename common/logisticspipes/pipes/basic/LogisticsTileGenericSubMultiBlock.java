@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,12 +23,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 import com.mojang.serialization.Codec;
 
 import logisticspipes.interfaces.ITickable;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.multiblock.MultiBlockCoordinatesPacket;
+import logisticspipes.network.UpdateTagPayload;
+import logisticspipes.network.to_client.block.MultiBlockPositionMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.ISubMultiBlockPipeInformationProvider;
+import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.util.DoubleCoordinates;
 import logisticspipes.utils.TileBuffer;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
@@ -178,40 +179,42 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	@Override
 	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
 		CompoundTag nbt = super.getUpdateTag(registries);
-		try {
-			PacketHandler.addPacketToNBT(getLPDescriptionPacket(), nbt);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		UpdateTagPayload.write(nbt, MultiBlockPositionMessage.STREAM_CODEC, getDescriptionMessage());
 		return nbt;
 	}
 
-    @Override
-    public void handleUpdateTag(ValueInput input) {
-        PacketHandler.queuePacketFromUpdateTag(input);
-        super.handleUpdateTag(input);
-    }
+	@Override
+	public void handleUpdateTag(ValueInput input) {
+		applyDescription(input);
+		super.handleUpdateTag(input);
+	}
 
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
 		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
-    @Override
-    public void onDataPacket(Connection net, ValueInput input) {
-        PacketHandler.queuePacketFromUpdateTag(input);
-    }
-
-	public ModernPacket getLPDescriptionPacket() {
-		MultiBlockCoordinatesPacket packet = PacketHandler.getPacket(MultiBlockCoordinatesPacket.class);
-		packet.setTilePos(this);
-		packet.setTargetPos(mainPipePos);
-		packet.setSubTypes(subTypes);
-		return packet;
+	@Override
+	public void onDataPacket(Connection net, ValueInput input) {
+		applyDescription(input);
 	}
 
-	public void setPosition(Set<DoubleCoordinates> lpPosition, List<CoreMultiBlockPipe.SubBlockTypeForShare> subTypes) {
-		mainPipePos = lpPosition;
+	private void applyDescription(ValueInput input) {
+		MultiBlockPositionMessage message = UpdateTagPayload.read(input, MultiBlockPositionMessage.STREAM_CODEC);
+		if (message != null) {
+			ClientTaskQueue.add(() -> message.applyTo(this));
+		}
+	}
+
+	public MultiBlockPositionMessage getDescriptionMessage() {
+		return new MultiBlockPositionMessage(
+				getBlockPos(),
+				mainPipePos.stream().map(DoubleCoordinates::getBlockPos).collect(Collectors.toSet()),
+				subTypes);
+	}
+
+	public void setPosition(Set<BlockPos> mainPipes, List<CoreMultiBlockPipe.SubBlockTypeForShare> subTypes) {
+		mainPipePos = mainPipes.stream().map(DoubleCoordinates::new).collect(Collectors.toSet());
 		this.subTypes = subTypes;
 		mainPipe = null;
 	}

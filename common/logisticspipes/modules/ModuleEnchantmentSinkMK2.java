@@ -5,10 +5,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
@@ -17,13 +23,10 @@ import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IModuleInventoryReceive;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReciver;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
-import logisticspipes.network.packets.module.ModuleInventory;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
@@ -35,23 +38,25 @@ import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.inventory.SimpleFilterMenu;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.module.Gui;
-import network.rs485.logisticspipes.module.SimpleFilter;
+import logisticspipes.modules.SimpleFilter;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.Property;
 
 @CCType(name = "EnchantmentSink Module MK2")
 public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 		implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver,
-		ISimpleInventoryEventHandler, IModuleInventoryReceive, Gui {
+		ISimpleInventoryEventHandler, IModuleInventoryReceive, IModuleMenuProvider {
 
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
 			new ItemIdentifierInventory(9, "Requested Enchanted items", 1), "filterInv");
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
-	private SinkReply sinkReply;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReply;
 
 	public ModuleEnchantmentSinkMK2() {
 		filterInventory.addListener(this);
@@ -87,13 +92,14 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= sinkReply.customPriority)) {
+		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+				&& bestCustomPriority >= reply.customPriority)) {
 			return null;
 		}
 		if (filterInventory.containsExcludeNBTItem(item.getUndamaged().getIgnoringNBT())) {
 			if (stack.isEnchanted()) {
-				return sinkReply;
+				return reply;
 			}
 			return null;
 		}
@@ -111,21 +117,15 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 		return list;
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
-				.setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory)).setModulePos(this), player);
+		if (player instanceof ServerPlayer inventoryWatcher) {
+			PacketDistributor.sendToPlayer(inventoryWatcher,
+					new ModuleInventoryMessage(ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(filterInventory)));
+		}
 	}
 
 	@Override
@@ -136,12 +136,8 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	@Override
 	public void InventoryChanged(Container inventory) {
 		MainProxy.runOnServer(getWorld(), () -> () ->
-				MainProxy.sendToPlayerList(
-						PacketHandler.getPacket(ModuleInventory.class)
-								.setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
-								.setModulePos(this),
-						localModeWatchers
-				)
+				localModeWatchers.send(
+					new ModuleInventoryMessage(ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(inventory)))
 		);
 	}
 
@@ -196,13 +192,8 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		return SimpleFilter.getPipeGuiProvider();
-	}
-
-	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return SimpleFilter.getInHandGuiProvider();
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new SimpleFilterMenu(LPMenuTypes.SIMPLE_FILTER.get(), containerId, inventory, target, this);
 	}
 
 }

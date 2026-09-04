@@ -6,14 +6,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
@@ -25,6 +34,7 @@ import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ILegacyActiveModule;
 import logisticspipes.interfaces.IModuleInventoryReceive;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
@@ -33,16 +43,9 @@ import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.guis.module.inhand.ProviderModuleInHand;
-import logisticspipes.network.guis.module.inpipe.ProviderModuleGuiProvider;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
-import logisticspipes.network.packets.module.ModuleInventory;
-import logisticspipes.network.packets.modules.SneakyModuleDirectionUpdate;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_client.module.ModuleInventoryMessage;
+import logisticspipes.network.to_client.module.SneakyDirectionMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.proxy.MainProxy;
@@ -65,11 +68,12 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.inventory.LPMenuTypes;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.ProviderMode;
-import network.rs485.logisticspipes.module.Gui;
-import network.rs485.logisticspipes.module.SneakyDirection;
+import network.rs485.logisticspipes.inventory.container.ProviderContainer;
+import logisticspipes.modules.SneakyDirection;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.EnumProperty;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
@@ -78,7 +82,8 @@ import network.rs485.logisticspipes.property.Property;
 
 @CCType(name = "Provider Module")
 public class ModuleProvider extends LogisticsModule implements SneakyDirection, ILegacyActiveModule,
-		IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, IModuleInventoryReceive, Gui {
+		IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, IModuleInventoryReceive,
+		IModuleMenuProvider {
 
 	public final ArrayList<ItemIdentifierStack> displayList = new ArrayList<>();
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
@@ -128,14 +133,8 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	@Override
 	public void setSneakyDirection(Direction direction) {
 		sneakyDirection.setValue(direction);
-		MainProxy.runOnServer(getWorld(), () -> () ->
-				MainProxy.sendToPlayerList(
-						PacketHandler.getPacket(SneakyModuleDirectionUpdate.class)
-								.setDirection(sneakyDirection.getValue())
-								.setModulePos(this),
-						localModeWatchers
-				)
-		);
+		MainProxy.runOnServer(getWorld(), () -> () -> localModeWatchers.send(
+				new SneakyDirectionMessage(ModuleTarget.of(this), Optional.ofNullable(sneakyDirection.getValue()))));
 	}
 
 	protected int neededEnergy() {
@@ -386,25 +385,16 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 			oldList.clear();
 			oldList.ensureCapacity(displayList.size());
 			oldList.addAll(displayList);
-			MainProxy.sendToPlayerList(
-					PacketHandler.getPacket(ModuleInventory.class).setIdentList(displayList).setModulePos(this)
-							.setCompressable(true), localModeWatchers);
+			localModeWatchers.send(new ModuleInventoryMessage(ModuleTarget.of(this), List.copyOf(displayList)));
 		} else if (player != null) {
-			MainProxy.sendPacketToPlayer(
-					PacketHandler.getPacket(ModuleInventory.class).setIdentList(displayList).setModulePos(this)
-							.setCompressable(true), player);
+			if (player instanceof ServerPlayer inventoryWatcher) {
+				PacketDistributor.sendToPlayer(inventoryWatcher,
+						new ModuleInventoryMessage(ModuleTarget.of(this), List.copyOf(displayList)));
+			}
 		}
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {
@@ -460,14 +450,17 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		return NewGuiHandler.getGui(ProviderModuleGuiProvider.class).setExtractorMode(providerMode.getValue().ordinal())
-				.setExclude(isExclusionFilter.getValue());
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new ProviderContainer(LPMenuTypes.PROVIDER.get(), containerId, inventory, this, target,
+				target.heldStack(inventory));
 	}
 
 	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return NewGuiHandler.getGui(ProviderModuleInHand.class);
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(
+				ProblemReporter.DISCARDING, buffer.registryAccess());
+		serialize(moduleOutput);
+		buffer.writeNbt(moduleOutput.buildResult());
 	}
 
 	private IInventoryUtil getInventoryUtilWithMode(NeighborTileEntity<BlockEntity> neighbor) {

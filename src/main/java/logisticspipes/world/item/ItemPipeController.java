@@ -1,14 +1,16 @@
 package logisticspipes.world.item;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.guis.LogisticsPlayerSettingsGuiProvider;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.world.inventory.PlayerSettingsMenu;
 
 public class ItemPipeController extends LogisticsItem {
 
@@ -40,6 +42,10 @@ public class ItemPipeController extends LogisticsItem {
     }
 
     private void useItem(Player player, Level level) {
-        NewGuiHandler.getGui(LogisticsPlayerSettingsGuiProvider.class).open(player);
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.openMenu(new SimpleMenuProvider(
+                    (containerId, inventory, viewer) -> new PlayerSettingsMenu(containerId, inventory),
+                    Component.empty()));
+        }
     }
 }

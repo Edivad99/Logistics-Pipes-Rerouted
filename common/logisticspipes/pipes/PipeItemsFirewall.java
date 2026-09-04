@@ -1,20 +1,30 @@
 package logisticspipes.pipes;
 
-import java.util.BitSet;
+import java.util.Objects;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.FireWallFlag;
+import logisticspipes.network.to_client.pipe.FirewallFlagsMessage;
+import logisticspipes.network.to_server.pipe.SetFirewallFlagsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
@@ -23,16 +33,22 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.inventory.FirewallMenu;
 
-public class PipeItemsFirewall extends CoreRoutedPipe {
+public class PipeItemsFirewall extends CoreRoutedPipe implements IPipeMenuProvider {
 
 	public ItemIdentifierInventory inv = new ItemIdentifierInventory(6 * 6, "Filter Inv", 1);
-	private boolean blockProvider = false;
-	private boolean blockCrafter = false;
-	private boolean blockSorting = false;
-	private boolean blockPower = true;
-	private boolean isBlocking = true;
-	private IFilter filter = null;
+	@Getter
+    private boolean blockProvider = false;
+	@Getter
+    private boolean blockCrafter = false;
+	@Getter
+    private boolean blockSorting = false;
+	@Getter
+    private boolean blockPower = true;
+	@Getter
+    private boolean isBlocking = true;
+	private @Nullable IFilter filter = null;
 
 	public PipeItemsFirewall(Item item) {
 		super(item);
@@ -44,11 +60,16 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void onWrenchClicked(Player entityplayer) {
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(FireWallFlag.class).setFlags(getFlags()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), entityplayer);
-		logisticspipes.network.NewGuiHandler.getGui(logisticspipes.network.guis.pipe.FirewallGui.class)
-				.setPosX(getX()).setPosY(getY()).setPosZ(getZ())
-				.open(entityplayer);
+	public void onWrenchClicked(Player player) {
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new FirewallFlagsMessage(getPos(), getFlags()));
+			serverPlayer.openMenu(this);
+		}
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new FirewallMenu(containerId, inventory, this);
 	}
 
 	@Override
@@ -56,7 +77,7 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 		super.serialize(output);
 		inv.serialize(output);
 		output.putBoolean("blockProvider", blockProvider);
-		output.putBoolean("blockCrafer", blockCrafter);
+		output.putBoolean("blockCrafter", blockCrafter);
 		output.putBoolean("blockSorting", blockSorting);
 		output.putBoolean("blockPower", blockPower);
 		output.putBoolean("isBlocking", isBlocking);
@@ -67,7 +88,7 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 		super.deserialize(input);
 		inv.deserialize(input);
 		blockProvider = input.getBooleanOr("blockProvider", false);
-		blockCrafter = input.getBooleanOr("blockCrafer", false);
+		blockCrafter = input.getBooleanOr("blockCrafter", false);
 		blockSorting = input.getBooleanOr("blockSorting", false);
 		blockPower = input.getBooleanOr("blockPower", blockPower);
 		isBlocking = input.getBooleanOr("isBlocking", false);
@@ -147,71 +168,63 @@ public class PipeItemsFirewall extends CoreRoutedPipe {
 		return filter;
 	}
 
-	public boolean isBlockProvider() {
-		return blockProvider;
-	}
-
-	public void setBlockProvider(boolean blockProvider) {
+    public void setBlockProvider(boolean blockProvider) {
 		this.blockProvider = blockProvider;
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(FireWallFlag.class).setFlags(getFlags()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new SetFirewallFlagsMessage(Objects.requireNonNull(getPos()), getFlags()));
 	}
 
-	public boolean isBlockCrafter() {
-		return blockCrafter;
-	}
-
-	public void setBlockCrafter(boolean blockCrafter) {
+    public void setBlockCrafter(boolean blockCrafter) {
 		this.blockCrafter = blockCrafter;
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(FireWallFlag.class).setFlags(getFlags()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+        ClientPacketDistributor.sendToServer(new SetFirewallFlagsMessage(Objects.requireNonNull(getPos()), getFlags()));
 	}
 
-	public boolean isBlockSorting() {
-		return blockSorting;
-	}
-
-	public void setBlockSorting(boolean blockSorting) {
+    public void setBlockSorting(boolean blockSorting) {
 		this.blockSorting = blockSorting;
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(FireWallFlag.class).setFlags(getFlags()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+        ClientPacketDistributor.sendToServer(new SetFirewallFlagsMessage(Objects.requireNonNull(getPos()), getFlags()));
 	}
 
-	public boolean isBlockPower() {
-		return blockPower;
-	}
-
-	public void setBlockPower(boolean blockPower) {
+    public void setBlockPower(boolean blockPower) {
 		this.blockPower = blockPower;
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(FireWallFlag.class).setFlags(getFlags()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+        ClientPacketDistributor.sendToServer(new SetFirewallFlagsMessage(Objects.requireNonNull(getPos()), getFlags()));
 	}
 
-	public boolean isBlocking() {
-		return isBlocking;
-	}
-
-	public void setBlocking(boolean isBlocking) {
+    public void setBlocking(boolean isBlocking) {
 		this.isBlocking = isBlocking;
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(FireWallFlag.class).setFlags(getFlags()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+        ClientPacketDistributor.sendToServer(new SetFirewallFlagsMessage(Objects.requireNonNull(getPos()), getFlags()));
 	}
 
-	private BitSet getFlags() {
-		BitSet flags = new BitSet();
-		flags.set(0, blockProvider);
-		flags.set(1, blockCrafter);
-		flags.set(2, blockSorting);
-		flags.set(3, blockPower);
-		flags.set(4, isBlocking);
-		return flags;
+	private FirewallFlags getFlags() {
+		return new FirewallFlags(blockProvider, blockCrafter, blockSorting, blockPower, isBlocking);
 	}
 
-	public void setFlags(BitSet flags) {
-		blockProvider = flags.get(0);
-		blockCrafter = flags.get(1);
-		blockSorting = flags.get(2);
-		blockPower = flags.get(3);
-		isBlocking = flags.get(4);
+	public void setFlags(FirewallFlags flags) {
+		blockProvider = flags.blockProvider();
+		blockCrafter = flags.blockCrafter();
+		blockSorting = flags.blockSorting();
+		blockPower = flags.blockPower();
+		isBlocking = flags.blocking();
 	}
 
 	@Override
 	public boolean hasGenericInterests() {
 		return true;
 	}
+
+    public record FirewallFlags(
+            boolean blockProvider,
+            boolean blockCrafter,
+            boolean blockSorting,
+            boolean blockPower,
+            boolean blocking
+    ) {
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, FirewallFlags> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.BOOL, FirewallFlags::blockProvider,
+                        ByteBufCodecs.BOOL, FirewallFlags::blockCrafter,
+                        ByteBufCodecs.BOOL, FirewallFlags::blockSorting,
+                        ByteBufCodecs.BOOL, FirewallFlags::blockPower,
+                        ByteBufCodecs.BOOL, FirewallFlags::blocking,
+                        FirewallFlags::new);
+    }
 }

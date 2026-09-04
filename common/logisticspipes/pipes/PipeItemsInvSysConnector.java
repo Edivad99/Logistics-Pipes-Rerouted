@@ -15,7 +15,10 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -23,10 +26,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.gui.hud.HUDInvSysConnector;
-import logisticspipes.interfaces.IGuiOpenController;
+import logisticspipes.interfaces.IPipeMenuProvider;
+import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.interfaces.IInventoryUtil;
@@ -35,17 +42,12 @@ import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.interfaces.routing.IChannelRoutingConnection;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.guis.pipe.InvSysConGuiProvider;
-import logisticspipes.network.packets.gui.ChannelInformationPacket;
-import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
-import logisticspipes.network.packets.orderer.OrdererManagerContent;
-import logisticspipes.network.packets.pipe.InvSysConResistance;
+import logisticspipes.network.to_client.channel.ChannelInformationMessage;
+import logisticspipes.network.to_client.orderer.OrderManagerContentMessage;
+import logisticspipes.network.to_client.pipe.InvSysConResistanceMessage;
+import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.channels.ChannelInformation;
@@ -55,6 +57,7 @@ import logisticspipes.transport.TransportInvConnection;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.InvSysConMenu;
 import logisticspipes.utils.transactor.ITransactor;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
@@ -62,7 +65,7 @@ import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannelRoutingConnection, IHeadUpDisplayRendererProvider, IOrderManagerContentReceiver,
-        IGuiOpenController {
+        IScreenOpenController, IPipeMenuProvider {
 
 	private boolean init = false;
 	private HashMap<ItemIdentifier, List<ItemRoutingInformation>> itemsOnRoute = new HashMap<>();
@@ -233,7 +236,9 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 
 	@Override
 	public void onWrenchClicked(Player entityplayer) {
-		NewGuiHandler.getGui(InvSysConGuiProvider.class).setTilePos(this.container).open(entityplayer);
+		if (entityplayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(this);
+		}
 	}
 
 	@Override
@@ -370,12 +375,12 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 
 	@Override
 	public void startWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), true));
 	}
 
 	@Override
 	public void stopWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).putInt(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+		ClientPacketDistributor.sendToServer(new PipeHudWatchMessage(getPos(), false));
 	}
 
 	@Override
@@ -393,23 +398,25 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 			Set<ItemIdentifierStack> newList = getExpectedItems();
 			if (!newList.equals(oldList)) {
 				oldList = newList;
-				MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererManagerContent.class).setIdentSet(newList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+				localModeWatchers.send(new OrderManagerContentMessage(getPos(), List.copyOf(newList)));
 			}
 		}
 	}
 
 	@Override
-	public void playerStartWatching(Player player, int mode) {
-		if (mode == 1) {
+	public void playerStartWatching(Player player, WatchMode mode) {
+		if (mode == WatchMode.HUD) {
 			localModeWatchers.add(player);
-			MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererManagerContent.class).setIdentSet(getExpectedItems()).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
+			if (player instanceof ServerPlayer serverPlayer) {
+				PacketDistributor.sendToPlayer(serverPlayer, new OrderManagerContentMessage(getPos(), List.copyOf(getExpectedItems())));
+			}
 		} else {
 			super.playerStartWatching(player, mode);
 		}
 	}
 
 	@Override
-	public void playerStopWatching(Player player, int mode) {
+	public void playerStopWatching(Player player, WatchMode mode) {
 		super.playerStopWatching(player, mode);
 		localModeWatchers.remove(player);
 	}
@@ -426,19 +433,28 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 	}
 
 	@Override
-	public void guiOpenedByPlayer(Player player) {
-		localGuiWatchers.add(player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(InvSysConResistance.class).putInt(this.resistance).setBlockPos(this.getPos()), player);
-
-		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(this.getWorld());
-		Optional<ChannelInformation> channel = manager.getChannels().stream()
-				.filter(chan -> chan.getChannelIdentifier().equals(getConnectionUUID()))
-				.findFirst();
-		channel.ifPresent(chan -> MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ChannelInformationPacket.class).setInformation(chan).setTargeted(true), player));
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new InvSysConMenu(containerId, inventory, this);
 	}
 
 	@Override
-	public void guiClosedByPlayer(Player player) {
+	public void screenOpenedByPlayer(Player player) {
+		localGuiWatchers.add(player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer, new InvSysConResistanceMessage(getPos(), resistance));
+		}
+		if (player instanceof ServerPlayer serverPlayer) {
+			IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(this.getWorld());
+			manager.getChannels().stream()
+					.filter(chan -> chan.getChannelIdentifier().equals(getConnectionUUID()))
+					.findFirst()
+					.ifPresent(chan -> PacketDistributor.sendToPlayer(serverPlayer,
+							new ChannelInformationMessage(chan, true)));
+		}
+	}
+
+	@Override
+	public void screenClosedByPlayer(Player player) {
 		localGuiWatchers.remove(player);
 	}
 
@@ -447,6 +463,6 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 		Optional<ChannelInformation> channel = manager.getChannels().stream()
 				.filter(chan -> chan.getChannelIdentifier().equals(getConnectionUUID()))
 				.findFirst();
-		channel.ifPresent(chan -> MainProxy.sendToPlayerList(PacketHandler.getPacket(ChannelInformationPacket.class).setInformation(chan).setTargeted(true), localGuiWatchers));
+		channel.ifPresent(chan -> localGuiWatchers.send(new ChannelInformationMessage(chan, true)));
 	}
 }

@@ -14,9 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
-import logisticspipes.network.guis.upgrade.DisconnectionUpgradeConfigGuiProvider;
+import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 
 public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
@@ -73,8 +71,8 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 	}
 
 	@Override
-	public UpgradeCoordinatesGuiProvider getGUI() {
-		return NewGuiHandler.getGui(DisconnectionUpgradeConfigGuiProvider.class);
+	public UpgradeConfigPopupMessage.Kind getConfigPopup() {
+		return UpgradeConfigPopupMessage.Kind.DISCONNECTION;
 	}
 
 	public Stream<Direction> getSides(ItemStack stack) {

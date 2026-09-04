@@ -1,6 +1,8 @@
 package logisticspipes.pipes.signs;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -8,8 +10,11 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -21,9 +26,8 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleCrafter;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.cpipe.CPipeSatelliteImportBack;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -61,14 +65,15 @@ public class CraftingPipeSign implements IPipeSign {
 	public void serialize(ValueOutput output) {}
 
 	@Override
-	public ModernPacket getPacket() {
+	public CustomPacketPayload getPacket() {
 		PipeItemsCraftingLogistics cpipe = (PipeItemsCraftingLogistics) pipe;
-		return PacketHandler.getPacket(CPipeSatelliteImportBack.class)
-				.setInventory(cpipe.getDummyInventory())
-				.setType(ModulePositionType.IN_PIPE)
-				.setPosX(cpipe.getX())
-				.setPosY(cpipe.getY())
-				.setPosZ(cpipe.getZ());
+		final Container inventory = cpipe.getDummyInventory();
+		final List<ItemStack> slots = new ArrayList<>(inventory.getContainerSize());
+		for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+			slots.add(inventory.getItem(slot));
+		}
+		return new CraftingDummyInventoryMessage(
+				new ModuleTarget(cpipe.getPos(), Optional.of(ModulePositionType.IN_PIPE), 0), slots);
 	}
 
 	@Override
@@ -117,7 +122,7 @@ public class CraftingPipeSign implements IPipeSign {
 					Component.literal(idStr).getVisualOrderText(), false, Font.DisplayMode.NORMAL,
 					packedLight, SIGN_TEXT_COLOR, 0, 0);
 				ModuleCrafter logisticsMod = cpipe.getLogisticsModule();
-				oldSatelliteName = logisticsMod.clientSideSatelliteNames.satelliteName;
+				oldSatelliteName = logisticsMod.clientSideSatelliteNames.satelliteName();
 				if (!oldSatelliteName.isEmpty()) {
 					String sat = "Sat: " + oldSatelliteName;
 					collector.submitText(poseStack, -font.width(sat) / 2.0F, 1 * 10 - 4 * 5,

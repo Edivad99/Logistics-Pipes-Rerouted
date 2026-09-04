@@ -20,8 +20,8 @@ import lombok.Setter;
 
 import logisticspipes.commands.commands.debug.DebugGuiController;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.util.DoubleCoordinates;
+import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.utils.FluidIdentifier;
 import network.rs485.grow.ServerTickDispatcher;
 
@@ -32,7 +32,7 @@ public class LPTickHandler {
 	@SubscribeEvent
 	public void clientTick(ClientTickEvent.Post event) {
 		FluidIdentifier.initFromNeoForge(true);
-		SimpleServiceLocator.clientBufferHandler.clientTick();
+		ClientTaskQueue.runQueued();
 		MainProxy.getProxy(true).tickClient();
 		DebugGuiController.instance().execClient();
 	}
@@ -40,7 +40,6 @@ public class LPTickHandler {
 	@SubscribeEvent
 	public void serverTick(ServerTickEvent.Post event) {
 		HudUpdateTick.tick();
-		SimpleServiceLocator.serverBufferHandler.serverTick();
 		MainProxy.getProxy(false).tickServer();
 		LPTickHandler.adjChecksDone = 0;
 		DebugGuiController.instance().execServer();

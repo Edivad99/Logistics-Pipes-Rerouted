@@ -61,7 +61,7 @@ public class HUDStringBasedItemSink implements IHUDModuleRenderer {
 		Minecraft mc = Minecraft.getInstance();
 		for (int i = page * 6; i < itemSink.stringListProperty().size() && i < 6 + (page * 6); i++) {
 			String mod = itemSink.stringListProperty().get(i);
-			context.drawString(mc.font, mod, -28, -25 + ((i - (page * 6)) * 10), 0xff404040, false);
+			context.drawString(mc.font, mod, -28, -25 + ((i - (page * 6)) * 10), 0xFF404040, false);
 		}
 	}
 

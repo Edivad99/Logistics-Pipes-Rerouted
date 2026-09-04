@@ -28,4 +28,7 @@ public class PipeRenderState extends BlockEntityRenderState {
     public LogisticsTileGenericPipe blockEntity;
 
     public float partialTicks;
+
+    /** Whether the camera is close enough to draw the items traveling inside the pipe. */
+    public boolean renderContent;
 }

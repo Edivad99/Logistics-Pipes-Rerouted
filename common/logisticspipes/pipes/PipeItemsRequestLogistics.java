@@ -13,16 +13,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.guis.pipe.NormalOrdererGui;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
@@ -38,6 +39,16 @@ import logisticspipes.utils.tuples.Pair;
 
 @CCType(name = "LogisticsPipes:Request")
 public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IRequestItems {
+
+	/**
+	 * The disk this requester holds, or an empty stack when it has no slot for one.
+	 *
+	 * <p>Only the Mk2 pipe and the request table have a disk; the plain requester answers empty so
+	 * that anything reading a disk can ask any requester.
+	 */
+	public ItemStack getDisk() {
+		return ItemStack.EMPTY;
+	}
 
 	private final LinkedList<Map<ItemIdentifier, Integer>> history = new LinkedList<>();
 
@@ -56,10 +67,9 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 	}
 
 	public void openGui(Player entityplayer) {
-		NormalOrdererGui gui = NewGuiHandler.getGui(NormalOrdererGui.class);
-		gui.setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-		gui.setDim(getWorld().dimension().identifier());
-		gui.open(entityplayer);
+		if (entityplayer instanceof ServerPlayer serverPlayer) {
+			OrdererMenu.open(serverPlayer, this);
+		}
 	}
 
 	@Override

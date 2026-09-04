@@ -37,31 +37,34 @@
 
 package network.rs485.logisticspipes.gui
 
+import network.rs485.logisticspipes.gui.widget.FuzzyItemSlot
 import network.rs485.logisticspipes.gui.widget.FuzzySelectionWidget
 import network.rs485.logisticspipes.inventory.container.LPBaseContainer
 import network.rs485.logisticspipes.util.IRectangle
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.LPGuiGraphics
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.Slot
 
 // TODO: Rendering deferred — full 1.20.1 rendering migration (PoseStack, AbstractContainerScreen API) pending.
 
-abstract class BaseGuiContainer(
-    private val baseContainer: LPBaseContainer<LogisticsModule>,
+abstract class BaseGuiContainer<C : LPBaseContainer<LogisticsModule>>(
+    private val baseContainer: C,
+    playerInventory: Inventory,
+    title: Component,
     val xOffset: Int = 0,
     val yOffset: Int = 0,
     private val widgetScreen: WidgetScreen,
-) : AbstractContainerScreen<LPBaseContainer<LogisticsModule>>(
+) : AbstractContainerScreen<C>(
     baseContainer,
-    Minecraft.getInstance().player!!.inventory,
-    Component.empty(),
+    playerInventory,
+    title,
 ), Drawable by widgetScreen {
 
     open val fuzzySelector: FuzzySelectionWidget? = null
@@ -148,10 +151,44 @@ abstract class BaseGuiContainer(
         drawBackgroundLayer(mouseX, mouseY, lastPartialTick)
         widgetScreen.widgetContainer.draw(guiGraphics, mouseX.toFloat(), mouseY.toFloat(), lastPartialTick, rect)
         drawForegroundLayer(mouseX.toFloat(), mouseY.toFloat(), lastPartialTick)
+        drawFuzzySelector(guiGraphics, mouseX.toFloat(), mouseY.toFloat(), rect)
         pose.popMatrix()
     }
 
+    /**
+     * The flyout listing a fuzzy slot's flags, which follows the slot the mouse is over.
+     *
+     * Restored from LP1: the port left [fuzzySelector] built but never told which slot was hovered,
+     * so it stayed inactive and the panel could not appear at all. Coordinates are absolute here --
+     * the caller has counter-translated the pose -- and [Slot.x]/[Slot.y] are panel-local, so the
+     * panel origin has to be added back.
+     */
+    private fun drawFuzzySelector(
+        guiGraphics: GuiGraphicsExtractor,
+        mouseX: Float,
+        mouseY: Float,
+        visibleArea: IRectangle,
+    ) {
+        val fuzzySelector = fuzzySelector ?: return
+        val hovered = hoveredSlot
+        if (hovered == null) {
+            if (fuzzySelector.active && !fuzzySelector.isMouseHovering(mouseX, mouseY)) {
+                fuzzySelector.active = false
+                fuzzySelector.currentSlot = null
+            }
+        } else if (hovered is FuzzyItemSlot && hovered != fuzzySelector.currentSlot) {
+            fuzzySelector.active = true
+            fuzzySelector.currentSlot = hovered
+            fuzzySelector.setPos(leftPos + hovered.x, topPos + hovered.y + 17)
+        }
+        fuzzySelector.draw(guiGraphics, mouseX, mouseY, lastPartialTick, visibleArea)
+    }
+
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        // The flyout sits over the panel, so it gets the click before anything underneath it.
+        if (fuzzySelector?.mouseClicked(event.x.toFloat(), event.y.toFloat(), event.button()) == true) {
+            return true
+        }
         val hovered = widgetScreen.widgetContainer.getHovered(event.x.toFloat(), event.y.toFloat())
         if (hovered is MouseInteractable) {
             if (hovered.mouseClicked(event.x.toFloat(), event.y.toFloat(), event.button())) return true

@@ -11,6 +11,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -30,10 +32,8 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.blocks.powertile.LogisticsRFPowerProviderTileEntity;
 import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
-import logisticspipes.interfaces.IGuiTileEntity;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITickable;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
@@ -71,10 +71,9 @@ public class LogisticsSolidBlock extends Block implements EntityBlock {
         BlockHitResult hitResult) {
         if (!player.isCrouching()) {
             BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof IGuiTileEntity guiBlockEntity) {
-                if (!level.isClientSide()) {
-                    CoordinatesGuiProvider gp = guiBlockEntity.getGuiProvider();
-                    gp.setTilePos(be).open(player);
+            if (be instanceof MenuProvider menuProvider) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.openMenu(menuProvider);
                 }
                 return InteractionResult.SUCCESS;
             }

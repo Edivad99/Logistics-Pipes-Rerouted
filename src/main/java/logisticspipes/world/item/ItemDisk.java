@@ -8,12 +8,29 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.TooltipDisplay;
 
 public class ItemDisk extends LogisticsItem {
 
     public ItemDisk(Properties properties) {
         super(properties.stacksTo(1));
+    }
+
+    /**
+     * Gives a disk an empty data component if it has none yet.
+     *
+     * <p>A disk straight off the crafting table carries no {@code CUSTOM_DATA}, and the screens
+     * that show one read it without checking. Doing this before the disk is sent means the client
+     * always has something to read.
+     *
+     * @return the same stack, for chaining
+     */
+    public static ItemStack withData(ItemStack disk) {
+        if (!disk.isEmpty() && disk.getItem() instanceof ItemDisk && !disk.has(DataComponents.CUSTOM_DATA)) {
+            disk.set(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        }
+        return disk;
     }
 
     @Override

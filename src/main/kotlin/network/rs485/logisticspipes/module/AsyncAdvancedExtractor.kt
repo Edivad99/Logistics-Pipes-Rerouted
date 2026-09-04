@@ -44,30 +44,32 @@ import network.rs485.logisticspipes.property.Property
 import network.rs485.logisticspipes.util.matchingSequence
 import logisticspipes.gui.hud.modules.HUDAdvancedExtractor
 import logisticspipes.interfaces.*
-import logisticspipes.network.NewGuiHandler
-import logisticspipes.network.PacketHandler
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider
-import logisticspipes.network.guis.module.inhand.AdvancedExtractorModuleInHand
-import logisticspipes.network.guis.module.inpipe.AdvancedExtractorModuleSlot
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket
-import logisticspipes.network.packets.module.ModuleInventory
-import logisticspipes.network.packets.modules.AdvancedExtractorInclude
+import logisticspipes.modules.SimpleFilter
+import logisticspipes.modules.SneakyDirection
+import logisticspipes.network.to_client.module.ModuleInventoryMessage
+import logisticspipes.network.ModuleTarget
+import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage
 import logisticspipes.proxy.MainProxy
 import logisticspipes.proxy.computers.interfaces.CCCommand
 import logisticspipes.utils.ISimpleInventoryEventHandler
 import logisticspipes.utils.item.ItemIdentifierInventory
 import logisticspipes.utils.item.ItemIdentifierStack
+import logisticspipes.interfaces.IModuleMenuProvider
+import logisticspipes.world.inventory.AdvancedExtractorMenu
 import net.minecraft.core.Direction
+import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.Container
+import net.neoforged.neoforge.network.PacketDistributor
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import kotlinx.coroutines.Deferred
 
 
 class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, SneakyDirection,
     IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, IModuleInventoryReceive,
-    ISimpleInventoryEventHandler, Gui {
+    ISimpleInventoryEventHandler, IModuleMenuProvider {
 
     companion object {
         @JvmStatic
@@ -86,22 +88,21 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         },
     )
 
-    override var sneakyDirection: Direction?
-        get() = extractor.sneakyDirection
-        set(value) {
-            extractor.sneakyDirection = value
-        }
+    override fun getSneakyDirection(): Direction? = extractor.getSneakyDirection()
+
+    override fun setSneakyDirection(direction: Direction?) {
+        extractor.setSneakyDirection(direction)
+    }
 
     override val everyNthTick: Int
         get() = extractor.everyNthTick
 
-    override val module = this
+    override fun createMenu(containerId: Int, inventory: Inventory, target: ModuleTarget): AbstractContainerMenu =
+        AdvancedExtractorMenu(containerId, inventory, target, this)
 
-    override val pipeGuiProvider: ModuleCoordinatesGuiProvider
-        get() = NewGuiHandler.getGui(AdvancedExtractorModuleSlot::class.java).setAreItemsIncluded(itemsIncluded.value)
-
-    override val inHandGuiProvider: ModuleInHandGuiProvider
-        get() = NewGuiHandler.getGui(AdvancedExtractorModuleInHand::class.java)
+    override fun writeMenuData(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeBoolean(itemsIncluded.value)
+    }
 
     override fun finishInit() {
         val isInitialized = super.initialized
@@ -112,11 +113,8 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
             MainProxy.runOnServer(level) {
                 Runnable {
                     itemsIncluded.addObserver {
-                        MainProxy.sendToPlayerList(
-                            PacketHandler.getPacket(AdvancedExtractorInclude::class.java)
-                                .setFlag(it.copyValue())
-                                .setModulePos(this),
-                            extractor.localModeWatchers,
+                        extractor.localModeWatchers.send(
+                            AdvancedExtractorIncludeMessage(ModuleTarget.of(this), it.copyValue()),
                         )
                     }
                 }
@@ -163,11 +161,11 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
     override fun InventoryChanged(inventory: Container) {
         MainProxy.runOnServer(world) {
             Runnable {
-                MainProxy.sendToPlayerList(
-                    PacketHandler.getPacket(ModuleInventory::class.java)
-                        .setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
-                        .setModulePos(this),
-                    extractor.localModeWatchers,
+                extractor.localModeWatchers.send(
+                    ModuleInventoryMessage(
+                        ModuleTarget.of(this),
+                        ItemIdentifierStack.getListFromInventory(inventory),
+                    ),
                 )
             }
         }
@@ -185,34 +183,23 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
 
     override fun startWatching(player: Player) {
         extractor.startWatching(player)
-        MainProxy.sendPacketToPlayer(
-            PacketHandler.getPacket(ModuleInventory::class.java)
-                .setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory))
-                .setModulePos(this),
-            player,
-        )
-        MainProxy.sendPacketToPlayer(
-            PacketHandler.getPacket(AdvancedExtractorInclude::class.java)
-                .setFlag(itemsIncluded.value)
-                .setModulePos(this),
-            player,
-        )
+        if (player is ServerPlayer) {
+            val target = ModuleTarget.of(this)
+            PacketDistributor.sendToPlayer(
+                player,
+                ModuleInventoryMessage(target, ItemIdentifierStack.getListFromInventory(filterInventory)),
+            )
+            PacketDistributor.sendToPlayer(
+                player,
+                AdvancedExtractorIncludeMessage(target, itemsIncluded.value),
+            )
+        }
     }
 
     override fun stopWatching(player: Player) = extractor.stopWatching(player)
 
-    override fun startHUDWatching() {
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(HUDStartModuleWatchingPacket::class.java).setModulePos(this),
-        )
-    }
 
     override fun getHUDRenderer(): IHUDModuleRenderer = hud
 
-    override fun stopHUDWatching() {
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(HUDStopModuleWatchingPacket::class.java).setModulePos(this),
-        )
-    }
 
 }

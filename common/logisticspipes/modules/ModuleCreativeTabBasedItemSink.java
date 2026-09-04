@@ -3,12 +3,20 @@ package logisticspipes.modules;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.TagValueOutput;
+
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
@@ -16,31 +24,26 @@ import logisticspipes.gui.hud.modules.HUDStringBasedItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.interfaces.IWorldProvider;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.guis.module.inhand.StringBasedItemSinkModuleGuiInHand;
-import logisticspipes.network.guis.module.inpipe.StringBasedItemSinkModuleGuiSlot;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
-import logisticspipes.network.packets.module.ModuleBasedItemSinkList;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_client.module.StringBasedItemSinkListMessage;
+import logisticspipes.network.to_server.module.SetStringBasedItemSinkListMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.module.Gui;
+import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.inventory.ModuleAnalysisMenu;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.StringListProperty;
 
 public class ModuleCreativeTabBasedItemSink extends LogisticsModule
-		implements IStringBasedModule, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, Gui {
+		implements IStringBasedModule, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver, IModuleMenuProvider {
 
 	public final StringListProperty tabList = new StringListProperty("");
 
@@ -48,7 +51,8 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 
-	private SinkReply sinkReply;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReply;
 
 	public static String getName() {
 		return "item_sink_creativetab";
@@ -74,15 +78,16 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= sinkReply.customPriority)) {
+		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+				&& bestCustomPriority >= reply.customPriority)) {
 			return null;
 		}
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		if (tabList.contains(item.getCreativeTabName())) {
 			if (service.canUseEnergy(5)) {
-				return sinkReply;
+				return reply;
 			}
 		}
 		return null;
@@ -100,24 +105,15 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 		return list;
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.registryAccess());
-		serialize(moduleOutput);
-		CompoundTag nbt = moduleOutput.buildResult();
-		MainProxy.sendPacketToPlayer(
-				PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this), player);
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+					new StringBasedItemSinkListMessage(ModuleTarget.of(this), List.copyOf(tabList)));
+		}
 	}
 
 	@Override
@@ -129,19 +125,12 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	public void listChanged() {
 		final IWorldProvider worldProvider = this.worldProvider;
 		if (worldProvider == null) return;
-		if (MainProxy.isServer(worldProvider.getWorld())) {
-			TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, worldProvider.getWorld().registryAccess());
-			serialize(moduleOutput);
-			CompoundTag nbt = moduleOutput.buildResult();
-			MainProxy.sendToPlayerList(
-					PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this),
-					localModeWatchers);
+		final List<String> names = List.copyOf(tabList);
+		if (worldProvider.getWorld() instanceof ServerLevel) {
+			localModeWatchers.send(new StringBasedItemSinkListMessage(ModuleTarget.of(this), names));
 		} else {
-			TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, worldProvider.getWorld().registryAccess());
-			serialize(moduleOutput);
-			CompoundTag nbt = moduleOutput.buildResult();
-			MainProxy.sendPacketToServer(
-					PacketHandler.getPacket(ModuleBasedItemSinkList.class).setNbt(nbt).setModulePos(this));
+			ClientPacketDistributor.sendToServer(
+					new SetStringBasedItemSinkListMessage(ModuleTarget.of(this), names));
 		}
 	}
 
@@ -181,16 +170,16 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, getWorld().registryAccess());
-		serialize(moduleOutput);
-		CompoundTag nbt = moduleOutput.buildResult();
-		return NewGuiHandler.getGui(StringBasedItemSinkModuleGuiSlot.class).setNbt(nbt);
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new ModuleAnalysisMenu(LPMenuTypes.STRING_BASED_ITEM_SINK.get(), containerId, inventory, target, this);
 	}
 
 	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return NewGuiHandler.getGui(StringBasedItemSinkModuleGuiInHand.class);
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(
+				ProblemReporter.DISCARDING, buffer.registryAccess());
+		serialize(moduleOutput);
+		buffer.writeNbt(moduleOutput.buildResult());
 	}
 
 }

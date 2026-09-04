@@ -123,11 +123,11 @@ public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSin
         return null;
     }
 
-    public void guiOpenedByPlayer(Player player) {
+    public void screenOpenedByPlayer(Player player) {
         guiOpenedBy.add(player);
     }
 
-    public void guiClosedByPlayer(Player player) {
+    public void screenClosedByPlayer(Player player) {
         guiOpenedBy.remove(player);
     }
 

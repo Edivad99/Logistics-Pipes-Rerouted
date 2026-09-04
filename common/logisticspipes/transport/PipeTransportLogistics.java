@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import net.minecraft.core.Direction;
@@ -25,6 +26,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,11 +46,11 @@ import logisticspipes.interfaces.routing.ITargetSlotInformation;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.pipe.ItemBufferSyncPacket;
-import logisticspipes.network.packets.pipe.PipeContentPacket;
-import logisticspipes.network.packets.pipe.PipeContentRequest;
-import logisticspipes.network.packets.pipe.PipePositionPacket;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_client.pipe.TravellingItemContentMessage;
+import logisticspipes.network.to_client.pipe.PipeItemBufferMessage;
+import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
+import logisticspipes.network.to_server.pipe.RequestPipeContentMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
@@ -104,9 +107,9 @@ public class PipeTransportLogistics {
 			chunk = getWorld().getChunkSource().getChunkNow(
 					SectionPos.blockToSectionCoord(container.getBlockPos().getX()),
 					SectionPos.blockToSectionCoord(container.getBlockPos().getZ()));
-			ItemBufferSyncPacket packet = PacketHandler.getPacket(ItemBufferSyncPacket.class);
-			packet.setTilePos(container);
-			itemBuffer.setPacketType(packet, getWorld().dimension().identifier().hashCode(), container.getX(), container.getZ());
+			itemBuffer.syncTo(getWorld(), container.getBlockPos(), buffered -> new PipeItemBufferMessage(
+				container.getBlockPos(),
+				buffered.stream().map(Triplet::getValue1).toList()));
 		}
 	}
 
@@ -142,6 +145,12 @@ public class PipeTransportLogistics {
 		return (CoreRoutedPipe) container.pipe;
 	}
 
+	/** Replaces what the client thinks is buffered. The timeout and travelling item stay server-side. */
+	public void setClientItemBuffer(List<ItemIdentifierStack> contents) {
+		itemBuffer.clear();
+		contents.forEach(stack -> itemBuffer.add(new Triplet<>(stack, null, null)));
+	}
+
 	public void updateEntity() {
 		moveSolids();
 		if (MainProxy.isServer(getWorld())) {
@@ -174,7 +183,7 @@ public class PipeTransportLogistics {
 					this.injectItem(item, Direction.UP);
 				}
 			}
-			itemBuffer.sendUpdateToWaters();
+			itemBuffer.sendUpdateToWatchers();
 		}
 	}
 
@@ -714,10 +723,16 @@ public class PipeTransportLogistics {
 	private void sendItemPacket(LPTravelingItemServer item) {
 		if (MainProxy.isAnyoneWatching(container.getBlockPos(), getWorld().dimension().identifier().hashCode())) {
 			if (!LPTravelingItem.clientSideKnownIDs.get(item.getId())) {
-				MainProxy.sendPacketToAllWatchingChunk(container, (PacketHandler.getPacket(PipeContentPacket.class).setItem(item.getItemIdentifierStack()).setTravelId(item.getId())));
+				TargetLookup.sendToChunkWatchers(container,
+						new TravellingItemContentMessage(item.getId(), item.getItemIdentifierStack()));
 				LPTravelingItem.clientSideKnownIDs.set(item.getId());
 			}
-			MainProxy.sendPacketToAllWatchingChunk(container, (PacketHandler.getPacket(PipePositionPacket.class).setSpeed(item.getSpeed()).setPosition(item.getPosition()).setInput(item.input).setOutput(item.output).setTravelId(item.getId()).setYaw(item.getYaw()).setTilePos(container)));
+			TargetLookup.sendToChunkWatchers(container, new TravellingItemPositionMessage(
+				container.getBlockPos(),
+				item.getId(),
+				new TravellingItemPositionMessage.Motion(item.getPosition(), item.getSpeed(), item.getYaw()),
+				Optional.ofNullable(item.input),
+				Optional.ofNullable(item.output)));
 		}
 	}
 
@@ -766,7 +781,7 @@ public class PipeTransportLogistics {
 	}
 
 	private void sendItemContentRequest(int travelId) {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(PipeContentRequest.class).setInteger(travelId));
+		ClientPacketDistributor.sendToServer(new RequestPipeContentMessage(travelId));
 	}
 
 	public void sendItem(ItemStack stackToSend) {

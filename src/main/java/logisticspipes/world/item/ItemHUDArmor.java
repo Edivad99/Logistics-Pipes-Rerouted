@@ -2,8 +2,10 @@ package logisticspipes.world.item;
 
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -13,9 +15,8 @@ import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.Level;
 
 import logisticspipes.api.IHUDArmor;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.guis.item.HUDSettingsGui;
 import logisticspipes.proxy.MainProxy;
+import logisticspipes.world.inventory.HudSettingsMenu;
 
 public class ItemHUDArmor extends Item implements IHUDArmor {
 
@@ -47,9 +48,13 @@ public class ItemHUDArmor extends Item implements IHUDArmor {
 
     private void useItem(Player player, Level level) {
         if (MainProxy.isServer(level)) {
-            NewGuiHandler.getGui(HUDSettingsGui.class)
-                .setSlot(player.getInventory().getSelectedSlot())
-                .open(player);
+            if (player instanceof ServerPlayer serverPlayer) {
+                final int slot = player.getInventory().getSelectedSlot();
+                serverPlayer.openMenu(new SimpleMenuProvider(
+                                (containerId, inventory, viewer) -> new HudSettingsMenu(containerId, inventory, slot),
+                                Component.empty()),
+                        buffer -> buffer.writeVarInt(slot));
+            }
         }
     }
 

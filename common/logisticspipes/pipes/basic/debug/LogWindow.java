@@ -98,16 +98,8 @@ public class LogWindow extends JPanel {
 			if (!newList.get(i).equals(oldList.get(i))) {
 				StatusEntry entry = newList.get(i);
 				DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
-				child.setUserObject(entry.name);
-				if (entry.subEntry != null) {
-					if (oldList.get(i).subEntry != null) {
-						compareLists(entry.subEntry, oldList.get(i).subEntry, child);
-					} else {
-						compareLists(entry.subEntry, new ArrayList<>(0), child);
-					}
-				} else if (oldList.get(i).subEntry != null) {
-					child.removeAllChildren();
-				}
+				child.setUserObject(entry.name());
+				compareLists(entry.subEntries(), oldList.get(i).subEntries(), child);
 				((DefaultTreeModel) tree.getModel()).reload(child);
 			}
 		}
@@ -117,11 +109,9 @@ public class LogWindow extends JPanel {
 		}
 		for (int i = oldList.size(); i < newList.size(); i++) {
 			StatusEntry entry = newList.get(i);
-			DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(entry.name);
+			DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(entry.name());
 			node.add(newNode);
-			if (entry.subEntry != null) {
-				compareLists(entry.subEntry, new ArrayList<>(0), newNode);
-			}
+			compareLists(entry.subEntries(), List.of(), newNode);
 			((DefaultTreeModel) tree.getModel()).reload(node);
 		}
 	}

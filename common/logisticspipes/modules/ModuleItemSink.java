@@ -8,9 +8,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.TagValueOutput;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
@@ -20,19 +28,13 @@ import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IModuleInventoryReceive;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.guis.module.inhand.ItemSinkInHand;
-import logisticspipes.network.guis.module.inpipe.ItemSinkSlot;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
-import logisticspipes.network.packets.module.ModuleInventory;
-import logisticspipes.network.packets.modules.ItemSinkDefault;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_client.module.ItemSinkDefaultRouteMessage;
+import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
@@ -45,10 +47,11 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.inventory.LPMenuTypes;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.module.Gui;
-import network.rs485.logisticspipes.module.SimpleFilter;
+import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
+import logisticspipes.modules.SimpleFilter;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.IBitSet;
@@ -60,7 +63,7 @@ import network.rs485.logisticspipes.util.FuzzyUtil;
 @CCType(name = "ItemSink Module")
 public class ModuleItemSink extends LogisticsModule
 	implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReciver,
-	ISimpleInventoryEventHandler, IModuleInventoryReceive, Gui {
+	ISimpleInventoryEventHandler, IModuleInventoryReceive, IModuleMenuProvider {
 
 	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
 		new ItemIdentifierInventory(9, "Requested items", 1), "filterInv");
@@ -77,8 +80,10 @@ public class ModuleItemSink extends LogisticsModule
 
 	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final IHUDModuleRenderer HUD = new HUDItemSink(this);
-	private SinkReply sinkReply;
-	private SinkReply sinkReplyDefault;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReply;
+	/** Built in {@link #registerPosition}, which runs when the module is installed. */
+	private @Nullable SinkReply sinkReplyDefault;
 
 	public ModuleItemSink() {
 		filterInventory.addListener(this);
@@ -113,9 +118,7 @@ public class ModuleItemSink extends LogisticsModule
 	public void setDefaultRoute(Boolean isDefaultRoute) {
 		defaultRoute.setValue(isDefaultRoute);
 		if (!localModeWatchers.isEmpty()) {
-			MainProxy.sendToPlayerList(
-				PacketHandler.getPacket(ItemSinkDefault.class).setFlag(isDefaultRoute).setModulePos(this),
-				localModeWatchers);
+			localModeWatchers.send(new ItemSinkDefaultRouteMessage(ModuleTarget.of(this), isDefaultRoute));
 		}
 	}
 
@@ -142,18 +145,20 @@ public class ModuleItemSink extends LogisticsModule
 	@Override
 	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
 		boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+		final SinkReply replyDefault = Objects.requireNonNull(sinkReplyDefault, "module has not been registered");
 		if (defaultRoute.getValue() && !allowDefault) {
 			return null;
 		}
-		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
-			&& bestCustomPriority >= sinkReply.customPriority)) {
+		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+			&& bestCustomPriority >= reply.customPriority)) {
 			return null;
 		}
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return null;
 		if (filterInventory.containsUndamagedItem(item.getUndamaged())) {
 			if (service.canUseEnergy(1)) {
-				return sinkReply;
+				return reply;
 			}
 			return null;
 		}
@@ -179,20 +184,20 @@ public class ModuleItemSink extends LogisticsModule
 				}
 				if (ident1.equals(ident2)) {
 					if (service.canUseEnergy(5)) {
-						return sinkReply;
+						return reply;
 					}
 					return null;
 				}
 			}
 		}
 		if (defaultRoute.getValue()) {
-			if (bestPriority > sinkReplyDefault.fixedPriority.ordinal() || (
-				bestPriority == sinkReplyDefault.fixedPriority.ordinal()
-					&& bestCustomPriority >= sinkReplyDefault.customPriority)) {
+			if (bestPriority > replyDefault.fixedPriority.ordinal() || (
+				bestPriority == replyDefault.fixedPriority.ordinal()
+					&& bestCustomPriority >= replyDefault.customPriority)) {
 				return null;
 			}
 			if (service.canUseEnergy(1)) {
-				return sinkReplyDefault;
+				return replyDefault;
 			}
 			return null;
 		}
@@ -211,23 +216,19 @@ public class ModuleItemSink extends LogisticsModule
 		return list;
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
-			.setIdentList(ItemIdentifierStack.getListFromInventory(filterInventory)).setModulePos(this), player);
-		MainProxy.sendPacketToPlayer(
-			PacketHandler.getPacket(ItemSinkDefault.class).setFlag(defaultRoute.getValue()).setModulePos(this), player);
+		if (player instanceof ServerPlayer inventoryWatcher) {
+			PacketDistributor.sendToPlayer(inventoryWatcher,
+					new ModuleInventoryMessage(ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(filterInventory)));
+		}
+		if (player instanceof ServerPlayer serverPlayer) {
+			PacketDistributor.sendToPlayer(serverPlayer,
+				new ItemSinkDefaultRouteMessage(ModuleTarget.of(this), defaultRoute.getValue()));
+		}
 	}
 
 	@Override
@@ -238,12 +239,8 @@ public class ModuleItemSink extends LogisticsModule
 	@Override
 	public void InventoryChanged(Container inventory) {
 		MainProxy.runOnServer(getWorld(), () -> () ->
-			MainProxy.sendToPlayerList(
-				PacketHandler.getPacket(ModuleInventory.class)
-					.setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
-					.setModulePos(this),
-				localModeWatchers
-			)
+			localModeWatchers.send(
+					new ModuleInventoryMessage(ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(inventory)))
 		);
 	}
 
@@ -311,14 +308,28 @@ public class ModuleItemSink extends LogisticsModule
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		return NewGuiHandler.getGui(ItemSinkSlot.class).setDefaultRoute(defaultRoute.getValue())
-			.setFuzzyFlags(fuzzyFlags.copyValue()).setHasFuzzyUpgrade(getUpgradeManager().isFuzzyUpgrade());
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new ItemSinkContainer(LPMenuTypes.ITEM_SINK.get(), containerId, inventory, this, target,
+			hasFuzzyUpgradeForScreen(), target.heldStack(inventory));
 	}
 
 	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return NewGuiHandler.getGui(ItemSinkInHand.class);
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		buffer.writeBoolean(hasFuzzyUpgradeForScreen());
+		TagValueOutput moduleOutput = TagValueOutput.createWithContext(
+			ProblemReporter.DISCARDING, buffer.registryAccess());
+		serialize(moduleOutput);
+		buffer.writeNbt(moduleOutput.buildResult());
+	}
+
+	/**
+	 * Whether the filter slots take fuzzy flags.
+	 *
+	 * <p>Upgrades belong to the pipe the module sits in; one held in hand has no pipe, so asking
+	 * for its upgrade manager would fail rather than answer no.
+	 */
+	private boolean hasFuzzyUpgradeForScreen() {
+		return getSlot() != ModulePositionType.IN_HAND && getUpgradeManager().isFuzzyUpgrade();
 	}
 
 	public IBitSet getSlotFuzzyFlags(int slotId) {

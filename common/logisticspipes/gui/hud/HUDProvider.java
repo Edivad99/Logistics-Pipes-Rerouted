@@ -109,7 +109,7 @@ public class HUDProvider extends BasicHUDGui {
 		itemStackRenderer.setScaleX(scaleX).setScaleY(scaleY).setScaleZ(scaleZ);
 		ItemStackRenderer.renderItemIdentifierStackListIntoHud(context, pipe.getDisplayList(), null, page, -36, -37, 4, 12, 18, 18, itemStackRenderer);
 		ItemStackRenderer.renderItemIdentifierStackListIntoHud(context, pipe.itemListOrderer, null, pageB, -36, 23, 4, 4, 18, 18, itemStackRenderer);
-		int textColor = day ? 0xff404040 : 0xff7f7f7f;
+		int textColor = day ? 0xFF404040 : 0xff7f7f7f;
 		context.drawString(minecraft.font, String.format("(%d/%d)", page + 1, getMaxPage()), 9, -50, textColor, false);
 		context.drawString(minecraft.font, String.format("(%d/%d)", pageB + 1, getMaxPageOrderer()), 9, 23, textColor, false);
 	}

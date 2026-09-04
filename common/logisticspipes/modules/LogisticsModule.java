@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 import kotlin.Unit;
@@ -19,9 +20,13 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.interfaces.IHUDModuleHandler;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.interfaces.IWorldProvider;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_server.module.ModuleWatchMessage;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
@@ -32,7 +37,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
-import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
 import network.rs485.logisticspipes.property.UtilKt;
@@ -186,7 +190,7 @@ public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeH
 
 	@CCCommand(description = "Returns true if the Pipe has a gui")
 	public boolean hasGui() {
-		return this instanceof Gui;
+		return this instanceof IModuleMenuProvider;
 	}
 
 	public LogisticsModule getModule() {
@@ -236,6 +240,21 @@ public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeH
 			);
 		}
 		initialized = true;
+	}
+
+	/**
+	 * Tells the server this client's head-up display started showing the module.
+	 *
+	 * <p>Every {@link IHUDModuleHandler} subscribes the same way, so the send lives here instead of
+	 * being repeated once per module.
+	 */
+	public void startHUDWatching() {
+		ClientPacketDistributor.sendToServer(new ModuleWatchMessage(ModuleTarget.of(this), true));
+	}
+
+	/** Tells the server this client's head-up display stopped showing the module. */
+	public void stopHUDWatching() {
+		ClientPacketDistributor.sendToServer(new ModuleWatchMessage(ModuleTarget.of(this), false));
 	}
 
 	public enum ModulePositionType {

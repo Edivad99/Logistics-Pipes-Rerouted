@@ -33,7 +33,7 @@ public class LogisticsProgramCompilerBlock extends LogisticsSolidBlock implement
             if (player instanceof ServerPlayer serverPlayer) {
                 level.getBlockEntity(pos, LPBlockEntityTypes.PROGRAM_COMPILER.get())
                     .ifPresent(blockEntity -> {
-                        serverPlayer.openMenu(blockEntity, pos);
+                        serverPlayer.openMenu(blockEntity);
                     });
             }
             return InteractionResult.SUCCESS;

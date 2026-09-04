@@ -1,14 +1,18 @@
 package logisticspipes.renderer.state;
 
+import java.util.Optional;
+
 import net.minecraft.core.Direction;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+
+import io.netty.buffer.ByteBuf;
 
 import lombok.Getter;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.util.LPDataInput;
-import logisticspipes.util.LPDataOutput;
 
 public class TextureMatrix {
 
@@ -121,39 +125,76 @@ public class TextureMatrix {
 		dirty = false;
 	}
 
-	public void writeData(LPDataOutput output) {
-		for (int iconIndexe : iconIndexes) {
-			output.writeByte(iconIndexe);
-		}
-		output.writeInt(textureIndex);
-		output.writeBoolean(isRouted);
-		output.writeBooleanArray(isRoutedInDir);
-		output.writeBooleanArray(isSubPowerInDir);
-		output.writeBoolean(hasPowerUpgrade);
-		output.writeBoolean(hasPower);
-		output.writeBoolean(isFluid);
-		output.writeFacing(pointedOrientation);
+	/**
+	 * What the client needs to pick textures. The two per-side flag arrays travel as bit masks,
+	 * the same shape the connection masks already use.
+	 */
+	public record Wire(byte[] iconIndexes, int textureIndex, boolean routed, int routedMask,
+			int subPowerMask, boolean powerUpgrade, boolean power, boolean fluid,
+			Optional<Direction> pointedOrientation) {
+
+		public static final StreamCodec<ByteBuf, Wire> STREAM_CODEC = StreamCodec.composite(
+				ByteBufCodecs.BYTE_ARRAY, Wire::iconIndexes,
+				ByteBufCodecs.VAR_INT, Wire::textureIndex,
+				ByteBufCodecs.BOOL, Wire::routed,
+				ByteBufCodecs.BYTE, wire -> (byte) wire.routedMask,
+				ByteBufCodecs.BYTE, wire -> (byte) wire.subPowerMask,
+				ByteBufCodecs.BOOL, Wire::powerUpgrade,
+				ByteBufCodecs.BOOL, Wire::power,
+				ByteBufCodecs.BOOL, Wire::fluid,
+				ByteBufCodecs.optional(Direction.STREAM_CODEC.cast()), Wire::pointedOrientation,
+				(icons, index, routed, routedMask, subPowerMask, upgrade, power, fluid, pointed) ->
+						new Wire(icons, index, routed, routedMask, subPowerMask, upgrade, power, fluid, pointed));
 	}
 
-	public void readData(LPDataInput input) {
+	private static int maskOf(boolean[] flags) {
+		int mask = 0;
+		for (int i = 0; i < flags.length; i++) {
+			if (flags[i]) {
+				mask |= 1 << i;
+			}
+		}
+		return mask;
+	}
+
+	private static boolean[] flagsOf(int mask, int length) {
+		boolean[] flags = new boolean[length];
+		for (int i = 0; i < length; i++) {
+			flags[i] = (mask & (1 << i)) != 0;
+		}
+		return flags;
+	}
+
+	public Wire snapshot() {
+		byte[] icons = new byte[iconIndexes.length];
 		for (int i = 0; i < iconIndexes.length; i++) {
-			int icon = input.readByte();
-			if (iconIndexes[i] != icon) {
-				iconIndexes[i] = icon;
+			icons[i] = (byte) iconIndexes[i];
+		}
+		return new Wire(icons, textureIndex, isRouted, maskOf(isRoutedInDir), maskOf(isSubPowerInDir),
+				hasPowerUpgrade, hasPower, isFluid, Optional.ofNullable(pointedOrientation));
+	}
+
+	/**
+	 * Only the icon indexes and the texture index dirty the matrix, which is what the old reader
+	 * did: the rest is read by the renderer every frame and does not invalidate anything.
+	 */
+	public void apply(Wire wire) {
+		for (int i = 0; i < iconIndexes.length && i < wire.iconIndexes().length; i++) {
+			if (iconIndexes[i] != wire.iconIndexes()[i]) {
+				iconIndexes[i] = wire.iconIndexes()[i];
 				dirty = true;
 			}
 		}
-		int newTextureIndex = input.readInt();
-		if (newTextureIndex != textureIndex) {
-			textureIndex = newTextureIndex;
+		if (wire.textureIndex() != textureIndex) {
+			textureIndex = wire.textureIndex();
 			dirty = true;
 		}
-		isRouted = input.readBoolean();
-		isRoutedInDir = input.readBooleanArray();
-		isSubPowerInDir = input.readBooleanArray();
-		hasPowerUpgrade = input.readBoolean();
-		hasPower = input.readBoolean();
-		isFluid = input.readBoolean();
-		pointedOrientation = input.readFacing();
+		isRouted = wire.routed();
+		isRoutedInDir = flagsOf(wire.routedMask(), isRoutedInDir.length);
+		isSubPowerInDir = flagsOf(wire.subPowerMask(), isSubPowerInDir.length);
+		hasPowerUpgrade = wire.powerUpgrade();
+		hasPower = wire.power();
+		isFluid = wire.fluid();
+		pointedOrientation = wire.pointedOrientation().orElse(null);
 	}
 }

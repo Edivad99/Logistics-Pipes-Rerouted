@@ -9,9 +9,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.ImmutableList;
 
@@ -20,21 +26,15 @@ import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IModuleInventoryReceive;
+import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReciver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.interfaces.routing.ITargetSlotInformation;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
-import logisticspipes.network.guis.module.inhand.ActiveSupplierInHand;
-import logisticspipes.network.guis.module.inpipe.ActiveSupplierSlot;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
-import logisticspipes.network.packets.module.ModuleInventory;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.basic.debug.StatusEntry;
@@ -46,8 +46,8 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.ActiveSupplierMenu;
 import network.rs485.logisticspipes.connection.AdjacentUtilKt;
-import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.EnumProperty;
 import network.rs485.logisticspipes.property.IntListProperty;
@@ -56,7 +56,7 @@ import network.rs485.logisticspipes.property.Property;
 
 public class ModuleActiveSupplier extends LogisticsModule
 		implements IRequestItems, IRequireReliableTransport, IClientInformationProvider, IHUDModuleHandler,
-		IModuleWatchReciver, IModuleInventoryReceive, ISimpleInventoryEventHandler, Gui {
+		IModuleWatchReciver, IModuleInventoryReceive, ISimpleInventoryEventHandler, IModuleMenuProvider {
 
 	public static final int SUPPLIER_SLOTS = 9;
 
@@ -113,23 +113,15 @@ public class ModuleActiveSupplier extends LogisticsModule
 		return list;
 	}
 
-	@Override
-	public void startHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-	}
 
-	@Override
-	public void stopHUDWatching() {
-		MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-	}
 
 	@Override
 	public void startWatching(Player player) {
 		localModeWatchers.add(player);
-		MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ModuleInventory.class)
-						.setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
-						.setModulePos(this),
-				player);
+		if (player instanceof ServerPlayer inventoryWatcher) {
+			PacketDistributor.sendToPlayer(inventoryWatcher, new ModuleInventoryMessage(
+					ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(inventory)));
+		}
 	}
 
 	@Override
@@ -151,10 +143,8 @@ public class ModuleActiveSupplier extends LogisticsModule
 	@Override
 	public void InventoryChanged(Container inventory) {
 		if (MainProxy.isServer(getWorld())) {
-			MainProxy.sendToPlayerList(PacketHandler.getPacket(ModuleInventory.class)
-							.setIdentList(ItemIdentifierStack.getListFromInventory(inventory))
-							.setModulePos(this),
-					localModeWatchers);
+			localModeWatchers.send(
+					new ModuleInventoryMessage(ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(inventory)));
 		}
 	}
 
@@ -450,30 +440,21 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	public void addStatusInformation(List<StatusEntry> status) {
-		StatusEntry entry = new StatusEntry();
-		entry.name = "Requested Items";
-		entry.subEntry = new ArrayList<>();
-		for (Entry<ItemIdentifier, Integer> part : requestedItems.entrySet()) {
-			StatusEntry subEntry = new StatusEntry();
-			subEntry.name = part.toString();
-			entry.subEntry.add(subEntry);
-		}
-		status.add(entry);
+		status.add(StatusEntry.of("Requested Items", requestedItems.entrySet()));
 	}
 
 	@Override
-	public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
-		final boolean hasPatternUpgrade = hasPatternUpgrade();
-		return NewGuiHandler.getGui(ActiveSupplierSlot.class)
-				.setPatternUpgarde(hasPatternUpgrade)
-				.setSlotArray(slotAssignmentPattern.stream().mapToInt(Integer::intValue).toArray())
-				.setMode((hasPatternUpgrade ? patternMode.getValue() : requestMode.getValue()).ordinal())
-				.setLimit(isLimited.getValue());
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+		return new ActiveSupplierMenu(containerId, inventory, target, this, hasPatternUpgradeForScreen());
 	}
 
 	@Override
-	public ModuleInHandGuiProvider getInHandGuiProvider() {
-		return NewGuiHandler.getGui(ActiveSupplierInHand.class);
+	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+		final boolean hasPatternUpgrade = hasPatternUpgradeForScreen();
+		buffer.writeBoolean(hasPatternUpgrade);
+		buffer.writeBoolean(isLimited.getValue());
+		buffer.writeVarInt((hasPatternUpgrade ? patternMode.getValue() : requestMode.getValue()).ordinal());
+		buffer.writeVarIntArray(slotAssignmentPattern.stream().mapToInt(Integer::intValue).toArray());
 	}
 
 	@Override
@@ -499,6 +480,16 @@ public class ModuleActiveSupplier extends LogisticsModule
 
 	public boolean hasPatternUpgrade() {
 		return getUpgradeManager().hasPatternUpgrade();
+	}
+
+	/**
+	 * Whether the screen should show placement rules rather than a plain filter.
+	 *
+	 * <p>Upgrades belong to the pipe the module sits in; one held in hand has no pipe, so asking
+	 * for its upgrade manager would fail rather than answer no.
+	 */
+	private boolean hasPatternUpgradeForScreen() {
+		return getSlot() != ModulePositionType.IN_HAND && hasPatternUpgrade();
 	}
 
 	public enum SupplyMode {

@@ -44,6 +44,6 @@ public class NameLookupCommand implements ICommandHandler {
 		ItemIdentifier item = meta == 0
 				? ItemIdentifier.get(lookedUp)
 				: ItemIdentifier.get(lookedUp, DataComponentPatch.builder().set(DataComponents.DAMAGE, meta).build());
-		sender.sendSystemMessage(Component.literal("Name: " + item.getFriendlyNameCC()));
+		sender.sendSystemMessage(Component.literal("Name: " + item.getFriendlyName()));
 	}
 }

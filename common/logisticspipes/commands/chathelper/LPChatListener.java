@@ -15,11 +15,10 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.event.ServerChatEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.OpenChatGui;
-import logisticspipes.proxy.MainProxy;
+import logisticspipes.network.to_client.gui.OpenChatGuiMessage;
 import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.string.StringUtils;
 
@@ -40,7 +39,9 @@ public class LPChatListener {
 		if (LPChatListener.tasks.containsKey(playerName)) {
 			if (chatMessage.startsWith("/")) {
 				player.sendSystemMessage(Component.literal(ChatColor.RED + "You need to answer the question, before you can use any other command"));
-				MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
+				if (player instanceof ServerPlayer openChatFor) {
+			PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+		}
 			} else {
 				if (!chatMessage.equalsIgnoreCase("true") && !chatMessage.equalsIgnoreCase("false") && !chatMessage.equalsIgnoreCase("on") && !chatMessage.equalsIgnoreCase("off") && !chatMessage.equalsIgnoreCase("0") && !chatMessage.equalsIgnoreCase("1") && !chatMessage
 						.equalsIgnoreCase("no")
@@ -48,7 +49,9 @@ public class LPChatListener {
 					player.sendSystemMessage(Component.literal(ChatColor.RED + "Not a valid answer."));
 					player.sendSystemMessage(Component.literal(ChatColor.AQUA + "Please enter " + ChatColor.RESET + "<" + ChatColor.GREEN + "yes" + ChatColor.RESET + "/" + ChatColor.RED + "no " + ChatColor.RESET + "| " + ChatColor.GREEN + "true" + ChatColor.RESET + "/" + ChatColor.RED + "flase "
 							+ ChatColor.RESET + "| " + ChatColor.GREEN + "on" + ChatColor.RESET + "/" + ChatColor.RED + "off " + ChatColor.RESET + "| " + ChatColor.GREEN + "1" + ChatColor.RESET + "/" + ChatColor.RED + "0" + ChatColor.RESET + ">"));
-					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
+					if (player instanceof ServerPlayer openChatFor) {
+			PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+		}
 				} else {
 					boolean flag = chatMessage.equalsIgnoreCase("true") || chatMessage.equalsIgnoreCase("on") || chatMessage.equalsIgnoreCase("1") || chatMessage.equalsIgnoreCase("yes");
 					if (!handleAnswer(flag, player)) {
@@ -61,7 +64,9 @@ public class LPChatListener {
 			if (!LPChatListener.morePageDisplays.get(playerName).isTerminated()) {
 				if (chatMessage.startsWith("/")) {
 					player.sendSystemMessage(Component.literal(ChatColor.RED + "Exit " + ChatColor.AQUA + "PageView" + ChatColor.RED + " first!"));
-					MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OpenChatGui.class), player);
+					if (player instanceof ServerPlayer openChatFor) {
+			PacketDistributor.sendToPlayer(openChatFor, new OpenChatGuiMessage());
+		}
 					event.setCanceled(true);
 				} else {
 					if (LPChatListener.morePageDisplays.get(playerName).handleChat(chatMessage, player)) {

@@ -4,19 +4,26 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -29,13 +36,14 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.IRoutedPowerProvider;
-import logisticspipes.interfaces.IGuiOpenController;
-import logisticspipes.interfaces.IGuiTileEntity;
-import logisticspipes.network.NewGuiHandler;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.guis.block.AutoCraftingGui;
-import logisticspipes.network.packets.block.CraftingSetType;
+import logisticspipes.interfaces.IBlockEntityMenuProvider;
+import logisticspipes.interfaces.ICraftingRecipeGrid;
+import logisticspipes.interfaces.IScreenOpenController;
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
+import logisticspipes.pipes.PipeItemsCraftingLogistics;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.util.ItemStackLoader;
@@ -46,21 +54,53 @@ import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.level.block.LPBlocks;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 
 public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
-    implements Container, IGuiTileEntity, ISimpleInventoryEventHandler, IGuiOpenController {
+    implements Container, IBlockEntityMenuProvider, ISimpleInventoryEventHandler, IScreenOpenController,
+    ICraftingRecipeGrid {
 
     public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
     private final PlayerCollectionList guiWatcher = new PlayerCollectionList();
     public ItemIdentifierInventory inv = new ItemIdentifierInventory(18, "Crafting Resources", 64);
     public ItemIdentifierInventory matrix = new ItemIdentifierInventory(9, "Crafting Matrix", 1);
     public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
-    @Nullable
-    public ItemIdentifier targetType = null;
+    public @Nullable ItemIdentifier targetType = null;
+
+    @Override
+    public @Nullable CoreRoutedPipe getAttachedPipe() {
+        final Level level = getLevel();
+        if (level == null) {
+            return null;
+        }
+        for (Direction dir : Direction.values()) {
+            final LogisticsTileGenericPipe container =
+                    TargetLookup.blockEntityAt(level, getBlockPos().relative(dir), LogisticsTileGenericPipe.class);
+            if (container != null && container.pipe instanceof PipeItemsCraftingLogistics pipe) {
+                return pipe;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public ItemIdentifierInventory getMatrix() {
+        return matrix;
+    }
+
+    @Override
+    public @Nullable ItemIdentifier getTargetType() {
+        return targetType;
+    }
+
+    @Override
+    public void setTargetType(@Nullable ItemIdentifier targetType) {
+        this.targetType = targetType;
+    }
     @Nullable
     private RecipeHolder<CraftingRecipe> cache;
     @Nullable
@@ -73,6 +113,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         matrix.addListener(this);
     }
 
+    @Override
     public void cacheRecipe() {
         ItemIdentifier oldTargetType = targetType;
         cache = null;
@@ -126,12 +167,11 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
         if (((targetType == null && oldTargetType != null) || (targetType != null && !targetType.equals(oldTargetType)))
             && !guiWatcher.isEmpty() && MainProxy.isServer(getWorld())) {
-            MainProxy.sendToPlayerList(
-                PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(this),
-                guiWatcher);
+            guiWatcher.send(new CraftingTargetMessage(getBlockPos(), Optional.ofNullable(targetType)));
         }
     }
 
+    @Override
     public void cycleRecipe(boolean down) {
         cacheRecipe();
         if (targetType == null) {
@@ -197,9 +237,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
 
         if (!guiWatcher.isEmpty() && MainProxy.isServer(getWorld())) {
-            MainProxy.sendToPlayerList(
-                PacketHandler.getPacket(CraftingSetType.class).setTargetType(targetType).setTilePos(this),
-                guiWatcher);
+            guiWatcher.send(new CraftingTargetMessage(getBlockPos(), Optional.ofNullable(targetType)));
         }
 
         cacheRecipe();
@@ -357,7 +395,8 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
     }
 
-    public void handleNEIRecipePacket(NonNullList<ItemStack> content) {
+    @Override
+    public void handleRecipeViewerImport(NonNullList<ItemStack> content) {
         if (matrix.getContainerSize() != content.size()) {
             throw new IllegalStateException("Different sizes of matrix and inventory from packet");
         }
@@ -482,17 +521,31 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    public CoordinatesGuiProvider getGuiProvider() {
-        return NewGuiHandler.getGui(AutoCraftingGui.class).setCraftingTable(this);
+    public Component getDisplayName() {
+        return Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
 
     @Override
-    public void guiOpenedByPlayer(Player player) {
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+        return new AutoCraftingMenu(containerId, inventory, this);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        IBlockEntityMenuProvider.super.writeClientSideData(menu, buffer);
+        ByteBufCodecs.optional(ItemIdentifier.STREAM_CODEC).encode(buffer, Optional.ofNullable(targetType));
+        if (isFuzzy()) {
+            buffer.writeLongArray(fuzzyFlags.copyValue().toLongArray());
+        }
+    }
+
+    @Override
+    public void screenOpenedByPlayer(Player player) {
         guiWatcher.add(player);
     }
 
     @Override
-    public void guiClosedByPlayer(Player player) {
+    public void screenClosedByPlayer(Player player) {
         guiWatcher.remove(player);
     }
 

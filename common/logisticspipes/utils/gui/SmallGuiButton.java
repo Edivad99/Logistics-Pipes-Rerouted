@@ -16,6 +16,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
+import lombok.Getter;
 import lombok.Setter;
 
 import logisticspipes.utils.Color;
@@ -25,6 +26,7 @@ public class SmallGuiButton extends AbstractButton {
 	/** Replaces the old Button.id field removed in 1.20.1 */
 	public final int id;
 	private final int stringOffset;
+    @Getter
     @Setter
 	private Consumer<SmallGuiButton> pressListener = b -> {};
 

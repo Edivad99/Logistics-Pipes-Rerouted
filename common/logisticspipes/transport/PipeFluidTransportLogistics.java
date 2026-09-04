@@ -1,5 +1,6 @@
 package logisticspipes.transport;
 
+import java.util.Arrays;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
@@ -11,9 +12,10 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.pipe.PipeFluidUpdate;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.network.TargetLookup;
+import logisticspipes.network.to_client.pipe.PipeFluidUpdateMessage;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -164,9 +166,9 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 			if (clientSyncCounter < 0) {
 				clientSyncCounter = 0;
 			}
-			ModernPacket packet = computeFluidUpdate(init, true);
-			if (packet != null) {
-				MainProxy.sendPacketToAllWatchingChunk(container, packet);
+			PipeFluidUpdateMessage message = computeFluidUpdate(init, true);
+			if (message != null) {
+				TargetLookup.sendToChunkWatchers(container, message);
 			}
 		}
 	}
@@ -178,7 +180,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 	 * @param persistChange The render cache change is persisted
 	 * @return PacketFluidUpdate liquid update packet
 	 */
-	private ModernPacket computeFluidUpdate(boolean initPacket, boolean persistChange) {
+	private @Nullable PipeFluidUpdateMessage computeFluidUpdate(boolean initPacket, boolean persistChange) {
 
 		boolean changed = false;
 
@@ -228,7 +230,10 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 		}
 
 		if (changed || initPacket) {
-			return PacketHandler.getPacket(PipeFluidUpdate.class).setRenderCache(renderCache).setTilePos(container).setChunkDataPacket(initPacket);
+			// The chunk-data flag the old packet carried here was never read by anything.
+			return new PipeFluidUpdateMessage(container.getBlockPos(), Arrays.stream(renderCache)
+				.map(side -> side == null ? FluidStack.EMPTY : side)
+				.toList());
 		}
 
 		return null;

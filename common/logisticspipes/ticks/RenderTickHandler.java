@@ -46,6 +46,7 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.renderer.GuiOverlay;
+import logisticspipes.client.renderer.QuickSortMarkerOverlay;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.debug.ClientViewController;
 import logisticspipes.util.DoubleCoordinates;
@@ -88,9 +89,6 @@ public class RenderTickHandler {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void renderTick(RenderFrameEvent.Pre event) {
-		if (GuiOverlay.getInstance().isCompatibleGui()) {
-			GuiOverlay.getInstance().preRender();
-		}
 		ClientViewController.instance().tick();
 	}
 
@@ -109,6 +107,16 @@ public class RenderTickHandler {
 	public void screenRender(ScreenEvent.Render.Post event) {
 		if (GuiOverlay.getInstance().isCompatibleGui()) {
 			GuiOverlay.getInstance().renderOverGui(event.getGuiGraphics());
+		}
+		QuickSortMarkerOverlay.render(event.getGuiGraphics());
+	}
+
+	/** The overlay takes the click that picks a slot, so the screen must not also see it: the player
+	 *  is naming a slot, not moving what is in it. Pre is the only event that can still stop that. */
+	@SubscribeEvent
+	public void screenClick(ScreenEvent.MouseButtonPressed.Pre event) {
+		if (GuiOverlay.getInstance().isCompatibleGui() && GuiOverlay.getInstance().handleClick(event.getButton())) {
+			event.setCanceled(true);
 		}
 	}
 

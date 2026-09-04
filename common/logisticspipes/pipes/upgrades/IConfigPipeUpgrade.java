@@ -1,8 +1,9 @@
 package logisticspipes.pipes.upgrades;
 
-import logisticspipes.network.abstractguis.UpgradeCoordinatesGuiProvider;
+import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
 
 public interface IConfigPipeUpgrade extends IPipeUpgrade {
 
-	UpgradeCoordinatesGuiProvider getGUI();
+	/** Which settings popup this upgrade opens. */
+	UpgradeConfigPopupMessage.Kind getConfigPopup();
 }

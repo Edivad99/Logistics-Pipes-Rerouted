@@ -20,9 +20,9 @@ import lombok.Getter;
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
 import logisticspipes.interfaces.routing.IChannelManager;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.gui.ChannelInformationPacket;
-import logisticspipes.proxy.MainProxy;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import logisticspipes.network.to_client.channel.ChannelInformationMessage;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerIdentifier;
@@ -119,9 +119,7 @@ public class ChannelManager implements IChannelManager {
     }
 
     private void sendUpdatePacketToClients(ChannelInformation channel) {
-        MainProxy.sendToAllPlayers(
-            PacketHandler.getPacket(ChannelInformationPacket.class).setInformation(channel).setTargeted(false)
-                .setCompressable(true));
+        PacketDistributor.sendToAllPlayers(new ChannelInformationMessage(channel, false));
     }
 
     public static class ChannelSavedData extends SavedData {
