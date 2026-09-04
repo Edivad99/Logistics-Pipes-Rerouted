@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.gui.popup.GuiSelectSatellitePopup;
+import logisticspipes.client.gui.popup.GuiSelectSatellitePopup;
 import logisticspipes.pipes.SatelliteEntry;
 import logisticspipes.utils.gui.ISubGuiController;
 

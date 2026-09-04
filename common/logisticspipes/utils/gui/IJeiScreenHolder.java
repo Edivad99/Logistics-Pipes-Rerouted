@@ -1,5 +1,7 @@
 package logisticspipes.utils.gui;
 
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
+
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -10,7 +12,7 @@ import org.jspecify.annotations.Nullable;
  */
 public interface IJeiScreenHolder {
 
-    @Nullable LogisticsBaseGuiScreen getScreenForJEI();
+    @Nullable LogisticsBaseGuiScreen<?> getScreenForJEI();
 
-    void setScreenForJEI(LogisticsBaseGuiScreen screen);
+    void setScreenForJEI(LogisticsBaseGuiScreen<?> screen);
 }

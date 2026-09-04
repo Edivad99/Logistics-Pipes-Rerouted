@@ -20,8 +20,8 @@ import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.gui.GuiCraftingPipe;
-import logisticspipes.gui.modules.ModuleBaseGui;
+import logisticspipes.client.gui.screen.CraftingPipeScreen;
+import logisticspipes.client.gui.screen.ModuleBaseScreen;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -142,10 +142,10 @@ public record ModuleTarget(
                 return menu.getModule();
             }
         }
-        if (screen instanceof ModuleBaseGui gui) {
+        if (screen instanceof ModuleBaseScreen gui) {
             return gui.getModule();
         }
-        if (screen instanceof GuiCraftingPipe gui) {
+        if (screen instanceof CraftingPipeScreen gui) {
             return gui.getCraftingModule();
         }
         return null;

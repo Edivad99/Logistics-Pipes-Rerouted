@@ -15,6 +15,7 @@ import net.minecraft.resources.Identifier;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.ISpecialItemRenderer;
 import logisticspipes.utils.Color;
@@ -54,7 +55,7 @@ public class ItemDisplay {
 
 	private final IItemSearch search;
 	private final Font font;
-	private final LogisticsBaseGuiScreen screen;
+	private final LogisticsBaseGuiScreen<?> screen;
 	private final ISpecialItemRenderer renderer;
 	private int left, top, height, width, amountPosLeft, amountPosTop, amountWidth;
 	private int itemsPerPage;
@@ -63,7 +64,7 @@ public class ItemDisplay {
 	private static DisplayOption option = DisplayOption.ID;
 	private final ItemStackRenderer stackRenderer = new ItemStackRenderer(0, 0, 100.0F, false, false);
 
-	public ItemDisplay(IItemSearch search, Font font, LogisticsBaseGuiScreen screen, ISpecialItemRenderer renderer, int left, int top, int width, int height, int amountPosLeft, int amountPosTop, int amountWidth, int[] amountChangeMode, boolean shiftPageChange) {
+	public ItemDisplay(IItemSearch search, Font font, LogisticsBaseGuiScreen<?> screen, ISpecialItemRenderer renderer, int left, int top, int width, int height, int amountPosLeft, int amountPosTop, int amountWidth, int[] amountChangeMode, boolean shiftPageChange) {
 		this.search = search;
 		this.font = font;
 		this.screen = screen;

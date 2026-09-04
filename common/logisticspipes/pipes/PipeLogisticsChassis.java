@@ -44,7 +44,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.gui.GuiChassisPipe;
+import logisticspipes.client.gui.screen.ChassisPipeScreen;
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IBufferItems;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -426,7 +426,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		}
 		if (reInitGui) {
 			if (MainProxy.isClient(getWorld())) {
-				if (Minecraft.getInstance().screen instanceof GuiChassisPipe) {
+				if (Minecraft.getInstance().screen instanceof ChassisPipeScreen) {
 					Minecraft.getInstance().setScreen(Minecraft.getInstance().screen); // re-init screen (1.20.1: init() is no longer public no-arg)
 				}
 			}

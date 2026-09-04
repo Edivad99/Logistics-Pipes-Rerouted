@@ -25,12 +25,12 @@ import org.jspecify.annotations.Nullable;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import logisticspipes.gui.GuiLogisticsCraftingTable;
-import logisticspipes.gui.orderer.GuiRequestTable;
-import logisticspipes.gui.popup.GuiRecipeImport;
+import logisticspipes.client.gui.screen.LogisticsCraftingTableScreen;
+import logisticspipes.client.gui.screen.RequestTableScreen;
+import logisticspipes.client.gui.popup.GuiRecipeImport;
 import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
 import logisticspipes.utils.gui.IJeiScreenHolder;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 
 public class RecipeTransferHandler<C extends AbstractContainerMenu & IJeiScreenHolder>
     implements IRecipeTransferHandler<C, RecipeHolder<CraftingRecipe>> {
@@ -62,19 +62,19 @@ public class RecipeTransferHandler<C extends AbstractContainerMenu & IJeiScreenH
     @Override
     public @Nullable IRecipeTransferError transferRecipe(C container, RecipeHolder<CraftingRecipe> recipe,
         IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
-        LogisticsBaseGuiScreen gui = container.getScreenForJEI();
+        LogisticsBaseGuiScreen<?> gui = container.getScreenForJEI();
 
-        if (!(gui instanceof GuiLogisticsCraftingTable)
-            && !(gui instanceof GuiRequestTable)) {
+        if (!(gui instanceof LogisticsCraftingTableScreen)
+            && !(gui instanceof RequestTableScreen)) {
             return recipeTransferHandlerHelper.createInternalError();
         }
 
         BlockEntity be;
 
-        if (gui instanceof GuiLogisticsCraftingTable craftingTable) {
+        if (gui instanceof LogisticsCraftingTableScreen craftingTable) {
             be = craftingTable.crafter;
         } else {
-            be = ((GuiRequestTable) gui).table.container;
+            be = ((RequestTableScreen) gui).table.container;
         }
 
         if (be == null) {

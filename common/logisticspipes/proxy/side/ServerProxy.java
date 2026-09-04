@@ -1,57 +1,16 @@
 package logisticspipes.proxy.side;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import org.jspecify.annotations.Nullable;
-
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.interfaces.IProxy;
 
 public class ServerProxy implements IProxy {
 
-	@Override
-	public String getSide() {
-		return "Server";
-	}
-
-	@Override
-    @Nullable
-	public LogisticsTileGenericPipe getPipeInDimensionAt(Identifier dimension, int x, int y, int z, Player player) {
-		var server = ServerLifecycleHooks.getCurrentServer();
-		if (server == null) {
-            return null;
-        }
-		Level level = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
-		return getPipe(level, x, y, z);
-	}
-
-    @Nullable
-	protected static LogisticsTileGenericPipe getPipe(@Nullable Level level, int x, int y, int z) {
-		if (level == null) {
-            return null;
-        }
-		BlockPos pos = new BlockPos(x, y, z);
-		// isLoaded before anything that reads the block: getBlockState and getBlockEntity both
-		// go through getChunkAt, which loads -- or generates -- an absent chunk, and these
-		// coordinates were sent by a client.
-		if (!level.isLoaded(pos) || level.isEmptyBlock(pos)) {
-            return null;
-        }
-		return level.getBlockEntity(pos) instanceof LogisticsTileGenericPipe tile ? tile : null;
-	}
-
-	@Override
+    @Override
 	public void addLogisticsPipesOverride(Object par1IIconRegister, int index, String override1, String override2, boolean flag) {}
 
 	@Override
@@ -73,11 +32,6 @@ public class ServerProxy implements IProxy {
 	public void tickClient() {}
 
     @Override
-	public @Nullable LogisticsModule getModuleFromGui() {
-		return null;
-	}
-
-	@Override
 	public boolean checkSinglePlayerOwner(String commandSenderName) {
 		return false;
 	}

@@ -46,7 +46,7 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.renderer.GuiOverlay;
-import logisticspipes.renderer.QuickSortMarkerOverlay;
+import logisticspipes.client.renderer.QuickSortMarkerOverlay;
 import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.debug.ClientViewController;
 import logisticspipes.util.DoubleCoordinates;

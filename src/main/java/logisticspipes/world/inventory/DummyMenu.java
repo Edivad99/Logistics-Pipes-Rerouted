@@ -40,7 +40,7 @@ import logisticspipes.utils.gui.FuzzyDummySlot;
 import logisticspipes.utils.gui.FuzzyUnmodifiableSlot;
 import logisticspipes.utils.gui.HandelableSlot;
 import logisticspipes.utils.gui.IJeiScreenHolder;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.utils.gui.ModuleSlot;
@@ -54,7 +54,7 @@ import network.rs485.logisticspipes.property.IBitSet;
 
 public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScreenHolder {
 
-    private @Nullable LogisticsBaseGuiScreen screenForJEI;
+    private @Nullable LogisticsBaseGuiScreen<?> screenForJEI;
 
     private final List<Slot> transferTop = new ArrayList<>();
     private final List<Slot> transferBottom = new ArrayList<>();
@@ -88,12 +88,12 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
     }
 
     @Override
-    public @Nullable LogisticsBaseGuiScreen getScreenForJEI() {
+    public @Nullable LogisticsBaseGuiScreen<?> getScreenForJEI() {
         return screenForJEI;
     }
 
     @Override
-    public void setScreenForJEI(LogisticsBaseGuiScreen screen) {
+    public void setScreenForJEI(LogisticsBaseGuiScreen<?> screen) {
         screenForJEI = screen;
     }
 

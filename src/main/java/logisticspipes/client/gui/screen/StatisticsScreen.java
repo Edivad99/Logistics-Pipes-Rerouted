@@ -1,0 +1,588 @@
+
+package logisticspipes.client.gui.screen;
+
+import java.io.IOException;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.pow;
+import static java.lang.Math.round;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+
+import org.jspecify.annotations.Nullable;
+
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import logisticspipes.blocks.stats.LogisticsStatisticsTileEntity;
+import logisticspipes.blocks.stats.TrackingTask;
+import logisticspipes.client.gui.popup.GuiAddTracking;
+import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage;
+import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
+import logisticspipes.network.to_server.block.TrackItemMessage;
+import logisticspipes.utils.Color;
+import logisticspipes.utils.gui.ItemDisplay;
+import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.SmallGuiButton;
+import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.utils.math.Vec2;
+import logisticspipes.utils.string.StringUtils;
+import logisticspipes.world.inventory.StatisticsMenu;
+import network.rs485.logisticspipes.util.TextUtil;
+
+public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
+
+	private final String PREFIX = "gui.networkstatistics.";
+
+	private int currentTab;
+	private final TabTracker tabTracker = new TabTracker();
+	private final TabCrafting tabCrafting = new TabCrafting();
+	private final List<StatisticsTab> tabs = Arrays.asList(tabTracker, tabCrafting);
+
+	private final LogisticsStatisticsTileEntity tile;
+
+	private int prevMouseDragX;
+	private int prevMouseDragY;
+
+	public StatisticsScreen(StatisticsMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, 180, 220, 0, 0);
+		this.tile = menu.getBlockEntity();
+	}
+
+	@Override
+	public void init() {
+		
+
+		super.init();
+
+		tabs.forEach(StatisticsTab::init);
+
+		tabTracker.updateItemList();
+	}
+
+	@Override
+	public void closeGui() throws IOException {
+		super.closeGui();
+		
+	}
+
+	@Override
+	public void resetSubGui() {
+		super.resetSubGui();
+		tabTracker.updateItemList();
+	}
+
+	private StatisticsTab getActiveTab() {
+		return tabs.get(currentTab);
+	}
+
+	@Override
+	public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int clickedMouseButton = event.button();
+		getActiveTab().onMouseDrag((int)mouseX, (int)mouseY, (int)(mouseX - prevMouseDragX), (int)(mouseY - prevMouseDragY));
+		prevMouseDragX = (int)mouseX;
+		prevMouseDragY = (int)mouseY;
+		return super.mouseDragged(event, deltaX, deltaY);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		getActiveTab().onMouseScroll((int) scrollY);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+	}
+
+	@Override
+	protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float f) {
+		drawBG(guiGraphics);
+		getActiveTab().draw(guiGraphics, mouseX, mouseY);
+
+		super.extractGuiBackground(guiGraphics, mouseX, mouseY, f);
+	}
+
+	private void drawBG(GuiGraphicsExtractor guiGraphics) {
+		// background
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 20, right, bottom, 0.0f, true);
+		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * currentTab) + 2, topPos - 2, leftPos + 27 + (25 * currentTab), topPos + 38, 0.0f, true, true, true, false, true);
+
+		// tab selector panes
+		for (int i = 0; i < tabs.size(); i++) {
+			LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i), topPos + 35, 0.0f, false, true, true, false, true);
+		}
+
+		// First Tab
+		LPGuiGraphics.drawStatsBackground(guiGraphics, leftPos + 6, topPos + 3);
+
+		// Second tab background: item icons drawn lazily by TabCrafting.draw()
+	}
+
+	@Override
+	public boolean charTyped(CharacterEvent event) {
+		char c = (char) event.codepoint();
+		int i = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
+		getActiveTab().charTyped(c, i);
+		return super.charTyped(event);
+	}
+
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int mouseButton = event.button();
+		prevMouseDragX = (int)mouseX;
+		prevMouseDragY = (int)mouseY;
+
+		if (mouseButton == 0 && mouseX > leftPos && mouseX < leftPos + 220 && mouseY > topPos && mouseY < topPos + 20) {
+			double tabX = mouseX - leftPos - 3;
+			currentTab = max(0, min((int)(tabX / 25), tabs.size() - 1));
+		} else {
+			getActiveTab().handleClick((int)mouseX, (int)mouseY, mouseButton);
+			return super.mouseClicked(event, doubleClick);
+		}
+		return true;
+	}
+
+	@Override
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractLabels(guiGraphics, mouseX, mouseY);
+		getActiveTab().drawForegroundLayer(guiGraphics, mouseX, mouseY);
+	}
+
+	@Override
+	protected void checkButtons() {
+		super.checkButtons();
+		tabs.forEach(StatisticsTab::checkButtons);
+	}
+
+	public void handleTrackableItems(List<ItemIdentifierStack> items) {
+		tabTracker.handlePacket(items);
+	}
+
+	public void handleRunningCraftingTasks(List<ItemIdentifierStack> tasks) {
+		tabCrafting.handlePacket(tasks);
+	}
+
+	private interface StatisticsTab {
+
+		void init();
+
+		void draw(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY);
+
+		default void drawForegroundLayer(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {}
+
+		default void checkButtons() {}
+
+		default void charTyped(char c, int i) {}
+
+		default void handleClick(int mouseX, int mouseY, int mouseButton) {}
+
+		default void onMouseDrag(int x, int y, int dx, int dy) {}
+
+		default void onMouseScroll(int dw) {}
+
+	}
+
+	private class TabTracker implements StatisticsTab {
+
+		private ItemDisplay itemDisplay;
+
+		private float xViewportOffset = -1434;
+		private float yViewportOffset;
+		private float xViewportScale = 15;
+		private float yViewportScale = 15;
+
+		private boolean isDraggingGraph = false;
+		private boolean isDraggingXBar = false;
+		private boolean isDraggingYBar = false;
+
+		private final List<AbstractButton> BUTTONS = new ArrayList<>();
+
+		// Buffered text labels populated in draw(), drawn in drawForegroundLayer()
+		private String taskNameLabel = null;
+		private final List<String> graphTexts = new ArrayList<>();
+		private final List<int[]> graphTextPos = new ArrayList<>();
+
+		@Override
+		public void init() {
+			SmallGuiButton b0 = new SmallGuiButton(0, leftPos + 10, topPos + 70, 20, 20, "<");
+			b0.setPressListener(b -> itemDisplay.prevPage());
+			BUTTONS.add(addRenderableWidget(b0));
+			SmallGuiButton b1 = new SmallGuiButton(1, leftPos + 150, topPos + 70, 20, 20, ">");
+			b1.setPressListener(b -> itemDisplay.nextPage());
+			BUTTONS.add(addRenderableWidget(b1));
+			SmallGuiButton b2 = new SmallGuiButton(2, leftPos + 37, topPos + 70, 40, 20, "Add");
+			b2.setPressListener(b -> ClientPacketDistributor.sendToServer(
+					new RequestTrackableItemsMessage(tile.getBlockPos())));
+			BUTTONS.add(addRenderableWidget(b2));
+			SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 83, topPos + 70, 60, 20, "Remove");
+			b3.setPressListener(b -> {
+				if (itemDisplay.getSelectedItem() != null) {
+					ClientPacketDistributor.sendToServer(new TrackItemMessage(
+							tile.getBlockPos(), itemDisplay.getSelectedItem().getItem(), false));
+					Iterator<TrackingTask> iter = tile.tasks.iterator();
+					while (iter.hasNext()) {
+						TrackingTask task = iter.next();
+						if (task.item == itemDisplay.getSelectedItem().getItem()) {
+							iter.remove();
+							break;
+						}
+					}
+					updateItemList();
+				}
+			});
+			BUTTONS.add(addRenderableWidget(b3));
+
+			if (itemDisplay == null) {
+				itemDisplay = new ItemDisplay(null, font, StatisticsScreen.this, null, leftPos + 10, topPos + 18, panelWidth - 20, panelHeight - 100, 0, 0, 0, new int[] { 1, 10, 64, 64 }, true);
+			}
+			itemDisplay.reposition(leftPos + 10, topPos + 40, panelWidth - 20, 20, 0, 0);
+		}
+
+		@Override
+		public void draw(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			taskNameLabel = null;
+			graphTexts.clear();
+			graphTextPos.clear();
+			itemDisplay.renderItemArea(guiGraphics, 0.0f);
+			itemDisplay.renderPageNumber(guiGraphics, right - 40, topPos + 28);
+			if (itemDisplay.getSelectedItem() != null) {
+				TrackingTask task = getSelectedTask();
+
+				if (task != null) {
+					LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 10, topPos + 99);
+					guiGraphics.item(task.item.makeNormalStack(1), leftPos + 12, topPos + 101);
+					taskNameLabel = StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, font);
+
+					int xOrigo = xCenter - 72;
+					int yOrigo = yCenter + 90;
+
+					drawLine(guiGraphics, xOrigo + 0, yOrigo + 0, xOrigo + 150, yOrigo + 0, Color.DARKER_GREY);
+					drawLine(guiGraphics, xOrigo + 0, yOrigo + 0, xOrigo + 0, yOrigo - 80, Color.DARKER_GREY);
+
+					drawLine(guiGraphics, xOrigo - 4, yOrigo - 80, xOrigo + 0, yOrigo - 80, Color.DARKER_GREY);
+
+					drawLine(guiGraphics, xOrigo + 150, yOrigo - 1, xOrigo + 150, yOrigo + 4, Color.DARKER_GREY);
+
+					long[] data = getTaskData(task);
+
+					float xViewportCenter = 75;
+					float yViewportCenter = 40;
+
+					Set<Integer> labeledYPixels = new HashSet<>();
+					int rightLimit = 2; // we want to draw one more graph part past the right edge
+					for (int i = 0; i < data.length; i++) {
+						rightLimit--;
+						if (rightLimit == 0) break;
+
+						float x = i;
+						float y = data[i];
+						float prevX = x;
+						float prevY = y;
+						if (i > 0) {
+							prevX = x - 1;
+							prevY = data[i - 1];
+						}
+
+						x += xViewportOffset;
+						x *= xViewportScale;
+						x += xViewportCenter;
+						prevX += xViewportOffset;
+						prevX *= xViewportScale;
+						prevX += xViewportCenter;
+
+						y -= yViewportOffset;
+						y *= yViewportScale;
+						y += yViewportCenter;
+						prevY -= yViewportOffset;
+						prevY *= yViewportScale;
+						prevY += yViewportCenter;
+
+						if (x <= 150) rightLimit = 2;
+						if (x < 0) continue;
+
+						if (x <= 150) {
+							int interval = max(1, (int) (40 / xViewportScale) + 1);
+							if (i % interval == 0) {
+								String s = formatTime(data.length - i - 1);
+								int w = minecraft.font.width(s);
+								drawLine(guiGraphics, xOrigo + (int) x, yOrigo - 1, xOrigo + (int) x, yOrigo + 4, Color.DARKER_GREY);
+								graphTexts.add(s);
+							graphTextPos.add(new int[]{(int)(xOrigo - leftPos + (int) x - w / 2f), yOrigo - topPos + 6, Color.DARKER_GREY.getValue()});
+							}
+						}
+
+						if (y > 0 && y < 80) {
+							drawLine(guiGraphics, xOrigo - 4, yOrigo - (int) y, xOrigo + 0, yOrigo - (int) y, Color.DARKER_GREY);
+							int yPixel = (int) y;
+							boolean tooClose = false;
+							for (int labeled : labeledYPixels) {
+								if (Math.abs(labeled - yPixel) < 10) { tooClose = true; break; }
+							}
+							if (!tooClose) {
+								labeledYPixels.add(yPixel);
+								String label = Long.toString(data[i]);
+								int lw = minecraft.font.width(label);
+								graphTexts.add(label);
+							graphTextPos.add(new int[]{xOrigo - leftPos - 5 - lw, yOrigo - topPos - yPixel - 4, Color.DARKER_GREY.getValue()});
+							}
+						}
+
+						drawGraphPart(guiGraphics, xOrigo, yOrigo, (int) prevX, (int) prevY, (int) x, (int) y);
+					}
+				}
+			}
+		}
+
+		@Nullable
+		private TrackingTask getSelectedTask() {
+			for (TrackingTask taskLoop : tile.tasks) {
+				if (taskLoop.item == itemDisplay.getSelectedItem().getItem()) {
+					return taskLoop;
+				}
+			}
+			return null;
+		}
+
+		private long[] getTaskData(TrackingTask task) {
+			long[] data = new long[task.amountRecorded.length];
+			System.arraycopy(task.amountRecorded, task.arrayPos, data, 0, task.amountRecorded.length - task.arrayPos);
+			System.arraycopy(task.amountRecorded, 0, data, task.amountRecorded.length - task.arrayPos, task.arrayPos);
+			return data;
+		}
+
+		@Override
+		public void drawForegroundLayer(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "amount"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
+			if (taskNameLabel != null) {
+				guiGraphics.text(minecraft.font, taskNameLabel, 32, 104, Color.getValue(Color.DARKER_GREY), false);
+			}
+			for (int i = 0; i < graphTexts.size(); i++) {
+				int[] pos = graphTextPos.get(i);
+				guiGraphics.text(minecraft.font, graphTexts.get(i), pos[0], pos[1], pos[2], false);
+			}
+		}
+
+		@Override
+		public void charTyped(char c, int i) {
+			if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP) { //PgUp
+				itemDisplay.prevPage();
+			} else if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
+				itemDisplay.nextPage();
+			}
+		}
+
+		@Override
+		public void handleClick(int mouseX, int mouseY, int mouseButton) {
+			if (itemDisplay.handleClick(mouseX, mouseY, mouseButton)) {
+				xViewportOffset = max(-1439, min(xViewportOffset, 0));
+				TrackingTask task = getSelectedTask();
+				if (task != null) {
+					long[] data = getTaskData(task);
+					yViewportOffset = data[round(-xViewportOffset)];
+				}
+			}
+
+			int xOrigo = xCenter - 72;
+			int yOrigo = yCenter + 90;
+			isDraggingGraph = mouseButton == 0 && mouseX > xOrigo && mouseX < xOrigo + 150 && mouseY < yOrigo && mouseY > yOrigo - 80;
+			isDraggingXBar = mouseButton == 0 && mouseX > xOrigo && mouseX < xOrigo + 150 && mouseY < yOrigo + 16 && mouseY > yOrigo + 4;
+			isDraggingYBar = mouseButton == 0 && mouseX > xOrigo - 16 && mouseX < xOrigo - 4 && mouseY < yOrigo && mouseY > yOrigo - 80;
+		}
+
+		@Override
+		public void checkButtons() {
+			for (AbstractButton button : BUTTONS) {
+				button.visible = getActiveTab() == this;
+				if (button.getMessage().getString().equals("Remove")) {
+					button.active = itemDisplay.getSelectedItem() != null;
+				}
+			}
+		}
+
+		@Override
+		public void onMouseDrag(int x, int y, int dx, int dy) {
+			if (isDraggingGraph) {
+				xViewportOffset += dx / xViewportScale;
+				yViewportOffset += dy / yViewportScale;
+			} else if (isDraggingXBar) {
+				float mul = (float) pow(1.25, dx / 2f);
+				xViewportScale *= mul;
+			} else if (isDraggingYBar) {
+				float mul = (float) pow(1.25, -dy / 2f);
+				yViewportScale *= mul;
+			}
+		}
+
+		@Override
+		public void onMouseScroll(int dw) {
+			float mul = (float) pow(1.25, dw / 60f);
+			xViewportScale *= mul;
+			yViewportScale *= mul;
+		}
+
+		private void drawGraphPart(GuiGraphicsExtractor guiGraphics, int xOrigo, int yOrigo, int prevX, int prevY, int x, int y) {
+			Vec2 left = new Vec2(prevX, prevY);
+			Vec2 right = new Vec2(x, y);
+
+			// bounds check
+			{
+				Vec2 min = new Vec2(left.x, min(left.y, right.y));
+				Vec2 max = new Vec2(right.x, max(left.y, right.y));
+
+				if (!(min.x < 150 && max.x > 0 && min.y < 80 && max.y > 0)) return;
+			}
+
+			// clamp to the edges of the graph
+			right = clampCorner(left, right, Vec2.ORIGIN, true);
+			right = clampCorner(left, right, new Vec2(150, 80), false);
+			left = clampCorner(right, left, Vec2.ORIGIN, true);
+			left = clampCorner(right, left, new Vec2(150, 80), false);
+
+			drawLine(guiGraphics, xOrigo + (int) left.x, yOrigo - (int) left.y, xOrigo + (int) right.x, yOrigo - (int) right.y, Color.RED);
+
+			int radius = 2;
+			if (xViewportScale < 4) radius = 1;
+
+			if (prevX >= 0 && prevX <= 150 && prevY >= 0 && prevY <= 80)
+				guiGraphics.fill(xOrigo + prevX - radius + 1, yOrigo - prevY - radius + 1, xOrigo + prevX + radius, yOrigo - prevY + radius, Color.getValue(Color.BLACK));
+
+			if (x >= 0 && x <= 150 && y >= 0 && y <= 80)
+				guiGraphics.fill(xOrigo + x - radius + 1, yOrigo - y - radius + 1, xOrigo + x + radius, yOrigo - y + radius, Color.getValue(Color.BLACK));
+		}
+
+		private Vec2 clampYPlane(Vec2 v, Vec2 toClamp, float x0, boolean greater) {
+			if (toClamp.x == x0) return toClamp;
+			if (toClamp.x == v.x) return toClamp;
+
+			if ((!greater && toClamp.x < x0) || (greater && toClamp.x > x0)) {
+				return toClamp;
+			}
+
+			Vec2 dir = toClamp.sub(v);
+			dir = dir.div(dir.x); // let dir.x=1 but keep vector's direction
+			float dist = (x0 - toClamp.x);
+			return toClamp.add(dir.mul(dist));
+		}
+
+		@SuppressWarnings("SuspiciousNameCombination")
+		private Vec2 clampXPlane(Vec2 from, Vec2 to, float y0, boolean greater) {
+			final Vec2 vec2 = clampYPlane(new Vec2(from.y, from.x), new Vec2(to.y, to.x), y0, greater);
+			return new Vec2(vec2.y, vec2.x);
+		}
+
+		private Vec2 clampCorner(Vec2 from, Vec2 to, Vec2 corner, boolean greater) {
+			return clampXPlane(from, clampYPlane(from, to, corner.x, greater), corner.y, greater);
+		}
+
+		private String formatTime(int minutes) {
+			if (minutes == 0) return "Now";
+
+			int mins = minutes % 60;
+			minutes /= 60;
+			int hours = minutes;
+
+			StringBuilder sb = new StringBuilder();
+
+			if (hours > 0) sb.append(hours).append("h");
+			if (mins > 0) sb.append(mins).append("min");
+
+			return sb.toString();
+		}
+
+		public void updateItemList() {
+			List<ItemIdentifierStack> allItems = tile.tasks.stream().map(task -> task.item.makeStack(1))
+					.collect(Collectors.toList());
+			itemDisplay.setItemList(allItems);
+		}
+
+		public void handlePacket(List<ItemIdentifierStack> identList) {
+			if (hasSubGui() && getSubGui() instanceof GuiAddTracking) {
+				((GuiAddTracking) getSubGui()).handlePacket(identList);
+			} else if (!hasSubGui()) {
+				GuiAddTracking sub = new GuiAddTracking(tile);
+				setSubGui(sub);
+				sub.handlePacket(identList);
+			}
+		}
+
+	}
+
+	private class TabCrafting implements StatisticsTab {
+
+		private ItemDisplay itemDisplay;
+
+		private final List<AbstractButton> BUTTONS = new ArrayList<>();
+
+		@Override
+		public void init() {
+			SmallGuiButton b6 = new SmallGuiButton(6, leftPos + 10, topPos + 40, 160, 20, TextUtil.translate(PREFIX + "gettasks"));
+			b6.setPressListener(b -> ClientPacketDistributor.sendToServer(
+					new RequestRunningCraftingTasksMessage(tile.getBlockPos())));
+			BUTTONS.add(addRenderableWidget(b6));
+			SmallGuiButton b7 = new SmallGuiButton(7, leftPos + 90, topPos + 65, 10, 10, "<");
+			b7.setPressListener(b -> itemDisplay.prevPage());
+			BUTTONS.add(addRenderableWidget(b7));
+			SmallGuiButton b8 = new SmallGuiButton(8, leftPos + 160, topPos + 65, 10, 10, ">");
+			b8.setPressListener(b -> itemDisplay.nextPage());
+			BUTTONS.add(addRenderableWidget(b8));
+
+			if (itemDisplay == null) {
+				itemDisplay = new ItemDisplay(null, font, StatisticsScreen.this, null, leftPos + 10, topPos + 18, panelWidth - 20, panelHeight - 100, 0, 0, 0, new int[] { 1, 10, 64, 64 }, true);
+				itemDisplay.setItemList(new ArrayList<>());
+			}
+			itemDisplay.reposition(leftPos + 10, topPos + 80, panelWidth - 20, 125, 0, 0);
+
+		}
+
+		@Override
+		public void draw(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			itemDisplay.renderItemArea(guiGraphics, 0.0f);
+			itemDisplay.renderPageNumber(guiGraphics, right - 50, topPos + 66);
+		}
+
+		@Override
+		public void drawForegroundLayer(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "crafting"), 10, 28, Color.getValue(Color.DARKER_GREY), false);
+			// Item tooltip omitted — tab has no hovered-item lookup at this point
+		}
+
+		@Override
+		public void charTyped(char c, int i) {
+			if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP) { //PgUp
+				itemDisplay.prevPage();
+			} else if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
+				itemDisplay.nextPage();
+			}
+		}
+
+		@Override
+		public void handleClick(int mouseX, int mouseY, int mouseButton) {
+			itemDisplay.handleClick(mouseX, mouseY, mouseButton);
+		}
+
+		@Override
+		public void checkButtons() {
+			for (AbstractButton button : BUTTONS) {
+				button.visible = getActiveTab() == this;
+			}
+		}
+
+		public void handlePacket(List<ItemIdentifierStack> identList) {
+			itemDisplay.setItemList(identList);
+		}
+
+	}
+
+}

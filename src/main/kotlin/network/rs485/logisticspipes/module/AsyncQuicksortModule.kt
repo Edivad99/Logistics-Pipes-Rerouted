@@ -80,11 +80,13 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
 
     private val localSlotWatchers = PlayerCollectionList()
     private var stalled = true
+    /**
+     * The slot the next tick will look at. Watchers are told which slot is being *worked on*, so
+     * the message is sent where the work starts and not from a setter here: an increment goes
+     * through the setter too, and would announce the slot after the one in hand -- leaving the
+     * first slot of the inventory announced and overwritten within the same tick, so never drawn.
+     */
     private var currentSlot = 0
-        set(value) {
-            field = value
-            localSlotWatchers.send(QuickSortStateMessage(ModuleTarget.of(this), value))
-        }
     private var stallSlot = 0
 
     override val properties: List<Property<*>>
@@ -102,7 +104,9 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
         val inventory = service?.let { PipeServiceProviderUtil.availableInventories(it) }?.firstOrNull() ?: return null
         if (inventory.containerSize == 0) return null
         if (currentSlot >= inventory.containerSize) currentSlot = 0
-        val slot = currentSlot++
+        val slot = currentSlot
+        currentSlot = slot + 1
+        notifyWorkingSlot(slot)
         val stack = inventory.getItem(slot)
         if (!stalled && slot == stallSlot) stalled = true
         if (stack.isEmpty) return null
@@ -175,10 +179,17 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
 
     override fun interestedInAttachedInventory(): Boolean = false
 
+    private fun notifyWorkingSlot(slot: Int) {
+        localSlotWatchers.send(QuickSortStateMessage(ModuleTarget.of(this), slot))
+    }
+
     fun addWatchingPlayer(player: Player) {
         localSlotWatchers.add(player)
         if (player is ServerPlayer) {
-            PacketDistributor.sendToPlayer(player, QuickSortStateMessage(ModuleTarget.of(this), currentSlot))
+            // Where the last tick was, which is the slot that is currently ringed for everyone
+            // else watching.
+            PacketDistributor.sendToPlayer(player,
+                QuickSortStateMessage(ModuleTarget.of(this), (currentSlot - 1).coerceAtLeast(0)))
         }
     }
 

@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.gui.GuiStatistics;
+import logisticspipes.client.gui.screen.StatisticsScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 /**
@@ -34,7 +34,7 @@ public record RunningCraftingTasksMessage(List<ItemIdentifierStack> tasks) imple
     }
 
     public static void handle(RunningCraftingTasksMessage message, IPayloadContext context) {
-        if (Minecraft.getInstance().screen instanceof GuiStatistics gui) {
+        if (Minecraft.getInstance().screen instanceof StatisticsScreen gui) {
             gui.handleRunningCraftingTasks(message.tasks);
         }
     }

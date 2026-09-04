@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.gui.GuiInvSysConnector;
+import logisticspipes.client.gui.screen.InvSysConnectorScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 /**
@@ -37,7 +37,7 @@ public record InvSysConContentMessage(List<ItemIdentifierStack> expected) implem
     }
 
     public static void handle(InvSysConContentMessage message, IPayloadContext context) {
-        if (Minecraft.getInstance().screen instanceof GuiInvSysConnector gui) {
+        if (Minecraft.getInstance().screen instanceof InvSysConnectorScreen gui) {
             gui.handleContentAnswer(message.expected);
         }
     }

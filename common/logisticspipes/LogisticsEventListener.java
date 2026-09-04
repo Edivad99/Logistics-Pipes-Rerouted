@@ -21,6 +21,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -60,7 +61,6 @@ import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.renderer.GuiOverlay;
 import logisticspipes.renderer.LogisticsHUDRenderer;
@@ -130,77 +130,84 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void onPlayerLeftClickBlock(final PlayerInteractEvent.LeftClickBlock event) {
-		if (MainProxy.isServer(event.getEntity().level())) {
-			final BlockEntity tile = event.getEntity().level().getBlockEntity(event.getPos());
-			if (tile instanceof LogisticsTileGenericPipe) {
-				if (((LogisticsTileGenericPipe) tile).pipe instanceof CoreRoutedPipe) {
-					if (!((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).canBeDestroyedByPlayer(event.getEntity())) {
-						event.setCanceled(true);
-						event.getEntity().sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
-						((LogisticsTileGenericPipe) tile).scheduleNeighborChange();
-						Level level = event.getEntity().level();
-						BlockPos pos = tile.getBlockPos();
-						BlockState state = level.getBlockState(pos);
-						level.sendBlockUpdated(pos, state, state, 2);
-						((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).delayTo = System.currentTimeMillis() + 200;
-						((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).repeatFor = 10;
-					} else {
-						((CoreRoutedPipe) ((LogisticsTileGenericPipe) tile).pipe).setDestroyByPlayer();
-					}
-				}
-			}
-		}
+        if (event.getLevel() instanceof ServerLevel level) {
+            final BlockEntity be = level.getBlockEntity(event.getPos());
+            if (be instanceof LogisticsTileGenericPipe tileGenericPipe) {
+                if (tileGenericPipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
+                    if (!coreRoutedPipe.canBeDestroyedByPlayer(event.getEntity())) {
+                        event.setCanceled(true);
+                        event.getEntity().sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+                        tileGenericPipe.scheduleNeighborChange();
+                        BlockPos pos = tileGenericPipe.getBlockPos();
+                        BlockState state = level.getBlockState(pos);
+                        level.sendBlockUpdated(pos, state, state, 2);
+                        coreRoutedPipe.delayTo = System.currentTimeMillis() + 200;
+                        coreRoutedPipe.repeatFor = 10;
+                    } else {
+                        coreRoutedPipe.setDestroyByPlayer();
+                    }
+                }
+            }
+        }
 	}
 
 	@SubscribeEvent
 	public void onPlayerRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
-		if (MainProxy.isClient(event.getEntity().level())) return;
-		Level level = event.getEntity().level();
-		BlockPos pos = event.getPos();
-		BlockEntity te = level.getBlockEntity(pos);
-		if (te == null) return;
-		// Only act on blocks that expose an item handler (chests, barrels, etc.)
-		var itemHandler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
-		if (itemHandler == null) return;
+        if (event.getLevel() instanceof ServerLevel level) {
+            BlockPos pos = event.getPos();
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be == null) {
+                return;
+            }
+            // Only act on blocks that expose an item handler (chests, barrels, etc.)
+            var itemHandler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
+            if (itemHandler == null) {
+                return;
+            }
 
-		Player player = event.getEntity();
-		List<WeakReference<AsyncQuicksortModule>> modules = null;
+            Player player = event.getEntity();
+            List<WeakReference<AsyncQuicksortModule>> modules = null;
 
-		for (Direction dir : Direction.values()) {
-			BlockPos neighborPos = pos.relative(dir);
-			BlockEntity neighbor = level.getBlockEntity(neighborPos);
-			if (!(neighbor instanceof LogisticsTileGenericPipe)) continue;
-			LogisticsTileGenericPipe pipeTile = (LogisticsTileGenericPipe) neighbor;
-			if (!(pipeTile.pipe instanceof PipeLogisticsChassis)) continue;
-			PipeLogisticsChassis chassis = (PipeLogisticsChassis) pipeTile.pipe;
-			// The chassis must be pointing at the clicked block
-			if (chassis.getPointedOrientation() != dir.getOpposite()) continue;
+            for (Direction dir : Direction.values()) {
+                BlockPos neighborPos = pos.relative(dir);
+                BlockEntity neighbor = level.getBlockEntity(neighborPos);
+                if (!(neighbor instanceof LogisticsTileGenericPipe pipeTile)) {
+                    continue;
+                }
+                if (!(pipeTile.pipe instanceof PipeLogisticsChassis chassis)) {
+                    continue;
+                }
+                // The chassis must be pointing at the clicked block
+                if (chassis.getPointedOrientation() != dir.getOpposite()) {
+                    continue;
+                }
 
-			final List<WeakReference<AsyncQuicksortModule>> found = modules == null ? new ArrayList<>() : modules;
-			chassis.getModules().getModules()
-					.filter(m -> m instanceof AsyncQuicksortModule)
-					.forEach(m -> found.add(new WeakReference<>((AsyncQuicksortModule) m)));
-			if (!found.isEmpty()) modules = found;
-		}
+                final List<WeakReference<AsyncQuicksortModule>> found = modules == null ? new ArrayList<>() : modules;
+                chassis.getModules().getModules()
+                    .filter(m -> m instanceof AsyncQuicksortModule)
+                    .forEach(m -> found.add(new WeakReference<>((AsyncQuicksortModule) m)));
+                if (!found.isEmpty()) {
+                    modules = found;
+                }
+            }
 
-		if (modules != null && !modules.isEmpty()) {
-			chestQuickSortConnection.put(player, modules);
-		}
+            if (modules != null && !modules.isEmpty()) {
+                chestQuickSortConnection.put(player, modules);
+            }
+        }
 	}
 
 	public static HashMap<ResourceKey<Level>, Long> WorldLoadTime = new HashMap<>();
 
 	@SubscribeEvent
 	public void WorldLoad(LevelEvent.Load event) {
-		if (MainProxy.isServer(event.getLevel())) {
-			if (event.getLevel() instanceof Level level) {
-				ResourceKey<Level> dim = level.dimension();
-				if (!LogisticsEventListener.WorldLoadTime.containsKey(dim)) {
-					LogisticsEventListener.WorldLoadTime.put(dim, System.currentTimeMillis());
-				}
-			}
-		}
-		if (MainProxy.isClient(event.getLevel())) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            ResourceKey<Level> dim = level.dimension();
+            if (!LogisticsEventListener.WorldLoadTime.containsKey(dim)) {
+                LogisticsEventListener.WorldLoadTime.put(dim, System.currentTimeMillis());
+            }
+        }
+		if (event.getLevel().isClientSide()) {
 			SimpleServiceLocator.routerManager.clearClientRouters();
 			LogisticsHUDRenderer.instance().clear();
 		}
@@ -208,11 +215,9 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void WorldUnload(LevelEvent.Unload event) {
-		if (MainProxy.isServer(event.getLevel())) {
-			if (event.getLevel() instanceof Level level) {
-				SimpleServiceLocator.routerManager.dimensionUnloaded(level.dimension().identifier());
-			}
-		}
+        if (event.getLevel() instanceof ServerLevel level) {
+            SimpleServiceLocator.routerManager.dimensionUnloaded(level.dimension().identifier());
+        }
 	}
 
 	@SubscribeEvent
@@ -234,7 +239,7 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-		if (MainProxy.isServer(event.getEntity().level())) {
+		if (event.getEntity().level() instanceof ServerLevel) {
 			SimpleServiceLocator.securityStationManager.sendClientAuthorizationList(event.getEntity());
 		}
 

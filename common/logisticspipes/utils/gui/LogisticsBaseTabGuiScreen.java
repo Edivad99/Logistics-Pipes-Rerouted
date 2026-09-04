@@ -1,6 +1,8 @@
 
 package logisticspipes.utils.gui;
 
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 
-public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
+public class LogisticsBaseTabGuiScreen<T extends AbstractContainerMenu>
+		extends LogisticsBaseGuiScreen<T> {
 
 	private int current_Tab;
 
@@ -24,15 +27,11 @@ public class LogisticsBaseTabGuiScreen extends LogisticsBaseGuiScreen {
 	private final List<TabSubGui> tabList = new ArrayList<>();
 	private final List<Slot> hiddenSlots = new ArrayList<>();
 
-	public LogisticsBaseTabGuiScreen(int xSize, int ySize) {
-		super(xSize, ySize, 0, 0);
-	}
-
-	public LogisticsBaseTabGuiScreen(AbstractContainerMenu container, int xSize, int ySize) {
+	public LogisticsBaseTabGuiScreen(T container, int xSize, int ySize) {
 		super(container, xSize, ySize, 0, 0);
 	}
 
-	public LogisticsBaseTabGuiScreen(AbstractContainerMenu container, Inventory inventory, Component title,
+	public LogisticsBaseTabGuiScreen(T container, Inventory inventory, Component title,
 		int xSize, int ySize, int xCenterOffset, int yCenterOffset) {
 		super(container, inventory, title, xSize, ySize, xCenterOffset, yCenterOffset);
 	}

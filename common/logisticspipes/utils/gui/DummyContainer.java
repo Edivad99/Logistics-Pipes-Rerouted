@@ -27,6 +27,7 @@ import org.jspecify.annotations.Nullable;
 
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.interfaces.IScreenOpenController;
@@ -47,15 +48,15 @@ import network.rs485.logisticspipes.property.IBitSet;
 
 public class DummyContainer extends AbstractContainerMenu implements IJeiScreenHolder {
 
-	private @Nullable LogisticsBaseGuiScreen screenForJEI;
+	private @Nullable LogisticsBaseGuiScreen<?> screenForJEI;
 
 	@Override
-	public @Nullable LogisticsBaseGuiScreen getScreenForJEI() {
+	public @Nullable LogisticsBaseGuiScreen<?> getScreenForJEI() {
 		return screenForJEI;
 	}
 
 	@Override
-	public void setScreenForJEI(LogisticsBaseGuiScreen screen) {
+	public void setScreenForJEI(LogisticsBaseGuiScreen<?> screen) {
 		screenForJEI = screen;
 	}
 

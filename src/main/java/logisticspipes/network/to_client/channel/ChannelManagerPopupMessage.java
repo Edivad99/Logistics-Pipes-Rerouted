@@ -12,7 +12,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.gui.popup.GuiManageChannelPopup;
+import logisticspipes.client.gui.popup.GuiManageChannelPopup;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.ISubGuiController;
 

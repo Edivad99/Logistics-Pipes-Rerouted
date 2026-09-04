@@ -15,8 +15,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
-import logisticspipes.gui.orderer.GuiOrderer;
-import logisticspipes.gui.orderer.GuiRequestTable;
+import logisticspipes.client.gui.screen.OrdererScreen;
+import logisticspipes.client.gui.screen.RequestTableScreen;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.IResource.ColorCode;
 
@@ -45,9 +45,9 @@ public record RequestComponentsMessage(List<IResource> used, List<IResource> mis
     public static void handle(RequestComponentsMessage message, IPayloadContext context) {
         final Player player = context.player();
         final var screen = Minecraft.getInstance().screen;
-        if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && screen instanceof GuiOrderer gui) {
+        if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && screen instanceof OrdererScreen gui) {
             gui.handleSimulateAnswer(message.used, message.missing, gui, player);
-        } else if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && screen instanceof GuiRequestTable gui) {
+        } else if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && screen instanceof RequestTableScreen gui) {
             gui.handleSimulateAnswer(message.used, message.missing, gui, player);
         } else {
             for (IResource resource : message.used) {

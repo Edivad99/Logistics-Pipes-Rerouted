@@ -13,7 +13,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.gui.popup.GuiSelectChannelPopup;
+import logisticspipes.client.gui.popup.GuiSelectChannelPopup;
 import logisticspipes.network.to_server.pipe.SetInvSysConChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.gui.ISubGuiController;

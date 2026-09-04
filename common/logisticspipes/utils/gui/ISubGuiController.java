@@ -1,5 +1,7 @@
 package logisticspipes.utils.gui;
 
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
+
 import org.jspecify.annotations.Nullable;
 
 public interface ISubGuiController {
@@ -45,6 +47,6 @@ public interface ISubGuiController {
 		return null;
 	}
 
-	LogisticsBaseGuiScreen getBaseScreen();
+	LogisticsBaseGuiScreen<?> getBaseScreen();
 
 }

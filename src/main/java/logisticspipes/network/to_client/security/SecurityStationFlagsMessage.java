@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.blocks.LogisticsSecurityTileEntity;
-import logisticspipes.gui.GuiSecurityStation;
+import logisticspipes.client.gui.screen.SecurityStationScreen;
 import logisticspipes.network.TargetLookup;
 
 /**
@@ -46,7 +46,7 @@ public record SecurityStationFlagsMessage(BlockPos pos, boolean allowCC, boolean
         }
         be.setClientCC(message.allowCC);
         be.setClientDestroy(message.autoDestroy);
-        if (Minecraft.getInstance().screen instanceof GuiSecurityStation gui) {
+        if (Minecraft.getInstance().screen instanceof SecurityStationScreen gui) {
             gui.refreshCheckBoxes();
         }
     }

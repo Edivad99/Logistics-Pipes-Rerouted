@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.gui.GuiSatellitePipe;
+import logisticspipes.client.gui.screen.SatellitePipeScreen;
 import logisticspipes.pipes.SatelliteNamingResult;
 
 /**
@@ -34,7 +34,7 @@ public record SatelliteNameResultMessage(SatelliteNamingResult result, String na
     }
 
     public static void handle(SatelliteNameResultMessage message, IPayloadContext context) {
-        if (Minecraft.getInstance().screen instanceof GuiSatellitePipe gui) {
+        if (Minecraft.getInstance().screen instanceof SatellitePipeScreen gui) {
             gui.handleResponse(message.result, message.name);
         }
     }

@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.gui.GuiStatistics;
+import logisticspipes.client.gui.screen.StatisticsScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 /**
@@ -32,7 +32,7 @@ public record TrackableItemsMessage(List<ItemIdentifierStack> items) implements 
     }
 
     public static void handle(TrackableItemsMessage message, IPayloadContext context) {
-        if (Minecraft.getInstance().screen instanceof GuiStatistics gui) {
+        if (Minecraft.getInstance().screen instanceof StatisticsScreen gui) {
             gui.handleTrackableItems(message.items);
         }
     }

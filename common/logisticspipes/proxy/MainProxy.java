@@ -39,6 +39,7 @@ import logisticspipes.ticks.RoutingTableUpdateThread;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.world.item.LPItems;
 
+@Deprecated(forRemoval = true)
 public class MainProxy {
 
 	private MainProxy() {}

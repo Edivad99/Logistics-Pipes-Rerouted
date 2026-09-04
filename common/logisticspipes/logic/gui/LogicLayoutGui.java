@@ -12,13 +12,13 @@ import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.world.inventory.LogicControllerMenu;
 
 // import net.minecraft.client.gui.Gui; // removed — Gui is HUD class in 1.20.1, not GUI base
 
-public class LogicLayoutGui extends LogisticsBaseGuiScreen {
+public class LogicLayoutGui extends LogisticsBaseGuiScreen<LogicControllerMenu> {
 
 	private enum ZOOM_LEVEL {
 		NORMAL(1, 165, 224, 1, 0),

@@ -22,7 +22,6 @@ import logisticspipes.network.to_server.block.TriggerCompilerTaskMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
@@ -34,7 +33,7 @@ import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEnti
 import network.rs485.logisticspipes.util.TextUtil;
 
 //TODO: Config Option for disabling program compilation
-public class ProgramCompilerScreen extends LogisticsBaseGuiScreen {
+public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompilerMenu> {
 
     private final LogisticsProgramCompilerBlockEntity compiler;
     private final TextListDisplay.List categoryTextList;
