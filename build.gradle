@@ -302,20 +302,10 @@ def lastCommit = providers.exec {
     commandLine 'git', 'rev-parse', 'HEAD'
 }.standardOutput.asText.get().trim()
 
-def gitOrNull = { String... args ->
-    def output = providers.exec {
-        commandLine(['git'] + (args as List))
-        ignoreExitValue = true
-    }
-    output.result.get().exitValue == 0 ? output.standardOutput.asText.get().trim() : null
-}
-
-def FIRST_RELEASE_BASE = '3b18d511d85c078cf257f43eb6290c24d2513d66'
-
 def penultimateTag = () -> {
-    gitOrNull('describe', '--abbrev=0', '--tags', 'HEAD~')
-        ?: gitOrNull('rev-parse', '--verify', '--quiet', FIRST_RELEASE_BASE + '^{commit}')
-        ?: gitOrNull('rev-list', '--max-parents=0', 'HEAD').readLines().last().trim()
+    providers.exec {
+        commandLine 'git', 'describe', '--abbrev=0', '--tags', 'HEAD~'
+    }.standardOutput.asText.get().trim()
 }
 
 tasks.named('jar', Jar).configure {
