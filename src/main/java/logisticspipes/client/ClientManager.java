@@ -9,6 +9,7 @@ import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyE
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleGroupsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterRangeSelectItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -25,6 +26,8 @@ import logisticspipes.client.particle.SparkParticle;
 import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.client.renderer.blockentity.LPBlockEntityRenderers;
 import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
+import logisticspipes.client.renderer.pip.SideConfigSceneRenderer;
+import logisticspipes.client.renderer.pip.SideConfigSceneState;
 import logisticspipes.client.renderer.item.LogisticsSolidBlockItemRenderer;
 import logisticspipes.client.renderer.item.properties.CreatorMode;
 import logisticspipes.client.renderer.item.properties.FluidTint;
@@ -83,6 +86,7 @@ public class ClientManager {
         modEventBus.addListener(LPRenderTypes::register);
         modEventBus.addListener(ClientManager::handleRegisterSpecialModelRenderers);
         modEventBus.addListener(ClientManager::handleRegisterMenuScreens);
+        modEventBus.addListener(ClientManager::handleRegisterPictureInPictureRenderers);
         modEventBus.addListener(ClientManager::handleRegisterReloadListeners);
         modEventBus.addListener(ClientManager::handleRegisterTooltipComponents);
         modEventBus.addListener(ClientManager::handleRegisterRangeSelectItemModelProperties);
@@ -102,6 +106,10 @@ public class ClientManager {
     // Mod events
     private static void handleRegisterReloadListeners(AddClientReloadListenersEvent event) {
         event.addListener(LPConstants.rl("obj_models"), new ObjModelManager());
+    }
+
+    private static void handleRegisterPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
+        event.register(SideConfigSceneState.class, SideConfigSceneRenderer::new);
     }
 
     private static void handleRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {

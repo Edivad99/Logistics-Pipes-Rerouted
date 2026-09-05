@@ -3,7 +3,6 @@ package logisticspipes.client.gui.popup;
 import java.awt.Rectangle;
 import java.util.Optional;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 
@@ -58,20 +57,25 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
             new ToggleDisconnectionUpgradeSideMessage(pos.index, Optional.ofNullable(selection.face)));
     }
 
+    /**
+     * Where the 3D scene goes, in GUI coordinates: the black panel, exactly.
+     *
+     * <p>The offsets this used to carry were part of the old immediate-mode viewport, which was
+     * clipped by a scissor rather than blitted; they left the scene sitting ten pixels low and
+     * running nine pixels past the bottom of the panel it belongs in.
+     */
+    private Rectangle sceneRect() {
+        return bounds;
+    }
+
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.fill(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height, 0xff000000);
 
-        int scale = Minecraft.getInstance().getWindow().getGuiScale();
-        int vpx = bounds.x * scale;
-        int vpy = (bounds.y + 10) * scale;
-        int w = bounds.width * scale;
-        int h = (bounds.height - 1) * scale;
-
         guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "disconnectTitle"), guiLeft + 8, guiTop + 8,
             logisticspipes.utils.Color.getValue(logisticspipes.utils.Color.DARKER_GREY), false);
 
-        configDisplay.drawScreen(mouseX, mouseY, 0.0f, new Rectangle(vpx, vpy, w, h), bounds);
+        configDisplay.submit(guiGraphics, sceneRect());
     }
 
     @Override
@@ -80,12 +84,7 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
         double mouseY = event.y();
         int button = event.button();
         if (button == 0 && bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
-            int scale = Minecraft.getInstance().getWindow().getGuiScale();
-            int vpx = bounds.x * scale;
-            int vpy = (bounds.y + 10) * scale;
-            int w = bounds.width * scale;
-            int h = (bounds.height - 1) * scale;
-            configDisplay.onMouseClicked((int) mouseX, (int) mouseY, new Rectangle(vpx, vpy, w, h));
+            configDisplay.onMouseClicked((int) mouseX, (int) mouseY, sceneRect());
             return true;
         }
         return super.mouseClicked(event, doubleClick);
