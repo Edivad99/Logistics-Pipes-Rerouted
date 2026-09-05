@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.utils.gui.ColorSlot;
-import logisticspipes.utils.gui.DummyContainer;
+import logisticspipes.world.inventory.DummyMenu;
 import logisticspipes.utils.gui.DummySlot;
 import logisticspipes.utils.gui.FluidSlot;
 
@@ -42,14 +42,9 @@ public record DummySlotClickMessage(int slotId, ItemStack stack, int button) imp
     }
 
     public static void handle(DummySlotClickMessage message, IPayloadContext context) {
-        if (!(context.player().containerMenu instanceof DummyContainer container)
-                || message.slotId < 0 || message.slotId >= container.slots.size()) {
+        if (!(context.player().containerMenu instanceof DummyMenu menu)) {
             return;
         }
-        final Slot slot = container.slots.get(message.slotId);
-        if (slot instanceof DummySlot || slot instanceof ColorSlot || slot instanceof FluidSlot) {
-            container.handleDummyClick(slot, message.slotId, message.stack, message.button,
-                    ContainerInput.PICKUP, context.player());
-        }
+        menu.applyGhostSlotEdit(message.slotId, message.stack, message.button, context.player());
     }
 }

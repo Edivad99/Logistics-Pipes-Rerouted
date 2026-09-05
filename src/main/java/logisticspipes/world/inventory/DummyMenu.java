@@ -219,6 +219,21 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
         editGhostSlot(slot, slotId, carried, mouseButton, input, player);
     }
 
+    /**
+     * A ghost-slot edit that did not arrive as a click on the slot: a fluid slot opens a list on
+     * the client, and the fluid picked there comes back as its own message.
+     */
+    public void applyGhostSlotEdit(int slotId, ItemStack stack, int mouseButton, Player player) {
+        if (slotId < 0 || slotId >= slots.size()) {
+            return;
+        }
+        final Slot slot = slots.get(slotId);
+        if (!isGhostSlot(slot) || slot instanceof UnmodifiableSlot || slot instanceof HandelableSlot) {
+            return;
+        }
+        editGhostSlot(slot, slotId, stack, mouseButton, ContainerInput.PICKUP, player);
+    }
+
     private static boolean isGhostSlot(Slot slot) {
         return slot instanceof DummySlot || slot instanceof UnmodifiableSlot || slot instanceof FluidSlot
             || slot instanceof ColorSlot || slot instanceof HandelableSlot;

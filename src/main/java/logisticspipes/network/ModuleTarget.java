@@ -27,7 +27,6 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.utils.gui.DummyModuleContainer;
 import logisticspipes.world.inventory.ModuleMenu;
 import logisticspipes.world.item.ItemModule;
 
@@ -107,9 +106,6 @@ public record ModuleTarget(
             // A module in hand has no position to look it up by, so the module being configured is
             // the one its open menu holds -- rebuilding it from the stack would drop the edits made
             // since the screen opened.
-            if (player.containerMenu instanceof DummyModuleContainer dummy) {
-                return dummy.getModule();
-            }
             if (player.containerMenu instanceof ModuleMenu menu) {
                 return menu.getModule();
             }

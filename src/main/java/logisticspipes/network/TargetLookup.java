@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.utils.gui.DummyContainer;
+import logisticspipes.world.inventory.DummyMenu;
 
 /**
  * Finding what a message is addressed to, without letting it decide what the server loads.
@@ -96,7 +96,7 @@ public final class TargetLookup {
      */
     public static <T extends Slot> @Nullable T slotIn(Player player, int index, Class<T> type) {
         final AbstractContainerMenu menu = player.containerMenu;
-        if (!(menu instanceof DummyContainer) || index < 0 || index >= menu.slots.size()) {
+        if (!(menu instanceof DummyMenu) || index < 0 || index >= menu.slots.size()) {
             return null;
         }
         final Slot slot = menu.getSlot(index);
