@@ -77,7 +77,6 @@ import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.request.ICraftingTemplate;
@@ -96,6 +95,7 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.ticks.HudUpdateTick;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
+import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -475,29 +475,29 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
-		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) {
+	public boolean handleClick(Player player, @Nullable SecuritySettings settings) {
+        ItemStack item = player.getItemBySlot(EquipmentSlot.MAINHAND);
+		if (item.isEmpty()) {
 			return false;
 		}
 
-		if (entityplayer.isCrouching() && SimpleServiceLocator.configToolHandler.canWrench(entityplayer, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND), container)) {
-			if (MainProxy.isServer(getWorld())) {
+		if (player.isCrouching() && PipeConfigTools.canConfigure(item)) {
+			if (!player.level().isClientSide()) {
 				if (settings == null || settings.openGui) {
 					((PipeLogisticsChassis) container.pipe).nextOrientation();
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+                    player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
-			SimpleServiceLocator.configToolHandler.wrenchUsed(entityplayer, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND), container);
 			return true;
 		}
 
-		if (!entityplayer.isCrouching() && entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).getItem() instanceof ItemModule) {
-			if (MainProxy.isServer(getWorld())) {
+		if (!player.isCrouching() && item.getItem() instanceof ItemModule) {
+			if (!player.level().isClientSide()) {
 				if (settings == null || settings.openGui) {
-					return tryInsertingModule(entityplayer);
+					return tryInsertingModule(player);
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+                    player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			return true;

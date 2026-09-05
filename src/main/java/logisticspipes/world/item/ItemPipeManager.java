@@ -12,10 +12,8 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-import logisticspipes.api.ILPPipeConfigTool;
-import logisticspipes.api.ILPPipeTile;
 
-public class ItemPipeManager extends LogisticsItem implements ILPPipeConfigTool {
+public class ItemPipeManager extends LogisticsItem {
 
     private static final Direction[] FACING_CYCLE = { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST,
         Direction.UP, Direction.DOWN };
@@ -50,15 +48,6 @@ public class ItemPipeManager extends LogisticsItem implements ILPPipeConfigTool 
             (idx + HORIZONTAL_CYCLE.length - 1) % HORIZONTAL_CYCLE.length :
             (idx + 1) % HORIZONTAL_CYCLE.length;
         return HORIZONTAL_CYCLE[next];
-    }
-
-    @Override
-    public boolean canWrench(Player player, ItemStack wrench, ILPPipeTile pipe) {
-        return true;
-    }
-
-    @Override
-    public void wrenchUsed(Player player, ItemStack wrench, ILPPipeTile pipe) {
     }
 
     @Override

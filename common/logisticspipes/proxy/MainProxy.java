@@ -211,7 +211,6 @@ public class MainProxy {
 
 	public static boolean isPipeControllerEquipped(@Nullable Player player) {
 		return player != null &&
-				!player.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() &&
 				player.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.PIPE_CONTROLLER.get());
 	}
 

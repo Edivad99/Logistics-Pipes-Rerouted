@@ -127,6 +127,7 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
+import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.OrdererMenu;
@@ -869,20 +870,22 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public abstract @Nullable LogisticsModule getLogisticsModule();
 
 	@Override
-	public final boolean blockActivated(Player entityplayer) {
-		if (container == null) return super.blockActivated(entityplayer);
+	public final boolean blockActivated(Player player) {
+		if (container == null) {
+            return super.blockActivated(player);
+        }
 		SecuritySettings settings = null;
-		if (MainProxy.isServer(entityplayer.level())) {
+		if (!player.level().isClientSide()) {
 			LogisticsSecurityTileEntity station = SimpleServiceLocator.securityStationManager.getStation(getOriginalUpgradeManager().getSecurityID());
 			if (station != null) {
-				settings = station.getSecuritySettingsForPlayer(entityplayer, true);
+				settings = station.getSecuritySettingsForPlayer(player, true);
 			}
 		}
 
-		if (MainProxy.isPipeControllerEquipped(entityplayer)) {
-			if (MainProxy.isServer(entityplayer.level())) {
+		if (MainProxy.isPipeControllerEquipped(player)) {
+			if (!player.level().isClientSide()) {
 				if (settings == null || settings.openNetworkMonitor) {
-					if (entityplayer instanceof ServerPlayer serverPlayer) {
+					if (player instanceof ServerPlayer serverPlayer) {
 						serverPlayer.openMenu(new SimpleMenuProvider(
 								(containerId, inventory, viewer) ->
 										new PipeControllerMenu(containerId, inventory, this),
@@ -890,21 +893,22 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 							buffer -> buffer.writeBlockPos(getPos()));
 					}
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			return true;
 		}
 
-		if (handleClick(entityplayer, settings)) {
+		if (handleClick(player, settings)) {
 			return true;
 		}
 
-		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) {
-			if (!entityplayer.isCrouching()) {
+        ItemStack itemStack = player.getItemBySlot(EquipmentSlot.MAINHAND);
+        if (itemStack.isEmpty()) {
+			if (!player.isCrouching()) {
 				return false;
 			}
-			if (MainProxy.isClient(entityplayer.level())) {
+			if (player.level().isClientSide()) {
 				if (LogisticsHUDRenderer.instance().hasLasers()) {
 					LogisticsHUDRenderer.instance().resetLasers();
 				} else {
@@ -912,46 +916,45 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 				}
 			}
 			if (LogisticsPipes.isDEBUG()) {
-				doDebugStuff(entityplayer);
+				doDebugStuff(player);
 			}
 			return true;
 		}
 
-		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
-			if (MainProxy.isServer(entityplayer.level())) {
+		if (itemStack.is(LPItems.REMOTE_ORDERER)) {
+			if (!player.level().isClientSide()) {
 				if (settings == null || settings.openRequest) {
-					if (entityplayer instanceof ServerPlayer serverPlayer) {
+					if (player instanceof ServerPlayer serverPlayer) {
 						OrdererMenu.open(serverPlayer, this);
 					}
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
 			return true;
 		}
 
-		if (SimpleServiceLocator.configToolHandler.canWrench(entityplayer, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND), container)) {
-			if (MainProxy.isServer(entityplayer.level())) {
+		if (PipeConfigTools.canConfigure(itemStack)) {
+			if (!player.level().isClientSide()) {
 				if (settings == null || settings.openGui) {
 					final LogisticsModule module = getLogisticsModule();
-					if (module instanceof IModuleMenuProvider && entityplayer instanceof ServerPlayer serverPlayer) {
+					if (module instanceof IModuleMenuProvider && player instanceof ServerPlayer serverPlayer) {
 						IModuleMenuProvider.open(serverPlayer, module);
 					} else {
-						onWrenchClicked(entityplayer);
+						onWrenchClicked(player);
 					}
 				} else {
-					entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
 				}
 			}
-			SimpleServiceLocator.configToolHandler.wrenchUsed(entityplayer, entityplayer.getItemBySlot(EquipmentSlot.MAINHAND), container);
 			return true;
 		}
 
-		if (!(entityplayer.isCrouching()) && getOriginalUpgradeManager().tryIserting(getWorld(), entityplayer)) {
+		if (!(player.isCrouching()) && getOriginalUpgradeManager().tryIserting(getWorld(), player)) {
 			return true;
 		}
 
-		return super.blockActivated(entityplayer);
+		return super.blockActivated(player);
 	}
 
 	protected boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {

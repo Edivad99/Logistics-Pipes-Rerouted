@@ -113,12 +113,6 @@ public final class SimpleServiceLocator {
 		SimpleServiceLocator.powerProxy = proxy;
 	}
 
-	public static ConfigToolHandler configToolHandler;
-
-	public static void setConfigToolHandler(ConfigToolHandler configToolHandler) {
-		SimpleServiceLocator.configToolHandler = configToolHandler;
-	}
-
 	public static IChannelManagerProvider channelManagerProvider;
 
 	public static void setChannelManagerProvider(IChannelManagerProvider managerProvider) {

@@ -29,7 +29,6 @@ import logisticspipes.proxy.DontLoadProxy;
 import logisticspipes.proxy.VersionNotSupportedException;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.proxy.interfaces.IGenericProgressProvider;
-import logisticspipes.proxy.interfaces.ILPPipeConfigToolWrapper;
 import logisticspipes.utils.ModStatusHelper;
 
 public class LogisticsWrapperHandler {
@@ -51,41 +50,6 @@ public class LogisticsWrapperHandler {
 	public static List<AbstractWrapper> wrapperController = new ArrayList<>();
 
 	private LogisticsWrapperHandler() {}
-
-	public static ILPPipeConfigToolWrapper getWrappedPipeConfigToolWrapper(String clazz, String name, Class<? extends ILPPipeConfigToolWrapper> providerClass) {
-		ILPPipeConfigToolWrapper wrapper = null;
-		Throwable e = null;
-		try {
-			Class.forName(clazz);
-			try {
-				wrapper = providerClass.newInstance();
-			} catch (Exception e1) {
-				if (e1 instanceof VersionNotSupportedException) {
-					throw (VersionNotSupportedException) e1;
-				}
-				e1.printStackTrace();
-				e = e1;
-			} catch (NoClassDefFoundError e1) {
-				e1.printStackTrace();
-				e = e1;
-			}
-		} catch (NoClassDefFoundError | ClassNotFoundException ignored) {}
-		GenericLPPipeConfigToolWrapper instance = new GenericLPPipeConfigToolWrapper(wrapper, name);
-		if (wrapper != null) {
-			LogisticsPipes.LOG.info("Loaded " + name + " PipeConfigToolWrapper");
-		} else {
-			if (e != null) {
-				instance.setState(WrapperState.Exception);
-				instance.setReason(e);
-				LogisticsPipes.LOG.info("Couldn't load " + name + " PipeConfigToolWrapper");
-			} else {
-				LogisticsPipes.LOG.info("Didn't load " + name + " PipeConfigToolWrapper");
-				instance.setState(WrapperState.ModMissing);
-			}
-		}
-		LogisticsWrapperHandler.wrapperController.add(instance);
-		return instance;
-	}
 
 	public static IGenericProgressProvider getWrappedProgressProvider(String modId, String name, Class<? extends IGenericProgressProvider> providerClass) {
 		IGenericProgressProvider provider = null;

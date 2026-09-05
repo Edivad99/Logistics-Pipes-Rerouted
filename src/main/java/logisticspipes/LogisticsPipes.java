@@ -40,7 +40,6 @@ import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.proxy.ConfigToolHandler;
 import logisticspipes.proxy.PowerProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.SpecialInventoryHandlerManager;
@@ -140,7 +139,6 @@ public class LogisticsPipes {
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {
 
-        SimpleServiceLocator.setConfigToolHandler(new ConfigToolHandler());
         SimpleServiceLocator.setPowerProxy(new PowerProxy());
         ItemPipeSignCreator.registerPipeSignTypes();
 

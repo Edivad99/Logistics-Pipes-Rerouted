@@ -24,6 +24,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -68,6 +69,7 @@ import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
+import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.string.ChatColor;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.PlayerConfiguration;
@@ -150,6 +152,27 @@ public class LogisticsEventListener {
             }
         }
 	}
+
+    /**
+     * Lets a crouching player wrench a pipe.
+     *
+     * <p>Holding an item while crouching normally skips the block interaction entirely, unless the
+     * item opts out with {@code doesSneakBypassUse} -- which most wrenches from other mods do not
+     * bother with. Sneak clicking a pipe with a wrench is how a chassis is rotated, so allow the
+     * block to see the click.
+     */
+    @SubscribeEvent
+    public void onWrenchRightClickPipe(final PlayerInteractEvent.RightClickBlock event) {
+        if (!event.getEntity().isSecondaryUseActive() || !event.getUseBlock().isDefault()) {
+            return;
+        }
+        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof LogisticsTileGenericPipe pipeTile)) {
+            return;
+        }
+        if (PipeConfigTools.canConfigure(event.getItemStack())) {
+            event.setUseBlock(TriState.TRUE);
+        }
+    }
 
 	@SubscribeEvent
 	public void onPlayerRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
@@ -277,7 +300,6 @@ public class LogisticsEventListener {
 
 	@SubscribeEvent
 	public void clientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
-
         IModInfo modInfo = ModList.get().getModFileById(LPConstants.ID).getMods().getFirst();
         VersionChecker.CheckResult result = VersionChecker.getResult(modInfo);
         VersionChecker.Status versionStatus = result.status();
