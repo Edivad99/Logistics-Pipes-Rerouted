@@ -48,7 +48,7 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.LPMenuTypes;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
 import network.rs485.logisticspipes.property.BitSetProperty;
@@ -135,7 +135,7 @@ public class ModuleItemSink extends LogisticsModule
 			.getAvailableAdjacent()
 			.inventories()
 			.stream()
-			.map(LPNeighborTileEntityKt::getInventoryUtil)
+			.map(NeighborBlockEntityUtil::getInventoryUtil)
 			.filter(Objects::nonNull)
 			.flatMap(invUtil -> invUtil.getItems().stream())
 			.distinct();

@@ -14,7 +14,7 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.connection.ConnectionType;
+import logisticspipes.api.connection.ConnectionType;
 
 public interface IPipeInformationProvider {
 

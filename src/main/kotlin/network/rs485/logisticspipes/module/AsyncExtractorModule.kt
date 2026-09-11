@@ -76,7 +76,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 
 class ExtractorJob(private val module: AsyncExtractorModule, private val inventoryGetter: () -> IInventoryUtil?) {
     private var inventorySize = inventoryGetter()?.containerSize ?: 0
-    private val slotsPerTick: Int = determineSlotsPerTick(module.everyNthTick, inventorySize)
+    private val slotsPerTick: Int = ModuleUtil.determineSlotsPerTick(module.everyNthTick, inventorySize)
     private val slotStartIter =
         if (slotsPerTick == 0) emptyList<Int>().iterator()
         else IntProgression.fromClosedRange(0, inventorySize - 1, slotsPerTick).iterator()

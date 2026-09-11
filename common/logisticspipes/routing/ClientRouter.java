@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.api.ILogisticsPowerProvider;
+import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;

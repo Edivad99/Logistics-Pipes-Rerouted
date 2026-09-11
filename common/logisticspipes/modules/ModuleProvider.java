@@ -69,7 +69,7 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.LPMenuTypes;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 import network.rs485.logisticspipes.inventory.container.ProviderContainer;
@@ -465,9 +465,9 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 		buffer.writeNbt(moduleOutput.buildResult());
 	}
 
-	private @Nullable IInventoryUtil getInventoryUtilWithMode(NeighborTileEntity<BlockEntity> neighbor) {
+	private @Nullable IInventoryUtil getInventoryUtilWithMode(NeighborBlockEntity<BlockEntity> neighbor) {
 		return SimpleServiceLocator.inventoryUtilFactory
-				.getHidingInventoryUtil(neighbor.getTileEntity(), neighbor.getOurDirection(), providerMode.getValue());
+				.getHidingInventoryUtil(neighbor.getBlockEntity(), neighbor.getOurDirection(), providerMode.getValue());
 	}
 
 }

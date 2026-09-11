@@ -7,8 +7,8 @@ import java.util.Objects;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 
-import logisticspipes.api.ISpecialTankHandler;
-import logisticspipes.api.ISpecialTankUtilProvider;
+import logisticspipes.api.provider.ISpecialTankHandler;
+import logisticspipes.api.provider.ISpecialTankUtilProvider;
 
 /**
  * Fired on the mod event bus so addons can teach Logistics Pipes about tanks it cannot reach through

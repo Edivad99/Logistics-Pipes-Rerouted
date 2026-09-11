@@ -76,14 +76,14 @@ class PlayerInventorySlotGroup(
         var index = 0
         for (row in 0 until 3) {
             for (column in 0 until 9) {
-                slots[index].setXY(startX + column * slotSize, startY + row * slotSize)
+                SlotPositioning.setXY(slots[index], startX + column * slotSize, startY + row * slotSize)
                 index++
             }
         }
 
         // Add the hotbar inventory slots
         for (column in 0 until 9) {
-            slots[index].setXY(startX + column * slotSize, startY + 3 * slotSize + 4)
+            SlotPositioning.setXY(slots[index], startX + column * slotSize, startY + 3 * slotSize + 4)
             index++
         }
         return width to height

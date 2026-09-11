@@ -4,8 +4,8 @@ import java.util.List;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import logisticspipes.api.IGenericProgressProvider;
-import logisticspipes.api.IProgressProvider;
+import logisticspipes.api.provider.IGenericProgressProvider;
+import logisticspipes.api.provider.IProgressProvider;
 
 public class MachineProgressProvider {
 

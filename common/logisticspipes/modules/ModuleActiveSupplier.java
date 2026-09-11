@@ -48,7 +48,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
-import network.rs485.logisticspipes.connection.AdjacentUtilKt;
+import network.rs485.logisticspipes.connection.AdjacentUtil;
 import network.rs485.logisticspipes.property.BooleanProperty;
 import network.rs485.logisticspipes.property.EnumProperty;
 import network.rs485.logisticspipes.property.IntListProperty;
@@ -189,7 +189,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 		requestedItems.values().stream().filter(amount -> amount > 0)
 				.forEach(amount -> service.spawnParticle(Particles.VIOLET_SPARKLE, 2));
 
-		AdjacentUtilKt.sneakyInventoryUtils(service.getAvailableAdjacent(), getUpgradeManager()).stream()
+		AdjacentUtil.sneakyInventoryUtils(service.getAvailableAdjacent(), getUpgradeManager()).stream()
 				.filter(invUtil -> invUtil != null && invUtil.getContainerSize() > 0)
 				.forEach(invUtil -> {
 					if (getUpgradeManager().hasPatternUpgrade()) {

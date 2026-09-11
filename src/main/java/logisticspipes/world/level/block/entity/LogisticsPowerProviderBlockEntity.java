@@ -49,8 +49,8 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.inventory.PowerProviderMenu;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 @CCType(name = "LogisticsPowerProvider")
@@ -113,8 +113,8 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
         if (globalRequest > 0) {
             final double fullfillRatio = Math.min(1, Math.min(internalStorage, getMaxProvidePerTick()) / globalRequest);
             if (fullfillRatio > 0) {
-                final Function<NeighborTileEntity<LogisticsTileGenericPipe>, @Nullable CoreRoutedPipe> getPipe =
-                    (NeighborTileEntity<LogisticsTileGenericPipe> neighbor) -> (CoreRoutedPipe) neighbor.getTileEntity().pipe;
+                final Function<NeighborBlockEntity<LogisticsTileGenericPipe>, @Nullable CoreRoutedPipe> getPipe =
+                    (NeighborBlockEntity<LogisticsTileGenericPipe> neighbor) -> (CoreRoutedPipe) neighbor.getBlockEntity().pipe;
                 orders.entrySet().stream()
                     .map(routerIdToOrderCount -> new Pair<>(
                         SimpleServiceLocator.routerManager.getRouter(routerIdToOrderCount.getKey()),
@@ -122,10 +122,10 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
                     .filter(destinationToPower -> destinationToPower.getValue1() != null
                         && destinationToPower.getValue1().getPipe() != null)
                     .forEach(destinationToPower -> new WorldCoordinatesWrapper(this)
-                        .allNeighborTileEntities().stream()
-                        .flatMap(neighbor -> LPNeighborTileEntityKt.optionalIs(neighbor, LogisticsTileGenericPipe.class)
+                        .allNeighborBlockEntities().stream()
+                        .flatMap(neighbor -> NeighborBlockEntityUtil.optionalIs(neighbor, LogisticsTileGenericPipe.class)
                             .map(Stream::of).orElseGet(Stream::empty))
-                        .filter(neighbor -> neighbor.getTileEntity().pipe instanceof CoreRoutedPipe &&
+                        .filter(neighbor -> neighbor.getBlockEntity().pipe instanceof CoreRoutedPipe &&
                             !getPipe.apply(neighbor).stillNeedReplace())
                         .flatMap(neighbor -> getPipe.apply(neighbor).getRouter()
                             .getDistanceTo(destinationToPower.getValue1()).stream()

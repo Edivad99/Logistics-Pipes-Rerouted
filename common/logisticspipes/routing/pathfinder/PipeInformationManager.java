@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import network.rs485.logisticspipes.connection.ConnectionType;
+import logisticspipes.api.connection.ConnectionType;
 
 public class PipeInformationManager {
 

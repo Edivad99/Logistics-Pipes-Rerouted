@@ -41,12 +41,14 @@ import network.rs485.logisticspipes.connection.*
 import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.utils.DirectionUtil
 import com.mojang.serialization.Codec
+import logisticspipes.api.connection.Adjacent
+import logisticspipes.api.connection.ConnectionType
 import net.minecraft.core.Direction
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 
 class AdjacentProperty @JvmOverloads constructor(
-    defaultValue: Adjacent = NoAdjacent,
+    defaultValue: Adjacent = NoAdjacent.INSTANCE,
     private val pipe: CoreRoutedPipe,
     override val tagKey: String,
 ) : ValueProperty<Adjacent>(defaultValue) {
@@ -60,23 +62,23 @@ class AdjacentProperty @JvmOverloads constructor(
             val stored = storedConnections.toList()
             assert(stored.size in 0..6)
             if (stored.isEmpty()) {
-                value = NoAdjacent
+                value = NoAdjacent.INSTANCE
                 return@ifPresent
             }
             val adjacentConnections = (0..5).map { idx -> stored.getOrElse(idx) { "" } }
             val activeConnections = adjacentConnections.withIndex().filter { it.value.isNotBlank() }
             value = when (activeConnections.size) {
-                0 -> NoAdjacent
+                0 -> NoAdjacent.INSTANCE
                 1 -> SingleAdjacent(
-                    parent = pipe,
-                    dir = DirectionUtil.getOrientation(activeConnections[0].index)!!,
-                    adjacentType = ConnectionType.valueOf(activeConnections[0].value),
+                    pipe,
+                    DirectionUtil.getOrientation(activeConnections[0].index)!!,
+                    ConnectionType.valueOf(activeConnections[0].value),
                 )
                 else -> DynamicAdjacent(
-                    parent = pipe,
-                    cache = Array(6) { idx ->
+                    pipe,
+                    Array(6) { idx ->
                         adjacentConnections[idx].takeIf { it.isNotBlank() }?.let(ConnectionType::valueOf)
-                    }
+                    },
                 )
             }
         }
@@ -84,10 +86,10 @@ class AdjacentProperty @JvmOverloads constructor(
 
     override fun serialize(output: ValueOutput) {
         val list = output.list(tagKey, Codec.STRING)
-        if (value == NoAdjacent) {
+        if (value == NoAdjacent.INSTANCE) {
             return
         }
-        Direction.entries.forEach { dir -> list.add(value[dir]?.name ?: "") }
+        Direction.entries.forEach { dir -> list.add(value.get(dir)?.name ?: "") }
     }
 
     fun getDirectionOrNull(): Direction? = (value as? SingleAdjacent)?.dir

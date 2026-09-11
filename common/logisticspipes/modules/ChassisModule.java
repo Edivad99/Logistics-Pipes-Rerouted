@@ -67,7 +67,7 @@ public class ChassisModule extends LogisticsModule implements IModuleMenuProvide
 
 	@Nullable
 	public LogisticsModule getModule(int slot) {
-		return modules.get(slot).getModule();
+		return modules.get(slot).module();
 	}
 
 	public boolean hasModule(int slot) {
@@ -77,7 +77,7 @@ public class ChassisModule extends LogisticsModule implements IModuleMenuProvide
 	public Stream<LogisticsModule> getModules() {
 		return modules.stream()
 				.filter(slottedModule -> !slottedModule.isEmpty())
-				.map(SlottedModule::getModule);
+				.map(SlottedModule::module);
 	}
 
 	public Stream<SlottedModule> slottedModules() {
@@ -89,7 +89,7 @@ public class ChassisModule extends LogisticsModule implements IModuleMenuProvide
 			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
 		SinkReply bestresult = null;
 		for (SlottedModule slottedModule : modules) {
-			final LogisticsModule module = slottedModule.getModule();
+			final LogisticsModule module = slottedModule.module();
 			if (module != null) {
 				if (!forcePassive || module.receivePassive()) {
 					SinkReply result = module
@@ -138,7 +138,7 @@ public class ChassisModule extends LogisticsModule implements IModuleMenuProvide
 	@Override
 	public void tick() {
 		for (SlottedModule slottedModule : modules) {
-			final LogisticsModule module = slottedModule.getModule();
+			final LogisticsModule module = slottedModule.module();
 			if (module == null) {
 				continue;
 			}
@@ -170,7 +170,7 @@ public class ChassisModule extends LogisticsModule implements IModuleMenuProvide
 	@Override
 	public boolean receivePassive() {
 		for (SlottedModule slottedModule : modules) {
-			final LogisticsModule module = slottedModule.getModule();
+			final LogisticsModule module = slottedModule.module();
 			if (module != null && module.receivePassive()) {
 				return true;
 			}
@@ -182,7 +182,7 @@ public class ChassisModule extends LogisticsModule implements IModuleMenuProvide
 	public List<CCSinkResponder> queueCCSinkEvent(ItemIdentifierStack item) {
 		List<CCSinkResponder> list = new ArrayList<>();
 		for (SlottedModule slottedModule : modules) {
-			final LogisticsModule module = slottedModule.getModule();
+			final LogisticsModule module = slottedModule.module();
 			if (module != null) {
 				list.addAll(module.queueCCSinkEvent(item));
 			}

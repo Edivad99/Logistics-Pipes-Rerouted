@@ -25,7 +25,7 @@ import logisticspipes.util.TrackingTask;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.inventory.StatisticsMenu;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class LogisticsStatisticsBlockEntity extends LogisticsSolidBlockEntity
@@ -132,11 +132,11 @@ public class LogisticsStatisticsBlockEntity extends LogisticsSolidBlockEntity
 
     public @Nullable CoreRoutedPipe getConnectedPipe() {
         if (cachedConnectedPipe == null) {
-            new WorldCoordinatesWrapper(this).allNeighborTileEntities().stream()
-                .filter(NeighborTileEntity::isLogisticsPipe)
+            new WorldCoordinatesWrapper(this).allNeighborBlockEntities().stream()
+                .filter(NeighborBlockEntity::isLogisticsPipe)
                 .filter(
-                    adjacent -> ((LogisticsTileGenericPipe) adjacent.getTileEntity()).pipe instanceof CoreRoutedPipe)
-                .map(adjacent -> (CoreRoutedPipe) (((LogisticsTileGenericPipe) adjacent.getTileEntity()).pipe))
+                    adjacent -> ((LogisticsTileGenericPipe) adjacent.getBlockEntity()).pipe instanceof CoreRoutedPipe)
+                .map(adjacent -> (CoreRoutedPipe) (((LogisticsTileGenericPipe) adjacent.getBlockEntity()).pipe))
                 .findFirst()
                 .ifPresent(coreRoutedPipe -> cachedConnectedPipe = coreRoutedPipe);
         }

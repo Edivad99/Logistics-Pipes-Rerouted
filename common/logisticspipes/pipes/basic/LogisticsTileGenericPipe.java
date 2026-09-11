@@ -67,7 +67,7 @@ import logisticspipes.utils.TileBuffer;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
-import network.rs485.logisticspipes.connection.ConnectionType;
+import logisticspipes.api.connection.ConnectionType;
 import network.rs485.logisticspipes.connection.PipeInventoryConnectionChecker;
 
 public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInformationProvider,

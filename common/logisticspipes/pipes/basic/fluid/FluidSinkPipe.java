@@ -50,7 +50,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.ITankUtil;
+import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.routing.IFluidSink;
 import logisticspipes.pipes.PipeFluidUtil;
 import logisticspipes.transport.PipeFluidTransportLogistics;
@@ -61,7 +61,7 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
@@ -108,7 +108,7 @@ public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSin
             }
             final int onTheWay = countOnRoute(stack.getFluid());
             long freeSpace = -onTheWay;
-            for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.getAdjacentTanks(this, true)) {
+            for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.getAdjacentTanks(this, true)) {
                 Direction dir = pair.component1().getDirection();
                 ResourceHandler<FluidResource> tank =
                         ((PipeFluidTransportLogistics) transport).getFluidResourceHandler(dir);

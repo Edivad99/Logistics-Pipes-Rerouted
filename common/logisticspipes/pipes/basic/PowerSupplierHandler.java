@@ -16,8 +16,8 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntity;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import network.rs485.logisticspipes.connection.LPNeighborBlockEntity;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class PowerSupplierHandler implements ValueIOSerializable {
@@ -58,15 +58,15 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 	private boolean requestRFPower() {
 		//Use Buffer
 
-		final List<LPNeighborTileEntity<BlockEntity>> adjacentTileEntities = new WorldCoordinatesWrapper(pipe.getContainer()).allNeighborTileEntities();
+		final List<LPNeighborBlockEntity<BlockEntity>> adjacentTileEntities = new WorldCoordinatesWrapper(pipe.getContainer()).allNeighborBlockEntities();
 
 		double globalNeed = 0;
 		double[] need = new double[adjacentTileEntities.size()];
 		int i = 0;
-		for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
-			if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection())) {
-				if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
-					EnergyHandler energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection());
+		for (NeighborBlockEntity<BlockEntity> adjacent : adjacentTileEntities) {
+			if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getBlockEntity(), adjacent.getOurDirection())) {
+				if (pipe.canPipeConnect(adjacent.getBlockEntity(), adjacent.getDirection())) {
+					EnergyHandler energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getBlockEntity(), adjacent.getOurDirection());
 					// Null when the neighbour has the capability but will not take energy -- a
 					// generator's output buffer, say. It used to be filtered by canReceive().
 					if (energyReceiver != null) {
@@ -80,11 +80,11 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 		if (globalNeed != 0 && !Double.isNaN(globalNeed)) {
 			double fullfillable = Math.min(1, internalBufferRF / globalNeed);
 			i = 0;
-			for (NeighborTileEntity<BlockEntity> adjacent : adjacentTileEntities) {
-				if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getTileEntity(), adjacent.getOurDirection())) {
-					if (pipe.canPipeConnect(adjacent.getTileEntity(), adjacent.getDirection())) {
+			for (NeighborBlockEntity<BlockEntity> adjacent : adjacentTileEntities) {
+				if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getBlockEntity(), adjacent.getOurDirection())) {
+					if (pipe.canPipeConnect(adjacent.getBlockEntity(), adjacent.getDirection())) {
 						Direction oppositeDir = adjacent.getOurDirection();
-						EnergyHandler energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getTileEntity(), oppositeDir);
+						EnergyHandler energyReceiver = SimpleServiceLocator.powerProxy.getEnergyReceiver(adjacent.getBlockEntity(), oppositeDir);
 						if (energyReceiver == null) {
 							++i;
 							continue;

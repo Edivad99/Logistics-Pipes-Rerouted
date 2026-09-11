@@ -12,7 +12,7 @@ import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 import network.rs485.logisticspipes.property.Property;
 
 public class ModuleSatellite extends LogisticsModule {
@@ -47,8 +47,8 @@ public class ModuleSatellite extends LogisticsModule {
 	private int spaceFor(ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
 		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		int count = service.getAvailableAdjacent().inventories().stream()
-				.map(neighbor -> LPNeighborTileEntityKt.sneakyInsertion(neighbor).from(getUpgradeManager()))
-				.map(LPNeighborTileEntityKt::getInventoryUtil)
+				.map(neighbor -> NeighborBlockEntityUtil.sneakyInsertion(neighbor).from(getUpgradeManager()))
+				.map(NeighborBlockEntityUtil::getInventoryUtil)
 				.filter(Objects::nonNull)
 				.map(util -> util.roomForItem(stack))
 				.reduce(Integer::sum).orElse(0);

@@ -78,7 +78,7 @@ class SlotGroup(
         val slotSize = 18
         for (row in 0 until rows) {
             for (column in 0 until columns) {
-                slots[column + row * columns].setXY(startX + column * slotSize, startY + row * slotSize)
+                SlotPositioning.setXY(slots[column + row * columns], startX + column * slotSize, startY + row * slotSize)
             }
         }
         return width to height

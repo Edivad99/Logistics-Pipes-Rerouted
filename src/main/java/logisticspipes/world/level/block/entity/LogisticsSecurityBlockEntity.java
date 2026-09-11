@@ -29,7 +29,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.IRoutedPowerProvider;
+import logisticspipes.api.provider.IRoutedPowerProvider;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISecurityProvider;

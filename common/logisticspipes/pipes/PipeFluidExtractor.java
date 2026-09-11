@@ -7,11 +7,10 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import logisticspipes.api.ITankUtil;
+import logisticspipes.api.util.ITankUtil;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.PipeFluidTransportLogistics;
-import logisticspipes.utils.FluidIdentifierStack;
 
 public class PipeFluidExtractor extends PipeFluidInsertion {
 

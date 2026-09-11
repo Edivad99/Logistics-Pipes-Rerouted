@@ -11,8 +11,8 @@ import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
+import logisticspipes.api.connection.NeighborBlockEntity;
 
 /**
  * The inventories a pipe can reach, seen from the side a sneaky upgrade points at.
@@ -30,26 +30,26 @@ public final class PipeServiceProviderUtil {
             return availableInventories(service);
         }
         return neighbours(service).stream()
-            .map(adjacent -> LPNeighborTileEntityKt.sneakyInsertion(adjacent).from(sneakyDirection))
-            .map(LPNeighborTileEntityKt::getInventoryUtil)
+            .map(adjacent -> NeighborBlockEntityUtil.sneakyInsertion(adjacent).from(sneakyDirection))
+            .map(NeighborBlockEntityUtil::getInventoryUtil)
             .toList();
     }
 
     public static List<@Nullable IInventoryUtil> availableSneakyInventories(IPipeServiceProvider service,
         ISlotUpgradeManager upgradeManager) {
         return neighbours(service).stream()
-            .map(adjacent -> LPNeighborTileEntityKt.sneakyInsertion(adjacent).from(upgradeManager))
-            .map(LPNeighborTileEntityKt::getInventoryUtil)
+            .map(adjacent -> NeighborBlockEntityUtil.sneakyInsertion(adjacent).from(upgradeManager))
+            .map(NeighborBlockEntityUtil::getInventoryUtil)
             .toList();
     }
 
     public static List<@Nullable IInventoryUtil> availableInventories(IPipeServiceProvider service) {
         return neighbours(service).stream()
-            .map(LPNeighborTileEntityKt::getInventoryUtil)
+            .map(NeighborBlockEntityUtil::getInventoryUtil)
             .toList();
     }
 
-    private static List<NeighborTileEntity<BlockEntity>> neighbours(IPipeServiceProvider service) {
+    private static List<NeighborBlockEntity<BlockEntity>> neighbours(IPipeServiceProvider service) {
         return service.getAvailableAdjacent().inventories();
     }
 }

@@ -83,7 +83,7 @@ import network.rs485.grow.ServerTickDispatcher;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.ServerConfigurationManager;
 import network.rs485.logisticspipes.property.PropertyUpdaterEventListener;
-import network.rs485.util.SystemUtilKt;
+import network.rs485.util.SystemUtil;
 
 @Mod(LPConstants.ID)
 public class LogisticsPipes {
@@ -274,7 +274,7 @@ public class LogisticsPipes {
     }
 
     public static boolean isTesting() {
-        return SystemUtilKt.checkBooleanProperty("logisticspipes.test");
+        return SystemUtil.checkBooleanProperty("logisticspipes.test");
     }
 
     // ── Config accessors ─────────────────────────────────────────────────────

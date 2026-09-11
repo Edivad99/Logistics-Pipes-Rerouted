@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import logisticspipes.api.ISpecialTankHandler;
+import logisticspipes.api.provider.ISpecialTankHandler;
 import logisticspipes.utils.FluidIdentifier;
 
 public interface ISpecialTankAccessHandler extends ISpecialTankHandler {

@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.world
 
-import network.rs485.logisticspipes.connection.LPNeighborTileEntity
+import network.rs485.logisticspipes.connection.LPNeighborBlockEntity
 import logisticspipes.LogisticsPipes
 import logisticspipes.proxy.SimpleServiceLocator
 import net.minecraft.core.BlockPos
@@ -51,21 +51,21 @@ data class WorldCoordinatesWrapper(private val level: Level, private val pos: Bl
     val tileEntity: BlockEntity?
         get() = level.getBlockEntity(pos)
 
-    fun allNeighborTileEntities(): List<LPNeighborTileEntity<BlockEntity>> =
+    fun allNeighborBlockEntities(): List<LPNeighborBlockEntity<BlockEntity>> =
         Direction.values().mapNotNull { direction: Direction -> getNeighbor(direction) }
 
-    fun connectedTileEntities(): List<LPNeighborTileEntity<BlockEntity>> {
+    fun connectedBlockEntities(): List<LPNeighborBlockEntity<BlockEntity>> {
         val pipe = tileEntity
         if (pipe == null || SimpleServiceLocator.pipeInformationManager.isNotAPipe(pipe)) {
             LogisticsPipes.LOG.warn("The coordinates didn't hold a pipe at all", Throwable("Stack trace"))
             return emptyList()
         }
-        return allNeighborTileEntities().filter { adjacent -> SimpleServiceLocator.pipeInformationManager.canConnect(pipe, adjacent.tileEntity, adjacent.direction) }
+        return allNeighborBlockEntities().filter { adjacent -> SimpleServiceLocator.pipeInformationManager.canConnect(pipe, adjacent.blockEntity, adjacent.direction) }
     }
 
-    fun getNeighbor(direction: Direction): LPNeighborTileEntity<BlockEntity>? {
-        val tileEntity = level.getBlockEntity(pos.relative(direction)) ?: return null
-        return LPNeighborTileEntity(tileEntity, direction)
+    fun getNeighbor(direction: Direction): LPNeighborBlockEntity<BlockEntity>? {
+        val blockEntity = level.getBlockEntity(pos.relative(direction)) ?: return null
+        return LPNeighborBlockEntity(blockEntity, direction)
     }
 
     override fun hashCode(): Int {

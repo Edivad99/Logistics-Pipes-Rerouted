@@ -101,12 +101,12 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
-import network.rs485.logisticspipes.connection.Adjacent;
-import network.rs485.logisticspipes.connection.ConnectionType;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import logisticspipes.api.connection.Adjacent;
+import logisticspipes.api.connection.ConnectionType;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.connection.NoAdjacent;
 import network.rs485.logisticspipes.connection.SingleAdjacent;
-import network.rs485.logisticspipes.pipes.IChassisPipe;
+import logisticspipes.api.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.AdjacentProperty;
 import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyHolder;
@@ -192,16 +192,16 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		}
 	}
 
-	private Pair<NeighborTileEntity<BlockEntity>, ConnectionType> nextPointedOrientation(@Nullable Direction previousDirection) {
-		final Map<NeighborTileEntity<BlockEntity>, ConnectionType> neighbors = getAdjacent().neighbors();
-		final Stream<NeighborTileEntity<BlockEntity>> sortedNeighborsStream = neighbors.keySet().stream()
+	private Pair<NeighborBlockEntity<BlockEntity>, ConnectionType> nextPointedOrientation(@Nullable Direction previousDirection) {
+		final Map<NeighborBlockEntity<BlockEntity>, ConnectionType> neighbors = getAdjacent().neighbors();
+		final Stream<NeighborBlockEntity<BlockEntity>> sortedNeighborsStream = neighbors.keySet().stream()
 				.sorted(Comparator.comparingInt(n -> n.getDirection().ordinal()));
 		if (previousDirection == null) {
 			return sortedNeighborsStream.findFirst().map(neighbor -> new Pair<>(neighbor, neighbors.get(neighbor))).orElse(null);
 		} else {
-			final List<NeighborTileEntity<BlockEntity>> sortedNeighbors = sortedNeighborsStream.collect(Collectors.toList());
+			final List<NeighborBlockEntity<BlockEntity>> sortedNeighbors = sortedNeighborsStream.collect(Collectors.toList());
 			if (sortedNeighbors.size() == 0) return null;
-			final Optional<NeighborTileEntity<BlockEntity>> nextNeighbor = sortedNeighbors.stream()
+			final Optional<NeighborBlockEntity<BlockEntity>> nextNeighbor = sortedNeighbors.stream()
 					.filter(neighbor -> neighbor.getDirection().ordinal() > previousDirection.ordinal())
 					.findFirst();
 			return nextNeighbor.map(neighbor -> new Pair<>(neighbor, neighbors.get(neighbor)))
@@ -212,7 +212,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	@Override
 	public void nextOrientation() {
 		final Direction pointedDirection = pointedAdjacentProperty.getDirectionOrNull();
-		Pair<NeighborTileEntity<BlockEntity>, ConnectionType> newNeighbor = nextPointedOrientation(pointedDirection);
+		Pair<NeighborBlockEntity<BlockEntity>, ConnectionType> newNeighbor = nextPointedOrientation(pointedDirection);
 		final Direction newDirection;
 		if (newNeighbor == null) {
 			pointedAdjacentProperty.setValue(NoAdjacent.INSTANCE);
@@ -239,11 +239,11 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	private void updateModuleInventory(HolderLookup.Provider provider) {
 		this.module.slottedModules().forEach(slottedModule -> {
 			if (slottedModule.isEmpty()) {
-				moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
+				moduleInventory.clearInventorySlotContents(slottedModule.slot());
 				return;
 			}
-			final LogisticsModule module = Objects.requireNonNull(slottedModule.getModule());
-			final ItemIdentifierStack idStack = moduleInventory.getIDStackInSlot(slottedModule.getSlot());
+			final LogisticsModule module = Objects.requireNonNull(slottedModule.module());
+			final ItemIdentifierStack idStack = moduleInventory.getIDStackInSlot(slottedModule.slot());
 			ItemStack moduleStack;
 			if (idStack != null) {
 				moduleStack = idStack.getItem().makeNormalStack(1);
@@ -254,7 +254,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				moduleStack = new ItemStack(item);
 			}
 			ItemModuleInformationManager.saveInformation(getLevel(), moduleStack, module, provider);
-			moduleInventory.setItem(slottedModule.getSlot(), moduleStack);
+			moduleInventory.setItem(slottedModule.slot(), moduleStack);
 		});
 	}
 
@@ -303,7 +303,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		module.slottedModules()
 				.filter(slottedModule -> !slottedModule.isEmpty())
 				.forEach(slottedModule -> {
-					LogisticsModule logisticsModule = Objects.requireNonNull(slottedModule.getModule());
+					LogisticsModule logisticsModule = Objects.requireNonNull(slottedModule.module());
 					// FIXME: rely on getModuleForItem instead
 					logisticsModule.registerHandler(this, this);
 					slottedModule.registerPosition();

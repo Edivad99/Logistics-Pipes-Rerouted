@@ -11,7 +11,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.ITankUtil;
+import logisticspipes.api.util.ITankUtil;
 
 /**
  * LP's view of a neighbouring fluid inventory.

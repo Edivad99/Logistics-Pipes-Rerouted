@@ -7,7 +7,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.ITankUtil;
+import logisticspipes.api.util.ITankUtil;
 
 /**
  * An {@link ITankUtil} over a storage network, which holds fluids without any notion of a tank.

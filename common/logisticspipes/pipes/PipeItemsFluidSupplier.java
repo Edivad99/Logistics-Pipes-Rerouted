@@ -24,7 +24,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IPipeMenuProvider;
-import logisticspipes.api.ITankUtil;
+import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
@@ -43,8 +43,8 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.FluidSupplierMenu;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport, IPipeMenuProvider {
@@ -157,8 +157,8 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		}
 		super.throttledUpdateEntity();
 
-		for (NeighborTileEntity<BlockEntity> neighbor : getAdjacent().fluidTanks()) {
-			final ITankUtil tankUtil = LPNeighborTileEntityKt.getTankUtil(neighbor);
+		for (NeighborBlockEntity<BlockEntity> neighbor : getAdjacent().fluidTanks()) {
+			final ITankUtil tankUtil = NeighborBlockEntityUtil.getTankUtil(neighbor);
 			if (tankUtil == null || !tankUtil.containsTanks()) {
 				continue;
 			}

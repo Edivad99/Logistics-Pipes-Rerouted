@@ -15,7 +15,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.QueuedTasks;
-import network.rs485.logisticspipes.connection.ConnectionType;
+import logisticspipes.api.connection.ConnectionType;
 
 public class TEControl {
 

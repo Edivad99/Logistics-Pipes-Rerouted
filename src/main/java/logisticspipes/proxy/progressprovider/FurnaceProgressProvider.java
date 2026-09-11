@@ -3,7 +3,7 @@ package logisticspipes.proxy.progressprovider;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import logisticspipes.api.IGenericProgressProvider;
+import logisticspipes.api.provider.IGenericProgressProvider;
 
 public class FurnaceProgressProvider implements IGenericProgressProvider {
 

@@ -100,9 +100,9 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.CraftingModuleMenu;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
-import network.rs485.logisticspipes.connection.AdjacentUtilKt;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import network.rs485.logisticspipes.connection.AdjacentUtil;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.property.BitSetProperty;
 import network.rs485.logisticspipes.property.BooleanProperty;
@@ -230,7 +230,7 @@ public class ModuleCrafter extends LogisticsModule
 		}
 		final ISlotUpgradeManager upgradeManager = Objects.requireNonNull(getUpgradeManager());
 		final ItemStack finalStack = stack;
-		final Integer count = AdjacentUtilKt.sneakyInventoryUtils(service.getAvailableAdjacent(), upgradeManager)
+		final Integer count = AdjacentUtil.sneakyInventoryUtils(service.getAvailableAdjacent(), upgradeManager)
 				.stream().map(invUtil -> invUtil.roomForItem(finalStack)).reduce(Integer::sum).orElse(0);
 
 		service.getCacheHolder().setCache(CacheTypes.Inventory, key, count);
@@ -718,12 +718,12 @@ public class ModuleCrafter extends LogisticsModule
 			if (service == null) return;
 			service.getAvailableAdjacent().neighbors().keySet().stream().flatMap(
 					neighbor -> SimpleServiceLocator.craftingRecipeProviders.stream()
-							.filter(provider -> provider.importRecipe(neighbor.getTileEntity(), dummyInventory))
+							.filter(provider -> provider.importRecipe(neighbor.getBlockEntity(), dummyInventory))
 							.map(provider1 -> new Pair<>(neighbor, provider1))).findFirst()
 					.ifPresent(neighborProviderPair -> {
 						if (neighborProviderPair.getValue2() instanceof IFuzzyRecipeProvider) {
 							((IFuzzyRecipeProvider) neighborProviderPair.getValue2())
-									.importFuzzyFlags(neighborProviderPair.getValue1().getTileEntity(),
+									.importFuzzyFlags(neighborProviderPair.getValue1().getBlockEntity(),
 											dummyInventory.getSlotAccess(), fuzzyFlags);
 						}
 					});
@@ -792,8 +792,8 @@ public class ModuleCrafter extends LogisticsModule
 
 		final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream()
 				.filter(neighbor -> neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
-						.anyMatch(provider -> provider.canOpenGui(neighbor.getTileEntity())))
-				.anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getTileEntity().getBlockPos()));
+						.anyMatch(provider -> provider.canOpenGui(neighbor.getBlockEntity())))
+				.anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getBlockEntity().getBlockPos()));
 		if (!guiOpened) {
 			LogisticsPipes.LOG.warn("Ignored open attached GUI request at {} @ {}", player.level(), getBlockPos());
 		}
@@ -825,7 +825,7 @@ public class ModuleCrafter extends LogisticsModule
 			return;
 		}
 
-		final List<NeighborTileEntity<BlockEntity>> adjacentInventories = service.getAvailableAdjacent().inventories();
+		final List<NeighborBlockEntity<BlockEntity>> adjacentInventories = service.getAvailableAdjacent().inventories();
 
 		if (!service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
 			final ISlotUpgradeManager upgradeManager = Objects.requireNonNull(getUpgradeManager());
@@ -867,8 +867,8 @@ public class ModuleCrafter extends LogisticsModule
 			maxToSend = Math.min(nextOrder.getResource().getItem().getMaxStackSize(), maxToSend);
 			// retrieve the new crafted items
 			ItemStack extracted = ItemStack.EMPTY;
-			NeighborTileEntity<BlockEntity> adjacent = null; // there has to be at least one adjacentCrafter at this point; adjacent wont stay null
-			for (NeighborTileEntity<BlockEntity> adjacentCrafter : adjacentInventories) {
+			NeighborBlockEntity<BlockEntity> adjacent = null; // there has to be at least one adjacentCrafter at this point; adjacent wont stay null
+			for (NeighborBlockEntity<BlockEntity> adjacentCrafter : adjacentInventories) {
 				adjacent = adjacentCrafter;
 				extracted = extract(adjacent, nextOrder.getResource(), maxToSend);
 				if (!extracted.isEmpty()) {
@@ -881,7 +881,7 @@ public class ModuleCrafter extends LogisticsModule
 			}
 			service.getCacheHolder().trigger(CacheTypes.Inventory);
 			Objects.requireNonNull(adjacent);
-			lastAccessedCrafter = new WeakReference<>(adjacent.getTileEntity());
+			lastAccessedCrafter = new WeakReference<>(adjacent.getBlockEntity());
 			// send the new crafted items to the destination
 			ItemIdentifier extractedID = ItemIdentifier.get(extracted);
 			while (!extracted.isEmpty()) {
@@ -973,19 +973,19 @@ public class ModuleCrafter extends LogisticsModule
 		cachedAreAllOrderesToBuffer = result;
 	}
 
-	private ItemStack extract(NeighborTileEntity<BlockEntity> adjacent, IResource item, int amount) {
-		return LPNeighborTileEntityKt.optionalIs(adjacent, LogisticsCraftingTableBlockEntity.class)
+	private ItemStack extract(NeighborBlockEntity<BlockEntity> adjacent, IResource item, int amount) {
+		return NeighborBlockEntityUtil.optionalIs(adjacent, LogisticsCraftingTableBlockEntity.class)
 				.map(adjacentCraftingTable -> extractFromLogisticsCraftingTable(adjacentCraftingTable, item, amount))
 				.orElseGet(() -> {
-					final IInventoryUtil invUtil = LPNeighborTileEntityKt.getInventoryUtil(adjacent);
+					final IInventoryUtil invUtil = NeighborBlockEntityUtil.getInventoryUtil(adjacent);
 					if (invUtil == null) return ItemStack.EMPTY;
 					return extractFromInventory(invUtil, item, amount);
 				});
 	}
 
-	private ItemStack extractFiltered(NeighborTileEntity<BlockEntity> neighbor, IItemIdentifierInventory inv,
+	private ItemStack extractFiltered(NeighborBlockEntity<BlockEntity> neighbor, IItemIdentifierInventory inv,
 			boolean isExcluded, int filterInvLimit) {
-		final IInventoryUtil invUtil = LPNeighborTileEntityKt.getInventoryUtil(neighbor);
+		final IInventoryUtil invUtil = NeighborBlockEntityUtil.getInventoryUtil(neighbor);
 		if (invUtil == null) return ItemStack.EMPTY;
 		return extractFromInventoryFiltered(invUtil, inv, isExcluded, filterInvLimit);
 	}
@@ -1064,19 +1064,19 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	private ItemStack extractFromLogisticsCraftingTable(
-			NeighborTileEntity<LogisticsCraftingTableBlockEntity> adjacentCraftingTable, IResource wantedItem,
+			NeighborBlockEntity<LogisticsCraftingTableBlockEntity> adjacentCraftingTable, IResource wantedItem,
 			int count) {
 		final IPipeServiceProvider service = this.service;
 		if (service == null) return ItemStack.EMPTY;
 		ItemStack extracted = extractFromInventory(
-				Objects.requireNonNull(LPNeighborTileEntityKt.getInventoryUtil(adjacentCraftingTable)), wantedItem,
+				Objects.requireNonNull(NeighborBlockEntityUtil.getInventoryUtil(adjacentCraftingTable)), wantedItem,
 				count);
 		if (!extracted.isEmpty()) {
 			return extracted;
 		}
 		ItemStack retStack = ItemStack.EMPTY;
 		while (count > 0) {
-			ItemStack stack = adjacentCraftingTable.getTileEntity().getOutput(wantedItem, service);
+			ItemStack stack = adjacentCraftingTable.getBlockEntity().getOutput(wantedItem, service);
 			if (stack.isEmpty()) {
 				break;
 			}

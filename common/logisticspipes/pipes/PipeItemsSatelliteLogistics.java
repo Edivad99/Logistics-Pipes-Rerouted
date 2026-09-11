@@ -54,7 +54,7 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.SatelliteMenu;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 
 public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport, IHeadUpDisplayRendererProvider, IChestContentReceiver, SatellitePipe, IPipeMenuProvider {
 
@@ -130,7 +130,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 		itemList.clear();
 		itemList.addAll(
             getAvailableAdjacent().inventories().stream()
-                .map(LPNeighborTileEntityKt::getInventoryUtil)
+                .map(NeighborBlockEntityUtil::getInventoryUtil)
                 .filter(Objects::nonNull)
                 .flatMap(invUtil -> invUtil.getItemsAndCount().entrySet()
                     .stream()

@@ -61,7 +61,7 @@ import logisticspipes.utils.transactor.ITransactor;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.inventory.InvSysConMenu;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannelRoutingConnection, IHeadUpDisplayRendererProvider, IOrderManagerContentReceiver,
@@ -136,9 +136,9 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 		if (!itemsOnRoute.isEmpty()) { // don't check the inventory if you don't want anything
 			final boolean shouldUpdate = getAvailableAdjacent().inventories().stream()
 					.anyMatch(neighbor -> {
-						final IInventoryUtil invUtil = LPNeighborTileEntityKt.getInventoryUtil(neighbor);
+						final IInventoryUtil invUtil = NeighborBlockEntityUtil.getInventoryUtil(neighbor);
 						return invUtil != null &&
-								getContainer().canPipeConnect(neighbor.getTileEntity(), neighbor.getDirection()) &&
+								getContainer().canPipeConnect(neighbor.getBlockEntity(), neighbor.getDirection()) &&
 								checkOneConnectedInv(invUtil, neighbor.getDirection());
 					});
 
@@ -294,10 +294,10 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 
 	private boolean isInventoryConnected(@Nullable BlockEntity tileEntityFilter) {
 		return new WorldCoordinatesWrapper(this.getContainer())
-				.allNeighborTileEntities().stream()
-				.anyMatch(neighbor -> (tileEntityFilter == null || neighbor.getTileEntity() == tileEntityFilter) &&
+				.allNeighborBlockEntities().stream()
+				.anyMatch(neighbor -> (tileEntityFilter == null || neighbor.getBlockEntity() == tileEntityFilter) &&
 						neighbor.canHandleItems() &&
-						this.getContainer().canPipeConnect(neighbor.getTileEntity(), neighbor.getDirection()));
+						this.getContainer().canPipeConnect(neighbor.getBlockEntity(), neighbor.getDirection()));
 	}
 
 	@Override

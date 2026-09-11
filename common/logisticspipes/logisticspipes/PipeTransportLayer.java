@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.IRouter;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 /**
@@ -37,7 +37,7 @@ public class PipeTransportLayer extends TransportLayer {
 
 		// 1st priority, deliver to adjacent inventories
 		LinkedList<Direction> possibleDirection = new LinkedList<>();
-		for (NeighborTileEntity<BlockEntity> adjacent : routedPipe.getAvailableAdjacent().inventories()) {
+		for (NeighborBlockEntity<BlockEntity> adjacent : routedPipe.getAvailableAdjacent().inventories()) {
 			if (router.isRoutedExit(adjacent.getDirection())) {
 				continue;
 			}
@@ -59,7 +59,7 @@ public class PipeTransportLayer extends TransportLayer {
 		}
 
 		// 2nd priority, deliver to non-routed exit
-		new WorldCoordinatesWrapper(routedPipe.getContainer()).connectedTileEntities().stream()
+		new WorldCoordinatesWrapper(routedPipe.getContainer()).connectedBlockEntities().stream()
 				.filter(neighbor -> {
 					if (router.isRoutedExit(neighbor.getDirection())) return false;
 					final CoreRoutedPipe routerPipe = router.getPipe();

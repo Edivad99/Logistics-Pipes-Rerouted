@@ -7,7 +7,7 @@ import java.util.Objects;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 
-import logisticspipes.api.IGenericProgressProvider;
+import logisticspipes.api.provider.IGenericProgressProvider;
 
 /**
  * Fired on the mod event bus so addons can teach Logistics Pipes to read the progress of machines

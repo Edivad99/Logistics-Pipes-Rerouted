@@ -37,7 +37,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsEventListener;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.api.ILogisticsPowerProvider;
+import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.interfaces.IBufferItems;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IItemAdvancedExistence;

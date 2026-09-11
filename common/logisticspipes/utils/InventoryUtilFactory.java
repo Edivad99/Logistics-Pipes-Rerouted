@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public class InventoryUtilFactory {
@@ -47,8 +47,8 @@ public class InventoryUtilFactory {
 	}
 
 	@Nullable
-	public IInventoryUtil getInventoryUtil(NeighborTileEntity<BlockEntity> adj) {
-		return getHidingInventoryUtil(adj.getTileEntity(), adj.getOurDirection(), ProviderMode.DEFAULT);
+	public IInventoryUtil getInventoryUtil(NeighborBlockEntity<BlockEntity> adj) {
+		return getHidingInventoryUtil(adj.getBlockEntity(), adj.getOurDirection(), ProviderMode.DEFAULT);
 	}
 
 	@Nullable

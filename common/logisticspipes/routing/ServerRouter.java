@@ -48,7 +48,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.api.ILogisticsPowerProvider;
+import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.asm.te.ITileEntityChangeListener;
 import logisticspipes.asm.te.LPTileEntityObject;
 import logisticspipes.interfaces.IRoutingDebugAdapter;

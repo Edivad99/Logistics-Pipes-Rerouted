@@ -54,16 +54,16 @@ public record UpgradeConfigPopupMessage(Kind kind, BlockPos pipePos, int slotInd
      * none, every neighbour, so the popup is never empty.
      */
     private static List<BlockPos> extractableSides(LogisticsTileGenericPipe container) {
-        final List<BlockPos> inventories = new WorldCoordinatesWrapper(container).connectedTileEntities()
+        final List<BlockPos> inventories = new WorldCoordinatesWrapper(container).connectedBlockEntities()
             .stream()
-            .filter(neighbor -> SimpleServiceLocator.pipeInformationManager.isNotAPipe(neighbor.getTileEntity()))
-            .map(neighbor -> neighbor.getTileEntity().getBlockPos())
+            .filter(neighbor -> SimpleServiceLocator.pipeInformationManager.isNotAPipe(neighbor.getBlockEntity()))
+            .map(neighbor -> neighbor.getBlockEntity().getBlockPos())
             .collect(Collectors.toList());
         if (!inventories.isEmpty()) {
             return inventories;
         }
-        return new WorldCoordinatesWrapper(container).connectedTileEntities().stream()
-            .map(neighbor -> neighbor.getTileEntity().getBlockPos())
+        return new WorldCoordinatesWrapper(container).connectedBlockEntities().stream()
+            .map(neighbor -> neighbor.getBlockEntity().getBlockPos())
             .collect(Collectors.toList());
     }
 

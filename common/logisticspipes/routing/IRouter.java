@@ -16,7 +16,7 @@ import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.ILogisticsPowerProvider;
+import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;

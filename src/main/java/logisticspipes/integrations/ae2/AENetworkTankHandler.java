@@ -15,8 +15,8 @@ import appeng.api.storage.MEStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.ISpecialTankUtilProvider;
-import logisticspipes.api.ITankUtil;
+import logisticspipes.api.provider.ISpecialTankUtilProvider;
+import logisticspipes.api.util.ITankUtil;
 import logisticspipes.utils.NetworkTankUtil;
 
 /**

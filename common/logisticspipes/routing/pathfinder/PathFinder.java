@@ -28,7 +28,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.ILogisticsPowerProvider;
+import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.asm.te.ITileEntityChangeListener;
 import logisticspipes.asm.te.LPTileEntityObject;

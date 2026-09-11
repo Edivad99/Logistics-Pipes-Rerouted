@@ -61,7 +61,7 @@ import kotlin.Unit;
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.api.ILogisticsPowerProvider;
+import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.interfaces.ILPPositionProvider;
@@ -135,7 +135,7 @@ import logisticspipes.world.item.ItemPipeController;
 import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
-import network.rs485.logisticspipes.connection.Adjacent;
+import logisticspipes.api.connection.Adjacent;
 import network.rs485.logisticspipes.connection.AdjacentFactory;
 import network.rs485.logisticspipes.connection.NoAdjacent;
 import network.rs485.logisticspipes.property.PropertyHolder;
@@ -223,7 +223,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	 * Re-creates adjacent cache.
 	 */
 	protected void updateAdjacentCache() {
-		adjacent = AdjacentFactory.INSTANCE.createAdjacentCache(this);
+		adjacent = AdjacentFactory.createAdjacentCache(this);
 	}
 
     @Nullable

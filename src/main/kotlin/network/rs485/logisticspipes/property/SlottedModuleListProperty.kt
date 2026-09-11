@@ -51,26 +51,26 @@ class SlottedModuleListProperty(slots: Int, override val tagKey: String) :
 
     override fun readSingleFromNBT(input: ValueInput, key: String): SlottedModule {
         val slottedModuleInput = input.childOrEmpty(key)
-        val slot = slottedModuleInput.getIntOr(SLOT_INDEX_KEY, 0)
-        val moduleName = slottedModuleInput.getString(MODULE_NAME_KEY).orElse(null)
+        val slot = slottedModuleInput.getIntOr(SlottedModule.SLOT_INDEX_KEY, 0)
+        val moduleName = slottedModuleInput.getString(SlottedModule.MODULE_NAME_KEY).orElse(null)
         val moduleResource = moduleName?.let { LPItems.modules[it] }
         val itemModule = moduleResource?.let { BuiltInRegistries.ITEM.getValue(moduleResource) as? ItemModule }
         // FIXME: move module creation to before deserialize
         val logisticsModule = itemModule?.getModule(null, null, null)
         return logisticsModule?.let { module ->
             module.deserialize(slottedModuleInput)
-            SlottedModule(slot = slot, module = module).also { list[slot] = it }
+            SlottedModule(slot, module).also { list[slot] = it }
         } ?: list[slot]
     }
 
     override fun writeSingleToNBT(output: ValueOutput, key: String, value: SlottedModule) {
         val slottedModuleOutput = output.child(key)
-        value.module?.serialize(slottedModuleOutput)
-        slottedModuleOutput.putInt(SLOT_INDEX_KEY, value.slot)
-        value.module?.also { slottedModuleOutput.putString(MODULE_NAME_KEY, it.lpName) }
+        value.module()?.serialize(slottedModuleOutput)
+        slottedModuleOutput.putInt(SlottedModule.SLOT_INDEX_KEY, value.slot())
+        value.module()?.also { slottedModuleOutput.putString(SlottedModule.MODULE_NAME_KEY, it.lpName) }
     }
 
-    override fun copyValue(obj: SlottedModule): SlottedModule = obj.copy(slot = obj.slot, module = null)
+    override fun copyValue(obj: SlottedModule): SlottedModule = SlottedModule(obj.slot(), null)
 
     override fun copyProperty(): SlottedModuleListProperty =
         SlottedModuleListProperty(size, tagKey).apply { addAll(list) }

@@ -24,9 +24,9 @@ import logisticspipes.network.bidirectional.DebugConnectionDataMessage;
 import logisticspipes.network.to_client.debug.OpenDebugPanelMessage;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.debug.api.IDataConnection;
-import network.rs485.debug.api.IDebugGuiEntry;
-import network.rs485.debug.api.IObjectIdentification;
+import logisticspipes.api.network.debug.IDataConnection;
+import logisticspipes.api.network.debug.IDebugGuiEntry;
+import logisticspipes.api.network.debug.IObjectIdentification;
 
 public class DebugGuiController {
 

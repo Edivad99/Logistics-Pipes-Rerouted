@@ -13,7 +13,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.api.ITankUtil;
+import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
@@ -36,8 +36,8 @@ import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.transfer.LPFluidTank;
 import logisticspipes.utils.tuples.Pair;
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
-import network.rs485.logisticspipes.connection.NeighborTileEntity;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
+import logisticspipes.api.connection.NeighborBlockEntity;
 
 public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 
@@ -76,7 +76,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 				.filter(neighbor -> neighbor.getDirection() == connection)
 				.findFirst()
 				.map(neighbor -> {
-					final ITankUtil tankUtil = LPNeighborTileEntityKt.getTankUtil(neighbor);
+					final ITankUtil tankUtil = NeighborBlockEntityUtil.getTankUtil(neighbor);
 					return tankUtil != null && tankUtil.containsTanks();
 				})
 				.orElse(false);
@@ -140,9 +140,9 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		super.enabledUpdateEntity();
 		if (canInsertFromSideToTanks()) {
 			int validDirections = 0;
-			final List<Pair<NeighborTileEntity<BlockEntity>, ITankUtil>> list =
+			final List<Pair<NeighborBlockEntity<BlockEntity>, ITankUtil>> list =
 					PipeFluidUtil.getAdjacentTanks(this, true);
-			for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : list) {
+			for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : list) {
 				if (pair.getValue2() instanceof LogisticsTileGenericPipe) {
 					if (((LogisticsTileGenericPipe) pair.getValue2()).pipe instanceof CoreRoutedPipe) {
 						continue;
@@ -172,9 +172,9 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 			if (stack.isEmpty()) {
 				return;
 			}
-			for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> pair : list) {
+			for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : list) {
 				if (pair.getValue1().isLogisticsPipe()) {
-					if (((LogisticsTileGenericPipe) pair.getValue1().getTileEntity()).pipe instanceof CoreRoutedPipe) {
+					if (((LogisticsTileGenericPipe) pair.getValue1().getBlockEntity()).pipe instanceof CoreRoutedPipe) {
 						continue;
 					}
 				}
@@ -231,7 +231,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 			FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(arrivingItem.getItemIdentifierStack(), getLevel().registryAccess());
 			if (isConnectableTank(tile, arrivingItem.output, false)) {
 				//Try to put liquid into all adjacent tanks.
-				for (Pair<NeighborTileEntity<BlockEntity>, ITankUtil> util : PipeFluidUtil.getAdjacentTanks(this, false)) {
+				for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> util : PipeFluidUtil.getAdjacentTanks(this, false)) {
 					filled = util.getValue2().fill(liquid.makeFluidStack(), true);
 					liquid.lowerAmount(filled);
 					if (liquid.getAmount() != 0) {

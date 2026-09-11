@@ -27,7 +27,7 @@ import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.item.ItemIdentifier;
 
-import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
+import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 
 /**
  * The server half of "point at the slot you mean".
@@ -61,14 +61,14 @@ public final class SlotFinder {
             return;
         }
         final boolean opened = pipe.getRoutingPipe().getAvailableAdjacent().inventories().stream()
-                .filter(neighbor -> LPNeighborTileEntityKt.getInventoryUtil(neighbor) instanceof ISpecialInsertion)
+                .filter(neighbor -> NeighborBlockEntityUtil.getInventoryUtil(neighbor) instanceof ISpecialInsertion)
                 .anyMatch(neighbor -> {
                     for (ICraftingRecipeProvider provider : SimpleServiceLocator.craftingRecipeProviders) {
-                        if (provider.canOpenGui(neighbor.getTileEntity())) {
+                        if (provider.canOpenGui(neighbor.getBlockEntity())) {
                             return true;
                         }
                     }
-                    final BlockPos pos = neighbor.getTileEntity().getBlockPos();
+                    final BlockPos pos = neighbor.getBlockEntity().getBlockPos();
                     if (!BlockMenus.openFor(serverPlayer, pos)) {
                         return false;
                     }

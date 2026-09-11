@@ -13,8 +13,8 @@ import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
 import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.ISpecialTankUtilProvider;
-import logisticspipes.api.ITankUtil;
+import logisticspipes.api.provider.ISpecialTankUtilProvider;
+import logisticspipes.api.util.ITankUtil;
 import logisticspipes.utils.NetworkTankUtil;
 
 /**
