@@ -108,8 +108,8 @@ import network.rs485.logisticspipes.connection.NoAdjacent;
 import network.rs485.logisticspipes.connection.SingleAdjacent;
 import logisticspipes.api.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.AdjacentProperty;
-import network.rs485.logisticspipes.property.Property;
-import network.rs485.logisticspipes.property.PropertyHolder;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.PropertyHolder;
 import network.rs485.logisticspipes.property.SlottedModule;
 
 @CCType(name = "LogisticsChassiePipe")

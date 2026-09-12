@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.gui.widget
 
-import network.rs485.logisticspipes.property.IBitSet
+import logisticspipes.api.property.IBitSet
 import network.rs485.logisticspipes.util.FuzzyFlag
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player

@@ -56,8 +56,8 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.level.block.LPBlocks;
-import network.rs485.logisticspipes.property.BitSetProperty;
-import network.rs485.logisticspipes.property.IBitSet;
+import logisticspipes.api.property.BitSetProperty;
+import logisticspipes.api.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 
 public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity

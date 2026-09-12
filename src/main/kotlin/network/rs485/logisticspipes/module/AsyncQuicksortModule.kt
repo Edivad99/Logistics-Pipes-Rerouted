@@ -39,7 +39,7 @@ package network.rs485.logisticspipes.module
 
 import network.rs485.grow.Coroutines
 import network.rs485.logisticspipes.logistics.LogisticsManager
-import network.rs485.logisticspipes.property.Property
+import logisticspipes.api.property.Property
 import network.rs485.logisticspipes.util.equalsWithNBT
 import network.rs485.logisticspipes.util.getExtractionMax
 import logisticspipes.LPConfigs
@@ -89,8 +89,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
     private var currentSlot = 0
     private var stallSlot = 0
 
-    override val properties: List<Property<*>>
-        get() = emptyList()
+    override fun getProperties(): List<Property<*>> = emptyList()
 
     private val energyPerStack: Int
         get() = upgradeManager.let { 500 + 1000 * it.itemStackExtractionUpgrade }.toInt()

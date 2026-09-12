@@ -38,8 +38,8 @@
 package network.rs485.logisticspipes.inventory.container
 
 import network.rs485.logisticspipes.gui.widget.*
-import network.rs485.logisticspipes.property.IBitSet
-import network.rs485.logisticspipes.property.InventoryProperty
+import logisticspipes.api.property.IBitSet
+import logisticspipes.api.property.InventoryProperty
 import network.rs485.logisticspipes.util.FuzzyFlag
 import logisticspipes.LogisticsPipes
 import logisticspipes.logisticspipes.ItemModuleInformationManager

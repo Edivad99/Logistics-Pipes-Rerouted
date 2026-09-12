@@ -3,7 +3,7 @@ package logisticspipes.interfaces;
 import net.minecraft.world.level.storage.ValueInput;
 
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.property.StringListProperty;
+import logisticspipes.api.property.StringListProperty;
 
 public interface IStringBasedModule {
 

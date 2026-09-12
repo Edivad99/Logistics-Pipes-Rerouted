@@ -49,8 +49,8 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
-import network.rs485.logisticspipes.property.Property;
-import network.rs485.logisticspipes.property.StringListProperty;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.StringListProperty;
 
 public class ModuleOreDictItemSink extends LogisticsModule
     implements IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver, IModuleMenuProvider {

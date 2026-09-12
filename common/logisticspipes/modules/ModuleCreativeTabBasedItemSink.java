@@ -39,8 +39,8 @@ import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
-import network.rs485.logisticspipes.property.Property;
-import network.rs485.logisticspipes.property.StringListProperty;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.StringListProperty;
 
 public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 		implements IStringBasedModule, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver, IModuleMenuProvider {

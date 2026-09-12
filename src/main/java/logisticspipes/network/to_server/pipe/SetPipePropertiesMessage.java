@@ -21,7 +21,7 @@ import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
-import network.rs485.logisticspipes.property.PropertyHolder;
+import logisticspipes.api.property.PropertyHolder;
 
 /**
  * The properties the player changed in a pipe's GUI.

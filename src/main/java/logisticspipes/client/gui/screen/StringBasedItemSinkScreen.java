@@ -21,9 +21,9 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
-import network.rs485.logisticspipes.property.StringListProperty;
-import network.rs485.logisticspipes.property.layer.PropertyLayer;
-import network.rs485.logisticspipes.property.layer.PropertyOverlay;
+import logisticspipes.api.property.StringListProperty;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
 
 public class StringBasedItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMenu> {
 
@@ -44,7 +44,7 @@ public class StringBasedItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMe
         super(menu, inventory, title, menu.getModule(), 175, 208);
         stringBasedModule = (IStringBasedModule) menu.getModule();
         propertyLayer = new PropertyLayer(Collections.singletonList(stringBasedModule.stringListProperty()));
-        stringListOverlay = propertyLayer.overlay(stringBasedModule.stringListProperty());
+        stringListOverlay = propertyLayer.overlayOf(stringBasedModule.stringListProperty());
         tmpInv = menu.getAnalysisInventory();
     }
 

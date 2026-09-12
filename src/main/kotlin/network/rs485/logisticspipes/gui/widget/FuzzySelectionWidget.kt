@@ -38,8 +38,8 @@
 package network.rs485.logisticspipes.gui.widget
 
 import network.rs485.logisticspipes.gui.*
-import network.rs485.logisticspipes.property.BitSetProperty
-import network.rs485.logisticspipes.property.layer.PropertyOverlay
+import logisticspipes.api.property.BitSetProperty
+import logisticspipes.api.property.layer.PropertyOverlay
 import network.rs485.logisticspipes.util.FuzzyFlag
 import network.rs485.logisticspipes.util.FuzzyUtil
 import network.rs485.logisticspipes.util.IRectangle

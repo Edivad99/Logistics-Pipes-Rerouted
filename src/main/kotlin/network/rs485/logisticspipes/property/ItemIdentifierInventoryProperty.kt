@@ -37,6 +37,8 @@
 
 package network.rs485.logisticspipes.property
 
+import logisticspipes.api.property.InventoryProperty
+import logisticspipes.api.property.ObserverCallback
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import network.rs485.logisticspipes.inventory.SlotAccess
 import logisticspipes.utils.item.ItemIdentifierInventory
@@ -49,7 +51,7 @@ import java.util.concurrent.CopyOnWriteArraySet
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Collection<ItemIdentifierStack>: the two Iterable parameterisations conflict. The collection-like
 // members below stay as ordinary members; iteration over the identifier stacks is idStacks().
-class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, override val tagKey: String) :
+class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, private val tagKey: String) :
     InventoryProperty<ItemIdentifierInventory>, IItemIdentifierInventory by inv {
 
     init {
@@ -58,35 +60,40 @@ class ItemIdentifierInventoryProperty(private val inv: ItemIdentifierInventory, 
 
     override val slotAccess: SlotAccess = object : SlotAccess by inv.slotAccess {
         override fun mergeSlots(intoSlot: Int, fromSlot: Int) =
-            inv.slotAccess.mergeSlots(intoSlot, fromSlot).alsoIChanged()
+            inv.slotAccess.mergeSlots(intoSlot, fromSlot).also { iChanged() }
     }
 
-    override val propertyObservers: CopyOnWriteArraySet<ObserverCallback<ItemIdentifierInventory>> =
+    private val propertyObservers: CopyOnWriteArraySet<ObserverCallback<ItemIdentifierInventory>> =
         CopyOnWriteArraySet()
+
+    override fun getTagKey(): String = tagKey
+
+    override fun getPropertyObservers(): CopyOnWriteArraySet<ObserverCallback<ItemIdentifierInventory>> =
+        propertyObservers
 
     val size: Int get() = containerSize
 
-    override fun removeItem(index: Int, count: Int): ItemStack = inv.removeItem(index, count).alsoIChanged()
+    override fun removeItem(index: Int, count: Int): ItemStack = inv.removeItem(index, count).also { iChanged() }
 
-    override fun removeItemNoUpdate(index: Int): ItemStack = inv.removeItemNoUpdate(index).alsoIChanged()
+    override fun removeItemNoUpdate(index: Int): ItemStack = inv.removeItemNoUpdate(index).also { iChanged() }
 
     override fun setItem(index: Int, stack: ItemStack) =
-        inv.setItem(index, stack).alsoIChanged()
+        inv.setItem(index, stack).also { iChanged() }
 
     override fun setItem(i: Int, itemstack: ItemIdentifierStack?) =
-        inv.setItem(i, itemstack).alsoIChanged()
+        inv.setItem(i, itemstack).also { iChanged() }
 
     override fun handleItemIdentifierList(allItems: Collection<ItemIdentifierStack?>) =
-        inv.handleItemIdentifierList(allItems).alsoIChanged()
+        inv.handleItemIdentifierList(allItems).also { iChanged() }
 
-    fun clear() = inv.clear().alsoIChanged()
+    fun clear() = inv.clear().also { iChanged() }
 
-    override fun recheckStackLimit() = inv.recheckStackLimit().alsoIChanged()
+    override fun recheckStackLimit() = inv.recheckStackLimit().also { iChanged() }
 
-    override fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
+    override fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).also { iChanged() }
 
     override fun deserialize(input: ValueInput) {
-        inv.deserialize(input, tagKey).alsoIChanged()
+        inv.deserialize(input, tagKey).also { iChanged() }
     }
 
     override fun serialize(output: ValueOutput) = inv.serialize(output, tagKey)

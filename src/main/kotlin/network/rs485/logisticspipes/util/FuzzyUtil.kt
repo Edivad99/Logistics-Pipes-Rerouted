@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.util
 
-import network.rs485.logisticspipes.property.IBitSet
+import logisticspipes.api.property.IBitSet
 import logisticspipes.utils.item.ItemIdentifier
 import net.minecraft.nbt.CompoundTag
 import java.util.*

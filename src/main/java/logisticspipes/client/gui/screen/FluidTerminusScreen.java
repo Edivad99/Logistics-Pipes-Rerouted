@@ -13,8 +13,8 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.inventory.FluidTerminusMenu;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.property.layer.PropertyLayer;
-import network.rs485.logisticspipes.property.layer.PropertyOverlay;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
 
 public class FluidTerminusScreen extends LogisticsBaseGuiScreen<FluidTerminusMenu> {
 
@@ -28,7 +28,7 @@ public class FluidTerminusScreen extends LogisticsBaseGuiScreen<FluidTerminusMen
 
         pipePosition = pipe.getPos();
         propertyLayer = new PropertyLayer(pipe.getProperties());
-        sinkInventoryOverlay = propertyLayer.overlay(pipe.getSinkInv());
+        sinkInventoryOverlay = propertyLayer.overlayOf(pipe.getSinkInv());
 
     }
 

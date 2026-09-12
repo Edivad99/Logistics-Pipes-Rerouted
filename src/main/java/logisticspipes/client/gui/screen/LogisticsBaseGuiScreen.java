@@ -48,7 +48,7 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.extension.GuiExtensionController;
 import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
-import network.rs485.logisticspipes.property.IBitSet;
+import logisticspipes.api.property.IBitSet;
 import network.rs485.logisticspipes.util.FuzzyFlag;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 import network.rs485.logisticspipes.util.TextUtil;

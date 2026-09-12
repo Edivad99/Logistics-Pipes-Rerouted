@@ -20,7 +20,7 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.ModuleTarget;
 
-import network.rs485.logisticspipes.property.PropertyHolder;
+import logisticspipes.api.property.PropertyHolder;
 
 /**
  * A module's properties, as the server has them.

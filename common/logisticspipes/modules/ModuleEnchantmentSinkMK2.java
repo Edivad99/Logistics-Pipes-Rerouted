@@ -42,7 +42,7 @@ import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.property.Property;
+import logisticspipes.api.property.Property;
 
 @CCType(name = "EnchantmentSink Module MK2")
 public class ModuleEnchantmentSinkMK2 extends LogisticsModule

@@ -30,12 +30,12 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
-import network.rs485.logisticspipes.property.BooleanProperty;
-import network.rs485.logisticspipes.property.EnumProperty;
-import network.rs485.logisticspipes.property.IntListProperty;
-import network.rs485.logisticspipes.property.layer.PropertyLayer;
-import network.rs485.logisticspipes.property.layer.PropertyOverlay;
-import network.rs485.logisticspipes.property.layer.ValuePropertyOverlay;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.EnumProperty;
+import logisticspipes.api.property.IntListProperty;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
+import logisticspipes.api.property.layer.ValuePropertyOverlay;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class SupplierPipeScreen extends LogisticsBaseGuiScreen<ActiveSupplierMenu> {
@@ -58,7 +58,7 @@ public class SupplierPipeScreen extends LogisticsBaseGuiScreen<ActiveSupplierMen
         supplierModule = menu.getSupplier();
 
         propertyLayer = new PropertyLayer(supplierModule.getProperties());
-        slotAssignmentPatternOverlay = propertyLayer.overlay(supplierModule.slotAssignmentPattern);
+        slotAssignmentPatternOverlay = propertyLayer.overlayOf(supplierModule.slotAssignmentPattern);
         patternModeOverlay = propertyLayer.overlay(supplierModule.patternMode);
         requestModeOverlay = propertyLayer.overlay(supplierModule.requestMode);
         limitedPropertyOverlay = propertyLayer.overlay(supplierModule.isLimited);

@@ -104,16 +104,15 @@ import network.rs485.logisticspipes.connection.AdjacentUtil;
 import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.property.BitSetProperty;
-import network.rs485.logisticspipes.property.BooleanProperty;
-import network.rs485.logisticspipes.property.IBitSet;
-import network.rs485.logisticspipes.property.IntListProperty;
-import network.rs485.logisticspipes.property.IntegerProperty;
+import logisticspipes.api.property.BitSetProperty;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.IBitSet;
+import logisticspipes.api.property.IntListProperty;
+import logisticspipes.api.property.IntegerProperty;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.property.Property;
-import network.rs485.logisticspipes.property.UUIDListProperty;
-import network.rs485.logisticspipes.property.UUIDProperty;
-import network.rs485.logisticspipes.property.UUIDPropertyKt;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.UUIDListProperty;
+import logisticspipes.api.property.UUIDProperty;
 
 public class ModuleCrafter extends LogisticsModule
 		implements ICraftItems, IHUDModuleHandler, IModuleWatchReceiver, IScreenOpenController, IModuleMenuProvider {
@@ -652,7 +651,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	private String getSatelliteNameForUUID(UUID uuid) {
-		if (UUIDPropertyKt.isZero(uuid)) {
+		if (UUIDProperty.isZero(uuid)) {
 			return "";
 		}
 		int simpleId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);

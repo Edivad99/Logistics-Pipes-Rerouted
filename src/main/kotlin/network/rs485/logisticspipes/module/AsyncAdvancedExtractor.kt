@@ -38,9 +38,9 @@
 package network.rs485.logisticspipes.module
 
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
-import network.rs485.logisticspipes.property.BooleanProperty
+import logisticspipes.api.property.BooleanProperty
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty
-import network.rs485.logisticspipes.property.Property
+import logisticspipes.api.property.Property
 import network.rs485.logisticspipes.util.matchingSequence
 import logisticspipes.gui.hud.modules.HUDAdvancedExtractor
 import logisticspipes.interfaces.*
@@ -76,8 +76,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
 
     private val filterInventory = ItemIdentifierInventoryProperty(ItemIdentifierInventory(9, "Item list", 1), "filterInv")
     val itemsIncluded = BooleanProperty(true, "itemsIncluded")
-    override val properties: List<Property<*>>
-        get() = extractor.properties + listOf(filterInventory, itemsIncluded)
+    override fun getProperties(): List<Property<*>> = extractor.properties + listOf(filterInventory, itemsIncluded)
 
     private val hud = HUDAdvancedExtractor(this)
     private val extractor = AsyncExtractorModule(

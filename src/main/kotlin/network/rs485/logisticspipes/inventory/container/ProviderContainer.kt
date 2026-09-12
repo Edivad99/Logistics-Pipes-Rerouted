@@ -39,9 +39,9 @@ package network.rs485.logisticspipes.inventory.container
 
 import network.rs485.logisticspipes.gui.widget.GhostItemSlot
 import network.rs485.logisticspipes.gui.widget.GhostSlot
-import network.rs485.logisticspipes.property.InventoryProperty
-import network.rs485.logisticspipes.property.layer.PropertyLayer
-import network.rs485.logisticspipes.property.layer.PropertyOverlayInventoryAdapter
+import logisticspipes.api.property.InventoryProperty
+import logisticspipes.api.property.layer.PropertyLayer
+import logisticspipes.api.property.layer.PropertyOverlayInventoryAdapter
 import logisticspipes.modules.ModuleProvider
 import logisticspipes.network.ModuleTarget
 import net.minecraft.world.Container
@@ -65,7 +65,7 @@ class ProviderContainer(
     val playerSlots = addPlayerSlotsToContainer(playerInventoryIn, 0, 0, moduleInHand)
 
     val filterSlots = addDummySlotsToContainer(
-        overlayInventory = PropertyOverlayInventoryAdapter(propertyLayer.overlay(providerModule.filterInventory)),
+        overlayInventory = PropertyOverlayInventoryAdapter(propertyLayer.overlayOf(providerModule.filterInventory)),
         baseProperty = module.filterInventory,
         startX = 0,
         startY = 0,

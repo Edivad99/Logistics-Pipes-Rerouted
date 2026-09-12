@@ -43,6 +43,7 @@ import logisticspipes.utils.DirectionUtil
 import com.mojang.serialization.Codec
 import logisticspipes.api.connection.Adjacent
 import logisticspipes.api.connection.ConnectionType
+import logisticspipes.api.property.ValueProperty
 import net.minecraft.core.Direction
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -50,8 +51,10 @@ import net.minecraft.world.level.storage.ValueOutput
 class AdjacentProperty @JvmOverloads constructor(
     defaultValue: Adjacent = NoAdjacent.INSTANCE,
     private val pipe: CoreRoutedPipe,
-    override val tagKey: String,
+    private val tagKey: String,
 ) : ValueProperty<Adjacent>(defaultValue) {
+
+    override fun getTagKey(): String = tagKey
 
     override fun copyValue(): Adjacent = value // Adjacent is immutable
 

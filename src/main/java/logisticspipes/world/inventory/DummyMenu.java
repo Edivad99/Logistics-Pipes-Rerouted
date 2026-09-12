@@ -49,7 +49,7 @@ import logisticspipes.utils.gui.StaticRestrictedSlot;
 import logisticspipes.utils.gui.UnmodifiableSlot;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.property.IBitSet;
+import logisticspipes.api.property.IBitSet;
 
 public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScreenHolder {
 

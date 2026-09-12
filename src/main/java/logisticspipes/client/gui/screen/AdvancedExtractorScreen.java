@@ -20,9 +20,9 @@ import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.world.inventory.AdvancedExtractorMenu;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
-import network.rs485.logisticspipes.property.BooleanProperty;
-import network.rs485.logisticspipes.property.layer.PropertyLayer;
-import network.rs485.logisticspipes.property.layer.ValuePropertyOverlay;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.ValuePropertyOverlay;
 
 public class AdvancedExtractorScreen extends ModuleBaseScreen<AdvancedExtractorMenu> {
 

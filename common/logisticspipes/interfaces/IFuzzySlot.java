@@ -1,6 +1,6 @@
 package logisticspipes.interfaces;
 
-import network.rs485.logisticspipes.property.IBitSet;
+import logisticspipes.api.property.IBitSet;
 
 public interface IFuzzySlot {
 

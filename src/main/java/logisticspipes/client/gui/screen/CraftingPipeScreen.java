@@ -33,13 +33,13 @@ import logisticspipes.utils.gui.extension.GuiExtension;
 import logisticspipes.world.inventory.CraftingModuleMenu;
 import network.rs485.logisticspipes.gui.widget.Label;
 import network.rs485.logisticspipes.gui.widget.VerticalLabel;
-import network.rs485.logisticspipes.property.BooleanProperty;
-import network.rs485.logisticspipes.property.IntListProperty;
-import network.rs485.logisticspipes.property.IntegerProperty;
-import network.rs485.logisticspipes.property.Property;
-import network.rs485.logisticspipes.property.layer.PropertyLayer;
-import network.rs485.logisticspipes.property.layer.PropertyOverlay;
-import network.rs485.logisticspipes.property.layer.ValuePropertyOverlay;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.IntListProperty;
+import logisticspipes.api.property.IntegerProperty;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
+import logisticspipes.api.property.layer.ValuePropertyOverlay;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
@@ -81,7 +81,7 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
         cleanupModeIsExcludeOverlay = propertyLayer.overlay(craftingModule.cleanupModeIsExclude);
         propertyLayer.addObserver(craftingModule.cleanupModeIsExclude, this::updateCleanupModeButton);
         craftingPriorityOverlay = propertyLayer.overlay(craftingModule.priority);
-        liquidAmountsOverlay = propertyLayer.overlay(craftingModule.liquidAmounts);
+        liquidAmountsOverlay = propertyLayer.overlayOf(craftingModule.liquidAmounts);
 
         if (!hasByproductExtractor) {
             panelWidth = 177;

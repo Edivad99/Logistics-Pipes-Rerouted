@@ -40,9 +40,9 @@ package network.rs485.logisticspipes.gui.module
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.widget.FuzzySelectionWidget
 import network.rs485.logisticspipes.inventory.container.ItemSinkContainer
-import network.rs485.logisticspipes.property.BooleanProperty
+import logisticspipes.api.property.BooleanProperty
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty
-import network.rs485.logisticspipes.property.layer.PropertyLayer
+import logisticspipes.api.property.layer.PropertyLayer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import logisticspipes.modules.LogisticsModule.ModulePositionType
@@ -137,7 +137,7 @@ class ItemSinkGui private constructor(
     internal val prefix: String = "gui.itemsink."
 
     internal val defaultRouteOverlay = propertyLayer.overlay(itemSinkModule.defaultRoute)
-    private val filterInventoryOverlay = propertyLayer.overlay(itemSinkModule.filterInventory)
+    private val filterInventoryOverlay = propertyLayer.overlayOf(itemSinkModule.filterInventory)
 
     override val fuzzySelector = FuzzySelectionWidget(this, itemSinkContainer.fuzzyFlagOverlay)
 

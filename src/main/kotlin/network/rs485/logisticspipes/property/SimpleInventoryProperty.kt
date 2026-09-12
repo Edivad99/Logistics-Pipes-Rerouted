@@ -37,6 +37,8 @@
 
 package network.rs485.logisticspipes.property
 
+import logisticspipes.api.property.ObserverCallback
+import logisticspipes.api.property.Property
 import logisticspipes.utils.item.SimpleStackInventory
 import net.minecraft.core.BlockPos
 import net.minecraft.world.Container
@@ -47,11 +49,16 @@ import net.minecraft.world.level.storage.ValueOutput
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.stream.Stream
 
-class SimpleInventoryProperty(private val inv: SimpleStackInventory, override val tagKey: String) :
+class SimpleInventoryProperty(private val inv: SimpleStackInventory, private val tagKey: String) :
     Property<SimpleStackInventory>, Container by inv {
 
-    override val propertyObservers: CopyOnWriteArraySet<ObserverCallback<SimpleStackInventory>> =
+    private val propertyObservers: CopyOnWriteArraySet<ObserverCallback<SimpleStackInventory>> =
         CopyOnWriteArraySet()
+
+    override fun getTagKey(): String = tagKey
+
+    override fun getPropertyObservers(): CopyOnWriteArraySet<ObserverCallback<SimpleStackInventory>> =
+        propertyObservers
 
     override fun copyValue(): SimpleStackInventory = SimpleStackInventory(inv)
 
@@ -61,23 +68,23 @@ class SimpleInventoryProperty(private val inv: SimpleStackInventory, override va
 
     override fun serialize(output: ValueOutput) = inv.serialize(output, tagKey)
 
-    fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).alsoIChanged()
+    fun clearInventorySlotContents(i: Int) = inv.clearInventorySlotContents(i).also { iChanged() }
 
-    fun dropContents(level: Level, pos: BlockPos) = inv.dropContents(level, pos).alsoIChanged()
+    fun dropContents(level: Level, pos: BlockPos) = inv.dropContents(level, pos).also { iChanged() }
 
     fun addCompressed(toAdd: ItemStack, ignoreMaxStackSize: Boolean): Int =
-        inv.addCompressed(toAdd, ignoreMaxStackSize).alsoIChanged()
+        inv.addCompressed(toAdd, ignoreMaxStackSize).also { iChanged() }
 
-    override fun removeItem(index: Int, count: Int): ItemStack = inv.removeItem(index, count).alsoIChanged()
+    override fun removeItem(index: Int, count: Int): ItemStack = inv.removeItem(index, count).also { iChanged() }
 
-    override fun removeItemNoUpdate(index: Int): ItemStack = inv.removeItemNoUpdate(index).alsoIChanged()
+    override fun removeItemNoUpdate(index: Int): ItemStack = inv.removeItemNoUpdate(index).also { iChanged() }
 
     override fun setItem(index: Int, stack: ItemStack) =
-        inv.setItem(index, stack).alsoIChanged()
+        inv.setItem(index, stack).also { iChanged() }
 
-    override fun setChanged() = inv.setChanged().alsoIChanged()
+    override fun setChanged() = inv.setChanged().also { iChanged() }
 
-    fun clear() = inv.clearContent().alsoIChanged()
+    fun clear() = inv.clearContent().also { iChanged() }
 
     @Deprecated("do not change returned ItemStack or call markDirty afterwards")
     override fun getItem(index: Int): ItemStack = inv.getItem(index)

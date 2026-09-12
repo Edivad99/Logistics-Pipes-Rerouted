@@ -21,9 +21,9 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
-import network.rs485.logisticspipes.property.StringListProperty;
-import network.rs485.logisticspipes.property.layer.PropertyLayer;
-import network.rs485.logisticspipes.property.layer.PropertyOverlay;
+import logisticspipes.api.property.StringListProperty;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
 
 public class OreDictItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMenu> {
 
@@ -44,7 +44,7 @@ public class OreDictItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMenu> 
         super(menu, inventory, title, menu.getModule(), 175, 208);
         final ModuleOreDictItemSink oreDictModule = (ModuleOreDictItemSink) menu.getModule();
         propertyLayer = new PropertyLayer(oreDictModule.getProperties());
-        oreListOverlay = propertyLayer.overlay(oreDictModule.getOreList());
+        oreListOverlay = propertyLayer.overlayOf(oreDictModule.getOreList());
         tmpInv = menu.getAnalysisInventory();
     }
 

@@ -37,26 +37,15 @@
 
 package network.rs485.logisticspipes.config;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ClientConfiguration {
 
     private int renderPipeDistance = 48;
     private int renderPipeContentDistance = 24;
-
-    public int getRenderPipeDistance() {
-        return renderPipeDistance;
-    }
-
-    public void setRenderPipeDistance(int renderPipeDistance) {
-        this.renderPipeDistance = renderPipeDistance;
-    }
-
-    public int getRenderPipeContentDistance() {
-        return renderPipeContentDistance;
-    }
-
-    public void setRenderPipeContentDistance(int renderPipeContentDistance) {
-        this.renderPipeContentDistance = renderPipeContentDistance;
-    }
 
     public void merge(ClientConfiguration configuration) {
         renderPipeDistance = configuration.renderPipeDistance;

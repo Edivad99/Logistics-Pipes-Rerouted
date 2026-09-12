@@ -40,9 +40,9 @@ package network.rs485.logisticspipes.gui.module
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.inventory.ProviderMode
 import network.rs485.logisticspipes.inventory.container.ProviderContainer
-import network.rs485.logisticspipes.property.BooleanProperty
-import network.rs485.logisticspipes.property.EnumProperty
-import network.rs485.logisticspipes.property.layer.PropertyLayer
+import logisticspipes.api.property.BooleanProperty
+import logisticspipes.api.property.EnumProperty
+import logisticspipes.api.property.layer.PropertyLayer
 import network.rs485.logisticspipes.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import logisticspipes.modules.ModuleProvider

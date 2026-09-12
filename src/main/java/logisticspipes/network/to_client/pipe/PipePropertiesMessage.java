@@ -17,7 +17,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
-import network.rs485.logisticspipes.property.PropertyHolder;
+import logisticspipes.api.property.PropertyHolder;
 
 /**
  * A pipe's properties, as the server has them.

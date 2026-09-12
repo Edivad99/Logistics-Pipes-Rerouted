@@ -37,15 +37,25 @@
 
 package network.rs485.logisticspipes.property
 
+import logisticspipes.api.property.ListProperty
+import logisticspipes.api.property.ObserverCallback
+import logisticspipes.api.property.Property
 import logisticspipes.pipes.PipeLogisticsChassis
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager
+import logisticspipes.utils.item.SimpleStackInventory
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 
 class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
-    override val tagKey: String
+    private val tagKey: String
     private val parentChassis: PipeLogisticsChassis
     private val subProperties = arrayListOf<Property<*>>()
+
+    // One stable instance: ObserverCallback is a Java interface now, so a fresh method
+    // reference per call site would never compare equal when removing the observer again.
+    private val contentObserver = ObserverCallback<SimpleStackInventory> { notifyFromContent() }
+
+    override fun getTagKey(): String = tagKey
 
     private constructor(
         parentChassis: PipeLogisticsChassis,
@@ -78,17 +88,17 @@ class UpgradeManagerListProperty : ListProperty<ModuleUpgradeManager> {
         val propertiesToUnobserve: MutableSet<Property<*>> = subProperties.toMutableSet()
         list.forEach {
             if (!propertiesToUnobserve.remove(it.inv)) {
-                it.inv.addObserver(this::contentObserver)
+                it.inv.addObserver(contentObserver)
                 subProperties.add(it.inv)
             }
         }
         propertiesToUnobserve.forEach {
-            it.propertyObservers.remove(this::contentObserver)
+            it.propertyObservers.remove(contentObserver)
         }
         subProperties.removeAll(propertiesToUnobserve)
     }
 
-    private fun contentObserver(property: Property<*>) {
+    private fun notifyFromContent() {
         super.iChanged()
     }
 

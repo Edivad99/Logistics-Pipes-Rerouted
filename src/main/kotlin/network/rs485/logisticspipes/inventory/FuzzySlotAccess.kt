@@ -37,8 +37,8 @@
 
 package network.rs485.logisticspipes.inventory
 
-import network.rs485.logisticspipes.property.BitSetProperty
-import network.rs485.logisticspipes.property.IBitSet
+import logisticspipes.api.property.BitSetProperty
+import logisticspipes.api.property.IBitSet
 
 class FuzzySlotAccess(
     private val slotAccess: SlotAccess, private val fuzzyFlags: BitSetProperty

@@ -41,7 +41,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.property.Property;
+import logisticspipes.api.property.Property;
 
 public class ModulePassiveSupplier extends LogisticsModule
 		implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver,

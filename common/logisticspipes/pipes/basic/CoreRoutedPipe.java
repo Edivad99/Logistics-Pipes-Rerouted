@@ -57,7 +57,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
-import kotlin.Unit;
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
@@ -138,8 +137,8 @@ import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 import logisticspipes.api.connection.Adjacent;
 import network.rs485.logisticspipes.connection.AdjacentFactory;
 import network.rs485.logisticspipes.connection.NoAdjacent;
-import network.rs485.logisticspipes.property.PropertyHolder;
-import network.rs485.logisticspipes.property.UtilKt;
+import logisticspipes.api.property.PropertyHolder;
+import logisticspipes.api.property.PropertyUtil;
 
 @CCType(name = "LogisticsPipes:Normal")
 public abstract class CoreRoutedPipe extends CoreUnroutedPipe
@@ -1767,10 +1766,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		if (isInitialized()) {
 			final Level level = getLevel();
 			if (level != null && !level.isClientSide() && this instanceof PropertyHolder) {
-				UtilKt.addObserver(((PropertyHolder) this).getProperties(), (prop) -> {
-					markTileDirty();
-					return Unit.INSTANCE;
-				});
+				PropertyUtil.addObserver(((PropertyHolder) this).getProperties(), prop -> markTileDirty());
 			}
 
 			if (getLogisticsModule() != null) {

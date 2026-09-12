@@ -63,8 +63,8 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.property.Property;
-import network.rs485.logisticspipes.property.PropertyHolder;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.PropertyHolder;
 
 public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSink, PropertyHolder, ValueIOSerializable {
 

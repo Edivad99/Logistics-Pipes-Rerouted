@@ -51,11 +51,11 @@ import logisticspipes.world.inventory.LPMenuTypes;
 import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
-import network.rs485.logisticspipes.property.BitSetProperty;
-import network.rs485.logisticspipes.property.BooleanProperty;
-import network.rs485.logisticspipes.property.IBitSet;
+import logisticspipes.api.property.BitSetProperty;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.IBitSet;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.property.Property;
+import logisticspipes.api.property.Property;
 import network.rs485.logisticspipes.util.FuzzyFlag;
 import network.rs485.logisticspipes.util.FuzzyUtil;
 

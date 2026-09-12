@@ -73,11 +73,11 @@ import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 import network.rs485.logisticspipes.inventory.container.ProviderContainer;
-import network.rs485.logisticspipes.property.BooleanProperty;
-import network.rs485.logisticspipes.property.EnumProperty;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.EnumProperty;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.property.NullableEnumProperty;
-import network.rs485.logisticspipes.property.Property;
+import logisticspipes.api.property.NullableEnumProperty;
+import logisticspipes.api.property.Property;
 
 @CCType(name = "Provider Module")
 public class ModuleProvider extends LogisticsModule implements SneakyDirection, ILegacyActiveModule,

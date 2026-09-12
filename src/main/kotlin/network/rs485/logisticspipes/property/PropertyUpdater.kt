@@ -37,6 +37,9 @@
 
 package network.rs485.logisticspipes.property
 
+import logisticspipes.api.property.ObserverCallback
+import logisticspipes.api.property.Property
+import logisticspipes.api.property.PropertyUtil
 import network.rs485.grow.Coroutines.scheduleServerTask
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.network.ModuleTarget
@@ -56,7 +59,12 @@ class PropertyUpdater(
 ) : Consumer<Property<*>> {
 
     private val weakPlayer: WeakReference<Player> = WeakReference(player)
-    private val properties: List<Property<*>> = propertiesIn.also { it.addObserver(this::accept) }
+
+    // One stable instance: a fresh `this::accept` per call site would never compare equal
+    // when removing the observer again.
+    private val observer = ObserverCallback<Any> { accept(it) }
+
+    private val properties: List<Property<*>> = propertiesIn.also { PropertyUtil.addObserver(it, observer) }
     private val changedProperties = HashSet<Property<*>>()
     private val module: LogisticsModule = moduleIn
     private var shouldUpdate = false
@@ -73,7 +81,7 @@ class PropertyUpdater(
         if (shouldUpdate && !weakPlayer.isEnqueued) {
             val player = weakPlayer.get() ?: return
             val output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.level().registryAccess())
-            changedProperties.serialize(output)
+            PropertyUtil.serialize(changedProperties, output)
             changedProperties.clear()
             if (player is ServerPlayer) {
                 PacketDistributor.sendToPlayer(
@@ -89,7 +97,7 @@ class PropertyUpdater(
         val shouldBeRemoved = (weakPlayer.isEnqueued
                 || weakPlayer.get() == null || weakPlayer.get() === entityPlayer)
         if (shouldBeRemoved) {
-            properties.removeObserver(this::accept)
+            PropertyUtil.removeObserver(properties, observer)
             shouldUpdate = false
         }
         return shouldBeRemoved

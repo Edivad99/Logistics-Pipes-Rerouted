@@ -3,7 +3,7 @@ package logisticspipes.proxy.interfaces;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import network.rs485.logisticspipes.inventory.SlotAccess;
-import network.rs485.logisticspipes.property.BitSetProperty;
+import logisticspipes.api.property.BitSetProperty;
 
 public interface IFuzzyRecipeProvider extends ICraftingRecipeProvider {
 

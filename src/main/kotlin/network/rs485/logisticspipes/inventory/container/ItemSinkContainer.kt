@@ -38,9 +38,9 @@
 package network.rs485.logisticspipes.inventory.container
 
 import network.rs485.logisticspipes.gui.widget.GhostSlot
-import network.rs485.logisticspipes.property.InventoryProperty
-import network.rs485.logisticspipes.property.layer.PropertyLayer
-import network.rs485.logisticspipes.property.layer.PropertyOverlayInventoryAdapter
+import logisticspipes.api.property.InventoryProperty
+import logisticspipes.api.property.layer.PropertyLayer
+import logisticspipes.api.property.layer.PropertyOverlayInventoryAdapter
 import network.rs485.logisticspipes.util.FuzzyFlag
 import logisticspipes.modules.ModuleItemSink
 import logisticspipes.network.ModuleTarget
@@ -70,7 +70,7 @@ class ItemSinkContainer(
      */
     val propertyLayer = PropertyLayer(itemSinkModule.properties)
 
-    val fuzzyFlagOverlay = propertyLayer.overlay(itemSinkModule.fuzzyFlags)
+    val fuzzyFlagOverlay = propertyLayer.overlayOf(itemSinkModule.fuzzyFlags)
 
     val playerSlots = addPlayerSlotsToContainer(
         playerInventoryIn = playerInventory,
@@ -80,7 +80,7 @@ class ItemSinkContainer(
     )
 
     val filterSlots = addDummySlotsToContainer(
-        overlayInventory = PropertyOverlayInventoryAdapter(propertyLayer.overlay(itemSinkModule.filterInventory)),
+        overlayInventory = PropertyOverlayInventoryAdapter(propertyLayer.overlayOf(itemSinkModule.filterInventory)),
         baseProperty = module.filterInventory,
         startX = 0,
         startY = 0,

@@ -49,11 +49,11 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
 import network.rs485.logisticspipes.connection.AdjacentUtil;
-import network.rs485.logisticspipes.property.BooleanProperty;
-import network.rs485.logisticspipes.property.EnumProperty;
-import network.rs485.logisticspipes.property.IntListProperty;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.EnumProperty;
+import logisticspipes.api.property.IntListProperty;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.property.Property;
+import logisticspipes.api.property.Property;
 
 public class ModuleActiveSupplier extends LogisticsModule
 		implements IRequestItems, IRequireReliableTransport, IClientInformationProvider, IHUDModuleHandler,

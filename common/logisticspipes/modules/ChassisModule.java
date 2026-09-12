@@ -25,7 +25,7 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.ChassisMenu;
-import network.rs485.logisticspipes.property.Property;
+import logisticspipes.api.property.Property;
 import network.rs485.logisticspipes.property.SlottedModule;
 import network.rs485.logisticspipes.property.SlottedModuleListProperty;
 import network.rs485.logisticspipes.property.UpgradeManagerListProperty;

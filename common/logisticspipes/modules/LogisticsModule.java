@@ -15,7 +15,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-import kotlin.Unit;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
@@ -36,9 +35,9 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
-import network.rs485.logisticspipes.property.Property;
-import network.rs485.logisticspipes.property.PropertyHolder;
-import network.rs485.logisticspipes.property.UtilKt;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.PropertyHolder;
+import logisticspipes.api.property.PropertyUtil;
 
 @CCType(name = "LogisticsModule")
 public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeHolder, PropertyHolder {
@@ -229,10 +228,7 @@ public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeH
 		if (service != null) {
 			final Level blockAccess = worldProvider == null ? null : worldProvider.getLevel();
 			if (blockAccess != null && !blockAccess.isClientSide()) {
-				UtilKt.addObserver(getProperties(), (_) -> {
-					service.markTileDirty();
-					return Unit.INSTANCE;
-				});
+				PropertyUtil.addObserver(getProperties(), prop -> service.markTileDirty());
 			}
 		}
 		initialized = true;
