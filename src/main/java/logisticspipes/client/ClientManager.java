@@ -33,6 +33,8 @@ import logisticspipes.client.gui.screen.LogisticsCraftingTableScreen;
 import logisticspipes.client.gui.screen.LogisticsSettingsScreen;
 import logisticspipes.client.gui.screen.NormalMk2OrdererScreen;
 import logisticspipes.client.gui.screen.NormalOrdererScreen;
+import logisticspipes.client.gui.screen.ItemSinkScreen;
+import logisticspipes.client.gui.screen.ProviderScreen;
 import logisticspipes.client.gui.screen.OreDictItemSinkScreen;
 import logisticspipes.client.gui.screen.PipeControllerScreen;
 import logisticspipes.client.gui.screen.PowerJunctionScreen;
@@ -70,8 +72,6 @@ import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
 import network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor;
-import network.rs485.logisticspipes.gui.module.ItemSinkGui;
-import network.rs485.logisticspipes.gui.module.ProviderGui;
 
 public class ClientManager {
 
@@ -178,8 +178,8 @@ public class ClientManager {
         event.register(LPMenuTypes.ORDERER_MK2.get(), NormalMk2OrdererScreen::new);
         event.register(LPMenuTypes.FLUID_ORDERER.get(), FluidOrdererScreen::new);
         event.register(LPMenuTypes.CHASSIS.get(), ChassisPipeScreen::new);
-        event.register(LPMenuTypes.ITEM_SINK.get(), ItemSinkGui::new);
-        event.register(LPMenuTypes.PROVIDER.get(), ProviderGui::new);
+        event.register(LPMenuTypes.ITEM_SINK.get(), ItemSinkScreen::new);
+        event.register(LPMenuTypes.PROVIDER.get(), ProviderScreen::new);
         event.register(LPMenuTypes.ORE_DICT_ITEM_SINK.get(), OreDictItemSinkScreen::new);
         event.register(LPMenuTypes.STRING_BASED_ITEM_SINK.get(), StringBasedItemSinkScreen::new);
         event.register(LPMenuTypes.ADVANCED_EXTRACTOR.get(), AdvancedExtractorScreen::new);

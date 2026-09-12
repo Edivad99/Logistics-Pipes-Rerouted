@@ -45,10 +45,11 @@ import net.minecraft.world.Container;
 import lombok.Getter;
 
 import logisticspipes.api.property.IBitSet;
+import logisticspipes.interfaces.IFuzzySlot;
 import network.rs485.logisticspipes.util.FuzzyFlag;
 
 @Getter
-public non-sealed class FuzzyItemSlot extends GhostSlot implements Fuzzy, Item {
+public non-sealed class FuzzyItemSlot extends GhostSlot implements Fuzzy, Item, IFuzzySlot {
 
     private final EnumSet<FuzzyFlag> usedFlags;
     private final Supplier<IBitSet> flagGetter;
@@ -58,5 +59,26 @@ public non-sealed class FuzzyItemSlot extends GhostSlot implements Fuzzy, Item {
         super(inventoryIn, index, xPosition, yPosition);
         this.usedFlags = usedFlags;
         this.flagGetter = flagGetter;
+    }
+
+    @Override
+    public IBitSet getFuzzyFlags() {
+        return flagGetter.get();
+    }
+
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getY() {
+        return y;
+    }
+
+    /** The index within the menu, which is what {@code FuzzySlotFlagsMessage} resolves against. */
+    @Override
+    public int getSlotId() {
+        return index;
     }
 }

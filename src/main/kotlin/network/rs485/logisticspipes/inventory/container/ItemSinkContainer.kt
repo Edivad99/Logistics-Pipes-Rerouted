@@ -70,20 +70,19 @@ class ItemSinkContainer(
      */
     val propertyLayer = PropertyLayer(itemSinkModule.properties)
 
-    val fuzzyFlagOverlay = propertyLayer.overlayOf(itemSinkModule.fuzzyFlags)
-
+    // Must match ItemSinkScreen.PLAYER_INVENTORY_Y: the screen draws the background, the menu the slots.
     val playerSlots = addPlayerSlotsToContainer(
         playerInventoryIn = playerInventory,
-        startX = 0,
-        startY = 0,
+        startX = 8,
+        startY = 67,
         lockedStack = moduleInHand,
     )
 
     val filterSlots = addDummySlotsToContainer(
         overlayInventory = PropertyOverlayInventoryAdapter(propertyLayer.overlayOf(itemSinkModule.filterInventory)),
         baseProperty = module.filterInventory,
-        startX = 0,
-        startY = 0,
+        startX = 8,
+        startY = 19,
     )
 
     override fun addDummySlotsToContainer(
@@ -105,9 +104,9 @@ class ItemSinkContainer(
                         posY = startY,
                         usedFlags = flags,
                     ) {
-                        fuzzyFlagOverlay.read { p ->
-                            p.get(column * 4, column * 4 + 3)
-                        }
+                        // Not through the property layer: the fuzzy flags are edited live, like
+                        // every other fuzzy slot in the mod.
+                        module.fuzzyFlags.get(column * 4, column * 4 + 3)
                     }
                 } else {
                     addGhostItemSlotToContainer(

@@ -9,6 +9,8 @@ package logisticspipes.client.gui.screen;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -92,6 +94,9 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
     private AbstractWidget selectedButton;
     private int currentDrawScreenMouseX;
     private int currentDrawScreenMouseY;
+    private static final String FUZZY_LABEL_PREFIX = "gui.crafting.";
+    private static final int FUZZY_LINE_HEIGHT = 10;
+
     private @Nullable IFuzzySlot fuzzySlot;
     private boolean fuzzySlotActiveGui;
     private int fuzzySlotGuiHoverTime;
@@ -313,28 +318,25 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
     }
 
     private void onRenderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
-        if (slot instanceof IFuzzySlot) {
-            final IBitSet set = ((IFuzzySlot) slot).getFuzzyFlags();
+        if (slot instanceof IFuzzySlot fuzzy) {
+            final IBitSet set = fuzzy.getFuzzyFlags();
+            final List<FuzzyFlag> offered = offeredFlags(fuzzy);
             int x1 = slot.x;
             int y1 = slot.y;
             // GL_LIGHTING removed — use shaders
-            final boolean useOreDict = FuzzyUtil.INSTANCE.get(set, FuzzyFlag.USE_ORE_DICT);
-            if (useOreDict) {
+            if (isSet(offered, set, FuzzyFlag.USE_ORE_DICT)) {
                 guiGraphics.fill(x1 + 8, y1 - 1, x1 + 17, y1, 0xFFFF4040);
                 guiGraphics.fill(x1 + 16, y1, x1 + 17, y1 + 8, 0xFFFF4040);
             }
-            final boolean ignoreDamage = FuzzyUtil.INSTANCE.get(set, FuzzyFlag.IGNORE_DAMAGE);
-            if (ignoreDamage) {
+            if (isSet(offered, set, FuzzyFlag.IGNORE_DAMAGE)) {
                 guiGraphics.fill(x1 - 1, y1 - 1, x1 + 8, y1, 0xFF40FF40);
                 guiGraphics.fill(x1 - 1, y1, x1, y1 + 8, 0xFF40FF40);
             }
-            final boolean ignoreNBT = FuzzyUtil.INSTANCE.get(set, FuzzyFlag.IGNORE_NBT);
-            if (ignoreNBT) {
+            if (isSet(offered, set, FuzzyFlag.IGNORE_NBT)) {
                 guiGraphics.fill(x1 - 1, y1 + 16, x1 + 8, y1 + 17, 0xFF4040FF);
                 guiGraphics.fill(x1 - 1, y1 + 8, x1, y1 + 17, 0xFF4040FF);
             }
-            final boolean useOreCategory = FuzzyUtil.INSTANCE.get(set, FuzzyFlag.USE_ORE_CATEGORY);
-            if (useOreCategory) {
+            if (isSet(offered, set, FuzzyFlag.USE_ORE_CATEGORY)) {
                 guiGraphics.fill(x1 + 8, y1 + 16, x1 + 17, y1 + 17, 0xFF7F7F40);
                 guiGraphics.fill(x1 + 16, y1 + 8, x1 + 17, y1 + 17, 0xFF7F7F40);
             }
@@ -354,25 +356,24 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
             if (fuzzySlotActiveGui && fuzzySlot == slot) {
                 if (!mouseOver) {
                     //Check within FuzzyGui
-                    if (!isHovering(slot.x, slot.y + 16, 60, 52, currentDrawScreenMouseX, currentDrawScreenMouseY)) {
+                    if (!isHovering(slot.x, slot.y + 16, 60, fuzzyPanelHeight(fuzzy) + 5,
+                        currentDrawScreenMouseX, currentDrawScreenMouseY)) {
                         fuzzySlotActiveGui = false;
                         fuzzySlot = null;
                     }
                 }
                 final int posX = slot.x + leftPos;
                 final int posY = slot.y + 17 + topPos;
+                final int panelHeight = fuzzyPanelHeight(fuzzy);
                 renderAtTheEnd.add(() -> {
-                    LPGuiGraphics.drawGuiBackGround(guiGraphics, posX, posY, posX + 61, posY + 47, 0.0f, true, true,
-                        true, true, true);
-                    final String PREFIX = "gui.crafting.";
-                    guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "OreDict"), posX + 5, posY + 5,
-                        (useOreDict ? 0xFFFF4040 : 0xFF404040), false);
-                    guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "IgnDamage"), posX + 5, posY + 15,
-                        (ignoreDamage ? 0xFF40FF40 : 0xFF404040), false);
-                    guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "IgnNBT"), posX + 5, posY + 25,
-                        (ignoreNBT ? 0xFF4040FF : 0xFF404040), false);
-                    guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "OrePrefix"), posX + 5, posY + 35,
-                        (useOreCategory ? 0xFF7F7F40 : 0xFF404040), false);
+                    LPGuiGraphics.drawGuiBackGround(guiGraphics, posX, posY, posX + 61, posY + panelHeight, 0.0f,
+                        true, true, true, true, true);
+                    for (int i = 0; i < offered.size(); i++) {
+                        final FuzzyFlag flag = offered.get(i);
+                        guiGraphics.text(minecraft.font, TextUtil.translate(FUZZY_LABEL_PREFIX + labelOf(flag)),
+                            posX + 5, posY + 5 + i * FUZZY_LINE_HEIGHT,
+                            FuzzyUtil.INSTANCE.get(set, flag) ? colorOf(flag) : 0xFF404040, false);
+                    }
                 });
             }
         }
@@ -397,11 +398,45 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
         return !isMouseInFuzzyPanel(currentDrawScreenMouseX, currentDrawScreenMouseY);
     }
 
+    /** The flags the slot offers, in panel order: by bit index, not by declaration order. */
+    private static List<FuzzyFlag> offeredFlags(IFuzzySlot slot) {
+        return Arrays.stream(FuzzyFlag.values())
+            .filter(slot.getUsedFlags()::contains)
+            .sorted(Comparator.comparingInt(FuzzyFlag::getBit))
+            .toList();
+    }
+
+    private static boolean isSet(List<FuzzyFlag> offered, IBitSet set, FuzzyFlag flag) {
+        return offered.contains(flag) && FuzzyUtil.INSTANCE.get(set, flag);
+    }
+
+    private static int fuzzyPanelHeight(IFuzzySlot slot) {
+        return offeredFlags(slot).size() * FUZZY_LINE_HEIGHT + 7;
+    }
+
+    private static String labelOf(FuzzyFlag flag) {
+        return switch (flag) {
+            case USE_ORE_DICT -> "OreDict";
+            case IGNORE_DAMAGE -> "IgnDamage";
+            case IGNORE_NBT -> "IgnNBT";
+            case USE_ORE_CATEGORY -> "OrePrefix";
+        };
+    }
+
+    private static int colorOf(FuzzyFlag flag) {
+        return switch (flag) {
+            case USE_ORE_DICT -> 0xFFFF4040;
+            case IGNORE_DAMAGE -> 0xFF40FF40;
+            case IGNORE_NBT -> 0xFF4040FF;
+            case USE_ORE_CATEGORY -> 0xFF7F7F40;
+        };
+    }
+
     private boolean isMouseInFuzzyPanel(int x, int y) {
         if (!fuzzySlotActiveGui || fuzzySlot == null) {
             return false;
         }
-        return isHovering(fuzzySlot.getX(), fuzzySlot.getY() + 16, 60, 52, x, y);
+        return isHovering(fuzzySlot.getX(), fuzzySlot.getY() + 16, 60, fuzzyPanelHeight(fuzzySlot) + 5, x, y);
     }
 
     protected void checkButtons() {
@@ -491,23 +526,18 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
         if (isMouseInFuzzyPanel((int) par1, (int) par2)) {
             final int posX = fuzzySlot.getX() + leftPos;
             final int posY = fuzzySlot.getY() + 17 + topPos;
+            final List<FuzzyFlag> offered = offeredFlags(fuzzySlot);
             int sel = -1;
             if (par1 >= posX + 5 && par1 <= posX + 56) {
-                if (par2 >= posY + 5 && par2 <= posY + 45) {
-                    sel = (int) (par2 - posY - 4) / 10;
+                if (par2 >= posY + 5 && par2 < posY + 5 + offered.size() * FUZZY_LINE_HEIGHT) {
+                    sel = (int) (par2 - posY - 4) / FUZZY_LINE_HEIGHT;
                 }
             }
-            IBitSet set = fuzzySlot.getFuzzyFlags();
-            FuzzyFlag flag = switch (sel) {
-                case 0 -> FuzzyFlag.USE_ORE_DICT;
-                case 1 -> FuzzyFlag.IGNORE_DAMAGE;
-                case 2 -> FuzzyFlag.IGNORE_NBT;
-                case 3 -> FuzzyFlag.USE_ORE_CATEGORY;
-                default -> null;
-            };
-            if (flag == null) {
+            if (sel < 0 || sel >= offered.size()) {
                 return false;
             }
+            IBitSet set = fuzzySlot.getFuzzyFlags();
+            FuzzyFlag flag = offered.get(sel);
             set.flip(flag.getBit());
             ClientPacketDistributor.sendToServer(
                 FuzzySlotFlagsMessage.of(fuzzySlot.getSlotId(), set.copyValue()));

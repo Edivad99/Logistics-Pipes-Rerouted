@@ -14,7 +14,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.to_server.module.ItemSinkImportRequestMessage;
 import logisticspipes.utils.item.ItemIdentifier;
 
-import network.rs485.logisticspipes.gui.module.ItemSinkGui;
+import logisticspipes.client.gui.screen.ItemSinkScreen;
 
 /**
  * What the server found in the inventories next to the pipe, in answer to
@@ -47,7 +47,7 @@ public record ItemSinkImportedItemsMessage(List<ItemIdentifier> items) implement
     private static final class Client {
 
         static void handle(ItemSinkImportedItemsMessage message, IPayloadContext context) {
-            if (Minecraft.getInstance().screen instanceof ItemSinkGui gui) {
+            if (Minecraft.getInstance().screen instanceof ItemSinkScreen gui) {
                 gui.importFromInventory(message.items);
             }
         }

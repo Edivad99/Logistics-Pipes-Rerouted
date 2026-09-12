@@ -62,13 +62,14 @@ class ProviderContainer(
     /** The screen's edit buffer; see [ItemSinkContainer.propertyLayer]. */
     val propertyLayer = PropertyLayer(providerModule.propertyList)
 
-    val playerSlots = addPlayerSlotsToContainer(playerInventoryIn, 0, 0, moduleInHand)
+    // Must match ProviderScreen.PLAYER_INVENTORY_Y / FILTER_X / FILTER_Y.
+    val playerSlots = addPlayerSlotsToContainer(playerInventoryIn, 8, 113, moduleInHand)
 
     val filterSlots = addDummySlotsToContainer(
         overlayInventory = PropertyOverlayInventoryAdapter(propertyLayer.overlayOf(providerModule.filterInventory)),
         baseProperty = module.filterInventory,
-        startX = 0,
-        startY = 0,
+        startX = 61,
+        startY = 29,
     )
 
     // Add 3x3 grid of dummy slots.
