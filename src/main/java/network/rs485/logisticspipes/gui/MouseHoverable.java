@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021  RS485
+ * Copyright (c) 2020  RS485
  *
  * "LogisticsPipes" is distributed under the terms of the Minecraft Mod Public
  * License 1.0.1, or MMPL. Please check the contents of the license located in
@@ -8,7 +8,7 @@
  * This file can instead be distributed under the license terms of the
  * MIT license:
  *
- * Copyright (c) 2021  RS485
+ * Copyright (c) 2020  RS485
  *
  * This MIT license was reworded to only match this file. If you use the regular
  * MIT license in your project, replace this copyright notice (this line and any
@@ -35,42 +35,17 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.util.math
+package network.rs485.logisticspipes.gui;
 
-import network.rs485.logisticspipes.util.IRectangle
-import network.rs485.logisticspipes.util.Rectangle
+public interface MouseHoverable {
 
-class BorderedRectangle<R : IRectangle>(
-    outer: R,
-    borderTop: Int,
-    borderLeft: Int,
-    borderBottom: Int,
-    borderRight: Int,
-) {
-
-    constructor(outer: R, border: Int) : this(outer, border, border, border, border)
-
-    val inner = MutableRectangle.fromRectangle(outer)
-        .translate(borderLeft, borderTop)
-        .grow(-borderLeft - borderRight, -borderTop - borderBottom)
-
-    // Corners
-    val topRight: IRectangle = Rectangle(inner.right to outer.top, outer.right to inner.top)
-    val topLeft: IRectangle = Rectangle(outer.left to outer.top, inner.left to inner.top)
-    val bottomLeft: IRectangle = Rectangle(outer.left to inner.bottom, inner.left to outer.bottom)
-    val bottomRight: IRectangle = Rectangle(inner.right to inner.bottom, outer.right to outer.bottom)
-
-    // Sides
-    val top: IRectangle = Rectangle(inner.left to outer.top, inner.right to inner.top)
-    val left: IRectangle = Rectangle(outer.left to inner.top, inner.left to inner.bottom)
-    val bottom: IRectangle = Rectangle(inner.left to inner.bottom, inner.right to outer.bottom)
-    val right: IRectangle = Rectangle(inner.right to inner.top, outer.right to inner.bottom)
-
-    val corners: List<IRectangle> = listOf(topRight, topLeft, bottomLeft, bottomRight)
-
-    val sides: List<IRectangle> = listOf(top, left, bottom, right)
-
-    val borderQuads: List<IRectangle> = listOf(topRight, top, topLeft, left, bottomLeft, bottom, bottomRight, right)
-
-    val quads: List<IRectangle> = borderQuads + inner
+    /**
+     * Check if mouse is over the current object.
+     *
+     * @param mouseX X position of the mouse (absolute, screen)
+     * @param mouseY Y position of the mouse (absolute, screen)
+     */
+    default boolean isMouseHovering(float mouseX, float mouseY) {
+        return false;
+    }
 }

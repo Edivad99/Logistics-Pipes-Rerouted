@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021  RS485
+ * Copyright (c) 2020  RS485
  *
  * "LogisticsPipes" is distributed under the terms of the Minecraft Mod Public
  * License 1.0.1, or MMPL. Please check the contents of the license located in
@@ -8,7 +8,7 @@
  * This file can instead be distributed under the license terms of the
  * MIT license:
  *
- * Copyright (c) 2021  RS485
+ * Copyright (c) 2020  RS485
  *
  * This MIT license was reworded to only match this file. If you use the regular
  * MIT license in your project, replace this copyright notice (this line and any
@@ -35,36 +35,50 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.gui.widget
+package network.rs485.logisticspipes.gui;
 
-import network.rs485.logisticspipes.gui.*
-import network.rs485.logisticspipes.util.math.MutableRectangle
+import net.minecraft.client.Minecraft;
+import org.jspecify.annotations.Nullable;
 
-interface Tooltipped : MouseHoverable {
-    fun getTooltipText(): List<String>
-}
+import network.rs485.logisticspipes.util.math.MutableRectangle;
 
-abstract class LPGuiWidget(
-    parent: Drawable,
-    val xPosition: HorizontalAlignment,
-    val yPosition: VerticalAlignment,
-    val xSize: Size,
-    val ySize: Size,
-    var margin: Margin,
-) : Drawable {
-    override var parent: Drawable? = parent
+/** The game window, as the root of every widget tree. */
+public final class Screen implements Drawable {
 
-    final override val relativeBody: MutableRectangle = MutableRectangle()
+    public static final Screen INSTANCE = new Screen();
 
-    abstract val minWidth: Int
-    abstract val minHeight: Int
+    private @Nullable Drawable parent = null;
 
-    abstract val maxWidth: Int
-    abstract val maxHeight: Int
+    private Screen() {
+    }
 
-    abstract fun initWidget()
+    public MutableRectangle getScreen() {
+        net.minecraft.client.gui.screens.Screen currentScreen = Minecraft.getInstance().screen;
+        return new MutableRectangle(
+            currentScreen != null ? currentScreen.width : Minecraft.getInstance().getWindow().getWidth(),
+            currentScreen != null ? currentScreen.height : Minecraft.getInstance().getWindow().getHeight());
+    }
 
-    open fun setSize(newWidth: Int = relativeBody.roundedWidth, newHeight: Int = relativeBody.roundedHeight) {
-        relativeBody.setSize(newWidth, newHeight)
+    @Override
+    public MutableRectangle getRelativeBody() {
+        return getScreen();
+    }
+
+    @Override
+    public @Nullable Drawable getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(@Nullable Drawable parent) {
+        this.parent = parent;
+    }
+
+    public int getXCenter() {
+        return getRelativeBody().getRoundedWidth() / 2;
+    }
+
+    public int getYCenter() {
+        return getRelativeBody().getRoundedHeight() / 2;
     }
 }

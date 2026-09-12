@@ -37,23 +37,25 @@
 
 package network.rs485.logisticspipes.gui
 
+import logisticspipes.api.gui.Size
+
 import network.rs485.logisticspipes.gui.widget.*
 
 object GuiRenderer : WidgetRenderer<WidgetContainer> {
 
     private fun createWidget(container: WidgetContainer, component: GuiComponent): LPGuiWidget? = when (component) {
         is PropertyLabel<*, *> -> LabelWidget(
-            parent = container,
-            width = component.width,
-            xPosition = component.horizontalAlignment,
-            yPosition = component.verticalAlignment,
-            xSize = component.horizontalSize,
-            margin = component.margin,
-            text = component.text,
-            textColor = component.textColor,
-            textAlignment = component.textAlignment,
-            extendable = component.extendable,
-            backgroundColor = component.backgroundColor,
+            container,
+            component.width,
+            component.horizontalAlignment,
+            component.verticalAlignment,
+            component.horizontalSize,
+            component.margin,
+            component.text,
+            component.textColor,
+            component.textAlignment,
+            component.extendable,
+            component.backgroundColor,
         ).apply {
             component.onPropertyUpdate { newText ->
                 updateText(newText)
@@ -61,17 +63,17 @@ object GuiRenderer : WidgetRenderer<WidgetContainer> {
         }
 
         is PropertyButton<*, *> -> TextButton(
-            parent = container,
-            xPosition = component.horizontalAlignment,
-            yPosition = component.verticalAlignment,
-            xSize = Size.GROW,
-            ySize = Size.FIXED,
-            margin = component.margin,
-            text = component.text,
-            enabled = component.enabled,
-            onClickAction = {
+            container,
+            component.horizontalAlignment,
+            component.verticalAlignment,
+            Size.GROW,
+            Size.FIXED,
+            component.margin,
+            component.text,
+            component.enabled,
+            {
                 component.action.invoke()
-                return@TextButton true
+                true
             },
         ).apply {
             component.onPropertyUpdate { newText ->
@@ -80,55 +82,55 @@ object GuiRenderer : WidgetRenderer<WidgetContainer> {
         }
 
         is Label -> LabelWidget(
-            parent = container,
-            width = component.width,
-            xPosition = component.horizontalAlignment,
-            yPosition = component.verticalAlignment,
-            xSize = component.horizontalSize,
-            margin = component.margin,
-            text = component.text,
-            textColor = component.textColor,
-            textAlignment = component.textAlignment,
-            extendable = component.extendable,
-            backgroundColor = component.backgroundColor,
+            container,
+            component.width,
+            component.horizontalAlignment,
+            component.verticalAlignment,
+            component.horizontalSize,
+            component.margin,
+            component.text,
+            component.textColor,
+            component.textAlignment,
+            component.extendable,
+            component.backgroundColor,
         )
 
         is Button -> TextButton(
-            parent = container,
-            xPosition = component.horizontalAlignment,
-            yPosition = component.verticalAlignment,
-            xSize = Size.GROW,
-            ySize = Size.FIXED,
-            margin = component.margin,
-            text = component.text,
-            enabled = component.enabled,
-            onClickAction = { mouseButton ->
+            container,
+            component.horizontalAlignment,
+            component.verticalAlignment,
+            Size.GROW,
+            Size.FIXED,
+            component.margin,
+            component.text,
+            component.enabled,
+            { mouseButton ->
                 if (mouseButton == 0) component.action.invoke()
                 mouseButton == 0
             },
         )
 
         is CustomSlots -> SlotGroup(
-            parent = container,
-            xPosition = component.horizontalAlignment,
-            yPosition = component.verticalAlignment,
-            margin = component.margin,
-            slots = component.slots,
-            columns = component.columns,
-            rows = component.rows,
+            container,
+            component.horizontalAlignment,
+            component.verticalAlignment,
+            component.margin,
+            component.slots,
+            component.columns,
+            component.rows,
         )
 
         is PlayerSlots -> PlayerInventorySlotGroup(
-            parent = container,
-            xPosition = component.horizontalAlignment,
-            yPosition = component.verticalAlignment,
-            margin = component.margin,
-            slots = component.slots,
+            container,
+            component.horizontalAlignment,
+            component.verticalAlignment,
+            component.margin,
+            component.slots,
         )
 
         is ComponentContainer -> createContainer(
-            container = component,
-            parent = container,
+            component,
+            container,
         )
 
         else -> println("[GuiRenderer.createWidget] Ignoring $component").let { null }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022  RS485
+ * Copyright (c) 2021  RS485
  *
  * "LogisticsPipes" is distributed under the terms of the Minecraft Mod Public
  * License 1.0.1, or MMPL. Please check the contents of the license located in
@@ -8,7 +8,7 @@
  * This file can instead be distributed under the license terms of the
  * MIT license:
  *
- * Copyright (c) 2022  RS485
+ * Copyright (c) 2021  RS485
  *
  * This MIT license was reworded to only match this file. If you use the regular
  * MIT license in your project, replace this copyright notice (this line and any
@@ -35,41 +35,8 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.gui.widget
+package network.rs485.logisticspipes.gui.widget;
 
-import network.rs485.logisticspipes.util.TextUtil
-import net.minecraft.client.gui.GuiGraphicsExtractor
-
-class VerticalLabel(fullText: String, x: Int, y: Int, maxLength: Int, textColor: Int, backgroundColor: Int) : Label(fullText, x, y, maxLength, textColor, backgroundColor) {
-
-    override val overflows: Boolean get() = fullRect.height > maxLength
-
-    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
-        hovered = hovered(mouseX, mouseY)
-        val rect = if (hovered) fullRect else trimmedRect
-        val text = if (hovered) fullText else trimmedText
-        val pose = guiGraphics.pose()
-        pose.pushMatrix()
-        pose.translate(rect.x0, rect.y0 + rect.height)
-        // The 2D stack rotates about z by radians; the old Axis.ZP.rotationDegrees(-90f) quaternion
-        // has no counterpart now that the pose is a Matrix3x2f.
-        pose.rotate(-Math.PI.toFloat() / 2f)
-        if (backgroundColor != 0) {
-            guiGraphics.fill(-1, -1, fontRenderer.width(text) + 1, fontRenderer.lineHeight + 1, backgroundColor)
-        }
-        guiGraphics.text(fontRenderer, text, 0, 0, textColor, false)
-        pose.popMatrix()
-    }
-
-    override fun setText(newFullText: String) {
-        fullText = newFullText
-        fullRect.setSize(fontRenderer.lineHeight, fontRenderer.width(fullText))
-
-        trimmedText = TextUtil.getTrimmedString(fullText, maxLength, fontRenderer)
-        trimmedRect.setSize(fontRenderer.lineHeight, fontRenderer.width(trimmedText))
-
-        val offset = (maxLength - trimmedRect.roundedHeight) / 2
-        fullRect.setPos(x, y + offset)
-        trimmedRect.setPos(x, y + offset)
-    }
+/** Marker for ghost slots. */
+public interface Fuzzy {
 }

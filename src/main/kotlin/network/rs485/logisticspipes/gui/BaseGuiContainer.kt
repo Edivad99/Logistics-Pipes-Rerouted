@@ -40,7 +40,7 @@ package network.rs485.logisticspipes.gui
 import network.rs485.logisticspipes.gui.widget.FuzzyItemSlot
 import network.rs485.logisticspipes.gui.widget.FuzzySelectionWidget
 import network.rs485.logisticspipes.inventory.container.LPBaseContainer
-import network.rs485.logisticspipes.util.IRectangle
+import logisticspipes.api.util.IRectangle
 import logisticspipes.modules.LogisticsModule
 import logisticspipes.utils.gui.LPGuiGraphics
 import net.minecraft.client.gui.GuiGraphicsExtractor
@@ -172,12 +172,12 @@ abstract class BaseGuiContainer<C : LPBaseContainer<LogisticsModule>>(
         val fuzzySelector = fuzzySelector ?: return
         val hovered = hoveredSlot
         if (hovered == null) {
-            if (fuzzySelector.active && !fuzzySelector.isMouseHovering(mouseX, mouseY)) {
-                fuzzySelector.active = false
+            if (fuzzySelector.isActive && !fuzzySelector.isMouseHovering(mouseX, mouseY)) {
+                fuzzySelector.isActive = false
                 fuzzySelector.currentSlot = null
             }
         } else if (hovered is FuzzyItemSlot && hovered != fuzzySelector.currentSlot) {
-            fuzzySelector.active = true
+            fuzzySelector.isActive = true
             fuzzySelector.currentSlot = hovered
             fuzzySelector.setPos(leftPos + hovered.x, topPos + hovered.y + 17)
         }

@@ -37,13 +37,18 @@
 
 package network.rs485.logisticspipes.gui.module
 
+import logisticspipes.api.gui.Margin
+import logisticspipes.api.gui.HorizontalAlignment
+import logisticspipes.api.gui.VerticalAlignment
+import logisticspipes.api.gui.Size
+
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.inventory.ProviderMode
 import network.rs485.logisticspipes.inventory.container.ProviderContainer
 import logisticspipes.api.property.BooleanProperty
 import logisticspipes.api.property.EnumProperty
 import logisticspipes.api.property.layer.PropertyLayer
-import network.rs485.logisticspipes.util.IRectangle
+import logisticspipes.api.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import logisticspipes.modules.ModuleProvider
 import logisticspipes.network.ModuleTarget

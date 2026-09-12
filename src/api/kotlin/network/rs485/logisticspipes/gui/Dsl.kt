@@ -1,5 +1,10 @@
 package network.rs485.logisticspipes.gui
 
+import logisticspipes.api.gui.Margin
+import logisticspipes.api.gui.HorizontalAlignment
+import logisticspipes.api.gui.VerticalAlignment
+import logisticspipes.api.gui.Size
+
 import logisticspipes.api.property.Property
 import logisticspipes.api.property.layer.PropertyLayer
 

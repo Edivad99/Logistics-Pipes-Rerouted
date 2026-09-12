@@ -35,60 +35,12 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.gui.widget
+package network.rs485.logisticspipes.gui.widget;
 
-import network.rs485.logisticspipes.gui.*
-import network.rs485.logisticspipes.util.IRectangle
-import net.minecraft.client.gui.GuiGraphicsExtractor
+public final class FuzzyUnmodifiableItemSlot extends FuzzyItemSlot implements Unmodifiable {
 
-abstract class LPGuiButton(
-    parent: Drawable,
-    xPosition: HorizontalAlignment,
-    yPosition: VerticalAlignment,
-    xSize: Size,
-    ySize: Size,
-    margin: Margin,
-    val onClickAction: ((Int) -> Boolean),
-) : LPGuiWidget(
-    parent = parent,
-    xPosition = xPosition,
-    yPosition = yPosition,
-    xSize = xSize,
-    ySize = ySize,
-    margin = margin,
-), MouseInteractable {
-
-    var visible: Boolean = true
-    var enabled: Boolean = true
-
-    val helper = GuiDrawer
-
-    final override val minWidth: Int = 20
-    override val minHeight: Int = 20
-
-    override val maxHeight: Int = 20
-    override val maxWidth: Int = 100
-
-    override fun initWidget() {
-        setSize(minWidth, minHeight)
+    public FuzzyUnmodifiableItemSlot(FuzzyItemSlot fuzzySlot) {
+        super(fuzzySlot.container, fuzzySlot.getSlotIndex(), fuzzySlot.x, fuzzySlot.y,
+            fuzzySlot.getUsedFlags(), fuzzySlot.getFlagGetter());
     }
-
-    override fun draw(guiGraphics: GuiGraphicsExtractor, mouseX: Float, mouseY: Float, delta: Float, visibleArea: IRectangle) {
-        super.draw(guiGraphics, mouseX, mouseY, delta, visibleArea)
-        if (visible) {
-            helper.drawBorderedTile(
-                guiGraphics = guiGraphics,
-                rect = absoluteBody,
-                hovered = isMouseHovering(mouseX, mouseY),
-                enabled = enabled,
-                light = false,
-                thickerBottomBorder = true,
-            )
-        }
-    }
-
-    override fun isMouseHovering(mouseX: Float, mouseY: Float): Boolean = absoluteBody.contains(mouseX, mouseY)
-
-    override fun mouseClicked(mouseX: Float, mouseY: Float, mouseButton: Int): Boolean =
-        onClickAction.invoke(mouseButton)
 }

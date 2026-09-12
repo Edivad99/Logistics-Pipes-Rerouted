@@ -37,14 +37,25 @@
 
 package network.rs485.logisticspipes.gui
 
+import logisticspipes.api.gui.Margin
+import logisticspipes.api.gui.Size
+
 import network.rs485.logisticspipes.util.math.MutableRectangle
 
 abstract class WidgetScreen : Drawable {
 
     private val widgets: ComponentContainer by lazy { constructWidgetContainer() }
 
-    final override var parent: Drawable? = Screen
-    override val relativeBody: MutableRectangle = MutableRectangle()
+    private var parentDrawable: Drawable? = Screen.INSTANCE
+    private val body: MutableRectangle = MutableRectangle()
+
+    final override fun getParent(): Drawable? = parentDrawable
+
+    final override fun setParent(parent: Drawable?) {
+        parentDrawable = parent
+    }
+
+    override fun getRelativeBody(): MutableRectangle = body
     var hoveredWidget: MouseHoverable? = null
         private set
 
@@ -55,7 +66,7 @@ abstract class WidgetScreen : Drawable {
 
     fun initGuiWidget(parent: Drawable, width: Int, height: Int, xOffset: Int = 0, yOffset: Int = 0) {
         // In case the screen size has changed.
-        Screen.relativeBody.setSize(width, height)
+        Screen.INSTANCE.relativeBody.setSize(width, height)
 
         // Create gui widgets from dls components.
         widgetContainer = GuiRenderer.render(widgets).also {
@@ -91,8 +102,8 @@ abstract class WidgetScreen : Drawable {
         // Center WidgetScreen on the screen. Done AFTER placeChildren so slot coords stay
         // local to the panel — the screen's leftPos/topPos supplies the final offset at render.
         relativeBody.setPos(
-            newX = (Screen.xCenter - relativeBody.width / 2) + xOffset,
-            newY = (Screen.yCenter - relativeBody.height / 2) + yOffset,
+            (Screen.INSTANCE.xCenter - relativeBody.width / 2) + xOffset,
+            (Screen.INSTANCE.yCenter - relativeBody.height / 2) + yOffset,
         )
     }
 

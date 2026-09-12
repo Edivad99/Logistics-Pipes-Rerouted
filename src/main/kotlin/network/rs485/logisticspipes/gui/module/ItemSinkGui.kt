@@ -37,13 +37,18 @@
 
 package network.rs485.logisticspipes.gui.module
 
+import logisticspipes.api.gui.Margin
+import logisticspipes.api.gui.HorizontalAlignment
+import logisticspipes.api.gui.VerticalAlignment
+import logisticspipes.api.gui.Size
+
 import network.rs485.logisticspipes.gui.*
 import network.rs485.logisticspipes.gui.widget.FuzzySelectionWidget
 import network.rs485.logisticspipes.inventory.container.ItemSinkContainer
 import logisticspipes.api.property.BooleanProperty
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty
 import logisticspipes.api.property.layer.PropertyLayer
-import network.rs485.logisticspipes.util.IRectangle
+import logisticspipes.api.util.IRectangle
 import network.rs485.logisticspipes.util.TextUtil
 import logisticspipes.modules.LogisticsModule.ModulePositionType
 import logisticspipes.modules.ModuleItemSink
@@ -74,7 +79,7 @@ class ItemSinkWidgetScreen(private val guiReference: AtomicReference<ItemSinkGui
             rows = 1
         }
         horizontal {
-            margin = Margin(top = 3, bottom = 3)
+            margin = Margin.vertical(3, 3)
             optionalComponent {
                 predicate = { gui.inHand }
                 inactiveComponents {
@@ -171,7 +176,7 @@ class ItemSinkGui private constructor(
     }
 
     override fun getExtraGuiAreas(): List<IRectangle> {
-        return if (fuzzySelector.active) {
+        return if (fuzzySelector.isActive) {
             listOf(fuzzySelector.relativeBody)
         } else {
             emptyList()

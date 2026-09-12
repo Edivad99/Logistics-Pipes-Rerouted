@@ -98,12 +98,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(
         posX: Int,
         posY: Int
     ): GhostItemSlot {
-        val slot = GhostItemSlot(
-            inventoryIn = dummyInventoryIn,
-            index = slotId,
-            xPosition = posX,
-            yPosition = posY,
-        )
+        val slot = GhostItemSlot(dummyInventoryIn, slotId, posX, posY)
         addSlot(slot)
         baseProperty?.let { directSlotPropertyMap[slot] = it }
         return slot
@@ -119,14 +114,7 @@ abstract class LPBaseContainer<out M : LogisticsModule>(
         usedFlags: EnumSet<FuzzyFlag>,
         flagGetter: () -> IBitSet,
     ): FuzzyItemSlot {
-        val slot = FuzzyItemSlot(
-            inventoryIn = dummyInventoryIn,
-            index = slotId,
-            xPosition = posX,
-            yPosition = posY,
-            usedFlags = usedFlags,
-            flagGetter = flagGetter,
-        )
+        val slot = FuzzyItemSlot(dummyInventoryIn, slotId, posX, posY, usedFlags, flagGetter)
         addSlot(slot)
         baseProperty?.let { directSlotPropertyMap[slot] = it }
         return slot
