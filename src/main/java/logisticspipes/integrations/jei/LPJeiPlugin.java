@@ -14,7 +14,7 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import logisticspipes.LPConstants;
 import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.inventory.RequestTableMenu;
-import network.rs485.logisticspipes.gui.BaseGuiContainer;
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 
 @JeiPlugin
 public class LPJeiPlugin implements IModPlugin {
@@ -30,7 +30,7 @@ public class LPJeiPlugin implements IModPlugin {
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         // Register extra-area handler for all LP container screens
-        registration.addGenericGuiContainerHandler(BaseGuiContainer.class, new LPAdvancedGuiHandler());
+        registration.addGenericGuiContainerHandler(LogisticsBaseGuiScreen.class, new LPAdvancedGuiHandler());
         // Ghost ingredient handler: registered on AbstractContainerScreen so JEI calls us for any
         // LP screen; the handler itself checks for GhostSlots in the open menu.
         registration.addGhostIngredientHandler(

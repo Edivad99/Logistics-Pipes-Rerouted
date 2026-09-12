@@ -71,7 +71,6 @@ import logisticspipes.ticks.RenderTickHandler;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
-import network.rs485.logisticspipes.gui.WidgetScreenHudSuppressor;
 
 public class ClientManager {
 
@@ -99,7 +98,6 @@ public class ClientManager {
 
         NeoForge.EVENT_BUS.register(new RenderTickHandler());
         NeoForge.EVENT_BUS.register(ModuleTooltipPlacement.class);
-        NeoForge.EVENT_BUS.register(WidgetScreenHudSuppressor.INSTANCE);
     }
 
     // Mod events

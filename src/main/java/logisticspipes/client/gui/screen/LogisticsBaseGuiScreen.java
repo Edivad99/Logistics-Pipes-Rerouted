@@ -17,6 +17,7 @@ import java.util.Queue;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
@@ -437,6 +438,16 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
             return false;
         }
         return isHovering(fuzzySlot.getX(), fuzzySlot.getY() + 16, 60, fuzzyPanelHeight(fuzzySlot) + 5, x, y);
+    }
+
+    /**
+     * The areas this screen paints outside its own panel, so JEI can move its ingredient list out
+     * of the way. Only the side extension panels for now; they are the only thing drawn outside.
+     */
+    public List<Rect2i> getGuiExtraAreas() {
+        List<java.awt.Rectangle> areas = new ArrayList<>(extensionControllerLeft.getGuiExtraAreas());
+        areas.addAll(extensionControllerRight.getGuiExtraAreas());
+        return areas.stream().map(r -> new Rect2i(r.x, r.y, r.width, r.height)).toList();
     }
 
     protected void checkButtons() {
