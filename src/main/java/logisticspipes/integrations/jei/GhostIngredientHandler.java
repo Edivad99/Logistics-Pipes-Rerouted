@@ -48,19 +48,10 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
         // nothing to clean up
     }
 
-    /**
-     * Whether an item dragged out of JEI can be dropped on this slot.
-     */
-    private static boolean acceptsGhostItem(Slot slot) {
-        // The read-only and hand-edited ghost slots are their own types rather than subclasses of
-        // DummySlot, so this test already excludes them. Fluid slots have their own target below.
-        return slot instanceof DummySlot;
-    }
-
     private <I> List<Target<I>> getItemTargets(AbstractContainerScreen<?> gui, ItemStack ingredient) {
         List<Target<I>> targets = new ArrayList<>();
         for (Slot slot : gui.getMenu().slots) {
-            if (!acceptsGhostItem(slot)) {
+            if (!(slot instanceof DummySlot)) {
                 continue;
             }
 
