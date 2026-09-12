@@ -19,8 +19,6 @@ import logisticspipes.network.to_server.gui.SetGhostSlotMessage;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.gui.DummySlot;
 import logisticspipes.utils.gui.FluidSlot;
-import network.rs485.logisticspipes.gui.widget.GhostSlot;
-import network.rs485.logisticspipes.gui.widget.Unmodifiable;
 
 /**
  * Enables dragging items from the JEI ingredient panel into LP ghost/filter slots.
@@ -54,10 +52,9 @@ public class GhostIngredientHandler implements IGhostIngredientHandler<AbstractC
      * Whether an item dragged out of JEI can be dropped on this slot.
      */
     private static boolean acceptsGhostItem(Slot slot) {
-        if (slot instanceof Unmodifiable) {
-            return false;
-        }
-        return slot instanceof GhostSlot || slot instanceof DummySlot;
+        // The read-only and hand-edited ghost slots are their own types rather than subclasses of
+        // DummySlot, so this test already excludes them. Fluid slots have their own target below.
+        return slot instanceof DummySlot;
     }
 
     private <I> List<Target<I>> getItemTargets(AbstractContainerScreen<?> gui, ItemStack ingredient) {
