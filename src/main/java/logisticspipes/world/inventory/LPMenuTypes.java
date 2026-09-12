@@ -59,8 +59,6 @@ import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsStatisticsBlockEntity;
-import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
-import network.rs485.logisticspipes.inventory.container.ProviderContainer;
 import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 
 public class LPMenuTypes {
@@ -256,9 +254,9 @@ public class LPMenuTypes {
                 return new ChassisMenu(containerId, inventory, module.getParentChassis(), buffer.readBoolean());
             }, FeatureFlags.DEFAULT_FLAGS));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<ItemSinkContainer>> ITEM_SINK =
+    public static final DeferredHolder<MenuType<?>, MenuType<ItemSinkMenu>> ITEM_SINK =
         deferredRegister.register("item_sink", () -> new MenuType<>(
-            (IContainerFactory<ItemSinkContainer>) (containerId, inventory, buffer) -> {
+            (IContainerFactory<ItemSinkMenu>) (containerId, inventory, buffer) -> {
                 final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
                 final ModuleItemSink module = target.resolve(inventory.player, ModuleItemSink.class);
                 if (module == null) {
@@ -268,30 +266,28 @@ public class LPMenuTypes {
                 // menu builds, so it has to be known before the slots are added.
                 final boolean fuzzy = buffer.readBoolean();
                 readProperties(module, inventory, buffer);
-                return new ItemSinkContainer(LPMenuTypes.ITEM_SINK.get(), containerId, inventory, module, target,
-                    fuzzy, target.heldStack(inventory));
+                return new ItemSinkMenu(containerId, inventory, target, module, fuzzy);
             }, FeatureFlags.DEFAULT_FLAGS));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<ProviderContainer>> PROVIDER =
+    public static final DeferredHolder<MenuType<?>, MenuType<ProviderMenu>> PROVIDER =
         deferredRegister.register("provider", () -> new MenuType<>(
-            (IContainerFactory<ProviderContainer>) (containerId, inventory, buffer) -> {
+            (IContainerFactory<ProviderMenu>) (containerId, inventory, buffer) -> {
                 final ModuleTarget target = ModuleTarget.STREAM_CODEC.decode(buffer);
                 final ModuleProvider module = target.resolve(inventory.player, ModuleProvider.class);
                 if (module == null) {
                     throw new IllegalStateException("Cannot find provider module at %s".formatted(target));
                 }
                 readProperties(module, inventory, buffer);
-                return new ProviderContainer(LPMenuTypes.PROVIDER.get(), containerId, inventory, module, target,
-                    target.heldStack(inventory));
+                return new ProviderMenu(containerId, inventory, target, module);
             }, FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredHolder<MenuType<?>, MenuType<ModuleAnalysisMenu>> ORE_DICT_ITEM_SINK =
         deferredRegister.register("ore_dict_item_sink",
-            () -> analysisMenu(() -> LPMenuTypes.ORE_DICT_ITEM_SINK.get(), ModuleOreDictItemSink.class));
+            () -> analysisMenu(LPMenuTypes.ORE_DICT_ITEM_SINK, ModuleOreDictItemSink.class));
 
     public static final DeferredHolder<MenuType<?>, MenuType<ModuleAnalysisMenu>> STRING_BASED_ITEM_SINK =
         deferredRegister.register("string_based_item_sink",
-            () -> analysisMenu(() -> LPMenuTypes.STRING_BASED_ITEM_SINK.get(), IStringBasedModule.class));
+            () -> analysisMenu(LPMenuTypes.STRING_BASED_ITEM_SINK, IStringBasedModule.class));
 
     public static final DeferredHolder<MenuType<?>, MenuType<SimpleFilterMenu>> SIMPLE_FILTER =
         deferredRegister.register("simple_filter", () -> moduleMenu(SimpleFilter.class,

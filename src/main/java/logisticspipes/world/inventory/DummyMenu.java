@@ -2,6 +2,7 @@ package logisticspipes.world.inventory;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.EnumSet;
 import java.util.List;
 
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
@@ -50,6 +51,7 @@ import logisticspipes.utils.gui.UnmodifiableSlot;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.api.property.IBitSet;
+import network.rs485.logisticspipes.util.FuzzyFlag;
 
 public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScreenHolder {
 
@@ -428,6 +430,11 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
 
     protected Slot addFuzzyDummySlot(int slotId, Container inventory, int xCoord, int yCoord, IBitSet fuzzyFlags) {
         return addSlot(new FuzzyDummySlot(inventory, slotId, xCoord, yCoord, fuzzyFlags));
+    }
+
+    protected Slot addFuzzyDummySlot(int slotId, Container inventory, int xCoord, int yCoord, IBitSet fuzzyFlags,
+        EnumSet<FuzzyFlag> usedFlags) {
+        return addSlot(new FuzzyDummySlot(inventory, slotId, xCoord, yCoord, fuzzyFlags, usedFlags));
     }
 
     /** The player's hotbar, shown but not reachable -- the screen only needs to display it. */

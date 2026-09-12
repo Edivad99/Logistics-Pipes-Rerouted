@@ -45,7 +45,6 @@ import logisticspipes.network.to_client.debug.ToggleClientPipeDebugMessage;
 import logisticspipes.network.to_client.debug.UpdateStatusEntriesMessage;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.module.ItemSinkDefaultRouteMessage;
-import logisticspipes.network.to_client.module.ItemSinkImportedItemsMessage;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.network.to_client.module.ModulePropertiesMessage;
 import logisticspipes.network.to_client.module.OreDictItemSinkListMessage;
@@ -368,8 +367,6 @@ public class PacketHandler {
                 FluidCraftingAmountMessage.STREAM_CODEC, FluidCraftingAmountMessage::handle);
         registrar.playToClient(SneakyDirectionMessage.TYPE,
                 SneakyDirectionMessage.STREAM_CODEC, SneakyDirectionMessage::handle);
-        registrar.playToClient(ItemSinkImportedItemsMessage.TYPE,
-                ItemSinkImportedItemsMessage.STREAM_CODEC, ItemSinkImportedItemsMessage::handle);
         registrar.playToClient(SlotFinderActivateMessage.TYPE,
                 SlotFinderActivateMessage.STREAM_CODEC, SlotFinderActivateMessage::handle);
         registrar.playToClient(ModulePropertiesMessage.TYPE,

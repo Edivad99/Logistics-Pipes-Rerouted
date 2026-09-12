@@ -46,7 +46,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 
 import logisticspipes.modules.LogisticsModule;
-import network.rs485.logisticspipes.inventory.container.LPBaseContainer;
+import logisticspipes.world.inventory.ModuleMenu;
 
 public final class PropertyUpdaterEventListener {
 
@@ -63,7 +63,7 @@ public final class PropertyUpdaterEventListener {
         if (player.level().isClientSide()) {
             return;
         }
-        if (event.getContainer() instanceof LPBaseContainer<?> lpContainer) {
+        if (event.getContainer() instanceof ModuleMenu lpContainer) {
             LogisticsModule module = lpContainer.getModule();
             propertyUpdaters.add(new PropertyUpdater(player, module, module.getProperties()));
         }

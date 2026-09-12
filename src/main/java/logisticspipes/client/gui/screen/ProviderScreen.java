@@ -21,10 +21,10 @@ import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import network.rs485.logisticspipes.inventory.ProviderMode;
-import network.rs485.logisticspipes.inventory.container.ProviderContainer;
+import logisticspipes.world.inventory.ProviderMenu;
 import network.rs485.logisticspipes.util.TextUtil;
 
-public class ProviderScreen extends ModuleBaseScreen<ProviderContainer> {
+public class ProviderScreen extends ModuleBaseScreen<ProviderMenu> {
 
     private static final String PREFIX = "gui.providerpipe.";
 
@@ -59,10 +59,12 @@ public class ProviderScreen extends ModuleBaseScreen<ProviderContainer> {
 
     private @Nullable SmallGuiButton filterModeButton;
 
-    public ProviderScreen(ProviderContainer menu, Inventory inventory, Component title) {
+    public ProviderScreen(ProviderMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, menu.getModule(), PANEL_WIDTH, PANEL_HEIGHT);
-        providerModule = menu.getModule();
-        propertyLayer = menu.getPropertyLayer();
+        providerModule = menu.getProviderModule();
+        // The filter grid is edited live through the ghost slots; only the scalar settings are
+        // buffered here and written back when the screen closes.
+        propertyLayer = new PropertyLayer(providerModule.getProperties());
         providerModeOverlay = propertyLayer.overlay(providerModule.providerMode);
         isExclusionFilterOverlay = propertyLayer.overlay(providerModule.isExclusionFilter);
         propertyLayer.addObserver(providerModule.isExclusionFilter, prop -> updateFilterModeButton());

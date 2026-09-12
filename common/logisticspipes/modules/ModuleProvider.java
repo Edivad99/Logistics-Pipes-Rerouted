@@ -72,7 +72,7 @@ import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.api.connection.NeighborBlockEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.inventory.ProviderMode;
-import network.rs485.logisticspipes.inventory.container.ProviderContainer;
+import logisticspipes.world.inventory.ProviderMenu;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.EnumProperty;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
@@ -453,8 +453,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 
 	@Override
 	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		return new ProviderContainer(LPMenuTypes.PROVIDER.get(), containerId, inventory, this, target,
-				target.heldStack(inventory));
+		return new ProviderMenu(containerId, inventory, target, this);
 	}
 
 	@Override

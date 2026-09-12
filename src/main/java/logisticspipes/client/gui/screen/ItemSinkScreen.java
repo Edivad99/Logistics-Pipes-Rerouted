@@ -1,5 +1,6 @@
 package logisticspipes.client.gui.screen;
 
+
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -7,13 +8,11 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.layer.PropertyLayer;
-import logisticspipes.api.property.layer.PropertyOverlay;
 import logisticspipes.api.property.layer.ValuePropertyOverlay;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleItemSink;
@@ -23,13 +22,10 @@ import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
-import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.item.ItemIdentifierInventory;
-import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
-import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
+import logisticspipes.world.inventory.ItemSinkMenu;
 import network.rs485.logisticspipes.util.TextUtil;
 
-public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkContainer> {
+public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkMenu> {
 
     private static final String PREFIX = "gui.itemsink.";
 
@@ -55,24 +51,24 @@ public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkContainer> {
     private final ModuleItemSink itemSinkModule;
     private final PropertyLayer propertyLayer;
     private final ValuePropertyOverlay<Boolean, BooleanProperty> defaultRouteOverlay;
-    private final PropertyOverlay<ItemIdentifierInventory, ItemIdentifierInventoryProperty> filterInventoryOverlay;
 
     /** The import button only makes sense next to a pipe, which a module in hand has none of. */
     private final boolean inHand;
 
     private @Nullable SmallGuiButton defaultRouteButton;
 
-    public ItemSinkScreen(ItemSinkContainer menu, Inventory inventory, Component title) {
+    public ItemSinkScreen(ItemSinkMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, menu.getModule(), PANEL_WIDTH, PANEL_HEIGHT);
-        itemSinkModule = menu.getModule();
-        propertyLayer = menu.getPropertyLayer();
+        itemSinkModule = menu.getItemSinkModule();
+        // The filter itself is edited live through the ghost slots; only the scalar settings are
+        // buffered here and written back when the screen closes.
+        propertyLayer = new PropertyLayer(itemSinkModule.getProperties());
         defaultRouteOverlay = propertyLayer.overlay(itemSinkModule.defaultRoute);
-        filterInventoryOverlay = propertyLayer.overlayOf(itemSinkModule.filterInventory);
         inHand = isInHand(menu);
         propertyLayer.addObserver(itemSinkModule.defaultRoute, prop -> updateDefaultRouteButton());
     }
 
-    static boolean isInHand(ItemSinkContainer menu) {
+    static boolean isInHand(ItemSinkMenu menu) {
         return menu.getTarget().slot().orElse(null) == ModulePositionType.IN_HAND;
     }
 
@@ -102,22 +98,6 @@ public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkContainer> {
             defaultRouteButton.setMessage(Component.literal(
                 TextUtil.translate(PREFIX + (defaultRouteOverlay.get() ? "Yes" : "No"))));
         }
-    }
-
-    /** Fills the filter from the attached inventory, in response to the import button. */
-    public void importFromInventory(List<ItemIdentifier> importedItems) {
-        if (importedItems.isEmpty()) {
-            return;
-        }
-        filterInventoryOverlay.writeVoid(filterInventory -> {
-            for (int i = 0; i < filterInventory.getSize(); i++) {
-                if (i < importedItems.size()) {
-                    filterInventory.setItem(i, importedItems.get(i).makeStack(1));
-                } else {
-                    filterInventory.setItem(i, ItemStack.EMPTY);
-                }
-            }
-        });
     }
 
     @Override

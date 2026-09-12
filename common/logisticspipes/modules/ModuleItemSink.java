@@ -50,7 +50,7 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.LPMenuTypes;
 import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.inventory.container.ItemSinkContainer;
+import logisticspipes.world.inventory.ItemSinkMenu;
 import logisticspipes.api.property.BitSetProperty;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.IBitSet;
@@ -309,8 +309,7 @@ public class ModuleItemSink extends LogisticsModule
 
 	@Override
 	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		return new ItemSinkContainer(LPMenuTypes.ITEM_SINK.get(), containerId, inventory, this, target,
-			hasFuzzyUpgradeForScreen(), target.heldStack(inventory));
+		return new ItemSinkMenu(containerId, inventory, target, this, hasFuzzyUpgradeForScreen());
 	}
 
 	@Override

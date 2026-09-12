@@ -30,7 +30,6 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.world.inventory.ModuleMenu;
 import logisticspipes.world.item.ItemModule;
 
-import network.rs485.logisticspipes.inventory.container.LPBaseContainer;
 
 public record ModuleTarget(
         BlockPos pos,
@@ -109,9 +108,6 @@ public record ModuleTarget(
             if (player.containerMenu instanceof ModuleMenu menu) {
                 return menu.getModule();
             }
-            if (player.containerMenu instanceof LPBaseContainer<?> menu) {
-                return menu.getModule();
-            }
             if (player.containerMenu instanceof InventoryMenu) {
                 return ItemModule.getLogisticsModule(player, positionInt);
             }
@@ -135,9 +131,6 @@ public record ModuleTarget(
             final var screen = Minecraft.getInstance().screen;
             if (screen instanceof AbstractContainerScreen<?> containerScreen) {
                 if (containerScreen.getMenu() instanceof ModuleMenu menu) {
-                    return menu.getModule();
-                }
-                if (containerScreen.getMenu() instanceof LPBaseContainer<?> menu) {
                     return menu.getModule();
                 }
             }
