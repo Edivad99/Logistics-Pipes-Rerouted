@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021  RS485
+ * Copyright (c) 2022  RS485
  *
  * "LogisticsPipes" is distributed under the terms of the Minecraft Mod Public
  * License 1.0.1, or MMPL. Please check the contents of the license located in
@@ -8,7 +8,7 @@
  * This file can instead be distributed under the license terms of the
  * MIT license:
  *
- * Copyright (c) 2021  RS485
+ * Copyright (c) 2022  RS485
  *
  * This MIT license was reworded to only match this file. If you use the regular
  * MIT license in your project, replace this copyright notice (this line and any
@@ -35,77 +35,53 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.gui.widget;
+package logisticspipes.utils.gui;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import org.joml.Matrix3x2fStack;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import network.rs485.logisticspipes.util.TextUtil;
 import network.rs485.logisticspipes.util.math.MutableRectangle;
 
-public class Label {
+public class VerticalLabel extends Label {
 
-    protected final int x;
-    protected final int y;
-    protected final int maxLength;
-    protected final int textColor;
-    protected final int backgroundColor;
-
-    protected final Font fontRenderer = Minecraft.getInstance().font;
-
-    protected final MutableRectangle fullRect = new MutableRectangle();
-    protected final MutableRectangle trimmedRect = new MutableRectangle();
-
-    protected String fullText = "";
-    protected String trimmedText = "";
-    protected boolean hovered = false;
-
-    public Label(String fullText, int x, int y, int maxLength, int textColor, int backgroundColor) {
-        this.x = x;
-        this.y = y;
-        this.maxLength = maxLength;
-        this.textColor = textColor;
-        this.backgroundColor = backgroundColor;
-        fullRect.setPos(x, y);
-        trimmedRect.setPos(x, y);
-        setText(fullText);
+    public VerticalLabel(String fullText, int x, int y, int maxLength, int textColor, int backgroundColor) {
+        super(fullText, x, y, maxLength, textColor, backgroundColor);
     }
 
+    @Override
     public boolean getOverflows() {
-        return fullRect.getWidth() > maxLength;
+        return fullRect.getHeight() > maxLength;
     }
 
+    @Override
     public void draw(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         hovered = hovered(mouseX, mouseY);
         MutableRectangle rect = hovered ? fullRect : trimmedRect;
         String text = hovered ? fullText : trimmedText;
+        Matrix3x2fStack pose = guiGraphics.pose();
+        pose.pushMatrix();
+        pose.translate(rect.getX0(), rect.getY0() + rect.getHeight());
+        // The 2D stack rotates about z by radians; the old Axis.ZP.rotationDegrees(-90f) quaternion
+        // has no counterpart now that the pose is a Matrix3x2f.
+        pose.rotate((float) -Math.PI / 2f);
         if (backgroundColor != 0) {
-            guiGraphics.fill(rect.getRoundedLeft() - 1, rect.getRoundedTop() - 1,
-                rect.getRoundedRight() + 1, rect.getRoundedBottom() + 1, backgroundColor);
+            guiGraphics.fill(-1, -1, fontRenderer.width(text) + 1, fontRenderer.lineHeight + 1, backgroundColor);
         }
-        guiGraphics.text(fontRenderer, text, rect.getRoundedLeft(), rect.getRoundedTop(), textColor, false);
+        guiGraphics.text(fontRenderer, text, 0, 0, textColor, false);
+        pose.popMatrix();
     }
 
+    @Override
     public void setText(String newFullText) {
         fullText = newFullText;
-        fullRect.setSize(fontRenderer.width(fullText), fontRenderer.lineHeight);
+        fullRect.setSize(fontRenderer.lineHeight, fontRenderer.width(fullText));
 
         trimmedText = TextUtil.getTrimmedString(fullText, maxLength, fontRenderer, "...");
-        trimmedRect.setSize(fontRenderer.width(trimmedText), fontRenderer.lineHeight);
+        trimmedRect.setSize(fontRenderer.lineHeight, fontRenderer.width(trimmedText));
 
-        int offset = (maxLength - trimmedRect.getRoundedWidth()) / 2;
-        fullRect.setPos(x + offset, y);
-        trimmedRect.setPos(x + offset, y);
-    }
-
-    /** Reference equality, as in the original: the caller passes the very same instance back. */
-    @SuppressWarnings("StringEquality")
-    public boolean isTextEqual(String text) {
-        return fullText == text;
-    }
-
-    protected boolean hovered(int mouseX, int mouseY) {
-        return (hovered ? fullRect : trimmedRect).contains(mouseX, mouseY);
+        int offset = (maxLength - trimmedRect.getRoundedHeight()) / 2;
+        fullRect.setPos(x, y + offset);
+        trimmedRect.setPos(x, y + offset);
     }
 }
