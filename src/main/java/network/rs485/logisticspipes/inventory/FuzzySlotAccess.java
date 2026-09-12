@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020  RS485
+ * Copyright (c) 2021  RS485
  *
  * "LogisticsPipes" is distributed under the terms of the Minecraft Mod Public
  * License 1.0.1, or MMPL. Please check the contents of the license located in
@@ -8,7 +8,7 @@
  * This file can instead be distributed under the license terms of the
  * MIT license:
  *
- * Copyright (c) 2020  RS485
+ * Copyright (c) 2021  RS485
  *
  * This MIT license was reworded to only match this file. If you use the regular
  * MIT license in your project, replace this copyright notice (this line and any
@@ -35,47 +35,41 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.util
+package network.rs485.logisticspipes.inventory;
 
-import net.minecraft.ChatFormatting
-import java.util.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import logisticspipes.api.property.BitSetProperty;
+import logisticspipes.api.property.IBitSet;
 
-class TestUtil {
-    companion object {
-        @JvmStatic
-        fun getBytesFromInteger(i: Int): ByteArray = byteArrayOf(i.ushr(24).toByte(), i.ushr(16).toByte(), i.ushr(8).toByte(), i.toByte())
+/** Moves a slot's fuzzy flags along with its contents. */
+public class FuzzySlotAccess implements SlotAccess {
+
+    private final SlotAccess slotAccess;
+    private final BitSetProperty fuzzyFlags;
+
+    public FuzzySlotAccess(SlotAccess slotAccess, BitSetProperty fuzzyFlags) {
+        this.slotAccess = slotAccess;
+        this.fuzzyFlags = fuzzyFlags;
     }
 
-    @Test
-    fun `test getBytesFromInteger for 0`() {
-        assertTrue(byteArrayOf(0, 0, 0, 0).contentEquals(getBytesFromInteger(0)))
+    private IBitSet bitsForSlot(int idx) {
+        return fuzzyFlags.get(idx * 4, idx * 4 + 3);
     }
 
-    @Test
-    fun `test getBytesFromInteger for byte array (1, 2, 3, 4)`() {
-        assertTrue(byteArrayOf(1, 2, 3, 4).contentEquals(getBytesFromInteger(16909060)))
+    @Override
+    public void mergeSlots(int intoSlot, int fromSlot) {
+        slotAccess.mergeSlots(intoSlot, fromSlot);
+        bitsForSlot(intoSlot).replaceWith(bitsForSlot(fromSlot));
+        bitsForSlot(fromSlot).clear();
     }
 
-    @Test
-    fun `test getBytesFromInteger for min integer`() {
-        assertTrue(byteArrayOf(-128, 0, 0, 0).contentEquals(getBytesFromInteger(Int.MIN_VALUE)))
+    @Override
+    public boolean canMerge(int intoSlot, int fromSlot) {
+        return slotAccess.canMerge(intoSlot, fromSlot)
+            && (isSlotEmpty(intoSlot) || bitsForSlot(intoSlot).equals(bitsForSlot(fromSlot)));
     }
 
-    @Test
-    fun `test getBytesFromInteger for max integer`() {
-        assertTrue(byteArrayOf(127, -1, -1, -1).contentEquals(getBytesFromInteger(Int.MAX_VALUE)))
-    }
-
-    @Test
-    fun `test getBytesFromInteger for -1`() {
-        assertTrue(byteArrayOf(-1, -1, -1, -1).contentEquals(getBytesFromInteger(-1)))
-    }
-
-    @Test
-    fun `test transform with starting formatting`() {
-        assertEquals("§7§oThis is a semi §c§oformatted§r§7§o string.", TextUtil.transform("This is a semi \$REDformatted\$RESET string.", EnumSet.of(ChatFormatting.GRAY, ChatFormatting.ITALIC)))
+    @Override
+    public boolean isSlotEmpty(int idx) {
+        return slotAccess.isSlotEmpty(idx);
     }
 }

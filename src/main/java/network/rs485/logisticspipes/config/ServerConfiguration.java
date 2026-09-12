@@ -35,8 +35,16 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.config
+package network.rs485.logisticspipes.config;
 
-class PlayerConfiguration : ClientConfiguration() {
-    var hasCraftedLPItem = false
+import java.util.Map;
+
+import com.google.gson.annotations.JsonAdapter;
+
+import logisticspipes.utils.PlayerIdentifier;
+
+class ServerConfiguration {
+
+    @JsonAdapter(ServerConfigurationAdapter.class)
+    Map<PlayerIdentifier, PlayerConfiguration> playerConfigurations = Map.of();
 }

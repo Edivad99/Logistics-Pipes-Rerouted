@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021  RS485
+ * Copyright (c) 2019  RS485
  *
  * "LogisticsPipes" is distributed under the terms of the Minecraft Mod Public
  * License 1.0.1, or MMPL. Please check the contents of the license located in
@@ -8,7 +8,7 @@
  * This file can instead be distributed under the license terms of the
  * MIT license:
  *
- * Copyright (c) 2021  RS485
+ * Copyright (c) 2019  RS485
  *
  * This MIT license was reworded to only match this file. If you use the regular
  * MIT license in your project, replace this copyright notice (this line and any
@@ -34,32 +34,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package network.rs485.logisticspipes.inventory
 
-import logisticspipes.interfaces.IClientInformationProvider
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder
-import logisticspipes.utils.ISimpleInventoryEventHandler
-import logisticspipes.utils.item.ItemIdentifier
-import logisticspipes.utils.item.ItemIdentifierStack
-import logisticspipes.utils.tuples.Pair
-import net.minecraft.world.Container
+package network.rs485.logisticspipes.config;
 
-interface IItemIdentifierInventory : Container, ILPCCTypeHolder, IClientInformationProvider {
-    val itemsAndCount: Map<ItemIdentifier, Int>
-    val slotAccess: SlotAccess
-    fun getName(): String
-    fun getIDStackInSlot(i: Int): ItemIdentifierStack?
-    fun setItem(i: Int, itemstack: ItemIdentifierStack?)
-    fun containsItem(item: ItemIdentifier?): Boolean
-    /** Slot by slot, with a null standing in for every empty slot. */
-    fun handleItemIdentifierList(allItems: Collection<ItemIdentifierStack?>)
-    fun addListener(listener: ISimpleInventoryEventHandler)
-    fun removeListener(listener: ISimpleInventoryEventHandler)
-    fun containsUndamagedItem(item: ItemIdentifier): Boolean
-    fun containsExcludeNBTItem(item: ItemIdentifier): Boolean
-    fun containsUndamagedExcludeNBTItem(item: ItemIdentifier): Boolean
-    fun itemCount(item: ItemIdentifier): Int
-    fun contents(): Iterable<Pair<ItemIdentifierStack, Int>>
-    fun recheckStackLimit()
-    fun clearInventorySlotContents(i: Int)
+public class PlayerConfiguration extends ClientConfiguration {
+
+    /** Serialised by Gson under this exact field name, so it keeps the name it had. */
+    private boolean hasCraftedLPItem = false;
+
+    // Spelled out rather than generated: Lombok would name these isHasCraftedLPItem/setHasCraftedLPItem,
+    // while Kotlin produced getHasCraftedLPItem.
+    public boolean getHasCraftedLPItem() {
+        return hasCraftedLPItem;
+    }
+
+    public void setHasCraftedLPItem(boolean hasCraftedLPItem) {
+        this.hasCraftedLPItem = hasCraftedLPItem;
+    }
 }

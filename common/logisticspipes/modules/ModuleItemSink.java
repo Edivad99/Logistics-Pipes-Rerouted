@@ -173,11 +173,11 @@ public class ModuleItemSink extends LogisticsModule
 				ItemIdentifier ident1 = item;
 				ItemIdentifier ident2 = filter.getValue1().getItem();
 				IBitSet slotFlags = getSlotFuzzyFlags(filter.getValue2());
-				if (FuzzyUtil.INSTANCE.get(slotFlags, FuzzyFlag.IGNORE_DAMAGE)) {
+				if (FuzzyUtil.get(slotFlags, FuzzyFlag.IGNORE_DAMAGE)) {
 					ident1 = ident1.getIgnoringData();
 					ident2 = ident2.getIgnoringData();
 				}
-				if (FuzzyUtil.INSTANCE.get(slotFlags, FuzzyFlag.IGNORE_NBT)) {
+				if (FuzzyUtil.get(slotFlags, FuzzyFlag.IGNORE_NBT)) {
 					ident1 = ident1.getIgnoringNBT();
 					ident2 = ident2.getIgnoringNBT();
 				}
@@ -274,13 +274,13 @@ public class ModuleItemSink extends LogisticsModule
 				}
 				ItemIdentifier ident = stack.getValue1().getItem();
 				IBitSet slotFlags = getSlotFuzzyFlags(stack.getValue2());
-				if (FuzzyUtil.INSTANCE.get(slotFlags, FuzzyFlag.IGNORE_DAMAGE)) {
+				if (FuzzyUtil.get(slotFlags, FuzzyFlag.IGNORE_DAMAGE)) {
 					itemIdentifiers.add(ident.getIgnoringData());
 				}
-				if (FuzzyUtil.INSTANCE.get(slotFlags, FuzzyFlag.IGNORE_NBT)) {
+				if (FuzzyUtil.get(slotFlags, FuzzyFlag.IGNORE_NBT)) {
 					itemIdentifiers.add(ident.getIgnoringNBT());
 				}
-				if (FuzzyUtil.INSTANCE.get(slotFlags, FuzzyFlag.IGNORE_DAMAGE) && FuzzyUtil.INSTANCE.get(slotFlags, FuzzyFlag.IGNORE_NBT)) {
+				if (FuzzyUtil.get(slotFlags, FuzzyFlag.IGNORE_DAMAGE) && FuzzyUtil.get(slotFlags, FuzzyFlag.IGNORE_NBT)) {
 					itemIdentifiers.add(ident.getIgnoringData().getIgnoringNBT());
 				}
 			}

@@ -52,11 +52,11 @@ public class DictResource implements IResource {
 	}
 
 	public boolean hasFuzzyFlag(FuzzyFlag flag) {
-		return FuzzyUtil.INSTANCE.get(fuzzyFlags, flag);
+		return FuzzyUtil.get(fuzzyFlags, flag);
 	}
 
 	private void setFuzzyFlag(FuzzyFlag flag, boolean value) {
-		FuzzyUtil.INSTANCE.set(fuzzyFlags, flag, value);
+		FuzzyUtil.set(fuzzyFlags, flag, value);
 	}
 
 	public DictResource(ItemIdentifierStack stack, @Nullable IRequestItems requester) {
@@ -88,7 +88,7 @@ public class DictResource implements IResource {
 
 	@Override
 	public boolean matches(ItemIdentifier other, MatchSettings settings) {
-		return FuzzyUtil.INSTANCE.fuzzyMatches(FuzzyUtil.INSTANCE.getter(fuzzyFlags), stack.getItem(), other);
+		return FuzzyUtil.fuzzyMatches(FuzzyUtil.getter(fuzzyFlags), stack.getItem(), other);
 	}
 
 	@Override
@@ -200,19 +200,19 @@ public class DictResource implements IResource {
 	}
 
 	public boolean useOreDict() {
-		return FuzzyUtil.INSTANCE.get(fuzzyFlags, FuzzyFlag.USE_ORE_DICT);
+		return FuzzyUtil.get(fuzzyFlags, FuzzyFlag.USE_ORE_DICT);
 	}
 
 	public boolean useOreCategory() {
-		return FuzzyUtil.INSTANCE.get(fuzzyFlags, FuzzyFlag.USE_ORE_CATEGORY);
+		return FuzzyUtil.get(fuzzyFlags, FuzzyFlag.USE_ORE_CATEGORY);
 	}
 
 	public boolean ignoreDamage() {
-		return FuzzyUtil.INSTANCE.get(fuzzyFlags, FuzzyFlag.IGNORE_DAMAGE);
+		return FuzzyUtil.get(fuzzyFlags, FuzzyFlag.IGNORE_DAMAGE);
 	}
 
 	public boolean ignoreNBT() {
-		return FuzzyUtil.INSTANCE.get(fuzzyFlags, FuzzyFlag.IGNORE_NBT);
+		return FuzzyUtil.get(fuzzyFlags, FuzzyFlag.IGNORE_NBT);
 	}
 
 	public class Identifier {

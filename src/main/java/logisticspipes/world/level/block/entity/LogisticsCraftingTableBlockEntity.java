@@ -278,8 +278,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
                 }
 
                 final boolean doItemsEqual = isFuzzy ?
-                    (FuzzyUtil.INSTANCE
-                        .fuzzyMatches(FuzzyUtil.INSTANCE.getter(inputFuzzy(i)), ident, item.getItem())) :
+                    (FuzzyUtil.fuzzyMatches(FuzzyUtil.getter(inputFuzzy(i)), ident, item.getItem())) :
                     ident.equalsForCrafting(item.getItem());
 
                 if (doItemsEqual && item.getStackSize() > used[j]) {
@@ -306,8 +305,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
                 recipe = null;
                 for (RecipeHolder<CraftingRecipe> r : CraftingUtil.getRecipeList()) {
 
-                    if (r.value().matches(craftingInput, level) && FuzzyUtil.INSTANCE
-                        .fuzzyMatches(FuzzyUtil.INSTANCE.getter(outputFuzzy()), outStack.getItem(),
+                    if (r.value().matches(craftingInput, level) && FuzzyUtil.fuzzyMatches(FuzzyUtil.getter(outputFuzzy()), outStack.getItem(),
                             ItemIdentifier.get(r.value().assemble(craftingInput)))) {
                         recipe = r;
                         break;
@@ -325,11 +323,11 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
             return ItemStack.EMPTY;
         }
         if (isFuzzy && outputFuzzy().nextSetBit(0) != -1) {
-            if (!FuzzyUtil.INSTANCE.fuzzyMatches(FuzzyUtil.INSTANCE.getter(outputFuzzy()), outStack.getItem(),
+            if (!FuzzyUtil.fuzzyMatches(FuzzyUtil.getter(outputFuzzy()), outStack.getItem(),
                 ItemIdentifier.get(result))) {
                 return ItemStack.EMPTY;
             }
-            if (!FuzzyUtil.INSTANCE.fuzzyMatches(FuzzyUtil.INSTANCE.getter(outputFuzzy()), wanted.getAsItem(),
+            if (!FuzzyUtil.fuzzyMatches(FuzzyUtil.getter(outputFuzzy()), wanted.getAsItem(),
                 ItemIdentifier.get(result))) {
                 return ItemStack.EMPTY;
             }
@@ -501,7 +499,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
             ItemIdentifierStack stack = matrix.getIDStackInSlot(i);
             if (stack != null && !itemstack.isEmpty()) {
                 if (isFuzzy() && inputFuzzy(i).nextSetBit(0) != -1) {
-                    return FuzzyUtil.INSTANCE.fuzzyMatches(FuzzyUtil.INSTANCE.getter(inputFuzzy(i)),
+                    return FuzzyUtil.fuzzyMatches(FuzzyUtil.getter(inputFuzzy(i)),
                         stack.getItem(),
                         ItemIdentifier.get(itemstack));
                 }

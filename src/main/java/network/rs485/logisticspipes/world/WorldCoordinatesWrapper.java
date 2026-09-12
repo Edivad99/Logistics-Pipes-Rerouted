@@ -1,0 +1,115 @@
+/*
+ * Copyright (c) 2019-2021  RS485
+ *
+ * "LogisticsPipes" is distributed under the terms of the Minecraft Mod Public
+ * License 1.0.1, or MMPL. Please check the contents of the license located in
+ * https://github.com/RS485/LogisticsPipes/blob/dev/LICENSE.md
+ *
+ * This file can instead be distributed under the license terms of the
+ * MIT license:
+ *
+ * Copyright (c) 2019-2021  RS485
+ *
+ * This MIT license was reworded to only match this file. If you use the regular
+ * MIT license in your project, replace this copyright notice (this line and any
+ * lines below and NOT the copyright line above) with the lines from the original
+ * MIT license located here: http://opensource.org/licenses/MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this file and associated documentation files (the "Source Code"), to deal in
+ * the Source Code without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Source Code, and to permit persons to whom the Software is furnished to
+ * do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Source Code, which also can be
+ * distributed under the MIT.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package network.rs485.logisticspipes.world;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LogisticsPipes;
+import logisticspipes.proxy.SimpleServiceLocator;
+import network.rs485.logisticspipes.connection.LPNeighborBlockEntity;
+
+public class WorldCoordinatesWrapper {
+
+    private final Level level;
+    private final BlockPos pos;
+
+    public WorldCoordinatesWrapper(Level level, BlockPos pos) {
+        this.level = level;
+        this.pos = pos;
+    }
+
+    public WorldCoordinatesWrapper(BlockEntity blockEntity) {
+        this(Objects.requireNonNull(blockEntity.getLevel()), blockEntity.getBlockPos());
+    }
+
+    public @Nullable BlockEntity getBlockEntity() {
+        return level.getBlockEntity(pos);
+    }
+
+    public List<LPNeighborBlockEntity<BlockEntity>> allNeighborBlockEntities() {
+        List<LPNeighborBlockEntity<BlockEntity>> neighbors = new ArrayList<>();
+        for (Direction direction : Direction.values()) {
+            LPNeighborBlockEntity<BlockEntity> neighbor = getNeighbor(direction);
+            if (neighbor != null) {
+                neighbors.add(neighbor);
+            }
+        }
+        return neighbors;
+    }
+
+    public List<LPNeighborBlockEntity<BlockEntity>> connectedBlockEntities() {
+        BlockEntity pipe = getBlockEntity();
+        if (pipe == null || SimpleServiceLocator.pipeInformationManager.isNotAPipe(pipe)) {
+            LogisticsPipes.LOG.warn("The coordinates didn't hold a pipe at all", new Throwable("Stack trace"));
+            return List.of();
+        }
+        return allNeighborBlockEntities().stream()
+            .filter(adjacent -> SimpleServiceLocator.pipeInformationManager
+                .canConnect(pipe, adjacent.getBlockEntity(), adjacent.getDirection()))
+            .toList();
+    }
+
+    public @Nullable LPNeighborBlockEntity<BlockEntity> getNeighbor(Direction direction) {
+        BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
+        return blockEntity == null ? null : new LPNeighborBlockEntity<>(blockEntity, direction);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * level.hashCode() + pos.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        return other == this
+            || other instanceof WorldCoordinatesWrapper that && level.equals(that.level) && pos.equals(that.pos);
+    }
+
+    @Override
+    public String toString() {
+        return "WorldCoordinatesWrapper(level=" + level + ", pos=" + pos + ")";
+    }
+}

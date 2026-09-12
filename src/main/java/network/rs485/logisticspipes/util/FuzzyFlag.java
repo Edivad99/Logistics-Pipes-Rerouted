@@ -35,28 +35,22 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.inventory
+package network.rs485.logisticspipes.util;
 
-import logisticspipes.api.property.BitSetProperty
-import logisticspipes.api.property.IBitSet
+import lombok.Getter;
 
-class FuzzySlotAccess(
-    private val slotAccess: SlotAccess, private val fuzzyFlags: BitSetProperty
-) : SlotAccess {
+@Getter
+public enum FuzzyFlag {
+    IGNORE_DAMAGE(1, "ignore_dmg"),
+    IGNORE_NBT(2, "ignore_nbt"),
+    USE_ORE_DICT(0, "use_od"),
+    USE_ORE_CATEGORY(3, "use_category");
 
-    private fun bitsForSlot(idx: Int): IBitSet =
-        (idx * 4).let { fuzzyFlags.get(it, it + 3) }
+    private final int bit;
+    private final String nbtName;
 
-    override fun mergeSlots(intoSlot: Int, fromSlot: Int) {
-        slotAccess.mergeSlots(intoSlot, fromSlot)
-        bitsForSlot(intoSlot).replaceWith(bitsForSlot(fromSlot))
-        bitsForSlot(fromSlot).clear()
+    FuzzyFlag(int bit, String nbtName) {
+        this.bit = bit;
+        this.nbtName = nbtName;
     }
-
-    override fun canMerge(intoSlot: Int, fromSlot: Int): Boolean =
-        slotAccess.canMerge(intoSlot, fromSlot)
-                && (isSlotEmpty(intoSlot) || bitsForSlot(intoSlot) == bitsForSlot(fromSlot))
-
-    override fun isSlotEmpty(idx: Int): Boolean = slotAccess.isSlotEmpty(idx)
-
 }

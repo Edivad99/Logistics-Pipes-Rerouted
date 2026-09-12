@@ -373,7 +373,7 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
                         final FuzzyFlag flag = offered.get(i);
                         guiGraphics.text(minecraft.font, TextUtil.translate(FUZZY_LABEL_PREFIX + labelOf(flag)),
                             posX + 5, posY + 5 + i * FUZZY_LINE_HEIGHT,
-                            FuzzyUtil.INSTANCE.get(set, flag) ? colorOf(flag) : 0xFF404040, false);
+                            FuzzyUtil.get(set, flag) ? colorOf(flag) : 0xFF404040, false);
                     }
                 });
             }
@@ -408,7 +408,7 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
     }
 
     private static boolean isSet(List<FuzzyFlag> offered, IBitSet set, FuzzyFlag flag) {
-        return offered.contains(flag) && FuzzyUtil.INSTANCE.get(set, flag);
+        return offered.contains(flag) && FuzzyUtil.get(set, flag);
     }
 
     private static int fuzzyPanelHeight(IFuzzySlot slot) {
