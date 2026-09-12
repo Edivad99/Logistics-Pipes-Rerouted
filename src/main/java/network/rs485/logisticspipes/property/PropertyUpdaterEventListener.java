@@ -35,37 +35,46 @@
  * SOFTWARE.
  */
 
-package network.rs485.logisticspipes.property
+package network.rs485.logisticspipes.property;
 
-import network.rs485.logisticspipes.inventory.container.LPBaseContainer
-import net.neoforged.bus.api.SubscribeEvent
-import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent
+import java.util.ArrayList;
+import java.util.List;
 
-object PropertyUpdaterEventListener {
-    private val propertyUpdaters: ArrayList<PropertyUpdater> = ArrayList()
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
+
+import logisticspipes.modules.LogisticsModule;
+import network.rs485.logisticspipes.inventory.container.LPBaseContainer;
+
+public final class PropertyUpdaterEventListener {
+
+    public static final PropertyUpdaterEventListener INSTANCE = new PropertyUpdaterEventListener();
+
+    private final List<PropertyUpdater> propertyUpdaters = new ArrayList<>();
+
+    private PropertyUpdaterEventListener() {
+    }
 
     @SubscribeEvent
-    fun openContainer(event: PlayerContainerEvent.Open) {
-        val player = event.entity
-        if (!player.level().isClientSide) {
-            val guiContainer = event.container
-            if (guiContainer is LPBaseContainer<*>) {
-                val module = guiContainer.module
-                propertyUpdaters.add(
-                    PropertyUpdater(player, module, module.properties)
-                )
-            }
+    public void openContainer(PlayerContainerEvent.Open event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide()) {
+            return;
+        }
+        if (event.getContainer() instanceof LPBaseContainer<?> lpContainer) {
+            LogisticsModule module = lpContainer.getModule();
+            propertyUpdaters.add(new PropertyUpdater(player, module, module.getProperties()));
         }
     }
 
     @SubscribeEvent
-    fun closeContainer(event: PlayerContainerEvent.Close) {
-        val player = event.entity
-        if (!player.level().isClientSide) {
-            propertyUpdaters.removeIf { propertyUpdater: PropertyUpdater ->
-                propertyUpdater.removeForPlayer(event.entity)
-            }
+    public void closeContainer(PlayerContainerEvent.Close event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide()) {
+            return;
         }
+        propertyUpdaters.removeIf(propertyUpdater -> propertyUpdater.removeForPlayer(event.getEntity()));
     }
-
 }
