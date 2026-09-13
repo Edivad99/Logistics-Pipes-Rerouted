@@ -12,8 +12,6 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
-import kotlin.Pair;
-
 import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
@@ -136,15 +134,15 @@ public class ExtractorJob {
             return;
         }
         int[] sourceStackLeft = { itemIdStack.getStackSize() };
-        Iterator<Pair<Integer, SinkReply>> validDestinations = LogisticsManager.INSTANCE.allDestinations(
+        Iterator<LogisticsManager.Destination> validDestinations = LogisticsManager.INSTANCE.allDestinations(
             stack,
             ItemIdentifier.get(stack),
             true,
             serverRouter,
-            () -> sourceStackLeft[0] > 0).iterator();
+            () -> sourceStackLeft[0] > 0);
         while (validDestinations.hasNext()) {
-            Pair<Integer, SinkReply> destination = validDestinations.next();
-            SinkReply sinkReply = destination.getSecond();
+            LogisticsManager.Destination destination = validDestinations.next();
+            SinkReply sinkReply = destination.sinkReply();
             int extract = ItemUtil.getExtractionMax(stack.getCount(), sourceStackLeft[0], sinkReply);
             if (extract < 1) {
                 continue;
@@ -160,7 +158,7 @@ public class ExtractorJob {
             if (toSend.isEmpty()) {
                 continue;
             }
-            service.sendStack(toSend, destination.getFirst(), sinkReply, module.getItemSendMode(), pointedOrientation);
+            service.sendStack(toSend, destination.routerId(), sinkReply, module.getItemSendMode(), pointedOrientation);
             sourceStackLeft[0] -= toSend.getCount();
         }
     }

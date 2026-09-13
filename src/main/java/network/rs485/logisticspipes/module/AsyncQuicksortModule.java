@@ -10,8 +10,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
-import kotlin.Pair;
-
 import logisticspipes.LPConfigs;
 import network.rs485.grow.LPExecutors;
 import logisticspipes.api.property.Property;
@@ -110,12 +108,12 @@ public class AsyncQuicksortModule extends AsyncModule<@Nullable AsyncQuicksortMo
             return new QuicksortSetup(slot, stack);
         }
         ItemIdentifier itemid = ItemIdentifier.get(stack);
-        Pair<Integer, SinkReply> result =
+        LogisticsManager.Destination destination =
             LogisticsManager.INSTANCE.getDestination(stack, itemid, false, serverRouter, List.of());
-        if (result == null) {
+        if (destination == null) {
             return null;
         }
-        extractAndSend(slot, stack, inventory, result.getFirst(), result.getSecond());
+        extractAndSend(slot, stack, inventory, destination.routerId(), destination.sinkReply());
         return null;
     }
 
@@ -131,12 +129,12 @@ public class AsyncQuicksortModule extends AsyncModule<@Nullable AsyncQuicksortMo
         AsyncRouting.updateRoutingTable(serverRouter);
         ItemIdentifier itemid = ItemIdentifier.get(setupObject.stack());
         // Touches routers and pipes, which only the server thread may do.
-        Pair<Integer, SinkReply> result = LPExecutors.onServerThread(() ->
+        LogisticsManager.Destination destination = LPExecutors.onServerThread(() ->
             LogisticsManager.INSTANCE.getDestination(setupObject.stack(), itemid, false, serverRouter, List.of()));
-        if (result == null) {
+        if (destination == null) {
             return null;
         }
-        return new QuicksortResult(setupObject.slot(), itemid, result.getFirst(), result.getSecond());
+        return new QuicksortResult(setupObject.slot(), itemid, destination.routerId(), destination.sinkReply());
     }
 
     @Override
