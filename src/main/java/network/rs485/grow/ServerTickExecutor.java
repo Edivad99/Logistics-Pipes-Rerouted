@@ -39,8 +39,15 @@ package network.rs485.grow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
 
@@ -62,12 +69,38 @@ public final class ServerTickExecutor implements Executor {
     /** Guarded by itself; moved into the queue at the end of each tick. */
     private final List<Runnable> toSchedule = new ArrayList<>();
 
+    /** Callers parked on a tick that has not happened yet, so {@link #cleanup} can let them go. */
+    private final Set<CompletableFuture<?>> waitingForATick = ConcurrentHashMap.newKeySet();
+
     private ServerTickExecutor() {
     }
 
     @Override
     public void execute(Runnable block) {
         queue.add(block);
+    }
+
+    /**
+     * Queues work whose result someone is waiting for. The returned future is completed from the
+     * tick that runs it, fails with whatever the work threw, and is cancelled by {@link #cleanup}
+     * so nobody stays parked on a tick that is no longer coming.
+     */
+    public <T extends @Nullable Object> CompletableFuture<T> submit(Supplier<T> supplier) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        waitingForATick.add(future);
+        future.whenComplete((value, error) -> waitingForATick.remove(future));
+        queue.add(() -> {
+            try {
+                future.complete(supplier.get());
+            } catch (RuntimeException error) {
+                future.completeExceptionally(error);
+            }
+        });
+        return future;
+    }
+
+    public boolean hasPendingWork() {
+        return !queue.isEmpty();
     }
 
     /** Runs the block on one of the following ticks rather than this one. */
@@ -80,7 +113,13 @@ public final class ServerTickExecutor implements Executor {
     public void tick() {
         long start = System.nanoTime();
         while (!queue.isEmpty() && (System.nanoTime() - start) < TICK_BUDGET_NANOS) {
-            queue.poll().run();
+            Runnable work = queue.poll();
+            try {
+                work.run();
+            } catch (RuntimeException error) {
+                // One bad task is not a reason to drop the rest, let alone to break the server tick.
+                LogisticsPipes.LOG.error("Error running Logistics Pipes work on the server thread", error);
+            }
         }
         if (System.nanoTime() - start >= TICK_BUDGET_NANOS) {
             LogisticsPipes.LOG.warn("Logistics Pipes server tick work hung for a second. Remaining work: {}", queue);
@@ -96,5 +135,9 @@ public final class ServerTickExecutor implements Executor {
         synchronized (toSchedule) {
             toSchedule.clear();
         }
+        List<CompletableFuture<?>> parked = new ArrayList<>(waitingForATick);
+        waitingForATick.clear();
+        parked.forEach(future ->
+            future.completeExceptionally(new CancellationException("the server stopped before this work ran")));
     }
 }

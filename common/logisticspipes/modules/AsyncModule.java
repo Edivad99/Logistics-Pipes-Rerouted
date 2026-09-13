@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
 
 import net.minecraft.client.Minecraft;
@@ -90,7 +91,8 @@ public abstract class AsyncModule<S extends @Nullable Object, C extends @Nullabl
     private void reportJobFailure(Throwable throwable) {
         Throwable cause = throwable instanceof CompletionException && throwable.getCause() != null
             ? throwable.getCause() : throwable;
-        if (cause instanceof TimeoutException || isGamePaused()) {
+        // A cancelled job lost its server; a timed out one is almost always a paused game.
+        if (cause instanceof TimeoutException || cause instanceof CancellationException || isGamePaused()) {
             return;
         }
         BlockEntity connectedEntity = getConnectedEntity();

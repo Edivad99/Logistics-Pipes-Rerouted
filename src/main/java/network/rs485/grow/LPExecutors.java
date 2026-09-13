@@ -78,7 +78,7 @@ public final class LPExecutors {
         if (server != null && server.isSameThread()) {
             return supplier.get();
         }
-        return CompletableFuture.supplyAsync(supplier, ServerTickExecutor.INSTANCE).join();
+        return ServerTickExecutor.INSTANCE.submit(supplier).join();
     }
 
     /** Runs the task once the server has advanced by {@code inTicks} ticks. */

@@ -1,6 +1,8 @@
 package network.rs485.grow;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,8 +14,10 @@ import org.junit.jupiter.api.Timeout;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -73,6 +77,45 @@ class ServerTickExecutorTest {
         executor.tick();
 
         assertFalse(ran.get(), "cleanup must drop what was still queued");
+    }
+
+    @Test
+    void aFailingTaskDoesNotStopTheDrain() {
+        AtomicBoolean ran = new AtomicBoolean(false);
+        executor.execute(() -> {
+            throw new IllegalStateException("the task blew up");
+        });
+        executor.execute(() -> ran.set(true));
+
+        executor.tick();     // must not throw into the server tick
+
+        assertTrue(ran.get(), "the work queued behind a failing task must still run");
+    }
+
+    /**
+     * A job waiting for the server thread has to be let go when the server goes away, or it would
+     * sit parked on a pool thread for the rest of the process.
+     */
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
+    void cleanupReleasesWhoeverIsWaitingForTheTick() throws Exception {
+        CountDownLatch asked = new CountDownLatch(1);
+        CompletableFuture<String> answer = CompletableFuture.supplyAsync(() -> {
+            asked.countDown();
+            return LPExecutors.onServerThread(() -> "never gets here");
+        });
+
+        assertTrue(asked.await(5, TimeUnit.SECONDS), "the background job should have started");
+        // Wait for the ask to actually reach the queue, not just the job to have started.
+        while (!executor.hasPendingWork()) {
+            Thread.onSpinWait();
+        }
+        executor.cleanup();
+
+        CompletionException failure =
+            assertThrows(CompletionException.class, answer::join, "the waiting job must be let go");
+        assertInstanceOf(CancellationException.class, failure.getCause(),
+            "and it must hear that the work was cancelled, which is not logged as an error");
     }
 
     /**
