@@ -25,7 +25,7 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.logistics.LogisticsManager;
-import network.rs485.logisticspipes.util.ItemKt;
+import network.rs485.logisticspipes.util.ItemUtil;
 
 /**
  * One pass over the attached inventory, spread over several ticks: each tick looks at the next few
@@ -132,7 +132,7 @@ public class ExtractorJob {
             return;
         }
         ItemStack stack = inventory.getItem(slot);
-        if (!ItemKt.equalsWithNBT(itemIdStack.getItem(), stack)) {
+        if (!ItemUtil.equalsWithNBT(itemIdStack.getItem(), stack)) {
             return;
         }
         int[] sourceStackLeft = { itemIdStack.getStackSize() };
@@ -145,7 +145,7 @@ public class ExtractorJob {
         while (validDestinations.hasNext()) {
             Pair<Integer, SinkReply> destination = validDestinations.next();
             SinkReply sinkReply = destination.getSecond();
-            int extract = ItemKt.getExtractionMax(stack.getCount(), sourceStackLeft[0], sinkReply);
+            int extract = ItemUtil.getExtractionMax(stack.getCount(), sourceStackLeft[0], sinkReply);
             if (extract < 1) {
                 continue;
             }

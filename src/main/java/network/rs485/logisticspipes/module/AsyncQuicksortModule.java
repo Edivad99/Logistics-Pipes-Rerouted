@@ -29,7 +29,7 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import network.rs485.logisticspipes.logistics.LogisticsManager;
-import network.rs485.logisticspipes.util.ItemKt;
+import network.rs485.logisticspipes.util.ItemUtil;
 
 public class AsyncQuicksortModule extends AsyncModule<@Nullable AsyncQuicksortModule.QuicksortSetup,
     @Nullable AsyncQuicksortModule.QuicksortResult> {
@@ -151,7 +151,7 @@ public class AsyncQuicksortModule extends AsyncModule<@Nullable AsyncQuicksortMo
             return;
         }
         ItemStack stack = inventory.getItem(result.slot());
-        if (ItemKt.equalsWithNBT(result.itemid(), stack)) {
+        if (ItemUtil.equalsWithNBT(result.itemid(), stack)) {
             extractAndSend(result.slot(), stack, inventory, result.destRouterId(), result.sinkReply());
         }
     }
@@ -166,7 +166,7 @@ public class AsyncQuicksortModule extends AsyncModule<@Nullable AsyncQuicksortMo
         if (pointedOrientation == null) {
             return;
         }
-        int toExtract = ItemKt.getExtractionMax(stack.getCount(), stack.getMaxStackSize(), sinkReply);
+        int toExtract = ItemUtil.getExtractionMax(stack.getCount(), stack.getMaxStackSize(), sinkReply);
         if (toExtract <= 0 || !service.useEnergy(getEnergyPerStack())) {
             return;
         }

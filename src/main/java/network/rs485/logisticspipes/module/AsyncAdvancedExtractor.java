@@ -41,7 +41,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.AdvancedExtractorMenu;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import network.rs485.logisticspipes.util.ItemKt;
+import network.rs485.logisticspipes.util.ItemUtil;
 
 public class AsyncAdvancedExtractor extends AsyncModule<ExtractorJob, @Nullable Void>
     implements SimpleFilter, SneakyDirection, IClientInformationProvider, IHUDModuleHandler,
@@ -66,7 +66,7 @@ public class AsyncAdvancedExtractor extends AsyncModule<ExtractorJob, @Nullable 
     /** Keeps what the filter list says to keep, which the "included" flag turns around. */
     private boolean isFilteredOut(ItemStack stack) {
         return stack.isEmpty()
-            || itemsIncluded.getValue() != ItemKt.matchingSequence(filterInventory, stack).iterator().hasNext();
+            || itemsIncluded.getValue() != ItemUtil.anyMatchesWithoutNBT(filterInventory, stack);
     }
 
     @Override
