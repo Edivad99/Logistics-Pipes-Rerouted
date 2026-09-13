@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 
-import network.rs485.logisticspipes.config.ClientConfiguration;
+import logisticspipes.config.ClientConfiguration;
 
 /**
  * The settings the server has stored for this player, sent as they log in.

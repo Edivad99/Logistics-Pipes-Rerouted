@@ -1,8 +1,8 @@
 package logisticspipes.renderer;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+
+import org.jspecify.annotations.Nullable;
 
 public interface IIconProvider {
 

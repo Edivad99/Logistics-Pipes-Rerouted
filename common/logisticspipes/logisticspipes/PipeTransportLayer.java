@@ -7,10 +7,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.IRouter;
-import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
+import logisticspipes.world.WorldCoordinatesWrapper;
 
 /**
  * This class is responsible for handling incoming items for standard pipes

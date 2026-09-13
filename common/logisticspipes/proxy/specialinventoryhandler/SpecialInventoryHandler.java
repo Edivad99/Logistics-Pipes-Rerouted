@@ -10,9 +10,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IInventoryUtil;
+import logisticspipes.inventory.ProviderMode;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.transactor.ITransactor;
-import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public abstract class SpecialInventoryHandler implements IInventoryUtil, ITransactor {
 

@@ -38,12 +38,14 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.api.connection.ConnectionType;
 import logisticspipes.asm.ModDependentField;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.asm.te.LPTileEntityObject;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelProperties;
+import logisticspipes.connection.PipeInventoryConnectionChecker;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.logic.LogicController;
 import logisticspipes.logic.interfaces.ILogicControllerTile;
@@ -67,8 +69,6 @@ import logisticspipes.utils.TileBuffer;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
-import logisticspipes.api.connection.ConnectionType;
-import network.rs485.logisticspipes.connection.PipeInventoryConnectionChecker;
 
 public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInformationProvider,
     ILogicControllerTile, ILPTEInformation {

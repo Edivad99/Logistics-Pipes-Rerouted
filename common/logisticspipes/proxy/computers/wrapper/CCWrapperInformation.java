@@ -1,11 +1,11 @@
 package logisticspipes.proxy.computers.wrapper;
 
-import org.jspecify.annotations.Nullable;
-
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.utils.tuples.Pair;
 

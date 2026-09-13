@@ -19,11 +19,14 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.PropertyHolder;
+import logisticspipes.api.property.PropertyUtil;
 import logisticspipes.interfaces.IHUDModuleHandler;
+import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.ModuleWatchMessage;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
@@ -35,9 +38,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.api.property.Property;
-import logisticspipes.api.property.PropertyHolder;
-import logisticspipes.api.property.PropertyUtil;
 
 @CCType(name = "LogisticsModule")
 public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeHolder, PropertyHolder {

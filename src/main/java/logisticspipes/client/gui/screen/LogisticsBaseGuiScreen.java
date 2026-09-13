@@ -17,7 +17,6 @@ import java.util.Queue;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
@@ -25,6 +24,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,9 +38,13 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import logisticspipes.LPConstants;
+import logisticspipes.api.property.IBitSet;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.FuzzyFlag;
+import logisticspipes.utils.FuzzyUtil;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.IGuiAccess;
 import logisticspipes.utils.gui.IItemTextureRenderSlot;
 import logisticspipes.utils.gui.IRenderSlot;
@@ -51,10 +55,6 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.extension.GuiExtensionController;
 import logisticspipes.utils.gui.extension.GuiExtensionController.GuiSide;
-import logisticspipes.api.property.IBitSet;
-import network.rs485.logisticspipes.util.FuzzyFlag;
-import network.rs485.logisticspipes.util.FuzzyUtil;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
     extends AbstractContainerScreen<T> implements ISubGuiController, IGuiAccess {

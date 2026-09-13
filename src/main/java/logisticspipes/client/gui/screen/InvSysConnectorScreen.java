@@ -24,6 +24,7 @@ import logisticspipes.network.to_server.pipe.SetInvSysConResistanceMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -31,7 +32,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
 import logisticspipes.world.inventory.InvSysConMenu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
     implements IGUIChannelInformationReceiver {

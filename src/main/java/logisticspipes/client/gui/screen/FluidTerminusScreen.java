@@ -7,14 +7,14 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
 import logisticspipes.network.to_server.pipe.SetPipePropertiesMessage;
 import logisticspipes.pipes.PipeFluidTerminus;
+import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.inventory.FluidTerminusMenu;
-import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.api.property.layer.PropertyLayer;
-import logisticspipes.api.property.layer.PropertyOverlay;
 
 public class FluidTerminusScreen extends LogisticsBaseGuiScreen<FluidTerminusMenu> {
 

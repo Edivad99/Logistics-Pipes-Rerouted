@@ -8,9 +8,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.modules.AsyncAdvancedExtractor;
 import logisticspipes.network.ModuleTarget;
-
-import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 
 /**
  * Whether an advanced extractor's filter includes or excludes, for the players watching its HUD.

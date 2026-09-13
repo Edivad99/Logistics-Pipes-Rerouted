@@ -1,7 +1,5 @@
 package logisticspipes.proxy.computers.objects;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.List;
 
 import net.minecraft.core.component.DataComponentPatch;
@@ -9,6 +7,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;

@@ -1,8 +1,7 @@
 package logisticspipes.routing;
 
-import org.jspecify.annotations.Nullable;
-
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.request.IExtraPromise;

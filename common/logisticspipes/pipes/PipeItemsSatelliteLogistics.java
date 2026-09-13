@@ -32,6 +32,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -54,7 +55,6 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.SatelliteMenu;
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 
 public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport, IHeadUpDisplayRendererProvider, IChestContentReceiver, SatellitePipe, IPipeMenuProvider {
 

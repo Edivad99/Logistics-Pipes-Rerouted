@@ -14,9 +14,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.LPConstants;
+import logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.modules.SimpleFilter;
 import logisticspipes.world.inventory.SimpleFilterMenu;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 public class SimpleFilterScreen extends ModuleBaseScreen<SimpleFilterMenu> {
 

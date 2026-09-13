@@ -9,9 +9,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.config.ClientConfiguration;
 import logisticspipes.utils.PlayerIdentifier;
-
-import network.rs485.logisticspipes.config.ClientConfiguration;
 
 /**
  * The player changed their settings in the mod's own options screen.

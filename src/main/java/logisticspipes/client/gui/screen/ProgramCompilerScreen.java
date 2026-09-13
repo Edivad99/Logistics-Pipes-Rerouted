@@ -20,6 +20,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.to_server.block.TriggerCompilerTaskMessage;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -30,7 +31,6 @@ import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity.CompilerTask;
-import network.rs485.logisticspipes.util.TextUtil;
 
 //TODO: Config Option for disabling program compilation
 public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompilerMenu> {

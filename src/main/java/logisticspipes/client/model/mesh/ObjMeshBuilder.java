@@ -1,8 +1,8 @@
 package logisticspipes.client.model.mesh;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Arrays;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Growable accumulator for {@link ObjMesh}, used while parsing and while assembling

@@ -1,7 +1,5 @@
 package logisticspipes.client.gui.popup;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.List;
 import java.util.Locale;
 
@@ -14,7 +12,9 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.jspecify.annotations.Nullable;
 
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -24,7 +24,6 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
 

@@ -23,6 +23,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.EnumProperty;
+import logisticspipes.api.property.IntListProperty;
+import logisticspipes.api.property.Property;
+import logisticspipes.connection.AdjacentUtil;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -40,6 +45,7 @@ import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.basic.debug.StatusEntry;
+import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.request.RequestTree;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
@@ -48,12 +54,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
-import network.rs485.logisticspipes.connection.AdjacentUtil;
-import logisticspipes.api.property.BooleanProperty;
-import logisticspipes.api.property.EnumProperty;
-import logisticspipes.api.property.IntListProperty;
-import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.api.property.Property;
 
 public class ModuleActiveSupplier extends LogisticsModule
 		implements IRequestItems, IRequireReliableTransport, IClientInformationProvider, IHUDModuleHandler,

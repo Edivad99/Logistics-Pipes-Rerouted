@@ -1,7 +1,5 @@
 package logisticspipes.network.to_client.pipe;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
@@ -13,6 +11,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;

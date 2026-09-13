@@ -1,12 +1,11 @@
 package logisticspipes.renderer.state;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import io.netty.buffer.ByteBuf;
+import org.jspecify.annotations.Nullable;
 
 public class ConnectionMatrix {
 

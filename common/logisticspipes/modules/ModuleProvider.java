@@ -28,6 +28,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.EnumProperty;
+import logisticspipes.api.property.NullableEnumProperty;
+import logisticspipes.api.property.Property;
 import logisticspipes.gui.hud.modules.HUDProviderModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -42,6 +47,8 @@ import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
+import logisticspipes.inventory.IItemIdentifierInventory;
+import logisticspipes.inventory.ProviderMode;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.network.ModuleTarget;
@@ -49,6 +56,7 @@ import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.network.to_client.module.SneakyDirectionMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
+import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
@@ -68,16 +76,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.world.inventory.LPMenuTypes;
-import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.inventory.ProviderMode;
 import logisticspipes.world.inventory.ProviderMenu;
-import logisticspipes.api.property.BooleanProperty;
-import logisticspipes.api.property.EnumProperty;
-import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.api.property.NullableEnumProperty;
-import logisticspipes.api.property.Property;
 
 @CCType(name = "Provider Module")
 public class ModuleProvider extends LogisticsModule implements SneakyDirection, ILegacyActiveModule,

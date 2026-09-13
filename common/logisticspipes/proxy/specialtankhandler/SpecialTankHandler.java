@@ -8,8 +8,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import com.google.common.collect.Lists;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.provider.ISpecialTankHandler;
 import logisticspipes.api.event.RegisterTankHandlersEvent;
+import logisticspipes.api.provider.ISpecialTankHandler;
 import logisticspipes.api.provider.ISpecialTankUtilProvider;
 import logisticspipes.api.util.ITankUtil;
 

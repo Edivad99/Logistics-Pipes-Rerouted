@@ -1,10 +1,10 @@
 package logisticspipes.interfaces;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 

@@ -50,9 +50,13 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.routing.IFluidSink;
 import logisticspipes.pipes.PipeFluidUtil;
+import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
@@ -61,10 +65,6 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.api.property.Property;
-import logisticspipes.api.property.PropertyHolder;
 
 public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSink, PropertyHolder, ValueIOSerializable {
 

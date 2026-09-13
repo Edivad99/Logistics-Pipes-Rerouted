@@ -14,15 +14,15 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.ValuePropertyOverlay;
+import logisticspipes.modules.AsyncAdvancedExtractor;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.OpenSneakyDirectionGuiMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.world.inventory.AdvancedExtractorMenu;
-import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
-import logisticspipes.api.property.BooleanProperty;
-import logisticspipes.api.property.layer.PropertyLayer;
-import logisticspipes.api.property.layer.ValuePropertyOverlay;
 
 public class AdvancedExtractorScreen extends ModuleBaseScreen<AdvancedExtractorMenu> {
 

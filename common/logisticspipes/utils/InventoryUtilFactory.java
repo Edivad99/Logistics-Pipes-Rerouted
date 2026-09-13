@@ -18,10 +18,10 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.interfaces.IInventoryUtil;
-import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
 import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.inventory.ProviderMode;
+import logisticspipes.interfaces.IInventoryUtil;
+import logisticspipes.inventory.ProviderMode;
+import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
 
 public class InventoryUtilFactory {
 

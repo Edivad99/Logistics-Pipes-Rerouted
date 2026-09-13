@@ -1,11 +1,11 @@
 package logisticspipes.utils.gui;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ISlotCheck;
 

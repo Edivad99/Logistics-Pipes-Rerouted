@@ -14,12 +14,12 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiAddChannelPopup extends SubGuiScreen {
 

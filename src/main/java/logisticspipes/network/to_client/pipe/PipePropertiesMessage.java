@@ -14,10 +14,9 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-
-import logisticspipes.api.property.PropertyHolder;
 
 /**
  * A pipe's properties, as the server has them.

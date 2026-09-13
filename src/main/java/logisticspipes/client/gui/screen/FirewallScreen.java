@@ -5,10 +5,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.pipes.PipeItemsFirewall;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.world.inventory.FirewallMenu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class FirewallScreen extends LogisticsBaseGuiScreen<FirewallMenu> {
 

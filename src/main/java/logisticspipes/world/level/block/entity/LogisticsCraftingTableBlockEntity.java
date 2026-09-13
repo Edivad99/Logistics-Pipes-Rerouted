@@ -35,6 +35,8 @@ import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
+import logisticspipes.api.property.BitSetProperty;
+import logisticspipes.api.property.IBitSet;
 import logisticspipes.api.provider.IRoutedPowerProvider;
 import logisticspipes.entity.FakePlayers;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
@@ -48,6 +50,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.CraftingUtil;
+import logisticspipes.utils.FuzzyUtil;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.PlayerIdentifier;
@@ -56,9 +59,6 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.level.block.LPBlocks;
-import logisticspipes.api.property.BitSetProperty;
-import logisticspipes.api.property.IBitSet;
-import network.rs485.logisticspipes.util.FuzzyUtil;
 
 public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     implements Container, IBlockEntityMenuProvider, ISimpleInventoryEventHandler, IScreenOpenController,

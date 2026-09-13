@@ -18,6 +18,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.block.TrackItemMessage;
 import logisticspipes.util.TrackingTask;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -28,7 +29,6 @@ import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.level.block.entity.LogisticsStatisticsBlockEntity;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 

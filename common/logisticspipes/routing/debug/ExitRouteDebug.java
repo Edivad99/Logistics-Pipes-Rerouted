@@ -2,10 +2,9 @@ package logisticspipes.routing.debug;
 
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.core.BlockPos;
 
+import org.jspecify.annotations.Nullable;
 
 public class ExitRouteDebug {
 

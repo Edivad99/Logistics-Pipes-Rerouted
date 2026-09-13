@@ -32,7 +32,6 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
@@ -58,6 +57,7 @@ import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.ChainAddArrayList;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.ISubGuiController;
@@ -73,7 +73,6 @@ import logisticspipes.utils.string.ChatColor;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.RequestTableMenu;
 import logisticspipes.world.item.LPItems;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
     implements IItemSearch, ISpecialItemRenderer, IDiskProvider,

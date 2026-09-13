@@ -4,9 +4,8 @@ import net.minecraft.world.entity.player.Inventory;
 
 import lombok.Getter;
 
+import logisticspipes.modules.AsyncAdvancedExtractor;
 import logisticspipes.network.ModuleTarget;
-
-import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 
 /**
  * The advanced extractor's filter, which is the plain nine-slot filter plus a switch for whether

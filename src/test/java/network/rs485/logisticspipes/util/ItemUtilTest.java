@@ -9,6 +9,7 @@ import net.minecraft.world.item.component.CustomData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import logisticspipes.utils.ItemUtil;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import network.rs485.logisticspipes.TestBootstrap;

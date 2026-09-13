@@ -4,6 +4,7 @@ import net.minecraft.core.Direction;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.connection.Adjacent;
 import logisticspipes.api.provider.IRoutedPowerProvider;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.modules.LogisticsModule;
@@ -11,7 +12,6 @@ import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.api.connection.Adjacent;
 
 //methods needed by modules that any CRP can offer
 public interface IPipeServiceProvider extends IRoutedPowerProvider, ISpawnParticles, ISendRoutedItem {

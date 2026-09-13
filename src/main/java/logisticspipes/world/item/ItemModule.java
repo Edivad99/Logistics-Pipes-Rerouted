@@ -25,9 +25,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
-import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
@@ -35,8 +35,8 @@ import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.DummyLevelProvider;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemModule extends LogisticsItem {
 

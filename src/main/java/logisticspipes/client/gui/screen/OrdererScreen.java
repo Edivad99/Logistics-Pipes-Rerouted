@@ -7,8 +7,6 @@
 
 package logisticspipes.client.gui.screen;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
@@ -33,6 +31,7 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.client.gui.popup.GuiRequestPopup;

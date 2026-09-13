@@ -7,8 +7,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 
 import logisticspipes.routing.channels.ChannelInformation;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.SmallGuiButton;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSelectChannelPopup extends GuiManageChannelPopup {
 

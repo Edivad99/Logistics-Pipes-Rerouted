@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import logisticspipes.utils.TextUtil;
+
 class TestUtilTest {
 
     private static byte[] getBytesFromInteger(int i) {

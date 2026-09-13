@@ -1,11 +1,11 @@
 package logisticspipes.utils;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
+import org.jspecify.annotations.Nullable;
 
 public class OneList<E> implements List<E> {
 

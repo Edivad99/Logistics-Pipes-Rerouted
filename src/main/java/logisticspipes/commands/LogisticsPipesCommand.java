@@ -32,9 +32,9 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.ticks.RoutingTableUpdateThread;
+import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
-import network.rs485.logisticspipes.util.FuzzyFlag;
 
 /**
  * {@code /logisticspipes}, and {@code /lp} for short.

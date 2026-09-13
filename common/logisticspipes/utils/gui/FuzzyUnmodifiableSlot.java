@@ -2,8 +2,8 @@ package logisticspipes.utils.gui;
 
 import net.minecraft.world.Container;
 
-import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.api.property.IBitSet;
+import logisticspipes.interfaces.IFuzzySlot;
 
 public class FuzzyUnmodifiableSlot extends UnmodifiableSlot implements IFuzzySlot {
 

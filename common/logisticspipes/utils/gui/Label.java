@@ -41,8 +41,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-import network.rs485.logisticspipes.util.TextUtil;
-import network.rs485.logisticspipes.util.math.MutableRectangle;
+import logisticspipes.utils.TextUtil;
+import logisticspipes.utils.math.MutableRectangle;
 
 public class Label {
 

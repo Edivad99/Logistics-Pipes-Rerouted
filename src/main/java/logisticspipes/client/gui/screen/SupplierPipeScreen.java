@@ -20,6 +20,12 @@ import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LPConstants;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.EnumProperty;
+import logisticspipes.api.property.IntListProperty;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
+import logisticspipes.api.property.layer.ValuePropertyOverlay;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleActiveSupplier.PatternMode;
 import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
@@ -27,16 +33,10 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.crafting.SlotFinderOpenGuiMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
-import logisticspipes.api.property.BooleanProperty;
-import logisticspipes.api.property.EnumProperty;
-import logisticspipes.api.property.IntListProperty;
-import logisticspipes.api.property.layer.PropertyLayer;
-import logisticspipes.api.property.layer.PropertyOverlay;
-import logisticspipes.api.property.layer.ValuePropertyOverlay;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class SupplierPipeScreen extends LogisticsBaseGuiScreen<ActiveSupplierMenu> {
 

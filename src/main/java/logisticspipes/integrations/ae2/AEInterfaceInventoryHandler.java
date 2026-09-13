@@ -19,9 +19,9 @@ import appeng.api.storage.MEStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.inventory.ProviderMode;
 import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.inventory.ProviderMode;
 
 /**
  * Exposes the contents of an Applied Energistics 2 network to Logistics Pipes, so that a provider

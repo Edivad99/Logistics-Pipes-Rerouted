@@ -8,14 +8,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.config.ClientConfiguration;
 import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
 import logisticspipes.world.inventory.PlayerSettingsMenu;
 import logisticspipes.world.item.LPItems;
-import network.rs485.logisticspipes.config.ClientConfiguration;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class LogisticsSettingsScreen extends LogisticsBaseTabGuiScreen<PlayerSettingsMenu> {
 

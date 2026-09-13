@@ -17,6 +17,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.modules.ModuleActiveSupplier;
@@ -26,8 +27,6 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.item.ItemIdentifier;
-
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
 
 /**
  * The server half of "point at the slot you mean".

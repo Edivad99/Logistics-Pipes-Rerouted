@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 
-import network.rs485.logisticspipes.util.TextUtil;
+import logisticspipes.utils.TextUtil;
 
 public class LogisticsItem extends Item {
 

@@ -7,8 +7,6 @@
 
 package logisticspipes.client.gui.screen;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Locale;
 import java.util.Optional;
 
@@ -20,6 +18,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.modules.SneakyDirection;

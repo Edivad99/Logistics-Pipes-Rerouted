@@ -6,13 +6,13 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.network.to_server.security.SaveSecuritySettingsMessage;
 import logisticspipes.security.SecuritySettings;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity.SecurityPermissions;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSecurityStationPopup extends SubGuiScreen {
 

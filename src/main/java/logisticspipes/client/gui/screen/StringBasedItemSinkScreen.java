@@ -11,6 +11,9 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.api.property.StringListProperty;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
@@ -21,9 +24,6 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
-import logisticspipes.api.property.StringListProperty;
-import logisticspipes.api.property.layer.PropertyLayer;
-import logisticspipes.api.property.layer.PropertyOverlay;
 
 public class StringBasedItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMenu> {
 

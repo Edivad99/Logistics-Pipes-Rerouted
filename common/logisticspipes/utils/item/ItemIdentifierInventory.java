@@ -34,12 +34,12 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.inventory.IItemIdentifierInventory;
+import logisticspipes.inventory.SlotAccess;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.tuples.Pair;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.inventory.SlotAccess;
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Iterable over its own pair type: the two Iterable parameterisations conflict. The pair

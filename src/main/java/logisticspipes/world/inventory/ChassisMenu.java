@@ -10,9 +10,9 @@ import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 
-import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeLogisticsChassis;
+import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.world.item.ItemUpgrade;
 

@@ -24,6 +24,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.IBitSet;
 import logisticspipes.client.gui.FluidSelection;
 import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 import logisticspipes.interfaces.IFuzzySlot;
@@ -35,6 +36,7 @@ import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.utils.FluidIdentifier;
+import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.utils.MinecraftColor;
 import logisticspipes.utils.gui.ColorSlot;
 import logisticspipes.utils.gui.DummySlot;
@@ -50,8 +52,6 @@ import logisticspipes.utils.gui.StaticRestrictedSlot;
 import logisticspipes.utils.gui.UnmodifiableSlot;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.api.property.IBitSet;
-import network.rs485.logisticspipes.util.FuzzyFlag;
 
 public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScreenHolder {
 

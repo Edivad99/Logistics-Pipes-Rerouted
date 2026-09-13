@@ -25,6 +25,7 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
@@ -36,7 +37,6 @@ import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControllerMenu> {
 

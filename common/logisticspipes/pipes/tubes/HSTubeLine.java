@@ -20,7 +20,6 @@ import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
-import logisticspipes.pipes.basic.CoreMultiBlockPipe.SubBlock;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.IPositionRotateble;
 import logisticspipes.utils.PositionRotation;

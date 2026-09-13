@@ -17,8 +17,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.LPConstants;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.world.inventory.FluidSupplierMenu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class FluidSupplierPipeScreen extends LogisticsBaseGuiScreen<FluidSupplierMenu> {
 

@@ -1,7 +1,5 @@
 package logisticspipes.pipes.upgrades;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
@@ -11,13 +9,14 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.pipes.PipeLogisticsChassis;
+import logisticspipes.property.SimpleInventoryProperty;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.world.item.ItemUpgrade;
-import network.rs485.logisticspipes.property.SimpleInventoryProperty;
 
 public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgradeManager {
 

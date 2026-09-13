@@ -1,7 +1,5 @@
 package logisticspipes.request;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -19,6 +17,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.routing.IRequestFluid;

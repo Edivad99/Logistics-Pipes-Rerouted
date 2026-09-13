@@ -3,13 +3,13 @@ package logisticspipes.proxy.recipeproviders;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import logisticspipes.api.property.BitSetProperty;
+import logisticspipes.inventory.FuzzySlotAccess;
+import logisticspipes.inventory.IItemIdentifierInventory;
+import logisticspipes.inventory.SlotAccess;
 import logisticspipes.proxy.interfaces.IFuzzyRecipeProvider;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
-import network.rs485.logisticspipes.inventory.FuzzySlotAccess;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
-import network.rs485.logisticspipes.inventory.SlotAccess;
-import logisticspipes.api.property.BitSetProperty;
 
 public class LogisticsCraftingTable implements IFuzzyRecipeProvider {
 

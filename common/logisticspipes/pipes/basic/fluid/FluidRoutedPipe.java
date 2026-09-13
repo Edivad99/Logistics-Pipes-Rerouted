@@ -13,7 +13,9 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
+import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
@@ -36,8 +38,6 @@ import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.transfer.LPFluidTank;
 import logisticspipes.utils.tuples.Pair;
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
-import logisticspipes.api.connection.NeighborBlockEntity;
 
 public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 

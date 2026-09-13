@@ -20,9 +20,9 @@ import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
+import logisticspipes.inventory.ProviderMode;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.transfer.ItemHandlers;
-import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public class InventoryUtil implements IInventoryUtil, ISpecialInsertion {
 

@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.Property;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -20,15 +21,14 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
+import logisticspipes.property.SlottedModule;
+import logisticspipes.property.SlottedModuleListProperty;
+import logisticspipes.property.UpgradeManagerListProperty;
 import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.ChassisMenu;
-import logisticspipes.api.property.Property;
-import network.rs485.logisticspipes.property.SlottedModule;
-import network.rs485.logisticspipes.property.SlottedModuleListProperty;
-import network.rs485.logisticspipes.property.UpgradeManagerListProperty;
 
 public class ChassisModule extends LogisticsModule implements IModuleMenuProvider {
 

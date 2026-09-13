@@ -23,11 +23,14 @@ import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.interfaces.IPipeMenuProvider;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
+import logisticspipes.connection.NeighborBlockEntityUtil;
+import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
+import logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -43,9 +46,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.FluidSupplierMenu;
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
-import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport, IPipeMenuProvider {
 

@@ -10,11 +10,11 @@ import net.minecraft.world.entity.player.Player;
 
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.IResource.ColorCode;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiRequestPopup extends SubGuiScreen {
 

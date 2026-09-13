@@ -1,7 +1,5 @@
 package logisticspipes.client.gui.screen;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Arrays;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -10,6 +8,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.network.to_server.crafting.CycleCraftingRecipeMessage;
 import logisticspipes.utils.gui.LPGuiGraphics;

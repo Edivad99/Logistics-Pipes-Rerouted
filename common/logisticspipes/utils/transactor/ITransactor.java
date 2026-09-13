@@ -1,9 +1,9 @@
 package logisticspipes.utils.transactor;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+
+import org.jspecify.annotations.Nullable;
 
 public interface ITransactor {
 

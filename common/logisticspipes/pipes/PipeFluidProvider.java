@@ -12,9 +12,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.ISpecialTankAccessHandler;
 import logisticspipes.interfaces.ISpecialTankUtil;
-import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvideFluids;
@@ -37,7 +38,6 @@ import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.api.connection.NeighborBlockEntity;
 
 public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids {
 

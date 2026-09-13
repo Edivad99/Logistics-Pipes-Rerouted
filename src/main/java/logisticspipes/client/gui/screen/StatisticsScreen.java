@@ -33,6 +33,7 @@ import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.block.TrackItemMessage;
 import logisticspipes.util.TrackingTask;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -41,7 +42,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.inventory.StatisticsMenu;
 import logisticspipes.world.level.block.entity.LogisticsStatisticsBlockEntity;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
 

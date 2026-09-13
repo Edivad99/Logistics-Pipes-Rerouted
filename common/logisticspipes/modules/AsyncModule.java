@@ -1,22 +1,24 @@
 package logisticspipes.modules;
 
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.grow.LPExecutors;
+import logisticspipes.utils.LPExecutors;
 
 /**
  * A module whose work is planned off the server thread and applied on it.

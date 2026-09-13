@@ -1,8 +1,8 @@
 package logisticspipes.interfaces;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.core.Direction;
+
+import org.jspecify.annotations.Nullable;
 
 public interface IPipeUpgradeManager {
 

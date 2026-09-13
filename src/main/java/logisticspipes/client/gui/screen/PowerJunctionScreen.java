@@ -11,9 +11,9 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.network.to_server.block.PowerJunctionCheatMessage;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.world.inventory.PowerJunctionMenu;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class PowerJunctionScreen extends LogisticsBaseGuiScreen<PowerJunctionMenu> {
 

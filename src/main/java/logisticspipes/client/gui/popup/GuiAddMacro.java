@@ -1,7 +1,5 @@
 package logisticspipes.client.gui.popup;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +16,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.to_server.block.SaveDiskContentMessage;

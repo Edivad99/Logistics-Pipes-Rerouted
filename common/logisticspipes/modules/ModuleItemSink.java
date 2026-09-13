@@ -24,6 +24,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import com.google.common.collect.ImmutableList;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.BitSetProperty;
+import logisticspipes.api.property.BooleanProperty;
+import logisticspipes.api.property.IBitSet;
+import logisticspipes.api.property.Property;
+import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.gui.hud.modules.HUDItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -33,12 +38,16 @@ import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReceiver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
+import logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
+import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
+import logisticspipes.utils.FuzzyFlag;
+import logisticspipes.utils.FuzzyUtil;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
@@ -47,17 +56,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.world.inventory.LPMenuTypes;
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.world.inventory.ItemSinkMenu;
-import logisticspipes.api.property.BitSetProperty;
-import logisticspipes.api.property.BooleanProperty;
-import logisticspipes.api.property.IBitSet;
-import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.api.property.Property;
-import network.rs485.logisticspipes.util.FuzzyFlag;
-import network.rs485.logisticspipes.util.FuzzyUtil;
 
 @CCType(name = "ItemSink Module")
 public class ModuleItemSink extends LogisticsModule

@@ -12,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 
 import lombok.Getter;
 
-import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.pipes.basic.CoreRoutedPipe;

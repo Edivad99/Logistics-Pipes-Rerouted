@@ -21,7 +21,7 @@ import lombok.Setter;
 
 import logisticspipes.debug.DebugGuiController;
 import logisticspipes.utils.FluidIdentifier;
-import network.rs485.grow.ServerTickExecutor;
+import logisticspipes.utils.ServerTickExecutor;
 
 public class LPTickHandler {
 

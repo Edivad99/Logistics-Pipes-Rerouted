@@ -60,10 +60,16 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.api.connection.Adjacent;
+import logisticspipes.api.property.PropertyHolder;
+import logisticspipes.api.property.PropertyUtil;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.asm.te.ILPTEInformation;
+import logisticspipes.connection.AdjacentFactory;
+import logisticspipes.connection.NoAdjacent;
 import logisticspipes.interfaces.ILPPositionProvider;
+import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IPipeUpgradeManager;
@@ -72,7 +78,6 @@ import logisticspipes.interfaces.ISecurityProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.IWatchingHandler;
-import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -134,11 +139,6 @@ import logisticspipes.world.item.ItemPipeController;
 import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
-import logisticspipes.api.connection.Adjacent;
-import network.rs485.logisticspipes.connection.AdjacentFactory;
-import network.rs485.logisticspipes.connection.NoAdjacent;
-import logisticspipes.api.property.PropertyHolder;
-import logisticspipes.api.property.PropertyUtil;
 
 @CCType(name = "LogisticsPipes:Normal")
 public abstract class CoreRoutedPipe extends CoreUnroutedPipe

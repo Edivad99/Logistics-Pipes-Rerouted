@@ -23,7 +23,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
-import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
+import logisticspipes.world.WorldCoordinatesWrapper;
 
 /**
  * Opens the settings popup of an upgrade the player clicked.

@@ -12,9 +12,9 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 
 import logisticspipes.LPConstants;
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 import logisticspipes.world.inventory.AutoCraftingMenu;
 import logisticspipes.world.inventory.RequestTableMenu;
-import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 
 @JeiPlugin
 public class LPJeiPlugin implements IModPlugin {

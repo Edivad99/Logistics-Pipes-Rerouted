@@ -14,9 +14,9 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.modules.AsyncAdvancedExtractor;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.world.inventory.SneakyDirectionMenu;
-import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 
 /**
  * Opens the side-picker of an advanced extractor.

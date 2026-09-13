@@ -11,7 +11,9 @@ import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-
+import logisticspipes.api.property.StringListProperty;
+import logisticspipes.api.property.layer.PropertyLayer;
+import logisticspipes.api.property.layer.PropertyOverlay;
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
@@ -20,9 +22,6 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
-import logisticspipes.api.property.StringListProperty;
-import logisticspipes.api.property.layer.PropertyLayer;
-import logisticspipes.api.property.layer.PropertyOverlay;
 
 public class OreDictItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMenu> {
 

@@ -1,10 +1,9 @@
 package logisticspipes.utils.gui;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.world.Container;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.interfaces.ISlotUpgradeManager;

@@ -2,8 +2,6 @@ package logisticspipes.request;
 
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
-
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.ICraft;
 import logisticspipes.interfaces.routing.ICraftItems;

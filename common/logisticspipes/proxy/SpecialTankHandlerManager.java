@@ -5,9 +5,9 @@ import net.neoforged.fml.ModList;
 import appeng.api.ids.AEConstants;
 
 import logisticspipes.LPConstants;
+import logisticspipes.api.event.RegisterTankHandlersEvent;
 import logisticspipes.integrations.ae2.AENetworkTankHandler;
 import logisticspipes.integrations.refinedstorage.RSNetworkTankHandler;
-import logisticspipes.api.event.RegisterTankHandlersEvent;
 
 /** The tank handlers Logistics Pipes ships itself, for the storage mods it knows about. */
 public class SpecialTankHandlerManager {

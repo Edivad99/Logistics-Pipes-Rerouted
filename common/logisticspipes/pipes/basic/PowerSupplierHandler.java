@@ -11,14 +11,14 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
+import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.connection.LPNeighborBlockEntity;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
-import network.rs485.logisticspipes.connection.LPNeighborBlockEntity;
-import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class PowerSupplierHandler implements ValueIOSerializable {
 

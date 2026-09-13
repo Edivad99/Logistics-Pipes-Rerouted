@@ -2,9 +2,9 @@ package logisticspipes.interfaces;
 
 import java.util.EnumSet;
 
-import network.rs485.logisticspipes.util.FuzzyFlag;
 
 import logisticspipes.api.property.IBitSet;
+import logisticspipes.utils.FuzzyFlag;
 
 public interface IFuzzySlot {
 

@@ -1,10 +1,9 @@
 package logisticspipes.pipes.basic;
 
-import logisticspipes.utils.PositionRotation;
-import net.minecraft.core.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -16,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
+import logisticspipes.utils.PositionRotation;
 import logisticspipes.utils.tuples.Pair;
 
 public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {

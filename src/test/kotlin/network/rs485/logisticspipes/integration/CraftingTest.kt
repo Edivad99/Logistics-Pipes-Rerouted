@@ -41,8 +41,6 @@ package network.rs485.logisticspipes.integration
 import network.rs485.logisticspipes.integration.MinecraftTest.TIMEOUT_MODIFIER
 import network.rs485.logisticspipes.integration.MinecraftTest.regularTest
 import network.rs485.logisticspipes.integration.MinecraftTest.skippedTest
-import network.rs485.logisticspipes.util.FuzzyFlag
-import network.rs485.logisticspipes.util.FuzzyUtil
 import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.configurator
@@ -51,6 +49,8 @@ import logisticspipes.pipes.PipeItemsCraftingLogistics
 import logisticspipes.pipes.PipeItemsRequestLogistics
 import logisticspipes.pipes.upgrades.FuzzyUpgrade
 import logisticspipes.pipes.upgrades.UpgradeManager
+import logisticspipes.utils.FuzzyFlag
+import logisticspipes.utils.FuzzyUtil
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.world.item.LPItems
 import logisticspipes.world.level.block.LPBlocks

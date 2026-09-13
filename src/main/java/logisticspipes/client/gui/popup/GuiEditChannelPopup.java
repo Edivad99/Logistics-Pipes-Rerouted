@@ -1,13 +1,13 @@
 package logisticspipes.client.gui.popup;
 
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import logisticspipes.routing.channels.ChannelInformation;
-import network.rs485.logisticspipes.util.TextUtil;
+import logisticspipes.utils.TextUtil;
 
 public class GuiEditChannelPopup extends GuiAddChannelPopup {
 

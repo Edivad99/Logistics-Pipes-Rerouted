@@ -1,7 +1,5 @@
 package logisticspipes.client.gui.popup;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -12,13 +10,15 @@ import net.minecraft.core.BlockPos;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.network.to_server.pipe.RequestSatellitePipeListMessage;
 import logisticspipes.pipes.SatelliteEntry;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSelectSatellitePopup extends SubGuiScreen {
 

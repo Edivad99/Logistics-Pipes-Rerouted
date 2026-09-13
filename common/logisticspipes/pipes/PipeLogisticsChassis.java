@@ -44,7 +44,15 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.api.connection.Adjacent;
+import logisticspipes.api.connection.ConnectionType;
+import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.api.pipes.IChassisPipe;
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.client.gui.screen.ChassisPipeScreen;
+import logisticspipes.connection.NoAdjacent;
+import logisticspipes.connection.SingleAdjacent;
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IBufferItems;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
@@ -76,6 +84,8 @@ import logisticspipes.network.to_server.pipe.RequestChassisOrientationMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
+import logisticspipes.property.AdjacentProperty;
+import logisticspipes.property.SlottedModule;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.request.ICraftingTemplate;
@@ -101,16 +111,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
-import logisticspipes.api.connection.Adjacent;
-import logisticspipes.api.connection.ConnectionType;
-import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.connection.NoAdjacent;
-import network.rs485.logisticspipes.connection.SingleAdjacent;
-import logisticspipes.api.pipes.IChassisPipe;
-import network.rs485.logisticspipes.property.AdjacentProperty;
-import logisticspipes.api.property.Property;
-import logisticspipes.api.property.PropertyHolder;
-import network.rs485.logisticspipes.property.SlottedModule;
 
 @CCType(name = "LogisticsChassiePipe")
 public abstract class PipeLogisticsChassis extends CoreRoutedPipe

@@ -10,6 +10,9 @@ import net.minecraft.world.item.Items;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.modules.AsyncAdvancedExtractor;
+import logisticspipes.modules.AsyncExtractorModule;
+import logisticspipes.modules.AsyncQuicksortModule;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.modules.ModuleCreativeTabBasedItemSink;
@@ -41,9 +44,6 @@ import logisticspipes.pipes.upgrades.SpeedUpgrade;
 import logisticspipes.pipes.upgrades.UpgradeModuleUpgrade;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
-import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
-import network.rs485.logisticspipes.module.AsyncExtractorModule;
-import network.rs485.logisticspipes.module.AsyncQuicksortModule;
 
 public class RegisterProgrammerRecipes {
 

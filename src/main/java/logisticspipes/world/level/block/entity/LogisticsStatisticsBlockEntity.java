@@ -16,6 +16,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.network.to_client.block.TrackingTasksMessage;
@@ -24,9 +25,8 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.util.TrackingTask;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.inventory.StatisticsMenu;
-import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class LogisticsStatisticsBlockEntity extends LogisticsSolidBlockEntity
     implements IBlockEntityMenuProvider, IScreenOpenController {

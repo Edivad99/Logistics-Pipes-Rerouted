@@ -1,9 +1,9 @@
 package logisticspipes.pipes.upgrades;
 
+import logisticspipes.modules.AsyncAdvancedExtractor;
+import logisticspipes.modules.AsyncExtractorModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
-import network.rs485.logisticspipes.module.AsyncExtractorModule;
 
 public class ActionSpeedUpgrade implements IPipeUpgrade {
 

@@ -2,8 +2,6 @@ package logisticspipes.hud;
 
 import net.minecraft.world.item.ItemStack;
 
-import org.jspecify.annotations.Nullable;
-
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.world.item.component.HUDComponent;
 import logisticspipes.world.item.component.LPDataComponents;

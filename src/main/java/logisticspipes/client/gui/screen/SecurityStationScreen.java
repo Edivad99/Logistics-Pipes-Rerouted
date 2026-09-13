@@ -26,6 +26,7 @@ import logisticspipes.network.to_server.security.ToggleSecurityStationFlagMessag
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -34,7 +35,6 @@ import logisticspipes.world.inventory.SecurityStationMenu;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity.CardAction;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity.SecurityFlag;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStationMenu> implements PlayerListReceiver {
 

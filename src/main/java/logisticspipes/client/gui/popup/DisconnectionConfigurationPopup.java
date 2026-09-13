@@ -12,12 +12,12 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.network.to_server.pipe.ToggleDisconnectionUpgradeSideMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ConnectionUpgradeConfig;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.sideconfig.SideConfigDisplay;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class DisconnectionConfigurationPopup extends SubGuiScreen {
 

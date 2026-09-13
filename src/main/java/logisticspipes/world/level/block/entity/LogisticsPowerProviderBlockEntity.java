@@ -24,6 +24,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IBlockWatchingHandler;
@@ -48,10 +50,8 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.inventory.PowerProviderMenu;
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
-import logisticspipes.api.connection.NeighborBlockEntity;
-import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 @CCType(name = "LogisticsPowerProvider")
 public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity

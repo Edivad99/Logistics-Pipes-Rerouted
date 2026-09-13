@@ -1,7 +1,5 @@
 package logisticspipes.asm.util;
 
-import org.jspecify.annotations.Nullable;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,6 +8,7 @@ import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;

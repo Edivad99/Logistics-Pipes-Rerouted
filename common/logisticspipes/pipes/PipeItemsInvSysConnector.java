@@ -31,6 +31,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.gui.hud.HUDInvSysConnector;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
@@ -60,9 +61,8 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.transactor.ITransactor;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.inventory.InvSysConMenu;
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
-import network.rs485.logisticspipes.world.WorldCoordinatesWrapper;
 
 public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannelRoutingConnection, IHeadUpDisplayRendererProvider, IOrderManagerContentReceiver,
         IScreenOpenController, IPipeMenuProvider {

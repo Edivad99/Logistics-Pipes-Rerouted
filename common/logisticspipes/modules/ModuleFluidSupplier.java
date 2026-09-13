@@ -12,20 +12,20 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.Property;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
+import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
-import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.api.property.Property;
 
 public class ModuleFluidSupplier extends LogisticsModule
 		implements IClientInformationProvider, SimpleFilter, IModuleMenuProvider {

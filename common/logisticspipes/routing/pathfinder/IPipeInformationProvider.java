@@ -10,11 +10,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.connection.ConnectionType;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.api.connection.ConnectionType;
 
 public interface IPipeInformationProvider {
 

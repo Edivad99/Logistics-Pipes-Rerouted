@@ -1,6 +1,5 @@
 package logisticspipes.client.gui.screen;
 
-
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -8,7 +7,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
+
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.BooleanProperty;
@@ -20,10 +21,10 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.ItemSinkImportRequestMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.ItemSinkMenu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkMenu> {
 

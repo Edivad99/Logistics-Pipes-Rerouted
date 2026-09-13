@@ -16,9 +16,9 @@ import org.junit.jupiter.api.Test;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
+import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.TestBootstrap;
-import network.rs485.logisticspipes.util.FuzzyFlag;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;

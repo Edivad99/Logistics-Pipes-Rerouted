@@ -8,12 +8,12 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.Property;
+import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
-import logisticspipes.api.property.Property;
 
 public class ModuleSatellite extends LogisticsModule {
 

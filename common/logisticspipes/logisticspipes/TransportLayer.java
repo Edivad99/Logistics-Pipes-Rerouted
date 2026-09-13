@@ -7,9 +7,9 @@
 
 package logisticspipes.logisticspipes;
 
-import org.jspecify.annotations.Nullable;
-
 import net.minecraft.core.Direction;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * This class is responsible for handling items arriving at its destination

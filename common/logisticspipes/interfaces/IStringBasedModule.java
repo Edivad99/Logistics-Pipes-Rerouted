@@ -2,8 +2,8 @@ package logisticspipes.interfaces;
 
 import net.minecraft.world.level.storage.ValueInput;
 
-import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.api.property.StringListProperty;
+import logisticspipes.utils.item.ItemIdentifier;
 
 public interface IStringBasedModule {
 

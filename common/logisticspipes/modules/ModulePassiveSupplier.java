@@ -18,6 +18,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.Property;
 import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -31,6 +32,7 @@ import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
+import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
@@ -40,8 +42,6 @@ import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
-import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.api.property.Property;
 
 public class ModulePassiveSupplier extends LogisticsModule
 		implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver,

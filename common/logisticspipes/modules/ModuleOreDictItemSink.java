@@ -32,6 +32,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.StringListProperty;
 import logisticspipes.gui.hud.modules.HUDOreDictItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
@@ -49,8 +51,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
-import logisticspipes.api.property.Property;
-import logisticspipes.api.property.StringListProperty;
 
 public class ModuleOreDictItemSink extends LogisticsModule
     implements IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver, IModuleMenuProvider {

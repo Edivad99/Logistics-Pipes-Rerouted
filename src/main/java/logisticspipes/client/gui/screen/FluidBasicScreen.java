@@ -5,10 +5,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Items;
 
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.inventory.FluidSinkMenu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class FluidBasicScreen extends LogisticsBaseGuiScreen<FluidSinkMenu> {
 

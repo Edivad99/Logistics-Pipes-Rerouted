@@ -1,28 +1,30 @@
 package logisticspipes.client.gui.screen;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
+
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.EnumProperty;
 import logisticspipes.api.property.layer.PropertyLayer;
 import logisticspipes.api.property.layer.ValuePropertyOverlay;
+import logisticspipes.inventory.ProviderMode;
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
-import network.rs485.logisticspipes.inventory.ProviderMode;
 import logisticspipes.world.inventory.ProviderMenu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class ProviderScreen extends ModuleBaseScreen<ProviderMenu> {
 

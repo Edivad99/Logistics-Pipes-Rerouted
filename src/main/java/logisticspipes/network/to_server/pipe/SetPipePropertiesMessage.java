@@ -17,11 +17,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-
-import logisticspipes.api.property.PropertyHolder;
 
 /**
  * The properties the player changed in a pipe's GUI.

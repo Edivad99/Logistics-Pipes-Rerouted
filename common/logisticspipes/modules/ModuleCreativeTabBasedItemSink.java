@@ -20,15 +20,17 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.property.Property;
+import logisticspipes.api.property.StringListProperty;
 import logisticspipes.gui.hud.modules.HUDStringBasedItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
+import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReceiver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IStringBasedModule;
-import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.StringBasedItemSinkListMessage;
 import logisticspipes.network.to_server.module.SetStringBasedItemSinkListMessage;
@@ -39,8 +41,6 @@ import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.ModuleAnalysisMenu;
-import logisticspipes.api.property.Property;
-import logisticspipes.api.property.StringListProperty;
 
 public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 		implements IStringBasedModule, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver, IModuleMenuProvider {

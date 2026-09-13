@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.integration
 
-import network.rs485.grow.ServerTickExecutor
+import logisticspipes.utils.ServerTickExecutor
 import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
 import logisticspipes.world.level.block.LogisticsPowerJunctionBlock

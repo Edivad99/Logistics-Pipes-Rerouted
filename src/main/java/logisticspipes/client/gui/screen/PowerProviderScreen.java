@@ -7,10 +7,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.LPConstants;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.inventory.PowerProviderMenu;
 import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class PowerProviderScreen extends LogisticsBaseGuiScreen<PowerProviderMenu> {
 

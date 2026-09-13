@@ -16,13 +16,12 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ModulePropertiesMessage;
-
-import logisticspipes.api.property.PropertyHolder;
 
 /**
  * The properties the player changed in a module's GUI.

@@ -52,8 +52,9 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.interfaces.ISpecialTankAccessHandler;
+import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
+import logisticspipes.interfaces.ISpecialTankAccessHandler;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
@@ -63,7 +64,6 @@ import logisticspipes.utils.TankUtil;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.api.connection.NeighborBlockEntity;
 
 /**
  * Finding and reading the fluid inventories next to a fluid pipe.

@@ -1,7 +1,5 @@
 package logisticspipes.pipes.signs;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +24,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.network.TargetLookup;
@@ -37,11 +36,11 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.ItemAmountSignMenu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEventHandler {
 

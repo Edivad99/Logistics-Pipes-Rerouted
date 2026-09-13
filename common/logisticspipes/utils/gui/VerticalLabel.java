@@ -37,11 +37,12 @@
 
 package logisticspipes.utils.gui;
 
-import org.joml.Matrix3x2fStack;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-import network.rs485.logisticspipes.util.TextUtil;
-import network.rs485.logisticspipes.util.math.MutableRectangle;
+import org.joml.Matrix3x2fStack;
+
+import logisticspipes.utils.TextUtil;
+import logisticspipes.utils.math.MutableRectangle;
 
 public class VerticalLabel extends Label {
 

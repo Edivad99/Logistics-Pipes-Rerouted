@@ -17,10 +17,10 @@ import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_server.pipe.ChangeFluidSupplierAmountMessage;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.FluidSupplierMk2Menu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class FluidSupplierMk2PipeScreen extends LogisticsBaseGuiScreen<FluidSupplierMk2Menu> {
 

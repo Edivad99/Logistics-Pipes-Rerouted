@@ -16,12 +16,12 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.to_server.channel.DeleteChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelInformationReceiver {
 

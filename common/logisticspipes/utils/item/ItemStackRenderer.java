@@ -29,8 +29,8 @@ import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.renderer.HUDDrawContext;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.IItemSearch;
-import network.rs485.logisticspipes.util.TextUtil;
 
 @Data
 @Accessors(chain = true)

@@ -2,6 +2,7 @@ package network.rs485.grow
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import logisticspipes.utils.ServerTickExecutor
 
 /**
  * The integration tests still drive their steps with coroutines; production code does not.

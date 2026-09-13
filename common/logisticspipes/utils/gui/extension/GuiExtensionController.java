@@ -1,7 +1,5 @@
 package logisticspipes.utils.gui.extension;
 
-import org.jspecify.annotations.Nullable;
-
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +11,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.inventory.Slot;
 
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.utils.gui.LPGuiGraphics;
 

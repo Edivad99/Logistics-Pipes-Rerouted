@@ -7,12 +7,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
-
-import network.rs485.logisticspipes.connection.NeighborBlockEntityUtil;
-import logisticspipes.api.connection.NeighborBlockEntity;
 
 /**
  * The inventories a pipe can reach, seen from the side a sneaky upgrade points at.

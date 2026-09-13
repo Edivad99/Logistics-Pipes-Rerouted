@@ -11,8 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IFuzzySlot;
-
-import network.rs485.logisticspipes.util.FuzzyFlag;
+import logisticspipes.utils.FuzzyFlag;
 
 /**
  * How a slot matches items: exactly, or ignoring some of what tells two stacks apart.

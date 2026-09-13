@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-import lombok.Getter;
 import lombok.Setter;
 
 import logisticspipes.LPConstants;

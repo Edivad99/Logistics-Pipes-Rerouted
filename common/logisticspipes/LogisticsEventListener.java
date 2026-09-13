@@ -56,7 +56,10 @@ import net.neoforged.neoforgespi.language.IModInfo;
 
 import vazkii.patchouli.api.PatchouliAPI;
 
+import logisticspipes.config.ClientConfiguration;
+import logisticspipes.config.PlayerConfiguration;
 import logisticspipes.interfaces.IItemAdvancedExistence;
+import logisticspipes.modules.AsyncQuicksortModule;
 import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
@@ -70,11 +73,8 @@ import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.string.ChatColor;
-import network.rs485.logisticspipes.config.ClientConfiguration;
-import network.rs485.logisticspipes.config.PlayerConfiguration;
-import network.rs485.logisticspipes.module.AsyncQuicksortModule;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class LogisticsEventListener {
 

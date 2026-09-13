@@ -15,9 +15,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsEventListener;
+import logisticspipes.modules.AsyncQuicksortModule;
 import logisticspipes.network.to_client.module.QuickSortMarkerMessage;
-
-import network.rs485.logisticspipes.module.AsyncQuicksortModule;
 
 /**
  * The player opened or closed a container screen, so the quicksort modules aimed at it know

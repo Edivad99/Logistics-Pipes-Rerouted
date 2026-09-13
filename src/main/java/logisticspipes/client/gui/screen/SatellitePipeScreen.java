@@ -21,11 +21,11 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.to_server.pipe.SetSatelliteNameMessage;
 import logisticspipes.pipes.SatelliteNamingResult;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.SatelliteMenu;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class SatellitePipeScreen extends LogisticsBaseGuiScreen<SatelliteMenu> {
 

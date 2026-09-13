@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.network.ModuleTarget;
-import network.rs485.logisticspipes.util.FuzzyFlag;
+import logisticspipes.utils.FuzzyFlag;
 
 /**
  * The item sink's nine filter slots.

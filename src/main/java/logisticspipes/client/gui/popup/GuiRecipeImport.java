@@ -1,7 +1,5 @@
 package logisticspipes.client.gui.popup;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,13 +14,15 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.network.to_server.crafting.FindLikelyRecipeComponentsMessage;
 import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiRecipeImport extends SubGuiScreen {
 

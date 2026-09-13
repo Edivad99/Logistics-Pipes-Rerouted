@@ -26,6 +26,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IFreqCardHolder;
 import logisticspipes.interfaces.IStringBasedModule;
 import logisticspipes.interfaces.SatellitePipe;
+import logisticspipes.modules.AsyncAdvancedExtractor;
 import logisticspipes.modules.ChassisModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleActiveSupplier;
@@ -59,7 +60,6 @@ import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsStatisticsBlockEntity;
-import network.rs485.logisticspipes.module.AsyncAdvancedExtractor;
 
 public class LPMenuTypes {
 

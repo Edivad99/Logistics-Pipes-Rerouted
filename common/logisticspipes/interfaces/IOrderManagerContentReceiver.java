@@ -1,8 +1,8 @@
 package logisticspipes.interfaces;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Collection;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.utils.item.ItemIdentifierStack;
 

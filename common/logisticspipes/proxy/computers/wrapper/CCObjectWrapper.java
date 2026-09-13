@@ -10,6 +10,7 @@ import net.minecraft.nbt.Tag;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCQueued;
 import logisticspipes.proxy.computers.interfaces.CCSecurtiyCheck;
@@ -32,7 +33,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Quartet;
 import logisticspipes.utils.tuples.Triplet;
-import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 public class CCObjectWrapper {
 

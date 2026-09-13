@@ -11,11 +11,11 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.routing.IRouter;
+import logisticspipes.utils.FuzzyFlag;
+import logisticspipes.utils.FuzzyUtil;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
-import network.rs485.logisticspipes.util.FuzzyFlag;
-import network.rs485.logisticspipes.util.FuzzyUtil;
 
 public class DictResource implements IResource {
 

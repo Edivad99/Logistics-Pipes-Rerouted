@@ -2,7 +2,7 @@ package logisticspipes.modules;
 
 import java.lang.reflect.Proxy;
 
-import network.rs485.logisticspipes.connection.NoAdjacent;
+import logisticspipes.connection.NoAdjacent;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

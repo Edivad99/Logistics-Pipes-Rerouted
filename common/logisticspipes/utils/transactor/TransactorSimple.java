@@ -1,7 +1,5 @@
 package logisticspipes.utils.transactor;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +8,8 @@ import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+
+import org.jspecify.annotations.Nullable;
 
 public class TransactorSimple extends Transactor {
 

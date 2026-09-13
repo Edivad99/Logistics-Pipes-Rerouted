@@ -1,7 +1,5 @@
 package logisticspipes.textures.provider;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -9,6 +7,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.renderer.IIconProvider;
 

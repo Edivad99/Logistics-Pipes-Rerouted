@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import logisticspipes.api.connection.ConnectionType;
 import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.asm.te.ITileEntityChangeListener;
 import logisticspipes.asm.te.LPTileEntityObject;
@@ -15,7 +16,6 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.QueuedTasks;
-import logisticspipes.api.connection.ConnectionType;
 
 public class TEControl {
 

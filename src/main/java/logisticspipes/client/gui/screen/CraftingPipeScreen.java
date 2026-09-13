@@ -20,18 +20,6 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import lombok.Getter;
 
-import logisticspipes.client.gui.popup.GuiSelectSatellitePopup;
-import logisticspipes.modules.ModuleCrafter;
-import logisticspipes.network.ModuleTarget;
-import logisticspipes.network.to_server.crafting.CrafterCleanupImportMessage;
-import logisticspipes.network.to_server.crafting.SetCraftingSatelliteMessage;
-import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
-import logisticspipes.utils.gui.Label;
-import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.VerticalLabel;
-import logisticspipes.utils.gui.SmallGuiButton;
-import logisticspipes.utils.gui.extension.GuiExtension;
-import logisticspipes.world.inventory.CraftingModuleMenu;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.IntListProperty;
 import logisticspipes.api.property.IntegerProperty;
@@ -39,7 +27,19 @@ import logisticspipes.api.property.Property;
 import logisticspipes.api.property.layer.PropertyLayer;
 import logisticspipes.api.property.layer.PropertyOverlay;
 import logisticspipes.api.property.layer.ValuePropertyOverlay;
-import network.rs485.logisticspipes.util.TextUtil;
+import logisticspipes.client.gui.popup.GuiSelectSatellitePopup;
+import logisticspipes.modules.ModuleCrafter;
+import logisticspipes.network.ModuleTarget;
+import logisticspipes.network.to_server.crafting.CrafterCleanupImportMessage;
+import logisticspipes.network.to_server.crafting.SetCraftingSatelliteMessage;
+import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
+import logisticspipes.utils.TextUtil;
+import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.utils.gui.Label;
+import logisticspipes.utils.gui.SmallGuiButton;
+import logisticspipes.utils.gui.VerticalLabel;
+import logisticspipes.utils.gui.extension.GuiExtension;
+import logisticspipes.world.inventory.CraftingModuleMenu;
 
 public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
 

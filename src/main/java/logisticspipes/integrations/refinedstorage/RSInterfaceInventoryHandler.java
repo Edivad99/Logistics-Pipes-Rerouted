@@ -18,9 +18,9 @@ import com.refinedmods.refinedstorage.api.resource.ResourceKey;
 import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.inventory.ProviderMode;
 import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.inventory.ProviderMode;
 
 /**
  * Exposes the contents of a Refined Storage network to Logistics Pipes, the counterpart of

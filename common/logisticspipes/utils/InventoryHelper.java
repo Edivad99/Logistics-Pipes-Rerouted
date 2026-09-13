@@ -7,10 +7,10 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.inventory.ProviderMode;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.transactor.ITransactor;
 import logisticspipes.utils.transactor.TransactorSimple;
-import network.rs485.logisticspipes.inventory.ProviderMode;
 
 public class InventoryHelper {
 

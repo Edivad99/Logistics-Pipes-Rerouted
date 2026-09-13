@@ -19,7 +19,7 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
-import network.rs485.logisticspipes.util.TextUtil;
+import logisticspipes.utils.TextUtil;
 
 public class ItemUpgrade extends LogisticsItem {
 

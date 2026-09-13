@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import logisticspipes.utils.LPExecutors;
+import logisticspipes.utils.ServerTickExecutor;
+
 /**
  * The contract the async modules rely on: work handed to the executor runs on the thread that
  * ticks it, and never before that tick.
