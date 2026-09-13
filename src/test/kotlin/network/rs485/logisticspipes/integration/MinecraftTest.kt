@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.integration
 
-import network.rs485.grow.Coroutines
+import network.rs485.grow.TestCoroutines
 import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.TestState
 import logisticspipes.util.SystemUtil.checkBooleanProperty
@@ -103,7 +103,7 @@ object MinecraftTest {
     }
 
     fun startTests(logger: (Any) -> Unit) =
-        Coroutines.serverScope.launch(CoroutineName("logisticspipes.test")) {
+        TestCoroutines.serverScope.launch(CoroutineName("logisticspipes.test")) {
             delay(Duration.ofSeconds(1 * TIMEOUT_MODIFIER).toMillis())
             logger("[STARTING LOGISTICSPIPES TESTS]")
             withTimeout(Duration.ofMinutes(3)) {

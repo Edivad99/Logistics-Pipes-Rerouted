@@ -56,7 +56,7 @@ import logisticspipes.api.property.PropertyUtil;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ModulePropertiesMessage;
-import network.rs485.grow.Coroutines;
+import network.rs485.grow.LPExecutors;
 
 public class PropertyUpdater implements Consumer<Property<?>> {
 
@@ -84,7 +84,7 @@ public class PropertyUpdater implements Consumer<Property<?>> {
         changedProperties.add(property);
         if (!shouldUpdate) {
             shouldUpdate = true;
-            Coroutines.INSTANCE.scheduleServerTask(5, this::sendPropertyUpdate);
+            LPExecutors.scheduleServerTask(5, this::sendPropertyUpdate);
         }
     }
 

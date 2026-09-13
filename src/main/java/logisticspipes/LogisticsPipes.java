@@ -79,7 +79,7 @@ import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsRFPowerProviderBlockEntity;
-import network.rs485.grow.ServerTickDispatcher;
+import network.rs485.grow.ServerTickExecutor;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.ServerConfigurationManager;
 import network.rs485.logisticspipes.property.PropertyUpdaterEventListener;
@@ -243,7 +243,6 @@ public class LogisticsPipes {
     // NeoForge Events
     @SubscribeEvent
     public void beforeStart(ServerAboutToStartEvent event) {
-        ServerTickDispatcher.INSTANCE.serverStart();
     }
 
     @SubscribeEvent
@@ -264,7 +263,7 @@ public class LogisticsPipes {
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
             LogisticsHUDRenderer.instance().clear();
         }
-        ServerTickDispatcher.INSTANCE.cleanup();
+        ServerTickExecutor.INSTANCE.cleanup();
         LogisticsPipes.serverConfigManager = null;
     }
 

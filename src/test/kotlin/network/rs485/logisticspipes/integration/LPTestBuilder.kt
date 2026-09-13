@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.integration
 
-import network.rs485.grow.ServerTickDispatcher
+import network.rs485.grow.ServerTickExecutor
 import network.rs485.minecraft.BlockPlacer
 import network.rs485.minecraft.BlockPosSelector
 import logisticspipes.world.level.block.LogisticsPowerJunctionBlock
@@ -145,7 +145,7 @@ suspend fun waitForOrNull(timeout: Duration, check: () -> Boolean): Unit? =
     CompletableDeferred<Unit>().let { response ->
         withTimeoutOrNull(timeout) {
             fun reschedule() {
-                ServerTickDispatcher.scheduleNextTick {
+                ServerTickExecutor.INSTANCE.scheduleNextTick {
                     try {
                         when {
                             response.isCancelled -> return@scheduleNextTick

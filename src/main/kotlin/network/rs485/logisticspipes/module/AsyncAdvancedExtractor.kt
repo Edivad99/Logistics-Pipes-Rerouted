@@ -37,6 +37,8 @@
 
 package network.rs485.logisticspipes.module
 
+import logisticspipes.modules.AsyncModule
+
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory
 import logisticspipes.api.property.BooleanProperty
 import network.rs485.logisticspipes.property.ItemIdentifierInventoryProperty
@@ -91,8 +93,7 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
         extractor.setSneakyDirection(direction)
     }
 
-    override val everyNthTick: Int
-        get() = extractor.everyNthTick
+    override fun getEveryNthTick(): Int = extractor.everyNthTick
 
     override fun createMenu(containerId: Int, inventory: Inventory, target: ModuleTarget): AbstractContainerMenu =
         AdvancedExtractorMenu(containerId, inventory, target, this)
@@ -139,9 +140,9 @@ class AsyncAdvancedExtractor : AsyncModule<ExtractorJob, Unit>(), SimpleFilter, 
 
     override fun jobSetup(): ExtractorJob = extractor.jobSetup()
 
-    override fun completeJob(deferred: Deferred<Unit?>) = extractor.completeJob(deferred)
+    override fun completeJob(result: Unit?) = extractor.completeJob(result)
 
-    override suspend fun tickAsync(setupObject: ExtractorJob) = extractor.tickAsync(setupObject)
+    override fun tickAsync(setupObject: ExtractorJob) = extractor.tickAsync(setupObject)
 
     override fun runSyncWork() = extractor.runSyncWork()
 

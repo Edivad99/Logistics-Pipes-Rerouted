@@ -21,7 +21,7 @@ import lombok.Setter;
 
 import logisticspipes.debug.DebugGuiController;
 import logisticspipes.utils.FluidIdentifier;
-import network.rs485.grow.ServerTickDispatcher;
+import network.rs485.grow.ServerTickExecutor;
 
 public class LPTickHandler {
 
@@ -48,7 +48,7 @@ public class LPTickHandler {
 		globalTick++;
 		LPTickHandler.adjChecksDone = 0;
 		DebugGuiController.instance().execServer();
-		ServerTickDispatcher.INSTANCE.tick();
+		ServerTickExecutor.INSTANCE.tick();
 	}
 
 	private static Map<Level, LPWorldInfo> worldInfo = new MapMaker().weakKeys().makeMap();

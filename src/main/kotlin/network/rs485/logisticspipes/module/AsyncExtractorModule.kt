@@ -37,7 +37,7 @@
 
 package network.rs485.logisticspipes.module
 
-import logisticspipes.util.ModuleUtil
+import logisticspipes.modules.AsyncModule
 
 import network.rs485.logisticspipes.logistics.LogisticsManager
 import logisticspipes.api.property.NullableEnumProperty
@@ -55,6 +55,7 @@ import logisticspipes.pipes.basic.CoreRoutedPipe
 import logisticspipes.renderer.HUDDrawContext
 import logisticspipes.routing.AsyncRouting
 import logisticspipes.routing.ServerRouter
+import logisticspipes.util.ModuleUtil
 import logisticspipes.utils.PlayerCollectionList
 import logisticspipes.utils.item.ItemIdentifier
 import logisticspipes.utils.item.ItemIdentifierStack
@@ -74,6 +75,7 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.consumeAsFlow
 
 class ExtractorJob(private val module: AsyncExtractorModule, private val inventoryGetter: () -> IInventoryUtil?) {
@@ -216,8 +218,7 @@ class AsyncExtractorModule(
             .encode(buffer, Optional.ofNullable(getSneakyDirection()))
     }
 
-    override val everyNthTick: Int
-        get() = (80 / upgradeManager.let { 2.0.pow(it.actionSpeedUpgrade) }).toInt() + LPConfigs.COMMON.MINIMUM_JOB_TICK_LENGTH.asInt
+    override fun getEveryNthTick(): Int = (80 / upgradeManager.let { 2.0.pow(it.actionSpeedUpgrade) }).toInt() + LPConfigs.COMMON.MINIMUM_JOB_TICK_LENGTH.asInt
 
     val stacksToExtract: Int
         get() = 1 + upgradeManager.itemStackExtractionUpgrade
@@ -251,11 +252,13 @@ class AsyncExtractorModule(
         currentJob?.runSyncWork()
     }
 
-    override suspend fun tickAsync(setupObject: ExtractorJob) {
-        setupObject.runAsyncWork()
+    override fun tickAsync(setupObject: ExtractorJob) {
+        // The job still consumes its update channel as a coroutine flow; that part is converted
+        // with this module, not with the infrastructure, so it is bridged here for now.
+        runBlocking { setupObject.runAsyncWork() }
     }
 
-    override fun completeJob(deferred: Deferred<Unit?>) {
+    override fun completeJob(result: Unit?) {
         val serverRouter = this.serverRouter ?: return
         val inventory = connectedInventory ?: return
         serverRouter.ensureLatestRoutingTable()

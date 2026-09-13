@@ -37,6 +37,8 @@
 
 package network.rs485.logisticspipes.module
 
+import logisticspipes.modules.AsyncModule
+
 import logisticspipes.interfaces.IClientInformationProvider
 import logisticspipes.interfaces.IModuleWatchReceiver
 import logisticspipes.interfaces.IPipeServiceProvider
@@ -96,11 +98,11 @@ class AsyncComputerQuicksort : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsync
 
     override fun jobSetup(): Pair<Int, ItemStack>? = quicksort.jobSetup()
 
-    override suspend fun tickAsync(setupObject: Pair<Int, ItemStack>?): QuicksortAsyncResult? =
+    override fun tickAsync(setupObject: Pair<Int, ItemStack>?): QuicksortAsyncResult? =
         quicksort.tickAsync(setupObject)
 
     @ExperimentalCoroutinesApi
-    override fun completeJob(deferred: Deferred<QuicksortAsyncResult?>) = quicksort.completeJob(deferred)
+    override fun completeJob(result: QuicksortAsyncResult?) = quicksort.completeJob(result)
 
     override fun runSyncWork() = quicksort.runSyncWork()
 

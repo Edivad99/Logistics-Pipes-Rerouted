@@ -35,59 +35,66 @@
  * SOFTWARE.
  */
 
-package network.rs485.grow
+package network.rs485.grow;
 
-import logisticspipes.LogisticsPipes
-import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.*
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 
-object ServerTickDispatcher : CoroutineDispatcher() {
-    private val coroutineQueue = ConcurrentLinkedQueue<Runnable>()
-    private val toSchedule = mutableListOf<Runnable>()
+import logisticspipes.LogisticsPipes;
 
-    fun serverStart() {
-        val startupJob = Coroutines.serverScope.launch {
-            LogisticsPipes.LOG.info("Hello from the server tick")
-        }
-        Coroutines.asynchronousScope.async {
-            LogisticsPipes.LOG.info("Waiting for server tick")
-            startupJob.join()
-            LogisticsPipes.LOG.info("Server tick complete! Hello from the async scope")
-        }.invokeOnCompletion { throwable ->
-            throwable?.stackTraceToString()?.also { stacktrace ->
-                LogisticsPipes.LOG.error("Error when greeting server tick scope:\n$stacktrace")
-            }
+/**
+ * Work that has to happen on the server thread.
+ *
+ * <p>Submitting only queues; the queue is drained from the server tick, so anything handed here
+ * runs where the world and the routers can be touched safely.
+ */
+public final class ServerTickExecutor implements Executor {
+
+    /** Gives up draining after this long, so a runaway job cannot freeze the server. */
+    private static final long TICK_BUDGET_NANOS = 1_000_000_000L;
+
+    public static final ServerTickExecutor INSTANCE = new ServerTickExecutor();
+
+    private final ConcurrentLinkedQueue<Runnable> queue = new ConcurrentLinkedQueue<>();
+
+    /** Guarded by itself; moved into the queue at the end of each tick. */
+    private final List<Runnable> toSchedule = new ArrayList<>();
+
+    private ServerTickExecutor() {
+    }
+
+    @Override
+    public void execute(Runnable block) {
+        queue.add(block);
+    }
+
+    /** Runs the block on one of the following ticks rather than this one. */
+    public void scheduleNextTick(Runnable block) {
+        synchronized (toSchedule) {
+            toSchedule.add(block);
         }
     }
 
-    fun cleanup() =
-        cancelChildren(CancellationException("cleanup was called on ServerTickContext"))
-
-    fun tick() {
-        val start = System.nanoTime()
-        // failsafe to exit after 1 second
-        while (coroutineQueue.isNotEmpty() && (System.nanoTime() - start) < 1_000_000_000) {
-            coroutineQueue.poll().run()
+    public void tick() {
+        long start = System.nanoTime();
+        while (!queue.isEmpty() && (System.nanoTime() - start) < TICK_BUDGET_NANOS) {
+            queue.poll().run();
         }
-        if (System.nanoTime() - start >= 1_000_000_000) {
-            println("Logistics Pipes ServerTickContext hang for a second. Dumping coroutines:")
-            coroutineQueue.forEach(::println)
+        if (System.nanoTime() - start >= TICK_BUDGET_NANOS) {
+            LogisticsPipes.LOG.warn("Logistics Pipes server tick work hung for a second. Remaining work: {}", queue);
         }
-        synchronized(toSchedule) {
-            coroutineQueue.addAll(toSchedule)
-            toSchedule.clear()
+        synchronized (toSchedule) {
+            queue.addAll(toSchedule);
+            toSchedule.clear();
         }
     }
 
-    override fun dispatch(context: CoroutineContext, block: Runnable) {
-        coroutineQueue.add(block)
-    }
-
-    fun scheduleNextTick(block: Runnable) {
-        synchronized(toSchedule) {
-            toSchedule.add(block)
+    public void cleanup() {
+        queue.clear();
+        synchronized (toSchedule) {
+            toSchedule.clear();
         }
     }
-
 }

@@ -37,7 +37,9 @@
 
 package network.rs485.logisticspipes.module
 
-import network.rs485.grow.Coroutines
+import logisticspipes.modules.AsyncModule
+import network.rs485.grow.LPExecutors
+
 import network.rs485.logisticspipes.logistics.LogisticsManager
 import logisticspipes.api.property.Property
 import network.rs485.logisticspipes.util.equalsWithNBT
@@ -60,7 +62,6 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.withContext
 
 const val STALLED_DELAY = 24
 const val NORMAL_DELAY = 6
@@ -93,8 +94,7 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
 
     private val energyPerStack: Int
         get() = upgradeManager.let { 500 + 1000 * it.itemStackExtractionUpgrade }.toInt()
-    override val everyNthTick: Int
-        get() = if (stalled) STALLED_DELAY else NORMAL_DELAY
+    override fun getEveryNthTick(): Int = if (stalled) STALLED_DELAY else NORMAL_DELAY
 
     override fun getLPName(): String = name
 
@@ -120,20 +120,21 @@ class AsyncQuicksortModule : AsyncModule<Pair<Int, ItemStack>?, QuicksortAsyncRe
         return null
     }
 
-    override suspend fun tickAsync(setupObject: Pair<Int, ItemStack>?): QuicksortAsyncResult? {
+    override fun tickAsync(setupObject: Pair<Int, ItemStack>?): QuicksortAsyncResult? {
         if (setupObject == null) return null
         val serverRouter = this.service?.router as? ServerRouter ?: return null
         AsyncRouting.updateRoutingTable(serverRouter)
         val itemid = ItemIdentifier.get(setupObject.second)
-        val result = withContext(Coroutines.serverScope.coroutineContext) {
+        // Touches routers and pipes, which only the server thread may do.
+        val result = LPExecutors.onServerThread {
             LogisticsManager.getDestination(setupObject.second, itemid, false, serverRouter, emptyList())
         } ?: return null
         return QuicksortAsyncResult(setupObject.first, itemid, result.first, result.second)
     }
 
     @ExperimentalCoroutinesApi
-    override fun completeJob(deferred: Deferred<QuicksortAsyncResult?>) {
-        val result = deferred.getCompleted() ?: return
+    override fun completeJob(result: QuicksortAsyncResult?) {
+        if (result == null) return
         val inventory = service?.let { PipeServiceProviderUtil.availableInventories(it) }?.firstOrNull() ?: return
         if (result.slot >= inventory.containerSize) return
         val stack = inventory.getItem(result.slot)
