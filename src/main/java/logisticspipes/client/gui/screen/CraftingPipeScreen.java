@@ -18,7 +18,6 @@ import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import kotlin.Unit;
 import lombok.Getter;
 
 import logisticspipes.client.gui.popup.GuiSelectSatellitePopup;
@@ -410,10 +409,9 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
         super.renderExtensions(guiGraphics);
     }
 
-    private Unit updateCleanupModeButton(Property<Boolean> prop) {
+    private void updateCleanupModeButton(Property<Boolean> prop) {
         cleanupModeButton.setMessage(Component.literal(TextUtil.translate(
             CraftingPipeScreen.PREFIX + (prop.copyValue() ? "Exclude" : "Include"))));
-        return Unit.INSTANCE;
     }
 
     private final class FluidCraftingExtension extends GuiExtension {

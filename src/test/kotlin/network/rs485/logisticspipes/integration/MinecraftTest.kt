@@ -53,6 +53,8 @@ import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.storage.LevelData
 import java.lang.management.ManagementFactory
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
+import java.util.function.Consumer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.time.withTimeout
 
@@ -92,9 +94,8 @@ object MinecraftTest {
             level.setRainLevel(0f)
             level.setThunderLevel(0f)
         }
-        val task = startTests { msg: Any -> LogisticsPipes.LOG.info(msg.toString()) }
-        task.invokeOnCompletion {
-            if (it != null) throw it
+        startTests(Consumer { msg -> LogisticsPipes.LOG.info(msg.toString()) }).whenComplete { _, error ->
+            if (error != null) throw error
             repeat(3) {
                 LogisticsPipes.LOG.info("All Tests done.")
             }
@@ -102,8 +103,14 @@ object MinecraftTest {
         }
     }
 
-    fun startTests(logger: (Any) -> Unit) =
-        TestCoroutines.serverScope.launch(CoroutineName("logisticspipes.test")) {
+    /**
+     * Entry point for `/logisticspipes retest`, which reaches it by reflection. Both the logger and
+     * the returned handle are JDK types, so the command in the main source set needs nothing of
+     * Kotlin to call this.
+     */
+    fun startTests(loggerIn: Consumer<Any>): CompletableFuture<Void?> {
+        val logger: (Any) -> Unit = { loggerIn.accept(it) }
+        val job = TestCoroutines.serverScope.launch(CoroutineName("logisticspipes.test")) {
             delay(Duration.ofSeconds(1 * TIMEOUT_MODIFIER).toMillis())
             logger("[STARTING LOGISTICSPIPES TESTS]")
             withTimeout(Duration.ofMinutes(3)) {
@@ -175,6 +182,12 @@ object MinecraftTest {
                 ).awaitAll()
             }
         }
+        val done = CompletableFuture<Void?>()
+        job.invokeOnCompletion { error ->
+            if (error != null) done.completeExceptionally(error) else done.complete(null)
+        }
+        return done
+    }
 
     suspend inline fun runTest(
         crossinline loggerIn: (Any) -> Unit,

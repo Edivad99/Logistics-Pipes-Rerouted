@@ -263,15 +263,18 @@ public class SimpleStackInventory implements Container, ValueIOSerializable {
 		return true;
 	}
 
-	@kotlin.Deprecated(message = "not implemented")
+	/** @deprecated not implemented */
+	@Deprecated
 	public int getField(int id) {
 		return 0;
 	}
 
-	@kotlin.Deprecated(message = "not implemented")
+	/** @deprecated not implemented */
+	@Deprecated
 	public void setField(int id, int value) {}
 
-	@kotlin.Deprecated(message = "not implemented")
+	/** @deprecated not implemented */
+	@Deprecated
 	public int getFieldCount() {
 		return 0;
 	}

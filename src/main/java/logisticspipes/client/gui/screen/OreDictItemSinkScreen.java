@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import kotlin.Unit;
 
 import logisticspipes.modules.ModuleOreDictItemSink;
 import logisticspipes.network.ModuleTarget;
@@ -144,13 +143,12 @@ public class OreDictItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMenu> 
             return oresToAddInner;
         });
         if (!oresToAdd.isEmpty()) {
-            oreListOverlay.write(oreList -> {
+            oreListOverlay.writeVoid(oreList -> {
                 for (String oreName : oresToAdd) {
                     if (!oreList.contains(oreName)) {
                         oreList.add(oreName);
                     }
                 }
-                return Unit.INSTANCE;
             });
         }
 
@@ -178,11 +176,10 @@ public class OreDictItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMenu> 
             return oresToRemoveInner;
         });
         if (!oresToRemove.isEmpty()) {
-            oreListOverlay.write(oreList -> {
+            oreListOverlay.writeVoid(oreList -> {
                 for (String oreName : oresToRemove) {
                     oreList.remove(oreName);
                 }
-                return Unit.INSTANCE;
             });
         }
     }

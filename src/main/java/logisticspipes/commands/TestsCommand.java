@@ -1,6 +1,8 @@
 package logisticspipes.commands;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -9,10 +11,6 @@ import net.minecraft.network.chat.Component;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-import kotlinx.coroutines.Job;
 
 /**
  * {@code /logisticspipes retest} — reruns the in-game test suite.
@@ -42,19 +40,16 @@ final class TestsCommand {
         }
         try {
             final Object instance = testClass.getDeclaredField("INSTANCE").get(null);
-            final Method startTests = testClass.getDeclaredMethod("startTests", Function1.class);
-            final Job job = (Job) startTests.invoke(instance, (Function1<Object, Unit>) msg -> {
-                source.sendSystemMessage(Component.literal(String.valueOf(msg)));
-                return Unit.INSTANCE;
-            });
-            job.invokeOnCompletion(throwable -> {
+            final Method startTests = testClass.getDeclaredMethod("startTests", Consumer.class);
+            final CompletableFuture<?> done = (CompletableFuture<?>) startTests.invoke(instance,
+                (Consumer<Object>) msg -> source.sendSystemMessage(Component.literal(String.valueOf(msg))));
+            done.whenComplete((ignored, throwable) -> {
                 if (throwable == null) {
                     source.sendSystemMessage(Component.literal("SUCCESS").withStyle(ChatFormatting.GREEN));
                 } else {
                     source.sendSystemMessage(
                         Component.literal("Tests failed with: " + throwable).withStyle(ChatFormatting.RED));
                 }
-                return Unit.INSTANCE;
             });
             return 1;
         } catch (ReflectiveOperationException | ClassCastException e) {
