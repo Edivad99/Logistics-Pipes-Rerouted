@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes.item;
+package logisticspipes.utils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,8 +17,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import logisticspipes.utils.FluidIdentifier;
-import network.rs485.logisticspipes.TestBootstrap;
+import logisticspipes.TestBootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes.network;
+package logisticspipes.request.resources;
 
 import java.util.BitSet;
 
@@ -13,12 +13,9 @@ import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import logisticspipes.request.resources.DictResource;
-import logisticspipes.request.resources.IResource;
-import logisticspipes.request.resources.ItemResource;
 import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import network.rs485.logisticspipes.TestBootstrap;
+import logisticspipes.TestBootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;

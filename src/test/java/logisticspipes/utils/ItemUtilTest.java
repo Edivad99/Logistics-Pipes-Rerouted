@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes.util;
+package logisticspipes.utils;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -9,10 +9,8 @@ import net.minecraft.world.item.component.CustomData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import logisticspipes.utils.ItemUtil;
-import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.TestBootstrap;
+import logisticspipes.TestBootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

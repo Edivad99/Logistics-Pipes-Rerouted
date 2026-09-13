@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes.module;
+package logisticspipes.modules;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Timeout;
 
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
-import logisticspipes.modules.AsyncExtractorModule;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

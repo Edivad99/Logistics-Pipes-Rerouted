@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes;
+package logisticspipes;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponentInitializers;

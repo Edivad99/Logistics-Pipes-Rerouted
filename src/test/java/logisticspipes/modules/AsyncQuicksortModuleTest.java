@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes.module;
+package logisticspipes.modules;
 
 import java.util.concurrent.TimeUnit;
 
@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import logisticspipes.modules.AsyncQuicksortModule;
 
 /**
  * Pins down what the quicksort module answers without a pipe around it. Written against the Kotlin

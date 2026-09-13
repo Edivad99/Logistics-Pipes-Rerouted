@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes.util;
+package logisticspipes.utils;
 
 import java.util.BitSet;
 
@@ -13,11 +13,8 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import logisticspipes.utils.FuzzyFlag;
-import logisticspipes.utils.FuzzyFlagger;
-import logisticspipes.utils.FuzzyUtil;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.TestBootstrap;
+import logisticspipes.TestBootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

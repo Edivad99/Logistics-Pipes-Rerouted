@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes.util;
+package logisticspipes.utils;
 
 import java.util.EnumSet;
 
@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import logisticspipes.utils.TextUtil;
 
 class TestUtilTest {
 

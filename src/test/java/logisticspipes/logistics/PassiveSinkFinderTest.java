@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.TestBootstrap;
+import logisticspipes.TestBootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

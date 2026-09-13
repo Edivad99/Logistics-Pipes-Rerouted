@@ -1,4 +1,4 @@
-package network.rs485.logisticspipes.item;
+package logisticspipes.utils.item;
 
 import java.util.HashSet;
 import java.util.List;
@@ -22,8 +22,7 @@ import net.minecraft.world.item.component.CustomData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import logisticspipes.utils.item.ItemIdentifier;
-import network.rs485.logisticspipes.TestBootstrap;
+import logisticspipes.TestBootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
