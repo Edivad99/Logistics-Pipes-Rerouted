@@ -83,7 +83,7 @@ import network.rs485.grow.ServerTickDispatcher;
 import network.rs485.logisticspipes.config.ClientConfiguration;
 import network.rs485.logisticspipes.config.ServerConfigurationManager;
 import network.rs485.logisticspipes.property.PropertyUpdaterEventListener;
-import network.rs485.util.SystemUtil;
+import logisticspipes.util.SystemUtil;
 
 @Mod(LPConstants.ID)
 public class LogisticsPipes {

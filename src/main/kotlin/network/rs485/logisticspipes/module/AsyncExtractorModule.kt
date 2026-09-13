@@ -37,6 +37,8 @@
 
 package network.rs485.logisticspipes.module
 
+import logisticspipes.util.ModuleUtil
+
 import network.rs485.logisticspipes.logistics.LogisticsManager
 import logisticspipes.api.property.NullableEnumProperty
 import logisticspipes.api.property.Property

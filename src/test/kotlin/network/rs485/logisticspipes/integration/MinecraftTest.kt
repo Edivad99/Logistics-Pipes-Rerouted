@@ -40,7 +40,7 @@ package network.rs485.logisticspipes.integration
 import network.rs485.grow.Coroutines
 import network.rs485.minecraft.BlockPosSelector
 import network.rs485.minecraft.TestState
-import network.rs485.util.SystemUtil.checkBooleanProperty
+import logisticspipes.util.SystemUtil.checkBooleanProperty
 import logisticspipes.LogisticsPipes
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
