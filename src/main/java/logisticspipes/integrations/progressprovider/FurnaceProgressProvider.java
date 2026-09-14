@@ -1,4 +1,4 @@
-package logisticspipes.proxy.progressprovider;
+package logisticspipes.integrations.progressprovider;
 
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;

@@ -2,18 +2,14 @@ package logisticspipes.utils;
 
 import net.minecraft.world.level.Level;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.ILevelProvider;
 
-public class DummyLevelProvider implements ILevelProvider {
+public record DummyLevelProvider(Level level) implements ILevelProvider {
 
-	private final Level level;
-
-	public DummyLevelProvider(Level level) {
-		this.level = level;
-	}
-
-	@Override
-	public Level getLevel() {
-		return level;
-	}
+    @Override
+    public Level getLevel() {
+        return level;
+    }
 }

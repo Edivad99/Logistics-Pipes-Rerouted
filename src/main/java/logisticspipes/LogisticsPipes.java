@@ -50,7 +50,7 @@ import logisticspipes.proxy.PowerProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.SpecialInventoryHandlerManager;
 import logisticspipes.proxy.SpecialTankHandlerManager;
-import logisticspipes.proxy.progressprovider.FurnaceProgressProvider;
+import logisticspipes.integrations.progressprovider.FurnaceProgressProvider;
 import logisticspipes.proxy.progressprovider.MachineProgressProvider;
 import logisticspipes.proxy.recipeproviders.LogisticsCraftingTable;
 import logisticspipes.proxy.specialconnection.RegisterSpecialConnectionsEvent;
