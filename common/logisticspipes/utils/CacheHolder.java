@@ -1,13 +1,9 @@
 package logisticspipes.utils;
 
-import java.util.Set;
-
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import org.jspecify.annotations.Nullable;
-
-import logisticspipes.asm.te.LPTileEntityObject;
 
 /**
  * Cache is cleared every 200 ticks when used on Routed Pipes.
@@ -47,12 +43,6 @@ public class CacheHolder {
 			cache.row(type).clear();
 		} else {
 			cache.clear();
-		}
-	}
-
-	public static void clearCache(Set<LPTileEntityObject> toClear) {
-		for (LPTileEntityObject obj : toClear) {
-			obj.trigger(CacheTypes.Routing);
 		}
 	}
 }

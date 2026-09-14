@@ -1,5 +1,6 @@
 package logisticspipes.pipes.basic;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -41,8 +42,6 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.api.connection.ConnectionType;
 import logisticspipes.asm.ModDependentField;
 import logisticspipes.asm.ModDependentMethod;
-import logisticspipes.asm.te.ILPTEInformation;
-import logisticspipes.asm.te.LPTileEntityObject;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelProperties;
 import logisticspipes.connection.PipeInventoryConnectionChecker;
@@ -59,10 +58,12 @@ import logisticspipes.renderer.IIconProvider;
 import logisticspipes.renderer.LogisticsTileRenderController;
 import logisticspipes.renderer.state.PipeRenderState;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
+import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.routing.pathfinder.changedetection.TEControl;
 import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
+import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.TileBuffer;
@@ -71,20 +72,18 @@ import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
 public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInformationProvider,
-    ILogicControllerTile, ILPTEInformation {
+    ILogicControllerTile {
 
-	// ILPTEInformation — previously injected by ASM, now implemented directly
-    @Nullable
-	private LPTileEntityObject lpTileEntityObject;
+	/** Routers whose last path search crossed this pipe; told when a pipe is added or removed next to it. */
+	public final List<ITileEntityChangeListener> changeListeners = new ArrayList<>();
+	@Getter
+	private final CacheHolder cacheHolder = new CacheHolder();
+	/** Set by {@link TEControl#validate} once this pipe is loaded on the server. */
+	@Getter
+	private boolean changeDetectionActive;
 
-	@Override
-	public @Nullable LPTileEntityObject getLPTileEntityObject() {
-		return lpTileEntityObject;
-	}
-
-	@Override
-	public void setLPTileEntityObject(LPTileEntityObject object) {
-		this.lpTileEntityObject = object;
+	public void activateChangeDetection() {
+		changeDetectionActive = true;
 	}
 
 	public static PipeInventoryConnectionChecker pipeInventoryConnectionChecker = new PipeInventoryConnectionChecker();

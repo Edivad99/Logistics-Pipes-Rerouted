@@ -1,4 +1,4 @@
-package logisticspipes.asm.te;
+package logisticspipes.routing.pathfinder.changedetection;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

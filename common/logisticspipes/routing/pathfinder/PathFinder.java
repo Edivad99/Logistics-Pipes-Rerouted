@@ -29,9 +29,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.provider.ILogisticsPowerProvider;
-import logisticspipes.asm.te.ILPTEInformation;
-import logisticspipes.asm.te.ITileEntityChangeListener;
-import logisticspipes.asm.te.LPTileEntityObject;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IChannelRoutingConnection;
 import logisticspipes.interfaces.routing.IFilter;
@@ -44,6 +41,7 @@ import logisticspipes.routing.IPaintPath;
 import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.pathfinder.IRouteProvider.RouteInfo;
+import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.utils.OneList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Quartet;
@@ -128,7 +126,7 @@ public class PathFinder {
 
 	public @Nullable ITileEntityChangeListener changeListener;
 	public Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
-	public Set<LPTileEntityObject> touchedPipes = new HashSet<>();
+	public Set<LogisticsTileGenericPipe> touchedPipes = new HashSet<>();
 
 	private HashMap<CoreRoutedPipe, ExitRoute> getConnectedRoutingPipes(IPipeInformationProvider startPipe, EnumSet<PipeRoutingConnectionType> connectionFlags, @Nullable Direction side) {
 		HashMap<CoreRoutedPipe, ExitRoute> foundPipes = new HashMap<>();
@@ -393,12 +391,12 @@ public class PathFinder {
 	}
 
 	private void listTileEntity(@Nullable BlockEntity tile) {
-		if (changeListener != null && tile instanceof ILPTEInformation && ((ILPTEInformation) tile).getLPTileEntityObject() != null) {
-			if (!((ILPTEInformation) tile).getLPTileEntityObject().changeListeners.contains(changeListener)) {
-				((ILPTEInformation) tile).getLPTileEntityObject().changeListeners.add(changeListener);
+		if (changeListener != null && tile instanceof LogisticsTileGenericPipe lpTile && lpTile.isChangeDetectionActive()) {
+			if (!lpTile.changeListeners.contains(changeListener)) {
+				lpTile.changeListeners.add(changeListener);
 			}
-			listenedPipes.add(((ILPTEInformation) tile).getLPTileEntityObject().changeListeners);
-			touchedPipes.add(((ILPTEInformation) tile).getLPTileEntityObject());
+			listenedPipes.add(lpTile.changeListeners);
+			touchedPipes.add(lpTile);
 		}
 	}
 

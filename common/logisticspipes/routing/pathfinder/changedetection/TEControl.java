@@ -1,17 +1,12 @@
 package logisticspipes.routing.pathfinder.changedetection;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import logisticspipes.api.connection.ConnectionType;
-import logisticspipes.asm.te.ILPTEInformation;
-import logisticspipes.asm.te.ITileEntityChangeListener;
-import logisticspipes.asm.te.LPTileEntityObject;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.ticks.LPTickHandler;
@@ -20,120 +15,86 @@ import logisticspipes.ticks.QueuedTasks;
 public class TEControl {
 
     /**
-     * Called when a block entity is loaded/placed.
-     * <p>
-     * Previously injected into ALL TileEntities via ASM. Now called directly from
-     * {@link LogisticsTileGenericPipe#onLoad()} for LP pipes.
+     * Called from {@link LogisticsTileGenericPipe#onLoad()}.
      * <p>
      * Non-LP neighbour changes are handled by BlockChangeListener which
      * listens for BlockEvent.EntityPlaceEvent / BlockEvent.BreakEvent.
-     * Previously injected into ALL TileEntities via ASM.
      */
-    public static void validate(final BlockEntity be) {
-        final Level level = be.getLevel();
+    public static void validate(final LogisticsTileGenericPipe tile) {
+        final Level level = tile.getLevel();
         if (level == null || level.isClientSide()) {
             return;
         }
-        if (be.getClass().getName().startsWith("net.minecraft.world.level.block.entity")) {
-            return;
-        }
 
-        final BlockPos pos = be.getBlockPos();
+        final BlockPos pos = tile.getBlockPos();
         if (pos.getX() == 0 && pos.getY() <= 0 && pos.getZ() == 0) {
             return;
         }
 
-        if (!(be instanceof ILPTEInformation ilpteInformation)) {
+        tile.activateChangeDetection();
+        if (LPTickHandler.getWorldInfo(level).getWorldTick() < 5) {
             return;
         }
-        if (SimpleServiceLocator.pipeInformationManager.isPipe(be, false, ConnectionType.UNDEFINED)
-            || SimpleServiceLocator.specialtileconnection.isType(be)) {
-            ilpteInformation.setLPTileEntityObject(new LPTileEntityObject());
-            Objects.requireNonNull(ilpteInformation.getLPTileEntityObject()).initialised =
-                LPTickHandler.getWorldInfo(level).getWorldTick();
-            if (ilpteInformation.getLPTileEntityObject().initialised < 5) {
-                return;
+        QueuedTasks.queueTask(() -> {
+            for (Direction dir : Direction.values()) {
+                BlockPos newPos = pos.relative(dir);
+                if (level.isLoaded(newPos) && level.isEmptyBlock(newPos)) {
+                    continue;
+                }
+                BlockEntity nextTile = level.getBlockEntity(newPos);
+                if (nextTile instanceof LogisticsTileGenericPipe nextPipe && nextPipe.isChangeDetectionActive()) {
+                    if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
+                        SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile)
+                            .refreshTileCacheOnSide(dir.getOpposite());
+                    }
+                    if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
+                        SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(tile)
+                            .refreshTileCacheOnSide(dir);
+                        SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(tile)
+                            .refreshTileCacheOnSide(dir.getOpposite());
+                    }
+                    for (ITileEntityChangeListener listener : new ArrayList<>(nextPipe.changeListeners)) {
+                        listener.pipeAdded(pos, dir.getOpposite());
+                    }
+                }
             }
-            QueuedTasks.queueTask(() -> {
-                if (!SimpleServiceLocator.pipeInformationManager.isPipe(be, true, ConnectionType.UNDEFINED)) {
-                    return null;
-                }
-                for (Direction dir : Direction.values()) {
-                    BlockPos newPos = pos.relative(dir);
-                    if (level.isLoaded(newPos) && level.isEmptyBlock(newPos)) {
-                        continue;
-                    }
-                    BlockEntity nextTile = level.getBlockEntity(newPos);
-                    if (nextTile instanceof ILPTEInformation nextInformation
-                        && nextInformation.getLPTileEntityObject() != null) {
-                        if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
-                            SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile)
-                                .refreshTileCacheOnSide(dir.getOpposite());
-                        }
-                        if (SimpleServiceLocator.pipeInformationManager.isItemPipe(be)) {
-                            SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(be)
-                                .refreshTileCacheOnSide(dir);
-                            SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(be)
-                                .refreshTileCacheOnSide(dir.getOpposite());
-                        }
-                        var listeners = new ArrayList<>(nextInformation.getLPTileEntityObject().changeListeners);
-                        for (ITileEntityChangeListener listener : listeners) {
-                            listener.pipeAdded(pos, dir.getOpposite());
-                        }
-                    }
-                }
-                return null;
-            });
-        }
+            return null;
+        });
     }
 
     /**
-     * Called when a block entity is invalidated/removed.
-     * <p>
-     * Previously injected into ALL TileEntities via ASM. Now called directly from
-     * {@link LogisticsTileGenericPipe#setRemoved()} for LP pipes.
+     * Called from {@link LogisticsTileGenericPipe#setRemoved()}.
      * <p>
      * Non-LP neighbours: covered by LogisticsEventListener.onNeighborNotify (BlockEvent.NeighborNotifyEvent)
      * which flags adjacent routers for recheck when any block changes.
      */
-    public static void invalidate(final BlockEntity be) {
-        final Level level = be.getLevel();
+    public static void invalidate(final LogisticsTileGenericPipe tile) {
+        final Level level = tile.getLevel();
         if (level == null || level.isClientSide()) {
             return;
         }
-        if (be instanceof LogisticsTileGenericPipe logisticsTileGenericPipe
-            && logisticsTileGenericPipe.isRoutingPipe()) {
+        if (tile.isRoutingPipe() || !tile.isChangeDetectionActive()) {
             return;
         }
-        if (!(be instanceof ILPTEInformation ilpteInformation)) {
-            return;
-        }
-        // Captured now rather than read again inside the task: the task runs a tick later, and this
-        // path is the block entity being removed -- by then the object may be gone.
-        final LPTileEntityObject teObject = ilpteInformation.getLPTileEntityObject();
-        if (teObject != null) {
-            QueuedTasks.queueTask(() -> {
-                BlockPos pos = be.getBlockPos();
-                for (Direction dir : Direction.values()) {
-                    BlockPos newPos = pos.relative(dir);
-                    if (level.isLoaded(newPos) && level.isEmptyBlock(newPos)) {
-                        continue;
-                    }
-                    BlockEntity nextTile = level.getBlockEntity(newPos);
-                    if (nextTile instanceof ILPTEInformation nextInformation
-                        && nextInformation.getLPTileEntityObject() != null) {
-                        if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
-                            SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile)
-                                .refreshTileCacheOnSide(dir.getOpposite());
-                        }
+        QueuedTasks.queueTask(() -> {
+            BlockPos pos = tile.getBlockPos();
+            for (Direction dir : Direction.values()) {
+                BlockPos newPos = pos.relative(dir);
+                if (level.isLoaded(newPos) && level.isEmptyBlock(newPos)) {
+                    continue;
+                }
+                BlockEntity nextTile = level.getBlockEntity(newPos);
+                if (nextTile instanceof LogisticsTileGenericPipe nextPipe && nextPipe.isChangeDetectionActive()) {
+                    if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
+                        SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile)
+                            .refreshTileCacheOnSide(dir.getOpposite());
                     }
                 }
-                var listeners = new ArrayList<>(teObject.changeListeners);
-                for (ITileEntityChangeListener listener : listeners) {
-                    listener.pipeRemoved(pos);
-                }
-                return null;
-            });
-        }
+            }
+            for (ITileEntityChangeListener listener : new ArrayList<>(tile.changeListeners)) {
+                listener.pipeRemoved(pos);
+            }
+            return null;
+        });
     }
 }

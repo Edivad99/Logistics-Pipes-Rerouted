@@ -96,12 +96,11 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 			if (!r.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
 				continue;
 			}
-			if (!(r.destination.getPipe() instanceof IProvideFluids)) {
+			if (!(r.destination.getPipe() instanceof IProvideFluids provider)) {
 				continue;
 			}
 
-			IProvideFluids provider = (IProvideFluids) r.destination.getPipe();
-			Map<FluidIdentifier, Integer> allItems = provider.getAvailableFluids();
+            Map<FluidIdentifier, Integer> allItems = provider.getAvailableFluids();
 
 			for (Entry<FluidIdentifier, Integer> liquid : allItems.entrySet()) {
 				Integer amount = allAvailableItems.get(liquid.getKey());

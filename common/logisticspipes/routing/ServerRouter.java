@@ -49,8 +49,6 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
-import logisticspipes.asm.te.ITileEntityChangeListener;
-import logisticspipes.asm.te.LPTileEntityObject;
 import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
@@ -65,9 +63,10 @@ import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.pathfinder.PathFinder;
+import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.RoutingTableUpdateThread;
-import logisticspipes.utils.CacheHolder;
+import logisticspipes.utils.CacheHolder.CacheTypes;
 import logisticspipes.utils.OneList;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
@@ -155,7 +154,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	};
 	private Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
-	private Set<LPTileEntityObject> oldTouchedPipes = new HashSet<>();
+	private Set<LogisticsTileGenericPipe> oldTouchedPipes = new HashSet<>();
 
 	public ServerRouter(@Nullable UUID globalID, Identifier dimension, BlockPos pos) {
 		if (globalID != null) {
@@ -525,8 +524,8 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 		if (!oldTouchedPipes.equals(finder.touchedPipes)) {
-			CacheHolder.clearCache(oldTouchedPipes);
-			CacheHolder.clearCache(finder.touchedPipes);
+			clearRoutingCache(oldTouchedPipes);
+			clearRoutingCache(finder.touchedPipes);
 			oldTouchedPipes = finder.touchedPipes;
 			BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
 			visited.set(getSimpleID());
@@ -1069,10 +1068,16 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	private void ensureChangeListenerAttachedToPipe(CoreRoutedPipe pipe) {
-		if (pipe.getContainer() != null && pipe.getContainer().getLPTileEntityObject() != null) {
-			if (!pipe.getContainer().getLPTileEntityObject().changeListeners.contains(localChangeListener)) {
-				pipe.getContainer().getLPTileEntityObject().changeListeners.add(localChangeListener);
+		if (pipe.getContainer() != null && pipe.getContainer().isChangeDetectionActive()) {
+			if (!pipe.getContainer().changeListeners.contains(localChangeListener)) {
+				pipe.getContainer().changeListeners.add(localChangeListener);
 			}
+		}
+	}
+
+	private static void clearRoutingCache(Set<LogisticsTileGenericPipe> pipes) {
+		for (LogisticsTileGenericPipe pipe : pipes) {
+			pipe.getCacheHolder().trigger(CacheTypes.Routing);
 		}
 	}
 
@@ -1385,7 +1390,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 		public void doTo(ServerRouter router) {
-			CacheHolder.clearCache(router.oldTouchedPipes);
+			clearRoutingCache(router.oldTouchedPipes);
 		}
 	}
 

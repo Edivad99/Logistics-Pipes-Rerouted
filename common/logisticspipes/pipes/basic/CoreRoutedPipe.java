@@ -65,7 +65,6 @@ import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.api.property.PropertyUtil;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.asm.ModDependentMethod;
-import logisticspipes.asm.te.ILPTEInformation;
 import logisticspipes.connection.AdjacentFactory;
 import logisticspipes.connection.NoAdjacent;
 import logisticspipes.interfaces.ILPPositionProvider;
@@ -1745,12 +1744,12 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public CacheHolder getCacheHolder() {
+		// The container's holder is the one the router clears when the network changes.
+		if (getContainer() != null) {
+			return getContainer().getCacheHolder();
+		}
 		if (cacheHolder == null) {
-			if (getContainer() instanceof ILPTEInformation containerInfo && containerInfo.getLPTileEntityObject() != null) {
-				cacheHolder = containerInfo.getLPTileEntityObject().getCacheHolder();
-			} else {
-				cacheHolder = new CacheHolder();
-			}
+			cacheHolder = new CacheHolder();
 		}
 		return cacheHolder;
 	}
