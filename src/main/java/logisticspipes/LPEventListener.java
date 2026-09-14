@@ -1,0 +1,396 @@
+package logisticspipes;
+
+import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.TriState;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.VersionChecker;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.ChunkWatchEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforgespi.language.IModInfo;
+
+import vazkii.patchouli.api.PatchouliAPI;
+
+import logisticspipes.config.ClientConfiguration;
+import logisticspipes.config.PlayerConfiguration;
+import logisticspipes.interfaces.IItemAdvancedExistence;
+import logisticspipes.modules.AsyncQuicksortModule;
+import logisticspipes.network.to_client.config.PlayerConfigMessage;
+import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
+import logisticspipes.pipes.PipeLogisticsChassis;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.renderer.GuiOverlay;
+import logisticspipes.renderer.LogisticsHUDRenderer;
+import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.util.PipeConfigTools;
+import logisticspipes.utils.PlayerCollectionList;
+import logisticspipes.utils.PlayerIdentifier;
+import logisticspipes.utils.QuickSortChestMarkerStorage;
+import logisticspipes.utils.TextUtil;
+import logisticspipes.utils.string.ChatColor;
+
+public class LPEventListener {
+
+    public static final WeakHashMap<Player, List<WeakReference<AsyncQuicksortModule>>> CHEST_QUICK_SORT_CONNECTION = new WeakHashMap<>();
+    private static final Map<ChunkPos, PlayerCollectionList> WATCHERS = new ConcurrentHashMap<>();
+    private static final HashMap<ResourceKey<Level>, Long> LEVEL_LOAD_TIME = new HashMap<>();
+
+    /**
+     * Whether any player is close enough to {@code pos} to be sent updates for it.
+     */
+    public static boolean isAnyoneWatching(BlockPos pos) {
+        PlayerCollectionList list = LPEventListener.WATCHERS.get(ChunkPos.containing(pos));
+        return list != null && !list.isEmpty();
+    }
+
+    /**
+     * Keeps an item that cannot lie in the world from being thrown away.
+     *
+     * <p>Without this the drop still happens and {@link #onEntitySpawn} refuses the entity, so the
+     * stack is simply gone. Cancelling the toss leaves it where it was.
+     */
+    @SubscribeEvent
+    public void onItemToss(ItemTossEvent event) {
+        final ItemStack stack = event.getEntity().getItem();
+        if (!stack.isEmpty() && stack.getItem() instanceof IItemAdvancedExistence existence
+            && !existence.canExistInWorld(stack)) {
+            event.setCanceled(true);
+            event.getPlayer().getInventory().placeItemBackInInventory(stack);
+        }
+    }
+
+    @SubscribeEvent
+    public void onEntitySpawn(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof ItemEntity itemEntity && !event.getLevel().isClientSide()) {
+            ItemStack stack = itemEntity.getItem();
+            if (!stack.isEmpty() &&
+                stack.getItem() instanceof IItemAdvancedExistence existence &&
+                !existence.canExistInWorld(stack)) {
+                event.setCanceled(true);
+                return;
+            }
+            CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+            for (String key : tag.keySet()) {
+                if (key.startsWith(LPConstants.rl("routingdata").toString())) {
+                    ItemRoutingInformation info =
+                        ItemRoutingInformation.restoreFromNBT(TagValueInput.create(ProblemReporter.DISCARDING,
+                            event.getLevel().registryAccess(), tag.getCompoundOrEmpty(key)));
+
+                    info.setItemTimedout();
+
+                    itemEntity.setItem(
+                        info.getItem()
+                            .getItem()
+                            .makeNormalStack(stack.getCount())
+                    );
+                    break;
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerLeftClickBlock(final PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            final BlockEntity be = level.getBlockEntity(event.getPos());
+            if (be instanceof LogisticsTileGenericPipe tileGenericPipe) {
+                if (tileGenericPipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
+                    if (!coreRoutedPipe.canBeDestroyedByPlayer(event.getEntity())) {
+                        event.setCanceled(true);
+                        event.getEntity().sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+                        tileGenericPipe.scheduleNeighborChange();
+                        BlockPos pos = tileGenericPipe.getBlockPos();
+                        BlockState state = level.getBlockState(pos);
+                        level.sendBlockUpdated(pos, state, state, 2);
+                        coreRoutedPipe.delayTo = System.currentTimeMillis() + 200;
+                        coreRoutedPipe.repeatFor = 10;
+                    } else {
+                        coreRoutedPipe.setDestroyByPlayer();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Lets a crouching player wrench a pipe.
+     *
+     * <p>Holding an item while crouching normally skips the block interaction entirely, unless the
+     * item opts out with {@code doesSneakBypassUse} -- which most wrenches from other mods do not
+     * bother with. Sneak clicking a pipe with a wrench is how a chassis is rotated, so allow the
+     * block to see the click.
+     */
+    @SubscribeEvent
+    public void onWrenchRightClickPipe(final PlayerInteractEvent.RightClickBlock event) {
+        if (!event.getEntity().isSecondaryUseActive() || !event.getUseBlock().isDefault()) {
+            return;
+        }
+        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof LogisticsTileGenericPipe)) {
+            return;
+        }
+        if (PipeConfigTools.canConfigure(event.getItemStack())) {
+            event.setUseBlock(TriState.TRUE);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            BlockPos pos = event.getPos();
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be == null) {
+                return;
+            }
+            // Only act on blocks that expose an item handler (chests, barrels, etc.)
+            var itemHandler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
+            if (itemHandler == null) {
+                return;
+            }
+
+            Player player = event.getEntity();
+            List<WeakReference<AsyncQuicksortModule>> modules = null;
+
+            for (Direction dir : Direction.values()) {
+                BlockPos neighborPos = pos.relative(dir);
+                BlockEntity neighbor = level.getBlockEntity(neighborPos);
+                if (!(neighbor instanceof LogisticsTileGenericPipe pipeTile)) {
+                    continue;
+                }
+                if (!(pipeTile.pipe instanceof PipeLogisticsChassis chassis)) {
+                    continue;
+                }
+                // The chassis must be pointing at the clicked block
+                if (chassis.getPointedOrientation() != dir.getOpposite()) {
+                    continue;
+                }
+
+                final List<WeakReference<AsyncQuicksortModule>> found = modules == null ? new ArrayList<>() : modules;
+                chassis.getModules().getModules()
+                    .filter(m -> m instanceof AsyncQuicksortModule)
+                    .forEach(m -> found.add(new WeakReference<>((AsyncQuicksortModule) m)));
+                if (!found.isEmpty()) {
+                    modules = found;
+                }
+            }
+
+            if (modules != null && !modules.isEmpty()) {
+                CHEST_QUICK_SORT_CONNECTION.put(player, modules);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onLevelLoad(LevelEvent.Load event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            ResourceKey<Level> dim = level.dimension();
+            if (!LPEventListener.LEVEL_LOAD_TIME.containsKey(dim)) {
+                LPEventListener.LEVEL_LOAD_TIME.put(dim, System.currentTimeMillis());
+            }
+        }
+        if (event.getLevel().isClientSide()) {
+            SimpleServiceLocator.clientRouterManager.clear();
+            LogisticsHUDRenderer.instance().clear();
+        }
+    }
+
+    @SubscribeEvent
+    public void onLevelUnload(LevelEvent.Unload event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            SimpleServiceLocator.routerManager.dimensionUnloaded(level.dimension().identifier());
+        }
+    }
+
+    @SubscribeEvent
+    public void onChunkWatch(ChunkWatchEvent.Watch event) {
+        ChunkPos pos = event.getPos();
+        if (!LPEventListener.WATCHERS.containsKey(pos)) {
+            LPEventListener.WATCHERS.put(pos, new PlayerCollectionList());
+        }
+        LPEventListener.WATCHERS.get(pos).add(event.getPlayer());
+    }
+
+    @SubscribeEvent
+    public void onChunkUnwatch(ChunkWatchEvent.UnWatch event) {
+        ChunkPos pos = event.getPos();
+        if (LPEventListener.WATCHERS.containsKey(pos)) {
+            LPEventListener.WATCHERS.get(pos).remove(event.getPlayer());
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity().level() instanceof ServerLevel) {
+            SimpleServiceLocator.securityStationManager.sendClientAuthorizationList(event.getEntity());
+        }
+
+        ClientConfiguration config = LogisticsPipes.getServerConfigManager()
+            .getPlayerConfiguration(PlayerIdentifier.get(event.getEntity()));
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, PlayerConfigMessage.of(config));
+        }
+    }
+
+    @SubscribeEvent
+    public void onScreenOpening(ScreenEvent.Opening event) {
+        // Guard: no server connection (e.g. main menu) — nothing to notify
+        if (Minecraft.getInstance().getConnection() == null) {
+            return;
+        }
+        if (event.getScreen() instanceof AbstractContainerScreen) {
+            ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(true));
+        }
+    }
+
+    @SubscribeEvent
+    public void onScreenClosing(ScreenEvent.Closing event) {
+        // Guard: no server connection (e.g. main menu) — nothing to notify
+        if (Minecraft.getInstance().getConnection() == null) {
+            return;
+        }
+        GuiOverlay.getInstance().setOverlaySlotActive(false);
+        QuickSortChestMarkerStorage.getInstance().disable();
+        ClientPacketDistributor.sendToServer(new QuickSortChestWatchMessage(false));
+    }
+
+    @SubscribeEvent
+    public void onClientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
+        IModInfo modInfo = ModList.get().getModFileById(LPConstants.ID).getMods().getFirst();
+        VersionChecker.CheckResult result = VersionChecker.getResult(modInfo);
+        VersionChecker.Status versionStatus = result.status();
+
+        if (versionStatus.shouldDraw()) {
+            String newVersion = result.target().toString();
+            String modUrl = modInfo.getModURL().orElseThrow().toString();
+            MutableComponent message = Component.literal(LPConstants.NAME + ": ").withStyle(ChatFormatting.GREEN)
+                .append(Component.literal(
+                        "A new version (%s) is available to download.".formatted(newVersion))
+                    .withStyle(style -> style
+                        .withColor(ChatFormatting.WHITE)
+                        .withUnderlined(true)
+                        .withClickEvent(new ClickEvent.OpenUrl(URI.create(modUrl)))));
+            event.getPlayer().sendSystemMessage(message);
+        }
+    }
+
+    @SubscribeEvent
+    public void onItemStackToolTip(ItemTooltipEvent event) {
+        CompoundTag tag = event.getItemStack()
+            .getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+            .copyTag();
+
+        for (String key : tag.keySet()) {
+            if (key.startsWith(LPConstants.rl("routingdata").toString())) {
+                ItemRoutingInformation info =
+                    ItemRoutingInformation.restoreFromNBT(TagValueInput.create(ProblemReporter.DISCARDING,
+                        event.getEntity().registryAccess(), tag.getCompoundOrEmpty(key)));
+                List<Component> list = event.getToolTip();
+                list.set(0, Component.literal(ChatColor.RED + "!!! " + ChatColor.WHITE)
+                    .append(list.get(0))
+                    .append(Component.literal(ChatColor.RED + " !!!" + ChatColor.WHITE)));
+                list.add(1, Component.translatable("itemstackinfo.lprouteditem"));
+                list.add(2, Component.translatable("itemstackinfo.lproutediteminfo"));
+                list.add(3, Component.literal(
+                    TextUtil.translate("itemstackinfo.lprouteditemtype") + ": " + info.getItem()));
+            }
+        }
+    }
+
+    /**
+     * Replaces the 1.12.2 ASM injection of TEControl.validate/invalidate into all TileEntity subclasses.
+     * When any block changes (placed, broken, or neighbour update), check the six adjacent positions for
+     * LP routing pipes and flag their routers for adjacency recheck.  This covers the case where a
+     * non-LP inventory (chest, machine, etc.) is placed or removed next to a provider/requester pipe.
+     */
+    @SubscribeEvent
+    public void onNeighborNotify(BlockEvent.NeighborNotifyEvent event) {
+        if (!(event.getLevel() instanceof Level level)) {
+            return;
+        }
+        if (level.isClientSide()) {
+            return;
+        }
+        BlockPos changed = event.getPos();
+        for (Direction dir : event.getNotifiedSides()) {
+            BlockEntity neighbor = level.getBlockEntity(changed.relative(dir));
+            if (neighbor instanceof LogisticsTileGenericPipe pipe
+                && pipe.pipe instanceof CoreRoutedPipe routedPipe
+                && !routedPipe.stillNeedReplace()) {
+                routedPipe.getRouter().update(false, routedPipe);
+            }
+        }
+    }
+
+    /**
+     * Hands the player the guide book the first time they craft anything from LP.
+     */
+    @SubscribeEvent
+    public void onItemCrafting(PlayerEvent.ItemCraftedEvent event) {
+        if (event.getEntity().level().isClientSide() || event.getCrafting().isEmpty()) {
+            return;
+        }
+        if (!BuiltInRegistries.ITEM.getKey(event.getCrafting().getItem()).getNamespace().equals(LPConstants.ID)) {
+            return;
+        }
+        if (!ModList.get().isLoaded(PatchouliAPI.MOD_ID)) {
+            return;
+        }
+        PlayerIdentifier identifier = PlayerIdentifier.get(event.getEntity());
+        PlayerConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(identifier);
+        if (config.getHasCraftedLPItem() || LogisticsPipes.isDEBUG()) {
+            return;
+        }
+        ItemStack book = PatchouliAPI.get().getBookStack(LPConstants.rl("guide"));
+        if (book.isEmpty()) {
+            return;
+        }
+        event.getEntity().addItem(book);
+        config.setHasCraftedLPItem(true);
+        LogisticsPipes.getServerConfigManager().setPlayerConfiguration(identifier, config);
+    }
+}

@@ -188,7 +188,7 @@ public class LogisticsPipes {
 
         NeoForge.EVENT_BUS.register(new LPTickHandler());
         NeoForge.EVENT_BUS.register(new QueuedTasks());
-        NeoForge.EVENT_BUS.register(new LogisticsEventListener());
+        NeoForge.EVENT_BUS.register(new LPEventListener());
         NeoForge.EVENT_BUS.register(new BlockChangeListener());
         NeoForge.EVENT_BUS.register(Confirmations.INSTANCE);
         NeoForge.EVENT_BUS.register(FakePlayers.INSTANCE);

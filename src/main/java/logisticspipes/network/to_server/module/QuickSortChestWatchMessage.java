@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.LogisticsEventListener;
+import logisticspipes.LPEventListener;
 import logisticspipes.modules.AsyncQuicksortModule;
 import logisticspipes.network.to_client.module.QuickSortMarkerMessage;
 
@@ -38,7 +38,7 @@ public record QuickSortChestWatchMessage(boolean watching) implements CustomPack
     public static void handle(QuickSortChestWatchMessage message, IPayloadContext context) {
         final Player player = context.player();
         final List<WeakReference<AsyncQuicksortModule>> sorters =
-            LogisticsEventListener.chestQuickSortConnection.get(player);
+            LPEventListener.CHEST_QUICK_SORT_CONNECTION.get(player);
         if (sorters == null || sorters.isEmpty()) {
             return;
         }
@@ -57,7 +57,7 @@ public record QuickSortChestWatchMessage(boolean watching) implements CustomPack
             }
         }
         if (!message.watching) {
-            LogisticsEventListener.chestQuickSortConnection.remove(player);
+            LPEventListener.CHEST_QUICK_SORT_CONNECTION.remove(player);
         }
     }
 

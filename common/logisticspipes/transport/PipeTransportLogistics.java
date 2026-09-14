@@ -35,7 +35,7 @@ import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.LogisticsEventListener;
+import logisticspipes.LPEventListener;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.interfaces.IBufferItems;
@@ -746,7 +746,7 @@ public class PipeTransportLogistics {
 	}
 
 	private void sendItemPacket(LPTravelingItemServer item) {
-		if (LogisticsEventListener.isAnyoneWatching(container.getBlockPos())) {
+		if (LPEventListener.isAnyoneWatching(container.getBlockPos())) {
 			if (!LPTravelingItem.clientSideKnownIDs.get(item.getId())) {
 				TargetLookup.sendToChunkWatchers(container,
 						new TravellingItemContentMessage(item.getId(), item.getItemIdentifierStack()));
