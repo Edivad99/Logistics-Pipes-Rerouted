@@ -17,6 +17,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.to_server.channel.RequestChannelSelectMessage;
 import logisticspipes.network.to_server.pipe.RequestInvSysConContentMessage;
@@ -36,7 +37,6 @@ import logisticspipes.world.inventory.InvSysConMenu;
 public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
     implements IGUIChannelInformationReceiver {
 
-    private static final String PREFIX = "gui.invsyscon.";
     private final List<ItemIdentifierStack> allItems = new ArrayList<>();
     private final PipeItemsInvSysConnector pipe;
     private int page = 0;
@@ -61,7 +61,7 @@ public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
         b1.setPressListener(b -> pageUp());
         addRenderableWidget(b1);
         SmallGuiButton b2 = new SmallGuiButton(2, leftPos + 68, topPos + 67, 46, 10,
-            TextUtil.translate(InvSysConnectorScreen.PREFIX + "Refresh"));
+            Component.translatable(Translations.Screen.INV_SYS_CON_REFRESH));
         b2.setPressListener(b -> refreshPacket());
         addRenderableWidget(b2);
         SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 80, topPos + 55, 10, 10, "<");
@@ -72,7 +72,7 @@ public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
         b4.setPressListener(b -> resistanceCountBar.setInteger(resistanceCountBar.getInteger() + 1));
         addRenderableWidget(b4);
         SmallGuiButton b5 = new SmallGuiButton(5, leftPos + 140, topPos + 55, 30, 10,
-            TextUtil.translate(InvSysConnectorScreen.PREFIX + "Save"));
+            Component.translatable(Translations.Screen.SAVE));
         b5.setPressListener(b -> {
             pipe.resistance = resistanceCountBar.getInteger();
             ClientPacketDistributor.sendToServer(
@@ -80,7 +80,7 @@ public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
         });
         addRenderableWidget(b5);
         SmallGuiButton b6 = new SmallGuiButton(6, leftPos + 130, topPos + 20, 40, 10,
-            TextUtil.translate(InvSysConnectorScreen.PREFIX + "Change"));
+            Component.translatable(Translations.Screen.INV_SYS_CON_CHANGE));
         b6.setPressListener(b -> ClientPacketDistributor.sendToServer(new RequestChannelSelectMessage(pipe.getPos())));
         addRenderableWidget(b6);
 
@@ -112,19 +112,19 @@ public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.text(minecraft.font, TextUtil.translate(InvSysConnectorScreen.PREFIX + "InventorySystemConnector"),
-            5, 6, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.INV_SYS_CON_TITLE), 5, 6,
+            0xFF404040, false);
         guiGraphics.text(minecraft.font,
-            TextUtil.translate(InvSysConnectorScreen.PREFIX + "ConnectionInformation") + ":", 10, 21, 0xFF404040,
-            false);
-        guiGraphics.text(minecraft.font, TextUtil.getTrimmedString(
-            TextUtil.translate(InvSysConnectorScreen.PREFIX + "Channel") + ": " + (connectedChannel != null ?
-                connectedChannel.getName() :
-                "UNDEFINED"), 150, this.font, "..."), 15, 38, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(InvSysConnectorScreen.PREFIX + "Resistance") + ":", 10, 55,
+            Component.translatable(Translations.Screen.INV_SYS_CON_CONNECTION_INFORMATION).append(":"), 10, 21,
             0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(InvSysConnectorScreen.PREFIX + "Waitingfor") + ":", 10, 68,
+        String channel = Component.translatable(Translations.Screen.INV_SYS_CON_CHANNEL).getString() + ": "
+            + (connectedChannel != null ? connectedChannel.getName() : "UNDEFINED");
+        guiGraphics.text(minecraft.font, TextUtil.getTrimmedString(channel, 150, this.font, "..."), 15, 38,
             0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.INV_SYS_CON_RESISTANCE).append(":"),
+            10, 55, 0xFF404040, false);
+        guiGraphics.text(minecraft.font,
+            Component.translatable(Translations.Screen.INV_SYS_CON_WAITING_FOR).append(":"), 10, 68, 0xFF404040, false);
         guiGraphics.text(minecraft.font, (page + 1) + "/" + maxPage(), 136, 69, 0xFF404040, false);
         ItemStackRenderer.renderItemIdentifierStackListIntoGui(guiGraphics, allItems, null, page, 9, 79, 9, 27, 18, 18,
             100.0F, DisplayAmount.ALWAYS);

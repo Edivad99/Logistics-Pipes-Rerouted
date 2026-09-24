@@ -3,6 +3,7 @@ package logisticspipes.client.gui.popup;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -10,14 +11,14 @@ import logisticspipes.utils.gui.SubGuiScreen;
 
 public class ActionChoicePopup extends SubGuiScreen {
 
-    private final String message;
-    private final String leftButton;
+    private final Component message;
+    private final Component leftButton;
     private final Runnable leftAction;
-    private final String rightButton;
+    private final Component rightButton;
     private final Runnable rightAction;
     private final boolean buttonMin;
 
-    public ActionChoicePopup(String message, String leftButton, Runnable leftAction, String rightButton,
+    public ActionChoicePopup(Component message, Component leftButton, Runnable leftAction, Component rightButton,
         Runnable rightAction) {
         super(100, 100, 0, 0);
         this.message = message;

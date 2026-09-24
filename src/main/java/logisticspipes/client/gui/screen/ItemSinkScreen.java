@@ -12,6 +12,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.layer.PropertyLayer;
 import logisticspipes.api.property.layer.ValuePropertyOverlay;
@@ -21,14 +22,11 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.ItemSinkImportRequestMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.ItemSinkMenu;
 
 public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkMenu> {
-
-    private static final String PREFIX = "gui.itemsink.";
 
     private static final int PANEL_WIDTH = 175;
 
@@ -79,7 +77,7 @@ public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkMenu> {
         // Importing pulls from the inventory the pipe is attached to, which a module in hand has none of.
         if (!inHand) {
             SmallGuiButton importButton = new SmallGuiButton(0, leftPos + IMPORT_BUTTON_X, topPos + BUTTON_ROW_Y,
-                IMPORT_BUTTON_WIDTH, BUTTON_ROW_HEIGHT, TextUtil.translate(PREFIX + "import"));
+                IMPORT_BUTTON_WIDTH, BUTTON_ROW_HEIGHT, Component.translatable(Translations.Screen.IMPORT));
             importButton.setPressListener(button -> ClientPacketDistributor.sendToServer(
                 new ItemSinkImportRequestMessage(ModuleTarget.of(itemSinkModule))));
             addRenderableWidget(importButton);
@@ -96,8 +94,8 @@ public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkMenu> {
 
     private void updateDefaultRouteButton() {
         if (defaultRouteButton != null) {
-            defaultRouteButton.setMessage(Component.literal(
-                TextUtil.translate(PREFIX + (defaultRouteOverlay.get() ? "Yes" : "No"))));
+            defaultRouteButton.setMessage(Component.translatable(
+                defaultRouteOverlay.get() ? Translations.Screen.YES : Translations.Screen.NO));
         }
     }
 
@@ -138,7 +136,8 @@ public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkMenu> {
         guiGraphics.text(mc.font, title, (PANEL_WIDTH - mc.font.width(title)) / 2, 6,
             Color.TEXT_DARK.getValue(), false);
 
-        drawWrappedLabel(guiGraphics, mc, TextUtil.translate(PREFIX + "Defaultroute") + ":");
+        drawWrappedLabel(guiGraphics, mc,
+            Component.translatable(Translations.Screen.ITEM_SINK_DEFAULT_ROUTE).append(":"));
 
     }
 
@@ -146,8 +145,8 @@ public class ItemSinkScreen extends ModuleBaseScreen<ItemSinkMenu> {
      * The label shares its row with two buttons, so it wraps into the gap between them and is drawn
      * right-aligned and vertically centred on the row.
      */
-    private void drawWrappedLabel(GuiGraphicsExtractor guiGraphics, Minecraft mc, String text) {
-        List<FormattedCharSequence> lines = mc.font.split(Component.literal(text), LABEL_RIGHT - LABEL_LEFT);
+    private void drawWrappedLabel(GuiGraphicsExtractor guiGraphics, Minecraft mc, Component text) {
+        List<FormattedCharSequence> lines = mc.font.split(text, LABEL_RIGHT - LABEL_LEFT);
         int lineHeight = mc.font.lineHeight;
         int top = BUTTON_ROW_Y + (BUTTON_ROW_HEIGHT - lines.size() * lineHeight) / 2;
         for (int i = 0; i < lines.size(); i++) {

@@ -12,6 +12,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import logisticspipes.LPConstants;
+import logisticspipes.Translations;
 
 public class LPCreativeModeTabs {
 
@@ -26,7 +27,7 @@ public class LPCreativeModeTabs {
         deferredRegister.register("logistics_pipes", () ->
             CreativeModeTab.builder()
                 .icon(LPItems.PIPE_BASIC::toStack)
-                .title(Component.translatable("itemGroup.logisticspipes"))
+                .title(Component.translatable(Translations.Tab.LOGISTICS_PIPES))
                 .displayItems((params, output) -> {
                     var denyList = Set.of(
                         LPItems.BROKEN_ITEM.getId(),

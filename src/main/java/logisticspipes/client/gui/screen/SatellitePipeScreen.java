@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.to_server.pipe.SetSatelliteNameMessage;
 import logisticspipes.pipes.SatelliteNamingResult;
@@ -27,11 +28,13 @@ import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.SatelliteMenu;
 
+import org.jspecify.annotations.Nullable;
+
 public class SatellitePipeScreen extends LogisticsBaseGuiScreen<SatelliteMenu> {
 
     private final SatellitePipe satellitePipe;
 
-    private String response = "";
+    private @Nullable SatelliteNamingResult response;
 
     private InputBar input;
 
@@ -60,12 +63,13 @@ public class SatellitePipeScreen extends LogisticsBaseGuiScreen<SatelliteMenu> {
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
-        drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.SatelliteName"), 59, 7, 0xFF404040);
+        drawCenteredString(guiGraphics, Component.translatable(Translations.Screen.SATELLITE_NAME), 59, 7, 0xFF404040);
         String name = TextUtil.getTrimmedString(satellitePipe.getSatellitePipeName(), 100, minecraft.font, "...");
         int yOffset = 0;
-        if (!response.isEmpty()) {
-            drawCenteredString(guiGraphics, TextUtil.translate("gui.satellite.naming_result." + response),
-                panelWidth / 2, 30, response.equals("success") ? 0xFF404040 : 0xFF5c1111);
+        if (response != null) {
+            drawCenteredString(guiGraphics,
+                Component.translatable(Translations.Screen.enumValue("satellite_pipe.naming_result", response)),
+                panelWidth / 2, 30, response == SatelliteNamingResult.SUCCESS ? 0xFF404040 : 0xFF5c1111);
             yOffset = 4;
         }
         drawCenteredString(guiGraphics, name, panelWidth / 2, 24 - yOffset, 0xFF404040);
@@ -99,7 +103,7 @@ public class SatellitePipeScreen extends LogisticsBaseGuiScreen<SatelliteMenu> {
     }
 
     public void handleResponse(SatelliteNamingResult result, String newName) {
-        response = result.toString();
+        response = result;
         if (result == SatelliteNamingResult.SUCCESS) {
             satellitePipe.setSatellitePipeName(newName);
         }

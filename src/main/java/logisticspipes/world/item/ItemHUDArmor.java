@@ -1,6 +1,5 @@
 package logisticspipes.world.item;
 
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -60,10 +59,5 @@ public class ItemHUDArmor extends Item implements IHUDArmor {
     @Override
     public boolean isEnabled(ItemStack item) {
         return true;
-    }
-
-    @Override
-    public Component getName(ItemStack itemstack) {
-        return Component.literal(I18n.get(getDescriptionId() + ".name").trim());
     }
 }

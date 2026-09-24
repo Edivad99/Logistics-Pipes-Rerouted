@@ -3,6 +3,7 @@ package logisticspipes.world.item;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -23,8 +24,9 @@ public class LogisticsSecurityCard extends LogisticsItemCard {
 
     @Override
     protected void appendDetails(ItemStack stack, UUID id, Consumer<Component> tooltipAdder) {
-        tooltipAdder.accept(Component.literal("Authorization: "
-            + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? "Authorized" : "Unauthorized")));
+        tooltipAdder.accept(Component.literal("Authorization: " +
+                (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? "Authorized" : "Unauthorized"))
+            .withStyle(ChatFormatting.GRAY));
     }
 
     @Override

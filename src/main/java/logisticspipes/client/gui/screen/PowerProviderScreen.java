@@ -7,14 +7,13 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.LPConstants;
-import logisticspipes.utils.TextUtil;
+import logisticspipes.Translations;
 import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.inventory.PowerProviderMenu;
 import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
 
 public class PowerProviderScreen extends LogisticsBaseGuiScreen<PowerProviderMenu> {
 
-    private static final String PREFIX = "gui.powerprovider.";
     private static final Identifier TEXTURE = LPConstants.rl("textures/gui/power_junction.png");
     private final LogisticsPowerProviderBlockEntity junction;
 
@@ -38,10 +37,8 @@ public class PowerProviderScreen extends LogisticsBaseGuiScreen<PowerProviderMen
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.text(minecraft.font,
-            TextUtil.translate(PowerProviderScreen.PREFIX + "Logistics" + junction.getBrand() + "PowerProvider"), 25, 8,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(PowerProviderScreen.PREFIX + "StoredEnergy") + ":", 40, 25,
+        guiGraphics.text(minecraft.font, junction.getBlockState().getBlock().getName(), 25, 8, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.STORED_ENERGY).append(":"), 40, 25,
             0xFF404040, false);
         guiGraphics.text(minecraft.font,
             StringUtils.getStringWithSpacesFromInteger(junction.getDisplayPowerLevel()) + " " + junction.getBrand(), 40,

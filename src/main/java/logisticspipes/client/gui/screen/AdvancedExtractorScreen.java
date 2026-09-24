@@ -42,7 +42,7 @@ public class AdvancedExtractorScreen extends ModuleBaseScreen<AdvancedExtractorM
         super.init();
         //Default item toggle:
         addRenderableWidget(new GuiStringHandlerButton(0, width / 2 + 20, height / 2 - 34, 60, 20,
-            () -> itemsIncludedOverlay.get() ? "Included" : "Excluded",
+            () -> Component.literal(itemsIncludedOverlay.get() ? "Included" : "Excluded"),
             () -> itemsIncludedOverlay.write(BooleanProperty::toggle)));
 
         logisticspipes.utils.gui.SmallGuiButton sneaky = new logisticspipes.utils.gui.SmallGuiButton(1, width / 2 - 25,

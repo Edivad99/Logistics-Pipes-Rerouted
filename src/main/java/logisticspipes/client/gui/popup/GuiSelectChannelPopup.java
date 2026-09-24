@@ -5,14 +5,13 @@ import java.util.function.Consumer;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 
+import logisticspipes.Translations;
 import logisticspipes.routing.channels.ChannelInformation;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.SmallGuiButton;
 
 public class GuiSelectChannelPopup extends GuiManageChannelPopup {
-
-    private static final String GUI_LANG_KEY = "gui.popup.selectchannel.";
 
     private final Consumer<ChannelInformation> handleResult;
 
@@ -40,9 +39,8 @@ public class GuiSelectChannelPopup extends GuiManageChannelPopup {
     }
 
     protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"),
-            (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6,
-            0xFFFFFFFF, true);
+        guiGraphics.centeredText(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_SELECT_TITLE),
+            xCenter, guiTop + 6, 0xFFFFFFFF);
     }
 
 }

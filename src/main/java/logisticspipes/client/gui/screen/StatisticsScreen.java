@@ -27,13 +27,13 @@ import org.joml.Vector2f;
 import org.joml.Vector2fc;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.client.gui.popup.GuiAddTracking;
 import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage;
 import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.block.TrackItemMessage;
 import logisticspipes.util.TrackingTask;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -45,7 +45,6 @@ import logisticspipes.world.level.block.entity.LogisticsStatisticsBlockEntity;
 
 public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
 
-    private final String PREFIX = "gui.networkstatistics.";
     private final TabTracker tabTracker = new TabTracker();
     private final TabCrafting tabCrafting = new TabCrafting();
     private final List<StatisticsTab> tabs = Arrays.asList(tabTracker, tabCrafting);
@@ -421,8 +420,8 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
 
         @Override
         public void drawForegroundLayer(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-            guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "amount"), 10, 28,
-                Color.getValue(Color.DARKER_GREY), false);
+            guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.STATISTICS_TRACK_AMOUNT),
+                10, 28, Color.getValue(Color.DARKER_GREY), false);
             if (taskNameLabel != null) {
                 guiGraphics.text(minecraft.font, taskNameLabel, 32, 104, Color.getValue(Color.DARKER_GREY), false);
             }
@@ -605,7 +604,7 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
         @Override
         public void init() {
             SmallGuiButton b6 = new SmallGuiButton(6, leftPos + 10, topPos + 40, 160, 20,
-                TextUtil.translate(PREFIX + "gettasks"));
+                Component.translatable(Translations.Screen.STATISTICS_GET_TASKS));
             b6.setPressListener(b -> ClientPacketDistributor.sendToServer(
                 new RequestRunningCraftingTasksMessage(tile.getBlockPos())));
             BUTTONS.add(addRenderableWidget(b6));
@@ -633,7 +632,7 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
 
         @Override
         public void drawForegroundLayer(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-            guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "crafting"), 10, 28,
+            guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.STATISTICS_CRAFTING), 10, 28,
                 Color.getValue(Color.DARKER_GREY), false);
             // Item tooltip omitted — tab has no hovered-item lookup at this point
         }

@@ -29,6 +29,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.api.provider.IRoutedPowerProvider;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IScreenOpenController;
@@ -191,7 +192,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
                 break;
             case GIVE_ONE:
                 if (!useEnergy(10)) {
-                    player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
+                    player.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
                     return;
                 }
                 if (inv.getIDStackInSlot(0) == null) {
@@ -209,7 +210,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
                 break;
             case GIVE_STACK:
                 if (!useEnergy(640)) {
-                    player.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
+                    player.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
                     return;
                 }
                 ItemStack stack = new ItemStack(LPItems.SECURITY_CARD.get(), 64);
@@ -248,7 +249,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
             return LogisticsSecurityBlockEntity.allowAll;
         }
         if (usePower && !useEnergy(10)) {
-            entityplayer.sendSystemMessage(Component.translatable("lp.misc.noenergy"));
+            entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
             return new SecuritySettings("No Energy");
         }
         SecuritySettings setting = settingsList.get(entityplayer.getName().getString());

@@ -14,6 +14,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
@@ -46,7 +47,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics impl
 			if (settings == null || settings.openGui) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+				entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
 			}
 		}
 		return true;

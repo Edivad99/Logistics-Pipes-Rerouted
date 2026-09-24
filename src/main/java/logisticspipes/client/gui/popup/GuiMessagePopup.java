@@ -1,6 +1,7 @@
 package logisticspipes.client.gui.popup;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -21,6 +22,8 @@ public class GuiMessagePopup extends SubGuiScreen {
                 for (Object oZwei : (Object[]) o) {
                     text[i++] = oZwei.toString();
                 }
+            } else if (o instanceof Component component) {
+                text[i++] = component.getString();
             } else {
                 text[i++] = o.toString();
             }

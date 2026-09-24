@@ -4,14 +4,15 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.IItemAdvancedExistence;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.world.item.component.LPDataComponents;
 
 /**
@@ -36,12 +37,13 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
         Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (!stack.has(LPDataComponents.UUID)) {
-            tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.logisticsItemCard")));
+            tooltipAdder.accept(Component.translatable(Translations.Tooltip.ITEM_CARD_INVALID)
+                .withStyle(ChatFormatting.GRAY));
             return;
         }
         if (Minecraft.getInstance().hasShiftDown()) {
             final UUID id = Objects.requireNonNull(stack.get(LPDataComponents.UUID));
-            tooltipAdder.accept(Component.literal("Id: " + id));
+            tooltipAdder.accept(Component.literal("Id: " + id).withStyle(ChatFormatting.GRAY));
             appendDetails(stack, id, tooltipAdder);
         }
     }

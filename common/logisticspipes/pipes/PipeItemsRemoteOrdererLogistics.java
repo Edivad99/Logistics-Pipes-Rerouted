@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -38,9 +39,9 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
 				if (settings == null || settings.openRequest) {
 					ItemStack orderer = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
 					RemoteOrderer.connectToPipe(orderer, this);
-                    resp = Component.translatable("lp.chat.connectedtopipe").withStyle(ChatFormatting.GREEN);
+                    resp = Component.translatable(Translations.Chat.CONNECTED_TO_PIPE).withStyle(ChatFormatting.GREEN);
 				} else {
-                    resp = Component.translatable("lp.chat.permissiondenied").withStyle(ChatFormatting.RED);
+                    resp = Component.translatable(Translations.Chat.PERMISSION_DENIED).withStyle(ChatFormatting.RED);
 				}
                 entityplayer.sendOverlayMessage(resp);
             }

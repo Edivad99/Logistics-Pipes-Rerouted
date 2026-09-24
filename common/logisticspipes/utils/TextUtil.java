@@ -38,51 +38,25 @@
 package logisticspipes.utils;
 
 import java.text.NumberFormat;
-import java.util.EnumSet;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.locale.Language;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-public final class TextUtil {
+import logisticspipes.Translations;
 
-    private static final String HOLD_SHIFT_TOOLTIP = "misc.holdshift";
+public final class TextUtil {
 
     /** Scale and suffix, largest last; see {@link #getThreeDigitFormattedNumber}. */
     private static final double[] NUMBER_SCALES = { 1e0, 1e3, 1e6, 1e9, 1e12, 1e15, 1e18 };
     private static final String[] NUMBER_PREFIXES = { "", "k", "M", "G", "T", "P", "E" };
 
-    private static final Pattern FORMATTING_PATTERN = Pattern.compile(
-        java.util.Arrays.stream(ChatFormatting.values())
-            .map(formatting -> formatting.getName().toUpperCase(java.util.Locale.ROOT))
-            .collect(Collectors.joining("|", "(\\$)(", ")")));
-
-    // Carried between the steps of one transform() call; see the note there.
-    private static final EnumSet<ChatFormatting> formattingState = EnumSet.noneOf(ChatFormatting.class);
-    private static final EnumSet<ChatFormatting> baseFormattingState = EnumSet.noneOf(ChatFormatting.class);
-
     private TextUtil() {
-    }
-
-    public static String translate(String key, String... args) {
-        return translate(key, EnumSet.noneOf(ChatFormatting.class), "", "", args);
-    }
-
-    public static String translate(String key, EnumSet<ChatFormatting> baseFormatting, String... args) {
-        return translate(key, baseFormatting, "", "", args);
-    }
-
-    public static String translate(String key, EnumSet<ChatFormatting> baseFormatting, String prepend, String append,
-        String... args) {
-        return transform(prepend + I18n.get(key, (Object[]) args) + append, baseFormatting);
     }
 
     public static String getTrimmedString(String text, int maxWidth, Font fontRenderer) {
@@ -145,85 +119,24 @@ public final class TextUtil {
         String descriptionId = stack.getItem().getDescriptionId();
         if (extended) {
             int tooltipLine = 1;
-            while (Language.getInstance().has(descriptionId + ".tip" + tooltipLine)) {
-                tooltip.accept(Component.literal(translate(descriptionId + ".tip" + tooltipLine)));
+            while (Language.getInstance().has(Translations.Tooltip.itemTip(descriptionId, tooltipLine))) {
+                tooltip.accept(Component.translatable(Translations.Tooltip.itemTip(descriptionId, tooltipLine))
+                    .withStyle(ChatFormatting.GRAY));
                 tooltipLine++;
             }
-        } else if (Language.getInstance().has(descriptionId + ".tip1")) {
-            tooltip.accept(Component.literal(translate(HOLD_SHIFT_TOOLTIP)));
-        }
-    }
-
-    /**
-     * Logistics Pipes localization files accept special (more descriptive) formatting tags; this
-     * method turns them into minecraft font renderer compatible tags. baseFormatting will be
-     * preserved over $RESET tags.
-     *
-     * <p>The two formatting sets are shared rather than local, as they were in the Kotlin object:
-     * one transform at a time, on the render thread.
-     *
-     * @param text           to be formatted
-     * @param baseFormatting to be applied at the start of the string and preserved throughout.
-     * @return formatted string ready to be rendered by Minecraft's font renderer.
-     */
-    public static String transform(String text, EnumSet<ChatFormatting> baseFormatting) {
-        baseFormattingState.clear();
-        baseFormattingState.addAll(baseFormatting);
-        formattingState.clear();
-        String result = prependIndent(text, colorTag(baseFormattingState) + formattingTags(baseFormattingState));
-        while (true) {
-            Matcher matcher = FORMATTING_PATTERN.matcher(result);
-            if (!matcher.find()) {
-                return result;
-            }
-            StringBuilder replaced = new StringBuilder();
-            matcher.reset();
-            while (matcher.find()) {
-                matcher.appendReplacement(replaced,
-                    Matcher.quoteReplacement(replacementString(byName(matcher.group()))));
-            }
-            matcher.appendTail(replaced);
-            result = replaced.toString();
+        } else if (Language.getInstance().has(Translations.Tooltip.itemTip(descriptionId, 1))) {
+            tooltip.accept(Component.literal("<")
+                .append(Component.translatable(Translations.Tooltip.HOLD))
+                .append(CommonComponents.SPACE)
+                .append(Component.translatable(Translations.Tooltip.SHIFT).withStyle(ChatFormatting.YELLOW, ChatFormatting.ITALIC))
+                .append(CommonComponents.SPACE)
+                .append(Component.translatable(Translations.Tooltip.FOR_DETAILS))
+                .append(Component.literal(">")).withStyle(ChatFormatting.GRAY));
         }
     }
 
     public static String formatNumberWithCommas(long number) {
         return NumberFormat.getNumberInstance(Minecraft.getInstance().getLanguageManager().getJavaLocale())
             .format(number);
-    }
-
-    /** Kotlin's String.prependIndent, which puts the indent in front of every line. */
-    private static String prependIndent(String text, String indent) {
-        return text.lines().map(line -> indent + line).collect(Collectors.joining("\n"));
-    }
-
-    private static ChatFormatting byName(String value) {
-        return java.util.Objects.requireNonNull(ChatFormatting.getByName(value.toLowerCase(java.util.Locale.ROOT)));
-    }
-
-    private static String replacementString(ChatFormatting formatting) {
-        if (formatting == ChatFormatting.RESET) {
-            formattingState.clear();
-            return formatting + colorTag(baseFormattingState) + formattingTags(baseFormattingState);
-        }
-        if (formatting.isColor()) {
-            formattingState.removeIf(ChatFormatting::isColor);
-        }
-        formattingState.add(formatting);
-        return colorTag(formattingState) + formattingTags(formattingState);
-    }
-
-    private static String colorTag(EnumSet<ChatFormatting> formattings) {
-        return formattings.stream().filter(ChatFormatting::isColor).findFirst()
-            .or(() -> baseFormattingState.stream().filter(ChatFormatting::isColor).findFirst())
-            .map(ChatFormatting::toString)
-            .orElse("");
-    }
-
-    private static String formattingTags(EnumSet<ChatFormatting> formattings) {
-        EnumSet<ChatFormatting> all = EnumSet.copyOf(formattings);
-        all.addAll(baseFormattingState);
-        return all.stream().filter(ChatFormatting::isFormat).map(ChatFormatting::toString)
-            .collect(Collectors.joining());
     }
 }

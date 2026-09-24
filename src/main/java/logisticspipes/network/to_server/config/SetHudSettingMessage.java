@@ -15,6 +15,7 @@ import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.Translations;
 import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.world.item.LPItems;
@@ -63,28 +64,24 @@ public record SetHudSettingMessage(int slot, HudSetting setting, boolean state)
      * One switch on the HUD glasses, and the message shown when it is flipped.
      */
     public enum HudSetting {
-        CHASSIS(IHUDConfig::setChassisHUD, IHUDConfig::isChassisHUD, "chassie"),
-        CRAFTING(IHUDConfig::setHUDCrafting, IHUDConfig::isHUDCrafting, "crafting"),
-        INV_SYS_CON(IHUDConfig::setHUDInvSysCon, IHUDConfig::isHUDInvSysCon, "invsyscon"),
-        POWER_JUNCTION(IHUDConfig::setHUDPowerJunction, IHUDConfig::isHUDPowerLevel, "powerjunction"),
-        PROVIDER(IHUDConfig::setHUDProvider, IHUDConfig::isHUDProvider, "provider"),
-        SATELLITE(IHUDConfig::setHUDSatellite, IHUDConfig::isHUDSatellite, "satellite");
+        CHASSIS(IHUDConfig::setChassisHUD, IHUDConfig::isChassisHUD),
+        CRAFTING(IHUDConfig::setHUDCrafting, IHUDConfig::isHUDCrafting),
+        INV_SYS_CON(IHUDConfig::setHUDInvSysCon, IHUDConfig::isHUDInvSysCon),
+        POWER_JUNCTION(IHUDConfig::setHUDPowerJunction, IHUDConfig::isHUDPowerLevel),
+        PROVIDER(IHUDConfig::setHUDProvider, IHUDConfig::isHUDProvider),
+        SATELLITE(IHUDConfig::setHUDSatellite, IHUDConfig::isHUDSatellite);
 
         private final BiConsumer<IHUDConfig, Boolean> setter;
         private final Predicate<IHUDConfig> getter;
-        private final String translationKey;
 
-        HudSetting(BiConsumer<IHUDConfig, Boolean> setter, Predicate<IHUDConfig> getter,
-            String translationKey) {
+        HudSetting(BiConsumer<IHUDConfig, Boolean> setter, Predicate<IHUDConfig> getter) {
             this.setter = setter;
             this.getter = getter;
-            this.translationKey = translationKey;
         }
 
         void apply(IHUDConfig config, boolean state, Player player) {
             setter.accept(config, state);
-            player.sendSystemMessage(Component.translatable("lp.hud.config." + translationKey
-                + (getter.test(config) ? ".enabled" : ".disabled")));
+            player.sendSystemMessage(Component.translatable(Translations.Chat.hudSetting(this, getter.test(config))));
         }
     }
 }

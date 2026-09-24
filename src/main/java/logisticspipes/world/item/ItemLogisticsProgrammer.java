@@ -3,6 +3,7 @@ package logisticspipes.world.item;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -14,7 +15,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 
-import logisticspipes.utils.TextUtil;
+import logisticspipes.Translations;
 import logisticspipes.world.item.component.LPDataComponents;
 
 public class ItemLogisticsProgrammer extends LogisticsItem {
@@ -45,29 +46,28 @@ public class ItemLogisticsProgrammer extends LogisticsItem {
                 if (!target.isEmpty()) {
                     Item targetItem = BuiltInRegistries.ITEM.getValue(Identifier.parse(target));
                     if (targetItem instanceof ItemModule) {
-                        tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForModule")));
-                        tooltipAdder.accept(
-                            Component.literal(TextUtil.translate(targetItem.getDescriptionId() + ".name")));
+                        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_MODULE));
+                        tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()));
                     } else if (targetItem instanceof ItemUpgrade) {
-                        tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForUpgrade")));
-                        tooltipAdder.accept(
-                            Component.literal(TextUtil.translate(targetItem.getDescriptionId() + ".name")));
+                        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_UPGRADE));
+                        tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()));
                     } else if (targetItem instanceof ItemLogisticsPipe) {
-                        tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForPipe")));
-                        tooltipAdder.accept(
-                            Component.literal(TextUtil.translate(targetItem.getDescriptionId() + ".name")));
+                        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_PIPE));
+                        tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()));
                     } else {
-                        tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForUnknown.1")));
-                        tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForUnknown.2")));
-                        tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForUnknown.3")));
+                        addEmptyTooltip(tooltipAdder);
                     }
                 }
             } else {
-                tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForUnknown.1")));
-                tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForUnknown.2")));
-                tooltipAdder.accept(Component.literal(TextUtil.translate("tooltip.programmerForUnknown.3")));
+                addEmptyTooltip(tooltipAdder);
             }
         }
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
+    }
+
+    private static void addEmptyTooltip(Consumer<Component> tooltipAdder) {
+        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_EMPTY_1).withStyle(ChatFormatting.RED));
+        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_EMPTY_2).withStyle(ChatFormatting.RED));
+        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_EMPTY_3).withStyle(ChatFormatting.RED));
     }
 }

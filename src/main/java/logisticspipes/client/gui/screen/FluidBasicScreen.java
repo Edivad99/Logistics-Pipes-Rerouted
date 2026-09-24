@@ -5,7 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Items;
 
-import logisticspipes.utils.TextUtil;
+import logisticspipes.Translations;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.inventory.FluidSinkMenu;
@@ -32,7 +32,8 @@ public class FluidBasicScreen extends LogisticsBaseGuiScreen<FluidSinkMenu> {
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
         if (getMenu().getSlot(0).getItem().is(Items.AIR)) {
-            guiGraphics.text(minecraft.font, TextUtil.translate("gui.fluidbasic.Empty"), 50, 18, 0xFF404040, false);
+            guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.FLUID_BASIC_EMPTY),
+                50, 18, 0xFF404040, false);
         } else {
             guiGraphics.text(minecraft.font, ItemIdentifier.get(getMenu().getSlot(0).getItem()).getFriendlyName(), 50,
                 18, 0xFF404040, false);

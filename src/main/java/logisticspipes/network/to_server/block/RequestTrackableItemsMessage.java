@@ -17,6 +17,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.Translations;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -49,7 +50,7 @@ public record RequestTrackableItemsMessage(BlockPos pos) implements CustomPacket
         }
         final CoreRoutedPipe pipe = be.getConnectedPipe();
         if (pipe == null) {
-            player.sendSystemMessage(Component.translatable("gui.networkstatistics.nopipe")
+            player.sendSystemMessage(Component.translatable(Translations.Chat.NO_PIPE_NEXT_TO_TABLE)
                 .withStyle(ChatFormatting.RED));
             return;
         }

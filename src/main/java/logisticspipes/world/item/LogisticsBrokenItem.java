@@ -6,8 +6,6 @@ import logisticspipes.interfaces.IItemAdvancedExistence;
 
 public class LogisticsBrokenItem extends LogisticsItem implements IItemAdvancedExistence {
 
-    private static final String PREFIX = "tooltip.brokenItem.";
-
     public LogisticsBrokenItem(Properties properties) {
         super(properties);
     }
@@ -21,12 +19,4 @@ public class LogisticsBrokenItem extends LogisticsItem implements IItemAdvancedE
     public boolean canExistInWorld(ItemStack stack) {
         return false;
     }
-
-    //	@Override
-    //	
-    //	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag flagIn) {
-    //		tooltip.add(net.minecraft.network.chat.Component.literal(" - " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "1")));
-    //		tooltip.add(net.minecraft.network.chat.Component.literal(" - " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "2")));
-    //		tooltip.add(net.minecraft.network.chat.Component.literal("    " + TextUtil.translate(LogisticsBrokenItem.PREFIX + "3")));
-    //	}
 }

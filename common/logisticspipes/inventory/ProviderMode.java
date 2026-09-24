@@ -39,21 +39,16 @@ package logisticspipes.inventory;
 
 /** The constants are saved/restored by their ordinal, so the order is part of the save format. */
 public enum ProviderMode {
-    DEFAULT("Normal", false, false, 0, 0),
-    LEAVE_FIRST("LeaveFirst", false, false, 1, 0),
-    LEAVE_LAST("LeaveLast", false, false, 0, 1),
-    LEAVE_FIRST_AND_LAST("LeaveFirstAndLast", false, false, 1, 1),
-    LEAVE_ONE_PER_STACK("Leave1PerStack", true, false, 0, 0),
-    LEAVE_ONE_PER_TYPE("Leave1PerType", false, true, 0, 0);
+    DEFAULT(false, false, 0, 0), LEAVE_FIRST(false, false, 1, 0), LEAVE_LAST(false, false, 0, 1),
+    LEAVE_FIRST_AND_LAST(false, false, 1, 1), LEAVE_ONE_PER_STACK(true, false, 0, 0),
+    LEAVE_ONE_PER_TYPE(false, true, 0, 0);
 
-    private final String modeTranslationKey;
     private final boolean hideOnePerStack;
     private final boolean hideOnePerType;
     private final int cropStart;
     private final int cropEnd;
 
-    ProviderMode(String translationName, boolean hideOnePerStack, boolean hideOnePerType, int cropStart, int cropEnd) {
-        this.modeTranslationKey = "misc.extractionmode." + translationName;
+    ProviderMode(boolean hideOnePerStack, boolean hideOnePerType, int cropStart, int cropEnd) {
         this.hideOnePerStack = hideOnePerStack;
         this.hideOnePerType = hideOnePerType;
         this.cropStart = cropStart;
@@ -63,10 +58,6 @@ public enum ProviderMode {
     public static ProviderMode modeFromIntSafe(int id) {
         ProviderMode[] modes = values();
         return id >= 0 && id < modes.length ? modes[id] : DEFAULT;
-    }
-
-    public String getModeTranslationKey() {
-        return modeTranslationKey;
     }
 
     public boolean getHideOnePerStack() {

@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.Translations;
 import logisticspipes.client.gui.popup.GuiEditCCAccessTable;
 import logisticspipes.client.gui.popup.GuiSecurityStationPopup;
 import logisticspipes.interfaces.PlayerListReceiver;
@@ -26,7 +27,6 @@ import logisticspipes.network.to_server.security.ToggleSecurityStationFlagMessag
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -40,7 +40,6 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
 
     //Player name:
     protected static final int searchWidth = 250;
-    private static final String PREFIX = "gui.securitystation.";
     protected final String title = "Request items";
     private final LogisticsSecurityBlockEntity tile;
     private final List<String> players = new LinkedList<>();
@@ -91,7 +90,7 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
         addRenderableWidget(btnPlusPlus);
         btnPlusPlus.visible = false;
         btnOpen = new SmallGuiButton(4, leftPos + 241, topPos + 217, 30, 10,
-            TextUtil.translate(SecurityStationScreen.PREFIX + "Open"));
+            Component.translatable(Translations.Screen.OPEN));
         btnOpen.setPressListener(b -> {
             if (!searchBar.getValue().isEmpty()) {
                 ClientPacketDistributor.sendToServer(
@@ -108,7 +107,7 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
         });
         addRenderableWidget(checkAllowCC);
         btnEditTable = new SmallGuiButton(6, leftPos + 162, topPos + 60, 60, 10,
-            TextUtil.translate(SecurityStationScreen.PREFIX + "EditTable"));
+            Component.translatable(Translations.Screen.SECURITY_STATION_EDIT_TABLE));
         btnEditTable.setPressListener(b -> {
             setSubGui(new GuiEditCCAccessTable(tile));
             ClientPacketDistributor.sendToServer(new RequestSecurityStationCCIdsMessage(tile.getBlockPos()));
@@ -120,7 +119,7 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
             btnEditTable.visible = false;
         }
         btnAuthorize = new SmallGuiButton(7, leftPos + 55, topPos + 95, 70, 20,
-            TextUtil.translate(SecurityStationScreen.PREFIX + "Authorize"));
+            Component.translatable(Translations.Screen.SECURITY_STATION_AUTHORIZE));
         btnAuthorize.setPressListener(b -> {
             ClientPacketDistributor.sendToServer(
                 new SetSecurityStationAuthorizedMessage(tile.getBlockPos(), true));
@@ -128,7 +127,7 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
         });
         addRenderableWidget(btnAuthorize);
         btnDeauthorize = new SmallGuiButton(8, leftPos + 175, topPos + 95, 70, 20,
-            TextUtil.translate(SecurityStationScreen.PREFIX + "Deauthorize"));
+            Component.translatable(Translations.Screen.SECURITY_STATION_DEAUTHORIZE));
         btnDeauthorize.setPressListener(b -> {
             ClientPacketDistributor.sendToServer(
                 new SetSecurityStationAuthorizedMessage(tile.getBlockPos(), false));
@@ -144,7 +143,7 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
         });
         addRenderableWidget(checkAutoDestroy);
         btnChannelManager = new SmallGuiButton(10, leftPos + 177, topPos + 230, 95, 20,
-            TextUtil.translate(SecurityStationScreen.PREFIX + "ChannelManager"));
+            Component.translatable(Translations.Screen.SECURITY_STATION_CHANNEL_MANAGER));
         btnChannelManager.setPressListener(
             b -> ClientPacketDistributor.sendToServer(new RequestChannelManagerMessage(tile.getBlockPos())));
         addRenderableWidget(btnChannelManager);
@@ -202,23 +201,25 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.text(font, TextUtil.translate(SecurityStationScreen.PREFIX + "SecurityStation"), 105, 10,
+        guiGraphics.text(font, Component.translatable(Translations.Screen.SECURITY_STATION_TITLE), 105, 10,
             0xFF404040, false);
         guiGraphics.text(font, tile.getSecId() == null ? "null" : tile.getSecId().toString(), 32, 25, 0xFF404040,
             false);
         if (LogisticsPipes.isDEBUG()) {
-            guiGraphics.text(font, TextUtil.translate(SecurityStationScreen.PREFIX + "allowCCAccess") + ":", 10, 46,
-                0xFF404040, false);
-            guiGraphics.text(font, TextUtil.translate(SecurityStationScreen.PREFIX + "excludeIDs") + ":", 10, 61,
-                0xFF404040, false);
+            guiGraphics.text(font,
+                Component.translatable(Translations.Screen.SECURITY_STATION_ALLOW_CC_ACCESS).append(":"),
+                10, 46, 0xFF404040, false);
+            guiGraphics.text(font,
+                Component.translatable(Translations.Screen.SECURITY_STATION_EXCLUDED_IDS).append(":"),
+                10, 61, 0xFF404040, false);
         }
-        guiGraphics.text(font, TextUtil.translate(SecurityStationScreen.PREFIX + "pipeRemove") + ":", 10, 78,
-            0xFF404040, false);
-        guiGraphics.text(font, TextUtil.translate(SecurityStationScreen.PREFIX + "Player") + ":", 180, 127, 0xFF404040,
-            false);
-        guiGraphics.text(font, TextUtil.translate(SecurityStationScreen.PREFIX + "SecurityCards") + ":", 10, 127,
-            0xFF404040, false);
-        guiGraphics.text(font, TextUtil.translate(SecurityStationScreen.PREFIX + "Inventory") + ":", 10, 163,
+        guiGraphics.text(font, Component.translatable(Translations.Screen.SECURITY_STATION_PIPE_REMOVE).append(":"),
+            10, 78, 0xFF404040, false);
+        guiGraphics.text(font, Component.translatable(Translations.Screen.SECURITY_STATION_PLAYER).append(":"),
+            180, 127, 0xFF404040, false);
+        guiGraphics.text(font, Component.translatable(Translations.Screen.SECURITY_STATION_SECURITY_CARDS).append(":"),
+            10, 127, 0xFF404040, false);
+        guiGraphics.text(font, Component.translatable(Translations.Screen.INVENTORY).append(":"), 10, 163,
             0xFF404040, false);
 
         int pos = bottom - topPos - 95;

@@ -31,11 +31,19 @@ public class SmallGuiButton extends AbstractButton {
 	private Consumer<SmallGuiButton> pressListener = b -> {};
 
 	public SmallGuiButton(int buttonId, int x, int y, int width, int height, String label) {
+		this(buttonId, x, y, width, height, Component.literal(label), 0);
+	}
+
+	public SmallGuiButton(int buttonId, int x, int y, int width, int height, Component label) {
 		this(buttonId, x, y, width, height, label, 0);
 	}
 
 	public SmallGuiButton(int buttonId, int x, int y, int width, int height, String label, int offset) {
-		super(x, y, width, height, Component.literal(label));
+		this(buttonId, x, y, width, height, Component.literal(label), offset);
+	}
+
+	public SmallGuiButton(int buttonId, int x, int y, int width, int height, Component label, int offset) {
+		super(x, y, width, height, label);
 		this.id = buttonId;
 		this.stringOffset = offset;
 	}

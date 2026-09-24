@@ -36,6 +36,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
+import logisticspipes.Translations;
 import logisticspipes.entity.FakePlayers;
 import logisticspipes.interfaces.ICraftingRecipeGrid;
 import logisticspipes.interfaces.IPipeMenuProvider;
@@ -132,7 +133,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 			if (settings == null || settings.openGui) {
 				openGui(entityplayer);
 			} else {
-				entityplayer.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+				entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
 			}
 		}
 		return true;

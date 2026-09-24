@@ -5,13 +5,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 
+import logisticspipes.Translations;
 import logisticspipes.routing.channels.ChannelInformation;
-import logisticspipes.utils.TextUtil;
 
 public class GuiEditChannelPopup extends GuiAddChannelPopup {
 
-    private static final String GUI_LANG_KEY = "gui.popup.editchannel.";
     private final UUID channelIdentifier;
     private final ChannelInformation toInit;
 
@@ -46,17 +46,16 @@ public class GuiEditChannelPopup extends GuiAddChannelPopup {
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractGuiBackground(guiGraphics, mouseX, mouseY);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "owner") + ": ", guiLeft + 10, guiTop + 115,
-            0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_OWNER).append(": "),
+            guiLeft + 10, guiTop + 115, 0xFF404040, false);
         guiGraphics.text(minecraft.font, toInit.getOwner().getUsername(), guiLeft + 10, guiTop + 127, 0xFF404040,
             false);
     }
 
     @Override
     protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"),
-            (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6,
-            0xFFFFFFFF, true);
+        guiGraphics.centeredText(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_EDIT_TITLE),
+            xCenter, guiTop + 6, 0xFFFFFFFF);
     }
 
 }

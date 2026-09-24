@@ -7,12 +7,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
 
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.pipe.ToggleDisconnectionUpgradeSideMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ConnectionUpgradeConfig;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -21,7 +22,6 @@ import logisticspipes.utils.gui.sideconfig.SideConfigDisplay;
 
 public class DisconnectionConfigurationPopup extends SubGuiScreen {
 
-    private static final String PREFIX = "gui.pipecontroller.popup.";
     private final CoreRoutedPipe pipe;
     private final UpgradeSlot pos;
     private SideConfigDisplay configDisplay;
@@ -79,7 +79,8 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.fill(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height, 0xff000000);
 
-        guiGraphics.text(minecraft.font, TextUtil.translate(PREFIX + "disconnectTitle"), guiLeft + 8, guiTop + 8,
+        guiGraphics.text(minecraft.font,
+            Component.translatable(Translations.Screen.PIPE_CONTROLLER_DISCONNECTION_TITLE), guiLeft + 8, guiTop + 8,
             logisticspipes.utils.Color.getValue(logisticspipes.utils.Color.DARKER_GREY), false);
 
         configDisplay.submit(guiGraphics, sceneRect());

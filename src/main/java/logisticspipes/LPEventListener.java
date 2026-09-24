@@ -55,6 +55,7 @@ import net.neoforged.neoforgespi.language.IModInfo;
 
 import vazkii.patchouli.api.PatchouliAPI;
 
+import logisticspipes.Translations;
 import logisticspipes.config.ClientConfiguration;
 import logisticspipes.config.PlayerConfiguration;
 import logisticspipes.interfaces.IItemAdvancedExistence;
@@ -72,7 +73,6 @@ import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.string.ChatColor;
 
 public class LPEventListener {
@@ -143,7 +143,8 @@ public class LPEventListener {
                 if (tileGenericPipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
                     if (!coreRoutedPipe.canBeDestroyedByPlayer(event.getEntity())) {
                         event.setCanceled(true);
-                        event.getEntity().sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+                        event.getEntity()
+                            .sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
                         tileGenericPipe.scheduleNeighborChange();
                         BlockPos pos = tileGenericPipe.getBlockPos();
                         BlockState state = level.getBlockState(pos);
@@ -333,10 +334,12 @@ public class LPEventListener {
                 list.set(0, Component.literal(ChatColor.RED + "!!! " + ChatColor.WHITE)
                     .append(list.get(0))
                     .append(Component.literal(ChatColor.RED + " !!!" + ChatColor.WHITE)));
-                list.add(1, Component.translatable("itemstackinfo.lprouteditem"));
-                list.add(2, Component.translatable("itemstackinfo.lproutediteminfo"));
-                list.add(3, Component.literal(
-                    TextUtil.translate("itemstackinfo.lprouteditemtype") + ": " + info.getItem()));
+                list.add(1,
+                    Component.translatable(Translations.Tooltip.ROUTED_ITEM).withStyle(ChatFormatting.RED));
+                list.add(2,
+                    Component.translatable(Translations.Tooltip.ROUTED_ITEM_INFO).withStyle(ChatFormatting.YELLOW));
+                list.add(3,
+                    Component.translatable(Translations.Tooltip.ROUTED_ITEM_STORED, String.valueOf(info.getItem())));
             }
         }
     }

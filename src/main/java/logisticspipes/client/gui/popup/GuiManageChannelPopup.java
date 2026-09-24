@@ -7,16 +7,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.IGUIChannelInformationReceiver;
 import logisticspipes.network.to_server.channel.DeleteChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -24,8 +25,6 @@ import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
 public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelInformationReceiver {
-
-    private static final String GUI_LANG_KEY = "gui.popup.managechannel.";
 
     protected final List<ChannelInformation> channelList;
     protected final TextListDisplay textList;
@@ -78,11 +77,11 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
         delBtn.setPressListener(b -> {
             int selected = textList.getSelected();
             if (selected >= 0) {
-                this.setSubGui(new ActionChoicePopup(TextUtil.translate(GUI_LANG_KEY + "deletedialog.title"),
-                    TextUtil.translate(GUI_LANG_KEY + "deletedialog.yes"), () ->
+                this.setSubGui(new ActionChoicePopup(Component.translatable(Translations.Screen.CHANNEL_DELETE_CONFIRM),
+                    Component.translatable(Translations.Screen.YES), () ->
                     ClientPacketDistributor.sendToServer(
                         new DeleteChannelMessage(channelList.get(selected).getChannelIdentifier())),
-                    TextUtil.translate(GUI_LANG_KEY + "deletedialog.no"), () -> {}));
+                    Component.translatable(Translations.Screen.NO), () -> {}));
             }
         });
         addRenderableWidget(delBtn);
@@ -117,9 +116,8 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
     }
 
     protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"),
-            (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6,
-            0xFFFFFFFF, true);
+        guiGraphics.centeredText(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_MANAGE_TITLE),
+            xCenter, guiTop + 6, 0xFFFFFFFF);
     }
 
     @Override

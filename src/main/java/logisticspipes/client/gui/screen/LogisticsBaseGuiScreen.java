@@ -38,13 +38,13 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import logisticspipes.LPConstants;
+import logisticspipes.Translations;
 import logisticspipes.api.property.IBitSet;
 import logisticspipes.interfaces.IFuzzySlot;
 import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.utils.FuzzyUtil;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.IGuiAccess;
 import logisticspipes.utils.gui.IItemTextureRenderSlot;
 import logisticspipes.utils.gui.IRenderSlot;
@@ -95,7 +95,6 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
     private AbstractWidget selectedButton;
     private int currentDrawScreenMouseX;
     private int currentDrawScreenMouseY;
-    private static final String FUZZY_LABEL_PREFIX = "gui.crafting.";
     private static final int FUZZY_LINE_HEIGHT = 10;
 
     private @Nullable IFuzzySlot fuzzySlot;
@@ -371,7 +370,8 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
                         true, true, true, true, true);
                     for (int i = 0; i < offered.size(); i++) {
                         final FuzzyFlag flag = offered.get(i);
-                        guiGraphics.text(minecraft.font, TextUtil.translate(FUZZY_LABEL_PREFIX + labelOf(flag)),
+                        guiGraphics.text(minecraft.font,
+                            Component.translatable(Translations.Screen.enumValue("fuzzy", flag)),
                             posX + 5, posY + 5 + i * FUZZY_LINE_HEIGHT,
                             FuzzyUtil.get(set, flag) ? colorOf(flag) : 0xFF404040, false);
                     }
@@ -413,15 +413,6 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
 
     private static int fuzzyPanelHeight(IFuzzySlot slot) {
         return offeredFlags(slot).size() * FUZZY_LINE_HEIGHT + 7;
-    }
-
-    private static String labelOf(FuzzyFlag flag) {
-        return switch (flag) {
-            case USE_ORE_DICT -> "OreDict";
-            case IGNORE_DAMAGE -> "IgnDamage";
-            case IGNORE_NBT -> "IgnNBT";
-            case USE_ORE_CATEGORY -> "OrePrefix";
-        };
     }
 
     private static int colorOf(FuzzyFlag flag) {
@@ -708,6 +699,11 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
     }
 
     public void drawCenteredString(GuiGraphicsExtractor guiGraphics, String text, int x, int y, int color) {
+        int actualX = x - minecraft.font.width(text) / 2;
+        guiGraphics.text(minecraft.font, text, actualX, y, color, false);
+    }
+
+    public void drawCenteredString(GuiGraphicsExtractor guiGraphics, Component text, int x, int y, int color) {
         int actualX = x - minecraft.font.width(text) / 2;
         guiGraphics.text(minecraft.font, text, actualX, y, color, false);
     }

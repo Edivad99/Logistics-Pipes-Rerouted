@@ -8,13 +8,14 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.routing.channels.ChannelInformation;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -23,7 +24,6 @@ import logisticspipes.utils.gui.SubGuiScreen;
 
 public class GuiAddChannelPopup extends SubGuiScreen {
 
-    private static final String GUI_LANG_KEY = "gui.popup.addchannel.";
     protected final UUID responsibleSecurityID;
     protected @Nullable InputBar textInput = null;
     protected @Nullable GuiCheckBox checkPublic = null;
@@ -68,7 +68,7 @@ public class GuiAddChannelPopup extends SubGuiScreen {
         addRenderableWidget(checkPrivate);
 
         SmallGuiButton saveBtn = new SmallGuiButton(4, guiLeft + 58, saveButtonY(), 50, 10,
-            TextUtil.translate(GUI_LANG_KEY + "save"));
+            Component.translatable(Translations.Screen.SAVE));
         saveBtn.setPressListener(b -> {
             ClientPacketDistributor.sendToServer(new SaveChannelMessage(
                 channelToSave(), this.textInput.getValue().trim(), selectedRights(),
@@ -135,22 +135,21 @@ public class GuiAddChannelPopup extends SubGuiScreen {
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
         drawTitle(guiGraphics);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "name"), guiLeft + 10, guiTop + 20,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "access") + ":", guiLeft + 10, guiTop + 55,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "public"), guiLeft + 10, guiTop + 70,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "security"), guiLeft + 10, guiTop + 85,
-            responsibleSecurityID != null ? 0xFF404040 : 0xFF808080, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "private"), guiLeft + 10, guiTop + 100,
-            0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_NAME),
+            guiLeft + 10, guiTop + 20, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_ACCESS).append(":"),
+            guiLeft + 10, guiTop + 55, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_ACCESS_PUBLIC),
+            guiLeft + 10, guiTop + 70, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_ACCESS_SECURITY),
+            guiLeft + 10, guiTop + 85, responsibleSecurityID != null ? 0xFF404040 : 0xFF808080, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_ACCESS_PRIVATE),
+            guiLeft + 10, guiTop + 100, 0xFF404040, false);
     }
 
     protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"),
-            xCenter - minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2, guiTop + 6, 0xFFFFFFFF,
-            true);
+        guiGraphics.centeredText(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_ADD_TITLE),
+            xCenter, guiTop + 6, 0xFFFFFFFF);
     }
 
     @Override

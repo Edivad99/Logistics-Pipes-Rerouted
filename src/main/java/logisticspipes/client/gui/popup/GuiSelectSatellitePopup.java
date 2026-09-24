@@ -8,13 +8,14 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
 
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.pipe.RequestSatellitePipeListMessage;
 import logisticspipes.pipes.SatelliteEntry;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -24,7 +25,6 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
 
     private final Consumer<@Nullable UUID> handleResult;
     private final TextListDisplay textList;
-    String GUI_LANG_KEY = "gui.popup.selectsatellite.";
     private List<SatelliteEntry> pipeList = List.of();
 
     public GuiSelectSatellitePopup(BlockPos pos, boolean fluidSatellites, Consumer<@Nullable UUID> handleResult) {
@@ -51,16 +51,15 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
     }
 
     protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
-        guiGraphics.text(minecraft.font, TextUtil.translate(GUI_LANG_KEY + "title"),
-            (int) (xCenter - (minecraft.font.width(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f)), guiTop + 6,
-            0xFFFFFFFF, true);
+        guiGraphics.centeredText(minecraft.font, Component.translatable(Translations.Screen.SATELLITE_SELECT_TITLE),
+            xCenter, guiTop + 6, 0xFFFFFFFF);
     }
 
     @Override
     public void init() {
         super.init();
         SmallGuiButton sel = new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10,
-            TextUtil.translate(GUI_LANG_KEY + "select"));
+            Component.translatable(Translations.Screen.SELECT));
         sel.setPressListener(b -> {
             int selected = textList.getSelected();
             if (selected >= 0) {
@@ -70,11 +69,11 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
         });
         addRenderableWidget(sel);
         SmallGuiButton ex = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10,
-            TextUtil.translate(GUI_LANG_KEY + "exit"));
+            Component.translatable(Translations.Screen.SATELLITE_SELECT_EXIT));
         ex.setPressListener(b -> exitGui());
         addRenderableWidget(ex);
         SmallGuiButton unset = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10,
-            TextUtil.translate(GUI_LANG_KEY + "unset"));
+            Component.translatable(Translations.Screen.SATELLITE_SELECT_UNSET));
         unset.setPressListener(b -> {
             handleResult.accept(null);
             exitGui();

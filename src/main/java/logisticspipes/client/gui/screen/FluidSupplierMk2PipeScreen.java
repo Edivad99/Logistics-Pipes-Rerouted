@@ -12,19 +12,17 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.to_server.pipe.ChangeFluidSupplierAmountMessage;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.FluidSupplierMk2Menu;
 
 public class FluidSupplierMk2PipeScreen extends LogisticsBaseGuiScreen<FluidSupplierMk2Menu> {
-
-    private static final String PREFIX = "gui.fluidsuppliermk2.";
 
     private final PipeFluidSupplierMk2 logic;
 
@@ -36,17 +34,20 @@ public class FluidSupplierMk2PipeScreen extends LogisticsBaseGuiScreen<FluidSupp
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.text(minecraft.font, TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "TargetInv"),
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.FLUID_SUPPLIER_MK2_TARGET),
             panelWidth / 2
-                - minecraft.font.width(TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "TargetInv")) / 2, 6,
+                - minecraft.font.width(Component.translatable(Translations.Screen.FLUID_SUPPLIER_MK2_TARGET)) / 2, 6,
             0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "Inventory"), 15,
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.INVENTORY), 15,
             panelHeight - 95, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "Fluid") + ":", 25, 22,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "Partial") + ":",
+        guiGraphics.text(minecraft.font,
+            Component.translatable(Translations.Screen.FLUID_SUPPLIER_MK2_FLUID).append(":"),
+            25, 22, 0xFF404040, false);
+        guiGraphics.text(minecraft.font,
+            Component.translatable(Translations.Screen.FLUID_SUPPLIER_MK2_PARTIAL).append(":"),
             panelWidth - 176, panelHeight - 109, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "minMode") + ":",
+        guiGraphics.text(minecraft.font,
+            Component.translatable(Translations.Screen.FLUID_SUPPLIER_MK2_MIN_MODE).append(":"),
             panelWidth - 108, panelHeight - 109, 0xFF404040, false);
         guiGraphics.text(minecraft.font, Integer.toString(logic.getAmount()), panelWidth / 2, 22, 0xFF404040, false);
         guiGraphics.text(minecraft.font, "+", 32, 39, 0xFF404040, false);
@@ -70,28 +71,25 @@ public class FluidSupplierMk2PipeScreen extends LogisticsBaseGuiScreen<FluidSupp
     public void init() {
         super.init();
         SmallGuiButton partialsBtn = new SmallGuiButton(0, width / 2 - 48, topPos + panelHeight - 115, 30, 20,
-            logic.isRequestingPartials() ?
-                TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "Yes") :
-                TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "No"));
+            Component.translatable(logic.isRequestingPartials() ? Translations.Screen.YES : Translations.Screen.NO));
         partialsBtn.setPressListener(b -> {
             logic.setRequestingPartials(!logic.isRequestingPartials());
-            b.setMessage(Component.literal(logic.isRequestingPartials() ?
-                TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "Yes") :
-                TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + "No")));
+            b.setMessage(Component.translatable(logic.isRequestingPartials() ?
+                Translations.Screen.YES :
+                Translations.Screen.NO));
             ClientPacketDistributor.sendToServer(
                 new FluidSupplierPartialsMessage(logic.getPos(), logic.isRequestingPartials()));
         });
         addRenderableWidget(partialsBtn);
         SmallGuiButton minModeBtn = new SmallGuiButton(1, width / 2 + 30, topPos + panelHeight - 115, 55, 20,
-            TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + logic.getMinMode().name()));
+            minModeLabel());
         minModeBtn.setPressListener(b -> {
             int index = logic.getMinMode().ordinal() + 1;
             if (index >= MinMode.values().length) {
                 index = 0;
             }
             logic.setMinMode(MinMode.values()[index]);
-            b.setMessage(
-                Component.literal(TextUtil.translate(FluidSupplierMk2PipeScreen.PREFIX + logic.getMinMode().name())));
+            b.setMessage(minModeLabel());
             ClientPacketDistributor.sendToServer(new FluidSupplierMinModeMessage(logic.getPos(), logic.getMinMode()));
         });
         addRenderableWidget(minModeBtn);
@@ -109,6 +107,11 @@ public class FluidSupplierMk2PipeScreen extends LogisticsBaseGuiScreen<FluidSupp
                 addRenderableWidget(amtBtn);
             }
         }
+    }
+
+    private Component minModeLabel() {
+        return Component.translatable(
+            Translations.Screen.enumValue("fluid_supplier_mk2.min_amount", logic.getMinMode()));
     }
 
     @Override

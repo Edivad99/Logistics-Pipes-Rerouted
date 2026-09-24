@@ -20,6 +20,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import lombok.Getter;
 
+import logisticspipes.Translations;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.IntListProperty;
 import logisticspipes.api.property.IntegerProperty;
@@ -42,8 +43,6 @@ import logisticspipes.utils.gui.extension.GuiExtension;
 import logisticspipes.world.inventory.CraftingModuleMenu;
 
 public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
-
-    private static final String PREFIX = "gui.crafting.";
 
     @Getter
     private final ModuleCrafter craftingModule;
@@ -131,12 +130,12 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
                 extension = new FluidCraftingExtension(0);
             }
             addRenderableWidget(normalButtonArray[0] = new SmallGuiButton(0, (width - panelWidth) / 2 + 125,
-                (height - panelHeight) / 2 + 57, 37, 10, TextUtil.translate(PREFIX + "Select")));
+                (height - panelHeight) / 2 + 57, 37, 10, Component.translatable(Translations.Screen.SELECT)));
             normalButtonArray[0].active = craftingModule.getSlot().isInWorld();
             addRenderableWidget(normalButtonArray[1] = new SmallGuiButton(3, (width - panelWidth) / 2 + 39,
-                (height - panelHeight) / 2 + 50, 37, 10, TextUtil.translate(CraftingPipeScreen.PREFIX + "Import")));
+                (height - panelHeight) / 2 + 50, 37, 10, Component.translatable(Translations.Screen.IMPORT)));
             addRenderableWidget(normalButtonArray[2] = new SmallGuiButton(4, (width - panelWidth) / 2 + 6,
-                (height - panelHeight) / 2 + 50, 28, 10, TextUtil.translate(CraftingPipeScreen.PREFIX + "Open")));
+                (height - panelHeight) / 2 + 50, 28, 10, Component.translatable(Translations.Screen.OPEN)));
             addRenderableWidget(normalButtonArray[3] = new SmallGuiButton(20, (width - panelWidth) / 2 + 155,
                 (height - panelHeight) / 2 + 85, 10, 10, ">"));
             addRenderableWidget(normalButtonArray[4] = new SmallGuiButton(21, (width - panelWidth) / 2 + 120,
@@ -144,7 +143,7 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
             if (liquidCrafter != 0) {
                 extension.registerButton(extensionControllerLeft.registerControlledButton(addRenderableWidget(
                     normalButtonArray[5] = new SmallGuiButton(22, leftPos - (liquidCrafter * 40) / 2 - 18, topPos + 158,
-                        37, 10, TextUtil.translate(PREFIX + "Select")))));
+                        37, 10, Component.translatable(Translations.Screen.SELECT)))));
             }
             satellitePipeLabel = new Label(craftingModule.clientSideSatelliteNames.satelliteName(), 115, 43, 55,
                 0xFF404040, 0xff8b8b8b);
@@ -152,16 +151,16 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
             for (int i = 0; i < 9; i++) {
                 addRenderableWidget(
                     advancedSatButtonArray[i][0] = new SmallGuiButton(30 + i, (width - panelWidth) / 2 + 9 + 18 * i,
-                        (height - panelHeight) / 2 + 75, 17, 10, TextUtil.translate(PREFIX + "Sel")));
+                        (height - panelHeight) / 2 + 75, 17, 10,
+                        Component.translatable(Translations.Screen.CRAFTING_SELECT_SHORT)));
                 satellitePipeLabels[i] = new VerticalLabel(
                     craftingModule.clientSideSatelliteNames.advancedSatelliteNames().get(i), 11 + (i * 18), 37, 36,
                     0xFF404040, 0xffc6c6c6);
             }
             addRenderableWidget(normalButtonArray[1] = new SmallGuiButton(3, (width - panelWidth) / 2 + 39,
-                (height - panelHeight) / 2 + 100, 37, 10, TextUtil.translate(CraftingPipeScreen.PREFIX + "Import")));
+                (height - panelHeight) / 2 + 100, 37, 10, Component.translatable(Translations.Screen.IMPORT)));
             addRenderableWidget(normalButtonArray[2] = new SmallGuiButton(4, (width - panelWidth) / 2 + 6,
-                (height - panelHeight) / 2 + 100, 28, 10, TextUtil
-                .translate(CraftingPipeScreen.PREFIX + "Open")));
+                (height - panelHeight) / 2 + 100, 28, 10, Component.translatable(Translations.Screen.OPEN)));
             addRenderableWidget(normalButtonArray[3] = new SmallGuiButton(20, (width - panelWidth) / 2 + 155,
                 (height - panelHeight) / 2 + 105, 10, 10, ">"));
             addRenderableWidget(normalButtonArray[4] = new SmallGuiButton(21, (width - panelWidth) / 2 + 120,
@@ -204,7 +203,7 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
                     "-"))));
             if (isAdvancedSat) {
                 final SmallGuiButton advancedSatelliteSelector = new SmallGuiButton(100 + 10 * i + 8, liquidLeft + 2,
-                    topPos + 160, 37, 10, TextUtil.translate(PREFIX + "Select"));
+                    topPos + 160, 37, 10, Component.translatable(Translations.Screen.SELECT));
                 advancedSatelliteSelector.active = craftingModule.getSlot().isInWorld();
                 extension.registerButton(extensionControllerLeft.registerControlledButton(
                     addRenderableWidget(liquidGuiParts[i][8] = advancedSatelliteSelector)));
@@ -224,12 +223,13 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
             CleanupExtension cleanupExtension = new CleanupExtension();
             cleanupExtension.registerButton(extensionControllerLeft.registerControlledButton(addRenderableWidget(
                 cleanupModeButton = new SmallGuiButton(24, leftPos - 56, topPos + 18 + (18 * cleanupSize), 50, 10,
-                    TextUtil.translate(CraftingPipeScreen.PREFIX + (
-                        cleanupModeIsExcludeOverlay.get() ? "Exclude" : "Include"))))));
+                    Component.translatable(cleanupModeIsExcludeOverlay.get() ?
+                        Translations.Screen.EXCLUDE :
+                        Translations.Screen.INCLUDE)))));
             cleanupExtension.registerButton(
                 extensionControllerLeft.registerControlledButton(addRenderableWidget(
                     new SmallGuiButton(25, leftPos - 56, topPos + 32 + (18 * cleanupSize), 50, 10,
-                        TextUtil.translate(CraftingPipeScreen.PREFIX + "Import")))));
+                        Component.translatable(Translations.Screen.IMPORT)))));
             for (int i = 0; i < cleanupSize * 3; i++) {
                 cleanupExtension.registerSlot(cleanupSlotIDs[i]);
             }
@@ -339,18 +339,18 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Inputs"), 18, 7, 0xFF404040,
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_INPUTS), 18, 7, 0xFF404040,
             false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Inventory"), 10,
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.INVENTORY), 10,
             panelHeight - 93, 0xFF404040, false);
 
         if (!isAdvancedSat) {
-            guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Output"), 77, 40,
+            guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_OUTPUT), 77, 40,
                 0xFF404040, false);
-            guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Satellite"), 123, 7,
+            guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_SATELLITE), 123, 7,
                 0xFF404040, false);
             if (craftingModule.clientSideSatelliteNames.satelliteName().isEmpty()) {
-                guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Off"), 135, 43,
+                guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_OFF), 135, 43,
                     0xFF404040, false);
             } else {
                 if (!satellitePipeLabel.isTextEqual(craftingModule.clientSideSatelliteNames.satelliteName())) {
@@ -358,14 +358,14 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
                 }
                 satellitePipeLabel.draw(guiGraphics, mouseX - leftPos, mouseY - topPos);
             }
-            guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Priority") + ":", 123, 75,
-                0xFF404040, false);
+            guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_PRIORITY).append(":"),
+                123, 75, 0xFF404040, false);
             guiGraphics.text(minecraft.font, String.valueOf(craftingPriorityOverlay.get()),
                 143 - (minecraft.font.width(String.valueOf(craftingPriorityOverlay.get())) / 2), 87, 0xFF404040, false);
         } else {
             for (int i = 0; i < 9; i++) {
                 if (craftingModule.clientSideSatelliteNames.advancedSatelliteNames().get(i).isEmpty()) {
-                    guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Off"),
+                    guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_OFF),
                         9 + (i * 18), 57, 0xFF404040, false);
                 } else {
                     if (!satellitePipeLabels[i].isTextEqual(
@@ -376,10 +376,10 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
                     satellitePipeLabels[i].draw(guiGraphics, mouseX - leftPos, mouseY - topPos);
                 }
             }
-            guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Output"), 77, 90,
+            guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_OUTPUT), 77, 90,
                 0xFF404040, false);
-            guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Priority") + ":", 123, 95,
-                0xFF404040, false);
+            guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_PRIORITY).append(":"),
+                123, 95, 0xFF404040, false);
             guiGraphics.text(minecraft.font, String.valueOf(craftingPriorityOverlay.get()),
                 143 - (minecraft.font.width(String.valueOf(craftingPriorityOverlay.get())) / 2), 107, 0xFF404040,
                 false);
@@ -410,8 +410,8 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
     }
 
     private void updateCleanupModeButton(Property<Boolean> prop) {
-        cleanupModeButton.setMessage(Component.literal(TextUtil.translate(
-            CraftingPipeScreen.PREFIX + (prop.copyValue() ? "Exclude" : "Include"))));
+        cleanupModeButton.setMessage(Component.translatable(
+            prop.copyValue() ? Translations.Screen.EXCLUDE : Translations.Screen.INCLUDE));
     }
 
     private final class FluidCraftingExtension extends GuiExtension {
@@ -458,7 +458,7 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
                     }
                     if (craftingModule.clientSideSatelliteNames.liquidSatelliteName().isEmpty()) {
                         guiGraphics.fill(left + 3, top + 3, left + 3 + (liquidCrafter * 40), top + 138, 0xAA8B8B8B);
-                        guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Off"),
+                        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_OFF),
                             left + (liquidCrafter * 40) / 2 - 5, top + 145, 0xFF404040, false);
                         for (int i = 0; i < liquidCrafter; i++) {
                             for (int j = 0; j < 8; j++) {
@@ -494,8 +494,8 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
             if (isAdvancedSat) {
                 if (craftingModule.clientSideSatelliteNames.liquidSatelliteNames().get(i).isEmpty()) {
                     guiGraphics.fill(left + 3, top + 3, left + 42, top + 138, 0xAA8B8B8B);
-                    guiGraphics.text(minecraft.font, TextUtil.translate(CraftingPipeScreen.PREFIX + "Off"), left + 15,
-                        top + 146, 0xFF404040, false);
+                    guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.CRAFTING_OFF),
+                        left + 15, top + 146, 0xFF404040, false);
                     for (int j = 0; j < 8; j++) {
                         liquidGuiParts[i][j].active = false;
                     }

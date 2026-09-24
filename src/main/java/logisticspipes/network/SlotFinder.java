@@ -17,6 +17,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.Translations;
 import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
@@ -95,12 +96,12 @@ public final class SlotFinder {
         }
         final Slot clicked = menuSlot(player, menuSlotIndex);
         if (clicked == null) {
-            player.sendSystemMessage(Component.translatable("lp.chat.slotnotfound"));
+            player.sendSystemMessage(Component.translatable(Translations.Chat.SLOT_NOT_FOUND));
             return;
         }
         final int index = indexIn(util, clicked);
         if (index == -1) {
-            player.sendSystemMessage(Component.translatable("lp.chat.slotnotfound"));
+            player.sendSystemMessage(Component.translatable(Translations.Chat.SLOT_NOT_FOUND));
             return;
         }
         final ModuleActiveSupplier module = target.resolve(player, ModuleActiveSupplier.class);

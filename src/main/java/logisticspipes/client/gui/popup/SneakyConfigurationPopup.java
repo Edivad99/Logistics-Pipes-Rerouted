@@ -9,12 +9,13 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.pipe.SetSneakyUpgradeSideMessage;
 import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -23,7 +24,6 @@ import logisticspipes.utils.gui.sideconfig.SideConfigDisplay;
 
 public class SneakyConfigurationPopup extends SubGuiScreen {
 
-    private static final String PREFIX = "gui.pipecontroller.popup.";
     private final List<BlockPos> config;
     private final UpgradeSlot pos;
     private SideConfigDisplay configDisplay;
@@ -84,8 +84,8 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.fill(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height, 0xff000000);
 
-        guiGraphics.text(font, TextUtil.translate(PREFIX + "sneakyTitle"), guiLeft + 8, guiTop + 8,
-            Color.getValue(Color.DARKER_GREY), false);
+        guiGraphics.text(font, Component.translatable(Translations.Screen.PIPE_CONTROLLER_SNEAKY_TITLE),
+            guiLeft + 8, guiTop + 8, Color.getValue(Color.DARKER_GREY), false);
 
         configDisplay.submit(guiGraphics, sceneRect());
     }

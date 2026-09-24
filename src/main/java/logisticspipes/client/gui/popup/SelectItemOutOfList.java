@@ -8,13 +8,14 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.utils.TextUtil;
+import logisticspipes.Translations;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -96,7 +97,8 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.text(font, TextUtil.translate("misc.selectType"), guiLeft + 8, guiTop + 6, 0xFF404040, false);
+        guiGraphics.text(font, Component.translatable(Translations.Screen.SELECT_TYPE),
+            guiLeft + 8, guiTop + 6, 0xFF404040, false);
 
         itemDisplay.renderPageNumber(guiGraphics, right - 47, guiTop + 6);
 

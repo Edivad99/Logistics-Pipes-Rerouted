@@ -33,6 +33,7 @@ import logisticspipes.commands.Confirmations;
 import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.config.ClientConfiguration;
 import logisticspipes.config.ServerConfigurationManager;
+import logisticspipes.data.LPLanguageProvider;
 import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.LPSpriteSourceProvider;
 import logisticspipes.data.models.LPModelProvider;
@@ -238,6 +239,7 @@ public class LogisticsPipes {
         event.createProvider(LPParticleProvider::new);
         event.createProvider(LPSpriteSourceProvider::new);
         event.createProvider(LPModelProvider::new);
+        event.createProvider(LPLanguageProvider::new);
     }
 
     // NeoForge Events

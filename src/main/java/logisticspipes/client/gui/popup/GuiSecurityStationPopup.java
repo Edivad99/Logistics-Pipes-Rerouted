@@ -2,11 +2,12 @@ package logisticspipes.client.gui.popup;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.security.SaveSecuritySettingsMessage;
 import logisticspipes.security.SecuritySettings;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -15,8 +16,6 @@ import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity.SecurityPermissions;
 
 public class GuiSecurityStationPopup extends SubGuiScreen {
-
-    private static final String PREFIX = "gui.securitystation.popup.player.";
 
     private final LogisticsSecurityBlockEntity tile;
     private final SecuritySettings activeSetting;
@@ -74,7 +73,7 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
         addRenderableWidget(cb4);
         addRenderableWidget(cb5);
         SmallGuiButton closeBtn = new SmallGuiButton(6, guiLeft + 123, guiTop + 118, 30, 10,
-            TextUtil.translate(GuiSecurityStationPopup.PREFIX + "Close"));
+            Component.translatable(Translations.Screen.SECURITY_STATION_PLAYER_CLOSE));
         closeBtn.setPressListener(b -> exitGui());
         addRenderableWidget(closeBtn);
         refreshCheckBoxes();
@@ -91,23 +90,22 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.text(minecraft.font,
-            TextUtil.translate(GuiSecurityStationPopup.PREFIX + "Player") + ": " + activeSetting.name, guiLeft + 10,
-            guiTop + 10, 0xFF404040, false);
-        guiGraphics.text(minecraft.font,
-            TextUtil.translate(GuiSecurityStationPopup.PREFIX + "ConfigureSettings") + ": ", guiLeft + 10, guiTop + 30,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "ActiveRequesting") + ": ",
-            guiLeft + 10, guiTop + 45, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "UpgradePipes") + ": ",
-            guiLeft + 10, guiTop + 60, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "CheckNetwork") + ": ",
-            guiLeft + 10, guiTop + 75, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(GuiSecurityStationPopup.PREFIX + "RemovePipes") + ": ",
-            guiLeft + 10, guiTop + 90, 0xFF404040, false);
-        guiGraphics.text(minecraft.font,
-            TextUtil.translate(GuiSecurityStationPopup.PREFIX + "AccessRoutingChannels") + ": ", guiLeft + 10,
-            guiTop + 105, 0xFF404040, false);
+        label(guiGraphics, Component.translatable(Translations.Screen.SECURITY_STATION_PLAYER)
+            .append(": " + activeSetting.name), 10);
+        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_CONFIGURE_SETTINGS, 30);
+        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_ACTIVE_REQUESTING, 45);
+        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_UPGRADE_PIPES, 60);
+        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_CHECK_NETWORK, 75);
+        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_REMOVE_PIPES, 90);
+        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_ACCESS_ROUTING_CHANNELS, 105);
+    }
+
+    private void label(GuiGraphicsExtractor guiGraphics, String key, int y) {
+        label(guiGraphics, Component.translatable(key).append(": "), y);
+    }
+
+    private void label(GuiGraphicsExtractor guiGraphics, Component text, int y) {
+        guiGraphics.text(minecraft.font, text, guiLeft + 10, guiTop + y, 0xFF404040, false);
     }
 
     public void refreshCheckBoxes() {

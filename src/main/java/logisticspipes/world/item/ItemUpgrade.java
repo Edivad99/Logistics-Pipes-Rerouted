@@ -1,15 +1,16 @@
 package logisticspipes.world.item;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.component.TooltipDisplay;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.utils.TextUtil;
 
@@ -28,10 +30,9 @@ public class ItemUpgrade extends LogisticsItem {
     public static final int MAX_CRAFTING_CLEANUP = 4;
     public static final int MAX_ITEM_EXTRACTION = 8;
     public static final int MAX_ITEM_STACK_EXTRACTION = 8;
-    public static String SHIFT_INFO_PREFIX = "item.upgrade.info.";
     private final Upgrade upgradeType;
 
-    public ItemUpgrade(Upgrade upgradeType, Properties properties) {
+    private ItemUpgrade(Upgrade upgradeType, Properties properties) {
         super(properties);
         this.upgradeType = upgradeType;
     }
@@ -83,38 +84,35 @@ public class ItemUpgrade extends LogisticsItem {
         }
         if (Minecraft.getInstance().hasShiftDown()) {
             if (!pipe.isEmpty() && !module.isEmpty()) {
-                //Can be applied to {0} pipes
-                //and {0} modules
-                String base1 = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "both1");
-                String base2 = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "both2");
-                tooltipAdder.accept(Component.literal(MessageFormat.format(base1, join(pipe))));
-                tooltipAdder.accept(Component.literal(MessageFormat.format(base2, join(module))));
+                tooltipAdder.accept(targetLine(Translations.Tooltip.UPGRADE_PIPES, pipe));
+                tooltipAdder.accept(targetLine(Translations.Tooltip.UPGRADE_AND_MODULES, module));
             } else if (!pipe.isEmpty()) {
-                //Can be applied to {0} pipes
-                String base = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "pipe");
-                tooltipAdder.accept(Component.literal(MessageFormat.format(base, join(pipe))));
+                tooltipAdder.accept(targetLine(Translations.Tooltip.UPGRADE_PIPES, pipe));
             } else {
-                //Can be applied to {0} modules
-                String base = TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + "module");
-                tooltipAdder.accept(Component.literal(MessageFormat.format(base, join(module))));
+                tooltipAdder.accept(targetLine(Translations.Tooltip.UPGRADE_MODULES, module));
             }
         } else {
             TextUtil.addTooltipInformation(stack, tooltipAdder, false);
         }
     }
 
-    private String join(List<String> join) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < join.size() - 2; i++) {
-            builder.append(TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + join.get(i)));
-            builder.append(", ");
+    private static Component targetLine(String key, List<String> targets) {
+        return Component.translatable(key, join(targets).withStyle(ChatFormatting.YELLOW))
+            .withStyle(ChatFormatting.GRAY);
+    }
+
+    /** "a", "a and b", "a, b and c". */
+    private static MutableComponent join(List<String> targets) {
+        MutableComponent result = Component.empty();
+        for (int i = 0; i < targets.size() - 2; i++) {
+            result.append(Component.translatable(Translations.Tooltip.upgradeTarget(targets.get(i)))).append(", ");
         }
-        if (join.size() > 1) {
-            builder.append(TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + join.get(join.size() - 2)));
-            builder.append(" and ");
+        Component last = Component.translatable(Translations.Tooltip.upgradeTarget(targets.getLast()));
+        if (targets.size() > 1) {
+            last = Component.translatable(Translations.Tooltip.UPGRADE_TARGETS_AND,
+                Component.translatable(Translations.Tooltip.upgradeTarget(targets.get(targets.size() - 2))), last);
         }
-        builder.append(TextUtil.translate(ItemUpgrade.SHIFT_INFO_PREFIX + join.get(join.size() - 1)));
-        return builder.toString();
+        return result.append(last);
     }
 
     private static class Upgrade {

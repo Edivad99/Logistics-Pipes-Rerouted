@@ -60,6 +60,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.Translations;
 import logisticspipes.api.connection.Adjacent;
 import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.api.property.PropertyUtil;
@@ -895,7 +896,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 							buffer -> buffer.writeBlockPos(getPos()));
 					}
 				} else {
-					player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
 				}
 			}
 			return true;
@@ -930,7 +931,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 						OrdererMenu.open(serverPlayer, this);
 					}
 				} else {
-					player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
 				}
 			}
 			return true;
@@ -946,7 +947,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 						onWrenchClicked(player);
 					}
 				} else {
-					player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+					player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
 				}
 			}
 			return true;

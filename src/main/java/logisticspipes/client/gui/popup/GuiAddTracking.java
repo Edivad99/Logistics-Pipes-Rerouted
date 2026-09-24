@@ -8,6 +8,7 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
@@ -15,10 +16,10 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.block.TrackItemMessage;
 import logisticspipes.util.TrackingTask;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.IItemSearch;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.ItemDisplay;
@@ -32,7 +33,6 @@ import logisticspipes.world.level.block.entity.LogisticsStatisticsBlockEntity;
 
 public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
 
-    private static final String PREFIX = "gui.networkstatistics.add.";
     private final LogisticsStatisticsBlockEntity tile;
     ItemDisplay itemDisplay;
     InputBar search;
@@ -62,7 +62,7 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
                 }
             }
             if (found) {
-                setSubGui(new GuiMessagePopup(TextUtil.translate(PREFIX + "alreadytracked")));
+                setSubGui(new GuiMessagePopup(Component.translatable(Translations.Screen.STATISTICS_ALREADY_TRACKED)));
             } else {
                 ClientPacketDistributor.sendToServer(new TrackItemMessage(
                     tile.getBlockPos(), itemDisplay.getSelectedItem().getItem(), true));
@@ -118,7 +118,6 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        //guiGraphics.text(minecraft.font, StringUtil.translate(PREFIX + "title"), guiLeft + 5, guiTop + 6, 0xFF404040, false);
         itemDisplay.renderPageNumber(guiGraphics, right - 47, guiTop + 6);
 
         itemDisplay.renderSortMode(guiGraphics, xCenter, bottom - 32);

@@ -3,7 +3,6 @@ package logisticspipes.world.item;
 import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -32,27 +31,15 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
         return false;
     }
 
-    /**
-     * The fluid's display name for this container stack, or the item's own key when it holds no
-     * fluid. Was an override of {@code Item#getDescriptionId(ItemStack)} until 1.21.3 dropped it.
-     */
-    private String descriptionIdFor(ItemStack stack) {
-        FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
-            ItemIdentifierStack.getFromStack(stack), Minecraft.getInstance().level.registryAccess());
-        if (fluidStack != null) {
-            // Fluid.getDescriptionId() removed in 1.20.1; use FluidStack.getDisplayName()
-            return fluidStack.makeFluidStack().getHoverName().getString();
-        }
-        return getDescriptionId();
-    }
-
+    /** Named after the fluid it holds, or the container's own name when it holds none. */
     @Override
     public Component getName(ItemStack itemstack) {
-        // getUnlocalizedNameInefficiently removed in 1.20.1; use getDescriptionId() for base key
-        String translationKey = descriptionIdFor(itemstack);
-        String baseKey = getDescriptionId();
-        return Component.literal(
-            I18n.get(translationKey + (translationKey.equals(baseKey) ? ".name" : "")).trim());
+        FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
+            ItemIdentifierStack.getFromStack(itemstack), Minecraft.getInstance().level.registryAccess());
+        if (fluidStack != null) {
+            return fluidStack.makeFluidStack().getHoverName();
+        }
+        return super.getName(itemstack);
     }
 
     @Override

@@ -1,13 +1,8 @@
 package logisticspipes.utils;
 
-import java.util.EnumSet;
-
-import net.minecraft.ChatFormatting;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class TestUtilTest {
@@ -39,12 +34,5 @@ class TestUtilTest {
     @Test
     void minusOneIsEveryBitSet() {
         assertArrayEquals(new byte[] { -1, -1, -1, -1 }, getBytesFromInteger(-1));
-    }
-
-    @Test
-    void transformKeepsTheStartingFormattingAcrossAReset() {
-        assertEquals("§7§oThis is a semi §c§oformatted§r§7§o string.",
-            TextUtil.transform("This is a semi $REDformatted$RESET string.",
-                EnumSet.of(ChatFormatting.GRAY, ChatFormatting.ITALIC)));
     }
 }

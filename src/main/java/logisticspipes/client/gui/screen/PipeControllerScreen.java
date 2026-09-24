@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.block.OpenLogicControllerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.pipe.PipeOrderWatchMessage;
@@ -25,7 +26,6 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
@@ -39,8 +39,6 @@ import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
 
 public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControllerMenu> {
-
-    private final String PREFIX = "gui.pipecontroller.";
 
     private final CoreRoutedPipe pipe;
 
@@ -144,11 +142,11 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
 
         @Override
         public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "upgrade"), 10, 28, Color.getValue(Color.DARKER_GREY),
-                false);
+            guiGraphics.text(font, Component.translatable(Translations.Screen.PIPE_CONTROLLER_UPGRADES), 10, 28,
+                Color.getValue(Color.DARKER_GREY), false);
             if (pipe.getOriginalUpgradeManager().hasCombinedSneakyUpgrade()) {
-                guiGraphics.text(font, TextUtil.translate(PREFIX + "sneakyUpgrades"), 10, 74,
-                    Color.getValue(Color.DARKER_GREY), false);
+                guiGraphics.text(font, Component.translatable(Translations.Screen.PIPE_CONTROLLER_SNEAKY_UPGRADES), 10,
+                    74, Color.getValue(Color.DARKER_GREY), false);
             }
         }
     }
@@ -171,8 +169,8 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
 
         @Override
         public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "security"), 10, 28, Color.getValue(Color.DARKER_GREY),
-                false);
+            guiGraphics.text(font, Component.translatable(Translations.Screen.PIPE_CONTROLLER_SECURITY), 10, 28,
+                Color.getValue(Color.DARKER_GREY), false);
             ItemStack itemStack = pipe.getOriginalUpgradeManager().secInv.getItem(0);
             if (!itemStack.isEmpty()) {
                 UUID id = itemStack.get(LPDataComponents.UUID);
@@ -208,16 +206,11 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
             int lifetimeXCenter = 140;
             String s;
 
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "Session"), sessionXCenter - font
-                .width(TextUtil.translate(PREFIX + "Session")) / 2, 40, 0xFF303030, false);
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "Lifetime"), lifetimeXCenter - font
-                .width(TextUtil.translate(PREFIX + "Lifetime")) / 2, 40, 0xFF303030, false);
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "Sent") + ":", 55 - font
-                .width(TextUtil.translate(PREFIX + "Sent") + ":"), 55, 0xFF303030, false);
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "Recieved") + ":", 55 - font
-                .width(TextUtil.translate(PREFIX + "Recieved") + ":"), 70, 0xFF303030, false);
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "Relayed") + ":", 55 - font
-                .width(TextUtil.translate(PREFIX + "Relayed") + ":"), 85, 0xFF303030, false);
+            drawCentered(guiGraphics, Translations.Screen.PIPE_CONTROLLER_SESSION, sessionXCenter, 40);
+            drawCentered(guiGraphics, Translations.Screen.PIPE_CONTROLLER_LIFETIME, lifetimeXCenter, 40);
+            drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_SENT, 55, 55);
+            drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_RECEIVED, 55, 70);
+            drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_RELAYED, 55, 85);
 
             s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_sent);
             guiGraphics.text(font, s, sessionXCenter - font.width(s) / 2, 55, 0xFF303030, false);
@@ -237,11 +230,21 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
             s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_relayed);
             guiGraphics.text(font, s, lifetimeXCenter - font.width(s) / 2, 85, 0xFF303030, false);
 
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "RoutingTableSize") + ":", 110 - font
-                .width(TextUtil.translate(PREFIX + "RoutingTableSize") + ":"), 110, 0xFF303030, false);
+            drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_ROUTING_TABLE_SIZE, 110, 110);
 
             s = StringUtils.getStringWithSpacesFromLong(pipe.server_routing_table_size);
             guiGraphics.text(font, s, 130 - font.width(s) / 2, 110, 0xFF303030, false);
+        }
+
+        private void drawCentered(GuiGraphicsExtractor guiGraphics, String key, int xCenter, int y) {
+            Component text = Component.translatable(key);
+            guiGraphics.text(font, text, xCenter - font.width(text) / 2, y, 0xFF303030, false);
+        }
+
+        /** The label and a colon, ending at {@code right}. */
+        private void drawRightAligned(GuiGraphicsExtractor guiGraphics, String key, int right, int y) {
+            Component text = Component.translatable(key).append(":");
+            guiGraphics.text(font, text, right - font.width(text), y, 0xFF303030, false);
         }
     }
 

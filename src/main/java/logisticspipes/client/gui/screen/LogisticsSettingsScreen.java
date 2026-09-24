@@ -8,9 +8,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
+import logisticspipes.Translations;
 import logisticspipes.config.ClientConfiguration;
 import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
@@ -18,8 +18,6 @@ import logisticspipes.world.inventory.PlayerSettingsMenu;
 import logisticspipes.world.item.LPItems;
 
 public class LogisticsSettingsScreen extends LogisticsBaseTabGuiScreen<PlayerSettingsMenu> {
-
-    private static final String PREFIX = "gui.settings.";
 
     /**
      * The panel is only as tall as it needs to be. The two renderer checkboxes that used to sit
@@ -91,10 +89,10 @@ public class LogisticsSettingsScreen extends LogisticsBaseTabGuiScreen<PlayerSet
 
         @Override
         public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
-            //guiGraphics.text(font, StringUtil.translate(PREFIX + "pipenewrenderer"), 38, 34, 0xFF404040, false);
-            //guiGraphics.text(font, StringUtil.translate(PREFIX + "pipefallbackrenderer"), 38, 54, 0xFF404040, false);
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "piperenderdistance"), 10, 30, 0xFF404040, false);
-            guiGraphics.text(font, TextUtil.translate(PREFIX + "pipecontentrenderdistance"), 10, 60, 0xFF404040, false);
+            guiGraphics.text(font, Component.translatable(Translations.Screen.SETTINGS_PIPE_RENDER_DISTANCE),
+                10, 30, 0xFF404040, false);
+            guiGraphics.text(font, Component.translatable(Translations.Screen.SETTINGS_PIPE_CONTENT_RENDER_DISTANCE),
+                10, 60, 0xFF404040, false);
         }
 
         @Override

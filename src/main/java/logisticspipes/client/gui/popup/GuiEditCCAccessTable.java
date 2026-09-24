@@ -7,11 +7,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.security.SetSecurityStationCCIdMessage;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -19,7 +20,6 @@ import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
 public class GuiEditCCAccessTable extends SubGuiScreen {
 
-    private static final String PREFIX = "gui.securitystation.popup.ccAccess.";
     private static final int searchWidth = 55;
     private final LogisticsSecurityBlockEntity tile;
     private String searchInput1 = "0";
@@ -49,11 +49,11 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
         plus.setPressListener(b -> handleBtn(1));
         addRenderableWidget(plus);
         SmallGuiButton rm = new SmallGuiButton(2, guiLeft + 30, guiTop + 107, 40, 10,
-            TextUtil.translate(GuiEditCCAccessTable.PREFIX + "Remove"));
+            Component.translatable(Translations.Screen.SECURITY_STATION_CC_REMOVE));
         rm.setPressListener(b -> handleBtn(2));
         addRenderableWidget(rm);
         SmallGuiButton add = new SmallGuiButton(3, guiLeft + 80, guiTop + 107, 40, 10,
-            TextUtil.translate(GuiEditCCAccessTable.PREFIX + "Add"));
+            Component.translatable(Translations.Screen.SECURITY_STATION_CC_ADD));
         add.setPressListener(b -> handleBtn(3));
         addRenderableWidget(add);
         SmallGuiButton prev = new SmallGuiButton(4, guiLeft + 87, guiTop + 4, 10, 10, "<");

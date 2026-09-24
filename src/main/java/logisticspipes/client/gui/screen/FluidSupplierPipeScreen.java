@@ -15,15 +15,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LPConstants;
+import logisticspipes.Translations;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.world.inventory.FluidSupplierMenu;
 
 public class FluidSupplierPipeScreen extends LogisticsBaseGuiScreen<FluidSupplierMenu> {
 
     protected static final Identifier SUPPLIER = LPConstants.rl("textures/gui/supplier.png");
-    private static final String PREFIX = "gui.fluidsupplier.";
     private final PipeItemsFluidSupplier logic;
 
     public FluidSupplierPipeScreen(FluidSupplierMenu menu, Inventory inventory, Component title) {
@@ -33,12 +32,13 @@ public class FluidSupplierPipeScreen extends LogisticsBaseGuiScreen<FluidSupplie
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.text(minecraft.font, TextUtil.translate(FluidSupplierPipeScreen.PREFIX + "TargetInv"),
-            panelWidth / 2 - minecraft.font.width(TextUtil.translate(FluidSupplierPipeScreen.PREFIX + "TargetInv")) / 2,
-            6, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FluidSupplierPipeScreen.PREFIX + "Inventory"), 18,
+        Component target = Component.translatable(Translations.Screen.FLUID_SUPPLIER_TARGET);
+        guiGraphics.text(minecraft.font, target, panelWidth / 2 - minecraft.font.width(target) / 2, 6, 0xFF404040,
+            false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.INVENTORY), 18,
             panelHeight - 102, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FluidSupplierPipeScreen.PREFIX + "Partialrequests") + ":",
+        guiGraphics.text(minecraft.font,
+            Component.translatable(Translations.Screen.FLUID_SUPPLIER_PARTIAL_REQUESTS).append(":"),
             panelWidth - 140, panelHeight - 112, 0xFF404040, false);
     }
 
@@ -55,14 +55,13 @@ public class FluidSupplierPipeScreen extends LogisticsBaseGuiScreen<FluidSupplie
     public void init() {
         super.init();
         logisticspipes.utils.gui.SmallGuiButton partialsBtn = new logisticspipes.utils.gui.SmallGuiButton(0,
-            width / 2 + 45, height / 2 - 25, 30, 20, logic.isRequestingPartials() ?
-            TextUtil.translate(FluidSupplierPipeScreen.PREFIX + "Yes") :
-            TextUtil.translate(FluidSupplierPipeScreen.PREFIX + "No"));
+            width / 2 + 45, height / 2 - 25, 30, 20, Component.translatable(
+            logic.isRequestingPartials() ? Translations.Screen.YES : Translations.Screen.NO));
         partialsBtn.setPressListener(b -> {
             logic.setRequestingPartials(!logic.isRequestingPartials());
-            b.setMessage(Component.literal(logic.isRequestingPartials() ?
-                TextUtil.translate(FluidSupplierPipeScreen.PREFIX + "Yes") :
-                TextUtil.translate(FluidSupplierPipeScreen.PREFIX + "No")));
+            b.setMessage(Component.translatable(logic.isRequestingPartials() ?
+                Translations.Screen.YES :
+                Translations.Screen.NO));
             ClientPacketDistributor.sendToServer(
                 new FluidSupplierPartialsMessage(logic.getPos(), logic.isRequestingPartials()));
         });

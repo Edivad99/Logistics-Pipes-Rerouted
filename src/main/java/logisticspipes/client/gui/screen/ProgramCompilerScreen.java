@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.Items;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.block.TriggerCompilerTaskMessage;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.TextUtil;
@@ -73,14 +75,13 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
                     return "";
                 }
                 ListTag list = compiler.getListTagForKey("compilerCategories");
-                return TextUtil.translate(
-                    "gui.compiler." + LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
-                        .filter(it -> list.stream()
-                            .noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
-                        .skip(index)
-                        .findFirst()
-                        .map(it -> String.format("%s.%s", it.getNamespace(), it.getPath()))
-                        .orElse(null));
+                return LogisticsProgramCompilerBlockEntity.programByCategory.keySet().stream()
+                    .filter(it -> list.stream()
+                        .noneMatch(nbtBase -> nbtBase.asString().orElse("").equals(it.toString())))
+                    .skip(index)
+                    .findFirst()
+                    .map(it -> Component.translatable(Translations.Screen.compilerCategory(it)).getString())
+                    .orElse("");
             }
 
             @Override
@@ -107,10 +108,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
                     return "";
                 }
                 ListTag list = compiler.getListTagForKey("compilerCategories");
-                Identifier sel = getProgramListForSelectionIndex(list).get(index);
-
-                Item selItem = BuiltInRegistries.ITEM.getValue(sel);
-                return TextUtil.translate(selItem.getDescriptionId());
+                return itemName(getProgramListForSelectionIndex(list).get(index));
             }
 
             @Override
@@ -266,13 +264,17 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
                 nbtBase -> LogisticsProgramCompilerBlockEntity.programByCategory.get(
                         Identifier.parse(nbtBase.asString().orElse("")))
                     .stream())
-            .filter(it -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(it).getDescriptionId()).toLowerCase()
+            .filter(it -> itemName(it).toLowerCase()
                 .contains(search.getValue().toLowerCase()))
             .sorted(Comparator.<Identifier, Integer>comparing(o -> getSortingClass(BuiltInRegistries.ITEM.getValue(o)))
                 .thenComparing(
-                    o -> TextUtil.translate(BuiltInRegistries.ITEM.getValue(o).getDescriptionId()).toLowerCase())
+                    o -> itemName(o).toLowerCase())
             )
             .collect(Collectors.toList());
+    }
+
+    private static String itemName(Identifier item) {
+        return Component.translatable(BuiltInRegistries.ITEM.getValue(item).getDescriptionId()).getString();
     }
 
     private int getSortingClass(Item object) {
@@ -343,19 +345,22 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
         if (compiler.getCurrentTask() != null) {
-            guiGraphics.text(font, TextUtil.translate("gui.compiler.processing"), 10, 39, 0xFF000000, false);
+            guiGraphics.text(font, Component.translatable(Translations.Screen.PROGRAM_COMPILER_PROCESSING),
+                10, 39, 0xFF000000, false);
             Item item = BuiltInRegistries.ITEM.getValue(compiler.getCurrentTask());
             String name;
             if (!item.equals(Items.AIR)) {
                 name = item.getDescriptionId();
             } else {
-                name = "gui.compiler." + compiler.getCurrentTask().toString().replace(':', '.');
+                name = Translations.Screen.compilerCategory(compiler.getCurrentTask());
             }
-            String text = TextUtil.getTrimmedString(TextUtil.translate(name), 160, font, "...");
+            String text = TextUtil.getTrimmedString(Component.translatable(name).getString(), 160, font, "...");
             guiGraphics.text(font, text, 10, 70, 0xFF000000, false);
             if (!compiler.isWasAbleToConsumePower()) {
-                guiGraphics.text(font, TextUtil.translate("gui.compiler.nopower.1"), 68, 10, 0xFF000000, false);
-                guiGraphics.text(font, TextUtil.translate("gui.compiler.nopower.2"), 35, 20, 0xFF000000, false);
+                guiGraphics.text(font, Component.translatable(Translations.Screen.PROGRAM_COMPILER_NO_POWER)
+                        .withStyle(ChatFormatting.RED), 68, 10, 0xFF000000, false);
+                guiGraphics.text(font, Component.translatable(Translations.Screen.PROGRAM_COMPILER_CONNECT)
+                        .withStyle(ChatFormatting.RED), 35, 20, 0xFF000000, false);
             }
         } else {
             if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {

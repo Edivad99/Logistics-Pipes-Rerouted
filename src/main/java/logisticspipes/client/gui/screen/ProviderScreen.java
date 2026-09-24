@@ -12,6 +12,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.EnumProperty;
 import logisticspipes.api.property.layer.PropertyLayer;
@@ -21,14 +22,11 @@ import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.ProviderMenu;
 
 public class ProviderScreen extends ModuleBaseScreen<ProviderMenu> {
-
-    private static final String PREFIX = "gui.providerpipe.";
 
     private static final int PANEL_WIDTH = 175;
 
@@ -76,7 +74,7 @@ public class ProviderScreen extends ModuleBaseScreen<ProviderMenu> {
     public void init() {
         super.init();
         SmallGuiButton switchButton = new SmallGuiButton(0, leftPos + SWITCH_BUTTON_X, topPos + BUTTON_Y,
-            BUTTON_WIDTH, BUTTON_HEIGHT, TextUtil.translate(PREFIX + "Switch"));
+            BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable(Translations.Screen.PROVIDER_SWITCH));
         switchButton.setPressListener(button -> providerModeOverlay.write(EnumProperty::next));
         addRenderableWidget(switchButton);
 
@@ -92,8 +90,8 @@ public class ProviderScreen extends ModuleBaseScreen<ProviderMenu> {
 
     private void updateFilterModeButton() {
         if (filterModeButton != null) {
-            filterModeButton.setMessage(Component.literal(
-                TextUtil.translate(PREFIX + (isExclusionFilterOverlay.get() ? "Exclude" : "Include"))));
+            filterModeButton.setMessage(Component.translatable(
+                isExclusionFilterOverlay.get() ? Translations.Screen.EXCLUDE : Translations.Screen.INCLUDE));
         }
     }
 
@@ -143,8 +141,10 @@ public class ProviderScreen extends ModuleBaseScreen<ProviderMenu> {
 
         drawWrappedTitle(guiGraphics, mc, providerModule.filterInventory.getName(), textColor);
 
-        guiGraphics.text(mc.font, TextUtil.translate(PREFIX + "ExcessInventory"), 7, EXCESS_LABEL_Y, textColor, false);
-        guiGraphics.text(mc.font, TextUtil.translate(providerModeOverlay.get().getModeTranslationKey()), 7,
-            MODE_LABEL_Y, textColor, false);
+        guiGraphics.text(mc.font, Component.translatable(Translations.Screen.PROVIDER_EXCESS_INVENTORY),
+            7, EXCESS_LABEL_Y, textColor, false);
+        guiGraphics.text(mc.font,
+            Component.translatable(Translations.Screen.enumValue("provider_mode", providerModeOverlay.get())),
+            7, MODE_LABEL_Y, textColor, false);
     }
 }

@@ -44,6 +44,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.Translations;
 import logisticspipes.api.connection.Adjacent;
 import logisticspipes.api.connection.ConnectionType;
 import logisticspipes.api.connection.NeighborBlockEntity;
@@ -485,7 +486,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				if (settings == null || settings.openGui) {
 					((PipeLogisticsChassis) getContainer().pipe).nextOrientation();
 				} else {
-                    player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+                    player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
 				}
 			}
 			return true;
@@ -496,7 +497,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				if (settings == null || settings.openGui) {
 					return tryInsertingModule(player);
 				} else {
-                    player.sendSystemMessage(Component.translatable("lp.chat.permissiondenied"));
+                    player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
 				}
 			}
 			return true;

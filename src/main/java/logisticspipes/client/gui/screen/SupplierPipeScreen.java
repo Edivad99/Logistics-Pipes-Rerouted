@@ -20,6 +20,7 @@ import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LPConstants;
+import logisticspipes.Translations;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.EnumProperty;
 import logisticspipes.api.property.IntListProperty;
@@ -33,14 +34,12 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.crafting.SlotFinderOpenGuiMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.Color;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.ActiveSupplierMenu;
 
 public class SupplierPipeScreen extends LogisticsBaseGuiScreen<ActiveSupplierMenu> {
 
-    private static final String PREFIX = "gui.supplierpipe.";
     private static final Identifier TEXTURE = LPConstants.rl("textures/gui/supplier.png");
     private final boolean hasPatternUpgrade;
     private final PropertyLayer propertyLayer;
@@ -78,16 +77,16 @@ public class SupplierPipeScreen extends LogisticsBaseGuiScreen<ActiveSupplierMen
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        String name;
+        Component name;
         if (hasPatternUpgrade) {
-            name = TextUtil.translate(SupplierPipeScreen.PREFIX + "TargetInvPattern");
+            name = Component.translatable(Translations.Screen.SUPPLIER_TARGET_PATTERN);
         } else {
-            name = TextUtil.translate(SupplierPipeScreen.PREFIX + "TargetInv");
+            name = Component.translatable(Translations.Screen.SUPPLIER_TARGET);
         }
         guiGraphics.text(minecraft.font, name, panelWidth / 2 - minecraft.font.width(name) / 2, 6, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(SupplierPipeScreen.PREFIX + "Inventory"), 18,
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.INVENTORY), 18,
             panelHeight - 102, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(SupplierPipeScreen.PREFIX + "RequestMode"),
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.SUPPLIER_REQUEST_MODE),
             panelWidth - 140, panelHeight - 112, 0xFF404040, false);
         if (hasPatternUpgrade) {
             slotAssignmentPatternOverlay.read((slotAssignments) -> {

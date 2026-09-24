@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.block.PowerJunctionCheatMessage;
 import logisticspipes.utils.TextUtil;
 import logisticspipes.world.inventory.PowerJunctionMenu;
@@ -17,7 +18,6 @@ import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity
 
 public class PowerJunctionScreen extends LogisticsBaseGuiScreen<PowerJunctionMenu> {
 
-    private static final String PREFIX = "gui.powerjunction.";
     private static final Identifier TEXTURE = LPConstants.rl("textures/gui/power_junction.png");
     private final LogisticsPowerJunctionBlockEntity junction;
 
@@ -29,9 +29,8 @@ public class PowerJunctionScreen extends LogisticsBaseGuiScreen<PowerJunctionMen
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.text(minecraft.font, TextUtil.translate(PowerJunctionScreen.PREFIX + "LogisticsPowerJunction"), 30,
-            8, 0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(PowerJunctionScreen.PREFIX + "StoredEnergy") + ":", 40, 23,
+        guiGraphics.text(minecraft.font, junction.getBlockState().getBlock().getName(), 30, 8, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.STORED_ENERGY).append(":"), 40, 23,
             0xFF404040, false);
         guiGraphics.text(minecraft.font, TextUtil.formatNumberWithCommas(junction.getPowerLevel()) + " LP", 40, 33,
             0xFF404040, false);

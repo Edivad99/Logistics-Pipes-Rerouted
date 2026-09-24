@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -16,9 +17,9 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.network.to_server.crafting.FindLikelyRecipeComponentsMessage;
 import logisticspipes.network.to_server.crafting.ImportCraftingRecipeMessage;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -160,7 +161,8 @@ public class GuiRecipeImport extends SubGuiScreen {
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.text(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0xFF404040, false);
+        guiGraphics.text(font, Component.translatable(Translations.Screen.SELECT_ORE_DICT),
+            guiLeft + 10, guiTop + 6, 0xFF404040, false);
         // Render items in 3×3 crafting grid preview
         for (int i = 0; i < 9; i++) {
             Candidates c = grid[i];
@@ -190,7 +192,8 @@ public class GuiRecipeImport extends SubGuiScreen {
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
-        guiGraphics.text(font, TextUtil.translate("misc.selectOreDict"), guiLeft + 10, guiTop + 6, 0xFF404040, false);
+        guiGraphics.text(font, Component.translatable(Translations.Screen.SELECT_ORE_DICT),
+            guiLeft + 10, guiTop + 6, 0xFF404040, false);
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 LPGuiGraphics.drawSlotBackground(guiGraphics, guiLeft + 44 + x * 18, guiTop + 19 + y * 18);

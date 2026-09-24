@@ -4,15 +4,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
+import logisticspipes.Translations;
 import logisticspipes.pipes.PipeItemsFirewall;
-import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.world.inventory.FirewallMenu;
 
 public class FirewallScreen extends LogisticsBaseGuiScreen<FirewallMenu> {
-
-    private static final String PREFIX = "gui.firewall.";
 
     private final PipeItemsFirewall pipe;
 
@@ -24,8 +22,8 @@ public class FirewallScreen extends LogisticsBaseGuiScreen<FirewallMenu> {
     @Override
     public void init() {
         super.init();
-        final String blocked = TextUtil.translate(FirewallScreen.PREFIX + "Blocked");
-        final String allowed = TextUtil.translate(FirewallScreen.PREFIX + "Allowed");
+        final Component blocked = Component.translatable(Translations.Screen.FIREWALL_BLOCKED);
+        final Component allowed = Component.translatable(Translations.Screen.FIREWALL_ALLOWED);
         addRenderableWidget(new GuiStringHandlerButton(0, width / 2 + 23, height / 2 + 27 - 139, 60, 20,
             () -> pipe.isBlocking() ? blocked : allowed, () -> pipe.setBlocking(!pipe.isBlocking())));
         addRenderableWidget(new GuiStringHandlerButton(1, width / 2 + 23, height / 2 + 60 - 139, 60, 20,
@@ -52,19 +50,20 @@ public class FirewallScreen extends LogisticsBaseGuiScreen<FirewallMenu> {
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FirewallScreen.PREFIX + "Firewall"), 45, 8, 0xFF404040,
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.FIREWALL_TITLE), 45, 8, 0xFF404040,
             false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FirewallScreen.PREFIX + "Filter") + ":", 14, 28, 0xFF404040,
-            false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FirewallScreen.PREFIX + "Filtereditemsare") + ":", 125, 8,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FirewallScreen.PREFIX + "Providing") + ":", 144, 41,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FirewallScreen.PREFIX + "Crafting") + ":", 146, 74,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FirewallScreen.PREFIX + "Sorting") + ":", 150, 107,
-            0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.translate(FirewallScreen.PREFIX + "Powerflow") + ":", 142, 141,
-            0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.FIREWALL_FILTER).append(":"),
+            14, 28, 0xFF404040, false);
+        guiGraphics.text(minecraft.font,
+            Component.translatable(Translations.Screen.FIREWALL_FILTERED_ITEMS_ARE).append(":"),
+            125, 8, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.FIREWALL_PROVIDING).append(":"),
+            144, 41, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.FIREWALL_CRAFTING).append(":"),
+            146, 74, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.FIREWALL_SORTING).append(":"),
+            150, 107, 0xFF404040, false);
+        guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.FIREWALL_POWER_FLOW).append(":"),
+            142, 141, 0xFF404040, false);
     }
 }
