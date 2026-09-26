@@ -51,7 +51,8 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
         ConnectionUpgradeConfig.getSides(pos.getItem())
             .forEach(side -> configDisplay.highlight(pipePos, side));
 
-        SmallGuiButton okBtn = new SmallGuiButton(0, right - 106, bottom - 26, 100, 20, "OK");
+        SmallGuiButton okBtn = new SmallGuiButton(0, right - 106, bottom - 26, 100, 20,
+            Component.translatable(Translations.Screen.OK));
         okBtn.setPressListener(b -> exitGui());
         addRenderableWidget(okBtn);
 

@@ -68,7 +68,8 @@ public class GuiRecipeImport extends SubGuiScreen {
     @Override
     public void init() {
         super.init();
-        SmallGuiButton done = new SmallGuiButton(0, guiLeft + 100, guiTop + 180, 40, 10, "Done");
+        SmallGuiButton done = new SmallGuiButton(0, guiLeft + 100, guiTop + 180, 40, 10,
+            Component.translatable(Translations.Screen.DONE));
         done.setPressListener(b -> {
             NonNullList<ItemStack> stackList = NonNullList.withSize(9, ItemStack.EMPTY);
             int i = 0;
@@ -84,7 +85,8 @@ public class GuiRecipeImport extends SubGuiScreen {
             exitGui();
         });
         addRenderableWidget(done);
-        SmallGuiButton ml = new SmallGuiButton(1, guiLeft + 10, guiTop + 180, 60, 10, "Most likely");
+        SmallGuiButton ml = new SmallGuiButton(1, guiLeft + 10, guiTop + 180, 60, 10,
+            Component.translatable(Translations.Screen.RECIPE_IMPORT_MOST_LIKELY));
         ml.setPressListener(b -> ClientPacketDistributor.sendToServer(new FindLikelyRecipeComponentsMessage(
             tile.getBlockPos(),
             list.stream().map(candidate -> candidate.order.stream().map(ItemIdentifierStack::getItem).toList())

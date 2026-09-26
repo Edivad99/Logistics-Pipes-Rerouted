@@ -49,11 +49,11 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
         plus.setPressListener(b -> handleBtn(1));
         addRenderableWidget(plus);
         SmallGuiButton rm = new SmallGuiButton(2, guiLeft + 30, guiTop + 107, 40, 10,
-            Component.translatable(Translations.Screen.SECURITY_STATION_CC_REMOVE));
+            Component.translatable(Translations.Screen.REMOVE));
         rm.setPressListener(b -> handleBtn(2));
         addRenderableWidget(rm);
         SmallGuiButton add = new SmallGuiButton(3, guiLeft + 80, guiTop + 107, 40, 10,
-            Component.translatable(Translations.Screen.SECURITY_STATION_CC_ADD));
+            Component.translatable(Translations.Screen.ADD));
         add.setPressListener(b -> handleBtn(3));
         addRenderableWidget(add);
         SmallGuiButton prev = new SmallGuiButton(4, guiLeft + 87, guiTop + 4, 10, 10, "<");

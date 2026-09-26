@@ -19,9 +19,11 @@ import logisticspipes.Translations.Chat;
 import logisticspipes.Translations.Screen;
 import logisticspipes.Translations.Tooltip;
 import logisticspipes.inventory.ProviderMode;
+import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
 import logisticspipes.network.to_server.config.SetHudSettingMessage.HudSetting;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
 import logisticspipes.pipes.SatelliteNamingResult;
+import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.LPBlocks;
@@ -278,6 +280,21 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Screen.STORED_ENERGY, "Stored Energy");
         add(Screen.SELECT_TYPE, "Select Type");
         add(Screen.SELECT_ORE_DICT, "Select OreDict Type");
+        add(Screen.ADD, "Add");
+        add(Screen.REMOVE, "Remove");
+        add(Screen.EDIT, "Edit");
+        add(Screen.DELETE, "Delete");
+        add(Screen.CLOSE, "Close");
+        add(Screen.EXIT, "Exit");
+        add(Screen.CANCEL, "Cancel");
+        add(Screen.OK, "OK");
+        add(Screen.DONE, "Done");
+        add(Screen.REFRESH, "Refresh");
+        add(Screen.REQUEST, "Request");
+        add(Screen.SORT, "Sort");
+        add(Screen.SET, "Set");
+        add(Screen.INCLUDED, "Included");
+        add(Screen.EXCLUDED, "Excluded");
 
         for (FuzzyFlag flag : FuzzyFlag.values()) {
             add(Screen.enumValue("fuzzy", flag), switch (flag) {
@@ -315,6 +332,28 @@ public class LPLanguageProvider extends LanguageProvider {
 
         add(Screen.ITEM_SINK_DEFAULT_ROUTE, "Default route");
 
+        add(Screen.ADVANCED_EXTRACTOR_SNEAKY, "Sneaky");
+        add(Screen.ADVANCED_EXTRACTOR_SIDE, "Side");
+        add(Screen.ADVANCED_EXTRACTOR_INVENTORY, "Inv");
+
+        add(Screen.ORDERER_CONTENT, "Content");
+        add(Screen.ORDERER_HIDE, "Hide");
+        add(Screen.ORDERER_SHOW, "Show");
+        add(Screen.ORDERER_DISK, "Disk");
+        add(Screen.ORDERER_MORE, "more");
+        add(Screen.ORDERER_LOG, "Log");
+        add(Screen.ORDERER_DISK_ADD_EDIT, "Add/Edit");
+        add(Screen.ORDERER_SAVE_AS_IMAGE, "Save as Image");
+        for (DisplayOptions option : DisplayOptions.values()) {
+            add(Screen.enumValue("orderer.display", option), switch (option) {
+                case Both -> "Both";
+                case CraftOnly -> "Craft";
+                case SupplyOnly -> "Supply";
+            });
+        }
+
+        add(Screen.RECIPE_IMPORT_MOST_LIKELY, "Most likely");
+
         add(Screen.CRAFTING_INPUTS, "Inputs");
         add(Screen.CRAFTING_OUTPUT, "Output");
         add(Screen.CRAFTING_SATELLITE, "Satellite");
@@ -346,7 +385,6 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Screen.INV_SYS_CON_CHANNEL, "Channel");
         add(Screen.INV_SYS_CON_RESISTANCE, "Resistance");
         add(Screen.INV_SYS_CON_WAITING_FOR, "Waiting for");
-        add(Screen.INV_SYS_CON_REFRESH, "Refresh");
         add(Screen.INV_SYS_CON_CHANGE, "Change");
 
         add(Screen.PROVIDER_EXCESS_INVENTORY, "Excess Inventory:");
@@ -355,6 +393,11 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Screen.SUPPLIER_TARGET, "Items to keep stocked");
         add(Screen.SUPPLIER_TARGET_PATTERN, "Items to keep in the specified slots");
         add(Screen.SUPPLIER_REQUEST_MODE, "Request Mode");
+        add(Screen.SUPPLIER_LIMITED, "Limited");
+        add(Screen.SUPPLIER_UNLIMITED, "Unlimited");
+        for (SupplyMode mode : SupplyMode.values()) {
+            add(Screen.enumValue("supplier_pipe.mode", mode), mode.name());
+        }
 
         add(Screen.PIPE_CONTROLLER_UPGRADES, "Upgrades");
         add(Screen.PIPE_CONTROLLER_SNEAKY_UPGRADES, "Sneaky Upgrades");
@@ -367,6 +410,7 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Screen.PIPE_CONTROLLER_ROUTING_TABLE_SIZE, "RoutingTableSize");
         add(Screen.PIPE_CONTROLLER_DISCONNECTION_TITLE, "Disconnection Configuration");
         add(Screen.PIPE_CONTROLLER_SNEAKY_TITLE, "Sneaky Configuration");
+        add(Screen.PIPE_CONTROLLER_EDIT_LOGIC, "Edit Logic Controller");
 
         add(Screen.SATELLITE_NAME, "Satellite Name");
 
@@ -380,9 +424,6 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Screen.SECURITY_STATION_PIPE_REMOVE, "Allow automated Pipe remove");
         add(Screen.SECURITY_STATION_PLAYER, "Player");
         add(Screen.SECURITY_STATION_SECURITY_CARDS, "Security Cards");
-        add(Screen.SECURITY_STATION_CC_REMOVE, "Remove");
-        add(Screen.SECURITY_STATION_CC_ADD, "Add");
-        add(Screen.SECURITY_STATION_PLAYER_CLOSE, "Close");
         add(Screen.SECURITY_STATION_PLAYER_CONFIGURE_SETTINGS, "Configure Settings");
         add(Screen.SECURITY_STATION_PLAYER_ACTIVE_REQUESTING, "Active Requesting");
         add(Screen.SECURITY_STATION_PLAYER_UPGRADE_PIPES, "Upgrade Pipes");
@@ -398,6 +439,9 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Screen.PROGRAM_COMPILER_PROCESSING, "Processing...");
         add(Screen.PROGRAM_COMPILER_NO_POWER, "No power");
         add(Screen.PROGRAM_COMPILER_CONNECT, "Connect to LP network");
+        add(Screen.PROGRAM_COMPILER_UNLOCK, "Unlock");
+        add(Screen.PROGRAM_COMPILER_COMPILE, "Compile");
+        add(Screen.PROGRAM_COMPILER_FLASH, "Flash");
         addCompilerCategory(ProgramCategories.BASIC, "Basic");
         addCompilerCategory(ProgramCategories.TIER_2, "Tier 2");
         addCompilerCategory(ProgramCategories.FLUID, "Fluid");
@@ -423,7 +467,6 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Screen.CHANNEL_DELETE_CONFIRM, "Do you really want to delete this channel?");
 
         add(Screen.SATELLITE_SELECT_TITLE, "Select Satellite Pipe");
-        add(Screen.SATELLITE_SELECT_EXIT, "Exit");
         add(Screen.SATELLITE_SELECT_UNSET, "Unset");
     }
 

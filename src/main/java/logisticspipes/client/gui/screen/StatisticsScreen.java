@@ -217,6 +217,7 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
         private final List<String> graphTexts = new ArrayList<>();
         private final List<int[]> graphTextPos = new ArrayList<>();
         private @Nullable ItemDisplay itemDisplay;
+        private @Nullable SmallGuiButton removeButton;
         private float xViewportOffset = -1434;
         private float yViewportOffset;
         private float xViewportScale = 15;
@@ -238,11 +239,14 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
             SmallGuiButton b1 = new SmallGuiButton(1, leftPos + 150, topPos + 70, 20, 20, ">");
             b1.setPressListener(b -> itemDisplay.nextPage());
             BUTTONS.add(addRenderableWidget(b1));
-            SmallGuiButton b2 = new SmallGuiButton(2, leftPos + 37, topPos + 70, 40, 20, "Add");
+            SmallGuiButton b2 = new SmallGuiButton(2, leftPos + 37, topPos + 70, 40, 20,
+                Component.translatable(Translations.Screen.ADD));
             b2.setPressListener(b -> ClientPacketDistributor.sendToServer(
                 new RequestTrackableItemsMessage(tile.getBlockPos())));
             BUTTONS.add(addRenderableWidget(b2));
-            SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 83, topPos + 70, 60, 20, "Remove");
+            SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 83, topPos + 70, 60, 20,
+                Component.translatable(Translations.Screen.REMOVE));
+            removeButton = b3;
             b3.setPressListener(b -> {
                 if (itemDisplay.getSelectedItem() != null) {
                     ClientPacketDistributor.sendToServer(new TrackItemMessage(
@@ -460,7 +464,7 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
         public void checkButtons() {
             for (AbstractButton button : BUTTONS) {
                 button.visible = getActiveTab() == this;
-                if (button.getMessage().getString().equals("Remove")) {
+                if (button == removeButton) {
                     button.active = itemDisplay.getSelectedItem() != null;
                 }
             }

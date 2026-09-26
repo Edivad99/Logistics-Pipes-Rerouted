@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.api.property.StringListProperty;
 import logisticspipes.api.property.layer.PropertyLayer;
 import logisticspipes.api.property.layer.PropertyOverlay;
@@ -51,9 +52,11 @@ public class StringBasedItemSinkScreen extends ModuleBaseScreen<ModuleAnalysisMe
     @Override
     public void init() {
         super.init();
-        addButton = new SmallGuiButton(0, leftPos + 38, topPos + 18, 50, 10, "Add");
+        addButton = new SmallGuiButton(0, leftPos + 38, topPos + 18, 50, 10,
+            Component.translatable(Translations.Screen.ADD));
         addRenderableWidget(addButton);
-        removeButton = new SmallGuiButton(1, leftPos + 107, topPos + 18, 50, 10, "Remove");
+        removeButton = new SmallGuiButton(1, leftPos + 107, topPos + 18, 50, 10,
+            Component.translatable(Translations.Screen.REMOVE));
         addRenderableWidget(removeButton);
         addButton.active = false;
         removeButton.active = false;

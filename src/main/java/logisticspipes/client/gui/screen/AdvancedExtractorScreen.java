@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.layer.PropertyLayer;
 import logisticspipes.api.property.layer.ValuePropertyOverlay;
@@ -42,11 +43,12 @@ public class AdvancedExtractorScreen extends ModuleBaseScreen<AdvancedExtractorM
         super.init();
         //Default item toggle:
         addRenderableWidget(new GuiStringHandlerButton(0, width / 2 + 20, height / 2 - 34, 60, 20,
-            () -> Component.literal(itemsIncludedOverlay.get() ? "Included" : "Excluded"),
+            () -> Component.translatable(
+                itemsIncludedOverlay.get() ? Translations.Screen.INCLUDED : Translations.Screen.EXCLUDED),
             () -> itemsIncludedOverlay.write(BooleanProperty::toggle)));
 
         logisticspipes.utils.gui.SmallGuiButton sneaky = new logisticspipes.utils.gui.SmallGuiButton(1, width / 2 - 25,
-            height / 2 - 34, 40, 20, "Sneaky");
+            height / 2 - 34, 40, 20, Component.translatable(Translations.Screen.ADVANCED_EXTRACTOR_SNEAKY));
         sneaky.setPressListener(b -> ClientPacketDistributor.sendToServer(
             new OpenSneakyDirectionGuiMessage(ModuleTarget.of(advancedExtractor))));
         addRenderableWidget(sneaky);

@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.network.RemotePipeTarget;
 import logisticspipes.network.to_server.orderer.RequestOrdererRefreshMessage;
 import logisticspipes.request.RequestHandler.DisplayOptions;
@@ -25,30 +26,27 @@ public class NormalOrdererScreen<T extends OrdererMenu> extends OrdererScreen<T>
     @Override
     public void init() {
         super.init();
-        SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 15, 46, 10, "Refresh");
+        SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 15, 46, 10,
+            Component.translatable(Translations.Screen.REFRESH));
         refreshBtn.setPressListener(b -> refreshItems());
         addRenderableWidget(refreshBtn);
-        addRenderableWidget(new SmallGuiButton(13, leftPos + 10, bottom - 28, 46, 10, "Content"));
-        SmallGuiButton modeBtn = new SmallGuiButton(9, leftPos + 10, bottom - 41, 46, 10, "Both");
+        addRenderableWidget(new SmallGuiButton(13, leftPos + 10, bottom - 28, 46, 10,
+            Component.translatable(Translations.Screen.ORDERER_CONTENT)));
+        SmallGuiButton modeBtn = new SmallGuiButton(9, leftPos + 10, bottom - 41, 46, 10, displayOptionsLabel());
         modeBtn.setPressListener(b -> {
-            String displayString = switch (displayOptions) {
-                case Both -> {
-                    displayOptions = DisplayOptions.CraftOnly;
-                    yield "Craft";
-                }
-                case CraftOnly -> {
-                    displayOptions = DisplayOptions.SupplyOnly;
-                    yield "Supply";
-                }
-                case SupplyOnly -> {
-                    displayOptions = DisplayOptions.Both;
-                    yield "Both";
-                }
+            displayOptions = switch (displayOptions) {
+                case Both -> DisplayOptions.CraftOnly;
+                case CraftOnly -> DisplayOptions.SupplyOnly;
+                case SupplyOnly -> DisplayOptions.Both;
             };
-            b.setMessage(Component.literal(displayString));
+            b.setMessage(displayOptionsLabel());
             refreshItems();
         });
         addRenderableWidget(modeBtn);
+    }
+
+    private Component displayOptionsLabel() {
+        return Component.translatable(Translations.Screen.enumValue("orderer.display", displayOptions));
     }
 
     @Override

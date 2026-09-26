@@ -5,7 +5,9 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 
+import logisticspipes.Translations;
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -26,8 +28,10 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 
 	public HUDAdvancedExtractor(AsyncAdvancedExtractor moduleAdvancedExtractor) {
 		module = moduleAdvancedExtractor;
-		buttons.add(new TabButton("Side", 0, -30, -50, 25, 10));
-		buttons.add(new TabButton("Inv", 1, -5, -50, 25, 10));
+		buttons.add(new TabButton(
+				Component.translatable(Translations.Screen.ADVANCED_EXTRACTOR_SIDE), 0, -30, -50, 25, 10));
+		buttons.add(new TabButton(
+				Component.translatable(Translations.Screen.ADVANCED_EXTRACTOR_INVENTORY), 1, -5, -50, 25, 10));
 	}
 
 	@Override
@@ -54,7 +58,7 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 
 		private final int mode;
 
-		public TabButton(String name, int mode, int x, int y, int width, int height) {
+		public TabButton(Component name, int mode, int x, int y, int width, int height) {
 			super(name, x, y, width, height);
 			this.mode = mode;
 		}
@@ -91,9 +95,10 @@ public class HUDAdvancedExtractor implements IHUDModuleRenderer {
 				color = Color.getValue(Color.DARK_GREY);
 			}
 			context.pose().translate(0.0F, 0.0F, 0.0F);
-			int tx = -(mc.font.width(label) / 2) + posX + sizeX / 2;
+			String text = label.getString();
+			int tx = -(mc.font.width(text) / 2) + posX + sizeX / 2;
 			int ty = posY + (sizeY - 8) / 2 + 2;
-			context.drawString(mc.font, label, tx, ty, color, false);
+			context.drawString(mc.font, text, tx, ty, color, false);
 			context.pose().popPose();
 		}
 

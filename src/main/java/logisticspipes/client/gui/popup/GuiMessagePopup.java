@@ -3,6 +3,7 @@ package logisticspipes.client.gui.popup;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
+import logisticspipes.Translations;
 import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
@@ -33,7 +34,8 @@ public class GuiMessagePopup extends SubGuiScreen {
     @Override
     public void init() {
         super.init();
-        SmallGuiButton ok = new SmallGuiButton(0, xCenter - 25, bottom - 25, 50, 20, "OK");
+        SmallGuiButton ok = new SmallGuiButton(0, xCenter - 25, bottom - 25, 50, 20,
+            Component.translatable(Translations.Screen.OK));
         ok.setPressListener(b -> exitGui());
         addRenderableWidget(ok);
     }

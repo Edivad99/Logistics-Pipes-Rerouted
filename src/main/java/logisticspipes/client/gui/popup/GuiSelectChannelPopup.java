@@ -24,7 +24,8 @@ public class GuiSelectChannelPopup extends GuiManageChannelPopup {
     @Override
     public void init() {
         super.init();
-        SmallGuiButton selBtn = new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, "Select");
+        SmallGuiButton selBtn = new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10,
+            Component.translatable(Translations.Screen.SELECT));
         selBtn.setPressListener(b -> {
             int selected = textList.getSelected();
             if (selected >= 0) {

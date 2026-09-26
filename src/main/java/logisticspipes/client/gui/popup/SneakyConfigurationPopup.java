@@ -56,7 +56,8 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
                 coords, configured));
         }
 
-        SmallGuiButton cancel = new SmallGuiButton(0, right - 106, bottom - 26, 100, 20, "Cancel");
+        SmallGuiButton cancel = new SmallGuiButton(0, right - 106, bottom - 26, 100, 20,
+            Component.translatable(Translations.Screen.CANCEL));
         cancel.setPressListener(b -> exitGui());
         addRenderableWidget(cancel);
 

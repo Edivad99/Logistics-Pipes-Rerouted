@@ -12,6 +12,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
@@ -19,6 +20,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.to_server.block.SaveDiskContentMessage;
 import logisticspipes.utils.Color;
@@ -108,7 +110,8 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
         SmallGuiButton pMac = new SmallGuiButton(3, right - 90, guiTop + 135, 10, 10, "<");
         pMac.setPressListener(b -> prevPageMacro());
         addRenderableWidget(pMac);
-        SmallGuiButton saveBtn = new SmallGuiButton(4, right - 39, bottom - 27, 35, 20, "Save");
+        SmallGuiButton saveBtn = new SmallGuiButton(4, right - 39, bottom - 27, 35, 20,
+            Component.translatable(Translations.Screen.SAVE));
         saveBtn.setPressListener(b -> handleSave());
         addRenderableWidget(saveBtn);
     }

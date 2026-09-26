@@ -49,7 +49,8 @@ public class SelectItemOutOfList extends SubGuiScreen implements IItemSearch {
         SmallGuiButton next = new SmallGuiButton(1, guiLeft + 138, guiTop + 5, 10, 10, ">");
         next.setPressListener(b -> itemDisplay.nextPage());
         addRenderableWidget(next);
-        SmallGuiButton sel = new SmallGuiButton(2, guiLeft + 100, bottom - 26, 50, 20, "Select");
+        SmallGuiButton sel = new SmallGuiButton(2, guiLeft + 100, bottom - 26, 50, 20,
+            Component.translatable(Translations.Screen.SELECT));
         sel.setPressListener(b -> {
             ItemIdentifierStack stack = itemDisplay.getSelectedItem();
             int index = candidate.indexOf(stack);

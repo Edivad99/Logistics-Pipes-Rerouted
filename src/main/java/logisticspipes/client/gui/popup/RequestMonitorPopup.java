@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
+import logisticspipes.Translations;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
@@ -95,10 +96,12 @@ public class RequestMonitorPopup extends SubGuiScreen {
     @Override
     public void init() {
         super.init();
-        SmallGuiButton closeBtn = new SmallGuiButton(0, width / 2 - 90, height / 2 + 74, 80, 20, "Close");
+        SmallGuiButton closeBtn = new SmallGuiButton(0, width / 2 - 90, height / 2 + 74, 80, 20,
+            Component.translatable(Translations.Screen.CLOSE));
         closeBtn.setPressListener(b -> exitGui());
         addRenderableWidget(closeBtn);
-        SmallGuiButton saveBtn = new SmallGuiButton(1, width / 2 + 10, height / 2 + 74, 80, 20, "Save as Image");
+        SmallGuiButton saveBtn = new SmallGuiButton(1, width / 2 + 10, height / 2 + 74, 80, 20,
+            Component.translatable(Translations.Screen.ORDERER_SAVE_AS_IMAGE));
         saveBtn.setPressListener(b -> saveTreeToImage());
         addRenderableWidget(saveBtn);
     }

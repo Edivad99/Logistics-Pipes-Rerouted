@@ -87,8 +87,38 @@ public final class Translations {
         public static final String STORED_ENERGY = makeKey("screen", "stored_energy");
         public static final String SELECT_TYPE = makeKey("screen", "select_type");
         public static final String SELECT_ORE_DICT = makeKey("screen", "select_ore_dict");
+        public static final String ADD = makeKey("screen", "add");
+        public static final String REMOVE = makeKey("screen", "remove");
+        public static final String EDIT = makeKey("screen", "edit");
+        public static final String DELETE = makeKey("screen", "delete");
+        public static final String CLOSE = makeKey("screen", "close");
+        public static final String EXIT = makeKey("screen", "exit");
+        public static final String CANCEL = makeKey("screen", "cancel");
+        public static final String OK = makeKey("screen", "ok");
+        public static final String DONE = makeKey("screen", "done");
+        public static final String REFRESH = makeKey("screen", "refresh");
+        public static final String REQUEST = makeKey("screen", "request");
+        public static final String SORT = makeKey("screen", "sort");
+        public static final String SET = makeKey("screen", "set");
+        public static final String INCLUDED = makeKey("screen", "included");
+        public static final String EXCLUDED = makeKey("screen", "excluded");
 
         public static final String ITEM_SINK_DEFAULT_ROUTE = makeKey("screen", "item_sink.default_route");
+
+        public static final String ADVANCED_EXTRACTOR_SNEAKY = makeKey("screen", "advanced_extractor.sneaky");
+        public static final String ADVANCED_EXTRACTOR_SIDE = makeKey("screen", "advanced_extractor.side");
+        public static final String ADVANCED_EXTRACTOR_INVENTORY = makeKey("screen", "advanced_extractor.inventory");
+
+        public static final String ORDERER_CONTENT = makeKey("screen", "orderer.content");
+        public static final String ORDERER_HIDE = makeKey("screen", "orderer.hide");
+        public static final String ORDERER_SHOW = makeKey("screen", "orderer.show");
+        public static final String ORDERER_DISK = makeKey("screen", "orderer.disk");
+        public static final String ORDERER_MORE = makeKey("screen", "orderer.more");
+        public static final String ORDERER_LOG = makeKey("screen", "orderer.log");
+        public static final String ORDERER_DISK_ADD_EDIT = makeKey("screen", "orderer.disk.add_edit");
+        public static final String ORDERER_SAVE_AS_IMAGE = makeKey("screen", "orderer.save_as_image");
+
+        public static final String RECIPE_IMPORT_MOST_LIKELY = makeKey("screen", "recipe_import.most_likely");
 
         public static final String CRAFTING_INPUTS = makeKey("screen", "crafting_pipe.inputs");
         public static final String CRAFTING_OUTPUT = makeKey("screen", "crafting_pipe.output");
@@ -123,7 +153,6 @@ public final class Translations {
         public static final String INV_SYS_CON_CHANNEL = makeKey("screen", "inv_sys_con.channel");
         public static final String INV_SYS_CON_RESISTANCE = makeKey("screen", "inv_sys_con.resistance");
         public static final String INV_SYS_CON_WAITING_FOR = makeKey("screen", "inv_sys_con.waiting_for");
-        public static final String INV_SYS_CON_REFRESH = makeKey("screen", "inv_sys_con.refresh");
         public static final String INV_SYS_CON_CHANGE = makeKey("screen", "inv_sys_con.change");
 
         public static final String PROVIDER_EXCESS_INVENTORY = makeKey("screen", "provider_pipe.excess_inventory");
@@ -132,6 +161,8 @@ public final class Translations {
         public static final String SUPPLIER_TARGET = makeKey("screen", "supplier_pipe.target");
         public static final String SUPPLIER_TARGET_PATTERN = makeKey("screen", "supplier_pipe.target_pattern");
         public static final String SUPPLIER_REQUEST_MODE = makeKey("screen", "supplier_pipe.request_mode");
+        public static final String SUPPLIER_LIMITED = makeKey("screen", "supplier_pipe.limited");
+        public static final String SUPPLIER_UNLIMITED = makeKey("screen", "supplier_pipe.unlimited");
 
         public static final String PIPE_CONTROLLER_UPGRADES = makeKey("screen", "pipe_controller.upgrades");
         public static final String PIPE_CONTROLLER_SNEAKY_UPGRADES =
@@ -147,6 +178,8 @@ public final class Translations {
         public static final String PIPE_CONTROLLER_DISCONNECTION_TITLE =
             makeKey("screen", "pipe_controller.disconnection_title");
         public static final String PIPE_CONTROLLER_SNEAKY_TITLE = makeKey("screen", "pipe_controller.sneaky_title");
+        public static final String PIPE_CONTROLLER_EDIT_LOGIC =
+            makeKey("screen", "pipe_controller.edit_logic");
 
         public static final String SATELLITE_NAME = makeKey("screen", "satellite_pipe.name");
 
@@ -163,9 +196,6 @@ public final class Translations {
         public static final String SECURITY_STATION_PLAYER = makeKey("screen", "security_station.player");
         public static final String SECURITY_STATION_SECURITY_CARDS =
             makeKey("screen", "security_station.security_cards");
-        public static final String SECURITY_STATION_CC_REMOVE = makeKey("screen", "security_station.cc.remove");
-        public static final String SECURITY_STATION_CC_ADD = makeKey("screen", "security_station.cc.add");
-        public static final String SECURITY_STATION_PLAYER_CLOSE = makeKey("screen", "security_station.player.close");
         public static final String SECURITY_STATION_PLAYER_CONFIGURE_SETTINGS =
             makeKey("screen", "security_station.player.configure_settings");
         public static final String SECURITY_STATION_PLAYER_ACTIVE_REQUESTING =
@@ -187,6 +217,9 @@ public final class Translations {
         public static final String PROGRAM_COMPILER_PROCESSING = makeKey("screen", "program_compiler.processing");
         public static final String PROGRAM_COMPILER_NO_POWER = makeKey("screen", "program_compiler.no_power");
         public static final String PROGRAM_COMPILER_CONNECT = makeKey("screen", "program_compiler.connect");
+        public static final String PROGRAM_COMPILER_UNLOCK = makeKey("screen", "program_compiler.unlock");
+        public static final String PROGRAM_COMPILER_COMPILE = makeKey("screen", "program_compiler.compile");
+        public static final String PROGRAM_COMPILER_FLASH = makeKey("screen", "program_compiler.flash");
 
         public static final String SETTINGS_PIPE_RENDER_DISTANCE = makeKey("screen", "settings.pipe_render_distance");
         public static final String SETTINGS_PIPE_CONTENT_RENDER_DISTANCE =
@@ -205,7 +238,6 @@ public final class Translations {
         public static final String CHANNEL_DELETE_CONFIRM = makeKey("screen", "channel.delete_confirm");
 
         public static final String SATELLITE_SELECT_TITLE = makeKey("screen", "satellite_select.title");
-        public static final String SATELLITE_SELECT_EXIT = makeKey("screen", "satellite_select.exit");
         public static final String SATELLITE_SELECT_UNSET = makeKey("screen", "satellite_select.unset");
 
         private Screen() {

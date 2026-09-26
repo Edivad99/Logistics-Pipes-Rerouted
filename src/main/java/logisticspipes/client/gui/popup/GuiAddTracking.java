@@ -46,10 +46,12 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
     public void init() {
         super.init();
 
-        SmallGuiButton refreshBtn = new SmallGuiButton(3, guiLeft + 4, bottom - 25, 50, 20, "Refresh");
+        SmallGuiButton refreshBtn = new SmallGuiButton(3, guiLeft + 4, bottom - 25, 50, 20,
+            Component.translatable(Translations.Screen.REFRESH));
         refreshBtn.setPressListener(b -> refreshItems());
         addRenderableWidget(refreshBtn);
-        SmallGuiButton addBtn = new SmallGuiButton(0, right - 55, bottom - 25, 50, 20, "Add");
+        SmallGuiButton addBtn = new SmallGuiButton(0, right - 55, bottom - 25, 50, 20,
+            Component.translatable(Translations.Screen.ADD));
         addBtn.setPressListener(b -> {
             if (itemDisplay.getSelectedItem() == null) {
                 return;
@@ -78,7 +80,8 @@ public class GuiAddTracking extends SubGuiScreen implements IItemSearch {
         prevBtn.setPressListener(b -> itemDisplay.prevPage());
         addRenderableWidget(prevBtn);
 
-        SmallGuiButton sortBtn = new SmallGuiButton(20, xCenter - 13, bottom - 21, 26, 10, "Sort");
+        SmallGuiButton sortBtn = new SmallGuiButton(20, xCenter - 13, bottom - 21, 26, 10,
+            Component.translatable(Translations.Screen.SORT));
         sortBtn.setPressListener(b -> itemDisplay.cycle());
         addRenderableWidget(sortBtn);
 

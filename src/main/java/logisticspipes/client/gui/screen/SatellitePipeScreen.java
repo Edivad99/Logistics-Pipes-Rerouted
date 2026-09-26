@@ -47,7 +47,8 @@ public class SatellitePipeScreen extends LogisticsBaseGuiScreen<SatelliteMenu> {
     public void init() {
 
         super.init();
-        SmallGuiButton saveBtn = new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10, "Save");
+        SmallGuiButton saveBtn = new SmallGuiButton(0, (width / 2) - (30 / 2) + 35, (height / 2) + 20, 30, 10,
+            Component.translatable(Translations.Screen.SAVE));
         saveBtn.setPressListener(b -> ClientPacketDistributor.sendToServer(new SetSatelliteNameMessage(
             Objects.requireNonNull(satellitePipe.getContainer()).getBlockPos(), input.getValue())));
         addRenderableWidget(saveBtn);

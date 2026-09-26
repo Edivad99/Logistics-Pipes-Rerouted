@@ -73,7 +73,7 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
         addRenderableWidget(cb4);
         addRenderableWidget(cb5);
         SmallGuiButton closeBtn = new SmallGuiButton(6, guiLeft + 123, guiTop + 118, 30, 10,
-            Component.translatable(Translations.Screen.SECURITY_STATION_PLAYER_CLOSE));
+            Component.translatable(Translations.Screen.CLOSE));
         closeBtn.setPressListener(b -> exitGui());
         addRenderableWidget(closeBtn);
         refreshCheckBoxes();

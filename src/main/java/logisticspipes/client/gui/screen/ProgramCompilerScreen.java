@@ -139,7 +139,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
         catDn = new SmallGuiButton(1, leftPos + 24, topPos + 90, 15, 10, "\\/");
         catDn.setPressListener(b -> categoryList.scrollUp());
         addRenderableWidget(catDn);
-        unlock = new SmallGuiButton(2, leftPos + 40, topPos + 90, 40, 10, "Unlock");
+        unlock = new SmallGuiButton(2, leftPos + 40, topPos + 90, 40, 10,
+            Component.translatable(Translations.Screen.PROGRAM_COMPILER_UNLOCK));
         unlock.setPressListener(b -> {
             if (categoryList.getSelected() != -1) {
                 ListTag list = compiler.getListTagForKey("compilerCategories");
@@ -171,7 +172,8 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
             }
         });
         addRenderableWidget(progDn);
-        programmerButton = new SmallGuiButton(5, leftPos + 132, topPos + 90, 40, 10, "Compile");
+        programmerButton = new SmallGuiButton(5, leftPos + 132, topPos + 90, 40, 10,
+            Component.translatable(Translations.Screen.PROGRAM_COMPILER_COMPILE));
         programmerButton.setPressListener(b -> {
             int selIndex = programList.getSelected();
             if (categoryTextList.getSize() == 0 && programTextList.getSize() != 0) {
@@ -248,10 +250,10 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
 
                 ListTag listPrograms = compiler.getListTagForKey("compilerPrograms");
                 if (listPrograms.stream().anyMatch(it -> Identifier.parse(it.asString().orElse("")).equals(sel))) {
-                    programmerButton.setMessage(Component.literal("Flash"));
+                    programmerButton.setMessage(Component.translatable(Translations.Screen.PROGRAM_COMPILER_FLASH));
                     programmerButton.active = !compiler.getInventory().getItem(1).isEmpty();
                 } else {
-                    programmerButton.setMessage(Component.literal("Compile"));
+                    programmerButton.setMessage(Component.translatable(Translations.Screen.PROGRAM_COMPILER_COMPILE));
                     programmerButton.active = true;
                 }
             }

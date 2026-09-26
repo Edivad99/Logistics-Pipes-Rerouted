@@ -139,12 +139,13 @@ public class SupplierPipeScreen extends LogisticsBaseGuiScreen<ActiveSupplierMen
             limBtn = new SmallGuiButton(1, leftPos + 5, topPos + 68, 45, 10, getLimitationText());
             limBtn.setPressListener(b -> {
                 limitedPropertyOverlay.write(BooleanProperty::toggle);
-                limBtn.setMessage(Component.literal(getLimitationText()));
+                limBtn.setMessage(getLimitationText());
             });
             addRenderableWidget(limBtn);
             for (int i = 0; i < 9; i++) {
                 final int slot = i;
-                SmallGuiButton setBtn = new SmallGuiButton(i + 2, leftPos + 18 + i * 18, topPos + 40, 17, 10, "Set");
+                SmallGuiButton setBtn = new SmallGuiButton(i + 2, leftPos + 18 + i * 18, topPos + 40, 17, 10,
+                    Component.translatable(Translations.Screen.SET));
                 setBtn.setPressListener(b -> ClientPacketDistributor.sendToServer(
                     new SlotFinderOpenGuiMessage(ModuleTarget.of(supplierModule), slot)));
                 addRenderableWidget(setBtn);
@@ -154,22 +155,25 @@ public class SupplierPipeScreen extends LogisticsBaseGuiScreen<ActiveSupplierMen
 
     public void refreshMode() {
         if (modeBtn != null) {
-            modeBtn.setMessage(Component.literal(getModeText()));
+            modeBtn.setMessage(getModeText());
         }
         if (hasPatternUpgrade) {
             limitedPropertyOverlay = propertyLayer.overlay(supplierModule.isLimited);
             if (limBtn != null) {
-                limBtn.setMessage(Component.literal(getLimitationText()));
+                limBtn.setMessage(getLimitationText());
             }
         }
     }
 
-    private String getLimitationText() {
-        return limitedPropertyOverlay.get() ? "Limited" : "Unlimited";
+    private Component getLimitationText() {
+        return Component.translatable(limitedPropertyOverlay.get()
+            ? Translations.Screen.SUPPLIER_LIMITED
+            : Translations.Screen.SUPPLIER_UNLIMITED);
     }
 
-    private String getModeText() {
-        return (hasPatternUpgrade ? patternModeOverlay : requestModeOverlay).get().toString();
+    private Component getModeText() {
+        return Component.translatable(Translations.Screen.enumValue("supplier_pipe.mode",
+            (hasPatternUpgrade ? patternModeOverlay : requestModeOverlay).get()));
     }
 
 }

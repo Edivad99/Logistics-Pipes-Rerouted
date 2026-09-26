@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.network.RemotePipeTarget;
 import logisticspipes.network.to_server.orderer.RequestFluidOrdererRefreshMessage;
 import logisticspipes.network.to_server.orderer.SubmitFluidRequestMessage;
@@ -26,7 +27,8 @@ public class FluidOrdererScreen extends OrdererScreen<FluidOrdererMenu> {
     public void init() {
         boolean setItemDisplay = itemDisplay == null;
         super.init();
-        SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 25, 46, 20, "Refresh");
+        SmallGuiButton refreshBtn = new SmallGuiButton(3, leftPos + 10, bottom - 25, 46, 20,
+            Component.translatable(Translations.Screen.REFRESH));
         refreshBtn.setPressListener(b -> refreshItems());
         addRenderableWidget(refreshBtn);
         if (setItemDisplay) {

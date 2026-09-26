@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
+import logisticspipes.Translations;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.IResource.ColorCode;
 import logisticspipes.utils.TextUtil;
@@ -49,10 +50,12 @@ public class GuiRequestPopup extends SubGuiScreen {
     @Override
     public void init() {
         super.init();
-        SmallGuiButton ok = new SmallGuiButton(0, xCenter - 55, bottom - 25, 50, 20, "OK");
+        SmallGuiButton ok = new SmallGuiButton(0, xCenter - 55, bottom - 25, 50, 20,
+            Component.translatable(Translations.Screen.OK));
         ok.setPressListener(b -> exitGui());
         addRenderableWidget(ok);
-        SmallGuiButton logButton = new SmallGuiButton(1, xCenter + 5, bottom - 25, 50, 20, "Log");
+        SmallGuiButton logButton = new SmallGuiButton(1, xCenter + 5, bottom - 25, 50, 20,
+            Component.translatable(Translations.Screen.ORDERER_LOG));
         logButton.setPressListener(b -> {
             for (String msg : text) {
                 player.sendSystemMessage(Component.literal(msg));

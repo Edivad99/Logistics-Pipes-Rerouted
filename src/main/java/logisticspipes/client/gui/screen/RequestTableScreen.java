@@ -35,6 +35,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
+import logisticspipes.Translations;
 import logisticspipes.client.gui.popup.GuiDiskPopup;
 import logisticspipes.client.gui.popup.GuiRequestPopup;
 import logisticspipes.client.gui.popup.RequestMonitorPopup;
@@ -121,7 +122,8 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
         hideWhileSmall.clear();
 
         addRenderableWidget(hideWhileSmall.addChain(
-            wire(new SmallGuiButton(0, right - 55, bottom - 25, 50, 20, "Request"), 0))); // Request
+            wire(new SmallGuiButton(0, right - 55, bottom - 25, 50, 20,
+                Component.translatable(Translations.Screen.REQUEST)), 0))); // Request
         addRenderableWidget(
             hideWhileSmall.addChain(wire(new SmallGuiButton(1, right - 15, topPos + 5, 10, 10, ">"), 1))); // Next page
         addRenderableWidget(
@@ -144,13 +146,17 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
         addRenderableWidget(hideWhileSmall.addChain(popupCheck)); // Popup
 
         addRenderableWidget(hideWhileSmall.addChain(
-            wire(new SmallGuiButton(3, leftPos + 210, bottom - 15, 46, 10, "Refresh"), 3))); // Refresh
+            wire(new SmallGuiButton(3, leftPos + 210, bottom - 15, 46, 10,
+                Component.translatable(Translations.Screen.REFRESH)), 3))); // Refresh
         addRenderableWidget(hideWhileSmall.addChain(
-            wire(new SmallGuiButton(13, leftPos + 210, bottom - 28, 46, 10, "Content"), 13))); // Component
+            wire(new SmallGuiButton(13, leftPos + 210, bottom - 28, 46, 10,
+                Component.translatable(Translations.Screen.ORDERER_CONTENT)), 13))); // Component
         addRenderableWidget(
-            hideWhileSmall.addChain(wire(new SmallGuiButton(9, leftPos + 210, bottom - 41, 46, 10, "Both"), 9)));
+            hideWhileSmall.addChain(wire(new SmallGuiButton(9, leftPos + 210, bottom - 41, 46, 10,
+                displayOptionsLabel()), 9)));
         addRenderableWidget(hideWhileSmall.addChain(
-            wire(new SmallGuiButton(20, right - 116, bottom - 41, 26, 10, "Sort"), 20))); // Sort
+            wire(new SmallGuiButton(20, right - 116, bottom - 41, 26, 10,
+                Component.translatable(Translations.Screen.SORT)), 20))); // Sort
 
         addRenderableWidget(
             moveWhileSmall.addChain(wire(new SmallGuiButton(14, leftPos + 96, topPos + 53, 10, 10, "+"), 14))); // +1
@@ -165,8 +171,10 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
             wire(new SmallGuiButton(31, leftPos + 108 + 2, topPos + 18, 10, 10, "~", 3), 31))); // ~
 
         addRenderableWidget(
-            hideShowButton = wire(new SmallGuiButton(17, leftPos + 173, topPos + 5, 36, 10, "Hide"), 17)); // Hide
-        addRenderableWidget(macroButton = wire(new SmallGuiButton(18, right - 55, bottom - 60, 50, 10, "Disk"), 18));
+            hideShowButton = wire(new SmallGuiButton(17, leftPos + 173, topPos + 5, 36, 10,
+                Component.translatable(Translations.Screen.ORDERER_HIDE)), 17)); // Hide
+        addRenderableWidget(macroButton = wire(new SmallGuiButton(18, right - 55, bottom - 60, 50, 10,
+            Component.translatable(Translations.Screen.ORDERER_DISK)), 18));
         macroButton.active = false;
 
         (cycleButtons[0] = addRenderableWidget(
@@ -196,7 +204,7 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                 widget.setX(widget.getX() + 105);
             }
             hideShowButton.setX(hideShowButton.getX() + 90);
-            hideShowButton.setMessage(Component.literal("Show"));
+            hideShowButton.setMessage(Component.translatable(Translations.Screen.ORDERER_SHOW));
             for (AbstractWidget widget : hideWhileSmall) {
                 widget.visible = false;
             }
@@ -291,7 +299,8 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                                     removeWidget(localControlledButton);
                                 }
                                 localControlledButton = wire(
-                                    new SmallGuiButton(100, leftPos - 35, topPos + 10, 30, 10, "more"), 100);
+                                    new SmallGuiButton(100, leftPos - 35, topPos + 10, 30, 10,
+                                        Component.translatable(Translations.Screen.ORDERER_MORE)), 100);
                                 addRenderableWidget(localControlledButton);
                                 orderIdForButton = entry.getKey();
                             }
@@ -441,22 +450,12 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
             ClientPacketDistributor.sendToServer(new SimulateRequestMessage(
                 new RemotePipeTarget(dimension, table.getContainer().getBlockPos()), stack));
         } else if (id == 9) {
-            String displayString = "";
-            switch (displayOptions) {
-                case Both:
-                    displayOptions = DisplayOptions.CraftOnly;
-                    displayString = "Craft";
-                    break;
-                case CraftOnly:
-                    displayOptions = DisplayOptions.SupplyOnly;
-                    displayString = "Supply";
-                    break;
-                case SupplyOnly:
-                    displayOptions = DisplayOptions.Both;
-                    displayString = "Both";
-                    break;
-            }
-            guibutton.setMessage(Component.literal(displayString));
+            displayOptions = switch (displayOptions) {
+                case Both -> DisplayOptions.CraftOnly;
+                case CraftOnly -> DisplayOptions.SupplyOnly;
+                case SupplyOnly -> DisplayOptions.Both;
+            };
+            guibutton.setMessage(displayOptionsLabel());
             refreshItems();
         } else if (id == 14) {
             requestMatrix(1);
@@ -483,7 +482,8 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                 }
                 hideShowButton.setX(hideShowButton.getX() + 90);
             }
-            hideShowButton.setMessage(Component.literal(showRequest ? "Hide" : "Show"));
+            hideShowButton.setMessage(Component.translatable(
+                showRequest ? Translations.Screen.ORDERER_HIDE : Translations.Screen.ORDERER_SHOW));
             for (AbstractWidget widget : hideWhileSmall) {
                 widget.visible = showRequest;
             }
@@ -528,6 +528,10 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                 refreshItems();
             }
         }
+    }
+
+    private Component displayOptionsLabel() {
+        return Component.translatable(Translations.Screen.enumValue("orderer.display", displayOptions));
     }
 
     private void requestMatrix(int multiplier) {

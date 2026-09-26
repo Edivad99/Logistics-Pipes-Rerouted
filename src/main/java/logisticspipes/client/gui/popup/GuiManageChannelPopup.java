@@ -73,7 +73,8 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
     @Override
     public void init() {
         super.init();
-        SmallGuiButton delBtn = new SmallGuiButton(10, xCenter + 16, bottom - 27, 50, 10, "Delete");
+        SmallGuiButton delBtn = new SmallGuiButton(10, xCenter + 16, bottom - 27, 50, 10,
+            Component.translatable(Translations.Screen.DELETE));
         delBtn.setPressListener(b -> {
             int selected = textList.getSelected();
             if (selected >= 0) {
@@ -85,13 +86,16 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
             }
         });
         addRenderableWidget(delBtn);
-        SmallGuiButton exitBtn = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, "Exit");
+        SmallGuiButton exitBtn = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10,
+            Component.translatable(Translations.Screen.EXIT));
         exitBtn.setPressListener(b -> exitGui());
         addRenderableWidget(exitBtn);
-        SmallGuiButton addBtn = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, "Add");
+        SmallGuiButton addBtn = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10,
+            Component.translatable(Translations.Screen.ADD));
         addBtn.setPressListener(b -> setSubGui(new GuiAddChannelPopup(securityStationId())));
         addRenderableWidget(addBtn);
-        SmallGuiButton editBtn = new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10, "Edit");
+        SmallGuiButton editBtn = new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10,
+            Component.translatable(Translations.Screen.EDIT));
         editBtn.setPressListener(b -> {
             int selected = textList.getSelected();
             if (selected >= 0) {

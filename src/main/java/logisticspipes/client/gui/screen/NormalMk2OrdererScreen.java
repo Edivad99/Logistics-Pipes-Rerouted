@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.client.gui.popup.GuiDiskPopup;
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.to_server.orderer.DropDiskMessage;
@@ -34,7 +35,8 @@ public class NormalMk2OrdererScreen extends NormalOrdererScreen<OrdererMk2Menu> 
     @Override
     public void init() {
         super.init();
-        macroButton = new SmallGuiButton(12, right - 55, bottom - 60, 50, 10, "Disk");
+        macroButton = new SmallGuiButton(12, right - 55, bottom - 60, 50, 10,
+            Component.translatable(Translations.Screen.ORDERER_DISK));
         macroButton.setPressListener(b -> {
             ClientPacketDistributor.sendToServer(new RequestDiskContentMessage(pipe.getPos()));
             setSubGui(new GuiDiskPopup(this));

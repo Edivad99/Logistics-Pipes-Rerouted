@@ -1,6 +1,7 @@
 package logisticspipes.utils.gui.hud;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.renderer.HUDDrawContext;
@@ -22,14 +23,18 @@ public abstract class BasicHUDButton implements IHUDButton {
 	protected final int sizeX;
 	protected final int sizeY;
 	protected long focusedTimeStart = 0;
-	protected final String label;
+	protected final Component label;
 
-	public BasicHUDButton(String name, int x, int y, int width, int heigth) {
+	public BasicHUDButton(String name, int x, int y, int width, int height) {
+		this(Component.literal(name), x, y, width, height);
+	}
+
+	public BasicHUDButton(Component name, int x, int y, int width, int height) {
 		label = name;
 		posX = x;
 		posY = y;
 		sizeX = width;
-		sizeY = heigth;
+		sizeY = height;
 	}
 
 	@Override
@@ -88,7 +93,7 @@ public abstract class BasicHUDButton implements IHUDButton {
 		gg.fill(posX, posY, posX + sizeX, posY + sizeY, bg);
 		gg.fill(posX, posY, posX + sizeX, posY + 1, 0xffaaaaaa);
 		gg.fill(posX, posY + sizeY - 1, posX + sizeX, posY + sizeY, 0xff333333);
-		gg.drawCenteredString(Minecraft.getInstance().font, label,
+		gg.drawCenteredString(Minecraft.getInstance().font, label.getString(),
 			posX + sizeX / 2, posY + (sizeY - 8) / 2, Color.getValue(Color.LIGHTER_GREY), true);
 	}
 

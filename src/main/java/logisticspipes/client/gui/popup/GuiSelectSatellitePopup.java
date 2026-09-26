@@ -69,7 +69,7 @@ public class GuiSelectSatellitePopup extends SubGuiScreen {
         });
         addRenderableWidget(sel);
         SmallGuiButton ex = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10,
-            Component.translatable(Translations.Screen.SATELLITE_SELECT_EXIT));
+            Component.translatable(Translations.Screen.EXIT));
         ex.setPressListener(b -> exitGui());
         addRenderableWidget(ex);
         SmallGuiButton unset = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10,

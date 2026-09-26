@@ -14,6 +14,7 @@ import net.minecraft.world.item.component.CustomData;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.IDiskProvider;
 import logisticspipes.network.to_server.block.SaveDiskContentMessage;
 import logisticspipes.network.to_server.block.SetDiskNameMessage;
@@ -130,16 +131,20 @@ public class GuiDiskPopup extends SubGuiScreen {
     @Override
     public void init() {
         super.init();
-        SmallGuiButton req = new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, "Request");
+        SmallGuiButton req = new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10,
+            Component.translatable(Translations.Screen.REQUEST));
         req.setPressListener(b -> handleRequest());
         addRenderableWidget(req);
-        SmallGuiButton exit = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, "Exit");
+        SmallGuiButton exit = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10,
+            Component.translatable(Translations.Screen.EXIT));
         exit.setPressListener(b -> exitGui());
         addRenderableWidget(exit);
-        SmallGuiButton addEdit = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, "Add/Edit");
+        SmallGuiButton addEdit = new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10,
+            Component.translatable(Translations.Screen.ORDERER_DISK_ADD_EDIT));
         addEdit.setPressListener(b -> handleAddEdit());
         addRenderableWidget(addEdit);
-        SmallGuiButton del = new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10, "Delete");
+        SmallGuiButton del = new SmallGuiButton(3, xCenter - 66, bottom - 15, 50, 10,
+            Component.translatable(Translations.Screen.DELETE));
         del.setPressListener(b -> handleDelete());
         addRenderableWidget(del);
         SmallGuiButton up = new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\");

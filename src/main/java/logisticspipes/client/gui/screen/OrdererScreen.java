@@ -34,6 +34,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
+import logisticspipes.Translations;
 import logisticspipes.client.gui.popup.GuiRequestPopup;
 import logisticspipes.interfaces.IAvailableItemsReceiver;
 import logisticspipes.interfaces.ISpecialItemRenderer;
@@ -90,7 +91,8 @@ public abstract class OrdererScreen<T extends OrdererMenu> extends LogisticsBase
         super.init();
 
         // super.init() → rebuildWidgets() already cleared prior widgets
-        addRenderableWidget(wire(new SmallGuiButton(0, right - 55, bottom - 25, 50, 20, "Request"), 0)); // Request
+        addRenderableWidget(wire(new SmallGuiButton(0, right - 55, bottom - 25, 50, 20,
+            Component.translatable(Translations.Screen.REQUEST)), 0)); // Request
         addRenderableWidget(wire(new SmallGuiButton(1, right - 15, topPos + 5, 10, 10, ">"), 1)); // Next page
         addRenderableWidget(wire(new SmallGuiButton(2, right - 90, topPos + 5, 10, 10, "<"), 2)); // Prev page
         addRenderableWidget(wire(new SmallGuiButton(10, xCenter - 51, bottom - 15, 26, 10, "---"), 10)); // -64
@@ -104,7 +106,8 @@ public abstract class OrdererScreen<T extends OrdererMenu> extends LogisticsBase
         popupCheck.setPressListener(b -> handleBtn(8, b));
         addRenderableWidget(popupCheck); // Popup
 
-        addRenderableWidget(wire(new SmallGuiButton(20, xCenter - 13, bottom - 41, 26, 10, "Sort"), 20)); // Sort
+        addRenderableWidget(wire(new SmallGuiButton(20, xCenter - 13, bottom - 41, 26, 10,
+            Component.translatable(Translations.Screen.SORT)), 20)); // Sort
 
         if (search == null) {
             search = new InputBar(font, this, leftPos + 10, bottom - 78, panelWidth - 20, 15);

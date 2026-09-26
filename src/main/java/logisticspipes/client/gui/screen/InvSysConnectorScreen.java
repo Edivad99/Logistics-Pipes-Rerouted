@@ -61,7 +61,7 @@ public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
         b1.setPressListener(b -> pageUp());
         addRenderableWidget(b1);
         SmallGuiButton b2 = new SmallGuiButton(2, leftPos + 68, topPos + 67, 46, 10,
-            Component.translatable(Translations.Screen.INV_SYS_CON_REFRESH));
+            Component.translatable(Translations.Screen.REFRESH));
         b2.setPressListener(b -> refreshPacket());
         addRenderableWidget(b2);
         SmallGuiButton b3 = new SmallGuiButton(3, leftPos + 80, topPos + 55, 10, 10, "<");

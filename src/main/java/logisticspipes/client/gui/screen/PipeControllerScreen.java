@@ -255,7 +255,8 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
         @Override
         public void initTab() {
             editButton = addRenderableWidget(
-                new SmallGuiButton(0, leftPos + 10, topPos + 70, 160, 20, "Edit Logic Controller"));
+                new SmallGuiButton(0, leftPos + 10, topPos + 70, 160, 20,
+                    Component.translatable(Translations.Screen.PIPE_CONTROLLER_EDIT_LOGIC)));
         }
 
         @Override
