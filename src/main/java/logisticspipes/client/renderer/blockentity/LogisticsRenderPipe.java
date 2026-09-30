@@ -55,7 +55,6 @@ import logisticspipes.utils.tuples.Pair;
 
 public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGenericPipe, PipeRenderState> {
 
-    private static final int LIQUID_STAGES = 40;
     private static final int MAX_ITEMS_TO_RENDER = 10;
     /**
      * Depth left to an item drawn on a sign, as a fraction of its width. See {@link #renderItemStackOnSign}.
