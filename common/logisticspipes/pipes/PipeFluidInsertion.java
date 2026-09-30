@@ -53,7 +53,7 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 		PipeFluidTransportLogistics transport = (PipeFluidTransportLogistics) this.transport;
 		for (Direction dir : Direction.values()) {
 			FluidStack stack = transport.sideTanks[dir.ordinal()].getFluid();
-			if (stack == null) {
+			if (stack.isEmpty()) {
 				continue;
 			}
 			stack = stack.copy();
