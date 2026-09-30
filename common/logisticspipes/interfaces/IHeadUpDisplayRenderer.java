@@ -2,7 +2,7 @@ package logisticspipes.interfaces;
 
 import net.minecraft.client.Minecraft;
 
-import logisticspipes.renderer.HUDDrawContext;
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 
 public interface IHeadUpDisplayRenderer {
 

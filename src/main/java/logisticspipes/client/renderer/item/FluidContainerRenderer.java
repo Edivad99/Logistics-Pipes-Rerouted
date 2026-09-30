@@ -1,4 +1,4 @@
-package logisticspipes.renderer;
+package logisticspipes.client.renderer.item;
 
 import java.util.HashMap;
 import java.util.Map;

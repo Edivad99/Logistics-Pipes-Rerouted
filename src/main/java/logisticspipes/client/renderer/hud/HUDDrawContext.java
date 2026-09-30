@@ -1,4 +1,4 @@
-package logisticspipes.renderer;
+package logisticspipes.client.renderer.hud;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

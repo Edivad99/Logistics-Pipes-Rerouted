@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import com.mojang.serialization.MapCodec;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.renderer.FluidContainerRenderer;
+import logisticspipes.client.renderer.item.FluidContainerRenderer;
 
 public record FluidTint() implements ItemTintSource {
 

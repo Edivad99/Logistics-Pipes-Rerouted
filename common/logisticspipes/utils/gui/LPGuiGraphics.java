@@ -24,7 +24,7 @@ import it.unimi.dsi.fastutil.ints.IntIterator;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.renderer.HUDDrawContext;
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 
 /**
  * Utils class for GUI-related drawing methods.

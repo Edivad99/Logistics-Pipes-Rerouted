@@ -4,11 +4,11 @@ import net.minecraft.client.Minecraft;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.gui.hud.BasicHUDGui;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.network.to_server.pipe.UntraceRoutingMessage;
-import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.debug.ClientViewController.DebugInformation;
 import logisticspipes.utils.gui.LPGuiGraphics;

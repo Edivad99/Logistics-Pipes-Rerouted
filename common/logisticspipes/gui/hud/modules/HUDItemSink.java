@@ -2,11 +2,11 @@ package logisticspipes.gui.hud.modules;
 
 import java.util.List;
 
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.modules.ModuleItemSink;
-import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;

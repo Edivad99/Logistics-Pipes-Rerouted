@@ -5,10 +5,10 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
-import logisticspipes.renderer.HUDDrawContext;
 
 public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 

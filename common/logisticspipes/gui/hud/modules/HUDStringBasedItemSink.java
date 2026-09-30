@@ -5,10 +5,10 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IStringBasedModule;
-import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.gui.hud.BasicHUDButton;
 
 public class HUDStringBasedItemSink implements IHUDModuleRenderer {

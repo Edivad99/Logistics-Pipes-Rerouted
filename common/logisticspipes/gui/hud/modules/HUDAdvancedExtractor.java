@@ -8,11 +8,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
 import logisticspipes.Translations;
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.modules.AsyncAdvancedExtractor;
-import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.hud.BasicHUDButton;

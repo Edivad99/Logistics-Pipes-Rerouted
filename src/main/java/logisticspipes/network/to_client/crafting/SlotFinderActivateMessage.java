@@ -9,8 +9,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
+import logisticspipes.client.gui.GuiOverlay;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.renderer.GuiOverlay;
 
 /**
  * The neighbouring inventory's screen is open: highlight its slots so the player can pick one.

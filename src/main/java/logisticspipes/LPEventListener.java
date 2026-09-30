@@ -56,6 +56,8 @@ import net.neoforged.neoforgespi.language.IModInfo;
 import vazkii.patchouli.api.PatchouliAPI;
 
 import logisticspipes.Translations;
+import logisticspipes.client.gui.GuiOverlay;
+import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
 import logisticspipes.config.ClientConfiguration;
 import logisticspipes.config.PlayerConfiguration;
 import logisticspipes.interfaces.IItemAdvancedExistence;
@@ -66,8 +68,6 @@ import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.renderer.GuiOverlay;
-import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.PlayerCollectionList;

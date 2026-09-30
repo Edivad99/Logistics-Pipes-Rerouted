@@ -1,0 +1,610 @@
+package logisticspipes.client.renderer.hud;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Quaternionf;
+import org.joml.Vector3d;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LPConfigs;
+import logisticspipes.api.IHUDArmor;
+import logisticspipes.client.renderer.LPRenderTypes;
+import logisticspipes.hud.HUDConfig;
+import logisticspipes.interfaces.IDebugHUDProvider;
+import logisticspipes.interfaces.IHUDConfig;
+import logisticspipes.interfaces.IHeadUpDisplayBlockRendererProvider;
+import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.IRouter;
+import logisticspipes.routing.LaserData;
+import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.utils.tuples.Pair;
+
+public class LogisticsHUDRenderer {
+
+    @Nullable
+    public IDebugHUDProvider debugHUD = null;
+
+    private final LinkedList<IHeadUpDisplayRendererProvider> list = new LinkedList<>();
+    private double lastXPos = 0;
+    private double lastYPos = 0;
+    private double lastZPos = 0;
+
+    private int progress = 0;
+    private long last = 0;
+
+    private final ArrayList<IHeadUpDisplayBlockRendererProvider> providers = new ArrayList<>();
+
+    private final List<LaserData> lasers = new ArrayList<>();
+
+    @Nullable
+    private static LogisticsHUDRenderer renderer = null;
+
+    public void add(IHeadUpDisplayBlockRendererProvider provider) {
+        IHeadUpDisplayBlockRendererProvider toRemove = null;
+        for (IHeadUpDisplayBlockRendererProvider listedProvider : providers) {
+            if (listedProvider.getPos() != null && Objects.equals(listedProvider.getPos(), provider.getPos())) {
+                toRemove = listedProvider;
+                break;
+            }
+        }
+        if (toRemove != null) {
+            providers.remove(toRemove);
+        }
+        providers.add(provider);
+    }
+
+    public void remove(IHeadUpDisplayBlockRendererProvider provider) {
+        providers.remove(provider);
+    }
+
+    public void clear() {
+        providers.clear();
+        LogisticsHUDRenderer.instance().clearList(false);
+    }
+
+    private void clearList(boolean flag) {
+        if (flag) {
+            list.forEach(IHeadUpDisplayRendererProvider::stopWatching);
+        }
+        list.clear();
+    }
+
+    private void refreshList(double x, double y, double z) {
+        ArrayList<Pair<Double, IHeadUpDisplayRendererProvider>> newList = new ArrayList<>();
+        for (IRouter router : SimpleServiceLocator.clientRouterManager.getRouters()) {
+            if (router == null) {
+                continue;
+            }
+            CoreRoutedPipe pipe = router.getPipe();
+            if (!(pipe instanceof IHeadUpDisplayRendererProvider)) {
+                continue;
+            }
+            if (pipe.getLevel() == Minecraft.getInstance().level) {
+                final BlockPos pipePos = pipe.getPos();
+                double dis = Math.hypot(pipePos.getX() - x + 0.5,
+                        Math.hypot(pipePos.getY() - y + 0.5, pipePos.getZ() - z + 0.5));
+                if (dis < LPConfigs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75) {
+                    newList.add(new Pair<>(dis, (IHeadUpDisplayRendererProvider) pipe));
+                    if (!list.contains(pipe)) {
+                        ((IHeadUpDisplayRendererProvider) pipe).startWatching();
+                    }
+                }
+            }
+        }
+
+        List<IHeadUpDisplayBlockRendererProvider> remove = new ArrayList<>();
+        providers.stream()
+            .filter(provider -> provider.getLevelForHUD() == Minecraft.getInstance().level)
+            .forEach(provider -> {
+                final BlockPos providerPos = provider.getPos();
+                double dis = Math.hypot(providerPos.getX() - x + 0.5,
+                    Math.hypot(providerPos.getY() - y + 0.5, providerPos.getZ() - z + 0.5));
+                if (dis < LPConfigs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75
+                    && !provider.isHUDInvalid() && provider.isHUDExistent()) {
+                    newList.add(new Pair<>(dis, provider));
+                    if (!list.contains(provider)) {
+                        provider.startWatching();
+                    }
+                } else if (provider.isHUDInvalid() || !provider.isHUDExistent()) {
+                    remove.add(provider);
+                }
+            });
+        for (IHeadUpDisplayBlockRendererProvider provider : remove) {
+            providers.remove(provider);
+        }
+
+        if (newList.isEmpty()) {
+            clearList(true);
+            return;
+        }
+        newList.sort(Comparator.comparing(Pair::getValue1));
+        for (IHeadUpDisplayRendererProvider part : list) {
+            boolean contains = false;
+            for (Pair<Double, IHeadUpDisplayRendererProvider> inpart : newList) {
+                if (inpart.getValue2().equals(part)) {
+                    contains = true;
+                    break;
+                }
+            }
+            if (!contains) {
+                part.stopWatching();
+            }
+        }
+        clearList(false);
+        for (Pair<Double, IHeadUpDisplayRendererProvider> part : newList) {
+            list.addLast(part.getValue2());
+        }
+    }
+
+    private boolean playerWearsHUD() {
+        Player player = Minecraft.getInstance().player;
+        return player != null && !player.getItemBySlot(EquipmentSlot.HEAD).isEmpty()
+                && checkItemStackForHUD(player.getItemBySlot(EquipmentSlot.HEAD));
+    }
+
+    private boolean checkItemStackForHUD(ItemStack stack) {
+        if (stack.getItem() instanceof IHUDArmor) {
+            return ((IHUDArmor) stack.getItem()).isEnabled(stack);
+        }
+        return false;
+    }
+
+    private boolean displayCross = false;
+
+    // LP1 drew panels at scale 0.01 offset 0.4 from the pipe; shrunk and pushed clear of the pipe's block.
+    private static final float PANEL_SCALE = 0.008F;
+    private static final float PANEL_OFFSET = 0.75F;
+    // GuiGraphicsExtractor layers content by translating z: items sit at +150, count labels at +200. RenderType.gui()
+    // keeps LEQUAL depth test *and* depth writes, and a RenderType applies its own state when the batch is
+    // drawn, so RenderSystem.disableDepthTest() around the draw calls cannot switch that off. The layers
+    // therefore have to be far enough apart in world units to survive depth precision at panel distance:
+    // LP1's -0.0001F squashed the whole 0..200 stack into 0.02 blocks, which z-fights with itself and eats
+    // holes out of text, slot backgrounds and item icons. -0.0006F spreads it over ~0.12 blocks instead.
+    // Negative because panel local +z points away from the viewer, while higher GUI z means "nearer".
+    private static final float PANEL_LAYER_SCALE = -0.0006F;
+    // GuiGraphicsExtractor.renderItem() calls flush() internally, and flush() runs endBatch() on the buffer source it
+    // was handed. Handing it the level renderer's shared BufferSource would end every pending level batch
+    // mid-stage, so the HUD gets its own.
+    private final MultiBufferSource.BufferSource hudBufferSource =
+        MultiBufferSource.immediate(new ByteBufferBuilder(1536));
+
+    //TODO: only load this once, rather than twice
+    private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/icons.png");
+
+    public void renderPlayerDisplay(long renderTicks, GuiGraphicsExtractor guiGraphics) {
+        if (!displayRenderer()) {
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (displayHUD() && displayCross) {
+            int width = mc.getWindow().getGuiScaledWidth();
+            int height = mc.getWindow().getGuiScaledHeight();
+            if (mc.gui != null && guiGraphics != null) {
+                // LP1 redrew the vanilla crosshair tinted black to mark a HUD target lock.
+                // GuiGraphicsExtractor.setColor is gone in 1.21.3 -- the tint is an ARGB blit argument now.
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f,
+                    16, 16, 256, 256, 0xFF000000);
+            }
+        }
+    }
+
+    public void renderWorldRelative(long renderTicks, float partialTick, PoseStack poseStack,
+        MultiBufferSource bufferSource, int packedLight) {
+        if (!displayRenderer()) {
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        if (list.size() == 0
+            || Math.hypot(lastXPos - player.getX(),
+                Math.hypot(lastYPos - player.getY(), lastZPos - player.getZ())) > 0.5
+            || (renderTicks % 10 == 0
+                && (lastXPos != player.getX() || lastYPos != player.getY() || lastZPos != player.getZ()))
+            || renderTicks % 600 == 0) {
+            refreshList(player.getX(), player.getY(), player.getZ());
+            lastXPos = player.getX();
+            lastYPos = player.getY();
+            lastZPos = player.getZ();
+        }
+        boolean cursorHandled = false;
+        displayCross = false;
+        IHUDConfig config;
+        if (debugHUD == null) {
+            config = new HUDConfig(mc.player.getItemBySlot(EquipmentSlot.HEAD));
+        } else {
+            config = new IHUDConfig() {
+
+                @Override
+                public boolean isHUDSatellite() {
+                    return false;
+                }
+
+                @Override
+                public boolean isHUDProvider() {
+                    return false;
+                }
+
+                @Override
+                public boolean isHUDPowerLevel() {
+                    return false;
+                }
+
+                @Override
+                public boolean isHUDInvSysCon() {
+                    return false;
+                }
+
+                @Override
+                public boolean isHUDCrafting() {
+                    return false;
+                }
+
+                @Override
+                public boolean isChassisHUD() {
+                    return false;
+                }
+
+                @Override
+                public void setChassisHUD(boolean state) {}
+
+                @Override
+                public void setHUDCrafting(boolean state) {}
+
+                @Override
+                public void setHUDInvSysCon(boolean state) {}
+
+                @Override
+                public void setHUDPowerJunction(boolean state) {}
+
+                @Override
+                public void setHUDProvider(boolean state) {}
+
+                @Override
+                public void setHUDSatellite(boolean state) {}
+            };
+        }
+        IHeadUpDisplayRendererProvider thisIsLast = null;
+        List<IHeadUpDisplayRendererProvider> toUse = list;
+        if (debugHUD != null) {
+            toUse = debugHUD.getHUDs();
+        }
+
+        for (IHeadUpDisplayRendererProvider renderer : toUse) {
+            if (renderer.getRenderer() == null) {
+                continue;
+            }
+            final BlockPos rendererPos = renderer.getPos();
+            if (renderer.getRenderer().display(config)) {
+                poseStack.pushPose();
+                if (!cursorHandled) {
+                    double x = rendererPos.getX() + 0.5 - player.getX();
+                    double y = rendererPos.getY() + 0.5 - player.getY();
+                    double z = rendererPos.getZ() + 0.5 - player.getZ();
+                    if (Math.hypot(x, Math.hypot(y, z)) < 0.75
+                        || (renderer instanceof IHeadUpDisplayBlockRendererProvider blockProvider
+                            && (blockProvider.isHUDInvalid() || !blockProvider.isHUDExistent()))) {
+                        refreshList(player.getX(), player.getY(), player.getZ());
+                        poseStack.popPose();
+                        break;
+                    }
+                    int[] pos = getCursor(renderer);
+                    if (pos.length == 2) {
+                        if (renderer.getRenderer().cursorOnWindow(pos[0], pos[1])) {
+                            renderer.getRenderer().handleCursor(pos[0], pos[1]);
+                            if (Minecraft.getInstance().hasShiftDown()) {
+                                thisIsLast = renderer;
+                                displayCross = true;
+                            }
+                            cursorHandled = true;
+                        }
+                    }
+                }
+                if (thisIsLast != renderer) {
+                    displayOneView(renderer, config, partialTick, false, poseStack, packedLight);
+                }
+                poseStack.popPose();
+            }
+        }
+        if (thisIsLast != null) {
+            poseStack.pushPose();
+            displayOneView(thisIsLast, config, partialTick, true, poseStack, packedLight);
+            poseStack.popPose();
+        }
+
+        poseStack.pushPose();
+        HitResult box = mc.hitResult;
+        if (box != null && box.getType() == HitResult.Type.BLOCK) {
+            if (Minecraft.getInstance().hasControlDown()) {
+                progress = Math.min(
+                    progress + (2 * Math.max(1, (int) Math.floor((System.currentTimeMillis() - last) / 50.0D))), 100);
+            } else {
+                progress = Math.max(
+                    progress - (2 * Math.max(1, (int) Math.floor((System.currentTimeMillis() - last) / 50.0D))), 0);
+            }
+            if (progress != 0) {
+                // HUD world-space info panel — requires NEI/info provider not yet ported to 1.20.1
+            }
+        } else if (!Minecraft.getInstance().hasControlDown()) {
+            progress = 0;
+        }
+        poseStack.popPose();
+
+        //Render Laser
+        // Drawing over the world without writing depth is declared once by
+        // LPRenderTypes.OVERLAY; 1.21.5 removed RenderSystem.disableDepthTest/enableBlend and
+        // BufferUploader, so the state can no longer be flipped around the draw call.
+        if (!lasers.isEmpty()) {
+            MultiBufferSource.BufferSource laserBuffers = Minecraft.getInstance().renderBuffers().bufferSource();
+            VertexConsumer bb = laserBuffers.getBuffer(LPRenderTypes.OVERLAY);
+            // The pose origin is the interpolated camera, not the player's feet as in 1.12.
+            Vec3 cam = mc.gameRenderer.getMainCamera().position();
+            for (LaserData data : lasers) {
+                poseStack.pushPose();
+                double x = data.getPos().getX() + 0.5 - cam.x;
+                double y = data.getPos().getY() + 0.5 - cam.y;
+                double z = data.getPos().getZ() + 0.5 - cam.z;
+                poseStack.translate((float) x, (float) y, (float) z);
+                switch (data.getDir()) {
+                    case NORTH: poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians( 90.0F))); break;
+                    case SOUTH: poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians(-90.0F))); break;
+                    case WEST:  poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians(180.0F))); break;
+                    case UP:    poseStack.mulPose(new Quaternionf().rotationZ( (float) Math.toRadians( 90.0F))); break;
+                    case DOWN:  poseStack.mulPose(new Quaternionf().rotationZ( (float) Math.toRadians(-90.0F))); break;
+                    default: break;
+                }
+                poseStack.scale(0.01F, 0.01F, 0.01F);
+                org.joml.Matrix4f mat = poseStack.last().pose();
+
+                for (float i = 0; i < 6 * data.getLength(); i += 1.0f) {
+                    int[] c = getLaserColor(i, data.getConnectionType());
+                    float shift = 100f * i / 6f;
+                    float s = (data.isStartPipe() && i == 0) ? -6.0f : 0.0f;
+                    // Top
+                    bb.addVertex(mat, 19.7f+shift, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,  3.0f+shift+s, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,  3.0f+shift+s, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat, 19.7f+shift, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    // Bottom
+                    bb.addVertex(mat, 19.7f+shift,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,  3.0f+shift+s,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,  3.0f+shift+s,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat, 19.7f+shift,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    // +Z side
+                    bb.addVertex(mat, 19.7f+shift, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,  3.0f+shift+s, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,  3.0f+shift+s,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat, 19.7f+shift,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    // -Z side
+                    bb.addVertex(mat, 19.7f+shift,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,  3.0f+shift+s,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,  3.0f+shift+s, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat, 19.7f+shift, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                }
+                if (data.isStartPipe()) {
+                    int[] c = getLaserColor(0, data.getConnectionType());
+                    bb.addVertex(mat,-3, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,-3, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,-3,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,-3,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                }
+                if (data.isFinalPipe()) {
+                    int[] c = getLaserColor(6 * (float) data.getLength() - 1, data.getConnectionType());
+                    float ex = 100.0f * data.getLength() + 3f;
+                    bb.addVertex(mat,ex, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,ex, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,ex,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    bb.addVertex(mat,ex,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                }
+                poseStack.popPose();
+            }
+            laserBuffers.endBatch(LPRenderTypes.OVERLAY);
+        }
+        last = System.currentTimeMillis();
+    }
+
+    private int[] getLaserColor(float i, EnumSet<PipeRoutingConnectionType> flags) {
+        if (!flags.isEmpty()) {
+            int k = 0;
+            for (PipeRoutingConnectionType type : PipeRoutingConnectionType.values) {
+                if (flags.contains(type)) k++;
+                if (k - 1 == (int) i % flags.size()) return getLaserTypeColor(type);
+            }
+        }
+        return new int[]{255, 255, 255, 128};
+    }
+
+    private int[] getLaserTypeColor(PipeRoutingConnectionType type) {
+        switch (type) {
+            case canRouteTo:     return new int[]{255, 255,   0, 128};
+            case canRequestFrom: return new int[]{  0, 255,   0, 128};
+            case canPowerFrom:   return new int[]{  0,   0, 255, 128};
+            default:             return new int[]{255, 255, 255, 128};
+        }
+    }
+
+    private void displayOneView(IHeadUpDisplayRendererProvider renderer, IHUDConfig config, float partialTick,
+        boolean shifted, PoseStack poseStack, int packedLight) {
+        Minecraft mc = Minecraft.getInstance();
+        // The level-stage pose origin is the interpolated camera, not the player's feet as in 1.12.
+        Vec3 cam = mc.gameRenderer.getMainCamera().position();
+        final BlockPos rendererPos = renderer.getPos();
+        double x = rendererPos.getX() + 0.5 - cam.x;
+        double y = rendererPos.getY() + 0.5 - cam.y;
+        double z = rendererPos.getZ() + 0.5 - cam.z;
+        // The context is handed down through IHeadUpDisplayRenderer/IHUDButton/IHUDModuleRenderer,
+        // so nothing in the HUD render path depends on ambient state. The billboard transforms are
+        // applied to the level stage's own PoseStack now: 1.21.6 made the GuiGraphicsExtractor pose 2D, so
+        // this could no longer be expressed through a GuiGraphicsExtractor at all.
+        poseStack.pushPose();
+        poseStack.translate((float) x, (float) y, (float) z);
+        poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
+        poseStack.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
+        // y is camera relative and therefore already eye relative; LP1 subtracted the eye height here.
+        poseStack.mulPose(
+            new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y) + 180)));
+        poseStack.translate(0.0F, 0.0F, -PANEL_OFFSET);
+        // Panels are drawn back to front in one pass with depth writes off, so the z spreading that
+        // PANEL_LAYER_SCALE used to provide is no longer needed: draw order is the layering.
+        poseStack.scale(PANEL_SCALE, PANEL_SCALE, PANEL_SCALE);
+        HUDDrawContext context = new HUDDrawContext(poseStack, hudBufferSource, packedLight, mc.font);
+        try {
+            renderer.getRenderer()
+                .renderHeadUpDisplay(context, Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
+        } finally {
+            // Draw this panel's batches now, while the pose still belongs to it.
+            context.flush();
+            poseStack.popPose();
+        }
+    }
+
+    private float getAngle(double x, double y) {
+        return (float) (Math.atan2(x, y) * 360 / (2 * Math.PI));
+    }
+
+    public double up(double input) {
+        input %= 360.0D;
+        while (input < 0 && !Double.isNaN(input) && !Double.isInfinite(input)) {
+            input += 360;
+        }
+        return input;
+    }
+
+    private int[] getCursor(IHeadUpDisplayRendererProvider renderer) {
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        final BlockPos rendererPos = renderer.getPos();
+
+        Vec3 look = player.getLookAngle();
+        Vector3d playerView = new Vector3d(look.x, look.y, look.z);
+        Vector3d playerPos = new Vector3d(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
+        Vector3d panelPos = new Vector3d(rendererPos.getX() + 0.5, rendererPos.getY() + 0.5, rendererPos.getZ() + 0.5);
+        Vector3d panelView = playerPos.sub(panelPos, new Vector3d());
+
+        // Cursor plane tracks the rendered panel: LP1 used 0.44 for a 0.4 panel offset.
+        panelPos.add(panelView.normalize(PANEL_OFFSET + 0.04D, new Vector3d()));
+
+        double d = panelPos.dot(panelView);
+        double c = panelView.dot(playerPos);
+        double b = panelView.dot(playerView);
+        double a = (d - c) / b;
+
+        Vector3d viewPos = new Vector3d(
+                playerPos.x + a * playerView.x - panelPos.x,
+                playerPos.y + a * playerView.y - panelPos.y,
+                playerPos.z + a * playerView.z - panelPos.z);
+
+        Vector3d panelUp = panelUpAxis(panelView);
+        Vector3d panelRight = panelRightAxis(panelView);
+
+        if (panelUp.y == 0) {
+            return new int[] {};
+        }
+
+        double cursorY = -viewPos.y / panelUp.y;
+
+        Vector3d restViewPos = new Vector3d(viewPos);
+        restViewPos.x += cursorY * panelUp.x;
+        restViewPos.y = 0;
+        restViewPos.z += cursorY * panelUp.z;
+
+        double cursorX;
+
+        if (panelRight.x == 0) {
+            cursorX = restViewPos.z / panelRight.z;
+        } else {
+            cursorX = restViewPos.x / panelRight.x;
+        }
+
+        // 50 px = panel half-width in blocks (50 * scale), with LP1's 0.94 plane fudge (0.47/0.5).
+        cursorX *= 50 / (47.0D * PANEL_SCALE);
+        cursorY *= 50 / (47.0D * PANEL_SCALE);
+        if (panelView.z < 0) {
+            cursorX *= -1;
+        }
+        if (panelView.y < 0) {
+            cursorY *= -1;
+        }
+
+        return new int[] { (int) cursorX, (int) cursorY };
+    }
+
+    /**
+     * The panel's vertical axis: the unit vector orthogonal to {@code view} lying in the plane that
+     * {@code view} spans with the Y axis. Falls back to straight up when {@code view} is level and
+     * that plane is undefined.
+     */
+    private static Vector3d panelUpAxis(Vector3d view) {
+        if (view.y == 0) {
+            return new Vector3d(0, 1, 0);
+        }
+        return new Vector3d(-view.x, (view.x * view.x + view.z * view.z) / view.y, -view.z).normalize();
+    }
+
+    /**
+     * The panel's horizontal axis: the level unit vector orthogonal to {@code view}, pointing along
+     * +X. Falls back to +Z when {@code view} has no Z component to divide by.
+     */
+    private static Vector3d panelRightAxis(Vector3d view) {
+        if (view.z == 0) {
+            return new Vector3d(0, 0, 1);
+        }
+        return new Vector3d(1, 0, -view.x / view.z).normalize();
+    }
+
+    public boolean displayRenderer() {
+        if (!displayHUD()) {
+            if (list.size() != 0) {
+                clearList(true);
+            }
+        }
+        return displayHUD();
+    }
+
+    private boolean displayHUD() {
+        Minecraft mc = Minecraft.getInstance();
+        return (playerWearsHUD() || debugHUD != null) && mc.screen == null
+            && mc.options.getCameraType().isFirstPerson() && !mc.options.hideGui;
+    }
+
+    public void resetLasers() {
+        lasers.clear();
+    }
+
+    public void setLasers(List<LaserData> newLasers) {
+        lasers.clear();
+        lasers.addAll(newLasers);
+    }
+
+    public boolean hasLasers() {
+        return !lasers.isEmpty();
+    }
+
+    public static LogisticsHUDRenderer instance() {
+        if (LogisticsHUDRenderer.renderer == null) {
+            LogisticsHUDRenderer.renderer = new LogisticsHUDRenderer();
+        }
+        return LogisticsHUDRenderer.renderer;
+    }
+}

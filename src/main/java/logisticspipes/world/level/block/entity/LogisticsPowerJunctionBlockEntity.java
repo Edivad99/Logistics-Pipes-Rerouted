@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
+import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
 import logisticspipes.gui.hud.HUDPowerLevel;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IBlockWatchingHandler;
@@ -33,7 +34,6 @@ import logisticspipes.network.to_client.block.PowerJunctionLevelMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
-import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.world.inventory.PowerJunctionMenu;
 

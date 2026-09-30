@@ -2,9 +2,9 @@ package logisticspipes.gui.hud;
 
 import net.minecraft.client.Minecraft;
 
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;

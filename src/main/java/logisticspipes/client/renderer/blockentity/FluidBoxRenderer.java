@@ -13,7 +13,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.model.mesh.SpriteUv;
-import logisticspipes.renderer.FluidContainerRenderer;
+import logisticspipes.client.renderer.item.FluidContainerRenderer;
 
 /**
  * Axis-aligned boxes of fluid, drawn with the fluid's still sprite and tint: what LP1's

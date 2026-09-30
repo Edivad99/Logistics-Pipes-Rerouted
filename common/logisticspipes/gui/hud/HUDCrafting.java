@@ -5,9 +5,9 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
-import logisticspipes.renderer.HUDDrawContext;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;

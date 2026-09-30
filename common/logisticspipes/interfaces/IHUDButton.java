@@ -1,6 +1,6 @@
 package logisticspipes.interfaces;
 
-import logisticspipes.renderer.HUDDrawContext;
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 
 public interface IHUDButton {
 

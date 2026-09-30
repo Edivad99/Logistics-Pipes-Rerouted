@@ -28,7 +28,7 @@ import lombok.experimental.Accessors;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.renderer.HUDDrawContext;
+import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.IItemSearch;
 

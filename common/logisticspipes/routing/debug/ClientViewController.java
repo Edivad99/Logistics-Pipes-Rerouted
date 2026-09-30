@@ -13,11 +13,11 @@ import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
 import logisticspipes.interfaces.IDebugHUDProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.particle.Particles;
 import logisticspipes.particle.PipeFXRenderHandler;
-import logisticspipes.renderer.LogisticsHUDRenderer;
 import logisticspipes.routing.PipeRoutingConnectionType;
 
 public class ClientViewController implements IDebugHUDProvider {
