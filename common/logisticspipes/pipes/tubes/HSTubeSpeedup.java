@@ -225,7 +225,7 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 			if (travelItem.input == null) {
 				return null;
 			}
-			if (!getContainer().renderState.pipeConnectionMatrix.isConnected(travelItem.input.getOpposite())) {
+			if (!getContainer().visualState.pipeConnectionMatrix.isConnected(travelItem.input.getOpposite())) {
 				return null;
 			}
 			pos = pos.relative(travelItem.input.getOpposite(), 0.5 - fPos);

@@ -13,13 +13,13 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.renderer.state.PipeRenderState;
+import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
 /**
  * Everything about a pipe that changes its geometry, captured as one immutable value.
  *
  * <p>This is what makes the baked pipeline possible. The old renderer read the mutable
- * {@code PipeRenderState}, the pipe and the surrounding world directly while emitting
+ * {@code PipeVisualState}, the pipe and the surrounding world directly while emitting
  * vertices, every frame, on the render thread. Chunk meshes are built off-thread and cached,
  * so the inputs have to be snapshotted on the main thread first and then be usable as a
  * cache key — hence the value semantics and the hand-written {@link #equals}.</p>
@@ -77,7 +77,7 @@ public final class PipeGeometryKey {
      * Snapshots a placed pipe. Must be called on the main thread — it reads neighbouring
      * block states.
      */
-    public static PipeGeometryKey of(LogisticsTileGenericPipe tile, CoreUnroutedPipe pipe, PipeRenderState state) {
+    public static PipeGeometryKey of(LogisticsTileGenericPipe tile, CoreUnroutedPipe pipe, PipeVisualState state) {
         BlockGetter level = tile.getLevel();
         BlockPos pos = tile.getBlockPos();
 
@@ -101,7 +101,7 @@ public final class PipeGeometryKey {
      * Neighbour-dependent adjustments fall back to a full-cube neighbour, matching the
      * {@code pipeTile == null} branch of the original renderer.
      */
-    public static PipeGeometryKey ofItem(CoreUnroutedPipe pipe, PipeRenderState state) {
+    public static PipeGeometryKey ofItem(CoreUnroutedPipe pipe, PipeVisualState state) {
         int specialEnd = 0;
         double[] bounds = new double[6];
         for (Direction dir : Direction.values()) {
@@ -114,7 +114,7 @@ public final class PipeGeometryKey {
         return build(state, specialEnd, 0, bounds);
     }
 
-    private static PipeGeometryKey build(PipeRenderState state, int specialEnd, int solid, double[] bounds) {
+    private static PipeGeometryKey build(PipeVisualState state, int specialEnd, int solid, double[] bounds) {
         int connected = 0;
         int bc = 0;
         int td = 0;

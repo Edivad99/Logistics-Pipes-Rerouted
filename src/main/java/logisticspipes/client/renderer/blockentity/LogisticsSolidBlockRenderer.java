@@ -151,8 +151,8 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
             BlockPos newPos = pos.relative(facing);
             BlockEntity sideTile = tile.getLevel().getBlockEntity(newPos);
             if (sideTile instanceof LogisticsTileGenericPipe tilePipe
-                && tilePipe.renderState != null
-                && tilePipe.renderState.pipeConnectionMatrix.isConnected(facing.getOpposite())) {
+                && tilePipe.visualState != null
+                && tilePipe.visualState.pipeConnectionMatrix.isConnected(facing.getOpposite())) {
                 continue;
             }
             state.plates.add(side);

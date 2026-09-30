@@ -1,0 +1,121 @@
+package logisticspipes.world.level.block.entity.pipe;
+
+import java.util.Arrays;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.BlockGetter; // was BlockGette;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import io.netty.buffer.ByteBuf;
+
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+
+/**
+ * How a pipe looks: its connections and textures. The server works it out and sends it to the client, which
+ * builds the pipe model from it.
+ */
+public class PipeVisualState {
+
+    public enum LocalCacheType {
+        QUADS
+    }
+
+    public final ConnectionMatrix pipeConnectionMatrix = new ConnectionMatrix();
+    public final TextureMatrix textureMatrix = new TextureMatrix();
+
+    public Cache<LocalCacheType, Object> objectCache = CacheBuilder.newBuilder().build();
+    private boolean[] solidSidesCache = new boolean[6];
+    private boolean savedStateHasMCMultiParts = false;
+
+    private boolean dirty = true;
+
+    public PipeVisualState() {
+    }
+
+    public void clean() {
+        dirty = false;
+        pipeConnectionMatrix.clean();
+        textureMatrix.clean();
+        clearRenderCaches();
+    }
+
+    public boolean isDirty() {
+        return dirty || pipeConnectionMatrix.isDirty() || textureMatrix.isDirty();
+    }
+
+    public boolean needsRenderUpdate() {
+        return pipeConnectionMatrix.isDirty() || textureMatrix.isDirty();
+    }
+
+    public void checkForRenderUpdate(BlockGetter worldIn, BlockPos blockPos) {
+        boolean[] solidSides = new boolean[6];
+        for (Direction dir : Direction.values()) {
+            BlockPos pos = blockPos.relative(dir);
+            BlockState blockSide = worldIn.getBlockState(pos);
+            if (blockSide.isFaceSturdy(worldIn, pos, dir.getOpposite()) && !pipeConnectionMatrix.isConnected(dir)) {
+                solidSides[dir.ordinal()] = true;
+            }
+        }
+        boolean changed = false;
+        if (!Arrays.equals(solidSides, solidSidesCache)) {
+            solidSidesCache = solidSides.clone();
+            clearRenderCaches();
+            changed = true;
+        }
+        BlockPos pos = blockPos;
+        BlockEntity tile = worldIn.getBlockEntity(pos);
+        if (tile instanceof LogisticsTileGenericPipe) {
+            // MCMultiPart not available on 1.20.1 — hasParts is always false (former dummy behavior).
+            boolean hasParts = false;
+            if (savedStateHasMCMultiParts != hasParts) {
+                savedStateHasMCMultiParts = hasParts;
+                clearRenderCaches();
+                changed = true;
+            }
+        }
+        if (changed && tile != null) {
+            // Which mount brackets a pipe grows depends only on which neighbouring faces are
+            // solid and unconnected, and that changes without any pipe state changing — placing
+            // a stone block beside a pipe touches neither the connection nor the texture matrix.
+            // So afterStateUpdated() never fires and never refreshes the ModelData the baked
+            // model reads its PipeGeometryKey from: without the refresh below the cached key
+            // keeps its old solid-side mask, and the mount appears only when something
+            // unrelated happens to dirty the pipe. sendBlockUpdated re-meshes the section,
+            // which matters when the pipe and the changed neighbour are in different sections.
+            tile.requestModelDataUpdate();
+            if (worldIn instanceof Level level) {
+                BlockState state = level.getBlockState(blockPos);
+                level.sendBlockUpdated(blockPos, state, state, 3);
+            }
+        }
+    }
+
+    public void clearRenderCaches() {
+        objectCache.invalidateAll();
+        objectCache.cleanUp();
+    }
+
+    /** The two matrices, which together are everything the renderer reads off this state. */
+    public record Wire(ConnectionMatrix.Wire connections, TextureMatrix.Wire textures) {
+
+        public static final StreamCodec<ByteBuf, Wire> STREAM_CODEC = StreamCodec.composite(
+                ConnectionMatrix.Wire.STREAM_CODEC, Wire::connections,
+                TextureMatrix.Wire.STREAM_CODEC, Wire::textures,
+                Wire::new);
+    }
+
+    public Wire snapshot() {
+        return new Wire(pipeConnectionMatrix.snapshot(), textureMatrix.snapshot());
+    }
+
+    public void apply(Wire wire) {
+        pipeConnectionMatrix.apply(wire.connections());
+        textureMatrix.apply(wire.textures());
+    }
+}

@@ -26,12 +26,12 @@ import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.client.renderer.blockentity.LogisticsRenderPipe;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.renderer.state.PipeRenderState;
 import logisticspipes.world.item.ItemLogisticsPipe;
+import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
 /**
  * Draws a pipe item using the same OBJ geometry pipeline as the in-world
- * {@link LogisticsRenderPipe}. Built with a fresh all-disconnected {@link PipeRenderState}
+ * {@link LogisticsRenderPipe}. Built with a fresh all-disconnected {@link PipeVisualState}
  * and the item's dummyPipe, so inventory icons show the 3D pipe body instead of a sprite.
  *
  * <p>Was a {@code BlockEntityWithoutLevelRenderer} attached per item through
@@ -144,12 +144,12 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
             return;
         }
 
-        PipeRenderState renderState = new PipeRenderState();
+        PipeVisualState visualState = new PipeVisualState();
         // A fresh ConnectionMatrix has every side disconnected, which is the inventory look.
-        renderState.textureMatrix.refreshStatesForItem(dummyPipe);
+        visualState.textureMatrix.refreshStatesForItem(dummyPipe);
 
         List<BakedQuad> quads = PipeQuadBaker.bake(PipeModelStore.parts(), PipeModelStore.sprites(),
-            PipeGeometryKey.ofItem(dummyPipe, renderState));
+            PipeGeometryKey.ofItem(dummyPipe, visualState));
         if (quads.isEmpty()) {
             return;
         }

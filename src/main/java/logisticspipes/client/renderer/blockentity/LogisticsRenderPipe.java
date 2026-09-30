@@ -222,7 +222,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
                 // Plates are skipped where a pipe connects, so adjacent pipes visually enter the
                 // table rather than butting against a cover.
-                if (pipeTile.renderState.pipeConnectionMatrix.isConnected(side.facing(rot))) {
+                if (pipeTile.visualState.pipeConnectionMatrix.isConnected(side.facing(rot))) {
                     continue;
                 }
                 MeshRenderer.emit(buffer, pose, parts.outerPlate(side, rot), sprite, packedLight, packedOverlay);
@@ -440,7 +440,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         List<Pair<Direction, IPipeSign>> pipeSigns = pipe.getPipeSigns();
         if (pipe.getContainer() != null && !pipeSigns.isEmpty()) {
             for (Pair<Direction, IPipeSign> pair : pipeSigns) {
-                if (pipe.getContainer().renderState.pipeConnectionMatrix.isConnected(pair.getValue1())) {
+                if (pipe.getContainer().visualState.pipeConnectionMatrix.isConnected(pair.getValue1())) {
                     continue;
                 }
                 poseStack.pushPose();

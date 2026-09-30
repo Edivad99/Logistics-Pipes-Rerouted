@@ -327,7 +327,7 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 			if (travelItem.input == null) {
 				return null;
 			}
-			if (!container.renderState.pipeConnectionMatrix.isConnected(travelItem.input.getOpposite())) {
+			if (!container.visualState.pipeConnectionMatrix.isConnected(travelItem.input.getOpposite())) {
 				return null;
 			}
 			pos = pos.relative(travelItem.input.getOpposite(), 0.5 - fPos);
@@ -335,7 +335,7 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 			if (travelItem.output == null) {
 				return null;
 			}
-			if (!container.renderState.pipeConnectionMatrix.isConnected(travelItem.output)) {
+			if (!container.visualState.pipeConnectionMatrix.isConnected(travelItem.output)) {
 				return null;
 			}
 			pos = pos.relative(travelItem.output, fPos - 0.5);
@@ -345,13 +345,13 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 
 	public double getBoxRenderScale(float fPos, LPTravelingItem travelItem) {
 		double boxScale = 1;
-		if (container.renderState.pipeConnectionMatrix.isTDConnected(travelItem.input.getOpposite())) {
+		if (container.visualState.pipeConnectionMatrix.isTDConnected(travelItem.input.getOpposite())) {
 			boxScale = (fPos * (1 - 0.65)) + 0.65;
 		}
-		if (container.renderState.pipeConnectionMatrix.isTDConnected(travelItem.output)) {
+		if (container.visualState.pipeConnectionMatrix.isTDConnected(travelItem.output)) {
 			boxScale = ((1 - fPos) * (1 - 0.65)) + 0.65;
 		}
-		if (container.renderState.pipeConnectionMatrix.isTDConnected(travelItem.input.getOpposite()) && container.renderState.pipeConnectionMatrix.isTDConnected(travelItem.output)) {
+		if (container.visualState.pipeConnectionMatrix.isTDConnected(travelItem.input.getOpposite()) && container.visualState.pipeConnectionMatrix.isTDConnected(travelItem.output)) {
 			boxScale = 0.65;
 		}
 		return boxScale;

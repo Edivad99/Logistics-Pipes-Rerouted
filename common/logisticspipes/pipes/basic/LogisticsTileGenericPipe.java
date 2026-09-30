@@ -54,8 +54,6 @@ import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
 import logisticspipes.network.to_client.pipe.PipeStateMessage;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.renderer.LogisticsTileRenderController;
-import logisticspipes.renderer.state.PipeRenderState;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.routing.pathfinder.changedetection.TEControl;
@@ -69,6 +67,8 @@ import logisticspipes.utils.TileBuffer;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
+import logisticspipes.world.level.block.entity.pipe.PipePowerLasers;
+import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
 public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInformationProvider,
     ILogicControllerTile {
@@ -90,7 +90,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	private static final String NBT_PIPE_ID = "pipeIdName";
 
 	public int statePacketId = 0;
-	public final PipeRenderState renderState;
+	public final PipeVisualState visualState;
 	public final CoreState coreState = new CoreState();
 	public @Nullable Object OPENPERIPHERAL_IGNORE; //Tell OpenPeripheral to ignore this class
 	public Set<BlockPos> subMultiBlock = new HashSet<>();
@@ -107,7 +107,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	public boolean[] pipeTDConnectionsBuffer = new boolean[6];
     @Nullable
 	public CoreUnroutedPipe pipe;
-	private @Nullable LogisticsTileRenderController renderController;
+	private @Nullable PipePowerLasers powerLasers;
 	private boolean sendInitPacket = true;
 	@Getter
 	private boolean initialized = false;
@@ -125,7 +125,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 		itemInsertionHandlers = new EnumMap<>(Direction.class);
 		Arrays.stream(Direction.values()).forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));
 		ItemInsertionHandler itemInsertionHandlerNull = new ItemInsertionHandler(this, null);
-		renderState = new PipeRenderState();
+		visualState = new PipeVisualState();
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 		// pipe has not been built yet.
 		if (blockEntity.sendInitPacket) {
 			blockEntity.sendInitPacket = false;
-			blockEntity.getRenderController().sendInit();
+			blockEntity.getPowerLasers().sendInit();
 		}
 		if (blockEntity.tickShared()) {
 			blockEntity.serverTickPipe();
@@ -254,8 +254,8 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 		if (refreshRenderState) {
 			refreshRenderState();
 
-			if (renderState.isDirty()) {
-				renderState.clean();
+			if (visualState.isDirty()) {
+				visualState.clean();
 				sendUpdateToClient();
 			}
 
@@ -267,23 +267,23 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 			TargetLookup.sendToChunkWatchers(this, PipeStateMessage.of(this));
 		}
 
-		getRenderController().onUpdate();
+		getPowerLasers().onUpdate();
 	}
 
 	private void refreshRenderState() {
 		// Pipe connections;
 		for (Direction o : Direction.values()) {
-			renderState.pipeConnectionMatrix.setConnected(o, pipeConnectionsBuffer[o.ordinal()]);
-			renderState.pipeConnectionMatrix.setBCConnected(o, pipeBCConnectionsBuffer[o.ordinal()]);
-			renderState.pipeConnectionMatrix.setTDConnected(o, pipeTDConnectionsBuffer[o.ordinal()]);
+			visualState.pipeConnectionMatrix.setConnected(o, pipeConnectionsBuffer[o.ordinal()]);
+			visualState.pipeConnectionMatrix.setBCConnected(o, pipeBCConnectionsBuffer[o.ordinal()]);
+			visualState.pipeConnectionMatrix.setTDConnected(o, pipeTDConnectionsBuffer[o.ordinal()]);
 		}
 		// Pipe Textures
 		for (int i = 0; i < 7; i++) {
 			Direction o = Direction.from3DDataValue(i);
-			renderState.textureMatrix.setIconIndex(o, pipe.getIconIndex(o));
+			visualState.textureMatrix.setIconIndex(o, pipe.getIconIndex(o));
 		}
 		//New Pipe Texture States
-		renderState.textureMatrix.refreshStates(pipe);
+		visualState.textureMatrix.refreshStates(pipe);
 	}
 
 
@@ -474,18 +474,18 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	}
 
 	public void addLaser(Direction dir, float length, int color, boolean reverse, boolean renderBall) {
-		getRenderController().addLaser(dir, length, color, reverse, renderBall);
+		getPowerLasers().addLaser(dir, length, color, reverse, renderBall);
 	}
 
 	public void removeLaser(Direction dir, int color, boolean isBall) {
-		getRenderController().removeLaser(dir, color, isBall);
+		getPowerLasers().removeLaser(dir, color, isBall);
 	}
 
-	public LogisticsTileRenderController getRenderController() {
-		if (renderController == null) {
-			renderController = new LogisticsTileRenderController(this);
+	public PipePowerLasers getPowerLasers() {
+		if (powerLasers == null) {
+			powerLasers = new PipePowerLasers(this);
 		}
-		return renderController;
+		return powerLasers;
 	}
 
 	@Override
@@ -610,7 +610,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 
 	public boolean isPipeConnectedCached(Direction side) {
 		if (this.level.isClientSide()) {
-			return renderState.pipeConnectionMatrix.isConnected(side);
+			return visualState.pipeConnectionMatrix.isConnected(side);
 		} else {
 			return pipeConnectionsBuffer[side.ordinal()];
 		}
@@ -712,7 +712,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	/** The pipe's current client state, with the render state brought up to date first. */
 	public PipeStateMessage describeForClient() {
 		bindPipe();
-		// Ensure renderState carries fresh per-pipe data before snapshotting it into
+		// Ensure visualState carries fresh per-pipe data before snapshotting it into
 		// the description packet — otherwise the initial chunk-send (via getUpdateTag)
 		// transmits a default state and every pipe on the client renders with
 		// textureIndex=0 and zero connections.
@@ -748,13 +748,13 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 
 		level.sendBlockUpdated(worldPosition, level.getBlockState(worldPosition), level.getBlockState(worldPosition), 3);
 
-		if (renderState.needsRenderUpdate()) {
+		if (visualState.needsRenderUpdate()) {
 			// The baked model reads its geometry from the ModelData below, so the chunk has to
 			// be told the data changed as well as the block state — sendBlockUpdated alone
 			// would leave the mesh showing the previous connections.
 			requestModelDataUpdate();
 			level.sendBlockUpdated(worldPosition, level.getBlockState(worldPosition), level.getBlockState(worldPosition), 3);
-			renderState.clean();
+			visualState.clean();
 		}
 	}
 
@@ -787,7 +787,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 			}
 			return ModelData.of(PipeModelProperties.PARTICLE_SPRITE, particle);
 		}
-		return ModelData.of(PipeModelProperties.GEOMETRY, PipeGeometryKey.of(this, pipe, renderState));
+		return ModelData.of(PipeModelProperties.GEOMETRY, PipeGeometryKey.of(this, pipe, visualState));
 	}
 
 	public void sendUpdateToClient() {

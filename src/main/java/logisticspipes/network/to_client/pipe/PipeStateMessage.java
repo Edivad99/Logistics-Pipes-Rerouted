@@ -13,7 +13,7 @@ import io.netty.buffer.Unpooled;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.renderer.state.PipeRenderState;
+import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
 /**
  * Everything the client needs to draw a pipe: how it connects, which pipe it is, and whatever the
@@ -27,7 +27,7 @@ import logisticspipes.renderer.state.PipeRenderState;
  */
 public record PipeStateMessage(
     BlockPos pos,
-    PipeRenderState.Wire renderState,
+    PipeVisualState.Wire visualState,
     String pipeIdName,
     byte[] pipeState,
     int stateId
@@ -38,7 +38,7 @@ public record PipeStateMessage(
     public static final StreamCodec<FriendlyByteBuf, PipeStateMessage> STREAM_CODEC =
         StreamCodec.composite(
             BlockPos.STREAM_CODEC, PipeStateMessage::pos,
-            PipeRenderState.Wire.STREAM_CODEC.cast(), PipeStateMessage::renderState,
+            PipeVisualState.Wire.STREAM_CODEC.cast(), PipeStateMessage::visualState,
             ByteBufCodecs.STRING_UTF8, PipeStateMessage::pipeIdName,
             ByteBufCodecs.BYTE_ARRAY, PipeStateMessage::pipeState,
             ByteBufCodecs.VAR_INT, PipeStateMessage::stateId,
@@ -56,7 +56,7 @@ public record PipeStateMessage(
         pipeBuffer.readBytes(pipeState);
         return new PipeStateMessage(
             container.getBlockPos(),
-            container.renderState.snapshot(),
+            container.visualState.snapshot(),
             container.coreState.pipeIdName == null ? "" : container.coreState.pipeIdName,
             pipeState,
             container.statePacketId++);
@@ -82,7 +82,7 @@ public record PipeStateMessage(
         if (container.statePacketId > stateId) {
             return;
         }
-        container.renderState.apply(renderState);
+        container.visualState.apply(visualState);
         container.coreState.pipeIdName = pipeIdName;
         container.afterStateUpdated();
         if (container.pipe != null && pipeState.length != 0) {

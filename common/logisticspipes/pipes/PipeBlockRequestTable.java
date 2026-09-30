@@ -263,8 +263,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				case DOWN:
 					return Textures.LOGISTICS_REQUEST_TABLE_NEW_EMPTY;
 				default:
-					if (container.renderState.pipeConnectionMatrix.isConnected(dir)) {
-						if (container.renderState.textureMatrix.getTextureIndex(dir) == 1) {
+					if (container.visualState.pipeConnectionMatrix.isConnected(dir)) {
+						if (container.visualState.textureMatrix.getTextureIndex(dir) == 1) {
 							return Textures.LOGISTICS_REQUEST_TABLE_NEW_ROUTED;
 						} else {
 							return Textures.LOGISTICS_REQUEST_TABLE_NEW_UNROUTED;
@@ -280,8 +280,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 				case DOWN:
 					return Textures.LOGISTICS_REQUEST_TABLE[1];
 				default:
-					if (container.renderState.pipeConnectionMatrix.isConnected(dir)) {
-						if (container.renderState.textureMatrix.getTextureIndex(dir) == 1) {
+					if (container.visualState.pipeConnectionMatrix.isConnected(dir)) {
+						if (container.visualState.textureMatrix.getTextureIndex(dir) == 1) {
 							return Textures.LOGISTICS_REQUEST_TABLE[2];
 						} else {
 							return Textures.LOGISTICS_REQUEST_TABLE[3];

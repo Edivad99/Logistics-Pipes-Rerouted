@@ -31,7 +31,7 @@ public record PipeRenderUpdateMessage(BlockPos pos) implements CustomPacketPaylo
         final LogisticsTileGenericPipe be =
             TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
         if (be != null) {
-            be.renderState.checkForRenderUpdate(context.player().level(), message.pos);
+            be.visualState.checkForRenderUpdate(context.player().level(), message.pos);
         }
     }
 

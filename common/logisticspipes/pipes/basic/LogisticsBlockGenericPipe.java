@@ -825,7 +825,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 private void checkForRenderChanges(BlockGetter worldIn, BlockPos blockPos) {
 		BlockEntity tile = worldIn.getBlockEntity(blockPos);
 		if (!(tile instanceof LogisticsTileGenericPipe)) return;
-		((LogisticsTileGenericPipe) tile).renderState.checkForRenderUpdate(worldIn, blockPos);
+		((LogisticsTileGenericPipe) tile).visualState.checkForRenderUpdate(worldIn, blockPos);
 	}
 
 	// @Override removed — canRenderInLayer removed in 1.20.1
