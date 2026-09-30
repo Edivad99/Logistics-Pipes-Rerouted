@@ -18,6 +18,8 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.Translations;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.to_server.pipe.SetSatelliteNameMessage;
@@ -27,8 +29,6 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.SatelliteMenu;
-
-import org.jspecify.annotations.Nullable;
 
 public class SatellitePipeScreen extends LogisticsBaseGuiScreen<SatelliteMenu> {
 

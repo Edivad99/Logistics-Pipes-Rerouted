@@ -55,7 +55,6 @@ import net.neoforged.neoforgespi.language.IModInfo;
 
 import vazkii.patchouli.api.PatchouliAPI;
 
-import logisticspipes.Translations;
 import logisticspipes.client.gui.GuiOverlay;
 import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
 import logisticspipes.config.ClientConfiguration;

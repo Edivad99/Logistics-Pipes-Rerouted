@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;

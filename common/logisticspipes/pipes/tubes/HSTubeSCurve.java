@@ -343,12 +343,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 		return 0;
 	}
 
-	@Override
-	public double getBoxRenderScale(float fPos, LPTravelingItem travelItem) {
-		return 1;
-	}
-
-	@Override
+    @Override
 	public boolean isHSTube() {
 		return true;
 	}
