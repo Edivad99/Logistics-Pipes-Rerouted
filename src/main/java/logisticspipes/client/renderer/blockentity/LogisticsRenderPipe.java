@@ -49,6 +49,7 @@ import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.transport.LPTravelingItem;
+import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.tuples.Pair;
@@ -267,6 +268,9 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             }
 
             if (!inHand && !blockEntity.isOpaque() && renderContent) {
+                if (blockEntity.pipe.transport instanceof PipeFluidTransportLogistics fluidTransport) {
+                    PipeFluidRenderer.render(fluidTransport, poseStack, collector, packedLight, packedOverlay);
+                }
                 if (blockEntity.pipe.transport != null) {
                     submitSolids(blockEntity.pipe, x, y, z, partialTicks, poseStack, collector, packedLight,
                         packedOverlay);

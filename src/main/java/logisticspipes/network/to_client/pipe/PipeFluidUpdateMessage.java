@@ -3,7 +3,6 @@ package logisticspipes.network.to_client.pipe;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,9 +19,9 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 
 /**
- * How much of what a fluid pipe is holding on each of its sides, so the client can draw it.
+ * How much a fluid pipe is holding in each of its tanks, so the client can draw it.
  *
- * <p>One entry per side, empty where there is nothing. The old format wrote a {@code BitSet} of
+ * <p>One entry per side tank, by direction, then one for the centre tank, empty where there is nothing. The old format wrote a {@code BitSet} of
  * which sides were occupied and then only those stacks; {@code OPTIONAL_STREAM_CODEC} already
  * spends one byte on an empty stack, so the bitset bought nothing.
  */
@@ -43,7 +42,7 @@ public record PipeFluidUpdateMessage(BlockPos pos, List<FluidStack> sides) imple
             || !(be.pipe.transport instanceof PipeFluidTransportLogistics transport)) {
             return;
         }
-        final @Nullable FluidStack[] sides = new FluidStack[Direction.values().length];
+        final @Nullable FluidStack[] sides = new FluidStack[PipeFluidTransportLogistics.CENTER + 1];
         for (int i = 0; i < sides.length; i++) {
             // The render cache uses null, not an empty stack, for a side with nothing on it.
             final FluidStack side = i < message.sides.size() ? message.sides.get(i) : FluidStack.EMPTY;

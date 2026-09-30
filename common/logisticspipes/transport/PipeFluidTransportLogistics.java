@@ -27,7 +27,12 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 	public LPFluidTank[] sideTanks = new LPFluidTank[Direction.values().length];
 	public LPFluidTank internalTank = new LPFluidTank(getInnerCapacity());
 
-	public @Nullable FluidStack[] renderCache = new FluidStack[7];
+	/**
+	 * The slot of {@link #renderCache} for {@link #internalTank}; the others are the side tanks, by direction.
+	 */
+	public static final int CENTER = 6;
+
+	public @Nullable FluidStack[] renderCache = new FluidStack[CENTER + 1];
 
 	public PipeFluidTransportLogistics() {
 		super(true);
@@ -194,35 +199,30 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 		FluidStack[] renderCache = this.renderCache.clone();
 
-		for (Direction dir : PipeFluidTransportLogistics.orientations) {
-			FluidStack current;
-			if (dir != null) {
-				current = sideTanks[dir.ordinal()].getFluid();
-			} else {
-				current = internalTank.getFluid();
-			}
-			FluidStack prev = renderCache[dir.ordinal()];
+		for (int slot = 0; slot < renderCache.length; slot++) {
+			FluidStack current = slot == CENTER ? internalTank.getFluid() : sideTanks[slot].getFluid();
+			FluidStack prev = renderCache[slot];
 
 			if (prev == null && (current == null || current.isEmpty())) {
 				continue;
 			} else if (prev == null) {
 				changed = true;
-				renderCache[dir.ordinal()] = current.copy();
+				renderCache[slot] = current.copy();
 				continue;
 			} else if (current == null || current.isEmpty()) {
 				changed = true;
-				renderCache[dir.ordinal()] = null;
+				renderCache[slot] = null;
 				continue;
 			}
 
 			if (prev.getFluid() != current.getFluid() || initPacket) {
 				changed = true;
-				renderCache[dir.ordinal()] = new FluidStack(current.getFluid(), renderCache[dir.ordinal()].getAmount());
+				renderCache[slot] = new FluidStack(current.getFluid(), renderCache[slot].getAmount());
 			}
 
 			if (prev.getAmount() != current.getAmount() || initPacket) {
 				changed = true;
-				renderCache[dir.ordinal()].setAmount(current.getAmount());
+				renderCache[slot].setAmount(current.getAmount());
 			}
 		}
 
