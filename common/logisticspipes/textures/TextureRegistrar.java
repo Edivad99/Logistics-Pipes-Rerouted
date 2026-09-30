@@ -107,13 +107,6 @@ public class TextureRegistrar {
 			new logisticspipes.client.model.pipe.PipeSprites(
 				base, inactive, status, statusBC, glassCenter, innerBox,
 				TextureRegistrar::newPipeIcon));
-		for (Entry e : ENTRIES) {
-			TextureAtlasSprite sprite = event.getAtlas().getSprite(e.rl);
-			if (sprite == null) continue;
-			if (Textures.LPpipeIconProvider != null) {
-				Textures.LPpipeIconProvider.setIcon(e.index, sprite);
-			}
-		}
 		Textures.LOGISTICS_SIDE_SELECTION = event.getAtlas().getSprite(LPConstants.rl("blocks/sideselection"));
 
 		NEW_PIPE_SPRITES.clear();

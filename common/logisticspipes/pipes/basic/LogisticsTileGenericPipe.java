@@ -54,7 +54,6 @@ import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
 import logisticspipes.network.to_client.pipe.PipeStateMessage;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.renderer.IIconProvider;
 import logisticspipes.renderer.LogisticsTileRenderController;
 import logisticspipes.renderer.state.PipeRenderState;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
@@ -870,14 +869,6 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 
 	public void scheduleRenderUpdate() {
 		refreshRenderState = true;
-	}
-
-	@Nullable
-	public IIconProvider getPipeIcons() {
-		if (pipe == null) {
-			return null;
-		}
-		return pipe.getIconProvider();
 	}
 
 	public double getViewDistance() {

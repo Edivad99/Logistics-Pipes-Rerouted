@@ -27,9 +27,7 @@ import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
-import logisticspipes.renderer.IIconProvider;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
-import logisticspipes.textures.Textures;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -103,15 +101,6 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 	 */
 	public int getIconIndexForItem() {
 		return getIconIndex(null);
-	}
-
-	/**
-	 * Should return the IIconProvider that provides icons for this pipe
-	 *
-	 * @return An array of icons
-	 */
-	public IIconProvider getIconProvider() {
-		return Textures.LPpipeIconProvider;
 	}
 
 	/**

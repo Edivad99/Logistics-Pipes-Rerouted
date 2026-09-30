@@ -4,9 +4,6 @@ import org.jspecify.annotations.Nullable;
 
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.renderer.IIconProvider;
-import logisticspipes.textures.provider.LPActionTriggerIconProvider;
-import logisticspipes.textures.provider.LPPipeIconProvider;
 
 public class Textures {
 
@@ -139,8 +136,6 @@ public class Textures {
 	public static String LOGISTICSPIPE_UN_OVERLAY_TEXTURE_FILE = "pipes/status_overlay/un-overlayed";
 	public static String LOGISTICSPIPE_BASIC_TRANSPORT_TEXTURE_FILE = "pipes/transport/basic";
 	public static String LOGISTICS_SOLID_BLOCK = Textures.LOGISTICSPIPE_TEXTURE_FILE;
-	public static IIconProvider LPactionIconProvider;
-	public static LPPipeIconProvider LPpipeIconProvider;
 
 	static {
 		Textures.empty.normal = 0;
@@ -167,11 +162,6 @@ public class Textures {
 
 	private int index = 0;
 	private int newTextureIndex = 0;
-
-	public Textures() {
-		Textures.LPactionIconProvider = new LPActionTriggerIconProvider();
-		Textures.LPpipeIconProvider = new LPPipeIconProvider();
-	}
 
 	/**
 	 * Walks the texture table, assigning every index and handing each entry to
@@ -252,10 +242,6 @@ public class Textures {
 		if (LogisticsPipes.isDEBUG()) {
 			LogisticsPipes.LOG.debug("LP: pipetextures {}", index);
 		}
-	}
-
-	public void registerItemIcons(Object textureMap) {
-		Textures.LPactionIconProvider.registerIcons(textureMap);
 	}
 
 	private TextureType registerTexture(String fileName) {
