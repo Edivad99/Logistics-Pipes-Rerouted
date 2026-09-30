@@ -1,0 +1,20 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": "logisticspipes:logistics_programmer",
+    "b": "#c:dyes/black",
+    "c": "logisticspipes:pipe_fluid_basic",
+    "d": "#c:dyes/purple",
+    "e": "logisticspipes:chip_basic",
+    "f": "#c:ingots/iron"
+  },
+  "pattern": [
+    " a ",
+    "bcd",
+    "fef"
+  ],
+  "result": {
+    "id": "logisticspipes:pipe_fluid_terminus"
+  }
+}

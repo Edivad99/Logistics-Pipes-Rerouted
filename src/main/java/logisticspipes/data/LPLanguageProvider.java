@@ -152,6 +152,8 @@ public class LPLanguageProvider extends LanguageProvider {
             "- Doesn't route Stuff",
             "- Can´t access Inventories");
 
+        addItem(LPItems.PIPE_FLUID_BASIC, "Logistics Fluid Basic Pipe");
+        addItem(LPItems.PIPE_FLUID_TERMINUS, "Logistics Fluid Terminus Pipe");
         addItem(LPItems.PIPE_FLUID_SUPPLIER, "Logistics Fluid Container Supplier",
             "Uses buckets or other fluid containers to fill the connected tank");
         addItem(LPItems.PIPE_FLUID_SUPPLIER_MK2, "Logistics Fluid Supplier",

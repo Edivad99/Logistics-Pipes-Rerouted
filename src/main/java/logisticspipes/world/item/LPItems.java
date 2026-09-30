@@ -32,12 +32,14 @@ import logisticspipes.modules.ModulePolymorphicItemSink;
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.modules.ModuleTerminus;
 import logisticspipes.pipes.PipeBlockRequestTable;
+import logisticspipes.pipes.PipeFluidBasic;
 import logisticspipes.pipes.PipeFluidExtractor;
 import logisticspipes.pipes.PipeFluidInsertion;
 import logisticspipes.pipes.PipeFluidProvider;
 import logisticspipes.pipes.PipeFluidRequestLogistics;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
+import logisticspipes.pipes.PipeFluidTerminus;
 import logisticspipes.pipes.PipeItemsBasicLogistics;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.PipeItemsFirewall;
@@ -229,27 +231,26 @@ public class LPItems {
         LogisticsBlockGenericPipe.registerPipe(deferredRegister, "transport_basic",
             PipeItemsBasicTransport::new);
     // Fluid pipes
+    public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_BASIC =
+        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_basic", PipeFluidBasic::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_SUPPLIER =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_supplier",
-            PipeItemsFluidSupplier::new);
+        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_supplier", PipeItemsFluidSupplier::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_INSERTION =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_insertion",
-            PipeFluidInsertion::new);
+        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_insertion", PipeFluidInsertion::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_PROVIDER =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_provider",
-            PipeFluidProvider::new);
+        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_provider", PipeFluidProvider::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_REQUEST =
         LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_request",
             PipeFluidRequestLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_EXTRACTOR =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_extractor",
-            PipeFluidExtractor::new);
+        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_extractor", PipeFluidExtractor::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_SATELLITE =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_satellite",
-            PipeFluidSatellite::new);
+        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_satellite", PipeFluidSatellite::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_SUPPLIER_MK2 =
         LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_supplier_mk2",
             PipeFluidSupplierMk2::new);
+    public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_TERMINUS =
+        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_terminus", PipeFluidTerminus::new);
     // High-speed tubes
     public static final DeferredItem<ItemLogisticsPipe> PIPE_HS_CURVE =
         LogisticsBlockGenericPipe.registerPipe(deferredRegister, "hs_curve", HSTubeCurve::new);

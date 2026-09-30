@@ -1,0 +1,19 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": "logisticspipes:logistics_programmer",
+    "b": "logisticspipes:pipe_basic",
+    "c": "logisticspipes:chip_basic",
+    "d": "#c:ingots/gold",
+    "e": "minecraft:bucket"
+  },
+  "pattern": [
+    " a ",
+    "cbc",
+    "ded"
+  ],
+  "result": {
+    "id": "logisticspipes:pipe_fluid_basic"
+  }
+}

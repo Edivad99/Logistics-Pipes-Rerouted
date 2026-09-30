@@ -163,11 +163,10 @@ public class RegisterProgrammerRecipes {
             LPItems.PIPE_CHASSIS_MK5.get());
         registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID,
             LPItems.PIPE_FLUID_SUPPLIER.get());
-
-        // PipeFluidBasic and PipeFluidTerminus were removed in the 1.20.1 migration; their
-        // LPItems fields are null. LP1 used pipeFluidBasic as the 's' base for the rest of the
-        // fluid-pipe line, so here we substitute pipeFluidSupplier (a registered fluid pipe) as
-        // the base — mirroring how the pipeFluidSupplierMk2 recipe below is keyed off pipeFluidSupplier.
+        registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID,
+            LPItems.PIPE_FLUID_BASIC.get());
+        registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID,
+            LPItems.PIPE_FLUID_TERMINUS.get());
         registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID,
             LPItems.PIPE_FLUID_REQUEST.get());
         registerPipeRecipeCategory(LogisticsProgramCompilerBlockEntity.ProgramCategories.FLUID,

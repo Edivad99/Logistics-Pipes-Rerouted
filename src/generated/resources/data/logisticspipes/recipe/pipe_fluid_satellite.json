@@ -1,0 +1,18 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": "logisticspipes:logistics_programmer",
+    "b": "#c:dusts/redstone",
+    "c": "logisticspipes:chip_fpga",
+    "d": "logisticspipes:pipe_fluid_basic"
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    " d "
+  ],
+  "result": {
+    "id": "logisticspipes:pipe_fluid_satellite"
+  }
+}

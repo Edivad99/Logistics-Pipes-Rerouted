@@ -1,0 +1,19 @@
+{
+  "type": "logisticspipes:programmer_recipe",
+  "category": "misc",
+  "key": {
+    "a": "logisticspipes:logistics_programmer",
+    "b": "#c:dusts/redstone",
+    "c": "logisticspipes:chip_basic",
+    "d": "#c:ingots/iron",
+    "e": "logisticspipes:pipe_fluid_basic"
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    "ded"
+  ],
+  "result": {
+    "id": "logisticspipes:pipe_fluid_provider"
+  }
+}
