@@ -196,7 +196,7 @@ public class LPLanguageProvider extends LanguageProvider {
         addItem(LPItems.UPGRADE_PATTERN, "Placement Rules Upgrade");
         addItem(LPItems.UPGRADE_FUZZY, "Fuzzy Upgrade");
         addItem(LPItems.UPGRADE_POWER_TRANSPORTATION, "Power Transportation Upgrade");
-        addItem(LPItems.UPGRADE_POWER_RF, "RF Power Supplier Upgrade");
+        addItem(LPItems.UPGRADE_POWER_FE, "FE Power Supplier Upgrade");
         addItem(LPItems.UPGRADE_CC_REMOTE_CONTROL, "CC Remote Control Upgrade");
         addItem(LPItems.UPGRADE_CRAFTING_MONITORING, "Crafting Monitoring Upgrade");
         addItem(LPItems.UPGRADE_OPAQUE, "Opaque Upgrade");
@@ -215,7 +215,7 @@ public class LPLanguageProvider extends LanguageProvider {
         addBlock(LPBlocks.CRAFTER, "Logistics Crafting Table");
         addBlock(LPBlocks.CRAFTER_FUZZY, "Logistics Fuzzy Crafting Table");
         addBlock(LPBlocks.STATISTICS_TABLE, "Logistics Statistics Table");
-        addBlock(LPBlocks.POWER_PROVIDER_RF, "Logistics RF Power Provider");
+        addBlock(LPBlocks.POWER_PROVIDER_FE, "Logistics FE Power Provider");
         addBlock(LPBlocks.PROGRAM_COMPILER, "Logistics Program Compiler");
     }
 

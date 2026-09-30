@@ -11,29 +11,29 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
-import logisticspipes.world.level.block.entity.LogisticsRFPowerProviderBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsFEPowerProviderBlockEntity;
 
-public class LogisticsRFPowerProviderBlock extends LogisticsSolidBlock {
+public class LogisticsFEPowerProviderBlock extends LogisticsSolidBlock {
 
-    public LogisticsRFPowerProviderBlock(Properties properties) {
+    public LogisticsFEPowerProviderBlock(Properties properties) {
         super(properties);
     }
 
     @Override
     public String textureName() {
-        return "power_provider_rf";
+        return "power_provider_fe";
     }
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new LogisticsRFPowerProviderBlockEntity(pos, state);
+        return new LogisticsFEPowerProviderBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
         BlockEntityType<T> type) {
-        return BaseEntityBlock.createTickerHelper(type, LPBlockEntityTypes.POWER_PROVIDER_RF.get(),
+        return BaseEntityBlock.createTickerHelper(type, LPBlockEntityTypes.POWER_PROVIDER_FE.get(),
             (_, _, _, be) -> {
                 if (level.isClientSide()) {
                     be.clientTick();

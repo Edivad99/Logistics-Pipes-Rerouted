@@ -83,8 +83,8 @@ import logisticspipes.world.item.crafting.RegisterProgrammerRecipes;
 import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsFEPowerProviderBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
-import logisticspipes.world.level.block.entity.LogisticsRFPowerProviderBlockEntity;
 
 @Mod(LPConstants.ID)
 public class LogisticsPipes {
@@ -141,7 +141,7 @@ public class LogisticsPipes {
         event.registerBlockEntity(Capabilities.Energy.BLOCK,
             LPBlockEntityTypes.POWER_JUNCTION.get(), LogisticsPowerJunctionBlockEntity::getEnergyStorageCap);
         event.registerBlockEntity(Capabilities.Energy.BLOCK,
-            LPBlockEntityTypes.POWER_PROVIDER_RF.get(), LogisticsRFPowerProviderBlockEntity::getEnergyStorageCap);
+            LPBlockEntityTypes.POWER_PROVIDER_FE.get(), LogisticsFEPowerProviderBlockEntity::getEnergyStorageCap);
     }
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {

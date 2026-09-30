@@ -22,33 +22,34 @@ import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity
 
 public class PowerSupplierHandler implements ValueIOSerializable {
 
-	private static final double INTERNAL_RF_BUFFER_MAX = 10000;
+	private static final double INTERNAL_FE_BUFFER_MAX = 10000;
 
 	private final CoreRoutedPipe pipe;
 
-	private double internalBufferRF = 0F;
+	private double internalBufferFE = 0F;
 
 	public PowerSupplierHandler(CoreRoutedPipe pipe) {
 		this.pipe = pipe;
 	}
 
 	public void serialize(ValueOutput output) {
-		if (internalBufferRF > 0) {
-			output.putDouble("bufferRF", internalBufferRF);
+		if (internalBufferFE > 0) {
+			output.putDouble("bufferFE", internalBufferFE);
 		}
 	}
 
 	public void deserialize(ValueInput input) {
-		internalBufferRF = input.getDoubleOr("bufferRF", 0.0);
+		// Saved as bufferRF before the RF names were dropped.
+		internalBufferFE = input.getDoubleOr("bufferFE", input.getDoubleOr("bufferRF", 0.0));
 	}
 
 	public void update() {
-		if (SimpleServiceLocator.powerProxy.isAvailable() && pipe.getUpgradeManager().hasRFPowerSupplierUpgrade()) {
-			if (requestRFPower()) return;
+		if (SimpleServiceLocator.powerProxy.isAvailable() && pipe.getUpgradeManager().hasFEPowerSupplierUpgrade()) {
+			if (requestFEPower()) return;
 		}
 	}
 
-	private boolean requestRFPower() {
+	private boolean requestFEPower() {
 		//Use Buffer
 
 		final List<LPNeighborBlockEntity<BlockEntity>> adjacentTileEntities = new WorldCoordinatesWrapper(pipe.getContainer()).allNeighborBlockEntities();
@@ -71,7 +72,7 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 		}
 
 		if (globalNeed != 0 && !Double.isNaN(globalNeed)) {
-			double fullfillable = Math.min(1, internalBufferRF / globalNeed);
+			double fullfillable = Math.min(1, internalBufferFE / globalNeed);
 			i = 0;
 			for (NeighborBlockEntity<BlockEntity> adjacent : adjacentTileEntities) {
 				if (SimpleServiceLocator.powerProxy.isEnergyReceiver(adjacent.getBlockEntity(), adjacent.getOurDirection())) {
@@ -82,7 +83,7 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 							++i;
 							continue;
 						}
-						if (internalBufferRF + 1 < need[i] * fullfillable) {
+						if (internalBufferFE + 1 < need[i] * fullfillable) {
 							return true;
 						}
 						int used;
@@ -91,11 +92,11 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 							transaction.commit();
 						}
 						if (used > 0) {
-							pipe.getContainer().addLaser(adjacent.getDirection(), 0.5F, LogisticsPowerProviderBlockEntity.RF_COLOR, false, true);
-							internalBufferRF -= used;
+							pipe.getContainer().addLaser(adjacent.getDirection(), 0.5F, LogisticsPowerProviderBlockEntity.FE_COLOR, false, true);
+							internalBufferFE -= used;
 						}
-						if (internalBufferRF < 0) {
-							internalBufferRF = 0;
+						if (internalBufferFE < 0) {
+							internalBufferFE = 0;
 							return true;
 						}
 					}
@@ -116,13 +117,13 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 			if (pair.getValue1().usePaused()) {
 				continue;
 			}
-			if (!pair.getValue1().getBrand().equals("RF")) {
+			if (!pair.getValue1().getBrand().equals("FE")) {
 				continue;
 			}
 			available += pair.getValue1().getPowerLevel();
 		}
 		if (available > 0) {
-			double neededPower = PowerSupplierHandler.INTERNAL_RF_BUFFER_MAX - internalBufferRF;
+			double neededPower = PowerSupplierHandler.INTERNAL_FE_BUFFER_MAX - internalBufferFE;
 			if (neededPower > 0) {
 				if (pipe.useEnergy((int) (neededPower / 100), false)) {
 					outer:
@@ -135,7 +136,7 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 						if (pair.getValue1().usePaused()) {
 							continue;
 						}
-						if (!pair.getValue1().getBrand().equals("RF")) {
+						if (!pair.getValue1().getBrand().equals("FE")) {
 							continue;
 						}
 						double requestamount = neededPower * (pair.getValue1().getPowerLevel() / available);
@@ -147,7 +148,7 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 		return false;
 	}
 
-	public void addRFPower(double toSend) {
-		internalBufferRF += toSend;
+	public void addFEPower(double toSend) {
+		internalBufferFE += toSend;
 	}
 }

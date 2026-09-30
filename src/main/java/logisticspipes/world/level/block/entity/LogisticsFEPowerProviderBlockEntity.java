@@ -20,14 +20,14 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConfigs;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 
-public class LogisticsRFPowerProviderBlockEntity extends LogisticsPowerProviderBlockEntity {
+public class LogisticsFEPowerProviderBlockEntity extends LogisticsPowerProviderBlockEntity {
 
     public static final int MAX_STORAGE = 10000000;
     public static final int MAX_MAXMODE = 8;
     public static final int MAX_PROVIDE_PER_TICK = 10000; //TODO
 
     /**
-     * The RF buffer this provider fills from its neighbours and drains into the LP network.
+     * The FE buffer this provider fills from its neighbours and drains into the LP network.
      *
      * <p>Was LP's own {@code ICoFHEnergyStorage} over NeoForge's {@code EnergyStorage}, both now
      * removed with the 21.9 transfer rework. {@link SimpleEnergyHandler} is the drop-in: same
@@ -48,8 +48,8 @@ public class LogisticsRFPowerProviderBlockEntity extends LogisticsPowerProviderB
         }
     };
 
-    public LogisticsRFPowerProviderBlockEntity(BlockPos pos, BlockState state) {
-        super(LPBlockEntityTypes.POWER_PROVIDER_RF.get(), pos, state);
+    public LogisticsFEPowerProviderBlockEntity(BlockPos pos, BlockState state) {
+        super(LPBlockEntityTypes.POWER_PROVIDER_FE.get(), pos, state);
     }
 
     private void addEnergy(double amount) {
@@ -57,15 +57,15 @@ public class LogisticsRFPowerProviderBlockEntity extends LogisticsPowerProviderB
             return;
         }
         internalStorage += amount;
-        if (internalStorage > LogisticsRFPowerProviderBlockEntity.MAX_STORAGE) {
-            internalStorage = LogisticsRFPowerProviderBlockEntity.MAX_STORAGE;
+        if (internalStorage > LogisticsFEPowerProviderBlockEntity.MAX_STORAGE) {
+            internalStorage = LogisticsFEPowerProviderBlockEntity.MAX_STORAGE;
         }
         if (internalStorage >= getMaxStorage()) {
             needMorePowerTriggerCheck = false;
         }
     }
 
-    private void addStoredRF() {
+    private void addStoredFE() {
         int space = freeSpace();
         // One transaction instead of the old simulate-then-execute pair: extract, and keep it only
         // if the buffer really gave up what it offered.
@@ -123,15 +123,15 @@ public class LogisticsRFPowerProviderBlockEntity extends LogisticsPowerProviderB
             if (LPConfigs.COMMON.POWER_SOURCE_MODE.get().equals(LPConfigs.PowerSourceMode.ADJACENT)) {
                 pullFromAdjacentStorage();
             } else {
-                addStoredRF();
+                addStoredFE();
             }
         }
     }
 
     @Override
     public int getMaxStorage() {
-        maxMode = Math.clamp(maxMode, 1, LogisticsRFPowerProviderBlockEntity.MAX_MAXMODE);
-        return (LogisticsRFPowerProviderBlockEntity.MAX_STORAGE / maxMode);
+        maxMode = Math.clamp(maxMode, 1, LogisticsFEPowerProviderBlockEntity.MAX_MAXMODE);
+        return (LogisticsFEPowerProviderBlockEntity.MAX_STORAGE / maxMode);
     }
 
     @Override
@@ -148,22 +148,22 @@ public class LogisticsRFPowerProviderBlockEntity extends LogisticsPowerProviderB
 
     @Override
     public String getBrand() {
-        return "RF";
+        return "FE";
     }
 
     @Override
     protected double getMaxProvidePerTick() {
-        return LogisticsRFPowerProviderBlockEntity.MAX_PROVIDE_PER_TICK;
+        return LogisticsFEPowerProviderBlockEntity.MAX_PROVIDE_PER_TICK;
     }
 
     @Override
     protected void handlePower(CoreRoutedPipe pipe, double toSend) {
-        pipe.handleRFPowerArrival(toSend);
+        pipe.handleFEPowerArrival(toSend);
     }
 
     @Override
     protected int getLaserColor() {
-        return LogisticsPowerProviderBlockEntity.RF_COLOR;
+        return LogisticsPowerProviderBlockEntity.FE_COLOR;
     }
 
     @Nullable

@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:special",
-    "base": "logisticspipes:item/power_provider_rf",
+    "base": "logisticspipes:item/power_provider_fe",
     "model": {
       "type": "logisticspipes:solid_block"
     }

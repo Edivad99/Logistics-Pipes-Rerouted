@@ -4,10 +4,10 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 
-public class RFPowerSupplierUpgrade implements IPipeUpgrade {
+public class FEPowerSupplierUpgrade implements IPipeUpgrade {
 
 	public static String getName() {
-		return "power_supplier_rf";
+		return "power_supplier_fe";
 	}
 
 	@Override

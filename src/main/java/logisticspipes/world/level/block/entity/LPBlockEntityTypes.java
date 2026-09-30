@@ -22,9 +22,9 @@ public class LPBlockEntityTypes {
 
     // NOTE: BlockEntity constructors must be migrated to (BlockPos, BlockState) before
     // these suppliers will compile. Stubs use placeholder suppliers for now.
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsRFPowerProviderBlockEntity>> POWER_PROVIDER_RF =
-        deferredRegister.register("power_provider_rf",
-            () -> new BlockEntityType<>(LogisticsRFPowerProviderBlockEntity::new, LPBlocks.POWER_PROVIDER_RF.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsFEPowerProviderBlockEntity>> POWER_PROVIDER_FE =
+        deferredRegister.register("power_provider_fe",
+            () -> new BlockEntityType<>(LogisticsFEPowerProviderBlockEntity::new, LPBlocks.POWER_PROVIDER_FE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsSecurityBlockEntity>> SECURITY_STATION =
         deferredRegister.register("security_station",
             () -> new BlockEntityType<>(LogisticsSecurityBlockEntity::new, LPBlocks.SECURITY_STATION.get()));
@@ -49,6 +49,8 @@ public class LPBlockEntityTypes {
             () -> new BlockEntityType<>(LogisticsFrameBlockEntity::new, LPBlocks.FRAME.get()));
 
     public static void register(IEventBus modEventBus) {
+        // Renamed from RF when the Thermal energy API gave way to NeoForge's FE; keeps old worlds loading.
+        deferredRegister.addAlias(LPConstants.rl("power_provider_rf"), LPConstants.rl("power_provider_fe"));
         deferredRegister.register(modEventBus);
     }
 }

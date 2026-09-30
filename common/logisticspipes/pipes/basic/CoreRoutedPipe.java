@@ -1462,8 +1462,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		//do nothing, every pipe with a GUI should either have a LogisticsGuiModule or override this method
 	}
 
-	public void handleRFPowerArrival(double toSend) {
-		powerHandler.addRFPower(toSend);
+	public void handleFEPowerArrival(double toSend) {
+		powerHandler.addFEPower(toSend);
 	}
 
 	/* ISendRoutedItem */

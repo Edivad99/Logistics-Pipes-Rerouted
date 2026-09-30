@@ -22,7 +22,7 @@ import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.upgrades.power.RFPowerSupplierUpgrade;
+import logisticspipes.pipes.upgrades.power.FEPowerSupplierUpgrade;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
@@ -57,7 +57,7 @@ public class UpgradeManager
 	private @Nullable String uuidS = null;
 	private boolean hasPatternUpgrade = false;
 	private boolean hasPowerPassUpgrade = false;
-	private boolean hasRFPowerUpgrade = false;
+	private boolean hasFEPowerUpgrade = false;
 	private boolean hasCCRemoteControlUpgrade = false;
 	private boolean hasCraftingMonitoringUpgrade = false;
 	private boolean hasOpaqueUpgrade = false;
@@ -145,7 +145,7 @@ public class UpgradeManager
 		hasByproductExtractor = false;
 		hasPatternUpgrade = false;
 		hasPowerPassUpgrade = false;
-		hasRFPowerUpgrade = false;
+		hasFEPowerUpgrade = false;
 		hasCCRemoteControlUpgrade = false;
 		hasCraftingMonitoringUpgrade = false;
 		hasOpaqueUpgrade = false;
@@ -179,8 +179,8 @@ public class UpgradeManager
 				hasPatternUpgrade = true;
 			} else if (upgrade instanceof PowerTransportationUpgrade) {
 				hasPowerPassUpgrade = true;
-			} else if (upgrade instanceof RFPowerSupplierUpgrade) {
-				hasRFPowerUpgrade = true;
+			} else if (upgrade instanceof FEPowerSupplierUpgrade) {
+				hasFEPowerUpgrade = true;
 			} else if (upgrade instanceof CCRemoteControlUpgrade) {
 				hasCCRemoteControlUpgrade = true;
 			} else if (upgrade instanceof CraftingMonitoringUpgrade) {
@@ -427,12 +427,12 @@ public class UpgradeManager
 
 	@Override
 	public boolean hasPowerPassUpgrade() {
-		return hasPowerPassUpgrade || hasRFPowerUpgrade;
+		return hasPowerPassUpgrade || hasFEPowerUpgrade;
 	}
 
 	@Override
-	public boolean hasRFPowerSupplierUpgrade() {
-		return hasRFPowerUpgrade;
+	public boolean hasFEPowerSupplierUpgrade() {
+		return hasFEPowerUpgrade;
 	}
 
 	@Override

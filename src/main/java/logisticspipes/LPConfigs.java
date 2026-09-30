@@ -86,10 +86,10 @@ public class LPConfigs {
                 .define("powerUsageDisabled", false);
             POWER_USAGE_MULTIPLIER = b.comment("Power usage multiplier")
                 .defineInRange("powerUsageMultiplier", 1.0, 0.0, 100.0);
-            LOGISTICS_CRAFTING_TABLE_POWER_USAGE = b.comment("Power used per crafting operation (RF)")
+            LOGISTICS_CRAFTING_TABLE_POWER_USAGE = b.comment("LP power used per crafting operation")
                 .defineInRange("craftingTablePowerUsage", 250, 0, Integer.MAX_VALUE);
             POWER_SOURCE_MODE = b.comment(
-                    "How the RF power junction acquires FE. ADJACENT: pulls from any neighbouring IEnergyStorage each tick. CABLE: passive — FE cables push into the junction.")
+                    "How the power junction acquires FE. ADJACENT: pulls from any neighbouring IEnergyStorage each tick. CABLE: passive — FE cables push into the junction.")
                 .defineEnum("powerSourceMode", PowerSourceMode.ADJACENT);
             b.pop();
 

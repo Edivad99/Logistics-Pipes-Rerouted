@@ -207,7 +207,7 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 			}
 
 			@Override
-			public boolean hasRFPowerSupplierUpgrade() {
+			public boolean hasFEPowerSupplierUpgrade() {
 				return false;
 			}
 

@@ -51,7 +51,7 @@ public class LPSpriteSourceProvider extends SpriteSourceProvider {
             .addSource(singleFile("solid_block/crafting_table_fuzzy"))
             .addSource(singleFile("solid_block/frame"))
             .addSource(singleFile("solid_block/power_junction"))
-            .addSource(singleFile("solid_block/power_provider_rf"))
+            .addSource(singleFile("solid_block/power_provider_fe"))
             .addSource(singleFile("solid_block/program_compiler"))
             .addSource(singleFile("solid_block/security_station"))
             .addSource(singleFile("solid_block/soldering_station"))

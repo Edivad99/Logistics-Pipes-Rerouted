@@ -19,6 +19,8 @@ public class LPBlocks {
         DeferredRegister.createBlocks(LPConstants.ID);
 
     public static void register(IEventBus modEventBus) {
+        // Renamed from RF when the Thermal energy API gave way to NeoForge's FE; keeps old worlds loading.
+        deferredRegister.addAlias(LPConstants.rl("power_provider_rf"), LPConstants.rl("power_provider_fe"));
         deferredRegister.register(modEventBus);
     }
 
@@ -46,8 +48,8 @@ public class LPBlocks {
     public static final DeferredBlock<LogisticsStatisticsTableBlock> STATISTICS_TABLE =
         deferredRegister.registerBlock("statistics_table", LogisticsStatisticsTableBlock::new);
 
-    public static final DeferredBlock<LogisticsRFPowerProviderBlock> POWER_PROVIDER_RF =
-        deferredRegister.registerBlock("power_provider_rf", LogisticsRFPowerProviderBlock::new);
+    public static final DeferredBlock<LogisticsFEPowerProviderBlock> POWER_PROVIDER_FE =
+        deferredRegister.registerBlock("power_provider_fe", LogisticsFEPowerProviderBlock::new);
 
     public static final DeferredBlock<LogisticsProgramCompilerBlock> PROGRAM_COMPILER =
         deferredRegister.registerBlock("program_compiler", LogisticsProgramCompilerBlock::new);

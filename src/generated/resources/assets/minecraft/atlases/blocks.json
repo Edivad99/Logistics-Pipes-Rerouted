@@ -152,7 +152,7 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "logisticspipes:solid_block/power_provider_rf"
+      "resource": "logisticspipes:solid_block/power_provider_fe"
     },
     {
       "type": "minecraft:single",

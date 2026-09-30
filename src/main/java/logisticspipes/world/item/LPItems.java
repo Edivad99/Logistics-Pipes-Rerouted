@@ -85,7 +85,7 @@ import logisticspipes.pipes.upgrades.PowerTransportationUpgrade;
 import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.pipes.upgrades.SpeedUpgrade;
 import logisticspipes.pipes.upgrades.UpgradeModuleUpgrade;
-import logisticspipes.pipes.upgrades.power.RFPowerSupplierUpgrade;
+import logisticspipes.pipes.upgrades.power.FEPowerSupplierUpgrade;
 import logisticspipes.world.level.block.LPBlocks;
 
 public class LPItems {
@@ -94,6 +94,10 @@ public class LPItems {
         DeferredRegister.createItems(LPConstants.ID);
 
     public static void register(IEventBus modEventBus) {
+        // Renamed from RF when the Thermal energy API gave way to NeoForge's FE; keeps old worlds loading.
+        deferredRegister.addAlias(LPConstants.rl("power_provider_rf"), LPConstants.rl("power_provider_fe"));
+        deferredRegister.addAlias(LPConstants.rl("upgrade_power_supplier_rf"),
+            LPConstants.rl("upgrade_power_supplier_fe"));
         deferredRegister.register(modEventBus);
     }
 
@@ -163,9 +167,9 @@ public class LPItems {
     public static final DeferredItem<LogisticsSolidBlockItem> ITEM_STATISTICS_TABLE =
         deferredRegister.registerItem("statistics_table",
             properties -> new LogisticsSolidBlockItem(LPBlocks.STATISTICS_TABLE.get(), properties));
-    public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_RF =
-        deferredRegister.registerItem("power_provider_rf",
-            properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_RF.get(), properties));
+    public static final DeferredItem<LogisticsSolidBlockItem> ITEM_POWER_PROVIDER_FE =
+        deferredRegister.registerItem("power_provider_fe",
+            properties -> new LogisticsSolidBlockItem(LPBlocks.POWER_PROVIDER_FE.get(), properties));
     public static final DeferredItem<LogisticsSolidBlockItem> ITEM_PROGRAM_COMPILER =
         deferredRegister.registerItem("program_compiler",
             properties -> new LogisticsSolidBlockItem(LPBlocks.PROGRAM_COMPILER.get(), properties));
@@ -316,8 +320,8 @@ public class LPItems {
         registerUpgrade(FuzzyUpgrade.getName(), FuzzyUpgrade::new);
     public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_TRANSPORTATION =
         registerUpgrade(PowerTransportationUpgrade.getName(), PowerTransportationUpgrade::new);
-    public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_RF =
-        registerUpgrade(RFPowerSupplierUpgrade.getName(), RFPowerSupplierUpgrade::new);
+    public static final DeferredItem<ItemUpgrade> UPGRADE_POWER_FE =
+        registerUpgrade(FEPowerSupplierUpgrade.getName(), FEPowerSupplierUpgrade::new);
     public static final DeferredItem<ItemUpgrade> UPGRADE_CC_REMOTE_CONTROL =
         registerUpgrade(CCRemoteControlUpgrade.getName(), CCRemoteControlUpgrade::new);
     public static final DeferredItem<ItemUpgrade> UPGRADE_CRAFTING_MONITORING =

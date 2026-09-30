@@ -447,7 +447,7 @@ public class LPRecipeProvider extends RecipeProvider {
             .define('f', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy(getHasName(LPItems.LOGISTICS_PROGRAMMER), has(LPItems.LOGISTICS_PROGRAMMER))
             .save(output);
-        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_POWER_RF)
+        ProgrammerRecipeBuilder.shaped(items, RecipeCategory.MISC, LPItems.UPGRADE_POWER_FE)
             .pattern("faf")
             .pattern("bcb")
             .pattern("ded")

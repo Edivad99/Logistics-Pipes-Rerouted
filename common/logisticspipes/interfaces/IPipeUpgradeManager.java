@@ -8,7 +8,7 @@ public interface IPipeUpgradeManager {
 
 	boolean hasPowerPassUpgrade();
 
-	boolean hasRFPowerSupplierUpgrade();
+	boolean hasFEPowerSupplierUpgrade();
 
 	int getSpeedUpgradeCount();
 

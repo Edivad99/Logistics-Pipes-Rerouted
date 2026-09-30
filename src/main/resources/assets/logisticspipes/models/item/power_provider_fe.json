@@ -121,6 +121,6 @@
     }
   },
   "textures": {
-    "particle": "logisticspipes:solid_block/power_provider_rf"
+    "particle": "logisticspipes:solid_block/power_provider_fe"
   }
 }
