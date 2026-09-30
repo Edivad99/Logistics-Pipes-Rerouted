@@ -103,8 +103,6 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	public @Nullable Object node; // was: Node (OC removed from classpath)
 	public LogicController logicController = new LogicController();
 	public boolean[] pipeConnectionsBuffer = new boolean[6];
-	public boolean[] pipeBCConnectionsBuffer = new boolean[6];
-	public boolean[] pipeTDConnectionsBuffer = new boolean[6];
     @Nullable
 	public CoreUnroutedPipe pipe;
 	private @Nullable PipePowerLasers powerLasers;
@@ -274,8 +272,6 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 		// Pipe connections;
 		for (Direction o : Direction.values()) {
 			visualState.pipeConnectionMatrix.setConnected(o, pipeConnectionsBuffer[o.ordinal()]);
-			visualState.pipeConnectionMatrix.setBCConnected(o, pipeBCConnectionsBuffer[o.ordinal()]);
-			visualState.pipeConnectionMatrix.setTDConnected(o, pipeTDConnectionsBuffer[o.ordinal()]);
 		}
 		visualState.textureMatrix.refreshStates(pipe);
 	}
@@ -850,9 +846,6 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 			t.refresh();
 
 			pipeConnectionsBuffer[side.ordinal()] = canPipeConnect(t.getTile(), side);
-			// BuildCraft / Thermal Dynamics do not exist on 1.20.1 — never a BC pipe or TD duct.
-			pipeBCConnectionsBuffer[side.ordinal()] = false;
-			pipeTDConnectionsBuffer[side.ordinal()] = false;
 		}
 	}
 

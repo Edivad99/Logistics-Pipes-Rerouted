@@ -35,11 +35,10 @@ public class TextureRegistrar {
 
 		TextureAtlasSprite base = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel"));
 		TextureAtlasSprite status = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel-status"));
-		TextureAtlasSprite statusBC = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel-status-bc"));
 		TextureAtlasSprite inactive = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel-inactive"));
 		TextureAtlasSprite innerBox = atlas.getSprite(LPConstants.rl("blocks/pipes/innerbox"));
 		TextureAtlasSprite glassCenter = atlas.getSprite(LPConstants.rl("blocks/pipes/glass_texture_center"));
-		PipeModelStore.setSprites(new PipeSprites(base, inactive, status, statusBC, glassCenter, innerBox,
+		PipeModelStore.setSprites(new PipeSprites(base, inactive, status, glassCenter, innerBox,
 			TextureRegistrar::pipeSprite));
 		Textures.LOGISTICS_SIDE_SELECTION = atlas.getSprite(LPConstants.rl("blocks/sideselection"));
 	}

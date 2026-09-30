@@ -14,7 +14,7 @@ import logisticspipes.client.model.mesh.ObjMesh;
  * support, mount and texture plate, already transformed into block space.
  *
  * <p>Replaces the fifteen mutable static maps on {@code LogisticsNewRenderPipe}
- * ({@code sideNormal}, {@code sideBC}, {@code edges}, {@code corners_M}, ...). Being
+ * ({@code sideNormal}, {@code edges}, {@code corners_M}, ...). Being
  * immutable and published as a single reference, it can be swapped wholesale on a resource
  * reload and read from the chunk-baking threads without synchronization — which the old
  * static {@code HashMap}s could not support.</p>
@@ -49,7 +49,6 @@ public final class PipeModelParts {
     }
 
     private final Map<Direction, List<ObjMesh>> sideNormal;
-    private final Map<Direction, List<ObjMesh>> sideBC;
     private final Map<PipeEdge, ObjMesh> edges;
     private final Map<PipeCorner, List<ObjMesh>> cornersM;
     private final Map<PipeCorner, List<ObjMesh>> cornersI3;
@@ -66,7 +65,6 @@ public final class PipeModelParts {
 
     PipeModelParts(
         Map<Direction, List<ObjMesh>> sideNormal,
-        Map<Direction, List<ObjMesh>> sideBC,
         Map<PipeEdge, ObjMesh> edges,
         Map<PipeCorner, List<ObjMesh>> cornersM,
         Map<PipeCorner, List<ObjMesh>> cornersI3,
@@ -81,7 +79,6 @@ public final class PipeModelParts {
         ObjMesh innerTransportBox,
         ObjMesh highlight) {
         this.sideNormal = sideNormal;
-        this.sideBC = sideBC;
         this.edges = edges;
         this.cornersM = cornersM;
         this.cornersI3 = cornersI3;
@@ -102,7 +99,7 @@ public final class PipeModelParts {
      */
     public static PipeModelParts empty() {
         return new PipeModelParts(
-            new EnumMap<>(Direction.class), new EnumMap<>(Direction.class),
+            new EnumMap<>(Direction.class),
             new EnumMap<>(PipeEdge.class), new EnumMap<>(PipeCorner.class),
             new EnumMap<>(PipeCorner.class), new EnumMap<>(PipeTurnCorner.class),
             new EnumMap<>(PipeSupport.class), new EnumMap<>(PipeTurnCorner.class),
@@ -117,10 +114,6 @@ public final class PipeModelParts {
 
     public List<ObjMesh> sideNormal(Direction dir) {
         return sideNormal.getOrDefault(dir, List.of());
-    }
-
-    public List<ObjMesh> sideBC(Direction dir) {
-        return sideBC.getOrDefault(dir, List.of());
     }
 
     public ObjMesh edge(PipeEdge edge) {
@@ -187,7 +180,6 @@ public final class PipeModelParts {
     public List<ObjMesh> allMeshes() {
         List<ObjMesh> all = new ArrayList<>();
         sideNormal.values().forEach(all::addAll);
-        sideBC.values().forEach(all::addAll);
         all.addAll(edges.values());
         cornersM.values().forEach(all::addAll);
         cornersI3.values().forEach(all::addAll);

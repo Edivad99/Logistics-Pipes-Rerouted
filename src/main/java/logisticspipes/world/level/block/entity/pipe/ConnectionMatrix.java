@@ -6,13 +6,10 @@ import net.minecraft.network.codec.StreamCodec;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import org.jspecify.annotations.Nullable;
 
 public class ConnectionMatrix {
 
     private int mask = 0;
-    private int isBCPipeMask = 0;
-    private int isTDPipeMask = 0;
     @Getter
     private boolean dirty = false;
 
@@ -27,54 +24,21 @@ public class ConnectionMatrix {
             mask ^= 1 << direction.ordinal();
             dirty = true;
         }
-        if (!value) {
-            setBCConnected(direction, false);
-            setTDConnected(direction, false);
-        }
-    }
-
-    public boolean isBCConnected(@Nullable Direction direction) {
-        // test if the direction.ordinal()'th bit of mask is set
-        return direction != null && (isBCPipeMask & (1 << direction.ordinal())) != 0;
-    }
-
-    public void setBCConnected(Direction direction, boolean value) {
-        if (isBCConnected(direction) != value) {
-            // invert the direction.ordinal()'th bit of mask
-            isBCPipeMask ^= 1 << direction.ordinal();
-            dirty = true;
-        }
-    }
-
-    public boolean isTDConnected(@Nullable Direction direction) {
-        // test if the direction.ordinal()'th bit of mask is set
-        return direction != null && (isTDPipeMask & (1 << direction.ordinal())) != 0;
-    }
-
-    public void setTDConnected(Direction direction, boolean value) {
-        if (isTDConnected(direction) != value) {
-            // invert the direction.ordinal()'th bit of mask
-            isTDPipeMask ^= 1 << direction.ordinal();
-            dirty = true;
-        }
     }
 
     public void clean() {
         dirty = false;
     }
 
-    /** What the client needs: three side masks, one bit per direction. */
-    public record Wire(int mask, int bcMask, int tdMask) {
+    /** What the client needs: the connected sides, one bit per direction. */
+    public record Wire(int mask) {
 
-        public static final StreamCodec<ByteBuf, Wire> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.BYTE, wire -> (byte) wire.mask,
-                ByteBufCodecs.BYTE, wire -> (byte) wire.bcMask,
-                ByteBufCodecs.BYTE, wire -> (byte) wire.tdMask,
-                (mask, bcMask, tdMask) -> new Wire(mask, bcMask, tdMask));
+        public static final StreamCodec<ByteBuf, Wire> STREAM_CODEC = ByteBufCodecs.BYTE.map(
+                mask -> new Wire(mask), wire -> (byte) wire.mask);
     }
 
     public Wire snapshot() {
-        return new Wire(mask, isBCPipeMask, isTDPipeMask);
+        return new Wire(mask);
     }
 
     /**
@@ -84,14 +48,6 @@ public class ConnectionMatrix {
     public void apply(Wire wire) {
         if (wire.mask() != mask) {
             mask = wire.mask();
-            dirty = true;
-        }
-        if (wire.bcMask() != isBCPipeMask) {
-            isBCPipeMask = wire.bcMask();
-            dirty = true;
-        }
-        if (wire.tdMask() != isTDPipeMask) {
-            isTDPipeMask = wire.tdMask();
             dirty = true;
         }
     }

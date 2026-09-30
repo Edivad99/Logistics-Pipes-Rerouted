@@ -45,7 +45,6 @@ public final class PipeQuadBaker {
      */
     private static final float STATUS_U_STEP = 2.5f / 10;
     private static final float STATUS_V_ROW = 37f / 100;
-    private static final float STATUS_BC_V_STEP = 23f / 100;
     /**
      * The per-type body texture occupies the middle 12/16 of its sprite.
      */
@@ -95,12 +94,7 @@ public final class PipeQuadBaker {
                 continue;
             }
 
-            if (key.isTDConnected(dir) || key.isBCConnected(dir)) {
-                Textured textured = bcSideTexture(sprites, key, dir);
-                for (ObjMesh mesh : parts.sideBC(dir)) {
-                    MeshBaker.bake(quads, mesh, textured.sprite, textured.uv, MeshBaker.WHITE, SHADE);
-                }
-            } else if (!key.hasSpecialPipeEndAt(dir)) {
+            if (!key.hasSpecialPipeEndAt(dir)) {
                 Textured textured = normalSideTexture(sprites, key, dir);
                 for (ObjMesh mesh : parts.sideNormal(dir)) {
                     ObjMesh stretched = stretchToNeighbour(mesh, dir, key.neighbourBound(dir));
@@ -130,19 +124,6 @@ public final class PipeQuadBaker {
      * A sprite together with the UV shift that selects the right patch of it.
      */
     private record Textured(@Nullable TextureAtlasSprite sprite, UvTransform uv) {}
-
-    private static Textured bcSideTexture(PipeSprites sprites, PipeGeometryKey key, Direction dir) {
-        if (!key.isRouted()) {
-            return new Textured(sprites.basicPipe(), UvTransform.IDENTITY);
-        }
-        if (!key.isRoutedInDir(dir)) {
-            return new Textured(sprites.statusBC(), UvTransform.translate(0, -STATUS_BC_V_STEP));
-        }
-        if (key.isSubPowerInDir(dir)) {
-            return new Textured(sprites.statusBC(), UvTransform.translate(0, STATUS_BC_V_STEP));
-        }
-        return new Textured(sprites.statusBC(), UvTransform.IDENTITY);
-    }
 
     private static Textured normalSideTexture(PipeSprites sprites, PipeGeometryKey key, Direction dir) {
         if (!key.isRouted()) {

@@ -134,9 +134,6 @@ public final class PipeModelStore {
         if (current.status() == null) {
             missing.add("status");
         }
-        if (current.statusBC() == null) {
-            missing.add("statusBC");
-        }
         return "missing " + missing;
     }
 }

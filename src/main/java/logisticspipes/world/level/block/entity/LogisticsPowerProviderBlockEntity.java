@@ -58,7 +58,6 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
     implements IBlockEntityMenuProvider, ISubSystemPowerProvider, IPowerLevelDisplay, IScreenOpenController,
     IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
 
-    public static final int BC_COLOR = 0x00ffff;
     public static final int RF_COLOR = 0xff0000;
     public static final int IC2_COLOR = 0xffff00;
 

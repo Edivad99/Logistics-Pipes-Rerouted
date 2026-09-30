@@ -325,17 +325,7 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 	}
 
 	public double getBoxRenderScale(float fPos, LPTravelingItem travelItem) {
-		double boxScale = 1;
-		if (container.visualState.pipeConnectionMatrix.isTDConnected(travelItem.input.getOpposite())) {
-			boxScale = (fPos * (1 - 0.65)) + 0.65;
-		}
-		if (container.visualState.pipeConnectionMatrix.isTDConnected(travelItem.output)) {
-			boxScale = ((1 - fPos) * (1 - 0.65)) + 0.65;
-		}
-		if (container.visualState.pipeConnectionMatrix.isTDConnected(travelItem.input.getOpposite()) && container.visualState.pipeConnectionMatrix.isTDConnected(travelItem.output)) {
-			boxScale = 0.65;
-		}
-		return boxScale;
+		return 1;
 	}
 
 	public double getItemRenderPitch(float fPos, LPTravelingItem travelItem) {

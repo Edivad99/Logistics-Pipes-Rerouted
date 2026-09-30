@@ -31,8 +31,6 @@ import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 public final class PipeGeometryKey {
 
     private final int connectedMask;
-    private final int bcConnectedMask;
-    private final int tdConnectedMask;
     private final int specialEndMask;
     private final int solidSideMask;
     private final int routedInDirMask;
@@ -52,13 +50,10 @@ public final class PipeGeometryKey {
 
     private final int hash;
 
-    private PipeGeometryKey(int connectedMask, int bcConnectedMask, int tdConnectedMask, int specialEndMask,
-        int solidSideMask, int routedInDirMask, int subPowerInDirMask, boolean routed, boolean hasPower,
-        boolean hasPowerUpgrade, boolean fluid, int textureIndex, @Nullable Direction pointedOrientation,
-        double[] neighbourBounds) {
+    private PipeGeometryKey(int connectedMask, int specialEndMask, int solidSideMask, int routedInDirMask,
+        int subPowerInDirMask, boolean routed, boolean hasPower, boolean hasPowerUpgrade, boolean fluid,
+        int textureIndex, @Nullable Direction pointedOrientation, double[] neighbourBounds) {
         this.connectedMask = connectedMask;
-        this.bcConnectedMask = bcConnectedMask;
-        this.tdConnectedMask = tdConnectedMask;
         this.specialEndMask = specialEndMask;
         this.solidSideMask = solidSideMask;
         this.routedInDirMask = routedInDirMask;
@@ -116,20 +111,12 @@ public final class PipeGeometryKey {
 
     private static PipeGeometryKey build(PipeVisualState state, int specialEnd, int solid, double[] bounds) {
         int connected = 0;
-        int bc = 0;
-        int td = 0;
         int routedInDir = 0;
         int subPower = 0;
         for (Direction dir : Direction.values()) {
             int bit = 1 << dir.ordinal();
             if (state.pipeConnectionMatrix.isConnected(dir)) {
                 connected |= bit;
-            }
-            if (state.pipeConnectionMatrix.isBCConnected(dir)) {
-                bc |= bit;
-            }
-            if (state.pipeConnectionMatrix.isTDConnected(dir)) {
-                td |= bit;
             }
             if (state.textureMatrix.isRoutedInDir(dir)) {
                 routedInDir |= bit;
@@ -138,7 +125,7 @@ public final class PipeGeometryKey {
                 subPower |= bit;
             }
         }
-        return new PipeGeometryKey(connected, bc, td, specialEnd, solid, routedInDir, subPower,
+        return new PipeGeometryKey(connected, specialEnd, solid, routedInDir, subPower,
             state.textureMatrix.isRouted(), state.textureMatrix.isHasPower(),
             state.textureMatrix.isHasPowerUpgrade(), state.textureMatrix.isFluid(),
             state.textureMatrix.getTextureIndex(), state.textureMatrix.getPointedOrientation(), bounds);
@@ -183,14 +170,6 @@ public final class PipeGeometryKey {
 
     public boolean isConnected(Direction dir) {
         return (connectedMask & (1 << dir.ordinal())) != 0;
-    }
-
-    public boolean isBCConnected(Direction dir) {
-        return (bcConnectedMask & (1 << dir.ordinal())) != 0;
-    }
-
-    public boolean isTDConnected(Direction dir) {
-        return (tdConnectedMask & (1 << dir.ordinal())) != 0;
     }
 
     public boolean hasSpecialPipeEndAt(Direction dir) {
@@ -256,8 +235,6 @@ public final class PipeGeometryKey {
             return false;
         }
         return connectedMask == other.connectedMask
-            && bcConnectedMask == other.bcConnectedMask
-            && tdConnectedMask == other.tdConnectedMask
             && specialEndMask == other.specialEndMask
             && solidSideMask == other.solidSideMask
             && routedInDirMask == other.routedInDirMask
@@ -278,8 +255,6 @@ public final class PipeGeometryKey {
 
     private int computeHash() {
         int result = connectedMask;
-        result = 31 * result + bcConnectedMask;
-        result = 31 * result + tdConnectedMask;
         result = 31 * result + specialEndMask;
         result = 31 * result + solidSideMask;
         result = 31 * result + routedInDirMask;

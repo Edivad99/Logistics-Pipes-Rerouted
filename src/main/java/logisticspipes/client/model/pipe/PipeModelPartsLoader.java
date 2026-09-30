@@ -66,7 +66,6 @@ public final class PipeModelPartsLoader {
         }
 
         Map<Direction, List<ObjMesh>> sideNormal = new EnumMap<>(Direction.class);
-        Map<Direction, List<ObjMesh>> sideBC = new EnumMap<>(Direction.class);
         Map<PipeEdge, ObjMesh> edges = new EnumMap<>(PipeEdge.class);
         Map<PipeCorner, List<ObjMesh>> cornersM = new EnumMap<>(PipeCorner.class);
         Map<PipeCorner, List<ObjMesh>> cornersI3 = new EnumMap<>(PipeCorner.class);
@@ -84,10 +83,6 @@ public final class PipeModelPartsLoader {
             String group = "Side_" + PipeDirections.letter(dir);
             sideNormal.put(dir, exact(model, group));
             expect(problems, sideNormal.get(dir).size(), 4, dir.name(), group);
-
-            group = "Side_BC_" + PipeDirections.letter(dir);
-            sideBC.put(dir, exact(model, group));
-            expect(problems, sideBC.get(dir).size(), 8, dir.name(), group);
         }
 
         for (PipeEdge edge : PipeEdge.values()) {
@@ -166,7 +161,7 @@ public final class PipeModelPartsLoader {
 
         ObjMesh transportBox = loadTransportBox(transportBoxModel, problems);
 
-        return new PipeModelParts(sideNormal, sideBC, edges, cornersM, cornersI3, cornersI,
+        return new PipeModelParts(sideNormal, edges, cornersM, cornersI3, cornersI,
             supports, spacers, mounts, plateInner, plateOuter, sidePlates, connectorPlates,
             transportBox, ObjMesh.merge(highlightParts));
     }

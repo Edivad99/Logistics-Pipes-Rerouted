@@ -12,7 +12,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.LPConstants;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 
 /**
@@ -26,8 +25,11 @@ public final class PipeFluidRenderer {
      * Keeps the fluid just inside the pipe walls, so it does not z-fight with them.
      */
     private static final float INSET = 0.01F;
-    private static final float LOW = LPConstants.BC_PIPE_MIN_POS + INSET;
-    private static final float HIGH = LPConstants.BC_PIPE_MAX_POS - INSET;
+    /**
+     * The fluid fills the core of a BuildCraft pipe, which is what LP1 drew it in.
+     */
+    private static final float LOW = 0.25F + INSET;
+    private static final float HIGH = 0.75F - INSET;
     private static final float HALF_WIDTH = (HIGH - LOW) / 2;
 
     private PipeFluidRenderer() {

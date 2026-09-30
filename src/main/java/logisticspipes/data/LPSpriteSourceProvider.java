@@ -26,7 +26,6 @@ public class LPSpriteSourceProvider extends SpriteSourceProvider {
             .addSource(new DirectoryLister("blocks/requesttable", "blocks/requesttable/"))
             .addSource(singleFile("blocks/pipes/pipemodel"))
             .addSource(singleFile("blocks/pipes/pipemodel-status"))
-            .addSource(singleFile("blocks/pipes/pipemodel-status-bc"))
             .addSource(singleFile("blocks/pipes/pipemodel-inactive"))
             .addSource(singleFile("blocks/pipes/innerbox"))
             .addSource(singleFile("blocks/pipes/glass_texture_center"))

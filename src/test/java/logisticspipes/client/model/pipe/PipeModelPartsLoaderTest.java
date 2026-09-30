@@ -72,7 +72,6 @@ class PipeModelPartsLoaderTest {
 
         for (Direction dir : Direction.values()) {
             assertEquals(4, parts.sideNormal(dir).size(), "sideNormal " + dir);
-            assertEquals(8, parts.sideBC(dir).size(), "sideBC " + dir);
             assertEquals(2, parts.texturePlateInner(dir).size(), "inner plate " + dir);
             assertEquals(2, parts.texturePlateOuter(dir).size(), "outer plate " + dir);
             for (PipeModelParts.SidePlate plate : PipeModelParts.SidePlate.values()) {

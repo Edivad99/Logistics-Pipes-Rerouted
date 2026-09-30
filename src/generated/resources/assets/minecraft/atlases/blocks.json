@@ -20,10 +20,6 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "logisticspipes:blocks/pipes/pipemodel-status-bc"
-    },
-    {
-      "type": "minecraft:single",
       "resource": "logisticspipes:blocks/pipes/pipemodel-inactive"
     },
     {
