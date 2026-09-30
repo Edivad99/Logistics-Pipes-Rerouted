@@ -256,14 +256,14 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        internalStorage = input.getDoubleOr("internalStorage", 0.0);
+        internalStorage = input.getDoubleOr("internalStorage", 0);
         maxMode = input.getIntOr("maxMode", 0);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putDouble("internalStorageDouble", internalStorage);
+        output.putDouble("internalStorage", internalStorage);
         output.putInt("maxMode", maxMode);
     }
 
