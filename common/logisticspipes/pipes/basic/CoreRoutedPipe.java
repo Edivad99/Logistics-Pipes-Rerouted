@@ -118,7 +118,6 @@ import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.routing.order.LogisticsOrderManager;
 import logisticspipes.security.PermissionException;
 import logisticspipes.security.SecuritySettings;
-import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeTransportLogistics;
@@ -656,55 +655,10 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public int getTextureIndex() {
-		return getCenterTexture().newTexture;
+		return getCenterTexture().index();
 	}
 
 	public abstract TextureType getCenterTexture();
-
-	public TextureType getTextureType(@Nullable Direction connection) {
-		if (stillNeedReplace || initialInit) {
-			return getCenterTexture();
-		}
-
-		if (connection == null) {
-			return getCenterTexture();
-		} else if ((router != null) && getRouter().isRoutedExit(connection)) {
-			return getRoutedTexture(connection);
-		} else {
-			TextureType texture = getNonRoutedTexture(connection);
-			if (this.getUpgradeManager().hasRFPowerSupplierUpgrade() || this.getUpgradeManager().getIC2PowerLevel() > 0) {
-				if (texture.fileName.equals(Textures.LOGISTICSPIPE_NOTROUTED_TEXTURE.fileName)) {
-					texture = Textures.LOGISTICSPIPE_NOTROUTED_POWERED_TEXTURE;
-				} else if (texture.fileName.equals(Textures.LOGISTICSPIPE_LIQUID_TEXTURE.fileName)) {
-					texture = Textures.LOGISTICSPIPE_LIQUID_POWERED_TEXTURE;
-				} else if (texture.fileName.equals(Textures.LOGISTICSPIPE_POWERED_TEXTURE.fileName)) {
-					texture = Textures.LOGISTICSPIPE_POWERED_POWERED_TEXTURE;
-				} else if (texture.fileName.equals(Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE.fileName)) {
-					texture = Textures.LOGISTICSPIPE_NOTROUTED_POWERED_TEXTURE;
-				} else if (texture.fileName.equals(Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE.fileName)) {
-					texture = Textures.LOGISTICSPIPE_DIRECTION_POWERED_TEXTURE;
-				} else {
-					LogisticsPipes.LOG.warn("Unknown texture to power: {} class={} connection={}", texture.fileName, this.getClass(), connection);
-				}
-			}
-			return texture;
-		}
-	}
-
-	public TextureType getRoutedTexture(Direction connection) {
-		if (getRouter().isSubPoweredExit(connection)) {
-			return Textures.LOGISTICSPIPE_SUBPOWER_TEXTURE;
-		} else {
-			return Textures.LOGISTICSPIPE_ROUTED_TEXTURE;
-		}
-	}
-
-	public TextureType getNonRoutedTexture(Direction connection) {
-		if (isPowerProvider(connection)) {
-			return Textures.LOGISTICSPIPE_POWERED_TEXTURE;
-		}
-		return Textures.LOGISTICSPIPE_NOTROUTED_TEXTURE;
-	}
 
     @Override
 	public void spawnParticle(Particles particle, int amount) {
@@ -1372,18 +1326,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			}
 		}
 		return count;
-	}
-
-	@Override
-	public final int getIconIndex(@Nullable Direction connection) {
-		TextureType texture = getTextureType(connection);
-		if (textureBufferPowered) {
-			return texture.powered;
-		} else if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
-			return texture.normal;
-		} else {
-			return texture.unpowered;
-		}
 	}
 
 	public void addCrashReport(CrashReportCategory crashReportCategory) {

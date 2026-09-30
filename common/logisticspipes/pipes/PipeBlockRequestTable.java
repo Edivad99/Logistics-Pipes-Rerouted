@@ -240,58 +240,13 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		
 	}
 
+	/**
+	 * The table is drawn as a solid block rather than from the pipe model, so this is never shown.
+	 */
 	@Override
 	public TextureType getCenterTexture() {
-		return Textures.empty;
+		return Textures.LOGISTICSPIPE_TEXTURE;
 	}
-
-	@Override
-	public TextureType getRoutedTexture(Direction connection) {
-		return Textures.empty_1;
-	}
-
-	@Override
-	public TextureType getNonRoutedTexture(Direction connection) {
-		return Textures.empty_2;
-	}
-
-	/*public TextureAtlasSprite getTextureFor(int l) {
-		Direction dir = Direction.from3DDataValue(l);
-		//if (LogisticsPipes.getClientPlayerConfig().isUseNewRenderer()) {
-			switch (dir) {
-				case UP:
-				case DOWN:
-					return Textures.LOGISTICS_REQUEST_TABLE_NEW_EMPTY;
-				default:
-					if (container.visualState.pipeConnectionMatrix.isConnected(dir)) {
-						if (container.visualState.textureMatrix.getTextureIndex(dir) == 1) {
-							return Textures.LOGISTICS_REQUEST_TABLE_NEW_ROUTED;
-						} else {
-							return Textures.LOGISTICS_REQUEST_TABLE_NEW_UNROUTED;
-						}
-					} else {
-						return Textures.LOGISTICS_REQUEST_TABLE_NEW_EMPTY;
-					}
-			}
-		} else {
-			switch (dir) {
-				case UP:
-					return Textures.LOGISTICS_REQUEST_TABLE[0];
-				case DOWN:
-					return Textures.LOGISTICS_REQUEST_TABLE[1];
-				default:
-					if (container.visualState.pipeConnectionMatrix.isConnected(dir)) {
-						if (container.visualState.textureMatrix.getTextureIndex(dir) == 1) {
-							return Textures.LOGISTICS_REQUEST_TABLE[2];
-						} else {
-							return Textures.LOGISTICS_REQUEST_TABLE[3];
-						}
-					} else {
-						return Textures.LOGISTICS_REQUEST_TABLE[4];
-					}
-			}
-		}
-	}*/
 
 	@Override
 	public void onAllowedRemoval() {

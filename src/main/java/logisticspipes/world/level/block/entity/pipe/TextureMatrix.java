@@ -18,10 +18,6 @@ import logisticspipes.pipes.basic.CoreUnroutedPipe;
 
 public class TextureMatrix {
 
-    //Old Pipe Renderer
-    private final int[] iconIndexes = new int[7];
-
-    //New Pipe Renderer
     @Getter
     private int textureIndex;
     @Getter
@@ -39,17 +35,6 @@ public class TextureMatrix {
 
     @Getter
     private boolean dirty = true;
-
-    public int getTextureIndex(Direction direction) {
-        return iconIndexes[direction.ordinal()];
-    }
-
-    public void setIconIndex(Direction direction, int value) {
-        if (iconIndexes[direction.ordinal()] != value) {
-            iconIndexes[direction.ordinal()] = value;
-            dirty = true;
-        }
-    }
 
     public void refreshStates(CoreUnroutedPipe pipe) {
         if (textureIndex != pipe.getTextureIndex()) {
@@ -132,12 +117,10 @@ public class TextureMatrix {
      * What the client needs to pick textures. The two per-side flag arrays travel as bit masks,
      * the same shape the connection masks already use.
      */
-    public record Wire(byte[] iconIndexes, int textureIndex, boolean routed, int routedMask,
-            int subPowerMask, boolean powerUpgrade, boolean power, boolean fluid,
-            Optional<Direction> pointedOrientation) {
+    public record Wire(int textureIndex, boolean routed, int routedMask, int subPowerMask,
+            boolean powerUpgrade, boolean power, boolean fluid, Optional<Direction> pointedOrientation) {
 
         public static final StreamCodec<ByteBuf, Wire> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.BYTE_ARRAY, Wire::iconIndexes,
                 ByteBufCodecs.VAR_INT, Wire::textureIndex,
                 ByteBufCodecs.BOOL, Wire::routed,
                 ByteBufCodecs.BYTE, wire -> (byte) wire.routedMask,
@@ -146,8 +129,8 @@ public class TextureMatrix {
                 ByteBufCodecs.BOOL, Wire::power,
                 ByteBufCodecs.BOOL, Wire::fluid,
                 ByteBufCodecs.optional(Direction.STREAM_CODEC.cast()), Wire::pointedOrientation,
-                (icons, index, routed, routedMask, subPowerMask, upgrade, power, fluid, pointed) ->
-                        new Wire(icons, index, routed, routedMask, subPowerMask, upgrade, power, fluid, pointed));
+                (index, routed, routedMask, subPowerMask, upgrade, power, fluid, pointed) ->
+                        new Wire(index, routed, routedMask, subPowerMask, upgrade, power, fluid, pointed));
     }
 
     private static int maskOf(boolean[] flags) {
@@ -169,29 +152,18 @@ public class TextureMatrix {
     }
 
     public Wire snapshot() {
-        byte[] icons = new byte[iconIndexes.length];
-        for (int i = 0; i < iconIndexes.length; i++) {
-            icons[i] = (byte) iconIndexes[i];
-        }
-        return new Wire(icons, textureIndex, isRouted, maskOf(isRoutedInDir), maskOf(isSubPowerInDir),
+        return new Wire(textureIndex, isRouted, maskOf(isRoutedInDir), maskOf(isSubPowerInDir),
                 hasPowerUpgrade, hasPower, isFluid, Optional.ofNullable(pointedOrientation));
     }
 
     /**
-     * Only the icon indexes and the texture index dirty the matrix, which is what the old reader
-     * did: the rest is read by the renderer every frame and does not invalidate anything.
+     * Every field is baked into the pipe model, so any change dirties the matrix and has the chunk rebuilt.
      */
     public void apply(Wire wire) {
-        for (int i = 0; i < iconIndexes.length && i < wire.iconIndexes().length; i++) {
-            if (iconIndexes[i] != wire.iconIndexes()[i]) {
-                iconIndexes[i] = wire.iconIndexes()[i];
-                dirty = true;
-            }
-        }
-        if (wire.textureIndex() != textureIndex) {
-            textureIndex = wire.textureIndex();
+        if (!wire.equals(snapshot())) {
             dirty = true;
         }
+        textureIndex = wire.textureIndex();
         isRouted = wire.routed();
         isRoutedInDir = flagsOf(wire.routedMask(), isRoutedInDir.length);
         isSubPowerInDir = flagsOf(wire.subPowerMask(), isSubPowerInDir.length);

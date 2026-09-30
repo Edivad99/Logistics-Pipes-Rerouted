@@ -23,10 +23,7 @@ public class LPSpriteSourceProvider extends SpriteSourceProvider {
     protected void gather() {
         atlas(AtlasIds.BLOCKS)
             .addSource(new DirectoryLister("blocks/pipes/new_texture", "blocks/pipes/new_texture/"))
-            .addSource(new DirectoryLister("blocks/pipes/status_overlay", "blocks/pipes/status_overlay/"))
-            .addSource(new DirectoryLister("blocks/pipes/overlay_gen", "blocks/pipes/overlay_gen/"))
             .addSource(new DirectoryLister("blocks/requesttable", "blocks/requesttable/"))
-            .addSource(singleFile("blocks/pipes/liquid_connector"))
             .addSource(singleFile("blocks/pipes/pipemodel"))
             .addSource(singleFile("blocks/pipes/pipemodel-status"))
             .addSource(singleFile("blocks/pipes/pipemodel-status-bc"))

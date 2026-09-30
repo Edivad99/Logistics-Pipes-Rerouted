@@ -277,12 +277,6 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 			visualState.pipeConnectionMatrix.setBCConnected(o, pipeBCConnectionsBuffer[o.ordinal()]);
 			visualState.pipeConnectionMatrix.setTDConnected(o, pipeTDConnectionsBuffer[o.ordinal()]);
 		}
-		// Pipe Textures
-		for (int i = 0; i < 7; i++) {
-			Direction o = Direction.from3DDataValue(i);
-			visualState.textureMatrix.setIconIndex(o, pipe.getIconIndex(o));
-		}
-		//New Pipe Texture States
 		visualState.textureMatrix.refreshStates(pipe);
 	}
 

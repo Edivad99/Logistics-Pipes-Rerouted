@@ -15,7 +15,6 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
-import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
@@ -27,8 +26,6 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.order.LogisticsFluidOrderManager;
 import logisticspipes.routing.order.LogisticsOrderManager;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.CacheHolder.CacheTypes;
@@ -61,25 +58,6 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 	@Override
 	public ItemSendMode getItemSendMode() {
 		return ItemSendMode.Normal;
-	}
-
-	@Override
-	public TextureType getNonRoutedTexture(Direction connection) {
-		if (isFluidSidedTexture(connection)) {
-			return Textures.LOGISTICSPIPE_LIQUID_TEXTURE;
-		}
-		return super.getNonRoutedTexture(connection);
-	}
-
-	private boolean isFluidSidedTexture(Direction connection) {
-		return getAvailableAdjacent().fluidTanks().stream()
-				.filter(neighbor -> neighbor.getDirection() == connection)
-				.findFirst()
-				.map(neighbor -> {
-					final ITankUtil tankUtil = NeighborBlockEntityUtil.getTankUtil(neighbor);
-					return tankUtil != null && tankUtil.containsTanks();
-				})
-				.orElse(false);
 	}
 
 	@Override

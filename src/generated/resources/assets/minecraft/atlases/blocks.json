@@ -7,22 +7,8 @@
     },
     {
       "type": "minecraft:directory",
-      "prefix": "blocks/pipes/status_overlay/",
-      "source": "blocks/pipes/status_overlay"
-    },
-    {
-      "type": "minecraft:directory",
-      "prefix": "blocks/pipes/overlay_gen/",
-      "source": "blocks/pipes/overlay_gen"
-    },
-    {
-      "type": "minecraft:directory",
       "prefix": "blocks/requesttable/",
       "source": "blocks/requesttable"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "logisticspipes:blocks/pipes/liquid_connector"
     },
     {
       "type": "minecraft:single",

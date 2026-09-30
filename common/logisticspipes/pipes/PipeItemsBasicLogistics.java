@@ -53,14 +53,6 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public TextureType getNonRoutedTexture(Direction connection) {
-		if (isSecurityProvider(connection)) {
-			return Textures.LOGISTICSPIPE_SECURITY_TEXTURE;
-		}
-		return super.getNonRoutedTexture(connection);
-	}
-
-	@Override
 	public boolean isLockedExit(Direction orientation) {
 		if (isPowerJunction(orientation) || isSecurityProvider(orientation)) {
 			return true;

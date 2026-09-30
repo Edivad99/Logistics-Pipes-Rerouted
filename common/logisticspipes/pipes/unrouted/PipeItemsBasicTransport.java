@@ -1,9 +1,6 @@
 package logisticspipes.pipes.unrouted;
 
-import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
-
-import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.textures.Textures;
@@ -16,13 +13,8 @@ public class PipeItemsBasicTransport extends CoreUnroutedPipe {
 	}
 
 	@Override
-	public int getIconIndex(@Nullable Direction direction) {
-		return Textures.LOGISTICSPIPE_BASIC_TRANSPORT_TEXTURE.normal;
-	}
-
-	@Override
 	public int getTextureIndex() {
-		return Textures.LOGISTICSPIPE_BASIC_TRANSPORT_TEXTURE.newTexture;
+		return Textures.LOGISTICSPIPE_BASIC_TRANSPORT_TEXTURE.index();
 	}
 
 }

@@ -275,26 +275,6 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public TextureType getRoutedTexture(Direction connection) {
-		if (getRouter().isSubPoweredExit(connection)) {
-			return Textures.LOGISTICSPIPE_SUBPOWER_TEXTURE;
-		}
-		return Textures.LOGISTICSPIPE_CHASSI_ROUTED_TEXTURE;
-	}
-
-	@Override
-	public TextureType getNonRoutedTexture(@Nullable Direction connection) {
-		final @Nullable Direction pointedDirection = pointedAdjacentProperty.getDirectionOrNull();
-		if (pointedDirection != null && pointedDirection.equals(connection)) {
-			return Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE;
-		}
-		if (isPowerProvider(connection)) {
-			return Textures.LOGISTICSPIPE_POWERED_TEXTURE;
-		}
-		return Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
-	}
-
-	@Override
 	public void deserialize(ValueInput input) {
 		super.deserialize(input);
 		moduleInventory.deserialize(input, "chassi");

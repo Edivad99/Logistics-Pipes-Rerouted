@@ -94,25 +94,6 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 		return transport.canPipeConnect(tile, side);
 	}
 
-	/**
-	 * Should return the textureindex used by the Pipe Item Renderer, as this is
-	 * done client-side the default implementation might not work if your
-	 * getTextureIndex(Orienations.Unknown) has logic. Then override this
-	 */
-	public int getIconIndexForItem() {
-		return getIconIndex(null);
-	}
-
-	/**
-	 * Should return the index in the array returned by GetTextureIcons() for a
-	 * specified direction
-	 *
-	 * @param direction - The direction for which the indexed should be rendered.
-	 *                  Unknown for pipe center
-	 * @return An index valid in the array returned by getTextureIcons()
-	 */
-	public abstract int getIconIndex(@Nullable Direction direction);
-
 	public void updateEntity() {
 		transport.updateEntity();
 	}

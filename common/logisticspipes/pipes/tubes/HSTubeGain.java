@@ -215,11 +215,6 @@ public class HSTubeGain extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public int getIconIndex(@Nullable Direction direction) {
-		return 0;
-	}
-
-	@Override
 	public int getTextureIndex() {
 		return 0;
 	}
