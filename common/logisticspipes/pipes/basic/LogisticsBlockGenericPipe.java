@@ -562,20 +562,6 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 			}
 		}
 
-		// pluggables
-
-		/*
-		for (Direction side : Direction.values()) {
-			if (tileG.getBCPipePluggable(side) != null) {
-				if(side != null && ignoreSideRayTrace) continue;
-				AABB bb = tileG.getBCPipePluggable(side).getBoundingBox(side);
-				boxes[7 + side.ordinal()] = bb;
-				hits[7 + side.ordinal()] = super.collisionRayTrace(new BoundingBoxDelegateBlockState(bb, state), tileG.getLevel(), tileG.getBlockPos(), start, end);
-				sideHit[7 + side.ordinal()] = side;
-			}
-		}
-		*/
-
 		// wire hit-test not implemented
 
 		// get closest hit

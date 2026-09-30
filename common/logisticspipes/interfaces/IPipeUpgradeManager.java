@@ -10,10 +10,6 @@ public interface IPipeUpgradeManager {
 
 	boolean hasRFPowerSupplierUpgrade();
 
-	boolean hasBCPowerSupplierUpgrade();
-
-	int getIC2PowerLevel();
-
 	int getSpeedUpgradeCount();
 
 	boolean isSideDisconnected(Direction side);

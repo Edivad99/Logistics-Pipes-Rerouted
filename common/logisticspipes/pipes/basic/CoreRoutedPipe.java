@@ -1466,10 +1466,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		powerHandler.addRFPower(toSend);
 	}
 
-	public void handleIC2PowerArrival(double toSend) {
-		powerHandler.addIC2Power(toSend);
-	}
-
 	/* ISendRoutedItem */
 
 	@Override

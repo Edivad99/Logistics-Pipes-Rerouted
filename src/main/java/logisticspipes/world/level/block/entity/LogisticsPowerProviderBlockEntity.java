@@ -59,7 +59,6 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
     IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
 
     public static final int RF_COLOR = 0xff0000;
-    public static final int IC2_COLOR = 0xffff00;
 
     // true if it needs more power, turns off at full, turns on at 50%.
     public boolean needMorePowerTriggerCheck = true;

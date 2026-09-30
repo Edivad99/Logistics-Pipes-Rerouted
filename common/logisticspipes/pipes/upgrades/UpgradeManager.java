@@ -22,8 +22,6 @@ import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.upgrades.power.BCPowerSupplierUpgrade;
-import logisticspipes.pipes.upgrades.power.IC2PowerSupplierUpgrade;
 import logisticspipes.pipes.upgrades.power.RFPowerSupplierUpgrade;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
@@ -60,8 +58,6 @@ public class UpgradeManager
 	private boolean hasPatternUpgrade = false;
 	private boolean hasPowerPassUpgrade = false;
 	private boolean hasRFPowerUpgrade = false;
-	private boolean hasBCPowerUpgrade = false;
-	private int getIC2PowerLevel = 0;
 	private boolean hasCCRemoteControlUpgrade = false;
 	private boolean hasCraftingMonitoringUpgrade = false;
 	private boolean hasOpaqueUpgrade = false;
@@ -150,8 +146,6 @@ public class UpgradeManager
 		hasPatternUpgrade = false;
 		hasPowerPassUpgrade = false;
 		hasRFPowerUpgrade = false;
-		hasBCPowerUpgrade = false;
-		getIC2PowerLevel = 0;
 		hasCCRemoteControlUpgrade = false;
 		hasCraftingMonitoringUpgrade = false;
 		hasOpaqueUpgrade = false;
@@ -187,10 +181,6 @@ public class UpgradeManager
 				hasPowerPassUpgrade = true;
 			} else if (upgrade instanceof RFPowerSupplierUpgrade) {
 				hasRFPowerUpgrade = true;
-			} else if (upgrade instanceof BCPowerSupplierUpgrade) {
-				hasBCPowerUpgrade = true;
-			} else if (upgrade instanceof IC2PowerSupplierUpgrade) {
-				getIC2PowerLevel = Math.max(getIC2PowerLevel, ((IC2PowerSupplierUpgrade) upgrade).getPowerLevel());
 			} else if (upgrade instanceof CCRemoteControlUpgrade) {
 				hasCCRemoteControlUpgrade = true;
 			} else if (upgrade instanceof CraftingMonitoringUpgrade) {
@@ -437,22 +427,12 @@ public class UpgradeManager
 
 	@Override
 	public boolean hasPowerPassUpgrade() {
-		return hasPowerPassUpgrade || hasRFPowerUpgrade || hasBCPowerUpgrade || getIC2PowerLevel > 0;
+		return hasPowerPassUpgrade || hasRFPowerUpgrade;
 	}
 
 	@Override
 	public boolean hasRFPowerSupplierUpgrade() {
 		return hasRFPowerUpgrade;
-	}
-
-	@Override
-	public boolean hasBCPowerSupplierUpgrade() {
-		return hasBCPowerUpgrade;
-	}
-
-	@Override
-	public int getIC2PowerLevel() {
-		return getIC2PowerLevel;
 	}
 
 	@Override

@@ -27,7 +27,6 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 	private final CoreRoutedPipe pipe;
 
 	private double internalBufferRF = 0F;
-	private double internalBufferIC2 = 0F;
 
 	public PowerSupplierHandler(CoreRoutedPipe pipe) {
 		this.pipe = pipe;
@@ -37,22 +36,16 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 		if (internalBufferRF > 0) {
 			output.putDouble("bufferRF", internalBufferRF);
 		}
-		if (internalBufferIC2 > 0) {
-			output.putDouble("bufferEU", internalBufferIC2);
-		}
 	}
 
 	public void deserialize(ValueInput input) {
 		internalBufferRF = input.getDoubleOr("bufferRF", 0.0);
-		internalBufferIC2 = input.getDoubleOr("bufferEU", 0.0);
 	}
 
 	public void update() {
 		if (SimpleServiceLocator.powerProxy.isAvailable() && pipe.getUpgradeManager().hasRFPowerSupplierUpgrade()) {
 			if (requestRFPower()) return;
 		}
-		// IC2/EU distribution removed — IC2 has no 1.20.1 port, the former dummy proxy made
-		// this path a no-op (hasIC2() was always false).
 	}
 
 	private boolean requestRFPower() {
@@ -156,9 +149,5 @@ public class PowerSupplierHandler implements ValueIOSerializable {
 
 	public void addRFPower(double toSend) {
 		internalBufferRF += toSend;
-	}
-
-	public void addIC2Power(double toSend) {
-		internalBufferIC2 += toSend;
 	}
 }

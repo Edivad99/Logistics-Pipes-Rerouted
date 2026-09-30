@@ -59,8 +59,7 @@ public class TextureMatrix {
                 }
                 isSubPowerInDir[i] = cPipe.getRouter().isSubPoweredExit(Direction.from3DDataValue(i));
             }
-            boolean powerUpgrade = cPipe.getUpgradeManager().hasRFPowerSupplierUpgrade()
-                || cPipe.getUpgradeManager().getIC2PowerLevel() > 0;
+            boolean powerUpgrade = cPipe.getUpgradeManager().hasRFPowerSupplierUpgrade();
             if (hasPowerUpgrade != powerUpgrade) {
                 dirty = true;
             }
