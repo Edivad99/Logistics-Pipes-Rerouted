@@ -54,7 +54,7 @@ public class FluidContainerRenderer {
         }
     }
 
-    private static int tintColor(FluidTintSource tint, FluidState state) {
+    public static int tintColor(FluidTintSource tint, FluidState state) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level != null && minecraft.player != null) {
             return tint.colorInWorld(state.createLegacyBlock(), minecraft.level,

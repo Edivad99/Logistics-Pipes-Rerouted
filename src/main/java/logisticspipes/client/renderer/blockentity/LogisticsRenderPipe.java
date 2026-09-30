@@ -48,7 +48,6 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.signs.IPipeSign;
-import logisticspipes.renderer.newpipe.LogisticsNewPipeItemBoxRenderer;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
@@ -64,7 +63,6 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     private static final float FLAT_ITEM_DEPTH = 0.02F;
     private static final WoodType TYPE = WoodType.OAK;
     private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
-    public static LogisticsNewPipeItemBoxRenderer boxRenderer = new LogisticsNewPipeItemBoxRenderer();
     @Nullable
     private static TextureAtlasSprite requestTableSprite = null;
 
@@ -285,8 +283,6 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         poseStack.pushPose();
 
-        float light = 1.0F; // full-bright; actual lighting applied via packedLight parameter
-
         int count = 0;
         for (LPTravelingItem item : pipe.transport.items) {
             CoreUnroutedPipe lPipe = pipe;
@@ -340,7 +336,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
 
             ItemStack stack = item.getItemIdentifierStack().makeNormalStack();
             doRenderItem(stack, pipe.getContainer().getLevel(), lX + pos.x, lY + pos.y,
-                lZ + pos.z, light, 0.75F, boxScale, itemYaw, itemPitch, itemYawForPitch, partialTickTime,
+                lZ + pos.z, 0.75F, boxScale, itemYaw, itemPitch, itemYawForPitch, partialTickTime,
                 poseStack, collector, packedLight, packedOverlay);
             count++;
         }
@@ -357,7 +353,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             }
             ItemStack stack = item.getValue1().makeNormalStack();
             doRenderItem(stack, pipe.getContainer().getLevel(), x + pos.x, y + pos.y,
-                z + pos.z, light, 0.25F, 0, 0, 0, 0, partialTickTime, poseStack, collector, packedLight,
+                z + pos.z, 0.25F, 0, 0, 0, 0, partialTickTime, poseStack, collector, packedLight,
                 packedOverlay);
             count++;
             if (count >= 27) {
@@ -377,11 +373,14 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.popPose();
     }
 
-    public void doRenderItem(ItemStack itemstack, @Nullable Level level, double x, double y, double z, float light,
+    public void doRenderItem(ItemStack itemstack, @Nullable Level level, double x, double y, double z,
         float renderScale, double boxScale, double yaw, double pitch, double yawForPitch, float partialTickTime,
         PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
-        LogisticsRenderPipe.boxRenderer.doRenderItem(itemstack, light, x, y, z, boxScale, yaw, pitch, yawForPitch,
-            poseStack, collector, packedLight, packedOverlay);
+        boolean renderedFluid = TravelingItemBoxRenderer.render(itemstack, x, y, z, boxScale, yaw, pitch,
+            yawForPitch, poseStack, collector, packedLight, packedOverlay);
+        if (renderedFluid) {
+            return;
+        }
 
         poseStack.pushPose();
         poseStack.translate(x, y, z);
