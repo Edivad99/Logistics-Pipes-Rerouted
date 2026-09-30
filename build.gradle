@@ -189,6 +189,7 @@ dependencies {
 
     //localRuntime "curse.maven:mekanism-268560:7904058"
     localRuntime "curse.maven:storagedrawers-unofficial-port-1639713:8758761"
+    localRuntime "curse.maven:iron-tanks-236226:8786723"
 
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"
