@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 import org.jspecify.annotations.Nullable;
 
@@ -39,6 +39,7 @@ import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.ServerRouter;
+import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -193,9 +194,15 @@ public class LogisticsManager implements ILogisticsManager {
 		Collections.sort(validDestinations);
 		final ItemStack stack = itemIdStack.makeNormalStack();
 		if (stack.getItem() instanceof LogisticsFluidContainer) {
-			Pair<Integer, FluidSinkReply> bestReply = SimpleServiceLocator.logisticsFluidManager.getBestReply(SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(itemIdStack, Minecraft.getInstance().level.registryAccess()), sourceRouter, item.getJamList());
-			if (bestReply != null) {
-				item.setDestination(bestReply.getValue1());
+			CoreRoutedPipe sourcePipe = sourceRouter.getPipe();
+			Level level = sourcePipe == null ? null : sourcePipe.getLevel();
+			FluidIdentifierStack fluid = level == null ? null
+					: SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(itemIdStack, level.registryAccess());
+			if (fluid != null) {
+				Pair<Integer, FluidSinkReply> bestReply = SimpleServiceLocator.logisticsFluidManager.getBestReply(fluid, sourceRouter, item.getJamList());
+				if (bestReply != null) {
+					item.setDestination(bestReply.getValue1());
+				}
 			}
 		} else {
 			Triplet<Integer, SinkReply, List<IFilter>> bestReply = getBestReply(stack, itemIdStack.getItem(), sourceRouter, validDestinations, excludeSource, item.getJamList(), null, true);
