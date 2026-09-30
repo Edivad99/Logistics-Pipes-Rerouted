@@ -19,9 +19,11 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.transfer.IRecipeTransferContext;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
+import mezz.jei.api.recipe.transfer.RecipeTransferResult;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import org.jspecify.annotations.Nullable;
 
@@ -60,9 +62,17 @@ public class RecipeTransferHandler<C extends AbstractContainerMenu & IJeiScreenH
     }
 
     @Override
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("removal")
     public @Nullable IRecipeTransferError transferRecipe(C container, RecipeHolder<CraftingRecipe> recipe,
         IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
-        LogisticsBaseGuiScreen<?> gui = container.getScreenForJEI();
+        return null;
+    }
+
+    @Override
+    public @Nullable IRecipeTransferError transferRecipe(
+        IRecipeTransferContext<RecipeHolder<CraftingRecipe>, C> context, boolean doTransfer) {
+        LogisticsBaseGuiScreen<?> gui = context.getContainer().getScreenForJEI();
 
         if (!(gui instanceof LogisticsCraftingTableScreen)
             && !(gui instanceof RequestTableScreen)) {
@@ -93,7 +103,7 @@ public class RecipeTransferHandler<C extends AbstractContainerMenu & IJeiScreenH
 
         int slotIndex = 0;
 
-        for (IRecipeSlotView slotView : recipeSlots.getSlotViews()) {
+        for (IRecipeSlotView slotView : context.getRecipeSlots().getSlotViews()) {
 
             if (slotView.getRole() != RecipeIngredientRole.INPUT) {
                 continue;
@@ -119,7 +129,7 @@ public class RecipeTransferHandler<C extends AbstractContainerMenu & IJeiScreenH
                 if (candidates.size() > 1) {
                     hasCandidates = true;
                 } else {
-                    stackList.set(slotIndex, candidates.get(0));
+                    stackList.set(slotIndex, candidates.getFirst());
                 }
 
             } else {
@@ -135,6 +145,7 @@ public class RecipeTransferHandler<C extends AbstractContainerMenu & IJeiScreenH
             ClientPacketDistributor.sendToServer(
                 new ImportCraftingRecipeMessage(be.getBlockPos(), stackList));
         }
+        context.completeRecipeTransfer(RecipeTransferResult.SUCCESS);
         return null;
     }
 }

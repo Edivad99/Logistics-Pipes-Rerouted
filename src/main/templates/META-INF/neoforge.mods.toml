@@ -50,3 +50,10 @@ modId = "refinedstorage"
 ordering = "AFTER"
 side = "BOTH"
 versionRange = "[2,)"
+
+[[dependencies.logisticspipes]]
+type = "optional"
+modId = "jei"
+ordering = "NONE"
+side = "BOTH"
+versionRange = "[29.35.0,)"
