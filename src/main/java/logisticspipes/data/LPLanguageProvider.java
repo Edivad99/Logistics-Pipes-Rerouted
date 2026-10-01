@@ -1,5 +1,6 @@
 package logisticspipes.data;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,8 +11,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
+
+import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
 import logisticspipes.Translations;
 import logisticspipes.Translations.Chat;
@@ -49,6 +54,7 @@ public class LPLanguageProvider extends LanguageProvider {
         addTooltips();
         addChat();
         addScreens();
+        addConfig();
         checkEveryItemIsNamed();
     }
 
@@ -481,6 +487,57 @@ public class LPLanguageProvider extends LanguageProvider {
 
     private void addChassis(Supplier<? extends Item> item, int tier, String capacity) {
         addItem(item, "Logistics Chassis Mk" + tier, "Type: Mixed", "- Can hold " + capacity + " by default.");
+    }
+
+    /**
+     * Names for NeoForge's configuration screen, which shows the raw key for a section or an option
+     * that has none. Tooltips are left to the comments in {@link LPConfigs}, which the screen falls
+     * back to.
+     */
+    private void addConfig() {
+        config("detection", "Network Detection");
+        config("detectionLength", "Detection Length");
+        config("detectionCount", "Detection Count");
+        config("detectionFrequency", "Detection Frequency");
+        config("maxUnroutedConnections", "Max Unrouted Connections");
+
+        config("orderer", "Orderer");
+        config("invertCountWheel", "Invert Count Wheel");
+        config("invertPageWheel", "Invert Page Wheel");
+        config("displayPopup", "Display Popup");
+
+        config("hud", "HUD");
+        config("hudRenderDistance", "HUD Render Distance");
+        config("opaque", "Opaque Pipes");
+
+        config("power", "Power");
+        config("powerUsageDisabled", "Disable Power Usage");
+        config("powerUsageMultiplier", "Power Usage Multiplier");
+        config("craftingTablePowerUsage", "Crafting Table Power Usage");
+        config("powerSourceMode", "Power Source Mode");
+
+        config("logistics", "Logistics");
+        config("compilerSpeed", "Compiler Speed");
+        config("enableParticleFx", "Particle Effects");
+
+        config(LPConfigs.CATEGORY_MULTITHREAD, "Multithreading");
+        config("threadCount", "Thread Count");
+        config("threadPriority", "Thread Priority");
+
+        config(LPConfigs.CATEGORY_PERFORMANCE, "Performance");
+        config("disableAsyncWork", "Disable Async Work");
+        config("minSlotAccess", "Min Slot Accesses per Tick");
+        config("maxSlotAccess", "Max Slot Accesses per Tick");
+        config("minJobTickLength", "Min Job Tick Length");
+    }
+
+    private void config(String key, String name) {
+        add(configKey(key), name);
+    }
+
+    /** The key NeoForge's configuration screen looks up for a section or option without one of its own. */
+    private static String configKey(String key) {
+        return LPConstants.ID + ".configuration." + key;
     }
 
     private void addCompilerCategory(Identifier category, String name) {

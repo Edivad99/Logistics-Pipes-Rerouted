@@ -33,17 +33,12 @@ public class LPConfigs {
         public final ModConfigSpec.BooleanValue DISPLAY_POPUP;
         public final ModConfigSpec.IntValue MAX_UNROUTED_CONNECTIONS;
         public final ModConfigSpec.IntValue LOGISTICS_HUD_RENDER_DISTANCE;
-        public final ModConfigSpec.DoubleValue PIPE_DURABILITY;
         public final ModConfigSpec.BooleanValue LOGISTICS_POWER_USAGE_DISABLED;
         public final ModConfigSpec.DoubleValue POWER_USAGE_MULTIPLIER;
         public final ModConfigSpec.DoubleValue COMPILER_SPEED;
-        public final ModConfigSpec.BooleanValue ENABLE_RESEARCH_SYSTEM;
         public final ModConfigSpec.IntValue LOGISTICS_CRAFTING_TABLE_POWER_USAGE;
-        public final ModConfigSpec.BooleanValue TOOLTIP_INFO;
         public final ModConfigSpec.BooleanValue ENABLE_PARTICLE_FX;
-        public final ModConfigSpec.BooleanValue EASTER_EGGS;
         public final ModConfigSpec.BooleanValue OPAQUE;
-        public final ModConfigSpec.IntValue MAX_ROBOT_DISTANCE;
         public final ModConfigSpec.IntValue MULTI_THREAD_NUMBER;
         public final ModConfigSpec.IntValue MULTI_THREAD_PRIORITY;
         public final ModConfigSpec.BooleanValue DISABLE_ASYNC_WORK;
@@ -76,12 +71,11 @@ public class LPConfigs {
             b.comment("HUD settings").push("hud");
             LOGISTICS_HUD_RENDER_DISTANCE = b.comment("HUD render distance in blocks")
                 .defineInRange("hudRenderDistance", 15, 1, 256);
-            TOOLTIP_INFO = b.comment("Show extra tooltip info").define("tooltipInfo", false);
-            OPAQUE = b.comment("Make pipes opaque").define("opaque", false);
+            OPAQUE = b.comment("Hide the items and fluids traveling through pipes, and stop syncing them to clients")
+                .define("opaque", false);
             b.pop();
 
             b.comment("Power settings").push("power");
-            PIPE_DURABILITY = b.comment("Pipe block durability").defineInRange("pipeDurability", 0.25, 0.0, 1.0);
             LOGISTICS_POWER_USAGE_DISABLED = b.comment("Disable power usage entirely")
                 .define("powerUsageDisabled", false);
             POWER_USAGE_MULTIPLIER = b.comment("Power usage multiplier")
@@ -96,11 +90,7 @@ public class LPConfigs {
             b.comment("Logistics system settings").push("logistics");
             COMPILER_SPEED = b.comment("Program compiler speed multiplier")
                 .defineInRange("compilerSpeed", 1.0, 0.01, 100.0);
-            ENABLE_RESEARCH_SYSTEM = b.comment("Enable research system").define("enableResearchSystem", false);
             ENABLE_PARTICLE_FX = b.comment("Enable particle effects").define("enableParticleFx", true);
-            EASTER_EGGS = b.comment("Enable easter eggs").define("easterEggs", true);
-            MAX_ROBOT_DISTANCE = b.comment("Max robot operation distance in blocks")
-                .defineInRange("maxRobotDistance", 64, 1, 512);
             b.pop();
 
             b.comment("Multithreading settings").push(CATEGORY_MULTITHREAD);
@@ -123,10 +113,9 @@ public class LPConfigs {
         }
     }
 
-    // ── Public static fields (populated from spec in load()) ──────────────────
+    // ── Fixed values, not configurable ──────────────────────────────────────
     public static final float LOGISTICS_ROUTED_SPEED_MULTIPLIER = 20F;
     public static final float LOGISTICS_DEFAULTROUTED_SPEED_MULTIPLIER = 10F;
-    public static float pipeDurability = 0.25F;
 
     public static int[] CHASSIS_SLOTS_ARRAY = { 1, 2, 3, 4, 8 };
 
