@@ -625,6 +625,17 @@ public class LPRecipeProvider extends RecipeProvider {
             .define('e', Items.CHEST)
             .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
             .save(output);
+        shaped(RecipeCategory.MISC, LPItems.ITEM_POWER_PROVIDER_FE)
+            .pattern(" a ")
+            .pattern("bcb")
+            .pattern("ded")
+            .define('a', LPItems.CHIP_ADVANCED)
+            .define('b', Tags.Items.DUSTS_REDSTONE)
+            .define('c', LPItems.ITEM_FRAME)
+            .define('d', Tags.Items.GEMS_QUARTZ)
+            .define('e', Tags.Items.INGOTS_GOLD)
+            .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
+            .save(output);
     }
 
     private void buildPipe() {

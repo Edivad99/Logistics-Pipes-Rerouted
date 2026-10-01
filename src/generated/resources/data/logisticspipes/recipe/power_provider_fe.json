@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "logisticspipes:chip_advanced",
+    "b": "#c:dusts/redstone",
+    "c": "logisticspipes:frame",
+    "d": "#c:gems/quartz",
+    "e": "#c:ingots/gold"
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    "ded"
+  ],
+  "result": {
+    "id": "logisticspipes:power_provider_fe"
+  }
+}
