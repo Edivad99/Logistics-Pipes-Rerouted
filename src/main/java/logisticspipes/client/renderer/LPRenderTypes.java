@@ -15,6 +15,8 @@ import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.CompareOp;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 
 import logisticspipes.LPConstants;
 
@@ -35,25 +37,24 @@ public final class LPRenderTypes {
     }
 
     /**
-     * Translucent, depth-tested but not depth-writing, drawn from both sides. Reproduces the
-     * {@code enableBlend + defaultBlendFunc + depthMask(false)} the laser particles used to set
-     * by hand; culling is off because they are crossed billboard quads seen from either face.
-     */
-    public static final RenderPipeline GLOW_PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-        .withLocation(LPConstants.rl("pipeline/glow"))
-        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
-        .withCull(false)
-        .build();
-
-    /**
-     * As {@link #GLOW_PIPELINE}, but with the depth test off so the geometry draws over the
+     * Translucent and drawn from both sides, with the depth test off so the geometry draws over the
      * world — what {@code RenderSystem.disableDepthTest()} bought the HUD's routing lasers.
      */
     public static final RenderPipeline OVERLAY_PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/overlay"))
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withCull(false)
+        .build();
+
+    /**
+     * The power lasers' textured, additive geometry: LP1 drew it with {@code GL_SRC_ALPHA, GL_ONE},
+     * depth writes off and culling off, since its crossed quads are seen from either face.
+     */
+    public static final RenderPipeline POWER_LASER_PIPELINE = RenderPipeline.builder(RenderPipelines.PARTICLE_SNIPPET)
+        .withLocation(LPConstants.rl("pipeline/power_laser"))
+        .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .build();
 
@@ -138,11 +139,18 @@ public final class LPRenderTypes {
 
     private static final int BUFFER_SIZE = 1536;
 
-    public static final RenderType GLOW = RenderType.create(
-        LPConstants.rl("glow").toString(),
-        RenderSetup.builder(GLOW_PIPELINE)
-            .bufferSize(BUFFER_SIZE)
-            .createRenderSetup());
+    /**
+     * A power laser texture, repeated so the beam's texture can slide along it; memoized so each
+     * texture keeps one type.
+     */
+    public static final Function<Identifier, RenderType> POWER_LASER = Util.memoize(
+        texture -> RenderType.create(
+            LPConstants.rl("power_laser").toString(),
+            RenderSetup.builder(POWER_LASER_PIPELINE)
+                .bufferSize(BUFFER_SIZE)
+                .withTexture("Sampler0", texture, () -> RenderSystem.getSamplerCache().getRepeat(FilterMode.NEAREST))
+                .useLightmap()
+                .createRenderSetup()));
 
     public static final RenderType OVERLAY = RenderType.create(
         LPConstants.rl("overlay").toString(),
@@ -193,7 +201,7 @@ public final class LPRenderTypes {
                 .createRenderSetup()));
 
     public static void register(RegisterRenderPipelinesEvent event) {
-        event.registerPipeline(GLOW_PIPELINE);
+        event.registerPipeline(POWER_LASER_PIPELINE);
         event.registerPipeline(OVERLAY_PIPELINE);
         event.registerPipeline(ADDITIVE_PARTICLE_PIPELINE);
         event.registerPipeline(GHOST_ENTITY_PIPELINE);

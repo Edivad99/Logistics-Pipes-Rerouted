@@ -2,6 +2,7 @@ package logisticspipes.network.to_client.pipe;
 
 import java.util.Optional;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -14,6 +15,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
+import logisticspipes.client.particle.PowerLaserParticles;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
@@ -69,14 +71,15 @@ public record PowerLaserMessage(
     public static void handle(PowerLaserMessage message, IPayloadContext context) {
         final LogisticsTileGenericPipe be =
             TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
-        if (be == null) {
+        if (be == null || !(be.getLevel() instanceof ClientLevel level)) {
             return;
         }
         final Direction direction = message.direction.orElse(null);
         if (message.remove) {
-            be.removeLaser(direction, message.color, message.renderBall);
-        } else {
-            be.addLaser(direction, message.length, message.color, message.reverse, message.renderBall);
+            PowerLaserParticles.remove(message.pos, direction, message.color, message.renderBall);
+        } else if (direction != null) {
+            PowerLaserParticles.add(level, message.pos, direction, message.color, message.length, message.reverse,
+                message.renderBall);
         }
     }
 

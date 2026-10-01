@@ -467,10 +467,6 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 		getPowerLasers().addLaser(dir, length, color, reverse, renderBall);
 	}
 
-	public void removeLaser(Direction dir, int color, boolean isBall) {
-		getPowerLasers().removeLaser(dir, color, isBall);
-	}
-
 	public PipePowerLasers getPowerLasers() {
 		if (powerLasers == null) {
 			powerLasers = new PipePowerLasers(this);
