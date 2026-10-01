@@ -113,12 +113,6 @@ public class LPConfigs {
         }
     }
 
-    // ── Fixed values, not configurable ──────────────────────────────────────
-    public static final float LOGISTICS_ROUTED_SPEED_MULTIPLIER = 20F;
-    public static final float LOGISTICS_DEFAULTROUTED_SPEED_MULTIPLIER = 10F;
-
-    public static int[] CHASSIS_SLOTS_ARRAY = { 1, 2, 3, 4, 8 };
-
     public static void savePopupState() {
         // Mirror LP1: write the current popup preference back to the config file and persist it
         // immediately so the toggle survives a restart.

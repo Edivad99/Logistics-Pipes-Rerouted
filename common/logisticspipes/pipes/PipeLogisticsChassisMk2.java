@@ -2,7 +2,6 @@ package logisticspipes.pipes;
 
 import net.minecraft.world.item.Item;
 
-import logisticspipes.LPConfigs;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 
@@ -19,7 +18,7 @@ public class PipeLogisticsChassisMk2 extends PipeLogisticsChassis {
 
 	@Override
 	public int getChassisSize() {
-		return LPConfigs.CHASSIS_SLOTS_ARRAY[1];
+		return 2;
 	}
 
 }
