@@ -1,6 +1,5 @@
 package logisticspipes.data;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,10 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.data.LanguageProvider;
-
-import com.electronwill.nightconfig.core.UnmodifiableConfig;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
