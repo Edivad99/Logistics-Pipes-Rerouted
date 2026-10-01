@@ -34,7 +34,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.Property;
 import logisticspipes.api.property.StringListProperty;
-import logisticspipes.gui.hud.modules.HUDOreDictItemSink;
+import logisticspipes.client.renderer.hud.modules.HUDOreDictItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -173,8 +173,6 @@ public class ModuleOreDictItemSink extends LogisticsModule
         list.addAll(oreList);
         return list;
     }
-
-
 
     @Override
     public void startWatching(Player player) {

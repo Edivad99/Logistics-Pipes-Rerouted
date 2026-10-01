@@ -1,4 +1,4 @@
 @NullMarked
-package logisticspipes.gui.hud.modules;
+package logisticspipes.client.renderer.hud.modules;
 
 import org.jspecify.annotations.NullMarked;

@@ -4,15 +4,15 @@ import net.minecraft.client.Minecraft;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import logisticspipes.client.renderer.hud.BasicHUDButton;
+import logisticspipes.client.renderer.hud.BasicHUDGui;
 import logisticspipes.client.renderer.hud.HUDDrawContext;
-import logisticspipes.gui.hud.BasicHUDGui;
 import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.network.to_server.pipe.UntraceRoutingMessage;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.debug.ClientViewController.DebugInformation;
 import logisticspipes.utils.gui.LPGuiGraphics;
-import logisticspipes.utils.gui.hud.BasicHUDButton;
 
 public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDisplayRenderer {
 

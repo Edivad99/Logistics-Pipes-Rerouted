@@ -1,0 +1,73 @@
+package logisticspipes.client.renderer.hud.modules;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.Minecraft;
+
+import logisticspipes.client.renderer.hud.BasicHUDButton;
+import logisticspipes.client.renderer.hud.HUDDrawContext;
+import logisticspipes.interfaces.IHUDButton;
+import logisticspipes.interfaces.IHUDModuleRenderer;
+import logisticspipes.interfaces.IStringBasedModule;
+
+public class HUDStringBasedItemSink implements IHUDModuleRenderer {
+
+    private final IStringBasedModule itemSink;
+    private final List<IHUDButton> list;
+    private int page = 0;
+
+    public HUDStringBasedItemSink(IStringBasedModule module) {
+        itemSink = module;
+        list = new ArrayList<>();
+        list.add(new BasicHUDButton("<", 10, -35, 8, 8) {
+
+            @Override
+            public boolean shouldRenderButton() {
+                return true;
+            }
+
+            @Override
+            public void clicked() {
+                page--;
+            }
+
+            @Override
+            public boolean buttonEnabled() {
+                return page > 0;
+            }
+        });
+        list.add(new BasicHUDButton(">", 20, -35, 8, 8) {
+
+            @Override
+            public boolean shouldRenderButton() {
+                return true;
+            }
+
+            @Override
+            public void clicked() {
+                page++;
+            }
+
+            @Override
+            public boolean buttonEnabled() {
+                return (page + 1) * 6 < itemSink.stringListProperty().size();
+            }
+        });
+    }
+
+    @Override
+    public void renderContent(HUDDrawContext context, boolean shifted) {
+        Minecraft mc = Minecraft.getInstance();
+        for (int i = page * 6; i < itemSink.stringListProperty().size() && i < 6 + (page * 6); i++) {
+            String mod = itemSink.stringListProperty().get(i);
+            context.drawString(mc.font, mod, -28, -25 + ((i - (page * 6)) * 10), 0xFF404040, false);
+        }
+    }
+
+    @Override
+    public List<IHUDButton> getButtons() {
+
+        return list;
+    }
+}

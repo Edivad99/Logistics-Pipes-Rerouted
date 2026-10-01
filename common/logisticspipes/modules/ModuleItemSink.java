@@ -28,8 +28,8 @@ import logisticspipes.api.property.BitSetProperty;
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.IBitSet;
 import logisticspipes.api.property.Property;
+import logisticspipes.client.renderer.hud.modules.HUDItemSink;
 import logisticspipes.connection.NeighborBlockEntityUtil;
-import logisticspipes.gui.hud.modules.HUDItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -213,8 +213,6 @@ public class ModuleItemSink extends LogisticsModule
 		list.add("<that>" + filterInventory.getTagKey());
 		return list;
 	}
-
-
 
 	@Override
 	public void startWatching(Player player) {

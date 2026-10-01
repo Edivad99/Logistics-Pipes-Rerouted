@@ -33,7 +33,7 @@ import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.EnumProperty;
 import logisticspipes.api.property.NullableEnumProperty;
 import logisticspipes.api.property.Property;
-import logisticspipes.gui.hud.modules.HUDProviderModule;
+import logisticspipes.client.renderer.hud.modules.HUDProviderModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -394,8 +394,6 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 			}
 		}
 	}
-
-
 
 	@Override
 	public void startWatching(Player player) {

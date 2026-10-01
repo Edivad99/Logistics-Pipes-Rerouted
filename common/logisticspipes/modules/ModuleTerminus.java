@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.Property;
-import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
+import logisticspipes.client.renderer.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -114,8 +114,6 @@ public class ModuleTerminus extends LogisticsModule
 		list.add("<that>" + filterInventory.getTagKey());
 		return list;
 	}
-
-
 
 	@Override
 	public @Nullable IHUDModuleRenderer getHUDRenderer() {

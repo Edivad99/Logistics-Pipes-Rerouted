@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.Property;
 import logisticspipes.api.property.StringListProperty;
-import logisticspipes.gui.hud.modules.HUDStringBasedItemSink;
+import logisticspipes.client.renderer.hud.modules.HUDStringBasedItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -93,7 +93,6 @@ public class ModuleModBasedItemSink extends LogisticsModule
 		return null;
 	}
 
-
 	@Override
 	public void tick() {}
 
@@ -104,8 +103,6 @@ public class ModuleModBasedItemSink extends LogisticsModule
 		list.addAll(modList);
 		return list;
 	}
-
-
 
 	@Override
 	public void startWatching(Player player) {

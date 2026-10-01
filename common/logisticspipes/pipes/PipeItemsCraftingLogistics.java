@@ -25,7 +25,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.gui.hud.HUDCrafting;
+import logisticspipes.client.renderer.hud.HUDCrafting;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;

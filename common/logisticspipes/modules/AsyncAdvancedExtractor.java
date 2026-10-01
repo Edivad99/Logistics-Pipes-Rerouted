@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.BooleanProperty;
 import logisticspipes.api.property.Property;
-import logisticspipes.gui.hud.modules.HUDAdvancedExtractor;
+import logisticspipes.client.renderer.hud.modules.HUDAdvancedExtractor;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;

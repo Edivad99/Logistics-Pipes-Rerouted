@@ -19,7 +19,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.Property;
-import logisticspipes.gui.hud.modules.HUDSimpleFilterModule;
+import logisticspipes.client.renderer.hud.modules.HUDSimpleFilterModule;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -130,8 +130,6 @@ public class ModulePassiveSupplier extends LogisticsModule
 		list.add("<that>" + filterInventory.getTagKey());
 		return list;
 	}
-
-
 
 	@Override
 	public void startWatching(Player player) {

@@ -52,9 +52,9 @@ import logisticspipes.api.pipes.IChassisPipe;
 import logisticspipes.api.property.Property;
 import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.client.gui.screen.ChassisPipeScreen;
+import logisticspipes.client.renderer.hud.HudChassisPipe;
 import logisticspipes.connection.NoAdjacent;
 import logisticspipes.connection.SingleAdjacent;
-import logisticspipes.gui.hud.HudChassisPipe;
 import logisticspipes.interfaces.IBufferItems;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
@@ -278,7 +278,6 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	public void deserialize(ValueInput input) {
 		super.deserialize(input);
 		moduleInventory.deserialize(input, "chassi");
-
 
 		// register slotted modules
 		module.slottedModules()
