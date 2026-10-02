@@ -25,8 +25,7 @@ public record RequestSecurityStationCCIdsMessage(BlockPos pos) implements Custom
             RequestSecurityStationCCIdsMessage::new);
 
     public static void handle(RequestSecurityStationCCIdsMessage message, IPayloadContext context) {
-        final LogisticsSecurityBlockEntity be = TargetLookup.blockEntityAt(
-            context.player(), message.pos, LogisticsSecurityBlockEntity.class);
+        final LogisticsSecurityBlockEntity be = TargetLookup.securityStationAt(context.player(), message.pos);
         if (be != null) {
             be.requestList(context.player());
         }

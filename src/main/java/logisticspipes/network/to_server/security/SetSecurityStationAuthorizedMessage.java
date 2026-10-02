@@ -28,8 +28,7 @@ public record SetSecurityStationAuthorizedMessage(BlockPos pos, boolean authoriz
             SetSecurityStationAuthorizedMessage::new);
 
     public static void handle(SetSecurityStationAuthorizedMessage message, IPayloadContext context) {
-        final LogisticsSecurityBlockEntity be = TargetLookup.blockEntityAt(
-            context.player(), message.pos, LogisticsSecurityBlockEntity.class);
+        final LogisticsSecurityBlockEntity be = TargetLookup.securityStationAt(context.player(), message.pos);
         if (be == null) {
             return;
         }

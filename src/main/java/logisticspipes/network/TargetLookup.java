@@ -16,6 +16,8 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.world.inventory.DummyMenu;
+import logisticspipes.world.inventory.SecurityStationMenu;
+import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
 /**
  * Finding what a message is addressed to, without letting it decide what the server loads.
@@ -43,6 +45,24 @@ public final class TargetLookup {
     /** The same, in the receiving player's own level -- which is where all but the orderer look. */
     public static <T> @Nullable T blockEntityAt(Player player, BlockPos pos, Class<T> type) {
         return blockEntityAt(player.level(), pos, type);
+    }
+
+    /**
+     * The security station at {@code pos}, or null unless the player has its menu open.
+     *
+     * <p>Anyone can open a station by walking up to it, so standing at it is the whole of its
+     * access control. Looking the position up in the level instead would let a client rewrite the
+     * permissions of any loaded station it can name, from anywhere.
+     */
+    public static @Nullable LogisticsSecurityBlockEntity securityStationAt(Player player, BlockPos pos) {
+        if (!(player.containerMenu instanceof SecurityStationMenu menu)) {
+            return null;
+        }
+        final LogisticsSecurityBlockEntity station = menu.getBlockEntity();
+        if (station.isRemoved() || station.getLevel() != player.level() || !station.getBlockPos().equals(pos)) {
+            return null;
+        }
+        return station;
     }
 
     /**

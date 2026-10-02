@@ -33,8 +33,7 @@ public record ToggleSecurityStationFlagMessage(BlockPos pos, SecurityFlag flag) 
             ToggleSecurityStationFlagMessage::new);
 
     public static void handle(ToggleSecurityStationFlagMessage message, IPayloadContext context) {
-        final LogisticsSecurityBlockEntity be = TargetLookup.blockEntityAt(
-            context.player(), message.pos, LogisticsSecurityBlockEntity.class);
+        final LogisticsSecurityBlockEntity be = TargetLookup.securityStationAt(context.player(), message.pos);
         if (be != null) {
             be.toggleFlag(message.flag);
         }

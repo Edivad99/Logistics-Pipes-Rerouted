@@ -30,8 +30,7 @@ public record OpenSecurityPlayerMessage(BlockPos pos, String playerName) impleme
         if (message.playerName.isEmpty()) {
             return;
         }
-        final LogisticsSecurityBlockEntity station =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsSecurityBlockEntity.class);
+        final LogisticsSecurityBlockEntity station = TargetLookup.securityStationAt(context.player(), message.pos);
         if (station != null) {
             station.handleOpenSecurityPlayer(context.player(), message.playerName);
         }

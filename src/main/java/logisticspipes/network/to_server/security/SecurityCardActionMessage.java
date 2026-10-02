@@ -31,8 +31,7 @@ public record SecurityCardActionMessage(BlockPos pos, CardAction action) impleme
             SecurityCardActionMessage::new);
 
     public static void handle(SecurityCardActionMessage message, IPayloadContext context) {
-        final LogisticsSecurityBlockEntity be = TargetLookup.blockEntityAt(
-            context.player(), message.pos, LogisticsSecurityBlockEntity.class);
+        final LogisticsSecurityBlockEntity be = TargetLookup.securityStationAt(context.player(), message.pos);
         if (be != null) {
             be.handleCardAction(message.action, context.player());
         }

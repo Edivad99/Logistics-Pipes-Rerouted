@@ -37,8 +37,7 @@ public record SaveSecuritySettingsMessage(BlockPos pos, String playerName, Secur
         if (message.playerName.isEmpty()) {
             return;
         }
-        final LogisticsSecurityBlockEntity station =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsSecurityBlockEntity.class);
+        final LogisticsSecurityBlockEntity station = TargetLookup.securityStationAt(context.player(), message.pos);
         if (station != null) {
             station.saveSecuritySettings(message.playerName, message.permissions);
         }
