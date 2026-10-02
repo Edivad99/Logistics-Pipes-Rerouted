@@ -24,7 +24,6 @@ import logisticspipes.LPConstants;
 import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.network.to_client.channel.ChannelInformationMessage;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
@@ -47,23 +46,22 @@ public class ChannelManager implements IChannelManager {
     }
 
     private boolean isChannelAllowedFor(ChannelInformation channel, Player player) {
-        switch (channel.getRights()) {
-            case PUBLIC:
-                return true;
-            case SECURED:
-                final UUID secUUID = channel.getResponsibleSecurityID();
+        return switch (channel.getRights()) {
+            case PUBLIC -> true;
+            case SECURED -> {
                 final LogisticsSecurityBlockEntity station = SimpleServiceLocator.securityStationManager
-                    .getStation(secUUID);
-                if (station != null) {
-                    final SecuritySettings settings = station.getSecuritySettingsForPlayer(player, false);
-                    if (settings != null) {
-                        return settings.accessRoutingChannels;
-                    }
-                }
-            case PRIVATE:
-                return channel.getOwner().equals(PlayerIdentifier.get(player));
-        }
-        return false;
+                    .getStation(channel.getResponsibleSecurityID());
+                // Without its station a secured channel falls back to owner-only access.
+                yield station != null
+                    ? station.getSecuritySettingsForPlayer(player, false).accessRoutingChannels
+                    : isOwner(channel, player);
+            }
+            case PRIVATE -> isOwner(channel, player);
+        };
+    }
+
+    private static boolean isOwner(ChannelInformation channel, Player player) {
+        return channel.getOwner().equals(PlayerIdentifier.get(player));
     }
 
     @Override
