@@ -1,6 +1,10 @@
 package logisticspipes.network.to_server.security;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,9 +22,11 @@ import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity.Secu
  *
  * <p>Named permissions rather than a {@code CompoundTag}: this is the one direction a client can
  * write into the security store, and it should be able to say exactly these six things about
- * exactly one named player, not hand over arbitrary NBT.
+ * exactly one named player, not hand over arbitrary NBT. The id is the one the station sent with
+ * the settings, absent while the name has not resolved to a profile.
  */
-public record SaveSecuritySettingsMessage(BlockPos pos, String playerName, SecurityPermissions permissions)
+public record SaveSecuritySettingsMessage(BlockPos pos, String playerName, Optional<UUID> playerId,
+    SecurityPermissions permissions)
     implements CustomPacketPayload {
 
     public static final Type<SaveSecuritySettingsMessage> TYPE =
@@ -30,6 +36,7 @@ public record SaveSecuritySettingsMessage(BlockPos pos, String playerName, Secur
         StreamCodec.composite(
             BlockPos.STREAM_CODEC, SaveSecuritySettingsMessage::pos,
             ByteBufCodecs.STRING_UTF8, SaveSecuritySettingsMessage::playerName,
+            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), SaveSecuritySettingsMessage::playerId,
             SecurityPermissions.STREAM_CODEC, SaveSecuritySettingsMessage::permissions,
             SaveSecuritySettingsMessage::new);
 
@@ -39,7 +46,7 @@ public record SaveSecuritySettingsMessage(BlockPos pos, String playerName, Secur
         }
         final LogisticsSecurityBlockEntity station = TargetLookup.securityStationAt(context.player(), message.pos);
         if (station != null) {
-            station.saveSecuritySettings(message.playerName, message.permissions);
+            station.saveSecuritySettings(message.playerName, message.playerId, message.permissions);
         }
     }
 

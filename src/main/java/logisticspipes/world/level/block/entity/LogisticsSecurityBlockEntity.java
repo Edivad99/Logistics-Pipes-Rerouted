@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,7 +17,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.util.StringUtil;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -27,6 +33,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import com.google.common.collect.Iterables;
+import com.mojang.authlib.GameProfile;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.Translations;
@@ -51,6 +59,8 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     implements IScreenOpenController, ISecurityProvider, IBlockEntityMenuProvider {
 
     public static final SecuritySettings allowAll = new SecuritySettings("");
+    /** What a player the station has no entry for may do: nothing. Shared, so never written to. */
+    private static final SecuritySettings noPermissions = new SecuritySettings("");
     public static PlayerCollectionList byPassed = new PlayerCollectionList();
 
     static {
@@ -68,7 +78,17 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     private final PlayerCollectionList listener = new PlayerCollectionList();
     @Nullable
     private UUID secId = null;
-    private final Map<String, SecuritySettings> settingsList = new HashMap<>();
+    /**
+     * Settings by the id in the player's game profile, which survives a rename where the name
+     * does not.
+     */
+    private final Map<UUID, SecuritySettings> settingsById = new HashMap<>();
+    /**
+     * Settings for names no profile has been found for yet, by lower-cased name: entries saved
+     * before the station keyed by id, and names Mojang could not resolve. The first player seen
+     * under the name claims the entry, and it moves to {@link #settingsById}.
+     */
+    private final Map<String, SecuritySettings> settingsByName = new HashMap<>();
 
     public LogisticsSecurityBlockEntity(BlockPos pos, BlockState state) {
         super(LPBlockEntityTypes.SECURITY_STATION.get(), pos, state);
@@ -150,12 +170,17 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
         allowCC = input.getBooleanOr("allowCC", false);
         allowAutoDestroy = input.getBooleanOr("allowAutoDestroy", false);
         inv.deserialize(input);
-        settingsList.clear();
+        settingsById.clear();
+        settingsByName.clear();
         for (ValueInput entry : input.childrenListOrEmpty("settings")) {
             String name = entry.getStringOr("name", "");
             SecuritySettings settings = new SecuritySettings(name);
             settings.deserialize(entry.childOrEmpty("content"));
-            settingsList.put(name, settings);
+            if (settings.id != null) {
+                settingsById.put(settings.id, settings);
+            } else if (!name.isEmpty()) {
+                settingsByName.put(nameKey(name), settings);
+            }
         }
         excludedCC.clear();
         for (int id : input.getIntArray("excludedCC").orElse(new int[0])) {
@@ -174,10 +199,10 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
         output.putBoolean("allowAutoDestroy", allowAutoDestroy);
         inv.serialize(output);
         ValueOutput.ValueOutputList list = output.childrenList("settings");
-        for (Entry<String, SecuritySettings> entry : settingsList.entrySet()) {
+        for (SecuritySettings settings : Iterables.concat(settingsById.values(), settingsByName.values())) {
             ValueOutput settingsEntry = list.addChild();
-            settingsEntry.putString("name", entry.getKey());
-            settingsEntry.putChild("content", entry.getValue());
+            settingsEntry.putString("name", Objects.requireNonNullElse(settings.name, ""));
+            settingsEntry.putChild("content", settings);
         }
         output.putIntArray("excludedCC", excludedCC.stream().mapToInt(Integer::intValue).toArray());
     }
@@ -220,28 +245,54 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
         }
     }
 
-    public void handleOpenSecurityPlayer(Player player, String string) {
-        SecuritySettings setting = settingsList.get(string);
-        if (setting == null) {
-            if (string.isEmpty()) {
-                return;
-            }
-            setting = new SecuritySettings(string);
-            settingsList.put(string, setting);
+    /**
+     * Sends the settings for the player typed into the station's search bar to the one who typed it.
+     *
+     * <p>The name is resolved to a profile id first. A name the server has not seen sends the
+     * lookup to Mojang, over the network, so that part runs off the server thread and the reply
+     * goes out once it is back.
+     */
+    public void handleOpenSecurityPlayer(Player player, String name) {
+        if (!(player instanceof ServerPlayer viewer) || !isValidName(name)) {
+            return;
         }
-        if (player instanceof ServerPlayer serverPlayer) {
-            PacketDistributor.sendToPlayer(serverPlayer, new SecurityStationSettingsMessage(
-                string, SecurityPermissions.of(setting)));
+        final MinecraftServer server = viewer.level().getServer();
+        final ServerPlayer online = server.getPlayerList().getPlayerByName(name);
+        if (online != null) {
+            sendSettings(viewer, online.getGameProfile().name(), online.getUUID());
+            return;
         }
+        CompletableFuture.supplyAsync(() -> server.services().nameToIdCache().get(name), Util.nonCriticalIoPool())
+            .thenAcceptAsync(resolved -> {
+                if (!isRemoved()) {
+                    sendSettings(viewer, resolved.map(NameAndId::name).orElse(name),
+                        resolved.map(NameAndId::id).orElse(null));
+                }
+            }, server);
     }
 
-    public void saveSecuritySettings(String playerName, SecurityPermissions permissions) {
-        SecuritySettings setting = settingsList.get(playerName);
+    private void sendSettings(ServerPlayer viewer, String name, @Nullable UUID id) {
+        final SecuritySettings setting = id != null ? settingsFor(id, name) : settingsByName.get(nameKey(name));
+        PacketDistributor.sendToPlayer(viewer, new SecurityStationSettingsMessage(
+            name, Optional.ofNullable(id), SecurityPermissions.of(setting != null ? setting : noPermissions)));
+    }
+
+    public void saveSecuritySettings(String name, Optional<UUID> id, SecurityPermissions permissions) {
+        if (!isValidName(name)) {
+            return;
+        }
+        SecuritySettings setting = id.isPresent() ? settingsFor(id.get(), name) : settingsByName.get(nameKey(name));
         if (setting == null) {
-            setting = new SecuritySettings(playerName);
-            settingsList.put(playerName, setting);
+            setting = new SecuritySettings(name);
+            setting.id = id.orElse(null);
+            if (setting.id != null) {
+                settingsById.put(setting.id, setting);
+            } else {
+                settingsByName.put(nameKey(name), setting);
+            }
         }
         permissions.applyTo(setting);
+        setChanged();
     }
 
     public SecuritySettings getSecuritySettingsForPlayer(Player entityplayer, boolean usePower) {
@@ -252,13 +303,43 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
             entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
             return new SecuritySettings("No Energy");
         }
-        SecuritySettings setting = settingsList.get(entityplayer.getName().getString());
-        //TODO Change to GameProfile based Authentication
+        final GameProfile profile = entityplayer.getGameProfile();
+        final SecuritySettings setting = settingsFor(profile.id(), profile.name());
+        return setting != null ? setting : noPermissions;
+    }
+
+    /**
+     * The settings for a resolved profile, or null if the station has none.
+     *
+     * <p>An entry still waiting under the profile's name is claimed here and moved under the id,
+     * and an entry found by id takes the profile's current name, so the GUI shows what the player
+     * is called now.
+     */
+    private @Nullable SecuritySettings settingsFor(UUID id, String name) {
+        SecuritySettings setting = settingsById.get(id);
         if (setting == null) {
-            setting = new SecuritySettings(entityplayer.getName().getString());
-            settingsList.put(entityplayer.getName().getString(), setting);
+            setting = settingsByName.remove(nameKey(name));
+            if (setting == null) {
+                return null;
+            }
+            setting.id = id;
+            settingsById.put(id, setting);
+            setChanged();
+        }
+        if (!name.equals(setting.name)) {
+            setting.name = name;
+            setChanged();
         }
         return setting;
+    }
+
+    private static boolean isValidName(String name) {
+        return !name.isEmpty() && StringUtil.isValidPlayerName(name);
+    }
+
+    /** Player names are unique regardless of case, as the server's own profile cache treats them. */
+    private static String nameKey(String name) {
+        return name.toLowerCase(Locale.ROOT);
     }
 
     public void toggleFlag(SecurityFlag flag) {

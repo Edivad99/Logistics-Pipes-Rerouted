@@ -1,5 +1,7 @@
 package logisticspipes.client.gui.popup;
 
+import java.util.Optional;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import net.minecraft.network.chat.Component;
@@ -84,7 +86,8 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
             return;
         }
         ClientPacketDistributor.sendToServer(new SaveSecuritySettingsMessage(
-            tile.getBlockPos(), activeSetting.name, SecurityPermissions.of(activeSetting)));
+            tile.getBlockPos(), activeSetting.name, Optional.ofNullable(activeSetting.id),
+            SecurityPermissions.of(activeSetting)));
     }
 
     @Override
