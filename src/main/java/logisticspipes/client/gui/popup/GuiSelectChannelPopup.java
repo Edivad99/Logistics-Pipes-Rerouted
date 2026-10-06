@@ -22,9 +22,8 @@ public class GuiSelectChannelPopup extends GuiManageChannelPopup {
     }
 
     @Override
-    public void init() {
-        super.init();
-        SmallGuiButton selBtn = new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10,
+    protected SmallGuiButton createActionButton(int x, int y) {
+        SmallGuiButton selBtn = new SmallGuiButton(0, x, y, 50, 10,
             Component.translatable(Translations.Screen.SELECT));
         selBtn.setPressListener(b -> {
             int selected = textList.getSelected();
@@ -36,9 +35,10 @@ public class GuiSelectChannelPopup extends GuiManageChannelPopup {
                 exitGui();
             }
         });
-        addRenderableWidget(selBtn);
+        return selBtn;
     }
 
+    @Override
     protected void drawTitle(GuiGraphicsExtractor guiGraphics) {
         guiGraphics.centeredText(minecraft.font, Component.translatable(Translations.Screen.CHANNEL_SELECT_TITLE),
             xCenter, guiTop + 6, 0xFFFFFFFF);

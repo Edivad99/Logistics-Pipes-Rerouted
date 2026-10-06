@@ -73,19 +73,7 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
     @Override
     public void init() {
         super.init();
-        SmallGuiButton delBtn = new SmallGuiButton(10, xCenter + 16, bottom - 27, 50, 10,
-            Component.translatable(Translations.Screen.DELETE));
-        delBtn.setPressListener(b -> {
-            int selected = textList.getSelected();
-            if (selected >= 0) {
-                this.setSubGui(new ActionChoicePopup(Component.translatable(Translations.Screen.CHANNEL_DELETE_CONFIRM),
-                    Component.translatable(Translations.Screen.YES), () ->
-                    ClientPacketDistributor.sendToServer(
-                        new DeleteChannelMessage(channelList.get(selected).getChannelIdentifier())),
-                    Component.translatable(Translations.Screen.NO), () -> {}));
-            }
-        });
-        addRenderableWidget(delBtn);
+        addRenderableWidget(createActionButton(xCenter + 16, bottom - 27));
         SmallGuiButton exitBtn = new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10,
             Component.translatable(Translations.Screen.EXIT));
         exitBtn.setPressListener(b -> exitGui());
@@ -109,6 +97,25 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
         SmallGuiButton dnBtn = new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/");
         dnBtn.setPressListener(b -> textList.scrollUp());
         addRenderableWidget(dnBtn);
+    }
+
+    /**
+     * The button in the top right slot: deleting here, picking in {@link GuiSelectChannelPopup}.
+     */
+    protected SmallGuiButton createActionButton(int x, int y) {
+        SmallGuiButton delBtn = new SmallGuiButton(10, x, y, 50, 10,
+            Component.translatable(Translations.Screen.DELETE));
+        delBtn.setPressListener(b -> {
+            int selected = textList.getSelected();
+            if (selected >= 0) {
+                this.setSubGui(new ActionChoicePopup(Component.translatable(Translations.Screen.CHANNEL_DELETE_CONFIRM),
+                    Component.translatable(Translations.Screen.YES), () ->
+                    ClientPacketDistributor.sendToServer(
+                        new DeleteChannelMessage(channelList.get(selected).getChannelIdentifier())),
+                    Component.translatable(Translations.Screen.NO), () -> {}));
+            }
+        });
+        return delBtn;
     }
 
     @Override
