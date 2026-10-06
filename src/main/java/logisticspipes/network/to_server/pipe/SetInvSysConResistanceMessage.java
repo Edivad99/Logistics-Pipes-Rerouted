@@ -35,6 +35,7 @@ public record SetInvSysConResistanceMessage(BlockPos pos, int resistance) implem
             TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
         if (be != null && be.pipe instanceof PipeItemsInvSysConnector pipe) {
             pipe.resistance = message.resistance;
+            pipe.markTileDirty();
             pipe.getRouter().update(true, pipe);
         }
     }

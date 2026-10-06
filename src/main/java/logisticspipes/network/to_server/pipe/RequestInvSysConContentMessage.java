@@ -18,7 +18,8 @@ import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
 /**
- * The inventory system connector's screen wants to know what is still on its way.
+ * The inventory system connector's screen wants to know what is still on its way, and which
+ * channel the pipe is on.
  */
 public record RequestInvSysConContentMessage(BlockPos pos) implements CustomPacketPayload {
 
@@ -37,6 +38,7 @@ public record RequestInvSysConContentMessage(BlockPos pos) implements CustomPack
             && context.player() instanceof ServerPlayer player) {
             PacketDistributor.sendToPlayer(player,
                 new InvSysConContentMessage(List.copyOf(pipe.getExpectedItems())));
+            pipe.sendChannelInformationTo(player);
         }
     }
 

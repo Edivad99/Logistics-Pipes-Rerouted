@@ -68,13 +68,13 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
         IScreenOpenController, IPipeMenuProvider {
 
 	private boolean init = false;
-	private HashMap<ItemIdentifier, List<ItemRoutingInformation>> itemsOnRoute = new HashMap<>();
+	private final HashMap<ItemIdentifier, List<ItemRoutingInformation>> itemsOnRoute = new HashMap<>();
 	public int resistance;
 	public Set<ItemIdentifierStack> oldList = new TreeSet<>();
 	public final LinkedList<@Nullable ItemIdentifierStack> displayList = new LinkedList<>();
 	public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	public final PlayerCollectionList localGuiWatchers = new PlayerCollectionList();
-	private HUDInvSysConnector HUD = new HUDInvSysConnector(this);
+	private final HUDInvSysConnector HUD = new HUDInvSysConnector(this);
 	private UUID idBuffer = UUID.randomUUID();
 
 	private @Nullable UUID connectedChannel;
@@ -92,14 +92,11 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 					connectedChannel = null;
 					sendChannelInformationToPlayers();
 				}
-				List<CoreRoutedPipe> connectedPipes = SimpleServiceLocator.connectionManager.getConnectedPipes(getRouter());
-				if (connectedPipes != null) {
-					connectedPipes.forEach(c -> {
-						c.getRouter().update(true, c);
-						c.refreshRender(true);
-					});
-				}
-				getRouter().update(true, this);
+                SimpleServiceLocator.connectionManager.getConnectedPipes(getRouter()).forEach(c -> {
+                    c.getRouter().update(true, c);
+                    c.refreshRender(true);
+                });
+                getRouter().update(true, this);
 				refreshRender(true);
 				init = true;
 				idBuffer = getConnectionUUID();
@@ -109,25 +106,21 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 			init = false;
 			List<CoreRoutedPipe> connectedPipes = SimpleServiceLocator.connectionManager.getConnectedPipes(getRouter());
 			SimpleServiceLocator.connectionManager.removeChannelConnection(getRouter());
-			if (connectedPipes != null) {
-				connectedPipes.forEach(c -> {
-					c.getRouter().update(true, c);
-					c.refreshRender(true);
-				});
-			}
-		}
+            connectedPipes.forEach(c -> {
+                c.getRouter().update(true, c);
+                c.refreshRender(true);
+            });
+        }
 		if (init && idBuffer != null && !idBuffer.equals(getConnectionUUID())) {
 			init = false;
 			List<CoreRoutedPipe> connectedPipes = SimpleServiceLocator.connectionManager.getConnectedPipes(getRouter());
 			SimpleServiceLocator.connectionManager.removeChannelConnection(getRouter());
-			if (connectedPipes != null) {
-				connectedPipes.forEach(c -> {
-					c.getRouter().update(true, c);
-					c.refreshRender(true);
-				});
-			}
-		}
-		if (itemsOnRoute.size() > 0) {
+            connectedPipes.forEach(c -> {
+                c.getRouter().update(true, c);
+                c.refreshRender(true);
+            });
+        }
+		if (!itemsOnRoute.isEmpty()) {
 			checkConnectedInvs();
 		}
 	}
@@ -209,9 +202,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 		spawnParticle(Particles.ORANGE_SPARKLE, 4);
 	}
 
-	private static UUID testUUID = UUID.randomUUID();
-
-	@Nullable
+    @Nullable
 	private UUID getConnectionUUID() {
 		return connectedChannel;
 	}
@@ -431,6 +422,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 
 	public void setChannelFromClient(UUID fromString) {
 		this.connectedChannel = fromString;
+		markTileDirty();
 		sendChannelInformationToPlayers();
 	}
 
@@ -445,14 +437,19 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new InvSysConResistanceMessage(getPos(), resistance));
 		}
-		if (player instanceof ServerPlayer serverPlayer) {
-			IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(this.getLevel());
-			manager.getChannels().stream()
-					.filter(chan -> chan.getChannelIdentifier().equals(getConnectionUUID()))
-					.findFirst()
-					.ifPresent(chan -> PacketDistributor.sendToPlayer(serverPlayer,
-							new ChannelInformationMessage(chan, true)));
-		}
+	}
+
+	/**
+	 * Tells one player which channel this pipe is on. Sent on the screen's request rather than from
+	 * {@link #screenOpenedByPlayer}, which runs before the client has a screen to receive it.
+	 */
+	public void sendChannelInformationTo(ServerPlayer player) {
+		IChannelManager manager = SimpleServiceLocator.channelManagerProvider.getChannelManager(this.getLevel());
+		manager.getChannels().stream()
+				.filter(chan -> chan.getChannelIdentifier().equals(getConnectionUUID()))
+				.findFirst()
+				.ifPresent(chan -> PacketDistributor.sendToPlayer(player,
+						new ChannelInformationMessage(chan, true)));
 	}
 
 	@Override
