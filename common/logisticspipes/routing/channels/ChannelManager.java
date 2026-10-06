@@ -129,7 +129,7 @@ public class ChannelManager implements IChannelManager {
         ).apply(instance, ChannelSavedData::new));
 
         public static final SavedDataType<ChannelSavedData> TYPE =
-            new SavedDataType<ChannelSavedData>(DATA_NAME, level -> new ChannelSavedData(), level -> CODEC);
+            new SavedDataType<>(DATA_NAME, level -> new ChannelSavedData(), level -> CODEC);
 
         @Getter
         List<ChannelInformation> channels = new ArrayList<>();

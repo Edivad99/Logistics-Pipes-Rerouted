@@ -61,7 +61,7 @@ public class ItemDisplay {
 	private int itemsPerPage;
 	private final int[] amountChangeMode;
 	private final boolean shiftPageChange;
-	private static DisplayOption option = DisplayOption.ID;
+	private static DisplayOption option = DisplayOption.SIZE;
 	private final ItemStackRenderer stackRenderer = new ItemStackRenderer(0, 0, 100.0F, false, false);
 
 	public ItemDisplay(@Nullable IItemSearch search, Font font, LogisticsBaseGuiScreen<?> screen, @Nullable ISpecialItemRenderer renderer,

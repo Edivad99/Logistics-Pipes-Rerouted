@@ -143,7 +143,7 @@ import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		implements IRequestItems, ITrackStatistics, ILevelProvider, IWatchingHandler, IPipeServiceProvider, IQueueCCEvent, ILPPositionProvider {
 
-	private static int pipecount = 0;
+	private static int PIPE_COUNT = 0;
 	public final PlayerCollectionList watchers = new PlayerCollectionList();
 	protected final PriorityBlockingQueue<ItemRoutingInformation> inTransitToMe = new PriorityBlockingQueue<>(10,
 			new ItemRoutingInformation.DelayComparator());
@@ -234,7 +234,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	public CoreRoutedPipe(PipeTransportLogistics transport, Item item) {
 		super(transport, item);
 
-		CoreRoutedPipe.pipecount++;
+		CoreRoutedPipe.PIPE_COUNT++;
 
 	}
 
@@ -243,12 +243,14 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		super.initialize();
 		throttleTimeLeft = 20 + new Random().nextInt(LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
 		//Roughly spread pipe updates throughout the frequency, no need to maintain balance
-		delayOffset = CoreRoutedPipe.pipecount % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
+		delayOffset = CoreRoutedPipe.PIPE_COUNT % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
 	}
 
 	@Override
 	public void markTileDirty() {
-		if (getContainer() != null) getContainer().setChanged();
+		if (getContainer() != null) {
+            getContainer().setChanged();
+        }
 	}
 
 	public RouteLayer getRouteLayer() {
@@ -608,7 +610,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			onAllowedRemoval();
 			super.onBlockRemoval();
 			//Just in case
-			CoreRoutedPipe.pipecount = Math.max(CoreRoutedPipe.pipecount - 1, 0);
+			CoreRoutedPipe.PIPE_COUNT = Math.max(CoreRoutedPipe.PIPE_COUNT - 1, 0);
 
             transport.dropBuffer();
             getOriginalUpgradeManager().dropUpgrades();

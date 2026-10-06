@@ -30,7 +30,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class DebugGuiController {
 
-	transient private static @Nullable DebugGuiController instance;
+	private static @Nullable DebugGuiController instance;
 
 	private DebugGuiController() {}
 
@@ -59,7 +59,7 @@ public class DebugGuiController {
 	private final List<@Nullable Future<IDataConnection>> clientList = new LinkedList<>();
 	private final Map<Integer, List<byte[]>> pendingClientData = new HashMap<>();
 
-	public void startWatchingOf(Object object, Player player) {
+	public void startWatchingOf(@Nullable Object object, Player player) {
 		if (object == null) {
 			return;
 		}
