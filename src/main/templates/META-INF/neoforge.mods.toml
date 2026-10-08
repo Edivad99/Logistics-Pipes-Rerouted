@@ -14,9 +14,9 @@ request-based item routing, automated crafting, and modular chassis pipes,
 brought back to modern Minecraft.
 
 Originally by Krapht; 1.12.2 codebase by the RS485 LP team. This port is
-maintained by Edivad99 and NoZeroG and distributed under the MMPL-1.0.1.
+maintained by Edivad99 and distributed under the MMPL-1.0.1.
 '''
-authors = "Edivad99 and NoZeroG (NeoForge port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
+authors = "Edivad99, NoZeroG (NeoForge 1.20 port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
 modUrl = "https://www.curseforge.com/minecraft/mc-mods/logistics-pipes-rerouted"
 
 [[dependencies.logisticspipes]]

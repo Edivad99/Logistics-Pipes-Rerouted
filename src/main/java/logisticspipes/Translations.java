@@ -254,6 +254,61 @@ public final class Translations {
         }
     }
 
+    /** What Jade and The One Probe say about a pipe. */
+    public static final class Probe {
+
+        /** Names the provider's switch in Jade's settings; Jade derives the key from the provider's id. */
+        public static final String JADE_CONFIG_PIPE = "config.jade.plugin_" + LPConstants.ID + ".pipe";
+
+        public static final String UPGRADES = makeKey("probe", "general.upgrades");
+        public static final String NO_UPGRADES = makeKey("probe", "general.no_upgrades");
+        public static final String IS_DEFAULT_ROUTE = makeKey("probe", "general.is_default_route");
+        public static final String IS_NOT_DEFAULT_ROUTE = makeKey("probe", "general.is_not_default_route");
+        public static final String FUZZY = makeKey("probe", "general.fuzzy");
+        public static final String PROVIDER_ALL = makeKey("probe", "module.provider.all");
+        public static final String PROVIDER_BUT = makeKey("probe", "module.provider.but");
+        public static final String PROVIDER_ONLY = makeKey("probe", "module.provider.only");
+        public static final String PROVIDER_MODE = makeKey("probe", "module.provider.mode");
+        public static final String CRAFTING_RESULT = makeKey("probe", "module.crafting.result");
+        public static final String CRAFTING_NO_RESULT = makeKey("probe", "module.crafting.no_result");
+        public static final String CRAFTING_RESULT_WITH_BYPRODUCT =
+            makeKey("probe", "module.crafting.result_with_byproduct");
+        public static final String TERMINUS_FILTER = makeKey("probe", "module.terminus.filter");
+        public static final String TERMINUS_NO_FILTER = makeKey("probe", "module.terminus.no_filter");
+        public static final String PASSIVE_SUPPLIER_FILTER = makeKey("probe", "module.passive_supplier.filter");
+        public static final String PASSIVE_SUPPLIER_NO_FILTER = makeKey("probe", "module.passive_supplier.no_filter");
+        public static final String ACTIVE_SUPPLIER_FILTER = makeKey("probe", "module.active_supplier.filter");
+        public static final String ACTIVE_SUPPLIER_NO_FILTER = makeKey("probe", "module.active_supplier.no_filter");
+        public static final String ACTIVE_SUPPLIER_MODE = makeKey("probe", "module.active_supplier.mode");
+        public static final String MOD_SINK_FILTER = makeKey("probe", "module.mod_item_sink.filter");
+        public static final String MOD_SINK_NO_FILTER = makeKey("probe", "module.mod_item_sink.no_filter");
+        public static final String CREATIVE_TAB_SINK_FILTER = makeKey("probe", "module.creative_tab_item_sink.filter");
+        public static final String CREATIVE_TAB_SINK_NO_FILTER =
+            makeKey("probe", "module.creative_tab_item_sink.no_filter");
+        public static final String ORE_SINK_FILTER = makeKey("probe", "module.ore_item_sink.filter");
+        public static final String ORE_SINK_NO_FILTER = makeKey("probe", "module.ore_item_sink.no_filter");
+        public static final String EXTRACTOR_SIDE = makeKey("probe", "module.extractor.side");
+        public static final String ADVANCED_EXTRACTOR_ALL = makeKey("probe", "module.advanced_extractor.all");
+        public static final String ADVANCED_EXTRACTOR_NONE = makeKey("probe", "module.advanced_extractor.none");
+        public static final String ADVANCED_EXTRACTOR_BUT = makeKey("probe", "module.advanced_extractor.but");
+        public static final String ADVANCED_EXTRACTOR_ONLY = makeKey("probe", "module.advanced_extractor.only");
+        public static final String SATELLITE_NAME = makeKey("probe", "pipe.satellite.name");
+        public static final String SATELLITE_NO_NAME = makeKey("probe", "pipe.satellite.no_name");
+        public static final String FIREWALL_PROVIDING = makeKey("probe", "pipe.firewall.providing");
+        public static final String FIREWALL_CRAFTING = makeKey("probe", "pipe.firewall.crafting");
+        public static final String FIREWALL_SORTING = makeKey("probe", "pipe.firewall.sorting");
+        public static final String FIREWALL_POWER = makeKey("probe", "pipe.firewall.power");
+        public static final String FIREWALL_FILTERING = makeKey("probe", "pipe.firewall.filtering");
+        public static final String FIREWALL_ALLOWED = makeKey("probe", "pipe.firewall.allowed");
+        public static final String FIREWALL_BLOCKED = makeKey("probe", "pipe.firewall.blocked");
+        public static final String UNROUTED_TOO_MANY_CONNECTIONS =
+            makeKey("probe", "pipe.unrouted.too_many_connections");
+        public static final String CHASSIS_NO_MODULES = makeKey("probe", "pipe.chassis.no_modules");
+
+        private Probe() {
+        }
+    }
+
     public static String makeKey(String type, String name) {
         return type + "." + LPConstants.ID + "." + name;
     }

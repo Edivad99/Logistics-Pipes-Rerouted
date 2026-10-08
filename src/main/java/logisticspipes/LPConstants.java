@@ -27,6 +27,7 @@ public class LPConstants {
     public static final float PIPE_MAX_POS = 0.8125F;
 
     public static final String RS_MOD_ID = "refinedstorage";
+    public static final String TOP_MOD_ID = "theoneprobe";
 
     public static final String computerCraftModID = "computercraft";
     public static final String openComputersModID = "opencomputers";

@@ -3,7 +3,6 @@ package logisticspipes.client.renderer.hud;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
-import logisticspipes.client.renderer.hud.HUDDrawContext;
 import logisticspipes.interfaces.IHUDButton;
 import logisticspipes.utils.Color;
 

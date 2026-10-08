@@ -1,10 +1,13 @@
 package logisticspipes;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -41,6 +44,7 @@ import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.entity.FakePlayers;
 import logisticspipes.integrations.progressprovider.FurnaceProgressProvider;
+import logisticspipes.integrations.top.LPTopPlugin;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.PacketHandler;
@@ -107,6 +111,7 @@ public class LogisticsPipes {
         LPConfigs.registerConfig(modContainer);
 
         var modEventBus = modContainer.getEventBus();
+        Objects.requireNonNull(modEventBus);
         modEventBus.addListener(this::handleRegisterCapabilities);
         modEventBus.addListener(this::handleCommonSetup);
         modEventBus.addListener(this::handleLoadComplete);
@@ -152,10 +157,9 @@ public class LogisticsPipes {
         SimpleServiceLocator.setPipeInformationManager(new PipeInformationManager());
         SimpleServiceLocator.setLogisticsFluidManager(new LogisticsFluidManager());
 
-        /*if (ModList.get().isLoaded(LPConstants.theOneProbeModID)) {
-            InterModComms.sendTo(LPConstants.theOneProbeModID, "getTheOneProbe",
-                TheOneProbeIntegration.class::getName);
-        }*/
+        if (ModList.get().isLoaded(LPConstants.TOP_MOD_ID)) {
+            InterModComms.sendTo(LPConstants.TOP_MOD_ID, "getTheOneProbe", LPTopPlugin::new);
+        }
 
         RegisterProgrammerRecipes.loadRecipes();
 

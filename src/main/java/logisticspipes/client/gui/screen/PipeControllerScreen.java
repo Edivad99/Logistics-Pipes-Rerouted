@@ -204,7 +204,6 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
 
             int sessionXCenter = 85;
             int lifetimeXCenter = 140;
-            String s;
 
             drawCentered(guiGraphics, Translations.Screen.PIPE_CONTROLLER_SESSION, sessionXCenter, 40);
             drawCentered(guiGraphics, Translations.Screen.PIPE_CONTROLLER_LIFETIME, lifetimeXCenter, 40);
@@ -212,28 +211,25 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
             drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_RECEIVED, 55, 70);
             drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_RELAYED, 55, 85);
 
-            s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_sent);
-            guiGraphics.text(font, s, sessionXCenter - font.width(s) / 2, 55, 0xFF303030, false);
-
-            s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_received);
-            guiGraphics.text(font, s, sessionXCenter - font.width(s) / 2, 70, 0xFF303030, false);
-
-            s = StringUtils.getStringWithSpacesFromLong(pipe.stat_session_relayed);
-            guiGraphics.text(font, s, sessionXCenter - font.width(s) / 2, 85, 0xFF303030, false);
-
-            s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_sent);
-            guiGraphics.text(font, s, lifetimeXCenter - font.width(s) / 2, 55, 0xFF303030, false);
-
-            s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_received);
-            guiGraphics.text(font, s, lifetimeXCenter - font.width(s) / 2, 70, 0xFF303030, false);
-
-            s = StringUtils.getStringWithSpacesFromLong(pipe.stat_lifetime_relayed);
-            guiGraphics.text(font, s, lifetimeXCenter - font.width(s) / 2, 85, 0xFF303030, false);
+            drawCounts(guiGraphics, pipe.sessionCounts(), sessionXCenter);
+            drawCounts(guiGraphics, pipe.lifetimeCounts(), lifetimeXCenter);
 
             drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_ROUTING_TABLE_SIZE, 110, 110);
 
-            s = StringUtils.getStringWithSpacesFromLong(pipe.server_routing_table_size);
+            String s = StringUtils.getStringWithSpacesFromLong(pipe.server_routing_table_size);
             guiGraphics.text(font, s, 130 - font.width(s) / 2, 110, 0xFF303030, false);
+        }
+
+        /** One column of the table: sent, received and relayed, top to bottom. */
+        private void drawCounts(GuiGraphicsExtractor guiGraphics, CoreRoutedPipe.TrafficCounts counts, int xCenter) {
+            drawCount(guiGraphics, counts.sent(), xCenter, 55);
+            drawCount(guiGraphics, counts.received(), xCenter, 70);
+            drawCount(guiGraphics, counts.relayed(), xCenter, 85);
+        }
+
+        private void drawCount(GuiGraphicsExtractor guiGraphics, long count, int xCenter, int y) {
+            String s = StringUtils.getStringWithSpacesFromLong(count);
+            guiGraphics.text(font, s, xCenter - font.width(s) / 2, y, 0xFF303030, false);
         }
 
         private void drawCentered(GuiGraphicsExtractor guiGraphics, String key, int xCenter, int y) {

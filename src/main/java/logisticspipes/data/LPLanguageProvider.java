@@ -16,6 +16,7 @@ import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
 import logisticspipes.Translations;
 import logisticspipes.Translations.Chat;
+import logisticspipes.Translations.Probe;
 import logisticspipes.Translations.Screen;
 import logisticspipes.Translations.Tooltip;
 import logisticspipes.inventory.ProviderMode;
@@ -50,6 +51,7 @@ public class LPLanguageProvider extends LanguageProvider {
         addTooltips();
         addChat();
         addScreens();
+        addProbe();
         addConfig();
         checkEveryItemIsNamed();
     }
@@ -483,6 +485,52 @@ public class LPLanguageProvider extends LanguageProvider {
 
     private void addChassis(Supplier<? extends Item> item, int tier, String capacity) {
         addItem(item, "Logistics Chassis Mk" + tier, "Type: Mixed", "- Can hold " + capacity + " by default.");
+    }
+
+    private void addProbe() {
+        add(Probe.JADE_CONFIG_PIPE, "Pipe Details");
+
+        add(Probe.UPGRADES, "Installed upgrades: %s");
+        add(Probe.NO_UPGRADES, "No installed upgrades.");
+        add(Probe.IS_DEFAULT_ROUTE, "This is set as a default route.");
+        add(Probe.IS_NOT_DEFAULT_ROUTE, "This is not set as a default route.");
+        add(Probe.FUZZY, "[Fuzzy]");
+        add(Probe.PROVIDER_ALL, "Providing all items.");
+        add(Probe.PROVIDER_BUT, "Providing all except: %s");
+        add(Probe.PROVIDER_ONLY, "Providing only: %s");
+        add(Probe.PROVIDER_MODE, "Mode: %s");
+        add(Probe.CRAFTING_RESULT, "Crafting %s.");
+        add(Probe.CRAFTING_NO_RESULT, "No crafting recipe set.");
+        add(Probe.CRAFTING_RESULT_WITH_BYPRODUCT, "Crafting %s with %s as byproduct.");
+        add(Probe.TERMINUS_FILTER, "Terminated items: %s");
+        add(Probe.TERMINUS_NO_FILTER, "There are no terminated items.");
+        add(Probe.PASSIVE_SUPPLIER_FILTER, "Requesting: %s");
+        add(Probe.PASSIVE_SUPPLIER_NO_FILTER, "Requesting no items.");
+        add(Probe.ACTIVE_SUPPLIER_FILTER, "Items: %s");
+        add(Probe.ACTIVE_SUPPLIER_NO_FILTER, "No items being supplied.");
+        add(Probe.ACTIVE_SUPPLIER_MODE, "Requesting items in %s mode.");
+        add(Probe.MOD_SINK_FILTER, "Accepting items from mods: %s");
+        add(Probe.MOD_SINK_NO_FILTER, "There are no mods set to filter.");
+        add(Probe.CREATIVE_TAB_SINK_FILTER, "Accepting items from tabs: %s");
+        add(Probe.CREATIVE_TAB_SINK_NO_FILTER, "There are no creative tabs set to filter.");
+        add(Probe.ORE_SINK_FILTER, "Accepting items tagged: %s");
+        add(Probe.ORE_SINK_NO_FILTER, "There are no tags set to filter.");
+        add(Probe.EXTRACTOR_SIDE, "Extracting from %s.");
+        add(Probe.ADVANCED_EXTRACTOR_ALL, "Extracting all items.");
+        add(Probe.ADVANCED_EXTRACTOR_NONE, "Extracting no items.");
+        add(Probe.ADVANCED_EXTRACTOR_BUT, "Extracting all except: %s");
+        add(Probe.ADVANCED_EXTRACTOR_ONLY, "Extracting only: %s");
+        add(Probe.SATELLITE_NAME, "Satellite name: %s");
+        add(Probe.SATELLITE_NO_NAME, "Satellite name not set.");
+        add(Probe.FIREWALL_PROVIDING, "Providing: %s");
+        add(Probe.FIREWALL_CRAFTING, "Crafting: %s");
+        add(Probe.FIREWALL_SORTING, "Sorting: %s");
+        add(Probe.FIREWALL_POWER, "Power: %s");
+        add(Probe.FIREWALL_FILTERING, "%s items are being %s.");
+        add(Probe.FIREWALL_ALLOWED, "allowed");
+        add(Probe.FIREWALL_BLOCKED, "blocked");
+        add(Probe.UNROUTED_TOO_MANY_CONNECTIONS, "Unrouted pipes should not have more than 2 connections!");
+        add(Probe.CHASSIS_NO_MODULES, "No modules installed.");
     }
 
     /**

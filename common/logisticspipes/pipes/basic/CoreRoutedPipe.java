@@ -145,19 +145,16 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	private static int PIPE_COUNT = 0;
 	public final PlayerCollectionList watchers = new PlayerCollectionList();
-	protected final PriorityBlockingQueue<ItemRoutingInformation> inTransitToMe = new PriorityBlockingQueue<>(10,
-			new ItemRoutingInformation.DelayComparator());
+	protected final PriorityBlockingQueue<ItemRoutingInformation> inTransitToMe =
+        new PriorityBlockingQueue<>(10, new ItemRoutingInformation.DelayComparator());
 	protected final LinkedList<Triplet<IRoutedItem, Direction, ItemSendMode>> sendQueue = new LinkedList<>();
-	protected final Map<ItemIdentifier, Queue<Pair<Integer, ItemRoutingInformation>>> queuedDataForUnroutedItems = Collections.synchronizedMap(new TreeMap<>());
+	protected final Map<ItemIdentifier, Queue<Pair<Integer, ItemRoutingInformation>>> queuedDataForUnroutedItems =
+        Collections.synchronizedMap(new TreeMap<>());
 	public boolean textureBufferPowered;
 	public long delayTo = 0;
 	public int repeatFor = 0;
-	public long stat_session_sent;
-	public long stat_session_received;
-	public long stat_session_relayed;
-	public long stat_lifetime_sent;
-	public long stat_lifetime_received;
-	public long stat_lifetime_relayed;
+	private TrafficCounts sessionCounts = TrafficCounts.ZERO;
+	private TrafficCounts lifetimeCounts = TrafficCounts.ZERO;
 	public int server_routing_table_size = 0;
 	protected boolean stillNeedReplace = true;
     @Nullable
@@ -322,8 +319,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 		} // should not be able to send to a non-existing router
 		// router.startTrackingRoutedItem((RoutedEntityItem) routedItem.getTravelingItem());
 		spawnParticle(Particles.ORANGE_SPARKLE, 2);
-		stat_lifetime_sent++;
-		stat_session_sent++;
+		sessionCounts = sessionCounts.plusSent(1);
+		lifetimeCounts = lifetimeCounts.plusSent(1);
 		updateStats();
 	}
 
@@ -721,9 +718,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			}
 		}
 		output.putString("routerId", routerId);
-		output.putLong("stat_lifetime_sent", stat_lifetime_sent);
-		output.putLong("stat_lifetime_received", stat_lifetime_received);
-		output.putLong("stat_lifetime_relayed", stat_lifetime_relayed);
+		output.putLong("stat_lifetime_sent", lifetimeCounts.sent());
+		output.putLong("stat_lifetime_received", lifetimeCounts.received());
+		output.putLong("stat_lifetime_relayed", lifetimeCounts.relayed());
 		if (getLogisticsModule() != null) {
 			getLogisticsModule().serialize(output);
 		}
@@ -769,9 +766,10 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 			routerId = input.getStringOr("routerId", "");
 		}
 
-		stat_lifetime_sent = input.getLongOr("stat_lifetime_sent", 0L);
-		stat_lifetime_received = input.getLongOr("stat_lifetime_received", 0L);
-		stat_lifetime_relayed = input.getLongOr("stat_lifetime_relayed", 0L);
+		lifetimeCounts = new TrafficCounts(
+				input.getLongOr("stat_lifetime_sent", 0L),
+				input.getLongOr("stat_lifetime_received", 0L),
+				input.getLongOr("stat_lifetime_relayed", 0L));
 		if (getLogisticsModule() != null) {
 			getLogisticsModule().deserialize(input);
 		}
@@ -938,15 +936,15 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
 	@Override
 	public void receivedItem(int count) {
-		stat_session_received += count;
-		stat_lifetime_received += count;
+		sessionCounts = sessionCounts.plusReceived(count);
+		lifetimeCounts = lifetimeCounts.plusReceived(count);
 		updateStats();
 	}
 
 	@Override
 	public void relayedItem(int count) {
-		stat_session_relayed += count;
-		stat_lifetime_relayed += count;
+		sessionCounts = sessionCounts.plusRelayed(count);
+		lifetimeCounts = lifetimeCounts.plusRelayed(count);
 		updateStats();
 	}
 
@@ -958,20 +956,34 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	 */
 	public record TrafficCounts(long sent, long received, long relayed) {
 
+		public static final TrafficCounts ZERO = new TrafficCounts(0, 0, 0);
+
 		public static final StreamCodec<RegistryFriendlyByteBuf, TrafficCounts> STREAM_CODEC =
 				StreamCodec.composite(
 						ByteBufCodecs.VAR_LONG, TrafficCounts::sent,
 						ByteBufCodecs.VAR_LONG, TrafficCounts::received,
 						ByteBufCodecs.VAR_LONG, TrafficCounts::relayed,
 						TrafficCounts::new);
+
+		public TrafficCounts plusSent(long count) {
+			return new TrafficCounts(sent + count, received, relayed);
+		}
+
+		public TrafficCounts plusReceived(long count) {
+			return new TrafficCounts(sent, received + count, relayed);
+		}
+
+		public TrafficCounts plusRelayed(long count) {
+			return new TrafficCounts(sent, received, relayed + count);
+		}
 	}
 
 	public TrafficCounts sessionCounts() {
-		return new TrafficCounts(stat_session_sent, stat_session_received, stat_session_relayed);
+		return sessionCounts;
 	}
 
 	public TrafficCounts lifetimeCounts() {
-		return new TrafficCounts(stat_lifetime_sent, stat_lifetime_received, stat_lifetime_relayed);
+		return lifetimeCounts;
 	}
 
 	/** How many other pipes this one can reach. */
@@ -986,12 +998,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 	}
 
 	public void applyStats(TrafficCounts session, TrafficCounts lifetime, int routingTableSize) {
-		stat_session_sent = session.sent();
-		stat_session_received = session.received();
-		stat_session_relayed = session.relayed();
-		stat_lifetime_sent = lifetime.sent();
-		stat_lifetime_received = lifetime.received();
-		stat_lifetime_relayed = lifetime.relayed();
+		sessionCounts = session;
+		lifetimeCounts = lifetime;
 		server_routing_table_size = routingTableSize;
 	}
 
