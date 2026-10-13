@@ -495,6 +495,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 	public void InventoryChanged(Container inventory) {
 		if (inventory == matrix) {
 			cacheRecipe();
+			markTileDirty();
 		}
 	}
 
@@ -504,7 +505,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics implements 
 		for (int i = 0; i < content.size(); i++) {
 			matrix.setItem(i, content.get(i));
 		}
-		cacheRecipe();
+		matrix.setChanged();
 	}
 
 	@Override

@@ -180,7 +180,7 @@ dependencies {
     localRuntime "mezz.jei:jei-$minecraft_version-neoforge:$jei_version"
 
     implementation "maven.modrinth:jade:$jade_version"
-    implementation "mcjty.theoneprobe:theoneprobe:$top_version"
+    compileOnly "mcjty.theoneprobe:theoneprobe:$top_version"
     implementation "curse.maven:patchouli-306770:$patchouli_id"
 
     compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version:api"

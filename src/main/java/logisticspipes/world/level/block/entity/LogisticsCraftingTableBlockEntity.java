@@ -241,6 +241,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
 
         cacheRecipe();
+        setChanged();
     }
 
     public IBitSet outputFuzzy() {
@@ -401,7 +402,8 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         for (int i = 0; i < content.size(); i++) {
             matrix.setItem(i, content.get(i));
         }
-        cacheRecipe();
+        // setItem does not notify the listeners, so nothing would mark the block entity for saving.
+        matrix.setChanged();
     }
 
     @Override

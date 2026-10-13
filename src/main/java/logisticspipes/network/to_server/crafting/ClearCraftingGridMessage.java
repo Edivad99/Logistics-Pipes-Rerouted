@@ -29,7 +29,7 @@ public record ClearCraftingGridMessage(BlockPos pos) implements CustomPacketPayl
             TargetLookup.blockEntityOrPipeAt(context.player(), message.pos, ICraftingRecipeGrid.class);
         if (grid != null) {
             grid.getMatrix().clearGrid();
-            grid.cacheRecipe();
+            grid.getMatrix().setChanged();
         }
     }
 
