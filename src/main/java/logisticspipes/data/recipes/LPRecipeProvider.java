@@ -1,11 +1,14 @@
 package logisticspipes.data.recipes;
 
+import java.util.stream.Stream;
+
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+import net.minecraft.data.recipes.TransmuteRecipeBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
@@ -15,8 +18,10 @@ import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.ColorCollection;
 
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import logisticspipes.LPConstants;
 import logisticspipes.data.recipes.builders.ProgrammerRecipeBuilder;
@@ -136,6 +141,15 @@ public class LPRecipeProvider extends RecipeProvider {
             .define('e', Tags.Items.GLASS_BLOCKS)
             .unlockedBy(getHasName(LPItems.CHIP_ADVANCED), has(LPItems.CHIP_ADVANCED))
             .save(output);
+        ColorCollection.VALUES.forEach(color -> {
+            Item dyed = LPItems.DYED_REMOTE_ORDERER.pick(color).get();
+            Ingredient otherOrderers = Ingredient.of(Stream.concat(Stream.of(LPItems.REMOTE_ORDERER.get()),
+                LPItems.DYED_REMOTE_ORDERER.asList().stream().map(DeferredItem::get).filter(item -> item != dyed)));
+            TransmuteRecipeBuilder.transmute(RecipeCategory.MISC, otherOrderers, tag(color.getTag()), dyed)
+                .group("remote_orderer_dye")
+                .unlockedBy(getHasName(LPItems.REMOTE_ORDERER), has(LPItems.REMOTE_ORDERER))
+                .save(output);
+        });
         shaped(RecipeCategory.MISC, LPItems.SIGN_CREATOR)
             .pattern("a a")
             .pattern(" b ")

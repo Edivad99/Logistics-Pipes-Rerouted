@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.ColorCollection;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -113,6 +114,9 @@ public class LPItems {
         deferredRegister.registerItem("security_card", LogisticsSecurityCard::new);
     public static final DeferredItem<RemoteOrderer> REMOTE_ORDERER =
         deferredRegister.registerItem("remote_orderer", RemoteOrderer::new);
+    public static final ColorCollection<DeferredItem<RemoteOrderer>> DYED_REMOTE_ORDERER =
+        ColorCollection.prefixWithColor(ColorCollection.create("remote_orderer"))
+            .map(name -> deferredRegister.registerItem(name, RemoteOrderer::new));
     public static final DeferredItem<ItemPipeSignCreator> SIGN_CREATOR =
         deferredRegister.registerItem("sign_creator", ItemPipeSignCreator::new);
     public static final DeferredItem<ItemHUDArmor> HUD_GLASSES =
