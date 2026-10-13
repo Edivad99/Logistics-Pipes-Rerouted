@@ -405,8 +405,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		}
 		if (reInitGui) {
 			if (level != null && level.isClientSide()) {
-				if (Minecraft.getInstance().screen instanceof ChassisPipeScreen) {
-					Minecraft.getInstance().setScreen(Minecraft.getInstance().screen); // re-init screen (1.20.1: init() is no longer public no-arg)
+				if (Minecraft.getInstance().gui.screen() instanceof ChassisPipeScreen screen) {
+					screen.reInit();
 				}
 			}
 		}

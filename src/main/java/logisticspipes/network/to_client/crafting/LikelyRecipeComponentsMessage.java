@@ -44,7 +44,7 @@ public record LikelyRecipeComponentsMessage(List<Optional<Integer>> choices) imp
     private static final class Client {
 
         static void handle(LikelyRecipeComponentsMessage message, IPayloadContext context) {
-            if (Minecraft.getInstance().screen instanceof ISubGuiController controller) {
+            if (Minecraft.getInstance().gui.screen() instanceof ISubGuiController controller) {
                 final GuiRecipeImport gui = controller.findSubGui(GuiRecipeImport.class);
                 if (gui != null) {
                     gui.selectComponents(message.choices);

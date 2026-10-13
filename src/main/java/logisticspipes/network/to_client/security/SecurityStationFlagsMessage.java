@@ -52,7 +52,7 @@ public record SecurityStationFlagsMessage(BlockPos pos, boolean allowCC, boolean
             }
             be.setClientCC(message.allowCC);
             be.setClientDestroy(message.autoDestroy);
-            if (Minecraft.getInstance().screen instanceof SecurityStationScreen gui) {
+            if (Minecraft.getInstance().gui.screen() instanceof SecurityStationScreen gui) {
                 gui.refreshCheckBoxes();
             }
         }

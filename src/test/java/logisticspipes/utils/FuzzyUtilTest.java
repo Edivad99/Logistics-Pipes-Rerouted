@@ -4,6 +4,7 @@ import java.util.BitSet;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -105,8 +106,8 @@ class FuzzyUtilTest {
         // These were one Item discriminated by metadata in 1.12, which is why damage was part of
         // the identity back then. The 1.13 flattening made them distinct Items, so the item check
         // keeps them apart no matter which fuzzy flags are set.
-        ItemIdentifier white = ItemIdentifier.get(Items.WHITE_WOOL);
-        ItemIdentifier red = ItemIdentifier.get(Items.RED_WOOL);
+        ItemIdentifier white = ItemIdentifier.get(Items.WOOL.pick(DyeColor.WHITE));
+        ItemIdentifier red = ItemIdentifier.get(Items.WOOL.pick(DyeColor.RED));
         FuzzyFlagger flags = flagger(FuzzyFlag.IGNORE_DAMAGE, FuzzyFlag.IGNORE_NBT);
 
         assertEquals(false, FuzzyUtil.fuzzyMatches(flags, white, red));

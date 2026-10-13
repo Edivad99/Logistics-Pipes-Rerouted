@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -33,8 +33,9 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Matrix4fStack;
 
 import logisticspipes.LPConstants;
 import logisticspipes.client.gui.GuiOverlay;
@@ -73,10 +74,9 @@ public class RenderTickHandler {
 		texture -> RenderType.create(
 			"lp_entity_translucent_cull",
 			// 1.21.11 folded RenderStateShard and CompositeState into RenderSetup: the shards are
-			// now named builder steps, and the buffer size and the two booleans that used to be
-			// positional arguments of create() moved in here as well.
+			// now named builder steps, and the two booleans that used to be positional arguments
+			// of create() moved in here as well.
 			RenderSetup.builder(LPRenderTypes.GHOST_ENTITY_PIPELINE)
-				.bufferSize(1536)
 				.affectsCrumbling()
 				.sortOnUpload()
 				.withTexture("Sampler0", texture)
@@ -135,16 +135,34 @@ public class RenderTickHandler {
 		);
 	}
 
+	/** The ghost pipe is drawn through the feature dispatcher from a storage of its own. */
+	private final SubmitNodeStorage ghostStorage = new SubmitNodeStorage();
+
+	/**
+	 * 26.2 removed {@code MultiBufferSource}: geometry is submitted to a storage and a
+	 * {@code FeatureRenderDispatcher} frame draws it. The level renderer holds the dispatcher's one
+	 * frame open across every stage inside the level, so drawing our own storages has to wait for
+	 * {@code AfterLevel}. By then the level renderer has popped the camera's model-view matrix,
+	 * which is put back for the duration.
+	 */
 	@SubscribeEvent
-	public void renderWorldLast(RenderLevelStageEvent.AfterTranslucentParticles worldEvent) {
-		PoseStack poseStack = worldEvent.getPoseStack();
+	public void renderWorldLast(RenderLevelStageEvent.AfterLevel worldEvent) {
+		Matrix4fStack modelViewStack = RenderSystem.getModelViewStack();
+		modelViewStack.pushMatrix();
+		modelViewStack.mul(worldEvent.getModelViewMatrix());
+		try {
+			renderWorldLast(worldEvent.getPoseStack());
+		} finally {
+			modelViewStack.popMatrix();
+		}
+	}
+
+	private void renderWorldLast(PoseStack poseStack) {
 		float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
-		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 		int packedLight = 0xF000F0;
 
 		long renderTicks = Minecraft.getInstance().level != null ? Minecraft.getInstance().level.getGameTime() : 0L;
-		LogisticsHUDRenderer.instance().renderWorldRelative(renderTicks, partialTick, poseStack, bufferSource, packedLight);
-		bufferSource.endBatch();
+		LogisticsHUDRenderer.instance().renderWorldRelative(renderTicks, partialTick, poseStack, packedLight);
 
 		// We are not holding an Item that needs to render a ghost pipe!
 		if (!displayPipeGhost()) {
@@ -217,26 +235,24 @@ public class RenderTickHandler {
 		// Ghost pipe rendering — LP1 drew the pipe highlight model at the target position
 		// with the plain white pipe texture and alpha forced to 0x50.
 		poseStack.pushPose();
-		Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+		Vec3 cam = Minecraft.getInstance().gameRenderer.mainCamera().position();
 		double gx = pos.getX() + (orientation != null ? orientation.getOffset().getX() : 0);
 		double gy = pos.getY() + (orientation != null ? orientation.getOffset().getY() : 0);
 		double gz = pos.getZ() + (orientation != null ? orientation.getOffset().getZ() : 0);
 		poseStack.translate(gx - cam.x + 0.001, gy - cam.y + 0.001, gz - cam.z + 0.001);
 
-		VertexConsumer ghostBuffer = bufferSource.getBuffer(GHOST_PIPE_RENDER_TYPE.apply(GHOST_PIPE_TEXTURE));
 		// The tube preview tracks the player's facing. The removed legacy branch reached the
 		// same geometry through rotations that CCLProxy converted from radians a second time, so
 		// every orientation of a tube came out nearly identical — a curve did not appear to swing
 		// left or right, and the S-curve, which is the gain model rolled a quarter turn about Z,
 		// looked exactly like a gain.
-		ObjMesh ghost = TubeMeshes.forPipe(pipe, orientation).mesh();
-		if (ghost.isEmpty()) {
-			ghost = PipeModelStore.parts().highlight();
-		}
+		ObjMesh tube = TubeMeshes.forPipe(pipe, orientation).mesh();
+		ObjMesh ghost = tube.isEmpty() ? PipeModelStore.parts().highlight() : tube;
 		// 0x50 alpha, matching the alpha override the shared render state used to apply.
-		MeshRenderer.emitRaw(ghostBuffer, poseStack.last(),
-            ghost, 0x50FFFFFF, packedLight, OverlayTexture.NO_OVERLAY);
-		bufferSource.endBatch();
+		ghostStorage.submitCustomGeometry(poseStack, GHOST_PIPE_RENDER_TYPE.apply(GHOST_PIPE_TEXTURE),
+			(pose, ghostBuffer) -> MeshRenderer.emitRaw(ghostBuffer, pose,
+				ghost, 0x50FFFFFF, packedLight, OverlayTexture.NO_OVERLAY));
+		mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(ghostStorage);
 		poseStack.popPose();
 	}
 

@@ -25,7 +25,7 @@ public class PipeLogScreen extends ScrollingTextScreen {
 
 	/** Shows {@code buffer}, replacing whatever screen is open. */
 	public static void open(PipeLogBuffer buffer) {
-		Minecraft.getInstance().setScreen(new PipeLogScreen(buffer));
+		Minecraft.getInstance().gui.setScreen(new PipeLogScreen(buffer));
 	}
 
 	@Override

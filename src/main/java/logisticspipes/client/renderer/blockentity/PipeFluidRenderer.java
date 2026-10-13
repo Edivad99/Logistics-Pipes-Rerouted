@@ -3,7 +3,6 @@ package logisticspipes.client.renderer.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Direction;
 
@@ -12,6 +11,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 
 /**
@@ -82,7 +82,7 @@ public final class PipeFluidRenderer {
         if (boxes.isEmpty()) {
             return;
         }
-        collector.submitCustomGeometry(poseStack, Sheets.translucentBlockSheet(), (pose, buffer) -> {
+        collector.submitCustomGeometry(poseStack, LPRenderTypes.TRANSLUCENT_BLOCK_SHEET, (pose, buffer) -> {
             for (Box box : boxes) {
                 FluidBoxRenderer.emitBox(buffer, pose, box.look(), box.x0(), box.y0(), box.z0(), box.x1(), box.y1(),
                     box.z1(), packedLight, packedOverlay);

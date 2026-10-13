@@ -6,27 +6,26 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.StandingSignRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.PlainSignBlock;
-import net.minecraft.world.level.block.state.properties.WoodType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WallSignBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -61,18 +60,21 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * Depth left to an item drawn on a sign, as a fraction of its width. See {@link #renderItemStackOnSign}.
      */
     private static final float FLAT_ITEM_DEPTH = 0.02F;
-    private static final WoodType TYPE = WoodType.OAK;
+    /** The board a pipe sign is drawn on: the wall sign's block model, front face towards +z. */
+    private static final BlockState SIGN_BOARD =
+        Blocks.OAK_WALL_SIGN.defaultBlockState().setValue(WallSignBlock.FACING, Direction.SOUTH);
+    private static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
     private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
     @Nullable
     private static TextureAtlasSprite requestTableSprite = null;
 
-    private final Model.Simple signModel;
-    private final SpriteGetter sprites;
+    private final BlockModelResolver blockModels;
+    /** Resolved on first use; a resource reload builds a new renderer, and with it a new state. */
+    private final BlockModelRenderState signBoard = new BlockModelRenderState();
+    private boolean signBoardResolved = false;
 
     public LogisticsRenderPipe(BlockEntityRendererProvider.Context context) {
-        // A pipe sign hangs on the pipe, so it never has the standing sign's post.
-        signModel = StandingSignRenderer.createSignModel(context.entityModelSet(), TYPE, PlainSignBlock.Attachment.WALL);
-        sprites = context.sprites();
+        blockModels = context.blockModelResolver();
     }
 
     /**
@@ -103,7 +105,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
             return;
         }
 
-        collector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> {
+        collector.submitCustomGeometry(poseStack, LPRenderTypes.CUTOUT_BLOCK_SHEET, (pose, buffer) -> {
             MeshRenderer.emit(buffer, pose, parts.body(0), sprite, packedLight, packedOverlay);
             for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
                 MeshRenderer.emit(buffer, pose, parts.outerPlate(side, 0), sprite, packedLight, packedOverlay);
@@ -217,7 +219,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         }
 
         final int rot = rotation;
-        collector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> {
+        collector.submitCustomGeometry(poseStack, LPRenderTypes.CUTOUT_BLOCK_SHEET, (pose, buffer) -> {
             MeshRenderer.emit(buffer, pose, parts.body(rot), sprite, packedLight, packedOverlay);
             for (SolidBlockModelParts.CoverSide side : SolidBlockModelParts.CoverSide.values()) {
                 // Plates are skipped where a pipe connects, so adjacent pipes visually enter the
@@ -491,14 +493,20 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         poseStack.translate(0.0F, -0.3125F, -0.36F);
         poseStack.mulPose(new Quaternionf().rotationY((float) Math.PI));
 
+        // 26.2 turned the sign board into an ordinary block model: the entity model layer and the
+        // signs atlas it was drawn from are gone. A wall sign hangs on its block, so it never has
+        // the standing sign's post.
+        if (!signBoardResolved) {
+            blockModels.update(signBoard, SIGN_BOARD, BLOCK_DISPLAY_CONTEXT);
+            signBoardResolved = true;
+        }
         poseStack.pushPose();
         try {
-            poseStack.scale(signScale, -signScale, -signScale);
-            // Models are submitted whole. 26.1.2 replaced Material with a SpriteId plus the
-            // SpriteGetter that resolves it, and the overload below picks the render type from
-            // the sprite's atlas itself -- so there is nothing left to look up by hand.
-            collector.submitModel(signModel, Unit.INSTANCE, poseStack, packedLight,
-                OverlayTexture.NO_OVERLAY, -1, Sheets.getSignSprite(TYPE), sprites, 0, null);
+            // The block model's board spans x 0..1, y 4.33..12.33 and z 0.33..1.67 sixteenths of
+            // a block; the entity model, scaled by 2/3, put the same 1 x 0.5 x 1/12 board at
+            // x -0.5..0.5, y 1/12..7/12, centred on z. This moves the one onto the other.
+            poseStack.translate(-0.5F, -3 / 16F, -1 / 16F);
+            signBoard.submit(poseStack, collector, packedLight, OverlayTexture.NO_OVERLAY, 0);
         } finally {
             poseStack.popPose();
         }

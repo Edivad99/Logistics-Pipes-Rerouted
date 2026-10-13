@@ -128,7 +128,7 @@ public record ModuleTarget(
     private static final class Client {
 
         static @Nullable LogisticsModule fromOpenScreen() {
-            final var screen = Minecraft.getInstance().screen;
+            final var screen = Minecraft.getInstance().gui.screen();
             if (screen instanceof AbstractContainerScreen<?> containerScreen) {
                 if (containerScreen.getMenu() instanceof ModuleMenu menu) {
                     return menu.getModule();

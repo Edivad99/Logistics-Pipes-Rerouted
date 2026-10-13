@@ -9,7 +9,7 @@ import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -19,9 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Quaternionf;
 import org.joml.Vector3d;
 import org.jspecify.annotations.Nullable;
@@ -184,11 +182,9 @@ public class LogisticsHUDRenderer {
     // holes out of text, slot backgrounds and item icons. -0.0006F spreads it over ~0.12 blocks instead.
     // Negative because panel local +z points away from the viewer, while higher GUI z means "nearer".
     private static final float PANEL_LAYER_SCALE = -0.0006F;
-    // GuiGraphicsExtractor.renderItem() calls flush() internally, and flush() runs endBatch() on the buffer source it
-    // was handed. Handing it the level renderer's shared BufferSource would end every pending level batch
-    // mid-stage, so the HUD gets its own.
-    private final MultiBufferSource.BufferSource hudBufferSource =
-        MultiBufferSource.immediate(new ByteBufferBuilder(1536));
+    // The HUD draws panel by panel and item by item, in call order, so it renders a storage of its own
+    // through the feature dispatcher rather than queueing into the level renderer's.
+    private final SubmitNodeStorage hudStorage = new SubmitNodeStorage();
 
     //TODO: only load this once, rather than twice
     private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/icons.png");
@@ -210,8 +206,7 @@ public class LogisticsHUDRenderer {
         }
     }
 
-    public void renderWorldRelative(long renderTicks, float partialTick, PoseStack poseStack,
-        MultiBufferSource bufferSource, int packedLight) {
+    public void renderWorldRelative(long renderTicks, float partialTick, PoseStack poseStack, int packedLight) {
         if (!displayRenderer()) {
             return;
         }
@@ -356,10 +351,8 @@ public class LogisticsHUDRenderer {
         // LPRenderTypes.OVERLAY; 1.21.5 removed RenderSystem.disableDepthTest/enableBlend and
         // BufferUploader, so the state can no longer be flipped around the draw call.
         if (!lasers.isEmpty()) {
-            MultiBufferSource.BufferSource laserBuffers = Minecraft.getInstance().renderBuffers().bufferSource();
-            VertexConsumer bb = laserBuffers.getBuffer(LPRenderTypes.OVERLAY);
             // The pose origin is the interpolated camera, not the player's feet as in 1.12.
-            Vec3 cam = mc.gameRenderer.getMainCamera().position();
+            Vec3 cam = mc.gameRenderer.mainCamera().position();
             for (LaserData data : lasers) {
                 poseStack.pushPose();
                 double x = data.getPos().getX() + 0.5 - cam.x;
@@ -375,51 +368,52 @@ public class LogisticsHUDRenderer {
                     default: break;
                 }
                 poseStack.scale(0.01F, 0.01F, 0.01F);
-                org.joml.Matrix4f mat = poseStack.last().pose();
 
-                for (float i = 0; i < 6 * data.getLength(); i += 1.0f) {
-                    int[] c = getLaserColor(i, data.getConnectionType());
-                    float shift = 100f * i / 6f;
-                    float s = (data.isStartPipe() && i == 0) ? -6.0f : 0.0f;
-                    // Top
-                    bb.addVertex(mat, 19.7f+shift, 3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,  3.0f+shift+s, 3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,  3.0f+shift+s, 3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat, 19.7f+shift, 3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    // Bottom
-                    bb.addVertex(mat, 19.7f+shift,-3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,  3.0f+shift+s,-3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,  3.0f+shift+s,-3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat, 19.7f+shift,-3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    // +Z side
-                    bb.addVertex(mat, 19.7f+shift, 3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,  3.0f+shift+s, 3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,  3.0f+shift+s,-3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat, 19.7f+shift,-3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    // -Z side
-                    bb.addVertex(mat, 19.7f+shift,-3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,  3.0f+shift+s,-3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,  3.0f+shift+s, 3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat, 19.7f+shift, 3,-3).setColor(c[0],c[1],c[2],c[3]);
-                }
-                if (data.isStartPipe()) {
-                    int[] c = getLaserColor(0, data.getConnectionType());
-                    bb.addVertex(mat,-3, 3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,-3, 3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,-3,-3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,-3,-3, 3).setColor(c[0],c[1],c[2],c[3]);
-                }
-                if (data.isFinalPipe()) {
-                    int[] c = getLaserColor(6 * (float) data.getLength() - 1, data.getConnectionType());
-                    float ex = 100.0f * data.getLength() + 3f;
-                    bb.addVertex(mat,ex, 3,-3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,ex, 3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,ex,-3, 3).setColor(c[0],c[1],c[2],c[3]);
-                    bb.addVertex(mat,ex,-3,-3).setColor(c[0],c[1],c[2],c[3]);
-                }
+                hudStorage.submitCustomGeometry(poseStack, LPRenderTypes.OVERLAY, (mat, bb) -> {
+                    for (float i = 0; i < 6 * data.getLength(); i += 1.0f) {
+                        int[] c = getLaserColor(i, data.getConnectionType());
+                        float shift = 100f * i / 6f;
+                        float s = (data.isStartPipe() && i == 0) ? -6.0f : 0.0f;
+                        // Top
+                        bb.addVertex(mat, 19.7f+shift, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,  3.0f+shift+s, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,  3.0f+shift+s, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat, 19.7f+shift, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        // Bottom
+                        bb.addVertex(mat, 19.7f+shift,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,  3.0f+shift+s,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,  3.0f+shift+s,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat, 19.7f+shift,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        // +Z side
+                        bb.addVertex(mat, 19.7f+shift, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,  3.0f+shift+s, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,  3.0f+shift+s,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat, 19.7f+shift,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        // -Z side
+                        bb.addVertex(mat, 19.7f+shift,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,  3.0f+shift+s,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,  3.0f+shift+s, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat, 19.7f+shift, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    }
+                    if (data.isStartPipe()) {
+                        int[] c = getLaserColor(0, data.getConnectionType());
+                        bb.addVertex(mat,-3, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,-3, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,-3,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,-3,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                    }
+                    if (data.isFinalPipe()) {
+                        int[] c = getLaserColor(6 * (float) data.getLength() - 1, data.getConnectionType());
+                        float ex = 100.0f * data.getLength() + 3f;
+                        bb.addVertex(mat,ex, 3,-3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,ex, 3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,ex,-3, 3).setColor(c[0],c[1],c[2],c[3]);
+                        bb.addVertex(mat,ex,-3,-3).setColor(c[0],c[1],c[2],c[3]);
+                    }
+                });
                 poseStack.popPose();
             }
-            laserBuffers.endBatch(LPRenderTypes.OVERLAY);
+            mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(hudStorage);
         }
         last = System.currentTimeMillis();
     }
@@ -448,7 +442,7 @@ public class LogisticsHUDRenderer {
         boolean shifted, PoseStack poseStack, int packedLight) {
         Minecraft mc = Minecraft.getInstance();
         // The level-stage pose origin is the interpolated camera, not the player's feet as in 1.12.
-        Vec3 cam = mc.gameRenderer.getMainCamera().position();
+        Vec3 cam = mc.gameRenderer.mainCamera().position();
         final BlockPos rendererPos = renderer.getPos();
         double x = rendererPos.getX() + 0.5 - cam.x;
         double y = rendererPos.getY() + 0.5 - cam.y;
@@ -468,7 +462,7 @@ public class LogisticsHUDRenderer {
         // Panels are drawn back to front in one pass with depth writes off, so the z spreading that
         // PANEL_LAYER_SCALE used to provide is no longer needed: draw order is the layering.
         poseStack.scale(PANEL_SCALE, PANEL_SCALE, PANEL_SCALE);
-        HUDDrawContext context = new HUDDrawContext(poseStack, hudBufferSource, packedLight, mc.font);
+        HUDDrawContext context = new HUDDrawContext(poseStack, hudStorage, packedLight, mc.font);
         try {
             renderer.getRenderer()
                 .renderHeadUpDisplay(context, Math.hypot(x, Math.hypot(y, z)), false, shifted, mc, config);
@@ -584,8 +578,8 @@ public class LogisticsHUDRenderer {
 
     private boolean displayHUD() {
         Minecraft mc = Minecraft.getInstance();
-        return (playerWearsHUD() || debugHUD != null) && mc.screen == null
-            && mc.options.getCameraType().isFirstPerson() && !mc.options.hideGui;
+        return (playerWearsHUD() || debugHUD != null) && mc.gui.screen() == null
+            && mc.options.getCameraType().isFirstPerson() && !mc.gui.hud.isHidden();
     }
 
     public void resetLasers() {
