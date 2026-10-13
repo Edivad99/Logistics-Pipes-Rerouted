@@ -52,7 +52,7 @@ public record TrackingTasksMessage(BlockPos pos, List<TrackingTask> tasks) imple
                 return;
             }
             be.tasks = new ArrayList<>(message.tasks);
-            if (Minecraft.getInstance().screen instanceof StatisticsScreen gui) {
+            if (Minecraft.getInstance().gui.screen() instanceof StatisticsScreen gui) {
                 gui.handleTrackingTasks();
             }
         }

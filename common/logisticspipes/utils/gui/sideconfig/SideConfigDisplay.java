@@ -9,7 +9,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.Projection;
 import net.minecraft.client.renderer.ProjectionMatrixBuffer;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
@@ -42,7 +42,6 @@ import org.joml.Vector3dc;
 import org.joml.Vector4d;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.client.renderer.ImmediateSubmitCollector;
 import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.client.renderer.pip.SideConfigSceneState;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -298,8 +297,11 @@ public abstract class SideConfigDisplay {
 	 * orthographic one, meant for flat content -- and the camera's view matrix becomes the pose
 	 * everything is submitted under, there being no modelview stack to push it onto since 1.21.6.
 	 * The rectangle needs no scissor and the depth needs no clearing: the texture is both.
+	 *
+	 * <p>Nothing is drawn here: the picture-in-picture renderer renders the collector once this
+	 * returns, with the projection set below still in place.</p>
 	 */
-	public void renderToTexture(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
+	public void renderToTexture(PoseStack poseStack, SubmitNodeCollector collector,
 			int width, int height) {
 		sceneProjection.setupPerspective(Z_NEAR, Z_FAR, FOV, width, height);
 		RenderSystem.setProjectionMatrix(
@@ -309,11 +311,11 @@ public abstract class SideConfigDisplay {
 		poseStack.setIdentity();
 		poseStack.mulPose(new Matrix4f(viewMatrix));
 
-		renderScene(poseStack, bufferSource);
-		renderSelection(poseStack, bufferSource);
+		renderScene(poseStack, collector);
+		renderSelection(poseStack, collector);
 	}
 
-	private void renderSelection(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource) {
+	private void renderSelection(PoseStack poseStack, SubmitNodeCollector collector) {
 		// TextureRegistrar binds the sprite during the block atlas stitch; before that has run, or
 		// on a resource pack without it, the marked faces simply go unmarked.
 		TextureAtlasSprite icon = TextureRegistrar.sideSelectionSprite();
@@ -329,20 +331,22 @@ public abstract class SideConfigDisplay {
 		// guiTexturedOverlay is now LP's own equivalent -- same POSITION_TEX_COLOR format with the
 		// depth test off, so the highlight still paints over the blocks behind it.
 		RenderType renderType = LPRenderTypes.TEXTURED_OVERLAY.apply(RenderUtil.BLOCK_TEX);
-		VertexConsumer buf = bufferSource.getBuffer(renderType);
-		for (HighlightedFace marked : highlights) {
-			drawFace(buf, poseStack, marked.pos(), marked.face(), icon);
-		}
+		// Run when the collector is rendered, so the faces are copied out of the fields now.
+		List<HighlightedFace> marked = new ArrayList<>(highlights);
 		if (selection != null) {
-			drawFace(buf, poseStack, selection.config.getBlockPos(), selection.face, icon);
+			marked.add(new HighlightedFace(selection.config.getBlockPos(), selection.face));
 		}
-		bufferSource.endBatch(renderType);
+		collector.submitCustomGeometry(poseStack, renderType, (pose, buf) -> {
+			for (HighlightedFace face : marked) {
+				drawFace(buf, pose, face.pos(), face.face(), icon);
+			}
+		});
 	}
 
-	private void drawFace(VertexConsumer buf, PoseStack poseStack, BlockPos pos, Direction face,
+	private void drawFace(VertexConsumer buf, PoseStack.Pose pose, BlockPos pos, Direction face,
 			TextureAtlasSprite icon) {
 		for (FaceCorner c : faceCorners(pos, face, icon.getU0(), icon.getU1(), icon.getV0(), icon.getV1())) {
-			buf.addVertex(poseStack.last(), (float) (c.x() - origin.x), (float) (c.y() - origin.y),
+			buf.addVertex(pose, (float) (c.x() - origin.x), (float) (c.y() - origin.y),
 					(float) (c.z() - origin.z))
 				.setUv(c.u(), c.v())
 				.setColor(HIGHLIGHT_TINT);
@@ -402,9 +406,8 @@ public abstract class SideConfigDisplay {
 	private final BlockModelRenderState renderState = new BlockModelRenderState();
 	private static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
 
-	private void renderScene(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource) {
+	private void renderScene(PoseStack poseStack, SubmitNodeCollector collector) {
 		BlockModelResolver blockModels = Minecraft.getInstance().getBlockModelResolver();
-		ImmediateSubmitCollector collector = new ImmediateSubmitCollector(bufferSource);
 
 		for (BlockPos coord : configurables) {
 			renderBlockAt(coord, blockModels, collector, poseStack, false);
@@ -414,11 +417,10 @@ public abstract class SideConfigDisplay {
 				renderBlockAt(coord, blockModels, collector, poseStack, true);
 			}
 		}
-		bufferSource.endBatch();
 	}
 
 	private void renderBlockAt(BlockPos coord, BlockModelResolver blockModels,
-			ImmediateSubmitCollector collector, PoseStack poseStack, boolean transparent) {
+			SubmitNodeCollector collector, PoseStack poseStack, boolean transparent) {
 		BlockPos pos = new BlockPos(coord.getX(), coord.getY(), coord.getZ());
 		BlockState state = level.getBlockState(pos);
 		if (state.isAir()) return;
@@ -426,8 +428,7 @@ public abstract class SideConfigDisplay {
 		poseStack.translate(pos.getX() - origin.x, pos.getY() - origin.y, pos.getZ() - origin.z);
 		// 26.1.2 removed BlockRenderDispatcher. A block drawn outside a chunk is resolved into a
 		// BlockModelRenderState -- the same object an entity renderer holds for a carried block --
-		// and submitted; ImmediateSubmitCollector puts the quads straight into our buffer source,
-		// since the level renderer's collector is not reachable from a GUI.
+		// and submitted to the picture-in-picture renderer's collector.
 		//
 		// Lighting is full-bright rather than sampled from the level. The old path took the light
 		// from the block's own position, which for a preview floating in a GUI was arbitrary

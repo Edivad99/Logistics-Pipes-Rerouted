@@ -40,7 +40,7 @@ public record SatelliteNameResultMessage(SatelliteNamingResult result, String na
     private static final class Client {
 
         static void handle(SatelliteNameResultMessage message, IPayloadContext context) {
-            if (Minecraft.getInstance().screen instanceof SatellitePipeScreen gui) {
+            if (Minecraft.getInstance().gui.screen() instanceof SatellitePipeScreen gui) {
                 gui.handleResponse(message.result, message.name);
             }
         }

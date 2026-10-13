@@ -42,6 +42,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Vec3i
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.item.DyeColor
 import net.minecraft.world.level.block.Blocks
 import kotlin.math.max
 import kotlin.math.min
@@ -113,9 +114,9 @@ class BlockPosSelector(val worldBuilder: WorldBuilder) {
         ?.to(state.let {
             when (it) {
                 TestState.RUNNING -> Blocks.GLOWSTONE.defaultBlockState()
-                TestState.FAILED -> Blocks.RED_CONCRETE.defaultBlockState()
-                TestState.PASSED -> Blocks.GREEN_CONCRETE.defaultBlockState()
-                TestState.SKIPPED -> Blocks.YELLOW_CONCRETE.defaultBlockState()
+                TestState.FAILED -> Blocks.CONCRETE.pick(DyeColor.RED).defaultBlockState()
+                TestState.PASSED -> Blocks.CONCRETE.pick(DyeColor.GREEN).defaultBlockState()
+                TestState.SKIPPED -> Blocks.CONCRETE.pick(DyeColor.YELLOW).defaultBlockState()
             }
         })
         ?.also {
