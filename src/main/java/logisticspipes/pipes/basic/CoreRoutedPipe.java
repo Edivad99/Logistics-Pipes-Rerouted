@@ -128,7 +128,7 @@ import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.item.ItemPipeController;
-import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.RemoteOrderer;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
 @CCType(name = "LogisticsPipes:Normal")
@@ -845,7 +845,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
             return true;
         }
 
-        if (itemStack.is(LPItems.REMOTE_ORDERER)) {
+        if (itemStack.getItem() instanceof RemoteOrderer) {
             if (!player.level().isClientSide()) {
                 if (settings == null || settings.openRequest) {
                     if (player instanceof ServerPlayer serverPlayer) {

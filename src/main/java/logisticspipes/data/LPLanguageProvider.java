@@ -8,7 +8,9 @@ import java.util.function.Supplier;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.ColorCollection;
 
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -63,6 +65,8 @@ public class LPLanguageProvider extends LanguageProvider {
         addItem(LPItems.ITEM_CARD, "Logistics Item Card");
         addItem(LPItems.SECURITY_CARD, "Logistics Security Card");
         addItem(LPItems.REMOTE_ORDERER, "Remote Orderer");
+        ColorCollection.VALUES.forEach(color ->
+            addItem(LPItems.DYED_REMOTE_ORDERER.pick(color), colorName(color) + " Remote Orderer"));
         addItem(LPItems.SIGN_CREATOR, "Sign Creator");
         addItem(LPItems.HUD_GLASSES, "Logistics HUD Glasses");
         addItem(LPItems.PARTS, "Logistics Parts");
@@ -485,6 +489,18 @@ public class LPLanguageProvider extends LanguageProvider {
         for (int i = 0; i < tips.length; i++) {
             add(Tooltip.itemTip(descriptionId, i + 1), tips[i]);
         }
+    }
+
+    /** {@code light_blue} to {@code Light Blue}. */
+    private static String colorName(DyeColor color) {
+        StringBuilder name = new StringBuilder();
+        for (String word : color.getName().split("_")) {
+            if (!name.isEmpty()) {
+                name.append(' ');
+            }
+            name.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        return name.toString();
     }
 
     private void addChassis(Supplier<? extends Item> item, int tier, String capacity) {

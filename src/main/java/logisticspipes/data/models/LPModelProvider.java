@@ -13,12 +13,14 @@ import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.RangeSelectItemModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ColorCollection;
 
 import logisticspipes.LPConstants;
 import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
@@ -55,6 +57,7 @@ public class LPModelProvider extends ModelProvider {
         signCreator(itemModels);
         fluidContainer(itemModels);
         handWrittenItems(itemModels);
+        dyedRemoteOrderers(itemModels);
         specialItems(itemModels);
     }
 
@@ -95,6 +98,7 @@ public class LPModelProvider extends ModelProvider {
         items.add(LPItems.SIGN_CREATOR.get());
         items.add(LPItems.FLUID_CONTAINER.get());
         items.addAll(HAND_WRITTEN_MODEL_ITEMS.stream().map(Supplier::get).toList());
+        LPItems.DYED_REMOTE_ORDERER.forEach(item -> items.add(item.get()));
         items.addAll(specialRenderedItems(ItemLogisticsPipe.class));
         items.addAll(specialRenderedItems(LogisticsSolidBlockItem.class));
         return items;
@@ -115,7 +119,8 @@ public class LPModelProvider extends ModelProvider {
             LPItems.CHIP_BASIC_RAW.get(),
             LPItems.CHIP_FPGA.get(),
             LPItems.CHIP_FPGA_RAW.get(),
-            LPItems.MODULE_BLANK.get()));
+            LPItems.MODULE_BLANK.get(),
+            LPItems.REMOTE_ORDERER.get()));
         LPItems.modules.values().forEach(rl -> items.add(byId(rl)));
         LPItems.upgrades.values().forEach(rl -> items.add(byId(rl)));
         return items;
@@ -173,14 +178,22 @@ public class LPModelProvider extends ModelProvider {
      * through one, and an item without it logs "No model loaded for default item ID" and renders as
      * the missing model, however good its {@code models/item} entry is.</p>
      */
-    private static final List<Supplier<Item>> HAND_WRITTEN_MODEL_ITEMS = List.of(
-        LPItems.REMOTE_ORDERER::get,
-        LPItems.PARTS::get);
+    private static final List<Supplier<Item>> HAND_WRITTEN_MODEL_ITEMS = List.of(LPItems.PARTS::get);
 
     private static void handWrittenItems(ItemModelGenerators itemModels) {
         for (Supplier<Item> item : HAND_WRITTEN_MODEL_ITEMS) {
             itemModels.itemModelOutput.accept(item.get(),
                 ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item.get())));
         }
+    }
+
+    private static void dyedRemoteOrderers(ItemModelGenerators itemModels) {
+        ColorCollection.VALUES.forEach(color -> {
+            Item item = LPItems.DYED_REMOTE_ORDERER.pick(color).get();
+            Identifier model = ModelTemplates.FLAT_ITEM.create(item,
+                TextureMapping.layer0(new Material(LPConstants.rl("item/remote_orderer/" + color.getName()))),
+                itemModels.modelOutput);
+            itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
+        });
     }
 }

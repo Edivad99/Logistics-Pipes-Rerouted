@@ -17,7 +17,6 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
-import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.RemoteOrderer;
 
 public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements IRequestItems {
@@ -33,7 +32,7 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
 
     @Override
     public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
-        if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
+        if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).getItem() instanceof RemoteOrderer) {
             if (!entityplayer.level().isClientSide()) {
                 MutableComponent resp;
                 if (settings == null || settings.openRequest) {

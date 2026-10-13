@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_remote_orderer": {
+      "conditions": {
+        "items": [
+          {
+            "items": "logisticspipes:remote_orderer"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "logisticspipes:yellow_remote_orderer"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_remote_orderer"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "logisticspipes:yellow_remote_orderer"
+    ]
+  }
+}
