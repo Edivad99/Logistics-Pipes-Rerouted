@@ -23,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:fluid_container"
+        "recipes": "logisticspipes:fluid_container"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

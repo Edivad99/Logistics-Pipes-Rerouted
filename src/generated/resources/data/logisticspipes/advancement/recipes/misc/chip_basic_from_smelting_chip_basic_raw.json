@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_chip_advanced_raw": {
+    "has_chip_basic_raw": {
       "conditions": {
         "items": [
           {
-            "items": "logisticspipes:chip_advanced_raw"
+            "items": "logisticspipes:chip_basic_raw"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:chip_advanced_from_smelting_chip_advanced_raw"
+        "recipes": "logisticspipes:chip_basic_from_smelting_chip_basic_raw"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_chip_advanced_raw"
+      "has_chip_basic_raw"
     ]
   ],
   "rewards": {
     "recipes": [
-      "minecraft:chip_advanced_from_smelting_chip_advanced_raw"
+      "logisticspipes:chip_basic_from_smelting_chip_basic_raw"
     ]
   }
 }

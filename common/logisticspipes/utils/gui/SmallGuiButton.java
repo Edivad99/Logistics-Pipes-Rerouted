@@ -68,12 +68,12 @@ public class SmallGuiButton extends AbstractButton {
      * {@code stringOffset}, which is the whole reason this class exists; the rest is that method's
      * body. Two things worth knowing about the collector: it takes a vertical <em>band</em> rather
      * than a baseline, and it has no colour argument at all -- the colour rides on the component's
-     * style, which is how {@code AbstractButton} applies {@code getFGColor} too.</p>
+     * style, which is how {@code AbstractButton} applies {@code getLabelTextColor} too.</p>
      */
     @Override
     protected void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         extractDefaultSprite(guiGraphics);
-        Component message = getMessage().copy().withStyle(style -> style.withColor(getFGColor()));
+        Component message = getMessage().copy().withStyle(style -> style.withColor(getLabelTextColor()));
         guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE)
             .acceptScrollingWithDefaultCenter(
                 message,
@@ -84,7 +84,7 @@ public class SmallGuiButton extends AbstractButton {
     }
 
     @Override
-    public int getFGColor() {
+    public int getLabelTextColor() {
         if (!active) {
             return Color.getValue(Color.GREY);
         }

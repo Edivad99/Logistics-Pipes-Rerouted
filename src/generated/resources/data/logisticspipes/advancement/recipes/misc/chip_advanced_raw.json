@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:chip_advanced_raw"
+        "recipes": "logisticspipes:chip_advanced_raw"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

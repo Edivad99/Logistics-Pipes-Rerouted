@@ -23,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:pipe_inventory_system_connector"
+        "recipes": "logisticspipes:pipe_inventory_system_connector"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

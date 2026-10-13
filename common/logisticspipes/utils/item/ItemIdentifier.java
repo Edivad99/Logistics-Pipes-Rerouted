@@ -380,13 +380,16 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
      * component; this accessor exists so consumers do not have to reach into the patch themselves.
      */
     public int getDamageValue() {
-        Optional<? extends Integer> damage = components.getPatch(DataComponents.DAMAGE);
-        return damage != null && damage.isPresent() ? damage.get() : 0;
+        if (!components.isPatched(DataComponents.DAMAGE)) {
+            return 0;
+        }
+        Integer damage = components.getPatch(DataComponents.DAMAGE);
+        return damage != null ? damage : 0;
     }
 
     public boolean hasCustomData() {
-        Optional<? extends CustomData> data = components.getPatch(DataComponents.CUSTOM_DATA);
-        return data != null && data.isPresent();
+        return components.isPatched(DataComponents.CUSTOM_DATA)
+            && components.getPatch(DataComponents.CUSTOM_DATA) != null;
     }
 
     /**
@@ -395,8 +398,11 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
      */
     @Nullable
     public CompoundTag getCustomDataTag() {
-        Optional<? extends CustomData> data = components.getPatch(DataComponents.CUSTOM_DATA);
-        return data != null && data.isPresent() ? data.get().copyTag() : null;
+        if (!components.isPatched(DataComponents.CUSTOM_DATA)) {
+            return null;
+        }
+        CustomData data = components.getPatch(DataComponents.CUSTOM_DATA);
+        return data != null ? data.copyTag() : null;
     }
 
     private ItemIdentifier project(DataComponentPatch projected) {
@@ -540,13 +546,12 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
             return sortKey = "";
         }
         List<String> parts = new ArrayList<>(components.size());
-        for (Map.Entry<DataComponentType<?>, Optional<?>> entry : components.entrySet()) {
-            Identifier typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey());
-            String name = typeKey != null ? typeKey.toString() : entry.getKey().toString();
-            // An empty Optional means "removed relative to the prototype", not "absent".
-            parts.add(entry.getValue()
-                .map(value -> name + "=" + ItemIdentifier.renderComponent(entry.getKey(), value))
-                .orElse("!" + name));
+        for (DataComponentType<?> type : components.keySet()) {
+            Identifier typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(type);
+            String name = typeKey != null ? typeKey.toString() : type.toString();
+            // A null patch means "removed relative to the prototype", not "absent".
+            Object value = components.getPatch(type);
+            parts.add(value != null ? name + "=" + ItemIdentifier.renderComponent(type, value) : "!" + name);
         }
         parts.sort(null);
         return sortKey = String.join(",", parts);

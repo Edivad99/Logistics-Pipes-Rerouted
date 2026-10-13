@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
@@ -191,11 +190,8 @@ public final class LogisticsPipesCommand {
      * of the filter GUI, which naming what survives does not.
      */
     private static List<String> droppedComponents(ItemIdentifier item, ItemIdentifier widened) {
-        final Set<DataComponentType<?>> kept = widened.components.entrySet().stream()
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
-        return item.components.entrySet().stream()
-            .map(Map.Entry::getKey)
+        final Set<DataComponentType<?>> kept = widened.components.keySet();
+        return item.components.keySet().stream()
             .filter(type -> !kept.contains(type))
             .map(type -> String.valueOf(BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(type)))
             .sorted()

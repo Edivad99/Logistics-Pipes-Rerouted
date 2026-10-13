@@ -9,8 +9,8 @@ import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -20,7 +20,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.joml.Quaternionf;
+import com.mojang.math.Axis;
 import org.joml.Vector3d;
 import org.jspecify.annotations.Nullable;
 
@@ -355,11 +355,11 @@ public class LogisticsHUDRenderer {
                 double z = data.getPos().getZ() + 0.5 - cam.z;
                 poseStack.translate((float) x, (float) y, (float) z);
                 switch (data.getDir()) {
-                    case NORTH: poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians( 90.0F))); break;
-                    case SOUTH: poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians(-90.0F))); break;
-                    case WEST:  poseStack.mulPose(new Quaternionf().rotationY( (float) Math.toRadians(180.0F))); break;
-                    case UP:    poseStack.mulPose(new Quaternionf().rotationZ( (float) Math.toRadians( 90.0F))); break;
-                    case DOWN:  poseStack.mulPose(new Quaternionf().rotationZ( (float) Math.toRadians(-90.0F))); break;
+                    case NORTH: poseStack.rotateDegrees(Axis.YP, 90.0F); break;
+                    case SOUTH: poseStack.rotateDegrees(Axis.YP, -90.0F); break;
+                    case WEST:  poseStack.rotateDegrees(Axis.YP, 180.0F); break;
+                    case UP:    poseStack.rotateDegrees(Axis.ZP, 90.0F); break;
+                    case DOWN:  poseStack.rotateDegrees(Axis.ZP, -90.0F); break;
                     default: break;
                 }
                 poseStack.scale(0.01F, 0.01F, 0.01F);
@@ -408,7 +408,7 @@ public class LogisticsHUDRenderer {
                 });
                 poseStack.popPose();
             }
-            mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(hudStorage);
+            LPRenderTypes.drawNow(hudStorage);
         }
         last = System.currentTimeMillis();
     }
@@ -448,11 +448,10 @@ public class LogisticsHUDRenderer {
         // this could no longer be expressed through a GuiGraphicsExtractor at all.
         poseStack.pushPose();
         poseStack.translate((float) x, (float) y, (float) z);
-        poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90.0F)));
-        poseStack.mulPose(new Quaternionf().rotationZ((float) Math.toRadians(getAngle(z, x) + 90)));
+        poseStack.rotateDegrees(Axis.XP, 90.0F);
+        poseStack.rotateDegrees(Axis.ZP, getAngle(z, x) + 90);
         // y is camera relative and therefore already eye relative; LP1 subtracted the eye height here.
-        poseStack.mulPose(
-            new Quaternionf().rotationX((float) Math.toRadians((-1) * getAngle(Math.hypot(x, z), y) + 180)));
+        poseStack.rotateDegrees(Axis.XP, (-1) * getAngle(Math.hypot(x, z), y) + 180);
         poseStack.translate(0.0F, 0.0F, -PANEL_OFFSET);
         // Panels are drawn back to front in one pass with depth writes off, so the z spreading that
         // PANEL_LAYER_SCALE used to provide is no longer needed: draw order is the layering.

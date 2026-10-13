@@ -10,6 +10,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import logisticspipes.Translations;
 import logisticspipes.network.to_server.security.SetSecurityStationCCIdMessage;
 import logisticspipes.utils.Color;
@@ -127,7 +129,7 @@ public class GuiEditCCAccessTable extends SubGuiScreen {
                 }
                 lastClickedX = -10000000;
                 lastClickedY = -10000000;
-                if (lastClickedK == 1) {
+                if (lastClickedK == InputConstants.MOUSE_BUTTON_RIGHT) {
                     searchInput1 = "0";
                     searchInput2 = "";
                 }

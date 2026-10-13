@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:pipe_hs_gain"
+        "recipes": "logisticspipes:pipe_hs_gain"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

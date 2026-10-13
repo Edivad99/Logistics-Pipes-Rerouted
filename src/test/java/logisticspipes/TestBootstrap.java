@@ -45,7 +45,7 @@ public final class TestBootstrap {
         boolean runningInIde = SharedConstants.IS_RUNNING_IN_IDE;
         SharedConstants.IS_RUNNING_IN_IDE = false;
         try {
-            BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(VanillaRegistries.createLookup())
+            BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(VanillaRegistries.createWorldLookup())
                 .forEach(DataComponentInitializers.PendingComponents::apply);
         } finally {
             SharedConstants.IS_RUNNING_IN_IDE = runningInIde;

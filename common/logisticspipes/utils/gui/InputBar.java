@@ -8,6 +8,7 @@ import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
@@ -125,7 +126,7 @@ public class InputBar extends EditBox {
         // and without focus the box refuses every typed character, so track it here.
         setFocused(inside);
         if (inside) {
-            if (k == 1) {
+            if (k == InputConstants.MOUSE_BUTTON_RIGHT) {
                 setValue("");
             } else {
                 // handleClick is LP's own entry point, called from screens that have already

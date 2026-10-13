@@ -70,7 +70,7 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
         }
         if (canUseEnergy(amount, null)) {
             this.setChanged();
-            internalStorage -= (int) ((amount * LPConfigs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
+            internalStorage -= (int) ((amount * LPConfigs.LOCAL.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
             if (internalStorage < LogisticsPowerJunctionBlockEntity.MAX_STORAGE / 2) {
                 needMorePowerTriggerCheck = true;
             }
@@ -84,7 +84,7 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
         if (providersToIgnore != null && providersToIgnore.contains(this)) {
             return false;
         }
-        return internalStorage >= (int) ((amount * LPConfigs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
+        return internalStorage >= (int) ((amount * LPConfigs.LOCAL.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
     }
 
     @Override

@@ -37,7 +37,7 @@ public final class PowerLaserParticles {
 
     public static void add(ClientLevel level, BlockPos pos, Direction dir, int color, float length, boolean reverse,
         boolean renderBall) {
-        if (!LPConfigs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
+        if (!LPConfigs.LOCAL.ENABLE_PARTICLE_FX.getAsBoolean()) {
             return;
         }
         if (level != currentLevel) {

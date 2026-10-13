@@ -12,6 +12,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import logisticspipes.Translations;
 import logisticspipes.network.to_server.pipe.SetSneakyUpgradeSideMessage;
 import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
@@ -96,7 +98,7 @@ public class SneakyConfigurationPopup extends SubGuiScreen {
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        if (button == 0 && bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && bounds != null && bounds.contains((int) mouseX, (int) mouseY)) {
             configDisplay.onMouseClicked((int) mouseX, (int) mouseY, sceneRect());
             return true;
         }

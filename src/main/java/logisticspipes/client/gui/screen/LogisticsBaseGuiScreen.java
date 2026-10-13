@@ -26,9 +26,9 @@ import net.minecraft.world.inventory.Slot;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import logisticspipes.LPConstants;
 import logisticspipes.Translations;
@@ -541,7 +541,7 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
         // A click beside the panel opens or closes the flyout panel on that side. Restored from
         // LP1: the port left the controllers wired for drawing but never handed them a click, so
         // an extension could not be opened at all and its slots stayed out of reach.
-        if (par3 == 0 && !mouseCanPressButton((int) par1, (int) par2) && !isOverSlot((int) par1, (int) par2)) {
+        if (par3 == InputConstants.MOUSE_BUTTON_LEFT && !mouseCanPressButton((int) par1, (int) par2) && !isOverSlot((int) par1, (int) par2)) {
             if (par1 < leftPos) {
                 extensionControllerLeft.mouseClicked(par1, par2, par3);
             } else if (par1 > leftPos + panelWidth) {
@@ -576,7 +576,7 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
         }
         // While a text field has the focus, swallow the key so the inventory hotkey ('e' by default)
         // types into the field instead of closing the GUI. ESC still closes, like vanilla does.
-        if (event.key() != GLFW.GLFW_KEY_ESCAPE) {
+        if (event.key() != InputConstants.KEY_ESCAPE) {
             EditBox editing = getEditingTextField();
             if (editing != null) {
                 editing.keyPressed(event);
@@ -608,7 +608,7 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
         if (subGui != null) {
             return subGui.mouseReleased(event);
         }
-        if (selectedButton != null && event.button() == 0) {
+        if (selectedButton != null && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
             selectedButton.mouseReleased(event);
             selectedButton = null;
             return true;

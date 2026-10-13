@@ -27,7 +27,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.joml.Quaternionf;
+import com.mojang.math.Axis;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
@@ -387,10 +387,10 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
         poseStack.scale(renderScale, renderScale, renderScale);
         // Historic order: yaw around Y, then pitch around X after a secondary yawForPitch
         // rotation, matching the 1.12.2 glRotated sequence in CoreRoutedPipe-driven items.
-        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(yaw)));
-        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(yawForPitch)));
-        poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(pitch)));
-        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
+        poseStack.rotateDegrees(Axis.YP, (float) yaw);
+        poseStack.rotateDegrees(Axis.YP, (float) yawForPitch);
+        poseStack.rotateDegrees(Axis.XP, (float) pitch);
+        poseStack.rotateDegrees(Axis.YP, (float) -yawForPitch);
         // In 1.12.2 the -0.35 offset compensated for EntityItem's foot-to-center gap; in 1.20.1
         // ir.renderStatic(GROUND) has no such offset, so we leave the item centred in the pipe.
         itemRenderer.setItemstack(itemstack).setLevel(level).setPartialTickTime(partialTickTime);
@@ -444,10 +444,10 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
                 poseStack.translate((float) x + 0.5F, (float) y + 0.5F, (float) z + 0.5F);
                 switch (pair.getValue1()) {
                     case UP:
-                        poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90)));
+                        poseStack.rotateDegrees(Axis.XP, 90);
                         break;
                     case DOWN:
-                        poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(-90)));
+                        poseStack.rotateDegrees(Axis.XP, -90);
                         break;
                     case NORTH:
                         // 0° yaw; no rotation required
@@ -456,19 +456,19 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
                         }
                         break;
                     case SOUTH:
-                        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(-180)));
+                        poseStack.rotateDegrees(Axis.YP, -180);
                         if (needDistance(pipeSigns)) {
                             poseStack.translate(0.0F, 0.0F, -0.15F);
                         }
                         break;
                     case EAST:
-                        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(-90)));
+                        poseStack.rotateDegrees(Axis.YP, -90);
                         if (needDistance(pipeSigns)) {
                             poseStack.translate(0.0F, 0.0F, -0.15F);
                         }
                         break;
                     case WEST:
-                        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(90)));
+                        poseStack.rotateDegrees(Axis.YP, 90);
                         if (needDistance(pipeSigns)) {
                             poseStack.translate(0.0F, 0.0F, -0.15F);
                         }
@@ -486,7 +486,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
         final float signScale = 2 / 3.0F;
 
         poseStack.translate(0.0F, -0.3125F, -0.36F);
-        poseStack.mulPose(new Quaternionf().rotationY((float) Math.PI));
+        poseStack.rotate(Axis.YP, (float) Math.PI);
 
         // 26.2 turned the sign board into an ordinary block model: the entity model layer and the
         // signs atlas it was drawn from are gone. A wall sign hangs on its block, so it never has

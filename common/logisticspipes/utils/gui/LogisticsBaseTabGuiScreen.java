@@ -15,6 +15,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
 
 public class LogisticsBaseTabGuiScreen<T extends AbstractContainerMenu>
@@ -83,7 +85,7 @@ public class LogisticsBaseTabGuiScreen<T extends AbstractContainerMenu>
 		double par1 = event.x();
 		double par2 = event.y();
 		int par3 = event.button();
-		if (par3 == 0 && par1 > leftPos && par1 < leftPos + 220 && par2 > topPos && par2 < topPos + 20) {
+		if (par3 == InputConstants.MOUSE_BUTTON_LEFT && par1 > leftPos && par1 < leftPos + 220 && par2 > topPos && par2 < topPos + 20) {
 			par1 -= leftPos + 3;
 			int select = Math.max(0, Math.min((int)(par1 / 25), tabList.size() - 1));
 			if (current_Tab != select) {

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:upgrade_crafting_cleanup"
+        "recipes": "logisticspipes:upgrade_crafting_cleanup"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -65,7 +65,7 @@ public class TextureMatrix {
             }
             hasPowerUpgrade = powerUpgrade;
             boolean powered = cPipe.textureBufferPowered
-                || LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean();
+                || LPConfigs.LOCAL.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean();
             if (hasPower != powered) {
                 dirty = true;
             }

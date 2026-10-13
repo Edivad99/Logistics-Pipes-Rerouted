@@ -19,9 +19,9 @@ public final class ModuleUtil {
         if (inventorySize > 0) {
             slotsPerTick = Math.max(
                 inventorySize / everyNthTick,
-                LPConfigs.COMMON.MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.getAsInt());
+                LPConfigs.LOCAL.MINIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.getAsInt());
         }
-        int maximum = LPConfigs.COMMON.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.getAsInt();
+        int maximum = LPConfigs.LOCAL.MAXIMUM_INVENTORY_SLOT_ACCESS_PER_TICK.getAsInt();
         if (maximum > 0) {
             slotsPerTick = Math.min(slotsPerTick, maximum);
         }

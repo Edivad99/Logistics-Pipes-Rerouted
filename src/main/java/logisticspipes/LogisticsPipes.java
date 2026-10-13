@@ -20,6 +20,7 @@ import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.data.event.GatherDataRegistryEntriesEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -110,6 +111,7 @@ public class LogisticsPipes {
         modEventBus.addListener(this::handleRegisterCapabilities);
         modEventBus.addListener(this::handleCommonSetup);
         modEventBus.addListener(this::handleLoadComplete);
+        modEventBus.addListener(this::handleGatherDataRegistryEntries);
         modEventBus.addListener(this::handleGatherData);
 
         if (dist.isClient()) {
@@ -197,7 +199,7 @@ public class LogisticsPipes {
         NeoForge.EVENT_BUS.register(FakePlayers.INSTANCE);
         NeoForge.EVENT_BUS.register(PropertyUpdaterEventListener.INSTANCE);
 
-        for (int i = 0; i < LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt(); i++) {
+        for (int i = 0; i < LPConfigs.LOCAL.MULTI_THREAD_NUMBER.getAsInt(); i++) {
             new RoutingTableUpdateThread(i);
         }
 
@@ -236,8 +238,11 @@ public class LogisticsPipes {
         FluidIdentifier.initFromNeoForge(false);
     }
 
+    private void handleGatherDataRegistryEntries(GatherDataRegistryEntriesEvent event) {
+        event.recipe(LPRecipeProvider::new);
+    }
+
     private void handleGatherData(GatherDataEvent.Client event) {
-        event.createProvider(LPRecipeProvider.Runner::new);
         event.createProvider(LPParticleProvider::new);
         event.createProvider(LPSpriteSourceProvider::new);
         event.createProvider(LPModelProvider::new);

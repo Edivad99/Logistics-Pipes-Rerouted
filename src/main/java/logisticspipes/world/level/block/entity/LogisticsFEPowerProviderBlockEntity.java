@@ -120,7 +120,7 @@ public class LogisticsFEPowerProviderBlockEntity extends LogisticsPowerProviderB
     public void serverTick() {
         super.serverTick();
         if (freeSpace() > 0) {
-            if (LPConfigs.COMMON.POWER_SOURCE_MODE.get().equals(LPConfigs.PowerSourceMode.ADJACENT)) {
+            if (LPConfigs.LOCAL.POWER_SOURCE_MODE.get().equals(LPConfigs.PowerSourceMode.ADJACENT)) {
                 pullFromAdjacentStorage();
             } else {
                 addStoredFE();

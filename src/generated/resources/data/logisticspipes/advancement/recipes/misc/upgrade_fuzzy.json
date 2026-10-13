@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:upgrade_fuzzy"
+        "recipes": "logisticspipes:upgrade_fuzzy"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

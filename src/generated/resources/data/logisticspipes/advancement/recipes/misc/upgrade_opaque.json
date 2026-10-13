@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:upgrade_opaque"
+        "recipes": "logisticspipes:upgrade_opaque"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

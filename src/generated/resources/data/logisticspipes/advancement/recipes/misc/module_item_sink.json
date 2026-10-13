@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:module_item_sink"
+        "recipes": "logisticspipes:module_item_sink"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -222,9 +222,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     @Override
     public void initialize() {
         super.initialize();
-        throttleTimeLeft = 20 + new Random().nextInt(LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
+        throttleTimeLeft = 20 + new Random().nextInt(LPConfigs.LOCAL.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
         //Roughly spread pipe updates throughout the frequency, no need to maintain balance
-        delayOffset = CoreRoutedPipe.PIPE_COUNT % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
+        delayOffset = CoreRoutedPipe.PIPE_COUNT % LPConfigs.LOCAL.LOGISTICS_DETECTION_FREQUENCY.getAsInt();
     }
 
     @Override
@@ -423,7 +423,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
         //update router before ticking logic/transport
         final boolean doFullRefresh =
-            getLevel().getGameTime() % LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt() == delayOffset
+            getLevel().getGameTime() % LPConfigs.LOCAL.LOGISTICS_DETECTION_FREQUENCY.getAsInt() == delayOffset
                 || initialInit || recheckConnections;
         if (doFullRefresh) {
             // update adjacent cache first, so interests can be gathered correctly
@@ -623,7 +623,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     }
 
     public void checkTexturePowered() {
-        if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
+        if (LPConfigs.LOCAL.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
             return;
         }
         if (!isNthTick(10)) {
@@ -649,7 +649,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
     @Override
     public void spawnParticle(Particles particle, int amount) {
-        if (!LPConfigs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
+        if (!LPConfigs.LOCAL.ENABLE_PARTICLE_FX.getAsBoolean()) {
             return;
         }
         queuedParticles[particle.ordinal()] += amount;
@@ -1057,7 +1057,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         if (getLevel().isClientSide()) {
             return false;
         }
-        if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
+        if (LPConfigs.LOCAL.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
             return true;
         }
         if (amount == 0) {
@@ -1093,7 +1093,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         if (getLevel().isClientSide()) {
             return false;
         }
-        if (LPConfigs.COMMON.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
+        if (LPConfigs.LOCAL.LOGISTICS_POWER_USAGE_DISABLED.getAsBoolean()) {
             return true;
         }
         if (amount == 0) {
@@ -1567,9 +1567,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     @Override
     public boolean isOpaque() {
         if (getLevel().isClientSide()) {
-            return LPConfigs.COMMON.OPAQUE.getAsBoolean() || isOpaqueClientSide;
+            return LPConfigs.LOCAL.OPAQUE.getAsBoolean() || isOpaqueClientSide;
         } else {
-            return LPConfigs.COMMON.OPAQUE.getAsBoolean() || this.getUpgradeManager().isOpaque();
+            return LPConfigs.LOCAL.OPAQUE.getAsBoolean() || this.getUpgradeManager().isOpaque();
         }
     }
 

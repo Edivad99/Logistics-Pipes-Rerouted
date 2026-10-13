@@ -80,8 +80,8 @@ public class RoutingLaserBuilder {
 
             final HashMap<CoreRoutedPipe, ExitRoute> reachable = PathFinder.paintAndgetConnectedRoutingPipes(
                     pipe, item.dir,
-                    LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(),
-                    LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(),
+                    LPConfigs.LOCAL.LOGISTICS_DETECTION_COUNT.getAsInt(),
+                    LPConfigs.LOCAL.LOGISTICS_DETECTION_LENGTH.getAsInt(),
                     (world, laser) -> {
                         if (pipe.getLevel() == world) {
                             lasers.add(laser);
