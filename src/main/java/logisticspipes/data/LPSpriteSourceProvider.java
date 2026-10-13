@@ -43,11 +43,6 @@ public class LPSpriteSourceProvider extends SpriteSourceProvider {
             .addSource(singleFile("items/parts/2"))
             .addSource(singleFile("items/parts/3"));
 
-        for (int i = 0; i <= 16; i++) {
-            atlas(AtlasIds.BLOCKS)
-                .addSource(singleFile("items/remote_orderer/" + i));
-        }
-
         atlas(AtlasIds.BLOCKS)
             .addSource(singleFile("solid_block/crafting_table"))
             .addSource(singleFile("solid_block/crafting_table_fuzzy"))

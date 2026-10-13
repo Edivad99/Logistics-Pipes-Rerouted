@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_transmute",
+  "group": "remote_orderer_dye",
+  "input": [
+    "logisticspipes:remote_orderer",
+    "logisticspipes:white_remote_orderer",
+    "logisticspipes:orange_remote_orderer",
+    "logisticspipes:magenta_remote_orderer",
+    "logisticspipes:light_blue_remote_orderer",
+    "logisticspipes:yellow_remote_orderer",
+    "logisticspipes:lime_remote_orderer",
+    "logisticspipes:gray_remote_orderer",
+    "logisticspipes:light_gray_remote_orderer",
+    "logisticspipes:cyan_remote_orderer",
+    "logisticspipes:purple_remote_orderer",
+    "logisticspipes:blue_remote_orderer",
+    "logisticspipes:brown_remote_orderer",
+    "logisticspipes:green_remote_orderer",
+    "logisticspipes:red_remote_orderer",
+    "logisticspipes:black_remote_orderer"
+  ],
+  "material": "#c:dyes/pink",
+  "result": {
+    "id": "logisticspipes:pink_remote_orderer"
+  }
+}
