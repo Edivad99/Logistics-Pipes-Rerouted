@@ -40,7 +40,7 @@ public record SatellitePipeListMessage(List<SatelliteEntry> satellites) implemen
     private static final class Client {
 
         static void handle(SatellitePipeListMessage message, IPayloadContext context) {
-            if (Minecraft.getInstance().screen instanceof ISubGuiController controller) {
+            if (Minecraft.getInstance().gui.screen() instanceof ISubGuiController controller) {
                 final GuiSelectSatellitePopup popup = controller.findSubGui(GuiSelectSatellitePopup.class);
                 if (popup != null) {
                     popup.handleSatelliteList(message.satellites);

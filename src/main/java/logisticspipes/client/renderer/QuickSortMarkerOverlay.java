@@ -32,7 +32,7 @@ public final class QuickSortMarkerOverlay {
     public static void render(GuiGraphicsExtractor guiGraphics) {
         final QuickSortChestMarkerStorage storage = QuickSortChestMarkerStorage.getInstance();
         if (!storage.isActivated()
-                || !(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen)) {
+                || !(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> screen)) {
             return;
         }
         final Collection<Integer> marked = storage.getMarker();

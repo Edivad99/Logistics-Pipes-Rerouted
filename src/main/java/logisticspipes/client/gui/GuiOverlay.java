@@ -48,7 +48,7 @@ public class GuiOverlay {
     }
 
     public boolean isCompatibleGui() {
-        return Minecraft.getInstance().screen instanceof AbstractContainerScreen;
+        return Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen;
     }
 
     /**
@@ -62,7 +62,7 @@ public class GuiOverlay {
         if (hovered == null) {
             return;
         }
-        final AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) Minecraft.getInstance().screen;
+        final AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) Minecraft.getInstance().gui.screen();
         final int x = hovered.x + screen.getLeftPos();
         final int y = hovered.y + screen.getTopPos();
         SimpleGraphics.drawGradientRect(guiGraphics, x, y, x + 16, y + 16, 0xa0ff0000, 0xa0ff0000, 0.0);
@@ -81,7 +81,7 @@ public class GuiOverlay {
         if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT || hovered == null || target == null || inventoryPos == null) {
             return false;
         }
-        final AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) Minecraft.getInstance().screen;
+        final AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) Minecraft.getInstance().gui.screen();
         ClientPacketDistributor.sendToServer(
                 new SlotFinderSlotMessage(target, inventoryPos, screen.getMenu().slots.indexOf(hovered), slot));
         isOverlaySlotActive = false;
@@ -104,7 +104,7 @@ public class GuiOverlay {
      * found".
      */
     private @Nullable Slot hoveredSlot() {
-        if (!isOverlaySlotActive || !(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen)) {
+        if (!isOverlaySlotActive || !(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> screen)) {
             return null;
         }
         final Slot hovered = screen.hoveredSlot;

@@ -50,7 +50,7 @@ public record RequestComponentsMessage(List<IResource> used, List<IResource> mis
 
         static void handle(RequestComponentsMessage message, IPayloadContext context) {
             final Player player = context.player();
-            final var screen = Minecraft.getInstance().screen;
+            final var screen = Minecraft.getInstance().gui.screen();
             if (LPConfigs.CLIENT.DISPLAY_POPUP.getAsBoolean() && screen instanceof OrdererScreen gui) {
                 gui.handleSimulateAnswer(message.used, message.missing, gui, player);
             } else if (LPConfigs.CLIENT.DISPLAY_POPUP.getAsBoolean() && screen instanceof RequestTableScreen gui) {

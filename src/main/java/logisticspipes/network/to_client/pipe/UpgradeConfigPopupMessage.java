@@ -89,7 +89,7 @@ public record UpgradeConfigPopupMessage(Kind kind, BlockPos pipePos, int slotInd
             if (container == null || slot == null || !(container.pipe instanceof CoreRoutedPipe pipe)) {
                 return;
             }
-            if (!(Minecraft.getInstance().screen instanceof ISubGuiController controller)) {
+            if (!(Minecraft.getInstance().gui.screen() instanceof ISubGuiController controller)) {
                 return;
             }
             controller.pushSubGui(popupFor(message.kind, container, pipe, slot));

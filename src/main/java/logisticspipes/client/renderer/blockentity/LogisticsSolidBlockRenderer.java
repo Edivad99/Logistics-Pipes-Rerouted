@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -27,6 +26,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.solid.SolidBlockModelParts;
+import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.world.level.block.LogisticsSolidBlock;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
@@ -101,7 +101,7 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
         if (parts.isEmpty() || icon == null) {
             return;
         }
-        collector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> {
+        collector.submitCustomGeometry(poseStack, LPRenderTypes.CUTOUT_BLOCK_SHEET, (pose, buffer) -> {
             MeshRenderer.emit(buffer, pose, parts.body(rotation), icon, light, overlay);
             for (SolidBlockModelParts.CoverSide side : plates) {
                 MeshRenderer.emit(buffer, pose, parts.outerPlate(side, rotation), icon, light, overlay);

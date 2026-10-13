@@ -61,8 +61,7 @@ public class ObjModelManager implements PreparableReloadListener {
         // so the parts are rebuilt from what we just published.
         PipeModelStore.markDirty();
         // Chunk meshes built before this point contain no pipe geometry; force a rebuild.
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.levelRenderer.allChanged();
+        Minecraft.getInstance().levelExtractor.allChanged();
     }
 
     private static Map<Identifier, ObjModel> parseAll(ResourceManager resourceManager) {

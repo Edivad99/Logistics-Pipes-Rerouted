@@ -2,21 +2,21 @@ package logisticspipes.client.renderer.hud;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.client.renderer.ImmediateSubmitCollector;
 import logisticspipes.client.renderer.LPRenderTypes;
 
 /**
@@ -32,8 +32,9 @@ import logisticspipes.client.renderer.LPRenderTypes;
  * <p>Picture-in-Picture is not the replacement: it draws to a texture and submits it to the
  * {@code GuiRenderState}, which also lands in screen space. The replacement is to stop pretending
  * and draw in world space directly, which is what this class does -- the same primitives the HUD
- * actually used, backed by the {@link PoseStack} and {@link MultiBufferSource} the level render
- * stage already provides.</p>
+ * actually used, backed by the level render stage's {@link PoseStack} and a
+ * {@link SubmitNodeStorage} of the HUD's own. 26.2 removed {@code MultiBufferSource}: geometry is
+ * submitted to a storage and drawn when the feature dispatcher renders it.</p>
  *
  * <p>Coordinates are the panel-local pixel coordinates the HUD code has always used; the caller
  * sets up the pose so that one unit is one HUD pixel.</p>
@@ -49,24 +50,25 @@ public class HUDDrawContext {
     private static final float ITEM_LABEL_DEPTH = 16.0f;
 
     private final PoseStack poseStack;
-    private final MultiBufferSource.BufferSource bufferSource;
+    private final SubmitNodeStorage storage;
     private final int packedLight;
     private final Font font;
     /**
-     * The render type the last primitive went into. A {@link MultiBufferSource.BufferSource} draws
-     * its buffers in an order of its own choosing when the batch ends, not in call order, so two
-     * overlapping primitives that use different types come out in an arbitrary order -- a panel
-     * background can land on top of the buttons drawn after it. A GUI does not hit this because
-     * GuiRenderState sorts by layer; here the fix is to end the batch whenever the type changes,
-     * which turns call order back into paint order.
+     * The render type the last primitive went into. The feature dispatcher batches a collection's
+     * submissions by render type and draws its text before its custom geometry, not in call order,
+     * so two overlapping primitives that use different types come out in an arbitrary order -- a
+     * panel background can land on top of the buttons drawn after it. A GUI does not hit this
+     * because GuiRenderState sorts by layer; here the fix is to move to the next {@link #order}
+     * whenever the type changes, which turns call order back into paint order.
      */
     @Nullable
     private RenderType lastType;
+    /** The storage order primitives are currently submitted under; orders are drawn ascending. */
+    private int order;
 
-    public HUDDrawContext(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int packedLight,
-        Font font) {
+    public HUDDrawContext(PoseStack poseStack, SubmitNodeStorage storage, int packedLight, Font font) {
         this.poseStack = poseStack;
-        this.bufferSource = bufferSource;
+        this.storage = storage;
         this.packedLight = packedLight;
         this.font = font;
     }
@@ -84,23 +86,26 @@ public class HUDDrawContext {
      * pose, so batches cannot be left pending across panels the way a GUI would.
      */
     public void flush() {
-        bufferSource.endBatch();
+        Minecraft.getInstance().gameRenderer.featureRenderDispatcher().renderAllFeatures(storage);
         lastType = null;
+        order = 0;
     }
 
-    /** Draws what is pending when the render type changes, so call order is paint order. */
-    private VertexConsumer beginning(RenderType type) {
+    /** Moves to the next order when the render type changes, so call order is paint order. */
+    private void beginning(RenderType type) {
         if (lastType != null && !lastType.equals(type)) {
-            bufferSource.endBatch();
+            order++;
         }
         lastType = type;
-        return bufferSource.getBuffer(type);
     }
 
-    /** Text and items pick their own render types, so anything pending has to go out first. */
+    /**
+     * Text picks its own render types and is drawn ahead of the custom geometry sharing its order,
+     * so it has to start a new one to land on top of what is pending.
+     */
     private void beginningForeign() {
         if (lastType != null) {
-            bufferSource.endBatch();
+            order++;
             lastType = null;
         }
     }
@@ -117,16 +122,19 @@ public class HUDDrawContext {
             y0 = y1;
             y1 = swap;
         }
-        Matrix4f matrix = poseStack.last().pose();
-        VertexConsumer consumer = beginning(LPRenderTypes.HUD_FILL);
+        beginning(LPRenderTypes.HUD_FILL);
         int a = ARGB.alpha(color);
         int r = ARGB.red(color);
         int g = ARGB.green(color);
         int b = ARGB.blue(color);
-        consumer.addVertex(matrix, x0, y1, 0.0f).setColor(r, g, b, a);
-        consumer.addVertex(matrix, x1, y1, 0.0f).setColor(r, g, b, a);
-        consumer.addVertex(matrix, x1, y0, 0.0f).setColor(r, g, b, a);
-        consumer.addVertex(matrix, x0, y0, 0.0f).setColor(r, g, b, a);
+        // The collector snapshots the pose and runs this when the storage is rendered.
+        final int left = x0, top = y0, right = x1, bottom = y1;
+        storage.order(order).submitCustomGeometry(poseStack, LPRenderTypes.HUD_FILL, (pose, consumer) -> {
+            consumer.addVertex(pose, left, bottom, 0.0f).setColor(r, g, b, a);
+            consumer.addVertex(pose, right, bottom, 0.0f).setColor(r, g, b, a);
+            consumer.addVertex(pose, right, top, 0.0f).setColor(r, g, b, a);
+            consumer.addVertex(pose, left, top, 0.0f).setColor(r, g, b, a);
+        });
     }
 
     /**
@@ -140,8 +148,8 @@ public class HUDDrawContext {
 
     public void blit(Identifier texture, int x, int y, float u, float v, int width, int height,
         int texWidth, int texHeight, int color) {
-        Matrix4f matrix = poseStack.last().pose();
-        VertexConsumer consumer = beginning(LPRenderTypes.HUD_TEXTURED.apply(texture));
+        RenderType type = LPRenderTypes.HUD_TEXTURED.apply(texture);
+        beginning(type);
         float u0 = u / texWidth;
         float u1 = (u + width) / texWidth;
         float v0 = v / texHeight;
@@ -150,21 +158,27 @@ public class HUDDrawContext {
         int r = ARGB.red(color);
         int g = ARGB.green(color);
         int b = ARGB.blue(color);
-        consumer.addVertex(matrix, x, y + height, 0.0f).setUv(u0, v1).setColor(r, g, b, a);
-        consumer.addVertex(matrix, x + width, y + height, 0.0f).setUv(u1, v1).setColor(r, g, b, a);
-        consumer.addVertex(matrix, x + width, y, 0.0f).setUv(u1, v0).setColor(r, g, b, a);
-        consumer.addVertex(matrix, x, y, 0.0f).setUv(u0, v0).setColor(r, g, b, a);
+        storage.order(order).submitCustomGeometry(poseStack, type, (pose, consumer) -> {
+            consumer.addVertex(pose, x, y + height, 0.0f).setUv(u0, v1).setColor(r, g, b, a);
+            consumer.addVertex(pose, x + width, y + height, 0.0f).setUv(u1, v1).setColor(r, g, b, a);
+            consumer.addVertex(pose, x + width, y, 0.0f).setUv(u1, v0).setColor(r, g, b, a);
+            consumer.addVertex(pose, x, y, 0.0f).setUv(u0, v0).setColor(r, g, b, a);
+        });
     }
 
     /**
-     * Replaces {@code GuiGraphicsExtractor#drawString}. {@code Font#drawInBatch} is the world-space entry
-     * point -- it takes the matrix and buffer source directly, which is exactly what a GUI-less
-     * caller has.
+     * Replaces {@code GuiGraphicsExtractor#drawString}. 26.2 removed {@code Font#drawInBatch}; text
+     * is a submission like any other and the text feature renderer draws it with the game font, so
+     * {@code font} only measures here.
      */
     public void drawString(Font font, String text, int x, int y, int color, boolean shadow) {
         beginningForeign();
-        font.drawInBatch(text, x, y, color, shadow, poseStack.last().pose(), bufferSource,
-            Font.DisplayMode.NORMAL, 0, packedLight);
+        // What Font#prepareText does to a String: shaped if the language needs it, legacy formatting
+        // codes honoured.
+        String shaped = font.isBidirectional() ? font.bidirectionalShaping(text) : text;
+        FormattedCharSequence sequence = sink -> StringDecomposer.iterateFormatted(shaped, Style.EMPTY, sink);
+        storage.order(order).submitText(poseStack, x, y, sequence, shadow,
+            Font.DisplayMode.NORMAL, packedLight, color, 0, 0);
     }
 
     /** No-shadow overload, matching the {@code GuiGraphicsExtractor} signature the HUD called. */
@@ -190,7 +204,9 @@ public class HUDDrawContext {
         if (stack.isEmpty()) {
             return;
         }
-        beginningForeign();
+        // Drawn on its own so the item lands in call order, like every other primitive here: an
+        // item is sorted into the solid or translucent phase by its own quads, not by order.
+        flush();
         Minecraft minecraft = Minecraft.getInstance();
 
         // Resolved here rather than through ItemRenderer.renderStatic so the model can be asked
@@ -224,14 +240,8 @@ public class HUDDrawContext {
         // sense for geometry mirrored the GUI way and viewed from the GUI's angle. Applied to an
         // upright item in the world they light it from underneath. LEVEL's directions are the
         // plain ones, coming from above, which is what an item standing upright in the world wants.
-        //
-        // 1.21.9 routes item drawing through a SubmitNodeCollector, which a level-stage listener
-        // has no way to obtain; ImmediateSubmitCollector adapts back onto the buffer source we do
-        // have, and the drawing itself is still vanilla's.
-        renderState.submit(poseStack, new ImmediateSubmitCollector(bufferSource), packedLight,
-            OverlayTexture.NO_OVERLAY, 0);
-        // Drawn now so the item lands in call order, like every other primitive here.
-        bufferSource.endBatch();
+        renderState.submit(poseStack, storage, packedLight, OverlayTexture.NO_OVERLAY, 0);
+        flush();
         poseStack.popPose();
     }
 
@@ -276,10 +286,6 @@ public class HUDDrawContext {
     /** The render type used for flat fills, exposed for callers that batch their own geometry. */
     public RenderType fillRenderType() {
         return LPRenderTypes.HUD_FILL;
-    }
-
-    public MultiBufferSource.BufferSource bufferSource() {
-        return bufferSource;
     }
 
     public int packedLight() {

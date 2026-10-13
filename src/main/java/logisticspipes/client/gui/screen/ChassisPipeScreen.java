@@ -83,6 +83,11 @@ public class ChassisPipeScreen extends LogisticsBaseGuiScreen<ChassisMenu> {
         }
     }
 
+    /** Rebuilds the module and upgrade buttons after the chassis' modules changed. */
+    public void reInit() {
+        rebuildWidgets();
+    }
+
     private void updateModuleConfigButtonVisibility(int slot) {
         ItemStack module = moduleInventory.getItem(slot);
         LogisticsModule subModule = chassisPipe.getSubModule(slot);

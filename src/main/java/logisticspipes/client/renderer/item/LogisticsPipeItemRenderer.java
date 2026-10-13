@@ -3,7 +3,6 @@ package logisticspipes.client.renderer.item;
 import java.util.List;
 import java.util.function.Consumer;
 
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -166,7 +165,7 @@ public class LogisticsPipeItemRenderer implements SpecialModelRenderer<CoreUnrou
             QuadInstance quadInstance = new QuadInstance();
             quadInstance.setLightCoords(light);
             quadInstance.setOverlayCoords(overlay);
-            collector.submitCustomGeometry(pose, Sheets.cutoutBlockSheet(), (snapshot, buffer) -> {
+            collector.submitCustomGeometry(pose, LPRenderTypes.CUTOUT_BLOCK_SHEET, (snapshot, buffer) -> {
                 for (BakedQuad quad : quads) {
                     buffer.putBakedQuad(snapshot, quad, quadInstance);
                 }

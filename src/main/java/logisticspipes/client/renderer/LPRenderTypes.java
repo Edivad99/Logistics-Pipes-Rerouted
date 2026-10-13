@@ -2,9 +2,12 @@ package logisticspipes.client.renderer;
 
 import java.util.function.Function;
 
+import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 
@@ -54,7 +57,7 @@ public final class LPRenderTypes {
     public static final RenderPipeline POWER_LASER_PIPELINE = RenderPipeline.builder(RenderPipelines.PARTICLE_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/power_laser"))
         .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING))
-        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
         .withCull(false)
         .build();
 
@@ -68,7 +71,7 @@ public final class LPRenderTypes {
     public static final RenderPipeline ADDITIVE_PARTICLE_PIPELINE = RenderPipeline.builder(RenderPipelines.PARTICLE_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/additive_particle"))
         .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING))
-        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
         .build();
 
     /**
@@ -79,7 +82,7 @@ public final class LPRenderTypes {
     public static final RenderPipeline GHOST_ENTITY_PIPELINE = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/ghost_entity"))
         .withShaderDefine("ALPHA_CUTOUT", 0.1F)
-        .withSampler("Sampler1")
+        .withBindGroupLayout(BindGroupLayouts.SAMPLER1)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .build();
 
@@ -101,7 +104,7 @@ public final class LPRenderTypes {
         .withLocation(LPConstants.rl("pipeline/tube_cutout"))
         .withShaderDefine("ALPHA_CUTOUT", 0.1F)
         .withShaderDefine("NO_CARDINAL_LIGHTING")
-        .withSampler("Sampler1")
+        .withBindGroupLayout(BindGroupLayouts.SAMPLER1)
         .withCull(false)
         .build();
 
@@ -119,25 +122,33 @@ public final class LPRenderTypes {
     /**
      * Flat coloured geometry for the world-space HUD panels: translucent, depth-tested so the world
      * still occludes them, but not depth-writing. The panels stack many coplanar layers within a
-     * fraction of a block, and letting each one write depth makes the next fail the LEQUAL test and
+     * fraction of a block, and letting each one write depth makes the next fail the depth test and
      * come out stippled -- the problem the old GuiGraphicsExtractor path worked around by spreading the
      * layers apart in z.
      */
     public static final RenderPipeline HUD_FILL_PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/hud_fill"))
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
         .withCull(false)
         .build();
 
     /** As {@link #HUD_FILL_PIPELINE}, textured. */
     public static final RenderPipeline HUD_TEXTURED_PIPELINE = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
         .withLocation(LPConstants.rl("pipeline/hud_textured"))
-        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
         .withCull(false)
         .build();
 
-    private static final int BUFFER_SIZE = 1536;
+    /**
+     * Culled cutout entity geometry on the block atlas. 26.2 removed {@code Sheets.cutoutBlockSheet()};
+     * this is what it returned.
+     */
+    public static final RenderType CUTOUT_BLOCK_SHEET = RenderTypes.entityCutoutCull(TextureAtlas.LOCATION_BLOCKS);
+
+    /** As {@link #CUTOUT_BLOCK_SHEET}, for the removed {@code Sheets.translucentBlockSheet()}. */
+    public static final RenderType TRANSLUCENT_BLOCK_SHEET =
+        RenderTypes.entityTranslucentCullItemTarget(TextureAtlas.LOCATION_BLOCKS);
 
     /**
      * A power laser texture, repeated so the beam's texture can slide along it; memoized so each
@@ -147,7 +158,6 @@ public final class LPRenderTypes {
         texture -> RenderType.create(
             LPConstants.rl("power_laser").toString(),
             RenderSetup.builder(POWER_LASER_PIPELINE)
-                .bufferSize(BUFFER_SIZE)
                 .withTexture("Sampler0", texture, () -> RenderSystem.getSamplerCache().getRepeat(FilterMode.NEAREST))
                 .useLightmap()
                 .createRenderSetup()));
@@ -155,7 +165,6 @@ public final class LPRenderTypes {
     public static final RenderType OVERLAY = RenderType.create(
         LPConstants.rl("overlay").toString(),
         RenderSetup.builder(OVERLAY_PIPELINE)
-            .bufferSize(BUFFER_SIZE)
             .createRenderSetup());
 
     /**
@@ -165,7 +174,6 @@ public final class LPRenderTypes {
     public static final RenderType HUD_FILL = RenderType.create(
         LPConstants.rl("hud_fill").toString(),
         RenderSetup.builder(HUD_FILL_PIPELINE)
-            .bufferSize(BUFFER_SIZE)
             .createRenderSetup());
 
     /** Textured HUD geometry bound to a given texture; memoized so each texture keeps one type. */
@@ -173,7 +181,6 @@ public final class LPRenderTypes {
         texture -> RenderType.create(
             LPConstants.rl("hud_textured").toString(),
             RenderSetup.builder(HUD_TEXTURED_PIPELINE)
-                .bufferSize(BUFFER_SIZE)
                 .withTexture("Sampler0", texture)
                 .createRenderSetup()));
 
@@ -196,7 +203,6 @@ public final class LPRenderTypes {
         texture -> RenderType.create(
             LPConstants.rl("textured_overlay").toString(),
             RenderSetup.builder(TEXTURED_OVERLAY_PIPELINE)
-                .bufferSize(BUFFER_SIZE)
                 .withTexture("Sampler0", texture)
                 .createRenderSetup()));
 

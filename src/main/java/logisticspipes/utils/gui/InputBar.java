@@ -6,6 +6,7 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringUtil;
 
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
@@ -22,6 +23,11 @@ public class InputBar extends EditBox {
 
     @Setter
     private int minNumber = 0;
+
+    private static final int NUMBER_MAX_LENGTH = 5;
+
+    private final boolean numberOnly;
+    private int highlightPos;
 
     public InputBar(Font font, LogisticsBaseGuiScreen<?> screen, int left, int top, int width, int height) {
         this(font, screen, left, top, width, height, true);
@@ -41,17 +47,65 @@ public class InputBar extends EditBox {
         boolean isActive, boolean numberOnly, Align align) {
         super(font, left + 2, top, width - 4, height - 2, Component.empty());
         screen.registerTextField(this);
-        if (numberOnly) {
-            setFilter((String s) -> {
-                try {
-                    return Integer.parseInt(s) >= minNumber;
-                } catch (NumberFormatException ignored) {
-                    return false;
-                }
-            });
-            setMaxLength(5);
-        } else {
-            setMaxLength(128);
+        this.numberOnly = numberOnly;
+        setMaxLength(numberOnly ? NUMBER_MAX_LENGTH : 128);
+    }
+
+    /**
+     * 26.2 dropped NeoForge's {@code EditBox#setFilter}; the overrides below stand in for it.
+     */
+    private boolean accepts(String text) {
+        if (!numberOnly) {
+            return true;
+        }
+        try {
+            return Integer.parseInt(text) >= minNumber;
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+    }
+
+    @Override
+    public void setValue(String value) {
+        if (accepts(value)) {
+            super.setValue(value);
+        }
+    }
+
+    /** {@code EditBox} keeps the selection anchor private and only ever writes it through here. */
+    @Override
+    public void setHighlightPos(int pos) {
+        super.setHighlightPos(pos);
+        highlightPos = pos;
+    }
+
+    /**
+     * Judges the value the insertion would leave behind, not the inserted piece: NeoForge's filter
+     * saw only the piece, so with a minimum of 1 the {@code 0} of {@code 10} was refused. An empty
+     * result is let through, as backspace can empty the box anyway.
+     */
+    @Override
+    public void insertText(String input) {
+        if (!numberOnly) {
+            super.insertText(input);
+            return;
+        }
+        String value = getValue();
+        int anchor = Math.clamp(highlightPos, 0, value.length());
+        int start = Math.min(getCursorPosition(), anchor);
+        int end = Math.max(getCursorPosition(), anchor);
+        String text = StringUtil.filterText(input);
+        // What EditBox will cut the piece down to; nothing is inserted into a full box.
+        int room = NUMBER_MAX_LENGTH - value.length() + (end - start);
+        if (room <= 0) {
+            return;
+        }
+        if (text.length() > room) {
+            text = text.substring(0, room);
+        }
+        String result = new StringBuilder(value).replace(start, end, text).toString();
+        if (result.isEmpty() || accepts(result)) {
+            super.insertText(input);
         }
     }
 

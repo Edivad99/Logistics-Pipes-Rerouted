@@ -1,6 +1,5 @@
 package logisticspipes.client.renderer.blockentity;
 
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.item.ItemStack;
 
@@ -11,6 +10,7 @@ import org.joml.Quaternionf;
 
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
+import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.world.item.component.LPDataComponents;
 
@@ -55,7 +55,7 @@ public final class TravelingItemBoxRenderer {
         poseStack.translate(-0.5, -0.5, -0.5);
 
         // Everything the emitter needs is passed in, so there is no bound render state to go stale.
-        collector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(),
+        collector.submitCustomGeometry(poseStack, LPRenderTypes.CUTOUT_BLOCK_SHEET,
             (pose, buffer) -> MeshRenderer.emit(buffer, pose, PipeModelStore.parts().innerTransportBox(),
                 PipeModelStore.sprites().innerBox(), packedLight, packedOverlay));
         poseStack.popPose();
@@ -85,7 +85,7 @@ public final class TravelingItemBoxRenderer {
         float fill = Math.max(Math.min(content.getAmount(), FULL_AMOUNT) / FULL_AMOUNT, MIN_FILL);
         float top = MIN + (MAX - MIN) * fill;
 
-        collector.submitCustomGeometry(poseStack, Sheets.translucentBlockSheet(), (pose, buffer) ->
+        collector.submitCustomGeometry(poseStack, LPRenderTypes.TRANSLUCENT_BLOCK_SHEET, (pose, buffer) ->
             FluidBoxRenderer.emitBox(buffer, pose, look, MIN, MIN, MIN, MAX, top, MAX, packedLight, packedOverlay));
         return true;
     }

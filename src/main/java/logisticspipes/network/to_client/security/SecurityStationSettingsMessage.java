@@ -48,7 +48,7 @@ public record SecurityStationSettingsMessage(String playerName, Optional<UUID> p
     private static final class Client {
 
         static void handle(SecurityStationSettingsMessage message, IPayloadContext context) {
-            if (Minecraft.getInstance().screen instanceof SecurityStationScreen screen) {
+            if (Minecraft.getInstance().gui.screen() instanceof SecurityStationScreen screen) {
                 screen.handlePlayerSecurityOpen(message.playerName, message.playerId, message.permissions);
             }
         }
