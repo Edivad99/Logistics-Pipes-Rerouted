@@ -44,7 +44,7 @@ public record ChannelManagerPopupMessage(BlockPos pos, List<ChannelInformation> 
     private static final class Client {
 
         static void handle(ChannelManagerPopupMessage message, IPayloadContext context) {
-            if (Minecraft.getInstance().screen instanceof ISubGuiController controller) {
+            if (Minecraft.getInstance().gui.screen() instanceof ISubGuiController controller) {
                 controller.setSubGui(new GuiManageChannelPopup(message.channels, message.pos));
             }
         }

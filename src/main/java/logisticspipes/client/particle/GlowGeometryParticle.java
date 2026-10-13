@@ -28,7 +28,7 @@ public abstract class GlowGeometryParticle extends Particle {
      * The group key. Registered with a factory through {@code RegisterParticleGroupsEvent}; the
      * registration also decides where LP's particles fall in the frame's particle draw order.
      */
-    public static final ParticleRenderType GROUP = new ParticleRenderType(LPConstants.ID + ":glow_geometry");
+    public static final ParticleRenderType GROUP = new ParticleRenderType(LPConstants.rl("glow_geometry").toString(), "LPG");
 
     protected GlowGeometryParticle(ClientLevel level, double x, double y, double z) {
         super(level, x, y, z, 0.0D, 0.0D, 0.0D);

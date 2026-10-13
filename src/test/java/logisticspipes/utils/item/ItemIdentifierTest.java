@@ -11,6 +11,7 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -90,8 +91,8 @@ class ItemIdentifierTest {
 
     @Test
     void formerMetadataVariantsAreDistinctItemsAndNeverCollapse() {
-        ItemIdentifier white = ItemIdentifier.get(Items.WHITE_WOOL);
-        ItemIdentifier red = ItemIdentifier.get(Items.RED_WOOL);
+        ItemIdentifier white = ItemIdentifier.get(Items.WOOL.pick(DyeColor.WHITE));
+        ItemIdentifier red = ItemIdentifier.get(Items.WOOL.pick(DyeColor.RED));
 
         assertNotEquals(white, red);
         // Even the most aggressive projection keeps them apart, because they differ in the Item.

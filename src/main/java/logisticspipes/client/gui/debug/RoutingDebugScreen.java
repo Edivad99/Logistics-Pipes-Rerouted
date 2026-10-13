@@ -23,7 +23,7 @@ public class RoutingDebugScreen extends ScrollingTextScreen {
 	}
 
 	public static void open() {
-		Minecraft.getInstance().setScreen(new RoutingDebugScreen());
+		Minecraft.getInstance().gui.setScreen(new RoutingDebugScreen());
 	}
 
 	@Override

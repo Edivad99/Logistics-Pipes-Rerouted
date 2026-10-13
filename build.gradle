@@ -181,7 +181,7 @@ dependencies {
 
     implementation "maven.modrinth:jade:$jade_version"
     compileOnly "mcjty.theoneprobe:theoneprobe:$top_version"
-    implementation "curse.maven:patchouli-306770:$patchouli_id"
+    compileOnly "curse.maven:patchouli-306770:$patchouli_id"
 
     compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version:api"
     localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
@@ -203,8 +203,8 @@ dependencies {
     localRuntime "maven.modrinth:supermartijn642s-config-lib:$sm_config_lib_version"
 
     //localRuntime "curse.maven:mekanism-268560:7904058"
-    localRuntime "curse.maven:storagedrawers-unofficial-port-1639713:8758761"
-    localRuntime "curse.maven:iron-tanks-236226:8786723"
+    localRuntime "curse.maven:storagedrawers-unofficial-port-1639713:8758764"
+    localRuntime "curse.maven:iron-tanks-236226:8786797"
 
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"

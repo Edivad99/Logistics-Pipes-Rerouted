@@ -27,8 +27,8 @@ public final class FluidSelection {
 
     /** Opens the picker over the current screen, and sends the choice back to {@code slotId}. */
     public static void open(int slotId) {
-        if (!(Minecraft.getInstance().screen instanceof LogisticsBaseGuiScreen<?> gui)) {
-            throw new UnsupportedOperationException(String.valueOf(Minecraft.getInstance().screen));
+        if (!(Minecraft.getInstance().gui.screen() instanceof LogisticsBaseGuiScreen<?> gui)) {
+            throw new UnsupportedOperationException(String.valueOf(Minecraft.getInstance().gui.screen()));
         }
         final List<ItemIdentifierStack> list = new ArrayList<>();
         for (FluidIdentifier fluid : FluidIdentifier.all()) {
