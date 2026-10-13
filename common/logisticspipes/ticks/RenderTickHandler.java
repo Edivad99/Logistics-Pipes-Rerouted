@@ -224,7 +224,7 @@ public class RenderTickHandler {
 		ghostStorage.submitCustomGeometry(poseStack, GHOST_PIPE_RENDER_TYPE.apply(GHOST_PIPE_TEXTURE),
 			(pose, ghostBuffer) -> MeshRenderer.emitRaw(ghostBuffer, pose,
 				ghost, 0x50FFFFFF, packedLight, OverlayTexture.NO_OVERLAY));
-		mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(ghostStorage);
+		LPRenderTypes.drawNow(ghostStorage);
 		poseStack.popPose();
 	}
 

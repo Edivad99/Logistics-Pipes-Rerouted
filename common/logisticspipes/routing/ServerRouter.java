@@ -341,7 +341,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	private void lazyUpdateRoutingTable() {
 		if (lsaVersion > ServerRouter.lastLsaVersion[simpleID]) {
-			if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+			if (LPConfigs.LOCAL.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 				RoutingTableUpdateThread.add(new UpdateRouterRunnable(this));
 			} else {
 				CreateRouteTable(lsaVersion);
@@ -407,7 +407,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		HashMap<CoreRoutedPipe, ExitRoute> adjacent;
 		List<FilteredRoute<ILogisticsPowerProvider>> power;
 		List<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
-		PathFinder finder = new PathFinder(thisPipe.getContainer(), LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), localChangeListener);
+		PathFinder finder = new PathFinder(thisPipe.getContainer(), LPConfigs.LOCAL.LOGISTICS_DETECTION_COUNT.getAsInt(), LPConfigs.LOCAL.LOGISTICS_DETECTION_LENGTH.getAsInt(), localChangeListener);
 		power = finder.powerNodes;
 		subSystemPower = finder.subPowerProvider;
 		adjacent = finder.result;
@@ -420,7 +420,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 		pipeDirections.entrySet().stream()
-				.filter(entry -> entry.getValue().size() > LPConfigs.COMMON.MAX_UNROUTED_CONNECTIONS.getAsInt())
+				.filter(entry -> entry.getValue().size() > LPConfigs.LOCAL.MAX_UNROUTED_CONNECTIONS.getAsInt())
 				.forEach(entry -> entry.getValue().forEach(adjacent::remove));
 
 		listenedPipes.stream().filter(list -> !finder.listenedPipes.contains(list)).forEach(list -> list.remove(localChangeListener));
@@ -613,7 +613,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		if (subSystemPowerAdjacent != null) {
 			subSystemPower = new ArrayList<>(subSystemPowerAdjacent);
 		}
-		if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+		if (LPConfigs.LOCAL.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 			RoutingTableUpdateThread.add(new LSARouterRunnable(neighboursWithMetric, power, subSystemPower));
 		} else {
 			lockAndUpdateLSA(neighboursWithMetric, power, subSystemPower);
@@ -1059,7 +1059,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 			ensureChangeListenerAttachedToPipe(pipe);
 			lazyUpdateRoutingTable();
-		} else if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+		} else if (LPConfigs.LOCAL.MULTI_THREAD_NUMBER.getAsInt() > 0) {
 			lazyUpdateRoutingTable();
 		}
 	}

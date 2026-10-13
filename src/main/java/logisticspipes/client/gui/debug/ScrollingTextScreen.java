@@ -9,7 +9,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 /**
  * A scrolling page of text, drawn over the world.
@@ -118,12 +118,12 @@ public abstract class ScrollingTextScreen extends Screen {
 	public boolean keyPressed(KeyEvent event) {
 		final int page = visibleLines();
 		switch (event.key()) {
-			case GLFW.GLFW_KEY_UP -> scrollBy(-1);
-			case GLFW.GLFW_KEY_DOWN -> scrollBy(1);
-			case GLFW.GLFW_KEY_PAGE_UP -> scrollBy(-page);
-			case GLFW.GLFW_KEY_PAGE_DOWN -> scrollBy(page);
-			case GLFW.GLFW_KEY_HOME -> scrollTo(0);
-			case GLFW.GLFW_KEY_END -> scrollTo(maxScroll());
+			case InputConstants.KEY_UP -> scrollBy(-1);
+			case InputConstants.KEY_DOWN -> scrollBy(1);
+			case InputConstants.KEY_PAGEUP -> scrollBy(-page);
+			case InputConstants.KEY_PAGEDOWN -> scrollBy(page);
+			case InputConstants.KEY_HOME -> scrollTo(0);
+			case InputConstants.KEY_END -> scrollTo(maxScroll());
 			default -> {
 				return super.keyPressed(event);
 			}

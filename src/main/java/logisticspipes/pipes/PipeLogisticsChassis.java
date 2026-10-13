@@ -582,7 +582,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     @Override
     public int sendQueueChanged(boolean force) {
         if (!getLevel().isClientSide()) {
-            if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0 && !force) {
+            if (LPConfigs.LOCAL.MULTI_THREAD_NUMBER.getAsInt() > 0 && !force) {
                 HudUpdateTick.add(getRouter());
             } else {
                 if (!localModeWatchers.isEmpty()) {

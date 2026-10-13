@@ -1,6 +1,5 @@
 {
   "type": "logisticspipes:programmer_recipe",
-  "category": "misc",
   "key": {
     "a": "logisticspipes:logistics_programmer",
     "b": "#c:gems/lapis",

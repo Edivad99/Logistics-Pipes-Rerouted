@@ -216,8 +216,8 @@ dependencies {
     //localRuntime "maven.modrinth:supermartijn642s-config-lib:$sm_config_lib_version"
 
     //localRuntime "curse.maven:mekanism-268560:7904058"
-    localRuntime "curse.maven:storagedrawers-unofficial-port-1639713:8758764"
-    localRuntime "curse.maven:iron-tanks-236226:8786797"
+    //localRuntime "curse.maven:storagedrawers-unofficial-port-1639713:8758764"
+    //localRuntime "curse.maven:iron-tanks-236226:8786797"
 
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"

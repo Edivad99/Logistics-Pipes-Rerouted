@@ -22,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Prediction;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -38,11 +39,11 @@ import net.minecraft.world.level.storage.TagValueInput;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.VersionChecker;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.common.VersionChecker;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
@@ -98,7 +99,7 @@ public class LPEventListener {
         if (!stack.isEmpty() && stack.getItem() instanceof IItemAdvancedExistence existence
             && !existence.canExistInWorld(stack)) {
             event.setCanceled(true);
-            event.getPlayer().getInventory().placeItemBackInInventory(stack);
+            event.getPlayer().getInventory().placeItemBackInInventory(stack, Prediction.SERVER_ONLY);
         }
     }
 

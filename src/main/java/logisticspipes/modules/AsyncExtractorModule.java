@@ -110,7 +110,7 @@ public class AsyncExtractorModule extends AsyncModule<ExtractorJob, @Nullable Vo
     @Override
     public int getEveryNthTick() {
         return (int) (80 / Math.pow(2.0, getUpgradeManager().getActionSpeedUpgrade()))
-            + LPConfigs.COMMON.MINIMUM_JOB_TICK_LENGTH.getAsInt();
+            + LPConfigs.LOCAL.MINIMUM_JOB_TICK_LENGTH.getAsInt();
     }
 
     public int getStacksToExtract() {

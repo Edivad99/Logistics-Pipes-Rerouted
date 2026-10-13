@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -180,8 +179,8 @@ public class FluidIdentifier implements Comparable<FluidIdentifier> {
 	}
 
 	public boolean hasCustomData() {
-		Optional<? extends CustomData> data = components.getPatch(DataComponents.CUSTOM_DATA);
-		return data != null && data.isPresent();
+		return components.isPatched(DataComponents.CUSTOM_DATA)
+				&& components.getPatch(DataComponents.CUSTOM_DATA) != null;
 	}
 
 	/**
@@ -190,8 +189,11 @@ public class FluidIdentifier implements Comparable<FluidIdentifier> {
 	 */
 	@Nullable
 	public CompoundTag getCustomDataTag() {
-		Optional<? extends CustomData> data = components.getPatch(DataComponents.CUSTOM_DATA);
-		return data != null && data.isPresent() ? data.get().copyTag() : null;
+		if (!components.isPatched(DataComponents.CUSTOM_DATA)) {
+			return null;
+		}
+		CustomData data = components.getPatch(DataComponents.CUSTOM_DATA);
+		return data != null ? data.copyTag() : null;
 	}
 
 	public FluidStack makeFluidStack(int amount) {
@@ -299,12 +301,11 @@ public class FluidIdentifier implements Comparable<FluidIdentifier> {
 			return sortKey = "";
 		}
 		List<String> parts = new ArrayList<>(components.size());
-		for (Map.Entry<DataComponentType<?>, Optional<?>> entry : components.entrySet()) {
-			Identifier typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey());
-			String name = typeKey != null ? typeKey.toString() : entry.getKey().toString();
-			parts.add(entry.getValue()
-					.map(value -> name + "=" + FluidIdentifier.renderComponent(entry.getKey(), value))
-					.orElse("!" + name));
+		for (DataComponentType<?> type : components.keySet()) {
+			Identifier typeKey = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(type);
+			String name = typeKey != null ? typeKey.toString() : type.toString();
+			Object value = components.getPatch(type);
+			parts.add(value != null ? name + "=" + FluidIdentifier.renderComponent(type, value) : "!" + name);
 		}
 		parts.sort(null);
 		return sortKey = String.join(",", parts);

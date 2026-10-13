@@ -1,20 +1,20 @@
 package logisticspipes.data.recipes;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
-import net.minecraft.core.HolderLookup;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.ItemLike;
 
 import net.neoforged.neoforge.common.Tags;
 
@@ -25,11 +25,8 @@ import logisticspipes.world.item.LPItems;
 
 public class LPRecipeProvider extends RecipeProvider {
 
-    private final HolderLookup.RegistryLookup<Item> items;
-
-    public LPRecipeProvider(HolderLookup.Provider registries, RecipeOutput recipeOutput) {
-        super(registries, recipeOutput);
-        this.items = registries.lookupOrThrow(Registries.ITEM);
+    public LPRecipeProvider(BootstrapContext<Recipe<?>> recipeOutput, BootstrapContext<Advancement> advancementOutput) {
+        super(recipeOutput, advancementOutput);
     }
 
     @Override
@@ -71,12 +68,18 @@ public class LPRecipeProvider extends RecipeProvider {
             .unlockedBy(getHasName(Items.DIAMOND), has(Items.DIAMOND))
             .save(output);
 
-        oreSmelting(List.of(LPItems.CHIP_BASIC_RAW), RecipeCategory.MISC, CookingBookCategory.MISC,
-            LPItems.CHIP_BASIC, 0.5F, 200, "chip_basic");
-        oreSmelting(List.of(LPItems.CHIP_ADVANCED_RAW), RecipeCategory.MISC, CookingBookCategory.MISC,
-            LPItems.CHIP_ADVANCED, 0.7F, 200, "chip_advanced");
-        oreSmelting(List.of(LPItems.CHIP_FPGA_RAW), RecipeCategory.MISC, CookingBookCategory.MISC,
-            LPItems.CHIP_FPGA, 1.0F, 200, "chip_fpga");
+        chipSmelting(LPItems.CHIP_BASIC_RAW, LPItems.CHIP_BASIC, 0.5F, "chip_basic");
+        chipSmelting(LPItems.CHIP_ADVANCED_RAW, LPItems.CHIP_ADVANCED, 0.7F, "chip_advanced");
+        chipSmelting(LPItems.CHIP_FPGA_RAW, LPItems.CHIP_FPGA, 1.0F, "chip_fpga");
+    }
+
+    private void chipSmelting(ItemLike raw, ItemLike result, float experience, String group) {
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(raw), RecipeCategory.MISC, CookingBookCategory.MISC,
+                result, experience, 200)
+            .group(group)
+            .unlockedBy(getHasName(raw), has(raw))
+            .save(output, ResourceKey.create(Registries.RECIPE,
+                LPConstants.rl(getItemName(result) + "_from_smelting_" + getItemName(raw))));
     }
 
     private void buildMisc() {
@@ -988,27 +991,5 @@ public class LPRecipeProvider extends RecipeProvider {
             .define('a', LPItems.PIPE_HS_LINE)
             .unlockedBy(getHasName(LPItems.PIPE_HS_LINE), has(LPItems.PIPE_HS_LINE))
             .save(output);
-    }
-
-    /**
-     * The registered {@link net.minecraft.data.DataProvider}. 1.21.3 split recipe generation in
-     * two: {@link RecipeProvider} only holds the builders and is created per run, while this
-     * runner is what the data generator sees.
-     */
-    public static class Runner extends RecipeProvider.Runner {
-
-        public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
-            super(packOutput, registries);
-        }
-
-        @Override
-        protected RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput recipeOutput) {
-            return new LPRecipeProvider(provider, recipeOutput);
-        }
-
-        @Override
-        public String getName() {
-            return "LogisticsPipes Recipes";
-        }
     }
 }

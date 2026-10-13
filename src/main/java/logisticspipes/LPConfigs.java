@@ -9,27 +9,27 @@ public class LPConfigs {
     public static final String CATEGORY_MULTITHREAD = "multithread";
     public static final String CATEGORY_PERFORMANCE = "performance";
 
-    public static final Common COMMON;
-    private static final ModConfigSpec COMMON_SPEC;
+    public static final Local LOCAL;
+    private static final ModConfigSpec LOCAL_SPEC;
 
     public static final Client CLIENT;
     private static final ModConfigSpec CLIENT_SPEC;
 
     static {
-        final var commonPair = new ModConfigSpec.Builder().configure(Common::new);
-        COMMON_SPEC = commonPair.getRight();
-        COMMON = commonPair.getLeft();
+        final var commonPair = new ModConfigSpec.Builder().configure(Local::new);
+        LOCAL_SPEC = commonPair.getRight();
+        LOCAL = commonPair.getLeft();
         final var clientPair = new ModConfigSpec.Builder().configure(Client::new);
         CLIENT_SPEC = clientPair.getRight();
         CLIENT = clientPair.getLeft();
     }
 
     public static void registerConfig(ModContainer container) {
-        container.registerConfig(ModConfig.Type.COMMON, LPConfigs.COMMON_SPEC);
+        container.registerConfig(ModConfig.Type.LOCAL, LPConfigs.LOCAL_SPEC);
         container.registerConfig(ModConfig.Type.CLIENT, LPConfigs.CLIENT_SPEC);
     }
 
-    public static class Common {
+    public static class Local {
         public final ModConfigSpec.IntValue LOGISTICS_DETECTION_LENGTH;
         public final ModConfigSpec.IntValue LOGISTICS_DETECTION_COUNT;
         public final ModConfigSpec.IntValue LOGISTICS_DETECTION_FREQUENCY;
@@ -48,7 +48,7 @@ public class LPConfigs {
         public final ModConfigSpec.IntValue MINIMUM_JOB_TICK_LENGTH;
         public final ModConfigSpec.EnumValue<PowerSourceMode> POWER_SOURCE_MODE;
 
-        private Common(ModConfigSpec.Builder b) {
+        private Local(ModConfigSpec.Builder b) {
             b.comment("Pipe network detection settings").push("detection");
             LOGISTICS_DETECTION_LENGTH = b.comment("Max detection length for pipe network scan")
                 .defineInRange("detectionLength", 50, 1, 1000);

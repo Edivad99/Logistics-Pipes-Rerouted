@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -108,7 +108,7 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
      */
     public LogisticsGenericPipeBlock(Properties properties) {
         super(properties.strength(1.5F).noOcclusion().dynamicShape().forceSolidOn()
-            .isViewBlocking((state, world, pos) -> false)
+            .isViewBlocking((state, world, pos, type) -> false)
             .isSuffocating((state, world, pos) -> false)
             .isRedstoneConductor((state, world, pos) -> false));
         registerDefaultState(this.stateDefinition.any()
@@ -473,7 +473,8 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
         CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
         if (LogisticsGenericPipeBlock.isValid(pipe)) {
             if (!heldItem.isEmpty()) {
-                if (heldItem.getItem() instanceof SignItem) {
+                if (heldItem.is(ItemTags.SIGNS) || heldItem.is(ItemTags.HANGING_SIGNS)) {
+                    // SignItem removed in 26.3 — sign items are only identifiable by tag
                     // Sign will be placed anyway, so lets show the sign gui
                     return InteractionResult.PASS;
                 } else if (heldItem.getItem() instanceof ItemLogisticsPipe) {

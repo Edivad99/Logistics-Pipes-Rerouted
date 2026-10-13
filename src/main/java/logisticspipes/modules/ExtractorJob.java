@@ -102,7 +102,7 @@ public class ExtractorJob {
 
     /** Waits for the slot scan to ask for a routing table, and builds it away from the server thread. */
     public void runAsyncWork() {
-        if (LPConfigs.COMMON.DISABLE_ASYNC_WORK.getAsBoolean()) {
+        if (LPConfigs.LOCAL.DISABLE_ASYNC_WORK.getAsBoolean()) {
             return;
         }
         while (updateRoutingTableRequests.awaitRequest()) {

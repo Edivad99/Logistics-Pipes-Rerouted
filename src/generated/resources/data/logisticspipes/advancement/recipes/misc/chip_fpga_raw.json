@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:chip_fpga_raw"
+        "recipes": "logisticspipes:chip_fpga_raw"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

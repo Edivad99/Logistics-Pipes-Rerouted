@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
@@ -175,9 +174,7 @@ class ItemIdentifierTest {
         ItemIdentifier projected = wornAndNamed().getIgnoringNBT();
 
         assertEquals(5, projected.getDamageValue());
-        assertEquals(Set.of(DataComponents.DAMAGE), projected.components.entrySet().stream()
-            .map(java.util.Map.Entry::getKey)
-            .collect(Collectors.toSet()));
+        assertEquals(Set.of(DataComponents.DAMAGE), projected.components.keySet());
     }
 
     @Test
@@ -185,7 +182,7 @@ class ItemIdentifierTest {
         ItemIdentifier projected = wornAndNamed().getUndamaged();
 
         assertEquals(0, projected.getDamageValue());
-        assertTrue(projected.components.entrySet().stream().noneMatch(it -> it.getKey() == DataComponents.DAMAGE));
+        assertFalse(projected.components.isPatched(DataComponents.DAMAGE));
         assertEquals("Worn", projected.makeNormalStack(1).getHoverName().getString());
     }
 

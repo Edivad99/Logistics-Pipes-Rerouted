@@ -136,6 +136,11 @@ public class GlowParticleGroup extends ParticleGroup<GlowGeometryParticle> imple
         }
 
         @Override
+        public VertexConsumer setUv3(float u, float v) {
+            throw new UnsupportedOperationException("LP glow geometry is not a sheeted decal");
+        }
+
+        @Override
         public VertexConsumer setNormal(float x, float y, float z) {
             throw new UnsupportedOperationException("LP glow geometry has no normals");
         }

@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.joml.Quaternionf;
+import com.mojang.math.Axis;
 
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
@@ -48,10 +48,10 @@ public final class TravelingItemBoxRenderer {
         poseStack.scale((float) boxScale, (float) boxScale, (float) boxScale);
 
         poseStack.pushPose();
-        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(yaw)));
-        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(yawForPitch)));
-        poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(pitch)));
-        poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(-yawForPitch)));
+        poseStack.rotateDegrees(Axis.YP, (float) yaw);
+        poseStack.rotateDegrees(Axis.YP, (float) yawForPitch);
+        poseStack.rotateDegrees(Axis.XP, (float) pitch);
+        poseStack.rotateDegrees(Axis.YP, (float) -yawForPitch);
         poseStack.translate(-0.5, -0.5, -0.5);
 
         // Everything the emitter needs is passed in, so there is no bound render state to go stale.

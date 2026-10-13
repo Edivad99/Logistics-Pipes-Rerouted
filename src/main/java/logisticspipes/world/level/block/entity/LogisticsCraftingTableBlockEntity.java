@@ -339,7 +339,7 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
                 return ItemStack.EMPTY;
             }
         }
-        if (!power.useEnergy(LPConfigs.COMMON.LOGISTICS_CRAFTING_TABLE_POWER_USAGE.getAsInt())) {
+        if (!power.useEnergy(LPConfigs.LOCAL.LOGISTICS_CRAFTING_TABLE_POWER_USAGE.getAsInt())) {
             return ItemStack.EMPTY;
         }
         crafter = new AutoCraftingContainer(placedBy);
