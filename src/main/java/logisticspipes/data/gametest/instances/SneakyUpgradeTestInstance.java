@@ -13,7 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -96,7 +96,7 @@ public class SneakyUpgradeTestInstance extends GameTestInstance {
                         .formatted(scenario.item, scenario.input, input, scenario.fuel, fuel,
                             COUNT - scenario.input - scenario.fuel, rejected)));
             })
-            .thenExecute(() -> helper.assertEntityNotPresent(EntityType.ITEM))
+            .thenExecute(() -> helper.assertEntityNotPresent(EntityTypes.ITEM))
             .thenSucceed();
     }
 

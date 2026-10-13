@@ -10,6 +10,7 @@ import net.minecraft.gametest.framework.GameTestInstance;
 import net.minecraft.gametest.framework.TestData;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 
 import net.neoforged.bus.api.IEventBus;
@@ -213,6 +214,7 @@ public class LPGameTestInstances {
         var environments = bootstrap.lookup(Registries.TEST_ENVIRONMENT);
         return new TestData<>(
             environments.getOrThrow(LPTestEnvironments.DEFAULT),
+            Level.OVERWORLD,
             LPConstants.rl("test/" + PLATFORM),
             maxTicks,
             0,

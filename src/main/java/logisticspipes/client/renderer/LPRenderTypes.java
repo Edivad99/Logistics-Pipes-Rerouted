@@ -1,9 +1,14 @@
 package logisticspipes.client.renderer;
 
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.Function;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -13,13 +18,15 @@ import net.minecraft.util.Util;
 
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.DepthStencilState;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.CompareOp;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.ColorTargetState;
+import com.mojang.renderpearl.api.pipeline.CompareOp;
+import com.mojang.renderpearl.api.pipeline.DepthStencilState;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.textures.FilterMode;
 
 import logisticspipes.LPConstants;
 
@@ -105,6 +112,7 @@ public final class LPRenderTypes {
         .withShaderDefine("ALPHA_CUTOUT", 0.1F)
         .withShaderDefine("NO_CARDINAL_LIGHTING")
         .withBindGroupLayout(BindGroupLayouts.SAMPLER1)
+        .withColorTargetState(ColorTargetState.DEFAULT)
         .withCull(false)
         .build();
 
@@ -148,7 +156,7 @@ public final class LPRenderTypes {
 
     /** As {@link #CUTOUT_BLOCK_SHEET}, for the removed {@code Sheets.translucentBlockSheet()}. */
     public static final RenderType TRANSLUCENT_BLOCK_SHEET =
-        RenderTypes.entityTranslucentCullItemTarget(TextureAtlas.LOCATION_BLOCKS);
+        RenderTypes.entityTranslucentCull(TextureAtlas.LOCATION_BLOCKS);
 
     /**
      * A power laser texture, repeated so the beam's texture can slide along it; memoized so each
@@ -205,6 +213,34 @@ public final class LPRenderTypes {
             RenderSetup.builder(TEXTURED_OVERLAY_PIPELINE)
                 .withTexture("Sampler0", texture)
                 .createRenderSetup()));
+
+    /**
+     * Draws everything submitted to {@code storage} onto the main render target, right now, and
+     * leaves the storage empty. For geometry LP draws after the level, outside the level's own
+     * frame.
+     *
+     * <p>Up to 26.2 this was {@code FeatureRenderDispatcher#renderAllFeatures(storage)}, which
+     * found its target through {@code RenderSystem}'s output overrides. 26.3 removed those: the
+     * caller prepares the frame and opens the render pass that names the textures to draw into,
+     * the way {@code GameRenderer} does for the item in hand. The dispatcher only has one frame,
+     * so this must not be called while the level's own frame is being rendered.</p>
+     */
+    public static void drawNow(SubmitNodeStorage storage) {
+        Minecraft minecraft = Minecraft.getInstance();
+        RenderTarget target = minecraft.gameRenderer.mainRenderTarget();
+        try (FeatureRenderDispatcher.PreparedFrame frame = minecraft.gameRenderer.featureRenderDispatcher().prepareFrame(storage)) {
+            if (frame.isEmpty()) {
+                return;
+            }
+            try (RenderPass renderPass = RenderSystem.getDevice()
+                .createCommandEncoder()
+                .createRenderPass(() -> "LogisticsPipes features", target.getColorTextureView(), Optional.empty(),
+                    target.getDepthTextureView(), OptionalDouble.empty())) {
+                RenderSystem.bindDefaultUniforms(renderPass);
+                FeatureRenderDispatcher.renderAllFeatures(renderPass, frame);
+            }
+        }
+    }
 
     public static void register(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(POWER_LASER_PIPELINE);

@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.StringDecomposer;
@@ -86,7 +86,7 @@ public class HUDDrawContext {
      * pose, so batches cannot be left pending across panels the way a GUI would.
      */
     public void flush() {
-        Minecraft.getInstance().gameRenderer.featureRenderDispatcher().renderAllFeatures(storage);
+        LPRenderTypes.drawNow(storage);
         lastType = null;
         order = 0;
     }

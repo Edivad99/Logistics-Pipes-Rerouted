@@ -5,15 +5,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementRequirements;
-import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.triggers.Criterion;
-import net.minecraft.advancements.triggers.RecipeUnlockedTrigger;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -33,7 +30,7 @@ import logisticspipes.world.item.crafting.ProgrammerRecipe;
  * programmer in the grid to be programmed for the result item.
  *
  * <p>Up to 1.21.1 this only had to subclass {@link net.minecraft.data.recipes.ShapedRecipeBuilder}
- * and override {@code save}. 1.21.3 made that class's constructors and {@code ensureValid} private,
+ * and override {@code save}. 1.21.3 made that class's constructors private,
  * so the shaped-pattern bookkeeping is duplicated here instead.
  */
 public class ProgrammerRecipeBuilder implements RecipeBuilder {
@@ -43,7 +40,7 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
     private final ItemStackTemplate resultStack;
     private final List<String> rows = new ArrayList<>();
     private final Map<Character, Ingredient> key = new LinkedHashMap<>();
-    private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
+    private final RecipeUnlockAdvancementBuilder advancementBuilder = new RecipeUnlockAdvancementBuilder();
     @Nullable
     private String group;
     private boolean showNotification = true;
@@ -96,7 +93,7 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
 
     @Override
     public ProgrammerRecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
-        this.criteria.put(name, criterion);
+        this.advancementBuilder.unlockedBy(name, criterion);
         return this;
     }
 
@@ -118,25 +115,13 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
 
     @Override
     public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
-        ShapedRecipePattern pattern = this.ensureValid(id);
-        Advancement.Builder builder = recipeOutput.advancement()
-            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-            .rewards(AdvancementRewards.Builder.recipe(id))
-            .requirements(AdvancementRequirements.Strategy.OR);
-        this.criteria.forEach(builder::addCriterion);
+        ShapedRecipePattern pattern = ShapedRecipePattern.of(this.key, this.rows);
         ShapedRecipe shapedrecipe = new ShapedRecipe(
             RecipeBuilder.createCraftingCommonInfo(this.showNotification),
             RecipeBuilder.createCraftingBookInfo(this.category, this.group),
             pattern,
             this.resultStack);
         recipeOutput.accept(id, new ProgrammerRecipe(shapedrecipe),
-            builder.build(id.identifier().withPrefix("recipes/" + this.category.getFolderName() + "/")));
-    }
-
-    private ShapedRecipePattern ensureValid(ResourceKey<Recipe<?>> id) {
-        if (this.criteria.isEmpty()) {
-            throw new IllegalStateException("No way of obtaining recipe " + id.identifier());
-        }
-        return ShapedRecipePattern.of(this.key, this.rows);
+            this.advancementBuilder.build(recipeOutput, id, this.category));
     }
 }

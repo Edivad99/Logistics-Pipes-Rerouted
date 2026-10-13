@@ -8,9 +8,9 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.Projection;
 import net.minecraft.client.renderer.ProjectionMatrixBuffer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
@@ -31,6 +31,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import com.mojang.blaze3d.ProjectionType;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -187,7 +188,7 @@ public abstract class SideConfigDisplay {
      * Called by the parent Screen's mouseDragged; rotates the camera.
      */
     public void onMouseDragged(double dx, double dy, int button) {
-        if (button == 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             yaw += (float) dx;
             pitch += (float) dy;
             pitch = Math.clamp(pitch, -MAX_PITCH, MAX_PITCH);

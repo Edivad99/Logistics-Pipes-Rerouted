@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:module_quick_sort"
+        "recipes": "logisticspipes:module_quick_sort"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

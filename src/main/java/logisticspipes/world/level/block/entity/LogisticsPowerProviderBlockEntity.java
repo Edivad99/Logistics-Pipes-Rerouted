@@ -120,7 +120,7 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
     @Override
     public void serverTick() {
         super.serverTick();
-        if (LPConfigs.COMMON.POWER_SOURCE_MODE.get() == LPConfigs.PowerSourceMode.ADJACENT) {
+        if (LPConfigs.LOCAL.POWER_SOURCE_MODE.get() == LPConfigs.PowerSourceMode.ADJACENT) {
             pullFromNeighbors();
         }
         distributePower();

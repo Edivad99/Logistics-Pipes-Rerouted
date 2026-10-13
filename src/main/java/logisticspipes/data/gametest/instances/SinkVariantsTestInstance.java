@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -116,7 +116,7 @@ public class SinkVariantsTestInstance extends GameTestInstance {
                             stack.getCount(), count(defaultBarrel, stack), count(sinkBarrel, stack))));
                 }
             })
-            .thenExecute(() -> helper.assertEntityNotPresent(EntityType.ITEM))
+            .thenExecute(() -> helper.assertEntityNotPresent(EntityTypes.ITEM))
             .thenSucceed();
     }
 

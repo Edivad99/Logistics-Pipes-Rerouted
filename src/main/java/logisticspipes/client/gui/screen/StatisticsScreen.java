@@ -24,10 +24,10 @@ import net.minecraft.world.item.Items;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import logisticspipes.Translations;
 import logisticspipes.client.gui.popup.GuiAddTracking;
@@ -146,7 +146,7 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
         prevMouseDragX = (int) mouseX;
         prevMouseDragY = (int) mouseY;
 
-        if (mouseButton == 0 && mouseX > leftPos && mouseX < leftPos + 220 && mouseY > topPos && mouseY < topPos + 20) {
+        if (mouseButton == InputConstants.MOUSE_BUTTON_LEFT && mouseX > leftPos && mouseX < leftPos + 220 && mouseY > topPos && mouseY < topPos + 20) {
             double tabX = mouseX - leftPos - 3;
             currentTab = max(0, min((int) (tabX / 25), tabs.size() - 1));
         } else {
@@ -439,9 +439,9 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
 
         @Override
         public void charTyped(char c, int i) {
-            if (i == GLFW.GLFW_KEY_PAGE_UP) { //PgUp
+            if (i == InputConstants.KEY_PAGEUP) { //PgUp
                 itemDisplay.prevPage();
-            } else if (i == GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
+            } else if (i == InputConstants.KEY_PAGEDOWN) { //PgDn
                 itemDisplay.nextPage();
             }
         }
@@ -455,10 +455,10 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
             int xOrigo = xCenter - 72;
             int yOrigo = yCenter + 90;
             isDraggingGraph =
-                mouseButton == 0 && mouseX > xOrigo && mouseX < xOrigo + GRAPH_WIDTH && mouseY < yOrigo && mouseY > yOrigo - GRAPH_HEIGHT;
-            isDraggingXBar = mouseButton == 0 && mouseX > xOrigo && mouseX < xOrigo + GRAPH_WIDTH && mouseY < yOrigo + 16
+                mouseButton == InputConstants.MOUSE_BUTTON_LEFT && mouseX > xOrigo && mouseX < xOrigo + GRAPH_WIDTH && mouseY < yOrigo && mouseY > yOrigo - GRAPH_HEIGHT;
+            isDraggingXBar = mouseButton == InputConstants.MOUSE_BUTTON_LEFT && mouseX > xOrigo && mouseX < xOrigo + GRAPH_WIDTH && mouseY < yOrigo + 16
                 && mouseY > yOrigo + 4;
-            isDraggingYBar = mouseButton == 0 && mouseX > xOrigo - 16 && mouseX < xOrigo - 4 && mouseY < yOrigo
+            isDraggingYBar = mouseButton == InputConstants.MOUSE_BUTTON_LEFT && mouseX > xOrigo - 16 && mouseX < xOrigo - 4 && mouseY < yOrigo
                 && mouseY > yOrigo - GRAPH_HEIGHT;
         }
 
@@ -645,9 +645,9 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
 
         @Override
         public void charTyped(char c, int i) {
-            if (i == GLFW.GLFW_KEY_PAGE_UP) { //PgUp
+            if (i == InputConstants.KEY_PAGEUP) { //PgUp
                 itemDisplay.prevPage();
-            } else if (i == GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
+            } else if (i == InputConstants.KEY_PAGEDOWN) { //PgDn
                 itemDisplay.nextPage();
             }
         }

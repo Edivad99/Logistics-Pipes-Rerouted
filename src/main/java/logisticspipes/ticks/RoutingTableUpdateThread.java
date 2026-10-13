@@ -25,7 +25,7 @@ public final class RoutingTableUpdateThread extends Thread {
     public RoutingTableUpdateThread(int i) {
         super("[%s] RoutingTableUpdateThread #%d".formatted(LPConstants.NAME, i));
         setDaemon(true);
-        setPriority(LPConfigs.COMMON.MULTI_THREAD_PRIORITY.getAsInt());
+        setPriority(LPConfigs.LOCAL.MULTI_THREAD_PRIORITY.getAsInt());
         start();
     }
 

@@ -97,7 +97,7 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     }
 
     private static int cost(int amount) {
-        return (int) ((amount * LPConfigs.COMMON.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
+        return (int) ((amount * LPConfigs.LOCAL.POWER_USAGE_MULTIPLIER.getAsDouble()) + 0.5D);
     }
 
     @Override

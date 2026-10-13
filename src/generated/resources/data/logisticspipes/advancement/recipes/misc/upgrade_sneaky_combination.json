@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:upgrade_sneaky_combination"
+        "recipes": "logisticspipes:upgrade_sneaky_combination"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

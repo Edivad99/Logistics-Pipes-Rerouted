@@ -69,7 +69,7 @@ public class PipePowerLasers {
     }
 
     public void addLaser(Direction dir, float length, int color, boolean reverse, boolean renderBall) {
-        if (pipe.getLevel().isClientSide() || !LPConfigs.COMMON.ENABLE_PARTICLE_FX.getAsBoolean()) {
+        if (pipe.getLevel().isClientSide() || !LPConfigs.LOCAL.ENABLE_PARTICLE_FX.getAsBoolean()) {
             return;
         }
         boolean sendPacket = false;

@@ -8,10 +8,10 @@ import net.minecraft.world.inventory.Slot;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.crafting.SlotFinderSlotMessage;
@@ -78,7 +78,7 @@ public class GuiOverlay {
         final Slot hovered = hoveredSlot();
         final ModuleTarget target = this.target;
         final BlockPos inventoryPos = this.inventoryPos;
-        if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT || hovered == null || target == null || inventoryPos == null) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT || hovered == null || target == null || inventoryPos == null) {
             return false;
         }
         final AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) Minecraft.getInstance().gui.screen();

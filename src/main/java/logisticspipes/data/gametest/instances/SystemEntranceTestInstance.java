@@ -12,7 +12,7 @@ import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -88,7 +88,7 @@ public class SystemEntranceTestInstance extends GameTestInstance {
                 Component.literal("Cobblestone: destination should hold %d and holds %d, default route %d and %d".formatted(
                     toDestination, LPTestHelper.count(destinationBarrel, Items.COBBLESTONE),
                     COBBLESTONE - toDestination, LPTestHelper.count(defaultBarrel, Items.COBBLESTONE)))))
-            .thenExecute(() -> helper.assertEntityNotPresent(EntityType.ITEM))
+            .thenExecute(() -> helper.assertEntityNotPresent(EntityTypes.ITEM))
             .thenSucceed();
     }
 

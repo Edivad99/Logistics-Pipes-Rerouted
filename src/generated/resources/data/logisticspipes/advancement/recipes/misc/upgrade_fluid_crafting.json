@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:upgrade_fluid_crafting"
+        "recipes": "logisticspipes:upgrade_fluid_crafting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

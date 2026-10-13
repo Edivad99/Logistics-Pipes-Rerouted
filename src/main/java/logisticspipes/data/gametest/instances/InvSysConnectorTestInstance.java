@@ -12,7 +12,7 @@ import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -87,7 +87,7 @@ public class InvSysConnectorTestInstance extends GameTestInstance {
                 .thenExecute(() -> {
                     LPTestHelper.assertCount(helper, providerBarrel, Items.COBBLESTONE, 0, "Provider");
                     LPTestHelper.assertCount(helper, shared, Items.COBBLESTONE, 0, "Shared barrel");
-                    helper.assertEntityNotPresent(EntityType.ITEM);
+                    helper.assertEntityNotPresent(EntityTypes.ITEM);
                 })
                 .thenSucceed();
         } else {

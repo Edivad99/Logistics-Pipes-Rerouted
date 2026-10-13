@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:reset_module/module_item_sink_polymorphic"
+        "recipes": "logisticspipes:reset_module/module_item_sink_polymorphic"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

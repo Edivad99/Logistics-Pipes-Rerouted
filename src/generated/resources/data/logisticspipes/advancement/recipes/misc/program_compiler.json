@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:program_compiler"
+        "recipes": "logisticspipes:program_compiler"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:security_station"
+        "recipes": "logisticspipes:security_station"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

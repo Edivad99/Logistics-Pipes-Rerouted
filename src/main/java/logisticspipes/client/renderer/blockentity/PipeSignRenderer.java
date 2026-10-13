@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.joml.Quaternionf;
+import com.mojang.math.Axis;
 
 import logisticspipes.pipes.signs.CraftingPipeSign;
 import logisticspipes.pipes.signs.IPipeSign;
@@ -112,7 +112,7 @@ final class PipeSignRenderer {
      */
     private static void beginText(PoseStack poseStack) {
         poseStack.pushPose();
-        poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(-180)));
+        poseStack.rotateDegrees(Axis.XP, -180);
         poseStack.translate(0.5F, 0.08F, 0.0F);
         poseStack.scale(1.0F / 90.0F, 1.0F / 90.0F, 1.0F / 90.0F);
     }

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:upgrade_crafting_byproduct"
+        "recipes": "logisticspipes:upgrade_crafting_byproduct"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:module_crafter"
+        "recipes": "logisticspipes:module_crafter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

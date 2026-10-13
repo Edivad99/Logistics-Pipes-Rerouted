@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:power_junction"
+        "recipes": "logisticspipes:power_junction"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

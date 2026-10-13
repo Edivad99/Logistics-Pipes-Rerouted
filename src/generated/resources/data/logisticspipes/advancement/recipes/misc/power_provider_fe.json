@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:power_provider_fe"
+        "recipes": "logisticspipes:power_provider_fe"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

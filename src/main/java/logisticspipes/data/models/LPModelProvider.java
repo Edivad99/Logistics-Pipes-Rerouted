@@ -94,7 +94,7 @@ public class LPModelProvider extends ModelProvider {
 
     private static List<Item> specialRenderedItems(Class<? extends Item> type) {
         return BuiltInRegistries.ITEM.listElements()
-            .filter(holder -> holder.getKey().identifier().getNamespace().equals(LPConstants.ID))
+            .filter(holder -> holder.key().identifier().getNamespace().equals(LPConstants.ID))
             .map(Holder::value)
             .filter(type::isInstance)
             .toList();

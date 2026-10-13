@@ -129,7 +129,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
             }
             CoreRoutedPipe pipe = (CoreRoutedPipe) tPipe.pipe;
             if (pipe.useEnergy(10)) {
-                taskProgress += taskType.progressPerTick * LPConfigs.COMMON.COMPILER_SPEED.getAsDouble();
+                taskProgress += taskType.progressPerTick * LPConfigs.LOCAL.COMPILER_SPEED.getAsDouble();
                 wasAbleToConsumePower = true;
             }
             break;

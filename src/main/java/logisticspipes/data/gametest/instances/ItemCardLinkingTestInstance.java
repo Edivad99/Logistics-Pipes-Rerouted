@@ -12,7 +12,7 @@ import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -65,7 +65,7 @@ public class ItemCardLinkingTestInstance extends GameTestInstance {
         helper.startSequence()
             .thenExecute(() -> level.explode(null, center.x, center.y, center.z, 2.0F, Level.ExplosionInteraction.NONE))
             .thenExecuteAfter(1, () -> {
-                var items = helper.getEntities(EntityType.ITEM);
+                var items = helper.getEntities(EntityTypes.ITEM);
                 if (scenario == Scenario.WITH_PEARL) {
                     helper.assertTrue(items.stream().noneMatch(item -> item.getItem().is(Items.ENDER_PEARL)),
                         Component.literal("The ender pearl should have been used up"));

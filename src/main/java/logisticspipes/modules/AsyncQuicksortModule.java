@@ -101,7 +101,7 @@ public class AsyncQuicksortModule extends AsyncModule<AsyncQuicksortModule.@Null
             return null;
         }
         AsyncRouting.updateServerRouterLsa(serverRouter);
-        if (!LPConfigs.COMMON.DISABLE_ASYNC_WORK.getAsBoolean()
+        if (!LPConfigs.LOCAL.DISABLE_ASYNC_WORK.getAsBoolean()
             && AsyncRouting.needsRoutingTableUpdate(serverRouter)) {
             // go async
             return new QuicksortSetup(slot, stack);

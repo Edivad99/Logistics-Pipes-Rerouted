@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:pipe_hs_s_curve"
+        "recipes": "logisticspipes:pipe_hs_s_curve"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

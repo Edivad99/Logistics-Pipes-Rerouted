@@ -18,6 +18,7 @@ import net.minecraft.world.item.component.CustomData;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.Translations;
@@ -197,7 +198,7 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
         int row = 0;
 
         if (wheelUp != 0 || wheelDown != 0) {
-            mouseButton = wheelUp != 0 ? 0 : 1;
+            mouseButton = wheelUp != 0 ? InputConstants.MOUSE_BUTTON_LEFT : InputConstants.MOUSE_BUTTON_RIGHT;
             mousePosX = mouseX;
             mousePosY = mouseY;
         }
@@ -236,9 +237,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
                         boolean handled = false;
                         for (ItemIdentifierStack stack : macroItems) {
                             if (stack.getItem().equals(item)) {
-                                if (mouseButton == 0 || wheelUp != 0) {
+                                if (mouseButton == InputConstants.MOUSE_BUTTON_LEFT || wheelUp != 0) {
                                     stack.setStackSize(stack.getStackSize() + (1 + (wheelUp != 0 ? wheelUp - 1 : 0)));
-                                } else if (mouseButton == 1 || wheelDown != 0) {
+                                } else if (mouseButton == InputConstants.MOUSE_BUTTON_RIGHT || wheelDown != 0) {
                                     stack.setStackSize(
                                         stack.getStackSize() - (1 + (wheelDown != 0 ? wheelDown - 1 : 0)));
                                     if (stack.getStackSize() <= 0) {
@@ -257,9 +258,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
                                 // starts with the registry id and continues with the damage, so a
                                 // single compareTo covers both.
                                 if (item.compareTo(stack.getItem()) < 0) {
-                                    if (mouseButton == 0 || wheelUp != 0) {
+                                    if (mouseButton == InputConstants.MOUSE_BUTTON_LEFT || wheelUp != 0) {
                                         macroItems.add(i, item.makeStack(1 + (wheelUp != 0 ? wheelUp - 1 : 0)));
-                                    } else if (mouseButton == 2) {
+                                    } else if (mouseButton == InputConstants.MOUSE_BUTTON_MIDDLE) {
                                         macroItems.add(i, item.makeStack(64));
                                     }
                                     handled = true;
@@ -268,9 +269,9 @@ public class GuiAddMacro extends SubGuiScreen implements IItemSearch {
                                 i++;
                             }
                             if (!handled) {
-                                if (mouseButton == 0 || wheelUp != 0) {
+                                if (mouseButton == InputConstants.MOUSE_BUTTON_LEFT || wheelUp != 0) {
                                     macroItems.addLast(item.makeStack(1 + (wheelUp != 0 ? wheelUp - 1 : 0)));
-                                } else if (mouseButton == 2) {
+                                } else if (mouseButton == InputConstants.MOUSE_BUTTON_MIDDLE) {
                                     macroItems.addLast(item.makeStack(64));
                                 }
                             }

@@ -8,7 +8,7 @@ import net.minecraft.gametest.framework.TestData;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -68,7 +68,7 @@ public class InTransitReloadTestInstance extends GameTestInstance {
             .thenWaitUntil(() -> LPTestHelper.assertCount(helper, requesterBarrel, Items.COBBLESTONE, 64, "Requester"))
             .thenExecute(() -> {
                 LPTestHelper.assertCount(helper, providerBarrel, Items.COBBLESTONE, 0, "Provider");
-                helper.assertEntityNotPresent(EntityType.ITEM);
+                helper.assertEntityNotPresent(EntityTypes.ITEM);
             })
             .thenSucceed();
     }

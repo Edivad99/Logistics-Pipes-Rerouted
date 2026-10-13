@@ -198,7 +198,7 @@ public abstract class CoreUnroutedPipe {
     }
 
     public boolean isOpaque() {
-        return LPConfigs.COMMON.OPAQUE.getAsBoolean();
+        return LPConfigs.LOCAL.OPAQUE.getAsBoolean();
     }
 
     @Override

@@ -130,8 +130,12 @@ public final class MeshBaker {
                 // charge of brightness. Ambient occlusion off, for the reason on
                 // PipeBakedModel.Part -- this geometry hangs inside the block, so AO derived from
                 // the neighbours bands the joints.
+                //
+                // 26.3 replaced the shade flag with a direction to shade as: null shades by the
+                // quad's own facing, and UP is what vanilla's unshaded models ("shade": false,
+                // now "shade_direction_override": "up") name to get the full, undirected light.
                 BakedQuad.MaterialInfo.of(new Material.Baked(sprite, false), Transparency.TRANSPARENT,
-                    -1, shade, 0, false),
+                    -1, shade ? null : Direction.UP, 0, false),
                 BakedNormals.of(normals[0], normals[1], normals[2], normals[3]),
                 BakedColors.of(argb)));
         }

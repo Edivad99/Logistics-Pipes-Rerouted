@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:upgrade_power_supplier_fe"
+        "recipes": "logisticspipes:upgrade_power_supplier_fe"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

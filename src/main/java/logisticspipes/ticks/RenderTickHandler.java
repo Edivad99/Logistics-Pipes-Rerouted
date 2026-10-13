@@ -28,8 +28,8 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.jspecify.annotations.Nullable;
 import org.joml.Matrix4fStack;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.client.gui.GuiOverlay;
@@ -206,7 +206,7 @@ public class RenderTickHandler {
         ghostStorage.submitCustomGeometry(poseStack, GHOST_PIPE_RENDER_TYPE.apply(GHOST_PIPE_TEXTURE),
             (pose, ghostBuffer) -> MeshRenderer.emitRaw(ghostBuffer, pose, ghost, GHOST_COLOR, FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY));
-        mc.gameRenderer.featureRenderDispatcher().renderAllFeatures(ghostStorage);
+        LPRenderTypes.drawNow(ghostStorage);
         poseStack.popPose();
     }
 

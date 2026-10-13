@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "logisticspipes:reset_module/module_passive_supplier"
+        "recipes": "logisticspipes:reset_module/module_passive_supplier"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
