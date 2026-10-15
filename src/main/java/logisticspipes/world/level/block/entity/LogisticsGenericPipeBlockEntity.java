@@ -371,14 +371,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
     @Override
     protected void loadAdditional(ValueInput input) {
-        if (pipe != null) {
-            StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-            if (trace.length > 2 && trace[2].getMethodName().equals("handle") && trace[2].getClassName()
-                .equals("com.xcompwiz.lookingglass.network.packet.PacketTileEntityNBT")) {
-                LogisticsPipes.LOG.warn("Prevented false data injection by LookingGlass");
-                return;
-            }
-        }
         super.loadAdditional(input);
 
         final String savedPipeId = input.getStringOr(NBT_PIPE_ID, "");
