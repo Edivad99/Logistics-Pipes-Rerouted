@@ -19,6 +19,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
@@ -110,7 +111,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
     protected void renderToolTips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float par3) {
         if (tooltip != null) {
             guiGraphics.setComponentTooltipForNextFrame(minecraft.font,
-                tooltip.lines().stream().map(Component::literal).collect(java.util.stream.Collectors.toList()),
+                tooltip.lines().stream().<Component>map(Component::literal).toList(),
                 tooltip.x(), tooltip.y());
         }
     }
@@ -274,7 +275,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
         return depth;
     }
 
-    private void saveImage(com.mojang.blaze3d.platform.NativeImage image) {
+    private void saveImage(NativeImage image) {
         File screenShotsFolder = new File(Minecraft.getInstance().gameDirectory, "screenshots");
         screenShotsFolder.mkdirs();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");

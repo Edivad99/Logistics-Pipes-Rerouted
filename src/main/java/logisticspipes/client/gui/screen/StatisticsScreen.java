@@ -26,6 +26,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import logisticspipes.Translations;
 import logisticspipes.client.gui.popup.GuiAddTracking;
@@ -437,9 +438,9 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
 
         @Override
         public void charTyped(char c, int i) {
-            if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP) { //PgUp
+            if (i == GLFW.GLFW_KEY_PAGE_UP) { //PgUp
                 itemDisplay.prevPage();
-            } else if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
+            } else if (i == GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
                 itemDisplay.nextPage();
             }
         }
@@ -643,9 +644,9 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
 
         @Override
         public void charTyped(char c, int i) {
-            if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP) { //PgUp
+            if (i == GLFW.GLFW_KEY_PAGE_UP) { //PgUp
                 itemDisplay.prevPage();
-            } else if (i == org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
+            } else if (i == GLFW.GLFW_KEY_PAGE_DOWN) { //PgDn
                 itemDisplay.nextPage();
             }
         }

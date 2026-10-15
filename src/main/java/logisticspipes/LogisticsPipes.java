@@ -1,5 +1,6 @@
 package logisticspipes;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -212,7 +213,7 @@ public class LogisticsPipes {
             }
             try {
                 final Object minecraftTestInstance = testClass.getDeclaredField("INSTANCE").get(null);
-                final java.lang.reflect.Method serverStartMethod = testClass
+                final Method serverStartMethod = testClass
                     .getDeclaredMethod("serverStart", ServerStartedEvent.class);
                 minecraftTestStartMethod = (ServerStartedEvent serverStartedEvent) -> {
                     try {

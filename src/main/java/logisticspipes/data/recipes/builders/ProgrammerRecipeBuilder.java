@@ -1,5 +1,6 @@
 package logisticspipes.data.recipes.builders;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class ProgrammerRecipeBuilder implements RecipeBuilder {
     private final HolderGetter<Item> items;
     private final RecipeCategory category;
     private final ItemStackTemplate resultStack;
-    private final List<String> rows = new java.util.ArrayList<>();
+    private final List<String> rows = new ArrayList<>();
     private final Map<Character, Ingredient> key = new LinkedHashMap<>();
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
     @Nullable

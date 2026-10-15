@@ -105,6 +105,8 @@ public class LPItems {
         return deferredRegister.getEntries();
     }
 
+    // Must stay above the first registerModule/registerUpgrade call: static fields initialize in
+    // source order, and those calls put into these maps.
     public static BiMap<String, Identifier> modules = HashBiMap.create();
     public static BiMap<String, Identifier> upgrades = HashBiMap.create();
 
@@ -174,10 +176,7 @@ public class LPItems {
         deferredRegister.registerItem("program_compiler",
             properties -> new LogisticsSolidBlockItem(LPBlocks.PROGRAM_COMPILER.get(), properties));
 
-    // Items — item pipes (declared before modules/upgrades to avoid circular static-init:
-    // registerModule/registerUpgrade call LPItems.modules/upgrades.put() which triggers LPItems
-    // class loading; LPItems copies these RegistryObject refs at init time, so they must be
-    // set in LPRegistries before the first registerModule/registerUpgrade call executes.)
+    // Items — item pipes
     public static final DeferredItem<ItemLogisticsPipe> PIPE_BASIC =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "basic",
             PipeItemsBasicLogistics::new);

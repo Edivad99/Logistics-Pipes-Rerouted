@@ -32,7 +32,7 @@ public record RequestPlayerListMessage() implements CustomPacketPayload {
         PacketDistributor.sendToPlayer(player, new PlayerListMessage(
             server.getPlayerList().getPlayers().stream()
                 .map(online -> online.getGameProfile().name())
-                .collect(java.util.stream.Collectors.toList())));
+                .toList()));
     }
 
     @Override

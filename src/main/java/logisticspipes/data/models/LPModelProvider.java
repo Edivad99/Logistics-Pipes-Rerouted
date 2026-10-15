@@ -12,6 +12,7 @@ import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.renderer.item.RangeSelectItemModel;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -133,7 +134,7 @@ public class LPModelProvider extends ModelProvider {
         final String[] modes = { "crafting", "item_amount" };
         Item signCreator = LPItems.SIGN_CREATOR.get();
 
-        var entries = new ArrayList<net.minecraft.client.renderer.item.RangeSelectItemModel.Entry>();
+        var entries = new ArrayList<RangeSelectItemModel.Entry>();
         Identifier fallback = null;
         for (int mode = 0; mode < modes.length; mode++) {
             Identifier model =

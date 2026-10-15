@@ -7,12 +7,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import lombok.Getter;
-
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.connection.NeighborBlockEntity;

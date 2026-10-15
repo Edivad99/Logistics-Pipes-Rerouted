@@ -13,6 +13,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.Translations;
 import logisticspipes.network.to_server.block.PowerJunctionCheatMessage;
 import logisticspipes.utils.TextUtil;
+import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.PowerJunctionMenu;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 
@@ -56,7 +57,7 @@ public class PowerJunctionScreen extends LogisticsBaseGuiScreen<PowerJunctionMen
     public void init() {
         super.init();
         if (LogisticsPipes.isDEBUG()) {
-            logisticspipes.utils.gui.SmallGuiButton cheat = new logisticspipes.utils.gui.SmallGuiButton(0,
+            SmallGuiButton cheat = new SmallGuiButton(0,
                 leftPos + 140, topPos + 20, 20, 20, "+");
             cheat.setPressListener(b ->
                 ClientPacketDistributor.sendToServer(new PowerJunctionCheatMessage(junction.getBlockPos())));

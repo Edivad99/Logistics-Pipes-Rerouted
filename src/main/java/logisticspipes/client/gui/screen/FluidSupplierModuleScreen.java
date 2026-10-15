@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.LPConstants;
 import logisticspipes.modules.ModuleFluidSupplier;
+import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.inventory.SimpleFilterMenu;
 
 public class FluidSupplierModuleScreen extends ModuleBaseScreen<SimpleFilterMenu> {
@@ -23,7 +24,7 @@ public class FluidSupplierModuleScreen extends ModuleBaseScreen<SimpleFilterMenu
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.text(minecraft.font,
-            ((logisticspipes.utils.item.ItemIdentifierInventory) liquidSupplier.getFilterInventory()).getName(), 8, 6,
+            ((ItemIdentifierInventory) liquidSupplier.getFilterInventory()).getName(), 8, 6,
             0xFF404040, false);
         guiGraphics.text(minecraft.font, "Inventory", 8, panelHeight - 92, 0xFF404040, false);
     }

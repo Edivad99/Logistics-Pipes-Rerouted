@@ -2,6 +2,7 @@ package logisticspipes.client.model.solid;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,7 +92,7 @@ public final class SolidBlockModelParts {
      */
     private static Map<Integer, ObjMesh> rotations(ObjMesh mesh) {
         ObjMesh scaled = mesh.uvTransform(UvTransform.scale(1, 0.742f));
-        Map<Integer, ObjMesh> byRotation = new java.util.HashMap<>(4);
+        Map<Integer, ObjMesh> byRotation = new HashMap<>(4);
         for (int rotation = 0; rotation < 4; rotation++) {
             Matrix4f transform = switch (rotation) {
                 case 0 -> new Matrix4f(MeshTransforms.translation(0, 0, 1)).mul(MeshTransforms.sideOrientation(3));

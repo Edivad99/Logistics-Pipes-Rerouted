@@ -14,6 +14,7 @@ import logisticspipes.Translations;
 import logisticspipes.network.to_server.pipe.ToggleDisconnectionUpgradeSideMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ConnectionUpgradeConfig;
+import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -82,7 +83,7 @@ public class DisconnectionConfigurationPopup extends SubGuiScreen {
 
         guiGraphics.text(minecraft.font,
             Component.translatable(Translations.Screen.PIPE_CONTROLLER_DISCONNECTION_TITLE), guiLeft + 8, guiTop + 8,
-            logisticspipes.utils.Color.getValue(logisticspipes.utils.Color.DARKER_GREY), false);
+            Color.getValue(Color.DARKER_GREY), false);
 
         configDisplay.submit(guiGraphics, sceneRect());
     }

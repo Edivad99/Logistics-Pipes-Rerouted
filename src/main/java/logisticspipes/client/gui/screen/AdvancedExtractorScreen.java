@@ -16,6 +16,7 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.OpenSneakyDirectionGuiMessage;
 import logisticspipes.network.to_server.module.SetModulePropertiesMessage;
 import logisticspipes.utils.gui.GuiStringHandlerButton;
+import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.AdvancedExtractorMenu;
 
 public class AdvancedExtractorScreen extends ModuleBaseScreen<AdvancedExtractorMenu> {
@@ -40,7 +41,7 @@ public class AdvancedExtractorScreen extends ModuleBaseScreen<AdvancedExtractorM
                 itemsIncludedOverlay.get() ? Translations.Screen.INCLUDED : Translations.Screen.EXCLUDED),
             () -> itemsIncludedOverlay.write(BooleanProperty::toggle)));
 
-        logisticspipes.utils.gui.SmallGuiButton sneaky = new logisticspipes.utils.gui.SmallGuiButton(1, width / 2 - 25,
+        SmallGuiButton sneaky = new SmallGuiButton(1, width / 2 - 25,
             height / 2 - 34, 40, 20, Component.translatable(Translations.Screen.ADVANCED_EXTRACTOR_SNEAKY));
         sneaky.setPressListener(b -> ClientPacketDistributor.sendToServer(
             new OpenSneakyDirectionGuiMessage(ModuleTarget.of(advancedExtractor))));

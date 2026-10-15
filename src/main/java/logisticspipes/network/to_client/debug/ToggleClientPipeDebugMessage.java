@@ -1,5 +1,6 @@
 package logisticspipes.network.to_client.debug;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,7 +28,7 @@ public record ToggleClientPipeDebugMessage() implements CustomPacketPayload {
         StreamCodec.unit(new ToggleClientPipeDebugMessage());
 
     public static void handle(ToggleClientPipeDebugMessage message, IPayloadContext context) {
-        if (!(DebugTarget.lookedAt() instanceof DebugTarget.Block(net.minecraft.core.BlockPos pos))) {
+        if (!(DebugTarget.lookedAt() instanceof DebugTarget.Block(BlockPos pos))) {
             return;
         }
         final LogisticsGenericPipeBlockEntity be =

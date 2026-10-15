@@ -18,6 +18,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.Translations;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
+import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.FluidSupplierMenu;
 
 public class FluidSupplierPipeScreen extends LogisticsBaseGuiScreen<FluidSupplierMenu> {
@@ -54,7 +55,7 @@ public class FluidSupplierPipeScreen extends LogisticsBaseGuiScreen<FluidSupplie
     @Override
     public void init() {
         super.init();
-        logisticspipes.utils.gui.SmallGuiButton partialsBtn = new logisticspipes.utils.gui.SmallGuiButton(0,
+        SmallGuiButton partialsBtn = new SmallGuiButton(0,
             width / 2 + 45, height / 2 - 25, 30, 20, Component.translatable(
             logic.isRequestingPartials() ? Translations.Screen.YES : Translations.Screen.NO));
         partialsBtn.setPressListener(b -> {
