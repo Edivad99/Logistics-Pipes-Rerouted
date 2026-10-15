@@ -58,7 +58,6 @@ import logisticspipes.pipes.PipeLogisticsChassisMk2;
 import logisticspipes.pipes.PipeLogisticsChassisMk3;
 import logisticspipes.pipes.PipeLogisticsChassisMk4;
 import logisticspipes.pipes.PipeLogisticsChassisMk5;
-import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.pipes.tubes.HSTubeCurve;
 import logisticspipes.pipes.tubes.HSTubeGain;
 import logisticspipes.pipes.tubes.HSTubeLine;
@@ -87,6 +86,7 @@ import logisticspipes.pipes.upgrades.SpeedUpgrade;
 import logisticspipes.pipes.upgrades.UpgradeModuleUpgrade;
 import logisticspipes.pipes.upgrades.power.FEPowerSupplierUpgrade;
 import logisticspipes.world.level.block.LPBlocks;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 
 public class LPItems {
 

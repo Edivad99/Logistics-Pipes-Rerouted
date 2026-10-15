@@ -34,10 +34,10 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.utils.PositionRotation;
 import logisticspipes.world.level.block.LPBlocks;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 
 /**
  * A logistics pipe Item

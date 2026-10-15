@@ -32,11 +32,11 @@ import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.DummyLevelProvider;
 import logisticspipes.utils.TextUtil;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 
 public class ItemModule extends LogisticsItem {
 

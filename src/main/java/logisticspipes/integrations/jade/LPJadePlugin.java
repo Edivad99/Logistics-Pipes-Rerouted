@@ -5,8 +5,8 @@ import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
 
-import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 
 @WailaPlugin
 public class LPJadePlugin implements IWailaPlugin {
