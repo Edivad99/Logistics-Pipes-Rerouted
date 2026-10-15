@@ -32,42 +32,44 @@ import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
 public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityBlock {
 
-	public static boolean redirectedToMainPipe = false;
+    /**
+     * Fallback so the helper block stays targetable when no main pipe geometry is found.
+     */
+    private static final VoxelShape FALLBACK_SHAPE = Shapes.box(0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+    public static boolean redirectedToMainPipe = false;
+    public static @Nullable BlockPos CURRENT_CREATED_MULTI_BLOCK;
 
-	public LogisticsBlockGenericSubMultiBlock(Properties properties) {
-		super(properties.strength(1.5F).noOcclusion());
-	}
+    public LogisticsBlockGenericSubMultiBlock(Properties properties) {
+        super(properties.strength(1.5F).noOcclusion().dynamicShape().forceSolidOn());
+    }
 
-	@Override
+    @Override
     public RenderShape getRenderShape(BlockState state) {
-		// Sub-multiblocks are invisible helpers; main pipe BER renders the visible geometry.
-		return RenderShape.INVISIBLE;
-	}
+        // Sub-multiblocks are invisible helpers; the main pipe's model draws the visible geometry.
+        return RenderShape.INVISIBLE;
+    }
 
-	/** Fallback so the helper block stays targetable when no main pipe geometry is found. */
-	private static final VoxelShape FALLBACK_SHAPE = Shapes.box(0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-
-	@Override
+    @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		BlockEntity tile = world.getBlockEntity(pos);
-		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-			VoxelShape shape = Shapes.empty();
-			for (LogisticsGenericPipeBlockEntity mainPipe : ((LogisticsTileGenericSubMultiBlock) tile).getConnectedMainPipes()) {
-				if (mainPipe.isMultiBlock() && mainPipe.pipe instanceof CoreMultiBlockPipe) {
-					shape = Shapes.or(shape, LogisticsGenericPipeBlock.getMultiBlockShape((CoreMultiBlockPipe) mainPipe.pipe, pos));
-				}
-			}
-			if (!shape.isEmpty()) {
-				return shape;
-			}
-		}
-		return FALLBACK_SHAPE;
-	}
+        BlockEntity tile = world.getBlockEntity(pos);
+        if (tile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+            VoxelShape shape = Shapes.empty();
+            for (LogisticsGenericPipeBlockEntity mainPipe : multiBlock.getConnectedMainPipes()) {
+                if (mainPipe.isMultiBlock() && mainPipe.pipe instanceof CoreMultiBlockPipe multiBlockPipe) {
+                    shape = Shapes.or(shape, LogisticsGenericPipeBlock.getMultiBlockShape(multiBlockPipe, pos));
+                }
+            }
+            if (!shape.isEmpty()) {
+                return shape;
+            }
+        }
+        return FALLBACK_SHAPE;
+    }
 
-	@Override
+    @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return getShape(state, world, pos, context);
-	}
+        return getShape(state, world, pos, context);
+    }
 
     @Override
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData,
@@ -89,47 +91,52 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
     }
 
     @Nullable
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new LogisticsTileGenericSubMultiBlock(pos, state, LogisticsBlockGenericSubMultiBlock.currentCreatedMultiBlock);
-	}
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new LogisticsTileGenericSubMultiBlock(pos, state,
+            LogisticsBlockGenericSubMultiBlock.CURRENT_CREATED_MULTI_BLOCK);
+    }
 
-	@Nullable
-	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return level.isClientSide() ? null
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
+        BlockEntityType<T> type) {
+        return level.isClientSide() ? null
             : BaseEntityBlock.createTickerHelper(type, LPBlockEntityTypes.SUB_PIPE.get(),
             LogisticsTileGenericSubMultiBlock::serverTick);
-	}
+    }
 
-	@Override
+    @Override
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-		// Sub-blocks drop nothing; the main pipe block entity handles drops.
-		return Collections.emptyList();
-	}
+        // Sub-blocks drop nothing; the main pipe block entity handles drops.
+        return Collections.emptyList();
+    }
 
-	/*
-	@Override
-	public TextureAtlasSprite getIcon(int p_149691_1_, int p_149691_2_) {
-		return LogisticsPipes.LogisticsPipeBlock.getIcon(p_149691_1_, p_149691_2_);
-	}
+    /**
+     * A creative player gets no drops, so the main pipes are removed here, before the sub block
+     * goes and its block entity would destroy them with drops. Doors do the same with their
+     * other half.
+     */
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide() && player.preventsBlockDrops()
+            && level.getBlockEntity(pos) instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+            for (LogisticsGenericPipeBlockEntity mainPipe : multiBlock.getConnectedMainPipes()) {
+                if (mainPipe.isMultiBlock()) {
+                    level.removeBlock(mainPipe.getBlockPos(), false);
+                }
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
 
-	// TODO: getIcon(IBlockAccess, int, int, int, int) removed in 1.20.1 — rendering rewrite needed (deferred)
-	// @Override
-	@SuppressWarnings({ "all" })
-	// getIcon_DEAD — stub removed; IBlockAccess and TextureAtlasSprite-based getIcon removed in 1.20.1
-	*/
-
-	public static @Nullable BlockPos currentCreatedMultiBlock;
-
-	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
+    @Override
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
         @Nullable Orientation orientation, boolean isMoving) {
-		super.neighborChanged(state, level, pos, block, orientation, isMoving);
-		BlockEntity tile = level.getBlockEntity(pos);
-		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-			((LogisticsTileGenericSubMultiBlock) tile).scheduleNeighborChange();
-		}
-	}
-
+        super.neighborChanged(state, level, pos, block, orientation, isMoving);
+        BlockEntity tile = level.getBlockEntity(pos);
+        if (tile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+            multiBlock.scheduleNeighborChange();
+        }
+    }
 }

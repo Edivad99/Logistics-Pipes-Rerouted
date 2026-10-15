@@ -44,7 +44,7 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 		super(LPBlockEntityTypes.SUB_PIPE.get(), blockPos, blockState);
 	}
 
-	public LogisticsTileGenericSubMultiBlock(BlockPos blockPos, BlockState blockState, BlockPos pos) {
+	public LogisticsTileGenericSubMultiBlock(BlockPos blockPos, BlockState blockState, @Nullable BlockPos pos) {
 		super(LPBlockEntityTypes.SUB_PIPE.get(), blockPos, blockState);
 		if (pos != null) {
 			mainPipePos.add(pos);
@@ -63,6 +63,11 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	 * guard always rejected; that call did nothing and has not been carried over. Re-entrancy is
 	 * still handled by {@code redirectedToMainPipe}, which
 	 * {@code LogisticsBlockGenericPipe#removePipe} raises while it clears sub blocks.</p>
+	 *
+	 * <p>The main pipes are destroyed with drops, since breaking any block of a multiblock pipe
+	 * should give the pipe back. A creative player breaking a sub block never gets here with the
+	 * main pipes still standing: {@code LogisticsBlockGenericSubMultiBlock#playerWillDestroy}
+	 * removes them first, without drops.</p>
 	 */
 	@Override
 	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
@@ -70,7 +75,7 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 			getMainPipe().stream()
 					.filter(Objects::nonNull)
 					.filter(LogisticsGenericPipeBlockEntity::isMultiBlock)
-					.forEach(mainPipe -> level.removeBlock(mainPipe.getBlockPos(), false));
+					.forEach(mainPipe -> level.destroyBlock(mainPipe.getBlockPos(), true));
 		}
 		super.preRemoveSideEffects(pos, state);
 	}

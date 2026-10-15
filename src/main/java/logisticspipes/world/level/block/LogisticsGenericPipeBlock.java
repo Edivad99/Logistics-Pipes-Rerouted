@@ -9,17 +9,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -40,10 +35,10 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -51,8 +46,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
 import static logisticspipes.LPConstants.PIPE_MAX_POS;
@@ -69,756 +62,420 @@ import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.world.item.ItemLogisticsPipe;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
-// BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
-// Particle/ParticleEngine/TextureAtlasSprite imports removed — rendering deferred (see addHitEffects/addDestroyEffects TODOs)
-// ClientConfiguration import removed — used only in deferred rendering methods
-
 public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
 
-	public static boolean ignoreSideRayTrace = false;
-	public static Map<Item, Function<Item, ? extends CoreUnroutedPipe>> pipes = new HashMap<>();
-	public static Map<BlockPos, CoreUnroutedPipe> pipeRemoved = new HashMap<>();
-	public static Map<BlockPos, BlockPos> pipeSubMultiRemoved = new HashMap<>();
-	private static long lastRemovedDate = -1;
+    private static final IntegerProperty ROTATION_PROPERTY = IntegerProperty.create("rotation", 0, 3);
+    private static final EnumProperty<PipeRenderModel> MODEL_TYPE_PROPERTY =
+        EnumProperty.create("model_type", PipeRenderModel.class);
+    private static final Map<Direction, BooleanProperty> CONNECTION_PROPERTIES = Arrays.stream(Direction.values())
+        .collect(Collectors.toMap(key -> key, key -> BooleanProperty.create("connection_" + key.ordinal())));
+    private static final AABB PIPE_CENTER_BB =
+        new AABB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS);
+    private static final List<AABB> PIPE_CONN_BB = Arrays.asList(
+        new AABB(PIPE_MIN_POS, 0, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MAX_POS),
+        new AABB(PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MAX_POS, 1, PIPE_MAX_POS),
+        new AABB(PIPE_MIN_POS, PIPE_MIN_POS, 0, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MIN_POS),
+        new AABB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS, 1),
+        new AABB(0, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS),
+        new AABB(PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MIN_POS, 1, PIPE_MAX_POS, PIPE_MAX_POS)
+    );
+    /**
+     * Pre-built VoxelShapes for all 64 connection combinations (one bit per Direction ordinal).
+     * Index 0 = unconnected (center cube only). Built once at class-load time.
+     */
+    private static final VoxelShape[] PIPE_SHAPES;
+    public static Map<Item, Function<Item, ? extends CoreUnroutedPipe>> PIPES = new HashMap<>();
 
-    public static final IntegerProperty rotationProperty = IntegerProperty.create("rotation", 0, 3);
-	public static final EnumProperty<PipeRenderModel> modelTypeProperty = EnumProperty.create("model_type", PipeRenderModel.class);
-	public static final Map<Direction, BooleanProperty> connectionPropertys = Arrays.stream(Direction.values()).collect(Collectors
-			.toMap(key -> key, key -> BooleanProperty.create("connection_" + key.ordinal())));
+    static {
+        VoxelShape center = Shapes.create(PIPE_CENTER_BB);
+        PIPE_SHAPES = new VoxelShape[64];
+        for (int mask = 0; mask < 64; mask++) {
+            VoxelShape shape = center;
+            for (int i = 0; i < 6; i++) {
+                if ((mask & (1 << i)) != 0) {
+                    shape = Shapes.or(shape, Shapes.create(PIPE_CONN_BB.get(i)));
+                }
+            }
+            PIPE_SHAPES[mask] = shape;
+        }
+    }
 
+    /**
+     * The shape depends on the block entity, so it must not be cached per block state: the cache
+     * is built without one and would see a full cube, making every face of a thin pipe sturdy
+     * enough to hold a torch. Without the cache the state counts as non-solid, though, which lets
+     * buckets and flowing fluids replace the pipe, so it is forced solid.
+     */
+    public LogisticsGenericPipeBlock(Properties properties) {
+        super(properties.strength(1.5F).noOcclusion().dynamicShape().forceSolidOn()
+            .isViewBlocking((state, world, pos) -> false)
+            .isSuffocating((state, world, pos) -> false)
+            .isRedstoneConductor((state, world, pos) -> false));
+        registerDefaultState(this.stateDefinition.any()
+            .setValue(ROTATION_PROPERTY, 0)
+            .setValue(MODEL_TYPE_PROPERTY, PipeRenderModel.NONE));
+    }
 
-	public static final AABB PIPE_CENTER_BB = new AABB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS);
-	public static final List<AABB> PIPE_CONN_BB = Arrays.asList(
-			new AABB(PIPE_MIN_POS, 0, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MAX_POS),
-			new AABB(PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MAX_POS, 1, PIPE_MAX_POS),
-			new AABB(PIPE_MIN_POS, PIPE_MIN_POS, 0, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MIN_POS),
-			new AABB(PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS, PIPE_MAX_POS, 1),
-			new AABB(0, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MIN_POS, PIPE_MAX_POS, PIPE_MAX_POS),
-			new AABB(PIPE_MAX_POS, PIPE_MIN_POS, PIPE_MIN_POS, 1, PIPE_MAX_POS, PIPE_MAX_POS)
-	);
+    public static void removePipe(CoreUnroutedPipe pipe) {
+        if (!LogisticsGenericPipeBlock.isValid(pipe)) {
+            return;
+        }
 
-	/**
-	 * Pre-built VoxelShapes for all 64 connection combinations (one bit per Direction ordinal).
-	 * Index 0 = unconnected (center cube only). Built once at class-load time.
-	 */
-	private static final VoxelShape[] PIPE_SHAPES;
-	static {
-		VoxelShape center = Shapes.create(PIPE_CENTER_BB);
-		PIPE_SHAPES = new VoxelShape[64];
-		for (int mask = 0; mask < 64; mask++) {
-			VoxelShape shape = center;
-			for (int i = 0; i < 6; i++) {
-				if ((mask & (1 << i)) != 0) {
-					shape = Shapes.or(shape, Shapes.create(PIPE_CONN_BB.get(i)));
-				}
-			}
-			PIPE_SHAPES[mask] = shape;
-		}
-	}
+        if (pipe.canBeDestroyed() || pipe.destroyByPlayer()) {
+            pipe.onBlockRemoval();
+        } else if (pipe.preventRemove()) {
+            LogisticsGenericPipeBlock.cacheTileToPreventRemoval(pipe);
+        }
 
-	public enum PipeRenderModel implements StringRepresentable {
-		NONE,
-		REQUEST_TABLE;
+        Level level = Objects.requireNonNull(pipe.getContainer()).getLevel();
+        Objects.requireNonNull(level);
 
-		@Override
-        public String getSerializedName() {
-			return name().toLowerCase();
-		}
-	}
+        if (pipe.isMultiBlock()) {
+            if (pipe.preventRemove()) {
+                throw new UnsupportedOperationException("A multi block can't be protected against removal.");
+            }
+            final BlockPos mainPos = pipe.getPos();
+            List<CoreMultiBlockPipe.SubBlock> list = ((CoreMultiBlockPipe) pipe).getRotatedSubBlocks();
+            for (BlockPos pos : pipe.getContainer().subMultiBlock) {
+                BlockEntity tile = level.getBlockEntity(pos);
+                if (tile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+                    list.stream()
+                        .min(Comparator.comparingDouble(block -> block.at(mainPos).distSqr(pos)))
+                        .ifPresent(equ -> multiBlock.removeSubType(equ.type()));
+                    if (multiBlock.removeMainPipe(pipe.getPos())) {
+                        LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = true;
+                        level.removeBlock(pos, false);
+                        LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = false;
+                    } else {
+                        TargetLookup.sendToChunkWatchers(tile, multiBlock.getDescriptionMessage());
+                    }
+                }
+            }
+        }
 
-	public LogisticsGenericPipeBlock(Properties properties) {
-		super(properties.strength(1.5F).noOcclusion()
-				.isViewBlocking((state, world, pos) -> false)
-				.isSuffocating((state, world, pos) -> false)
-				.isRedstoneConductor((state, world, pos) -> false));
-		registerDefaultState(this.stateDefinition.any()
-				.setValue(rotationProperty, 0)
-				.setValue(modelTypeProperty, PipeRenderModel.NONE));
-	}
+        level.removeBlockEntity(pipe.getContainer().getBlockPos());
+    }
 
-	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(rotationProperty, modelTypeProperty);
-		connectionPropertys.values().forEach(builder::add);
-		// TODO: propertyRenderList / propertyCache were IExtendedBlockState properties — removed in 1.20.1; rendering rewrite needed
-	}
+    /**
+     * Registers a pipe item via DeferredRegister and adds it to {@link #PIPES}.
+     * The registry name will be {@code pipe_<name>}.
+     */
+    public static DeferredItem<ItemLogisticsPipe> registerPipe(
+        DeferredRegister.Items registry,
+        String name,
+        Function<Item, ? extends CoreUnroutedPipe> constructor) {
+        return registry.registerItem("pipe_" + name, properties -> {
+            ItemLogisticsPipe item = new ItemLogisticsPipe(properties);
+            LogisticsGenericPipeBlock.PIPES.put(item, constructor);
+            // A pipe instance per item type, for queries made before a real pipe exists:
+            // placement in ItemLogisticsPipe.useOn and the item renderer.
+            try {
+                item.setDummyPipe(constructor.apply(item));
+            } catch (Exception e) {
+                LogisticsPipes.LOG.error("Failed to create dummy pipe for {}", name, e);
+            }
+            return item;
+        });
+    }
 
     @Nullable
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new LogisticsGenericPipeBlockEntity(pos, state);
-	}
+    public static CoreUnroutedPipe createPipe(Item key) {
+        Function<Item, ? extends CoreUnroutedPipe> pipe = LogisticsGenericPipeBlock.PIPES.get(key);
+        if (pipe != null) {
+            return pipe.apply(key);
+        } else {
+            LogisticsPipes.LOG.warn("Detected pipe with unknown key ({}). This should not have happen.", key);
+        }
 
-	@Nullable
-	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
+        return null;
+    }
+
+    public static boolean placePipe(CoreUnroutedPipe pipe, Level level, BlockPos blockPos, Block block) {
+        return LogisticsGenericPipeBlock.placePipe(pipe, level, blockPos, block, null);
+    }
+
+    public static boolean placePipe(CoreUnroutedPipe pipe, Level level, BlockPos blockPos, Block block,
+        @Nullable ITubeOrientation orientation) {
+        BlockState oldBlockState = level.getBlockState(blockPos);
+        boolean placed = level.setBlock(blockPos, block.defaultBlockState(), 3);
+
+        if (level.isClientSide()) {
+            return placed;
+        }
+
+        if (placed) {
+            BlockEntity tile = level.getBlockEntity(blockPos);
+            if (tile instanceof LogisticsGenericPipeBlockEntity tilePipe) {
+                if (pipe instanceof CoreMultiBlockPipe mPipe) {
+                    if (orientation == null) {
+                        throw new NullPointerException();
+                    }
+                    orientation.setOnPipe(mPipe);
+                    LogisticsBlockGenericSubMultiBlock.CURRENT_CREATED_MULTI_BLOCK = blockPos;
+                    for (CoreMultiBlockPipe.SubBlock sub : mPipe.getRotatedSubBlocks()) {
+                        final BlockPos subPos = sub.at(blockPos);
+                        BlockEntity subTile = level.getBlockEntity(subPos);
+                        BlockState oldSubBlockState = level.getBlockState(subPos);
+                        if (subTile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+                            multiBlock.addMultiBlockMainPos(blockPos);
+                            multiBlock.addSubTypeTo(sub.type());
+                            TargetLookup.sendToChunkWatchers(subTile, multiBlock.getDescriptionMessage());
+                        } else {
+                            level.setBlock(subPos, LPBlocks.SUB_MULTIBLOCK.get().defaultBlockState(), 3);
+                            subTile = level.getBlockEntity(subPos);
+                            if (subTile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+                                multiBlock.addSubTypeTo(sub.type());
+                            }
+                        }
+                        level.markAndNotifyBlock(subPos, level.getChunkAt(subPos), oldSubBlockState,
+                            level.getBlockState(subPos), 3, 512);
+                    }
+                    LogisticsBlockGenericSubMultiBlock.CURRENT_CREATED_MULTI_BLOCK = null;
+                }
+                tilePipe.initialize(pipe);
+            }
+            level.markAndNotifyBlock(blockPos, level.getChunkAt(blockPos), oldBlockState, level.getBlockState(blockPos),
+                Block.UPDATE_ALL, 512);
+        }
+
+        return placed;
+    }
+
+    @Nullable
+    public static CoreUnroutedPipe getPipe(BlockGetter blockAccess, BlockPos pos) {
+        BlockEntity tile = blockAccess.getBlockEntity(pos);
+
+        if (!(tile instanceof LogisticsGenericPipeBlockEntity genericPipe) || tile.isRemoved()) {
+            return null;
+        } else {
+            return genericPipe.pipe;
+        }
+    }
+
+    public static boolean isFullyDefined(@Nullable CoreUnroutedPipe pipe) {
+        return pipe != null && pipe.transport != null && pipe.getContainer() != null;
+    }
+
+    public static boolean isValid(@Nullable CoreUnroutedPipe pipe) {
+        return LogisticsGenericPipeBlock.isFullyDefined(pipe);
+    }
+
+    private static void cacheTileToPreventRemoval(CoreUnroutedPipe pipe) {
+        final Level worldCache = pipe.getLevel();
+        final BlockPos posCache = pipe.getPos();
+        final BlockEntity tileCache = pipe.getContainer();
+        final CoreUnroutedPipe fPipe = pipe;
+        fPipe.setPreventRemove(true);
+        QueuedTasks.queueTask(() -> {
+            if (!fPipe.preventRemove()) {
+                return null;
+            }
+            boolean changed = false;
+            if (!worldCache.getBlockState(posCache).is(LPBlocks.PIPE)) {
+                worldCache.setBlock(posCache, LPBlocks.PIPE.get().defaultBlockState(), 3);
+                changed = true;
+            }
+            if (worldCache.getBlockEntity(posCache) != tileCache) {
+                worldCache.setBlockEntity(tileCache);
+                changed = true;
+            }
+            if (changed) {
+                worldCache.markAndNotifyBlock(posCache, worldCache.getChunkAt(posCache),
+                    worldCache.getBlockState(posCache), worldCache.getBlockState(posCache), 3, 512);
+            }
+            fPipe.setPreventRemove(false);
+            return null;
+        });
+    }
+
+    /**
+     * Block-local VoxelShape of a multiblock tube for one block cell, built from the pipe's
+     * world-space collision boxes ({@link CoreMultiBlockPipe#addCollisionBoxesToList}).
+     * Returns {@link Shapes#empty()} when no box touches the cell.
+     */
+    public static VoxelShape getMultiBlockShape(CoreMultiBlockPipe pipe, BlockPos cell) {
+        List<AABB> boxes = new ArrayList<>();
+        pipe.addCollisionBoxesToList(boxes, new AABB(cell));
+        VoxelShape shape = Shapes.empty();
+        for (AABB box : boxes) {
+            shape = Shapes.or(shape, Shapes.create(box.move(-cell.getX(), -cell.getY(), -cell.getZ())));
+        }
+        return shape;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(ROTATION_PROPERTY, MODEL_TYPE_PROPERTY);
+        CONNECTION_PROPERTIES.values().forEach(builder::add);
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new LogisticsGenericPipeBlockEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
         BlockEntityType<T> type) {
         return BaseEntityBlock.createTickerHelper(type, LPBlockEntityTypes.PIPE.get(),
             level.isClientSide() ? LogisticsGenericPipeBlockEntity::clientTick : LogisticsGenericPipeBlockEntity::serverTick);
-	}
+    }
 
-	@Override
+    @Override
     public RenderShape getRenderShape(BlockState state) {
-		// MODEL puts the pipe in the chunk mesh, where PipeBakedModel supplies the geometry
-		// from the ModelData the block entity snapshots.
-		return RenderShape.MODEL;
-	}
-
-	public static void removePipe(CoreUnroutedPipe pipe) {
-		if (!LogisticsGenericPipeBlock.isValid(pipe)) {
-			return;
-		}
-
-		if (pipe.canBeDestroyed() || pipe.destroyByPlayer()) {
-			pipe.onBlockRemoval();
-		} else if (pipe.preventRemove()) {
-			LogisticsGenericPipeBlock.cacheTileToPreventRemoval(pipe);
-		}
-
-		Level level = pipe.getContainer().getLevel();
-
-		if (LogisticsGenericPipeBlock.lastRemovedDate != level.getGameTime()) {
-			LogisticsGenericPipeBlock.lastRemovedDate = level.getGameTime();
-			LogisticsGenericPipeBlock.pipeRemoved.clear();
-			LogisticsGenericPipeBlock.pipeSubMultiRemoved.clear();
-		}
-
-		if (pipe.isMultiBlock()) {
-			if (pipe.preventRemove()) {
-				throw new UnsupportedOperationException("A multi block can't be protected against removal.");
-			}
-			final BlockPos mainPos = pipe.getPos();
-			List<CoreMultiBlockPipe.SubBlock> list = ((CoreMultiBlockPipe) pipe).getRotatedSubBlocks();
-			for (BlockPos pos : pipe.getContainer().subMultiBlock) {
-				BlockEntity tile = level.getBlockEntity(pos);
-				if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-					CoreMultiBlockPipe.SubBlock equ = list.stream()
-							.min(Comparator.comparingDouble(block -> block.at(mainPos).distSqr(pos)))
-							.orElse(null);
-					if (equ != null) {
-						((LogisticsTileGenericSubMultiBlock) tile).removeSubType(equ.type());
-					}
-					if (((LogisticsTileGenericSubMultiBlock) tile).removeMainPipe(pipe.getPos())) {
-						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = true;
-						level.removeBlock(pos, false);
-						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = false;
-						LogisticsGenericPipeBlock.pipeSubMultiRemoved.put(pos, pipe.getContainer().getBlockPos());
-					} else {
-						TargetLookup.sendToChunkWatchers(tile, ((LogisticsTileGenericSubMultiBlock) tile).getDescriptionMessage());
-					}
-				}
-			}
-		}
-
-		BlockPos pos = pipe.getContainer().getBlockPos();
-		LogisticsGenericPipeBlock.pipeRemoved.put(pos, pipe);
-		level.removeBlockEntity(pos);
-	}
-
-	/* Registration ******************************************************** */
-
-	/**
-	 * Registers a pipe item via DeferredRegister and adds it to the {@code pipes} map.
-	 * The registry name will be {@code pipe_<name>}.
-	 *
-	 * <p>Icon/dummy-pipe setup (setPipeIconIndex, setIconProviderFromPipe, setDummyPipe)
-	 * is intentionally deferred — those methods belong to the 1.12.2 rendering system
-	 * and will be addressed when ItemLogisticsPipe is migrated to 1.20.1.</p>
-	 */
-	public static DeferredItem<ItemLogisticsPipe> registerPipe(
-			DeferredRegister.Items registry,
-			String name,
-			Function<Item, ? extends CoreUnroutedPipe> constructor) {
-		return registry.registerItem("pipe_" + name, properties -> {
-			ItemLogisticsPipe item = new ItemLogisticsPipe(properties);
-			LogisticsGenericPipeBlock.pipes.put(item, constructor);
-			// Create a dummy pipe instance for type/size queries (isMultiBlock, etc.)
-			// used by ItemLogisticsPipe.useOn before a real pipe is placed.
-			try {
-				item.setDummyPipe(constructor.apply(item));
-			} catch (Exception e) {
-				LogisticsPipes.LOG.error("Failed to create dummy pipe for {}", name, e);
-			}
-			return item;
-		});
-	}
-
-    @Nullable
-	public static CoreUnroutedPipe createPipe(Item key) {
-		Function<Item, ? extends CoreUnroutedPipe> pipe = LogisticsGenericPipeBlock.pipes.get(key);
-		if (pipe != null) {
-			return pipe.apply(key);
-		} else {
-			LogisticsPipes.LOG.warn("Detected pipe with unknown key (" + key + "). This should not have happend.");
-		}
-
-		return null;
-	}
-
-	public static boolean placePipe(CoreUnroutedPipe pipe, Level level, BlockPos blockPos, Block block) {
-		return LogisticsGenericPipeBlock.placePipe(pipe, level, blockPos, block, null);
-	}
-
-	public static boolean placePipe(CoreUnroutedPipe pipe, Level level, BlockPos blockPos, Block block, @Nullable ITubeOrientation orientation) {
-		BlockState oldBlockState = level.getBlockState(blockPos);
-		boolean placed = level.setBlock(blockPos, block.defaultBlockState(), 3);
-
-		if (level.isClientSide()) {
-			return placed;
-		}
-
-		if (placed) {
-			BlockEntity tile = level.getBlockEntity(blockPos);
-			if (tile instanceof LogisticsGenericPipeBlockEntity) {
-				LogisticsGenericPipeBlockEntity tilePipe = (LogisticsGenericPipeBlockEntity) tile;
-				if (pipe instanceof CoreMultiBlockPipe) {
-					if (orientation == null) {
-						throw new NullPointerException();
-					}
-					CoreMultiBlockPipe mPipe = (CoreMultiBlockPipe) pipe;
-					orientation.setOnPipe(mPipe);
-					BlockPos placeAt = blockPos;
-					LogisticsBlockGenericSubMultiBlock.currentCreatedMultiBlock = placeAt;
-					for (CoreMultiBlockPipe.SubBlock sub : ((CoreMultiBlockPipe) pipe).getRotatedSubBlocks()) {
-						final BlockPos subPos = sub.at(placeAt);
-						BlockEntity subTile = level.getBlockEntity(subPos);
-						BlockState oldSubBlockState = level.getBlockState(subPos);
-						if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
-							((LogisticsTileGenericSubMultiBlock) subTile).addMultiBlockMainPos(placeAt);
-							((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(sub.type());
-							TargetLookup.sendToChunkWatchers(subTile, ((LogisticsTileGenericSubMultiBlock) subTile).getDescriptionMessage());
-						} else {
-							level.setBlock(subPos, LPBlocks.SUB_MULTIBLOCK.get().defaultBlockState(), 3);
-							subTile = level.getBlockEntity(subPos);
-							if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
-								((LogisticsTileGenericSubMultiBlock) subTile).addSubTypeTo(sub.type());
-							}
-						}
-						level.markAndNotifyBlock(subPos, level.getChunkAt(subPos), oldSubBlockState, level.getBlockState(subPos), 3, 512);
-					}
-					LogisticsBlockGenericSubMultiBlock.currentCreatedMultiBlock = null;
-				}
-				tilePipe.initialize(pipe);
-				//				tilePipe.sendUpdateToClient();
-			}
-			level.markAndNotifyBlock(blockPos, level.getChunkAt(blockPos), oldBlockState, level.getBlockState(blockPos), 3, 512);
-		}
-
-		return placed;
-	}
-
-    @Nullable
-	public static CoreUnroutedPipe getPipe(BlockGetter blockAccess, BlockPos pos) {
-		BlockEntity tile = blockAccess.getBlockEntity(pos);
-
-		if (!(tile instanceof LogisticsGenericPipeBlockEntity) || tile.isRemoved()) {
-			return null;
-		} else {
-			return ((LogisticsGenericPipeBlockEntity) tile).pipe;
-		}
-	}
-
-	public static boolean isFullyDefined(@Nullable CoreUnroutedPipe pipe) {
-		return pipe != null && pipe.transport != null && pipe.getContainer() != null;
-	}
-
-	public static boolean isValid(@Nullable CoreUnroutedPipe pipe) {
-		return LogisticsGenericPipeBlock.isFullyDefined(pipe);
-	}
-
-	private static void cacheTileToPreventRemoval(CoreUnroutedPipe pipe) {
-		final Level worldCache = pipe.getLevel();
-		final BlockPos posCache = pipe.getPos();
-		final BlockEntity tileCache = pipe.getContainer();
-		final CoreUnroutedPipe fPipe = pipe;
-		fPipe.setPreventRemove(true);
-		QueuedTasks.queueTask(() -> {
-			if (!fPipe.preventRemove()) {
-				return null;
-			}
-			boolean changed = false;
-			if (!worldCache.getBlockState(posCache).is(LPBlocks.PIPE)) {
-				worldCache.setBlock(posCache, LPBlocks.PIPE.get().defaultBlockState(), 3);
-				changed = true;
-			}
-			if (worldCache.getBlockEntity(posCache) != tileCache) {
-				worldCache.setBlockEntity(tileCache);
-				changed = true;
-			}
-			if (changed) {
-				worldCache.markAndNotifyBlock(posCache, worldCache.getChunkAt(posCache), worldCache.getBlockState(posCache), worldCache.getBlockState(posCache), 3, 512);
-			}
-			fPipe.setPreventRemove(false);
-			return null;
-		});
-	}
-
-	// @Override removed — getDrops(BlockGetter...) does not match 1.20.1 Block API
-	public NonNullList<ItemStack> getDrops(BlockGetter world, BlockPos pos, BlockState state, int fortune) {
-		NonNullList<ItemStack> list = NonNullList.create();
-		if (world instanceof Level && ((Level) world).isClientSide()) {
-			return list;
-		}
-
-		int count = 1; // quantityDropped removed in 1.20.1
-		for (int i = 0; i < count; i++) {
-			CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(world, pos);
-
-			if (pipe == null) {
-				pipe = LogisticsGenericPipeBlock.pipeRemoved.get(pos);
-			}
-
-			if (pipe != null) {
-				if (pipe.item != null && (pipe.canBeDestroyed() || pipe.destroyByPlayer())) {
-					list.addAll(pipe.dropContents());
-					list.add(new ItemStack(pipe.item, 1));
-				} else if (pipe.item != null) {
-					LogisticsGenericPipeBlock.cacheTileToPreventRemoval(pipe);
-				}
-			}
-		}
-		return list;
-	}
-
-	// getBlockFaceShape removed in 1.20.1; dead stub kept for reference
-	public @Nullable Object /* BlockFaceShape */ getBlockFaceShape_DEAD(BlockGetter worldIn, BlockState state, BlockPos pos, Direction face) {
-		return null; // BlockFaceShape.UNDEFINED — removed in 1.20.1
-	}
-
-	public void addCollisionBoxToList(LogisticsGenericPipeBlockEntity pipe, AABB entityBox, List<AABB> collidingBoxes, Entity entityIn, boolean isActualState) {
-		addCollisionBoxToList(pipe.getLevel().getBlockState(pipe.getBlockPos()), pipe.getLevel(), pipe.getBlockPos(), entityBox, collidingBoxes, entityIn, isActualState);
-	}
-
-	/** Replaces removed Block.addCollisionBoxToList — offsets the box by pos, then adds to list if it intersects entityBox. */
-	private static void addCollisionBoxToList(BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, AABB box) {
-		AABB offsetBox = box.move(pos.getX(), pos.getY(), pos.getZ());
-		if (entityBox.intersects(offsetBox)) {
-			collidingBoxes.add(offsetBox);
-		}
-	}
-
-	// Internal collision helper — addCollisionBoxToList is no longer an MC override in 1.20.1; called from the overload above
-	public void addCollisionBoxToList(BlockState state, Level level, BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
-		BlockEntity te = level.getBlockEntity(pos);
-		if (te instanceof LogisticsGenericPipeBlockEntity) {
-			LogisticsGenericPipeBlockEntity tile = (LogisticsGenericPipeBlockEntity) te;
-			CoreUnroutedPipe pipe = tile.pipe;
-			if (pipe != null && pipe.isPipeBlock()) {
-				addCollisionBoxToList(pos, entityBox, collidingBoxes, new AABB(0, 0, 0, 1, 1, 1)); // Block.FULL_BLOCK_AABB removed in 1.20.1
-				return;
-			}
-			if (pipe != null && pipe.isMultiBlock()) {
-				((CoreMultiBlockPipe) pipe).addCollisionBoxesToList(collidingBoxes, entityBox);
-				if (!pipe.actAsNormalPipe()) return;
-			}
-
-			Arrays.stream(Direction.values())
-					.filter(tile::isPipeConnectedCached)
-					.map(f -> PIPE_CONN_BB.get(f.ordinal()))
-					.forEach(bb -> addCollisionBoxToList(pos, entityBox, collidingBoxes, bb));
-		}
-		addCollisionBoxToList(pos, entityBox, collidingBoxes, PIPE_CENTER_BB);
-	}
-
-	@Override
-    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		BlockEntity te = world.getBlockEntity(pos);
-		if (!(te instanceof LogisticsGenericPipeBlockEntity tile)) {
-            return Shapes.block();
-        }
-        CoreUnroutedPipe pipe = tile.pipe;
-		if (pipe == null || pipe.isPipeBlock()) {
-            return Shapes.block();
-        }
-		if (pipe.isMultiBlock() && !pipe.actAsNormalPipe()) {
-			// The pipe centre stays included so the main block is always targetable,
-			// matching doRayTraceMultiblock's centre-box test.
-			return Shapes.or(Shapes.create(PIPE_CENTER_BB), getMultiBlockShape((CoreMultiBlockPipe) pipe, pos));
-		}
-		int mask = 0;
-		for (Direction dir : Direction.values()) {
-			if (tile.isPipeConnectedCached(dir)) {
-				mask |= (1 << dir.ordinal());
-			}
-		}
-		return PIPE_SHAPES[mask];
-	}
-
-	@Override
-    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return getShape(state, world, pos, context);
-	}
-
-	/**
-	 * Pipes never attenuate light.
-	 *
-	 * <p>Both of these have to be overridden because the default implementations derive the
-	 * answer from {@link #getShape}, and the light engine does not ask per position: the value
-	 * is computed once per {@link BlockState} in {@code BlockBehaviour.BlockStateBase.initCache},
-	 * with an {@code EmptyBlockGetter} and {@code BlockPos.ZERO}. There is no block entity in
-	 * that context, so {@code getShape} takes its no-tile fallback and returns
-	 * {@link Shapes#block()} — a full cube. The default {@code propagatesSkylightDown} then
-	 * reports false and {@code getLightBlock} caches 1, so every pipe dimmed the light passing
-	 * through it and a block enclosed by pipes went dark from all sides.</p>
-	 *
-	 * <p>Fixing {@code getShape}'s fallback instead would be wrong: it is a full cube on
-	 * purpose, so an unloaded or pipe-block tile stays targetable and collidable.</p>
-	 */
-	@Override
-	protected int getLightDampening(BlockState state) {
-		return 0;
-	}
-
-	@Override
-	protected boolean propagatesSkylightDown(BlockState state) {
-		return true;
-	}
+        // MODEL puts the pipe in the chunk mesh, where PipeBakedModel supplies the geometry
+        // from the ModelData the block entity snapshots.
+        return RenderShape.MODEL;
+    }
 
     /**
-	 * Block-local VoxelShape of a multiblock tube for one block cell, built from the pipe's
-	 * world-space collision boxes (the same geometry LP1 fed to addCollisionBoxToList).
-	 * Returns {@link Shapes#empty()} when no box touches the cell.
-	 */
-	public static VoxelShape getMultiBlockShape(CoreMultiBlockPipe pipe, BlockPos cell) {
-		List<AABB> boxes = new ArrayList<>();
-		pipe.addCollisionBoxesToList(boxes, new AABB(cell));
-		VoxelShape shape = Shapes.empty();
-		for (AABB box : boxes) {
-			shape = Shapes.or(shape, Shapes.create(box.move(-cell.getX(), -cell.getY(), -cell.getZ())));
-		}
-		return shape;
-	}
+     * The pipe item plus whatever was traveling through it. There is no loot table: the drops
+     * depend on the pipe in the block entity, which the caller captured before removing the block,
+     * so it is still here after {@link #removePipe} has torn the pipe down.
+     */
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        BlockEntity blockEntityParameter = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (!(blockEntityParameter instanceof LogisticsGenericPipeBlockEntity blockEntity)) {
+            return List.of();
+        }
+        CoreUnroutedPipe pipe = blockEntity.pipe;
+        if (pipe == null || !(pipe.canBeDestroyed() || pipe.destroyByPlayer())) {
+            return List.of();
+        }
+        List<ItemStack> drops = new ArrayList<>(pipe.dropContents());
+        drops.add(new ItemStack(pipe.item));
+        return drops;
+    }
 
-// collisionRayTrace removed in 1.20.1 — migrated to getShape(BlockState, BlockGetter, BlockPos, CollisionContext)
-	// The entire ray-trace API (AABB.calculateIntercept, new HitResult(hitVec, side, pos), Block.FULL_BLOCK_AABB) is gone.
-	// @Override
-	// public HitResult collisionRayTrace(BlockState state, Level world, BlockPos pos, Vec3 start, Vec3 end) { ... }
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        if (!(world.getBlockEntity(pos) instanceof LogisticsGenericPipeBlockEntity blockEntity)) {
+            return Shapes.block();
+        }
+        CoreUnroutedPipe pipe = blockEntity.pipe;
+        if (pipe == null || pipe.isPipeBlock()) {
+            return Shapes.block();
+        }
+        if (pipe.isMultiBlock() && !pipe.actAsNormalPipe()) {
+            // The pipe center stays included so the main block is always targetable.
+            return Shapes.or(Shapes.create(PIPE_CENTER_BB), getMultiBlockShape((CoreMultiBlockPipe) pipe, pos));
+        }
+        int mask = 0;
+        for (Direction dir : Direction.values()) {
+            if (blockEntity.isPipeConnectedCached(dir)) {
+                mask |= (1 << dir.ordinal());
+            }
+        }
+        return PIPE_SHAPES[mask];
+    }
 
-	public @Nullable InternalRayTraceResult doRayTrace(Level level, BlockPos pos, Player player) {
-		double reachDistance = player instanceof ServerPlayer
-				? player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE)
-				: 5;
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return getShape(state, world, pos, context);
+    }
 
-		Vec3 lookVec = player.getLookAngle();
-		Vec3 start = player.getEyePosition();
-		Vec3 end = start.add(lookVec.x * reachDistance, lookVec.y * reachDistance, lookVec.z * reachDistance);
+    /**
+     * Pipes never attenuate light.
+     *
+     * <p>Both of these have to be overridden because the default implementations derive the
+     * answer from {@link #getShape}, and the light engine does not ask per position: the value
+     * is computed once per {@link BlockState} in {@code BlockBehaviour.BlockStateBase.initCache},
+     * with an {@code EmptyBlockGetter} and {@code BlockPos.ZERO}. There is no block entity in
+     * that context, so {@code getShape} takes its no-tile fallback and returns
+     * {@link Shapes#block()} — a full cube. The default {@code propagatesSkylightDown} then
+     * reports false and {@code getLightBlock} caches 1, so every pipe dimmed the light passing
+     * through it and a block enclosed by pipes went dark from all sides.</p>
+     *
+     * <p>Fixing {@code getShape}'s fallback instead would be wrong: it is a full cube on
+     * purpose, so an unloaded or pipe-block tile stays targetable and collidable.</p>
+     */
+    @Override
+    protected int getLightDampening(BlockState state) {
+        return 0;
+    }
 
-		return doRayTrace(level, pos, start, end);
-	}
+    @Override
+    protected boolean propagatesSkylightDown(BlockState state) {
+        return true;
+    }
 
-    @Nullable
-	public InternalRayTraceResult doRayTrace(Level level, BlockPos pos, Vec3 start, Vec3 end) {
-		BlockEntity te = level.getBlockEntity(pos);
-
-		if (te instanceof LogisticsGenericPipeBlockEntity) {
-			LogisticsGenericPipeBlockEntity tileG = (LogisticsGenericPipeBlockEntity) te;
-			CoreUnroutedPipe pipe = tileG.pipe;
-			if (!LogisticsGenericPipeBlock.isValid(pipe)) return null;
-
-			if (pipe.isMultiBlock()) {
-				InternalRayTraceResult result1 = doRayTraceMultiblock(tileG, (CoreMultiBlockPipe) pipe, start, end);
-
-				if (!pipe.actAsNormalPipe())
-					return result1;
-
-				InternalRayTraceResult result2 = doRayTrace(tileG, pipe, start, end);
-
-				return Stream.of(result1, result2)
-						.filter(Objects::nonNull)
-						.min(Comparator.comparing(r -> r.rayTraceResult.getLocation().distanceToSqr(start)))
-						.orElse(null);
-			} else {
-				return doRayTrace(tileG, pipe, start, end);
-			}
-		}
-		return null;
-	}
-
-	@Data
-	@AllArgsConstructor
-	private static class Hit {
-
-		public @Nullable HitResult rayTraceResult;
-		public AABB box;
-		public @Nullable Direction side;
-		public Part part;
-	}
-
-    @Nullable
-	private InternalRayTraceResult doRayTrace(LogisticsGenericPipeBlockEntity tileG, CoreUnroutedPipe pipe, Vec3 start, Vec3 end) {
-		if (tileG == null) return null;
-		if (!LogisticsGenericPipeBlock.isValid(pipe)) return null;
-
-		/*
-		 * pipe hits along x, y, and z axis, gate (all 6 sides) [and
-		 * wires+facades]
-		 */
-		ArrayList<Hit> list = new ArrayList<>();
-
-		// pipe
-		for (Direction side : LogisticsGenericPipeBlock.DIR_VALUES) {
-			if (side == null || tileG.isPipeConnectedCached(side)) {
-				if (side != null && ignoreSideRayTrace) continue;
-				AABB bb = getPipeBoundingBox(side);
-				// rayTrace(pos, start, end, AABB) removed in 1.20.1 — use VoxelShape.clip
-				list.add(new Hit(Shapes.create(bb).clip(start, end, tileG.getBlockPos()), bb, side, Part.PIPE));
-			}
-		}
-
-		// wire hit-test not implemented
-
-		// get closest hit
-
-		return list.stream()
-				.filter(r -> r.rayTraceResult != null)
-				.min(Comparator.comparing(r -> r.rayTraceResult.getLocation().distanceToSqr(start)))
-				.map(r -> new InternalRayTraceResult(r.part, r.rayTraceResult, r.box, r.side))
-				.orElse(null);
-	}
-
-	/**
-	 * Ray-trace against a multi-block pipe's central bounding box plus the bounding box of each
-	 * sub-block position (translated from the main tile's position). Uses {@link Shapes#create}
-	 * and {@link VoxelShape#clip} since the 1.12
-	 * {@code AABB.calculateIntercept} API is gone.
-	 */
-	@Nullable
-    private InternalRayTraceResult doRayTraceMultiblock(LogisticsGenericPipeBlockEntity tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 end) {
-		ArrayList<Hit> list = new ArrayList<>();
-		// Centre block — always test so the player can click the main pipe body itself.
-		BlockPos mainPos = tileG.getBlockPos();
-		AABB centerBox = PIPE_CENTER_BB.move(mainPos.getX(), mainPos.getY(), mainPos.getZ());
-		BlockHitResult centerHit =
-				Shapes.create(centerBox).clip(start, end, mainPos);
-		if (centerHit != null) {
-			list.add(new Hit(centerHit, centerBox, null, Part.PIPE));
-		}
-
-		// Test the tube's real world-space collision boxes so targeting matches the
-		// visible geometry instead of full cubes at each sub-block position.
-		List<AABB> tubeBoxes = new ArrayList<>();
-		pipe.addCollisionBoxesToList(tubeBoxes, null);
-		for (AABB box : tubeBoxes) {
-			BlockPos cell = BlockPos.containing(box.getCenter());
-			BlockHitResult subHit = Shapes
-					.create(box.move(-cell.getX(), -cell.getY(), -cell.getZ()))
-					.clip(start, end, cell);
-			if (subHit != null) {
-				list.add(new Hit(subHit, box.move(-mainPos.getX(), -mainPos.getY(), -mainPos.getZ()), null, Part.PIPE));
-			}
-		}
-
-		return list.stream()
-				.filter(r -> r.rayTraceResult != null)
-				.min(Comparator.comparing(r -> r.rayTraceResult.getLocation().distanceToSqr(start)))
-				.map(r -> new InternalRayTraceResult(r.part, r.rayTraceResult, r.box, r.side))
-				.orElse(null);
-	}
-
-	private AABB getPipeBoundingBox(@Nullable Direction side) {
-		if (side == null) return PIPE_CENTER_BB;
-		return PIPE_CONN_BB.get(side.ordinal());
-	}
-
-	// createNewTileEntity removed in 1.20.1 — replaced by newBlockEntity(BlockPos, BlockState) above
-
-	public enum Part {
-		PIPE,
-		UNKNOWN
-	}
-
-	public static class InternalRayTraceResult {
-
-		public final Part hitPart;
-		public final HitResult rayTraceResult;
-		public final AABB boundingBox;
-		public final Direction sideHit;
-
-		InternalRayTraceResult(Part hitPart, HitResult rayTraceResult, AABB boundingBox, Direction side) {
-			this.hitPart = hitPart;
-			this.rayTraceResult = rayTraceResult;
-			this.boundingBox = boundingBox;
-			sideHit = side;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("HitResult: %s, %s", hitPart == null ? "null" : hitPart.name(), boundingBox == null ? "null" : boundingBox.toString());
-		}
-	}
-
-	private static final @Nullable Direction[] DIR_VALUES;
-
-	static {
-		DIR_VALUES = new @Nullable Direction[Direction.values().length + 1];
-		DIR_VALUES[0] = null;
-		System.arraycopy(Direction.values(), 0, DIR_VALUES, 1, Direction.values().length);
-	}
-
-	// getBlockHardness removed in 1.20.1 — set via BlockBehaviour.Properties.strength() in constructor
-	// getRenderType removed in 1.20.1 — MODEL is the default
-	// getRenderLayer removed in 1.20.1 — use ItemBlockRenderTypes.setRenderLayer in client setup
-	// isFullBlock / isFullCube / isNormalCube / isOpaqueCube / isTopSolid — all removed in 1.20.1
-
-	// @Override removed — canBeReplacedByLeaves removed in 1.20.1
-	public boolean canBeReplacedByLeaves_DEAD(BlockState state, BlockGetter world, BlockPos pos) {
-		return false;
-	}
-
-	// @Override removed — isSideSolid(BlockGetter...) removed in 1.20.1
-	public boolean isSideSolid_DEAD(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
-		BlockEntity tile = world.getBlockEntity(pos);
-
-		if (tile instanceof LogisticsGenericPipeBlockEntity) {
-			if (((LogisticsGenericPipeBlockEntity) tile).isPipeBlock()) {
-				return true;
-			}
-		}
-
-		return false; // super.isSideSolid removed
-	}
-
-	// removePipe moved to LogisticsGenericPipeBlockEntity#preRemoveSideEffects: 1.21.5 replaced onRemove
-	// with affectNeighborsAfterRemoval, which runs after the block entity has been detached and so
-	// could no longer reach the pipe.
-
-	// @Override removed — dropBlockAsItemWithChance removed in 1.20.1
-	public void dropBlockAsItemWithChance_DEAD(Level level, final BlockPos pos, BlockState state, float chance, int fortune) {
-
-		if (level.isClientSide()) {
-			return;
-		}
-
-		// quantityDropped removed in 1.20.1; drop once if chance passes
-		if (level.getRandom().nextFloat() > chance) {
-			return;
-		}
-
-		CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
-
-		if (pipe == null) {
-			pipe = LogisticsGenericPipeBlock.pipeRemoved.get(pos);
-		}
-
-		if (pipe == null) return;
-
-		if (pipe.item != null && (pipe.canBeDestroyed() || pipe.destroyByPlayer())) {
-			for (ItemStack stack : pipe.dropContents()) {
-				Block.popResource(level, pos, stack);
-			}
-			Block.popResource(level, pos, new ItemStack(pipe.item, 1));
-		} else if (pipe.item != null) {
-			LogisticsGenericPipeBlock.cacheTileToPreventRemoval(pipe);
-		}
-	}
-
-    public ItemStack getPickedResult(BlockState state, HitResult target, LevelReader levelReader, BlockPos pos, Player player) {
-		ItemStack pick = getCloneItemStack(levelReader, pos, state, false, player);
-		if (!pick.isEmpty()) {
-			return pick;
-		}
-		Level level = (Level) levelReader; // safe — client-only code, LevelReader is always a Level here
-		InternalRayTraceResult rayTraceResult = doRayTrace(level, pos, player);
-
-		if (rayTraceResult != null && rayTraceResult.boundingBox != null) {
-			if (rayTraceResult.hitPart == Part.PIPE) {
-				final CoreUnroutedPipe pipe = Objects.requireNonNull(LogisticsGenericPipeBlock.getPipe(level, pos));
-				return new ItemStack(pipe.item);
-			}
-		}
-		return ItemStack.EMPTY;
-	}
-
-	// Forge's pick-block hook (middle click). Without this the block falls back to its own
-	// (nonexistent) item and the client logs "Picking on: [BLOCK] logisticspipes:pipe gave
-	// null item"; the pipe's actual item lives on the pipe object, not the block.
     @Override
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData,
         Player player) {
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof LogisticsGenericPipeBlockEntity genericPipe
-            && LogisticsGenericPipeBlock.isValid(genericPipe.pipe)
-            && genericPipe.pipe.item != null) {
+        if (be instanceof LogisticsGenericPipeBlockEntity genericPipe &&
+            LogisticsGenericPipeBlock.isValid(genericPipe.pipe)) {
             return new ItemStack(genericPipe.pipe.item);
         }
         return super.getCloneItemStack(level, pos, state, includeData, player);
     }
 
     /* Wrappers ************************************************************ */
-	@Override
-	protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn,
-		@Nullable Orientation orientation, boolean movedByPiston) {
-		super.neighborChanged(state, worldIn, pos, blockIn, orientation, movedByPiston);
+    @Override
+    protected void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn,
+        @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, worldIn, pos, blockIn, orientation, movedByPiston);
 
-		CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(worldIn, pos);
+        CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(worldIn, pos);
 
-		if (LogisticsGenericPipeBlock.isValid(pipe)) {
-			pipe.getContainer().scheduleNeighborChange();
-		}
-	}
+        if (LogisticsGenericPipeBlock.isValid(pipe)) {
+            pipe.getContainer().scheduleNeighborChange();
+        }
+    }
 
-	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-		super.setPlacedBy(level, pos, state, placer, stack);
-		CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
+        ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
 
-		if (LogisticsGenericPipeBlock.isValid(pipe)) {
-			pipe.onBlockPlaced();
-			pipe.onBlockPlacedBy(placer);
-			if (pipe instanceof IRotationProvider) {
-				((IRotationProvider) pipe).setFacing(placer.getDirection().getOpposite());
-			}
-		}
-	}
+        if (LogisticsGenericPipeBlock.isValid(pipe)) {
+            pipe.onBlockPlaced();
+            pipe.onBlockPlacedBy(placer);
+            if (pipe instanceof IRotationProvider) {
+                ((IRotationProvider) pipe).setFacing(placer.getDirection().getOpposite());
+            }
+        }
+    }
 
-	@Override
-	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-		InteractionResult superResult = super.useWithoutItem(state, level, pos, player, hitResult);
-		if (superResult != InteractionResult.PASS) return superResult;
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
+        BlockHitResult hitResult) {
+        InteractionResult superResult = super.useWithoutItem(state, level, pos, player, hitResult);
+        if (superResult != InteractionResult.PASS) {
+            return superResult;
+        }
+        ItemStack heldItem = player.getInventory().getItem(player.getInventory().getSelectedSlot());
+        CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
+        if (LogisticsGenericPipeBlock.isValid(pipe)) {
+            if (!heldItem.isEmpty()) {
+                if (heldItem.getItem() instanceof SignItem) {
+                    // Sign will be placed anyway, so lets show the sign gui
+                    return InteractionResult.PASS;
+                } else if (heldItem.getItem() instanceof ItemLogisticsPipe) {
+                    return InteractionResult.PASS;
+                }
+            }
+            return pipe.blockActivated(player) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        }
+        return InteractionResult.PASS;
+    }
 
-		ItemStack heldItem = player.getInventory().getItem(player.getInventory().getSelectedSlot());
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return true;
+    }
 
-		CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
+    public enum PipeRenderModel implements StringRepresentable {
+        NONE,
+        REQUEST_TABLE;
 
-		if (LogisticsGenericPipeBlock.isValid(pipe)) {
-
-			if (heldItem.isEmpty()) {
-				// Fall through the end of the test
-			} else if (heldItem.getItem() instanceof SignItem) { // Items.SIGN removed in 1.20.1 — sign items split per wood type
-				// Sign will be placed anyway, so lets show the sign gui
-				return InteractionResult.PASS;
-			} else if (heldItem.getItem() instanceof ItemLogisticsPipe) {
-				return InteractionResult.PASS;
-			}
-			return pipe.blockActivated(player) ? InteractionResult.SUCCESS : InteractionResult.PASS;
-		}
-
-		return InteractionResult.PASS;
-	}
-
-	@Override
-	public boolean isSignalSource(BlockState state) { // canProvidePower renamed to isSignalSource in 1.20.1
-		return true;
-	}
-
-	// TODO: addHitEffects rendering — migrate to NeoForge IBlockExtension.addHitEffects with ParticleEngine (deferred)
-	// 
-	// @Override
-	// public boolean addHitEffects(BlockState state, Level world, HitResult target, ParticleEngine effectRenderer) { ... }
-
-	// TODO: addDestroyEffects rendering — migrate to NeoForge IBlockExtension.addDestroyEffects with ParticleEngine (deferred)
-	// 
-	// @Override
-	// public boolean addDestroyEffects(BlockState state, Level world, BlockPos pos, ParticleEngine effectRenderer) { ... }
-
-private void checkForRenderChanges(BlockGetter worldIn, BlockPos blockPos) {
-		BlockEntity tile = worldIn.getBlockEntity(blockPos);
-		if (!(tile instanceof LogisticsGenericPipeBlockEntity)) return;
-		((LogisticsGenericPipeBlockEntity) tile).visualState.checkForRenderUpdate(worldIn, blockPos);
-	}
-
-	// @Override removed — canRenderInLayer removed in 1.20.1
-	public boolean canRenderInLayer_DEAD(BlockState state, Object /* BlockRenderLayer */ layer) {
-		return true;
-	}
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase();
+        }
+    }
 }
