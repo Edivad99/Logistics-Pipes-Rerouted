@@ -24,6 +24,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.textures.TextureRegistrar;
+
 /**
  * The pipe's block model. Puts pipe geometry into the chunk mesh, where the 1.12.2-derived
  * pipeline had it re-emitted by a block entity renderer on every frame.
@@ -127,16 +129,26 @@ public class PipeBakedModel implements DynamicBlockStateModel {
     /**
      * Break and hit particles go through this overload, which is where a pipe that does not
      * draw the frame — the request table — gets to name its own sprite through
-     * {@link PipeModelProperties#PARTICLE_SPRITE}.
+     * {@link PipeModelProperties#PARTICLE_SPRITE}. A normal pipe uses its per-type face
+     * texture, the one on its unconnected sides, so each pipe kind breaks in its own colour,
+     * unless that texture is blank and the frame is all there is to see.
      */
     @Override
     public Material.Baked particleMaterial(BlockAndTintGetter level, BlockPos pos, BlockState state) {
-        Identifier name = level.getModelData(pos).get(PipeModelProperties.PARTICLE_SPRITE);
+        ModelData data = level.getModelData(pos);
+        Identifier name = data.get(PipeModelProperties.PARTICLE_SPRITE);
         if (name != null) {
             return new Material.Baked(Minecraft.getInstance()
                 .getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
                 .getSprite(name), false);
+        }
+        PipeGeometryKey key = data.get(PipeModelProperties.GEOMETRY);
+        if (key != null) {
+            TextureAtlasSprite icon = TextureRegistrar.pipeParticleSprite(key.textureIndex());
+            if (icon != null) {
+                return new Material.Baked(icon, false);
+            }
         }
         return particleMaterial();
     }
