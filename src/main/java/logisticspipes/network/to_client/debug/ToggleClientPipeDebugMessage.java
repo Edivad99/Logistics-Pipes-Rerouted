@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.DebugTarget;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * Turns the pipe log on or off for the client's own copy of the pipe the player is pointing at.

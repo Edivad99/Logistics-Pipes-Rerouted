@@ -23,7 +23,7 @@ import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.utils.BlockMenus;

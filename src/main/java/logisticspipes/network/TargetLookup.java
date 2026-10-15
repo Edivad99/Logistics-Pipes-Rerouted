@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.inventory.DummyMenu;
 import logisticspipes.world.inventory.SecurityStationMenu;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;

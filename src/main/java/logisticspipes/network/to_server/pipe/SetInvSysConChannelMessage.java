@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The channel picked for an inventory system connector.

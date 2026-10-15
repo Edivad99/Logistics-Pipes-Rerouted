@@ -15,7 +15,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.InvSysConContentMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The inventory system connector's screen wants to know what is still on its way, and which

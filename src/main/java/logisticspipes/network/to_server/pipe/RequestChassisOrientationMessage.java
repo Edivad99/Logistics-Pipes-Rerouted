@@ -15,7 +15,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.ChassisOrientationMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * A chassis pipe has loaded on the client, which cannot tell from the block state which way it

@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeItemsFirewall;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The player toggled one of the firewall's five switches.

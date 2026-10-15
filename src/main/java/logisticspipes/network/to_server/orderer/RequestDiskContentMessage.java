@@ -13,7 +13,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.block.DiskContentMessage;
 import logisticspipes.pipes.PipeItemsRequestLogistics;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.item.ItemDisk;
 
 /**

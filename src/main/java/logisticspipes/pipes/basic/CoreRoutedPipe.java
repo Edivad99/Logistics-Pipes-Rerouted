@@ -1659,7 +1659,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         return Integer.MAX_VALUE;
     }
 
-    protected void triggerConnectionCheck() {
+    public void triggerConnectionCheck() {
         recheckConnections = true;
     }
 

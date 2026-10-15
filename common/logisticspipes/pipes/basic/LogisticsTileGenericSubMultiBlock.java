@@ -32,6 +32,7 @@ import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.utils.TileBuffer;
 import logisticspipes.world.level.block.LogisticsGenericSubMultiBlockBlock;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements ISubMultiBlockPipeInformationProvider {
 

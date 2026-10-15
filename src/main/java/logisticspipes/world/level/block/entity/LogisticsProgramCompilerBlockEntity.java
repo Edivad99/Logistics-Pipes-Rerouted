@@ -34,7 +34,6 @@ import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.network.to_client.block.CompilerStatusMessage;
 import logisticspipes.pipes.PipeItemsBasicLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.world.inventory.ProgramCompilerMenu;

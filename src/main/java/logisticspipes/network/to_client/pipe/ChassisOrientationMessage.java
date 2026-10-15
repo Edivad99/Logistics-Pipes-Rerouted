@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * Which side a chassis pipe points its modules at.

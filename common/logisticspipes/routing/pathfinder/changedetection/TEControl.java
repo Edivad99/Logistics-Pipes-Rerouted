@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.QueuedTasks;

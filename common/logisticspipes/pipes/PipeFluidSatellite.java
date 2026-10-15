@@ -41,7 +41,7 @@ import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.ChestContentMessage;
 import logisticspipes.network.to_client.pipe.SatelliteNameMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.request.RequestTree;
 import logisticspipes.textures.Textures;

@@ -5,7 +5,7 @@ import net.minecraft.world.entity.player.Inventory;
 import lombok.Getter;
 
 import logisticspipes.logic.LogicController;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The logic controller layout screen of a pipe.

@@ -9,7 +9,7 @@ import net.minecraft.core.Direction;
 import logisticspipes.LPConfigs;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PowerLaserMessage;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The power lasers a pipe shows. The server keeps each one alive for as long as power keeps flowing

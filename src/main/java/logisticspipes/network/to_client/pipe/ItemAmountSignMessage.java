@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.signs.ItemAmountPipeSign;
 import logisticspipes.utils.item.ItemIdentifierStack;

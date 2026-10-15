@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * Render state for {@link LogisticsRenderPipe}.

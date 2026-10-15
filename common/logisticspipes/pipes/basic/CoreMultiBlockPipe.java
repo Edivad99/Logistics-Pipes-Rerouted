@@ -17,6 +17,7 @@ import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.PositionRotation;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 

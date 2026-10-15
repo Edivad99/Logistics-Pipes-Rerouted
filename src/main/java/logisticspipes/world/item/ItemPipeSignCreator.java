@@ -19,7 +19,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.signs.CraftingPipeSign;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.signs.ItemAmountPipeSign;

@@ -17,7 +17,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.client.particle.PowerLaserParticles;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * A power laser drawn along a pipe, or the removal of one.

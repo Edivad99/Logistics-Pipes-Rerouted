@@ -41,7 +41,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.api.connection.NeighborBlockEntity;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class LPNeighborBlockEntity<T extends BlockEntity> extends NeighborBlockEntity<T> {
 

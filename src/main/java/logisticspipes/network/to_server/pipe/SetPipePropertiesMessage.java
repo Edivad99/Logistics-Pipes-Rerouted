@@ -20,7 +20,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The properties the player changed in a pipe's GUI.

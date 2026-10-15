@@ -11,7 +11,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public final class TileBuffer {
 

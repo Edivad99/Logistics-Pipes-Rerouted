@@ -32,6 +32,7 @@ import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 
@@ -347,7 +348,7 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 	/**
 	 * Triggers connection checks for routing.
 	 */
-	protected void triggerConnectionCheck() {}
+	public void triggerConnectionCheck() {}
 
 	/**
 	 * Called after reading data from NBT.

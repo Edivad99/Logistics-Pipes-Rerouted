@@ -27,7 +27,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.solid.SolidBlockModelParts;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.LogisticsSolidBlock;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 

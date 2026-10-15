@@ -16,7 +16,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.item.LPItems;
 
 /**

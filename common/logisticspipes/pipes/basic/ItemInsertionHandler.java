@@ -13,6 +13,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ILPItemAcceptor;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The item capability a pipe exposes to its neighbours: a drop slot that swallows items into the

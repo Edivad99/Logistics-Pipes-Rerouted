@@ -51,7 +51,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.property.PropertyUpdaterEventListener;
 import logisticspipes.proxy.PowerProxy;
 import logisticspipes.proxy.SimpleServiceLocator;

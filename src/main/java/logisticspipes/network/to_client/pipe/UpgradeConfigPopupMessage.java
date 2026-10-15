@@ -18,7 +18,7 @@ import logisticspipes.client.gui.popup.DisconnectionConfigurationPopup;
 import logisticspipes.client.gui.popup.SneakyConfigurationPopup;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.SubGuiScreen;

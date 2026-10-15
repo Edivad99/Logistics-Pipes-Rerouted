@@ -15,7 +15,7 @@ import net.minecraft.core.Direction;
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.routing.pathfinder.PathFinder;
 
 /**

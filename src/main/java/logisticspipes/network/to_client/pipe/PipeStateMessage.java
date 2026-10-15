@@ -12,7 +12,7 @@ import io.netty.buffer.Unpooled;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
 /**

@@ -39,7 +39,6 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.network.to_client.block.PowerProviderLevelMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;

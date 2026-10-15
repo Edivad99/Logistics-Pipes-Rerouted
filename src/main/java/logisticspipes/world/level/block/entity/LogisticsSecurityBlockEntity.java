@@ -46,7 +46,6 @@ import logisticspipes.network.to_client.security.SecurityStationCCIdsMessage;
 import logisticspipes.network.to_client.security.SecurityStationFlagsMessage;
 import logisticspipes.network.to_client.security.SecurityStationIdMessage;
 import logisticspipes.network.to_client.security.SecurityStationSettingsMessage;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerCollectionList;

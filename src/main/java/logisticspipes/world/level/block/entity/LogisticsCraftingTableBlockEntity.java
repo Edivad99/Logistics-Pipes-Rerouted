@@ -46,7 +46,6 @@ import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.CraftingUtil;

@@ -12,7 +12,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IWatchingHandler;
 import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The client's HUD subscribes to a pipe, or lets go of it.

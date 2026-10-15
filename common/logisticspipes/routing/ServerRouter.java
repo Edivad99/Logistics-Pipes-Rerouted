@@ -56,7 +56,7 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.FluidResource;

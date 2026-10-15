@@ -8,7 +8,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import logisticspipes.LPConstants;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.world.level.block.LPBlocks;
 

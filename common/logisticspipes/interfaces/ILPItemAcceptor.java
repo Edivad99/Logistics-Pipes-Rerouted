@@ -3,7 +3,7 @@ package logisticspipes.interfaces;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public interface ILPItemAcceptor {
 

@@ -13,7 +13,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.block.DiskContentMessage;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The player ejected the disk from a request pipe.

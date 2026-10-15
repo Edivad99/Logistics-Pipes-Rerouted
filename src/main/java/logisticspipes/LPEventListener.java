@@ -65,7 +65,7 @@ import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.util.PipeConfigTools;

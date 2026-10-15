@@ -17,7 +17,7 @@ import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.SatelliteNameResultMessage;
 import logisticspipes.pipes.SatelliteNamingResult;
-import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * A new name typed into a satellite pipe's GUI.
