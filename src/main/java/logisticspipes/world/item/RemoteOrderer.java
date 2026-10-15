@@ -21,9 +21,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.PipeItemsRemoteOrdererLogistics;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.item.component.LPDataComponents;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class RemoteOrderer extends LogisticsItem {
 

@@ -13,8 +13,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * What sits in the inventory a pipe is attached to, for the players watching its HUD.

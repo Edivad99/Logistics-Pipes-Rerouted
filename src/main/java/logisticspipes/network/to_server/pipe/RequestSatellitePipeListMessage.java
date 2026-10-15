@@ -25,8 +25,8 @@ import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.SatelliteEntry;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.routing.ExitRoute;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The satellite picker popup asking for the satellites this pipe can actually reach.

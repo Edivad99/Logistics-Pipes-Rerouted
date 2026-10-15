@@ -13,8 +13,8 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.block.DiskContentMessage;
 import logisticspipes.pipes.PipeItemsRequestLogistics;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.item.ItemDisk;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * A disk screen is opening and wants to see what is on the disk.

@@ -26,9 +26,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 
 public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityBlock {
 
@@ -52,7 +52,7 @@ public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityB
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         BlockEntity tile = world.getBlockEntity(pos);
-        if (tile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+        if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
             VoxelShape shape = Shapes.empty();
             for (LogisticsGenericPipeBlockEntity mainPipe : multiBlock.getConnectedMainPipes()) {
                 if (mainPipe.isMultiBlock() && mainPipe.pipe instanceof CoreMultiBlockPipe multiBlockPipe) {
@@ -75,7 +75,7 @@ public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityB
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData,
         Player player) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+        if (blockEntity instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
             for (LogisticsGenericPipeBlockEntity mainPipe : multiBlock.getConnectedMainPipes()) {
                 if (mainPipe.isMultiBlock()) {
                     BlockState mainState = level.getBlockState(mainPipe.getBlockPos());
@@ -93,7 +93,7 @@ public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityB
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new LogisticsTileGenericSubMultiBlock(pos, state,
+        return new LogisticsGenericSubMultiBlockBlockEntity(pos, state,
             LogisticsGenericSubMultiBlockBlock.CURRENT_CREATED_MULTI_BLOCK);
     }
 
@@ -103,7 +103,7 @@ public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityB
         BlockEntityType<T> type) {
         return level.isClientSide() ? null
             : BaseEntityBlock.createTickerHelper(type, LPBlockEntityTypes.SUB_PIPE.get(),
-            LogisticsTileGenericSubMultiBlock::serverTick);
+            LogisticsGenericSubMultiBlockBlockEntity::serverTick);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityB
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide() && player.preventsBlockDrops()
-            && level.getBlockEntity(pos) instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+            && level.getBlockEntity(pos) instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
             for (LogisticsGenericPipeBlockEntity mainPipe : multiBlock.getConnectedMainPipes()) {
                 if (mainPipe.isMultiBlock()) {
                     level.removeBlock(mainPipe.getBlockPos(), false);
@@ -135,7 +135,7 @@ public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityB
         @Nullable Orientation orientation, boolean isMoving) {
         super.neighborChanged(state, level, pos, block, orientation, isMoving);
         BlockEntity tile = level.getBlockEntity(pos);
-        if (tile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+        if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
             multiBlock.scheduleNeighborChange();
         }
     }

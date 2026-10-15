@@ -65,7 +65,6 @@ import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.util.PipeConfigTools;
@@ -73,6 +72,7 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
 import logisticspipes.utils.string.ChatColor;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class LPEventListener {
 

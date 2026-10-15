@@ -49,7 +49,7 @@ import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 import logisticspipes.routing.debug.ClientViewController;
 import logisticspipes.utils.PositionRotation;
 import logisticspipes.world.item.ItemLogisticsPipe;
@@ -194,8 +194,8 @@ public class RenderTickHandler {
 				if (!level.isEmptyBlock(target)) {
 					BlockEntity tile = level.getBlockEntity(target);
 					boolean canPlace = false;
-					if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-						if (CoreMultiBlockPipe.canShare(((LogisticsTileGenericSubMultiBlock) tile).getSubTypes(), posType.type())) {
+					if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
+						if (CoreMultiBlockPipe.canShare(((LogisticsGenericSubMultiBlockBlockEntity) tile).getSubTypes(), posType.type())) {
 							canPlace = true;
 						}
 					}

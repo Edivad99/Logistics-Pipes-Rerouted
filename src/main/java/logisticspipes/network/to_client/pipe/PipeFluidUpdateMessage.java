@@ -15,8 +15,8 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.transport.PipeFluidTransportLogistics;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * How much a fluid pipe is holding in each of its tanks, so the client can draw it.

@@ -19,9 +19,9 @@ import logisticspipes.debug.DebugGuiController;
 import logisticspipes.network.DebugTarget;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.debug.DebugController;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * What the player was pointing at, in answer to

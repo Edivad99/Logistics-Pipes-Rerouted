@@ -56,11 +56,11 @@ import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.world.item.ItemLogisticsPipe;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 
 public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
 
@@ -116,7 +116,7 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
             .setValue(MODEL_TYPE_PROPERTY, PipeRenderModel.NONE));
     }
 
-    public static void removePipe(CoreUnroutedPipe pipe) {
+    public static void removePipe(@Nullable CoreUnroutedPipe pipe) {
         if (!LogisticsGenericPipeBlock.isValid(pipe)) {
             return;
         }
@@ -138,7 +138,7 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
             List<CoreMultiBlockPipe.SubBlock> list = ((CoreMultiBlockPipe) pipe).getRotatedSubBlocks();
             for (BlockPos pos : pipe.getContainer().subMultiBlock) {
                 BlockEntity tile = level.getBlockEntity(pos);
-                if (tile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+                if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
                     list.stream()
                         .min(Comparator.comparingDouble(block -> block.at(mainPos).distSqr(pos)))
                         .ifPresent(equ -> multiBlock.removeSubType(equ.type()));
@@ -216,14 +216,14 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
                         final BlockPos subPos = sub.at(blockPos);
                         BlockEntity subTile = level.getBlockEntity(subPos);
                         BlockState oldSubBlockState = level.getBlockState(subPos);
-                        if (subTile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+                        if (subTile instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
                             multiBlock.addMultiBlockMainPos(blockPos);
                             multiBlock.addSubTypeTo(sub.type());
                             TargetLookup.sendToChunkWatchers(subTile, multiBlock.getDescriptionMessage());
                         } else {
                             level.setBlock(subPos, LPBlocks.SUB_MULTIBLOCK.get().defaultBlockState(), 3);
                             subTile = level.getBlockEntity(subPos);
-                            if (subTile instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
+                            if (subTile instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
                                 multiBlock.addSubTypeTo(sub.type());
                             }
                         }

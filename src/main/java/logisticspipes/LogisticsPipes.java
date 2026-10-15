@@ -51,7 +51,6 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.property.PropertyUpdaterEventListener;
 import logisticspipes.proxy.PowerProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -88,6 +87,7 @@ import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsFEPowerProviderBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 
 @Mod(LPConstants.ID)

@@ -14,8 +14,8 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.ISendQueueContentReceiver;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * What a pipe still has queued to send, for the players watching its HUD.

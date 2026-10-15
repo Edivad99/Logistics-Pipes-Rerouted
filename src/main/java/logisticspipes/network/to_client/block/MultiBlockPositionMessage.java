@@ -16,7 +16,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe.SubBlockTypeForShare;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 
 /**
  * Which pipes a shared multi block belongs to, and what it stands in for.
@@ -43,8 +43,8 @@ public record MultiBlockPositionMessage(
             MultiBlockPositionMessage::new);
 
     public static void handle(MultiBlockPositionMessage message, IPayloadContext context) {
-        final LogisticsTileGenericSubMultiBlock be = TargetLookup.blockEntityAt(
-            context.player(), message.pos, LogisticsTileGenericSubMultiBlock.class);
+        final LogisticsGenericSubMultiBlockBlockEntity be = TargetLookup.blockEntityAt(
+            context.player(), message.pos, LogisticsGenericSubMultiBlockBlockEntity.class);
         if (be != null) {
             message.applyTo(be);
         }
@@ -55,7 +55,7 @@ public record MultiBlockPositionMessage(
         return TYPE;
     }
 
-    public void applyTo(LogisticsTileGenericSubMultiBlock be) {
+    public void applyTo(LogisticsGenericSubMultiBlockBlockEntity be) {
         be.setPosition(mainPipes, subTypes);
     }
 }

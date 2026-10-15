@@ -15,7 +15,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 
@@ -33,8 +33,9 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
                 && ((LogisticsGenericPipeBlockEntity) tile).pipe != null && ((LogisticsGenericPipeBlockEntity) tile).pipe.isHSTube()) {
 			return true;
 		}
-		if (tile instanceof LogisticsTileGenericSubMultiBlock && ((LogisticsTileGenericSubMultiBlock) tile).getMainPipe() != null && !((LogisticsTileGenericSubMultiBlock) tile).getMainPipe().isEmpty()) {
-			for (LogisticsGenericPipeBlockEntity pipe : ((LogisticsTileGenericSubMultiBlock) tile).getMainPipe()) {
+		if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity
+            && ((LogisticsGenericSubMultiBlockBlockEntity) tile).getMainPipe() != null && !((LogisticsGenericSubMultiBlockBlockEntity) tile).getMainPipe().isEmpty()) {
+			for (LogisticsGenericPipeBlockEntity pipe : ((LogisticsGenericSubMultiBlockBlockEntity) tile).getMainPipe()) {
 				if (pipe.pipe == null || !pipe.pipe.isHSTube()) {
 					return false;
 				}
@@ -106,8 +107,8 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 		if (tile instanceof LogisticsGenericPipeBlockEntity && ((LogisticsGenericPipeBlockEntity) tile).pipe instanceof CoreMultiBlockPipe) {
 			passToNextPipe(arrivingItem, tile);
 			return;
-		} else if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-			List<LogisticsGenericPipeBlockEntity> masterTile = ((LogisticsTileGenericSubMultiBlock) tile).getMainPipe();
+		} else if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
+			List<LogisticsGenericPipeBlockEntity> masterTile = ((LogisticsGenericSubMultiBlockBlockEntity) tile).getMainPipe();
 			if (!masterTile.isEmpty()) {
 				if (masterTile.size() > 1) {
 					throw new UnsupportedOperationException();
@@ -124,8 +125,8 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 		if (tile instanceof LogisticsGenericPipeBlockEntity && ((LogisticsGenericPipeBlockEntity) tile).pipe instanceof CoreMultiBlockPipe) {
 			passToNextPipe(arrivingItem, tile);
 			return;
-		} else if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-			List<LogisticsGenericPipeBlockEntity> masterTile = ((LogisticsTileGenericSubMultiBlock) tile).getMainPipe();
+		} else if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
+			List<LogisticsGenericPipeBlockEntity> masterTile = ((LogisticsGenericSubMultiBlockBlockEntity) tile).getMainPipe();
 			if (!masterTile.isEmpty()) {
 				if (masterTile.size() > 1) {
 					throw new UnsupportedOperationException();
@@ -149,8 +150,8 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 		if (getMultiPipe() != null) {
 			tile = getMultiPipe().getConnectedEndTile(output);
 		}
-		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-			List<LogisticsGenericPipeBlockEntity> list = ((LogisticsTileGenericSubMultiBlock) tile).getMainPipe();
+		if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
+			List<LogisticsGenericPipeBlockEntity> list = ((LogisticsGenericSubMultiBlockBlockEntity) tile).getMainPipe();
 			if (!list.isEmpty()) {
 				if (list.size() > 1) {
 					throw new UnsupportedOperationException();

@@ -23,11 +23,11 @@ import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * The server half of "point at the slot you mean".

@@ -18,6 +18,7 @@ import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.PositionRotation;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 
 public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 
@@ -129,7 +130,7 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 
 	@Override
 	public boolean canPipeConnect(BlockEntity tile, Direction side) {
-		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
+		if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
 			return true;
 		}
 		if (tile instanceof LogisticsGenericPipeBlockEntity) {

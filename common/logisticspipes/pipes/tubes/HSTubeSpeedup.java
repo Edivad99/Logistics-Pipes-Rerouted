@@ -23,7 +23,7 @@ import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
@@ -184,11 +184,11 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 			orientation.rotatePositions(rotation);
 			BlockPos offset = rotation.apply(new BlockPos(0, 0, -3));
 			BlockEntity subTile = getLevel().getBlockEntity(getPos().offset(offset));
-			if (subTile instanceof LogisticsTileGenericSubMultiBlock) {
-				return ((LogisticsTileGenericSubMultiBlock) subTile).getTile(output);
+			if (subTile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
+				return ((LogisticsGenericSubMultiBlockBlockEntity) subTile).getTile(output);
 			}
 		} else if (orientation.dir1.getOpposite() == output) {
-			return getContainer().getTile(output);
+			return getContainer().getBlockEntity(output);
 		}
 		return null;
 	}
@@ -235,7 +235,7 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 
 	@Override
 	public boolean canPipeConnect(BlockEntity tile, Direction side) {
-		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
+		if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
 			if (this.getOrientation().getDir1() != side) {
 				return false;
 			}

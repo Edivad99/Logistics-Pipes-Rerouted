@@ -227,7 +227,7 @@ public class PipeTransportLogistics {
 		return 0.0F;
 	}
 
-	public int injectItem(LPTravelingItem item, Direction inputOrientation) {
+	public int injectItem(LPTravelingItem item, @Nullable Direction inputOrientation) {
 		if (item.isCorrupted()) {
 			// Safe guard - if for any reason the item is corrupted at this
 			// stage, avoid adding it to the pipe to avoid further exceptions.
@@ -668,7 +668,7 @@ public class PipeTransportLogistics {
 	}
 
 	protected void reachedEnd(LPTravelingItem item) {
-		BlockEntity tile = container.getTile(item.output);
+		BlockEntity tile = container.getBlockEntity(item.output);
 		if (items.scheduleRemoval(item)) {
 			if (!getWorld().isClientSide()) {
 				handleTileReachedServer((LPTravelingItemServer) item, tile, item.output);
@@ -828,7 +828,7 @@ public class PipeTransportLogistics {
 
     @Nullable
 	public CoreUnroutedPipe getNextPipe(Direction output) {
-		BlockEntity tile = container.getTile(output);
+		BlockEntity tile = container.getBlockEntity(output);
 		if (tile instanceof LogisticsGenericPipeBlockEntity) {
 			return ((LogisticsGenericPipeBlockEntity) tile).pipe;
 		}

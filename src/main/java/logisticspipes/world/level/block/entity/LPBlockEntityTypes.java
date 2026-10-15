@@ -8,7 +8,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import logisticspipes.LPConstants;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.world.level.block.LPBlocks;
 
 public class LPBlockEntityTypes {
@@ -34,9 +33,9 @@ public class LPBlockEntityTypes {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsGenericPipeBlockEntity>> PIPE =
         deferredRegister.register("pipe",
             () -> new BlockEntityType<>(LogisticsGenericPipeBlockEntity::new, LPBlocks.PIPE.get()));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsTileGenericSubMultiBlock>> SUB_PIPE =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsGenericSubMultiBlockBlockEntity>> SUB_PIPE =
         deferredRegister.register("sub_pipe",
-            () -> new BlockEntityType<>(LogisticsTileGenericSubMultiBlock::new, LPBlocks.SUB_MULTIBLOCK.get()));
+            () -> new BlockEntityType<>(LogisticsGenericSubMultiBlockBlockEntity::new, LPBlocks.SUB_MULTIBLOCK.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsStatisticsBlockEntity>> STATISTICS_TABLE =
         deferredRegister.register("statistics_table",
             () -> new BlockEntityType<>(LogisticsStatisticsBlockEntity::new, LPBlocks.STATISTICS_TABLE.get()));

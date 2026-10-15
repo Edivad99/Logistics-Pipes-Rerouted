@@ -19,7 +19,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -80,12 +79,12 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
      * Routers whose last path search crossed this pipe; told when a pipe is added or removed next to it.
      */
     public final List<ITileEntityChangeListener> changeListeners = new ArrayList<>();
-    public final PipeVisualState visualState;
+    public final PipeVisualState visualState = new PipeVisualState();
     public final CoreState coreState = new CoreState();
     @Getter
     private final CacheHolder cacheHolder = new CacheHolder();
+    private final EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers = new EnumMap<>(Direction.class);
     public int statePacketId = 0;
-    public @Nullable Object OPENPERIPHERAL_IGNORE; //Tell OpenPeripheral to ignore this class
     public Set<BlockPos> subMultiBlock = new HashSet<>();
     public boolean[] turtleConnect = new boolean[7];
     @ModDependentField(modId = LPConstants.computerCraftModID)
@@ -116,14 +115,11 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
      * Set by {@link #onChunkUnloaded()}, which NeoForge calls right before setRemoved() when a chunk unloads.
      */
     private boolean chunkUnloading = false;
-    private final EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers;
 
     public LogisticsGenericPipeBlockEntity(BlockPos pos, BlockState state) {
         super(LPBlockEntityTypes.PIPE.get(), pos, state);
-        itemInsertionHandlers = new EnumMap<>(Direction.class);
         Arrays.stream(Direction.values())
             .forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));
-        visualState = new PipeVisualState();
     }
 
     public static void clientTick(Level level, BlockPos pos, BlockState state,
@@ -153,10 +149,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     }
 
     /**
-     * Tears the pipe down while the block entity is still attached to the level. Was
-     * {@code LogisticsBlockGenericPipe#onRemove} until 1.21.5 split block removal into
-     * {@code BlockEntity#preRemoveSideEffects} (runs first, block entity still present) and
-     * {@code BlockBehaviour#affectNeighborsAfterRemoval} (runs after it is gone).
+     * Tears the pipe down while the block entity is still attached to the level.
      */
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
@@ -350,12 +343,10 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        if (pipe != null && pipe.item != null) {
-            Identifier key = BuiltInRegistries.ITEM.getResourceKey(pipe.item)
-                .map(ResourceKey::identifier).orElse(null);
-            if (key != null) {
-                output.putString(NBT_PIPE_ID, key.toString());
-            }
+        if (pipe != null) {
+            BuiltInRegistries.ITEM.getResourceKey(pipe.item)
+                .map(ResourceKey::identifier)
+                .ifPresent(key -> output.putString(NBT_PIPE_ID, key.toString()));
             pipe.serialize(output);
         } else if (coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
             output.putString(NBT_PIPE_ID, coreState.pipeIdName);
@@ -408,7 +399,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         logicController.deserialize(input.childOrEmpty("logicController"));
     }
 
-    public boolean canPipeConnect(BlockEntity with, Direction side) {
+    public boolean canPipeConnect(@Nullable BlockEntity with, Direction side) {
         if (level.isClientSide()) {
             //XXX why is this ever called client side, its not *used* for anything.
             return false;
@@ -421,8 +412,8 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
             return false;
         }
 
-        if (with instanceof LogisticsGenericPipeBlockEntity) {
-            CoreUnroutedPipe otherPipe = ((LogisticsGenericPipeBlockEntity) with).pipe;
+        if (with instanceof LogisticsGenericPipeBlockEntity logisticsGenericPipeBlock) {
+            CoreUnroutedPipe otherPipe = logisticsGenericPipeBlock.pipe;
 
             if (!(LogisticsGenericPipeBlock.isValid(otherPipe))) {
                 return false;
@@ -498,8 +489,8 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
     @Override
     public CoreRoutedPipe getRoutingPipe() {
-        if (pipe instanceof CoreRoutedPipe) {
-            return (CoreRoutedPipe) pipe;
+        if (pipe instanceof CoreRoutedPipe coreRoutedPipe) {
+            return coreRoutedPipe;
         }
         throw new RuntimeException("This is no routing pipe");
     }
@@ -619,8 +610,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     @ModDependentMethod(modId = LPConstants.openComputersModID)
     public void onConnect(Object node1) {
     }
-    //public int redstoneInput = 0;
-    //public int[] redstoneInputSide = new int[Direction.values().length];
 
     @ModDependentMethod(modId = LPConstants.openComputersModID)
     public void onDisconnect(Object node1) {
@@ -644,8 +633,8 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     @ModDependentMethod(modId = LPConstants.openComputersModID)
     @Nullable
     public Object sidedNode(Direction side) {
-        if (this.getTile(side) instanceof LogisticsGenericPipeBlockEntity || this.getTile(
-            side) instanceof LogisticsSolidBlockEntity) {
+        if (this.getBlockEntity(side) instanceof LogisticsGenericPipeBlockEntity ||
+            this.getBlockEntity(side) instanceof LogisticsSolidBlockEntity) {
             return null;
         } else {
             return node();
@@ -654,15 +643,15 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
     @ModDependentMethod(modId = LPConstants.openComputersModID)
     public boolean canConnect(Direction side) {
-        return !(this.getTile(side) instanceof LogisticsGenericPipeBlockEntity) && !(this.getTile(
-            side) instanceof LogisticsSolidBlockEntity);
+        return !(this.getBlockEntity(side) instanceof LogisticsGenericPipeBlockEntity) &&
+            !(this.getBlockEntity(side) instanceof LogisticsSolidBlockEntity);
     }
 
-    public void initialize(CoreUnroutedPipe pipe) {
+    public void initialize(@Nullable CoreUnroutedPipe pipe) {
         // blockType field removed in 1.20.1; use getBlockState().getBlock()
 
         if (pipe == null) {
-            LogisticsPipes.LOG.warn("Pipe failed to initialize at " + getBlockPos().toString() + ", deleting");
+            LogisticsPipes.LOG.warn("Pipe failed to initialize at {}, deleting", getBlockPos());
             level.removeBlock(getBlockPos(), false);
             return;
         }
@@ -743,7 +732,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         }
 
         level.sendBlockUpdated(worldPosition, level.getBlockState(worldPosition), level.getBlockState(worldPosition),
-            3);
+            Block.UPDATE_ALL);
 
         if (visualState.needsRenderUpdate()) {
             // The baked model reads its geometry from the ModelData below, so the chunk has to
@@ -751,7 +740,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
             // would leave the mesh showing the previous connections.
             requestModelDataUpdate();
             level.sendBlockUpdated(worldPosition, level.getBlockState(worldPosition),
-                level.getBlockState(worldPosition), 3);
+                level.getBlockState(worldPosition), Block.UPDATE_ALL);
             visualState.clean();
         }
     }
@@ -800,29 +789,22 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         return tileBuffer;
     }
 
-    public void blockCreated(Direction from, Block block, BlockEntity tile) {
-        TileBuffer[] cache = getTileCache();
-        if (cache != null) {
-            cache[from.getOpposite().ordinal()].set(block, tile);
-        }
-    }
-
     @Override
     @Nullable
     public BlockEntity getNextConnectedTile(Direction to) {
         if (this.pipe.isMultiBlock()) {
             return ((CoreMultiBlockPipe) this.pipe).getConnectedEndTile(to);
         }
-        return getTile(to, false);
+        return getBlockEntity(to, false);
     }
 
     @Nullable
-    public BlockEntity getTile(Direction to) {
-        return getTile(to, false);
+    public BlockEntity getBlockEntity(Direction to) {
+        return getBlockEntity(to, false);
     }
 
     @Nullable
-    public BlockEntity getTile(Direction to, boolean force) {
+    public BlockEntity getBlockEntity(Direction to, boolean force) {
         TileBuffer[] cache = getTileCache();
         if (cache != null) {
             if (force) {
@@ -862,16 +844,8 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         refreshRenderState = true;
     }
 
-    public double getViewDistance() {
-        return 64 * 4;
-    }
-
     public Block getBlock() {
-        return getBlockState().getBlock(); // getBlockType() removed in 1.20.1
-    }
-
-    public boolean stillValid(Player player) {
-        return level.getBlockEntity(worldPosition) == this;
+        return getBlockState().getBlock();
     }
 
     @Override
@@ -924,10 +898,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         return pipe != null && pipe.isMultiBlock();
     }
 
-    public boolean isPipeBlock() {
-        return pipe != null && pipe.isPipeBlock();
-    }
-
     @Override
     public Stream<@Nullable BlockEntity> getPartsOfPipe() {
         return this.subMultiBlock.stream().map(level::getBlockEntity);
@@ -940,7 +910,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         return side != null ? itemInsertionHandlers.get(side) : null;
     }
 
-    public ResourceHandler<FluidResource> getFluidCap(@Nullable Direction side) {
+    public @Nullable ResourceHandler<FluidResource> getFluidCap(@Nullable Direction side) {
         if (side != null && pipe != null && pipe.transport instanceof PipeFluidTransportLogistics fluidTransport) {
             return fluidTransport.getFluidResourceHandler(side);
         }

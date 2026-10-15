@@ -18,12 +18,12 @@ import logisticspipes.client.gui.popup.DisconnectionConfigurationPopup;
 import logisticspipes.client.gui.popup.SneakyConfigurationPopup;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.world.WorldCoordinatesWrapper;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * Opens the settings popup of an upgrade the player clicked.

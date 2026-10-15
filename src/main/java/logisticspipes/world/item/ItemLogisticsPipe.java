@@ -34,10 +34,10 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.utils.PositionRotation;
 import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 
 /**
  * A logistics pipe Item
@@ -128,8 +128,8 @@ public class ItemLogisticsPipe extends LogisticsItem {
                 if (!player.mayUseItemAt(target, facing, itemstack) || !level.isEmptyBlock(target)) {
                     BlockEntity tile = level.getBlockEntity(target);
                     boolean canPlace = false;
-                    if (tile instanceof LogisticsTileGenericSubMultiBlock) {
-                        if (CoreMultiBlockPipe.canShare(((LogisticsTileGenericSubMultiBlock) tile).getSubTypes(),
+                    if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
+                        if (CoreMultiBlockPipe.canShare(((LogisticsGenericSubMultiBlockBlockEntity) tile).getSubTypes(),
                             iPos.type())) {
                             canPlace = true;
                         }
