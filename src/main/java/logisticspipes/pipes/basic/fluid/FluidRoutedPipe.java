@@ -137,7 +137,9 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
                     continue;
                 }
                 FluidStack drain = internalTank.drain(filled, true);
-                if (drain == null || filled != drain.getAmount()) {
+                if (filled != drain.getAmount()) {
+                    LogisticsPipes.LOG.warn("Fluid multiplication at {}: filled {} mB but drained {} mB",
+                        getPos(), filled, drain.getAmount());
                     if (LogisticsPipes.isDEBUG()) {
                         throw new UnsupportedOperationException("Fluid Multiplication");
                     }
@@ -170,7 +172,9 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
                     continue;
                 }
                 FluidStack drain = tank.drain(filled, true);
-                if (drain == null || filled != drain.getAmount()) {
+                if (filled != drain.getAmount()) {
+                    LogisticsPipes.LOG.warn("Fluid multiplication at {}: filled {} mB but drained {} mB",
+                        getPos(), filled, drain.getAmount());
                     if (LogisticsPipes.isDEBUG()) {
                         throw new UnsupportedOperationException("Fluid Multiplication");
                     }
