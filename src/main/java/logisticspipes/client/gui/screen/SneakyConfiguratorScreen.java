@@ -25,13 +25,14 @@ import logisticspipes.LPConstants;
 import logisticspipes.modules.SneakyDirection;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.SetSneakyDirectionMessage;
+import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.world.inventory.SneakyDirectionMenu;
 
 public class SneakyConfiguratorScreen extends ModuleBaseScreen<SneakyDirectionMenu> {
 
     private static final Identifier TEXTURE = LPConstants.rl("textures/gui/sneaky.png");
     private final SneakyDirection directionReceiver;
-    private final logisticspipes.utils.gui.SmallGuiButton[] dirButtons = new logisticspipes.utils.gui.SmallGuiButton[7];
+    private final SmallGuiButton[] dirButtons = new SmallGuiButton[7];
 
     public SneakyConfiguratorScreen(SneakyDirectionMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, menu.getModule(), 160, 200);
@@ -45,21 +46,21 @@ public class SneakyConfiguratorScreen extends ModuleBaseScreen<SneakyDirectionMe
         int left = width / 2 - panelWidth / 2;
         int top = height / 2 - panelHeight / 2;
 
-        dirButtons[0] = wire(new logisticspipes.utils.gui.SmallGuiButton(0, left + 110, top + 103, 40, 20, "")); //DOWN
-        dirButtons[1] = wire(new logisticspipes.utils.gui.SmallGuiButton(1, left + 110, top + 43, 40, 20, "")); //UP
-        dirButtons[2] = wire(new logisticspipes.utils.gui.SmallGuiButton(2, left + 50, top + 53, 50, 20, "")); //NORTH
-        dirButtons[3] = wire(new logisticspipes.utils.gui.SmallGuiButton(3, left + 50, top + 93, 50, 20, "")); //SOUTH
-        dirButtons[4] = wire(new logisticspipes.utils.gui.SmallGuiButton(4, left + 10, top + 73, 40, 20, "")); //WEST
-        dirButtons[5] = wire(new logisticspipes.utils.gui.SmallGuiButton(5, left + 100, top + 73, 40, 20, "")); //EAST
-        dirButtons[6] = wire(new logisticspipes.utils.gui.SmallGuiButton(6, left + 10, top + 23, 60, 20, "")); //DEFAULT
-        for (logisticspipes.utils.gui.SmallGuiButton b : dirButtons) {
+        dirButtons[0] = wire(new SmallGuiButton(0, left + 110, top + 103, 40, 20, "")); //DOWN
+        dirButtons[1] = wire(new SmallGuiButton(1, left + 110, top + 43, 40, 20, "")); //UP
+        dirButtons[2] = wire(new SmallGuiButton(2, left + 50, top + 53, 50, 20, "")); //NORTH
+        dirButtons[3] = wire(new SmallGuiButton(3, left + 50, top + 93, 50, 20, "")); //SOUTH
+        dirButtons[4] = wire(new SmallGuiButton(4, left + 10, top + 73, 40, 20, "")); //WEST
+        dirButtons[5] = wire(new SmallGuiButton(5, left + 100, top + 73, 40, 20, "")); //EAST
+        dirButtons[6] = wire(new SmallGuiButton(6, left + 10, top + 23, 60, 20, "")); //DEFAULT
+        for (SmallGuiButton b : dirButtons) {
             addRenderableWidget(b);
         }
 
         refreshButtons();
     }
 
-    private logisticspipes.utils.gui.SmallGuiButton wire(logisticspipes.utils.gui.SmallGuiButton btn) {
+    private SmallGuiButton wire(SmallGuiButton btn) {
         btn.setPressListener(b -> {
             directionReceiver.setSneakyDirection(b.id == 6 ? null : Direction.from3DDataValue(b.id));
             ClientPacketDistributor.sendToServer(new SetSneakyDirectionMessage(
@@ -70,7 +71,7 @@ public class SneakyConfiguratorScreen extends ModuleBaseScreen<SneakyDirectionMe
     }
 
     private void refreshButtons() {
-        for (logisticspipes.utils.gui.SmallGuiButton button : dirButtons) {
+        for (SmallGuiButton button : dirButtons) {
             if (button == null) {
                 continue;
             }
