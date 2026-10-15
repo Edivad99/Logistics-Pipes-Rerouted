@@ -30,7 +30,7 @@ import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
-public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityBlock {
+public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityBlock {
 
     /**
      * Fallback so the helper block stays targetable when no main pipe geometry is found.
@@ -39,7 +39,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
     public static boolean redirectedToMainPipe = false;
     public static @Nullable BlockPos CURRENT_CREATED_MULTI_BLOCK;
 
-    public LogisticsBlockGenericSubMultiBlock(Properties properties) {
+    public LogisticsGenericSubMultiBlockBlock(Properties properties) {
         super(properties.strength(1.5F).noOcclusion().dynamicShape().forceSolidOn());
     }
 
@@ -94,7 +94,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new LogisticsTileGenericSubMultiBlock(pos, state,
-            LogisticsBlockGenericSubMultiBlock.CURRENT_CREATED_MULTI_BLOCK);
+            LogisticsGenericSubMultiBlockBlock.CURRENT_CREATED_MULTI_BLOCK);
     }
 
     @Nullable

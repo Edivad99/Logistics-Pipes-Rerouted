@@ -30,7 +30,7 @@ import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.ISubMultiBlockPipeInformationProvider;
 import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.utils.TileBuffer;
-import logisticspipes.world.level.block.LogisticsBlockGenericSubMultiBlock;
+import logisticspipes.world.level.block.LogisticsGenericSubMultiBlockBlock;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
 public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements ISubMultiBlockPipeInformationProvider {
@@ -71,7 +71,7 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	 */
 	@Override
 	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-		if (!LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe && level != null) {
+		if (!LogisticsGenericSubMultiBlockBlock.redirectedToMainPipe && level != null) {
 			getMainPipe().stream()
 					.filter(Objects::nonNull)
 					.filter(LogisticsGenericPipeBlockEntity::isMultiBlock)

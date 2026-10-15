@@ -55,6 +55,6 @@ public class LPBlocks {
     public static final DeferredBlock<LogisticsGenericPipeBlock> PIPE =
         deferredRegister.registerBlock("pipe", LogisticsGenericPipeBlock::new);
 
-    public static final DeferredBlock<LogisticsBlockGenericSubMultiBlock> SUB_MULTIBLOCK =
-        deferredRegister.registerBlock("sub_multiblock", LogisticsBlockGenericSubMultiBlock::new);
+    public static final DeferredBlock<LogisticsGenericSubMultiBlockBlock> SUB_MULTIBLOCK =
+        deferredRegister.registerBlock("sub_multiblock", LogisticsGenericSubMultiBlockBlock::new);
 }

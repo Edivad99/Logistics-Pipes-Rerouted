@@ -143,9 +143,9 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
                         .min(Comparator.comparingDouble(block -> block.at(mainPos).distSqr(pos)))
                         .ifPresent(equ -> multiBlock.removeSubType(equ.type()));
                     if (multiBlock.removeMainPipe(pipe.getPos())) {
-                        LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = true;
+                        LogisticsGenericSubMultiBlockBlock.redirectedToMainPipe = true;
                         level.removeBlock(pos, false);
-                        LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = false;
+                        LogisticsGenericSubMultiBlockBlock.redirectedToMainPipe = false;
                     } else {
                         TargetLookup.sendToChunkWatchers(tile, multiBlock.getDescriptionMessage());
                     }
@@ -211,7 +211,7 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
                         throw new NullPointerException();
                     }
                     orientation.setOnPipe(mPipe);
-                    LogisticsBlockGenericSubMultiBlock.CURRENT_CREATED_MULTI_BLOCK = blockPos;
+                    LogisticsGenericSubMultiBlockBlock.CURRENT_CREATED_MULTI_BLOCK = blockPos;
                     for (CoreMultiBlockPipe.SubBlock sub : mPipe.getRotatedSubBlocks()) {
                         final BlockPos subPos = sub.at(blockPos);
                         BlockEntity subTile = level.getBlockEntity(subPos);
@@ -230,7 +230,7 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
                         level.markAndNotifyBlock(subPos, level.getChunkAt(subPos), oldSubBlockState,
                             level.getBlockState(subPos), 3, 512);
                     }
-                    LogisticsBlockGenericSubMultiBlock.CURRENT_CREATED_MULTI_BLOCK = null;
+                    LogisticsGenericSubMultiBlockBlock.CURRENT_CREATED_MULTI_BLOCK = null;
                 }
                 tilePipe.initialize(pipe);
             }
