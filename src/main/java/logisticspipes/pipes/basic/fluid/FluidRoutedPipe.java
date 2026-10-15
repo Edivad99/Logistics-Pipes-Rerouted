@@ -244,7 +244,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
             }
 
             IRoutedItem routedItem = SimpleServiceLocator.routedItemHelper.createNewTravelItem(
-                SimpleServiceLocator.logisticsFluidManager.getFluidContainer(liquid, getLevel().registryAccess()));
+                SimpleServiceLocator.logisticsFluidManager.getFluidContainer(liquid));
             // Carry forward the arriving item's jam list so the rerouted remainder does
             // not immediately pick the same (now-full) path again, and add this pipe's
             // router to prevent looping back here on the very next hop.

@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -61,7 +60,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 	}
 
 	@Override
-	public ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack, HolderLookup.Provider provider) {
+	public ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack) {
 		ItemStack item = new ItemStack(LPItems.FLUID_CONTAINER.get(), 1);
         FluidStack fluidStack = stack.makeFluidStack();
         if (!fluidStack.isEmpty()) {

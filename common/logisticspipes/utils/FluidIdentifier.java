@@ -31,7 +31,6 @@ import com.mojang.serialization.Codec;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.proxy.LPRegistries;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -211,7 +210,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	}
 
 	public ItemIdentifier getItemIdentifier() {
-		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1), LPRegistries.access()).getItem();
+		return SimpleServiceLocator.logisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1)).getItem();
 	}
 
 	public int getFreeSpaceInsideTank(ResourceHandler<FluidResource> tank) {
