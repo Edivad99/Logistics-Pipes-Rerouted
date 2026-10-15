@@ -101,7 +101,7 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 	@Override

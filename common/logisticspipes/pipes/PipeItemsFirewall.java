@@ -56,7 +56,7 @@ public class PipeItemsFirewall extends CoreRoutedPipe implements IPipeMenuProvid
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 	@Override

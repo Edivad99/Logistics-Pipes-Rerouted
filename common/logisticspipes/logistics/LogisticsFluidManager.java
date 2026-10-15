@@ -75,7 +75,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 
 	@Override
     @Nullable
-	public FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack, HolderLookup.Provider provider) {
+	public FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack) {
 		ItemStack itemStack = stack.makeNormalStack();
 		if (itemStack.getItem() instanceof LogisticsFluidContainer) {
             if (itemStack.has(LPDataComponents.FLUID)) {

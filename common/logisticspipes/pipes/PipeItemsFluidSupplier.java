@@ -103,13 +103,13 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Fast;
+		return ItemSendMode.FAST;
 	}
 
 	public void endReached(LPTravelingItemServer data, BlockEntity tile) {
 		getCacheHolder().trigger(CacheTypes.Inventory);
 		transport.markChunkModified(tile);
-		notifyOfItemArival(data.getInfo());
+		notifyOfItemArrival(data.getInfo());
 		Direction orientation = data.output.getOpposite();
 		if (getOriginalUpgradeManager().hasSneakyUpgrade()) {
 			orientation = getOriginalUpgradeManager().getSneakyOrientation();

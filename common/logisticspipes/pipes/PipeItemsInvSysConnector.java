@@ -310,7 +310,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe implements IChannel
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Fast;
+		return ItemSendMode.FAST;
 	}
 
 	@Override

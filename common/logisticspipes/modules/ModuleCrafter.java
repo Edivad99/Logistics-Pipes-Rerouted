@@ -903,7 +903,7 @@ public class ModuleCrafter extends LogisticsModule
 						ItemStack stackToSend = extracted.split(numToSend);
 						//Route the unhandled item
 
-						service.sendStack(stackToSend, -1, ItemSendMode.Normal, null, adjacent.getDirection());
+						service.sendStack(stackToSend, -1, ItemSendMode.NORMAL, null, adjacent.getDirection());
 						continue;
 					}
 				}
@@ -928,7 +928,7 @@ public class ModuleCrafter extends LogisticsModule
 					service.queueRoutedItem(item, adjacent.getDirection());
 					service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), deferSend, item);
 				} else {
-					service.sendStack(stackToSend, -1, ItemSendMode.Normal, nextOrder.getInformation(),
+					service.sendStack(stackToSend, -1, ItemSendMode.NORMAL, nextOrder.getInformation(),
 							adjacent.getDirection());
 					service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), false, null);
 				}

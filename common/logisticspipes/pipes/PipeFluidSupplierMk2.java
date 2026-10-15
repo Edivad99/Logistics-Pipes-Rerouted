@@ -65,7 +65,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Fast;
+		return ItemSendMode.FAST;
 	}
 
 	@Override

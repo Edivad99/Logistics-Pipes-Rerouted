@@ -152,7 +152,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 	}
 
 	public ItemSendMode itemSendMode() {
-		return getUpgradeManager().getItemExtractionUpgrade() > 0 ? ItemSendMode.Fast : ItemSendMode.Normal;
+		return getUpgradeManager().getItemExtractionUpgrade() > 0 ? ItemSendMode.FAST : ItemSendMode.NORMAL;
 	}
 
 	@Override

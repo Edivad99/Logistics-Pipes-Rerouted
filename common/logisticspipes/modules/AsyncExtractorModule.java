@@ -130,8 +130,8 @@ public class AsyncExtractorModule extends AsyncModule<ExtractorJob, @Nullable Vo
 
     CoreRoutedPipe.ItemSendMode getItemSendMode() {
         return getUpgradeManager().getItemExtractionUpgrade() > 0
-            ? CoreRoutedPipe.ItemSendMode.Fast
-            : CoreRoutedPipe.ItemSendMode.Normal;
+            ? CoreRoutedPipe.ItemSendMode.FAST
+            : CoreRoutedPipe.ItemSendMode.NORMAL;
     }
 
     private @Nullable IInventoryUtil getConnectedInventory() {

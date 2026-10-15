@@ -36,7 +36,7 @@ public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe implemen
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 	@Override

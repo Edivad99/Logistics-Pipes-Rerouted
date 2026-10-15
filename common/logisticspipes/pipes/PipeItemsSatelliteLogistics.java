@@ -102,7 +102,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 	@Override

@@ -35,7 +35,7 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
     @Override
     public Component getName(ItemStack itemstack) {
         FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
-            ItemIdentifierStack.getFromStack(itemstack), Minecraft.getInstance().level.registryAccess());
+            ItemIdentifierStack.getFromStack(itemstack));
         if (fluidStack != null) {
             return fluidStack.makeFluidStack().getHoverName();
         }
@@ -48,7 +48,7 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (Minecraft.getInstance().hasShiftDown()) {
             FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
-                ItemIdentifierStack.getFromStack(stack), Minecraft.getInstance().level.registryAccess());
+                ItemIdentifierStack.getFromStack(stack));
             if (fluidStack != null) {
                 tooltipAdder.accept(
                     Component.literal("Type:  " + fluidStack.makeFluidStack().getHoverName().getString()));

@@ -173,7 +173,7 @@ public class AsyncQuicksortModule extends AsyncModule<@Nullable AsyncQuicksortMo
         if (extracted.isEmpty()) {
             return;
         }
-        service.sendStack(extracted, destRouterId, sinkReply, CoreRoutedPipe.ItemSendMode.Fast, pointedOrientation);
+        service.sendStack(extracted, destRouterId, sinkReply, CoreRoutedPipe.ItemSendMode.FAST, pointedOrientation);
         service.spawnParticle(Particles.ORANGE_SPARKLE, 8);
     }
 

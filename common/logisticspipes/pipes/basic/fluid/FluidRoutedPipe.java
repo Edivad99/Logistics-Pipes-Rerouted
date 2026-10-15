@@ -57,7 +57,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 	@Override
@@ -181,7 +181,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		for (ItemRoutingInformation next : inTransitToMe) {
 			ItemIdentifierStack item = next.getItem();
 			if (item.getItem().isFluidContainer()) {
-				FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(item, getLevel().registryAccess());
+				FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(item);
 				if (liquid.getFluid().equals(ident)) {
 					amount += liquid.getAmount();
 				}
@@ -206,7 +206,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 				return false;
 			}
 			int filled;
-			FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(arrivingItem.getItemIdentifierStack(), getLevel().registryAccess());
+			FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(arrivingItem.getItemIdentifierStack());
 			if (isConnectableTank(tile, arrivingItem.output, false)) {
 				//Try to put liquid into all adjacent tanks.
 				for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> util : PipeFluidUtil.getAdjacentTanks(this, false)) {

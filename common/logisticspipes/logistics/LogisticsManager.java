@@ -197,7 +197,7 @@ public class LogisticsManager implements ILogisticsManager {
 			CoreRoutedPipe sourcePipe = sourceRouter.getPipe();
 			Level level = sourcePipe == null ? null : sourcePipe.getLevel();
 			FluidIdentifierStack fluid = level == null ? null
-					: SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(itemIdStack, level.registryAccess());
+					: SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(itemIdStack);
 			if (fluid != null) {
 				Pair<Integer, FluidSinkReply> bestReply = SimpleServiceLocator.logisticsFluidManager.getBestReply(fluid, sourceRouter, item.getJamList());
 				if (bestReply != null) {

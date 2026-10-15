@@ -441,7 +441,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 	// ComputerCraft is not available on 1.20.1 — these retain the former dummy-proxy semantics.
 	public void queueEvent(String event, Object[] arguments) {}
 
-	public void handleMesssage(int computerId, Object message, int sourceId) {}
+	public void handleMessage(int computerId, Object message, int sourceId) {}
 
 	public boolean getTurtleConnect() {
 		return false;

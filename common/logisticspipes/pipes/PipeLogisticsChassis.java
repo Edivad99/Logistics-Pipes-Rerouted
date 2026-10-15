@@ -540,7 +540,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 	@Override

@@ -57,7 +57,7 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 }

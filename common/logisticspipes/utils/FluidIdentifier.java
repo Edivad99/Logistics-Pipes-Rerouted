@@ -154,7 +154,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	 */
 	@Nullable
 	public static FluidIdentifier get(ItemIdentifierStack stack) {
-		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack, LPRegistries.access());
+		FluidIdentifierStack fstack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack);
 		if (fstack != null) {
 			return FluidIdentifier.get(fstack.makeFluidStack());
 		}

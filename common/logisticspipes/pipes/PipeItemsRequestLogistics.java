@@ -96,7 +96,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 	@CCCommand(description = "Requests the given ItemIdentifierStack")

@@ -29,17 +29,17 @@ public class ChassisTransportLayer extends TransportLayer {
 	public boolean stillWantItem(IRoutedItem item) {
 		LogisticsModule module = chassisPipe.getLogisticsModule();
 		if (module == null) {
-			chassisPipe.notifyOfItemArival(item.getInfo());
+			chassisPipe.notifyOfItemArrival(item.getInfo());
 			return false;
 		}
 		if (!chassisPipe.isEnabled()) {
-			chassisPipe.notifyOfItemArival(item.getInfo());
+			chassisPipe.notifyOfItemArrival(item.getInfo());
 			return false;
 		}
 		final ItemIdentifierStack itemIdStack = item.getItemIdentifierStack();
 		SinkReply reply = module.sinksItem(itemIdStack.makeNormalStack(), itemIdStack.getItem(), -1, 0, true, false, false);
 		if (reply == null || reply.maxNumberOfItems < 0) {
-			chassisPipe.notifyOfItemArival(item.getInfo());
+			chassisPipe.notifyOfItemArrival(item.getInfo());
 			return false;
 		}
 

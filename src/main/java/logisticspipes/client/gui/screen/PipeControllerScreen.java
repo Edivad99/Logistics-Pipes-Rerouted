@@ -216,7 +216,7 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
 
             drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_ROUTING_TABLE_SIZE, 110, 110);
 
-            String s = StringUtils.getStringWithSpacesFromLong(pipe.server_routing_table_size);
+            String s = StringUtils.getStringWithSpacesFromLong(pipe.serverRoutingTableSize);
             guiGraphics.text(font, s, 130 - font.width(s) / 2, 110, 0xFF303030, false);
         }
 

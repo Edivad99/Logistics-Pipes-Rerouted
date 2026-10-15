@@ -49,7 +49,7 @@ public class PipeItemsSystemEntranceLogistics extends CoreRoutedPipe implements 
 
 	@Override
 	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.Normal;
+		return ItemSendMode.NORMAL;
 	}
 
 	@Override
