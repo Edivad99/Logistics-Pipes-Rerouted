@@ -44,7 +44,6 @@ import logisticspipes.asm.ModDependentField;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelProperties;
-import logisticspipes.connection.PipeInventoryConnectionChecker;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.logic.LogicController;
 import logisticspipes.logic.interfaces.ILogicControllerTile;
@@ -77,7 +76,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     ILogicControllerTile {
 
     private static final String NBT_PIPE_ID = "pipeIdName";
-    public static PipeInventoryConnectionChecker pipeInventoryConnectionChecker = new PipeInventoryConnectionChecker();
     /**
      * Routers whose last path search crossed this pipe; told when a pipe is added or removed next to it.
      */
