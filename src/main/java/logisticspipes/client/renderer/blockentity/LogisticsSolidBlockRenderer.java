@@ -27,7 +27,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.solid.SolidBlockModelParts;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.LogisticsSolidBlock;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
@@ -150,7 +150,7 @@ public class LogisticsSolidBlockRenderer<T extends BlockEntity> implements Block
             Direction facing = side.facing(state.rotation);
             BlockPos newPos = pos.relative(facing);
             BlockEntity sideTile = tile.getLevel().getBlockEntity(newPos);
-            if (sideTile instanceof LogisticsTileGenericPipe tilePipe
+            if (sideTile instanceof LogisticsGenericPipeBlockEntity tilePipe
                 && tilePipe.visualState != null
                 && tilePipe.visualState.pipeConnectionMatrix.isConnected(facing.getOpposite())) {
                 continue;

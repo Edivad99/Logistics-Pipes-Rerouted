@@ -65,12 +65,13 @@ import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.TileBuffer;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 import logisticspipes.world.level.block.entity.pipe.PipePowerLasers;
 import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
-public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInformationProvider,
+public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPipeInformationProvider,
     ILogicControllerTile {
 
 	/** Routers whose last path search crossed this pipe; told when a pipe is added or removed next to it. */
@@ -118,7 +119,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	private boolean chunkUnloading = false;
 	private EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers;
 
-	public LogisticsTileGenericPipe(BlockPos pos, BlockState state) {
+	public LogisticsGenericPipeBlockEntity(BlockPos pos, BlockState state) {
 		super(LPBlockEntityTypes.PIPE.get(), pos, state);
 		itemInsertionHandlers = new EnumMap<>(Direction.class);
 		Arrays.stream(Direction.values()).forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));
@@ -134,7 +135,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	 */
 	@Override
 	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-		LogisticsBlockGenericPipe.removePipe(pipe);
+		LogisticsGenericPipeBlock.removePipe(pipe);
 		super.preRemoveSideEffects(pos, state);
 	}
 
@@ -184,13 +185,13 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 		}
 	}
 
-	public static void clientTick(Level level, BlockPos pos, BlockState state, LogisticsTileGenericPipe blockEntity) {
+	public static void clientTick(Level level, BlockPos pos, BlockState state, LogisticsGenericPipeBlockEntity blockEntity) {
 		final Info debug = blockEntity.beginTickTrace();
 		blockEntity.tickShared();
 		debug.end();
 	}
 
-	public static void serverTick(Level level, BlockPos pos, BlockState state, LogisticsTileGenericPipe blockEntity) {
+	public static void serverTick(Level level, BlockPos pos, BlockState state, LogisticsGenericPipeBlockEntity blockEntity) {
 		final Info debug = blockEntity.beginTickTrace();
 		// Before the liveness checks, as it was: the init packet is owed even by a container whose
 		// pipe has not been built yet.
@@ -229,7 +230,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 			initialize(pipe);
 		}
 
-		if (!LogisticsBlockGenericPipe.isValid(pipe)) {
+		if (!LogisticsGenericPipeBlock.isValid(pipe)) {
 			return false;
 		}
 
@@ -384,7 +385,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 		coreState.pipeIdName = savedPipeId;
 		Identifier pipeId = Identifier.tryParse(savedPipeId);
 		Item pipeItem = pipeId == null ? null : BuiltInRegistries.ITEM.getValue(pipeId);
-		pipe = LogisticsBlockGenericPipe.createPipe(pipeItem);
+		pipe = LogisticsGenericPipeBlock.createPipe(pipeItem);
 		// load() can run more than once on the client (initial chunk tag + later data packets).
 		// Each run replaces the pipe object, so the bind must be redone or the fresh pipe keeps a
 		// null container and the renderer NPEs in CoreRoutedPipe.isOpaque on a cold world load.
@@ -418,14 +419,14 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 			return false;
 		}
 
-		if (!LogisticsBlockGenericPipe.isValid(pipe)) {
+		if (!LogisticsGenericPipeBlock.isValid(pipe)) {
 			return false;
 		}
 
-		if (with instanceof LogisticsTileGenericPipe) {
-			CoreUnroutedPipe otherPipe = ((LogisticsTileGenericPipe) with).pipe;
+		if (with instanceof LogisticsGenericPipeBlockEntity) {
+			CoreUnroutedPipe otherPipe = ((LogisticsGenericPipeBlockEntity) with).pipe;
 
-			if (!(LogisticsBlockGenericPipe.isValid(otherPipe))) {
+			if (!(LogisticsGenericPipeBlock.isValid(otherPipe))) {
 				return false;
 			}
 
@@ -579,7 +580,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	}
 
 	public int injectItem(ItemStack payload, boolean doAdd, Direction from) {
-		if (LogisticsBlockGenericPipe.isValid(pipe) && pipe.transport != null && isPipeConnectedCached(from)) {
+		if (LogisticsGenericPipeBlock.isValid(pipe) && pipe.transport != null && isPipeConnectedCached(from)) {
 			if (doAdd && !getLevel().isClientSide()) {
 				ItemStack leftStack = payload.copy();
 				int lastIterLeft;
@@ -638,7 +639,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 	@ModDependentMethod(modId = LPConstants.openComputersModID)
 	@Nullable
 	public Object sidedNode(Direction side) {
-		if (this.getTile(side) instanceof LogisticsTileGenericPipe || this.getTile(side) instanceof LogisticsSolidBlockEntity) {
+		if (this.getTile(side) instanceof LogisticsGenericPipeBlockEntity || this.getTile(side) instanceof LogisticsSolidBlockEntity) {
 			return null;
 		} else {
 			return node();
@@ -647,7 +648,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 
 	@ModDependentMethod(modId = LPConstants.openComputersModID)
 	public boolean canConnect(Direction side) {
-		return !(this.getTile(side) instanceof LogisticsTileGenericPipe) && !(this.getTile(side) instanceof LogisticsSolidBlockEntity);
+		return !(this.getTile(side) instanceof LogisticsGenericPipeBlockEntity) && !(this.getTile(side) instanceof LogisticsSolidBlockEntity);
 	}
 
 	public void initialize(CoreUnroutedPipe pipe) {
@@ -714,7 +715,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 		if (pipe == null && coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
 			Item pipeItem = BuiltInRegistries.ITEM.getValue(
 				Identifier.parse(coreState.pipeIdName));
-			initialize(LogisticsBlockGenericPipe.createPipe(pipeItem));
+			initialize(LogisticsGenericPipeBlock.createPipe(pipeItem));
 		}
 
 		if (pipe == null) {
@@ -894,7 +895,7 @@ public class LogisticsTileGenericPipe extends BlockEntity implements IPipeInform
 
 	@Override
 	public boolean acceptItem(LPTravelingItem item, BlockEntity from) {
-		if (LogisticsBlockGenericPipe.isValid(pipe) && pipe.transport != null) {
+		if (LogisticsGenericPipeBlock.isValid(pipe) && pipe.transport != null) {
 			pipe.transport.injectItem(item, item.output);
 			return true;
 		}

@@ -19,7 +19,7 @@ import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.tuples.Pair;
 
@@ -93,7 +93,7 @@ public class ClientRouter implements IRouter {
 		if (level == null) {
 			return null;
 		}
-        if (level.getBlockEntity(this.pos) instanceof LogisticsTileGenericPipe pipe) {
+        if (level.getBlockEntity(this.pos) instanceof LogisticsGenericPipeBlockEntity pipe) {
             if (pipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
                 return coreRoutedPipe;
             }

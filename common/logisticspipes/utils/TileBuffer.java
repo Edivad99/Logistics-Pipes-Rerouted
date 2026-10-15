@@ -11,7 +11,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 public final class TileBuffer {
 
@@ -53,7 +53,8 @@ public final class TileBuffer {
 			return;
 		}
 		BlockState blockState = chunk.getBlockState(pos);
-		if (tile instanceof LogisticsTileGenericPipe && ((LogisticsTileGenericPipe) tile).pipe != null && ((LogisticsTileGenericPipe) tile).pipe.preventRemove()) {
+		if (tile instanceof LogisticsGenericPipeBlockEntity
+                && ((LogisticsGenericPipeBlockEntity) tile).pipe != null && ((LogisticsGenericPipeBlockEntity) tile).pipe.preventRemove()) {
 			if (blockState.isAir()) {
 				return;
 			}

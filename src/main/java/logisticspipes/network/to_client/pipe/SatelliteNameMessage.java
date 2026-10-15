@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The name a satellite pipe answers to, for the clients that can see it.
@@ -30,8 +30,8 @@ public record SatelliteNameMessage(BlockPos pos, String name) implements CustomP
             SatelliteNameMessage::new);
 
     public static void handle(SatelliteNameMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe container =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (container != null && container.pipe instanceof SatellitePipe satellite) {
             satellite.setSatellitePipeName(message.name);
         }

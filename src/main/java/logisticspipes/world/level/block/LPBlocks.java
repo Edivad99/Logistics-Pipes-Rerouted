@@ -10,8 +10,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import logisticspipes.LPConstants;
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
-import logisticspipes.pipes.basic.LogisticsBlockGenericSubMultiBlock;
 
 public class LPBlocks {
 
@@ -54,8 +52,8 @@ public class LPBlocks {
     public static final DeferredBlock<LogisticsProgramCompilerBlock> PROGRAM_COMPILER =
         deferredRegister.registerBlock("program_compiler", LogisticsProgramCompilerBlock::new);
 
-    public static final DeferredBlock<LogisticsBlockGenericPipe> PIPE =
-        deferredRegister.registerBlock("pipe", LogisticsBlockGenericPipe::new);
+    public static final DeferredBlock<LogisticsGenericPipeBlock> PIPE =
+        deferredRegister.registerBlock("pipe", LogisticsGenericPipeBlock::new);
 
     public static final DeferredBlock<LogisticsBlockGenericSubMultiBlock> SUB_MULTIBLOCK =
         deferredRegister.registerBlock("sub_multiblock", LogisticsBlockGenericSubMultiBlock::new);

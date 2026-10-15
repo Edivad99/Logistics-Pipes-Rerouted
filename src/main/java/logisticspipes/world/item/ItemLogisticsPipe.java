@@ -34,7 +34,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.utils.PositionRotation;
 import logisticspipes.world.level.block.LPBlocks;
@@ -76,7 +76,7 @@ public class ItemLogisticsPipe extends LogisticsItem {
 
         if (!dummyPipe.isMultiBlock()) {
             if (player.mayUseItemAt(pos, facing, itemstack) && level.isEmptyBlock(pos)) {
-                CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.createPipe(this);
+                CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.createPipe(this);
 
                 if (pipe == null) {
                     LogisticsPipes.LOG.warn("Pipe failed to create during placement at {},{},{}", pos.getX(),
@@ -84,7 +84,7 @@ public class ItemLogisticsPipe extends LogisticsItem {
                     return InteractionResult.PASS;
                 }
 
-                if (LogisticsBlockGenericPipe.placePipe(pipe, level, pos, block, null)) {
+                if (LogisticsGenericPipeBlock.placePipe(pipe, level, pos, block, null)) {
                     BlockState state = level.getBlockState(pos);
                     if (state.is(block)) {
                         //setTileEntityNBT(world, player, pos, stack);
@@ -141,7 +141,7 @@ public class ItemLogisticsPipe extends LogisticsItem {
                 }
             }
             if (isFreeSpace) {
-                CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.createPipe(this);
+                CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.createPipe(this);
 
                 if (pipe == null) {
                     LogisticsPipes.LOG.warn("Pipe failed to create during placement at {},{},{}", pos.getX(),
@@ -149,7 +149,7 @@ public class ItemLogisticsPipe extends LogisticsItem {
                     return InteractionResult.SUCCESS;
                 }
 
-                if (LogisticsBlockGenericPipe.placePipe(pipe, level, placeAt, block, orientation)) {
+                if (LogisticsGenericPipeBlock.placePipe(pipe, level, placeAt, block, orientation)) {
                     BlockState state = level.getBlockState(placeAt);
                     if (state.getBlock() == block) {
                         //setTileEntityNBT(world, player, pos, stack);

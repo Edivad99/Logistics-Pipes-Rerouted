@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The amount a fluid supplier is set to request, after the server has clamped it.
@@ -32,8 +32,8 @@ public record FluidSupplierAmountMessage(BlockPos pos, int amount) implements Cu
             FluidSupplierAmountMessage::new);
 
     public static void handle(FluidSupplierAmountMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof PipeFluidSupplierMk2 pipe) {
             pipe.setAmount(message.amount);
         }

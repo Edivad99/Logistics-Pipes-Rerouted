@@ -9,7 +9,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.ticks.QueuedTasks;
 
@@ -68,7 +68,7 @@ public class BlockChangeListener {
             BlockEntity adjacentTE = level.getBlockEntity(adjacent);
             if (adjacentTE == null) continue;
 
-            if (!(adjacentTE instanceof LogisticsTileGenericPipe lpTile)) continue;
+            if (!(adjacentTE instanceof LogisticsGenericPipeBlockEntity lpTile)) continue;
             if (!lpTile.isChangeDetectionActive()) continue;
 
             if (SimpleServiceLocator.pipeInformationManager.isItemPipe(adjacentTE)) {

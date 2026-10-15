@@ -15,7 +15,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.ChassisOrientationMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * A chassis pipe has loaded on the client, which cannot tell from the block state which way it
@@ -32,8 +32,8 @@ public record RequestChassisOrientationMessage(BlockPos pos) implements CustomPa
             RequestChassisOrientationMessage::new);
 
     public static void handle(RequestChassisOrientationMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof PipeLogisticsChassis chassis
             && context.player() instanceof ServerPlayer player) {
             PacketDistributor.sendToPlayer(player, new ChassisOrientationMessage(

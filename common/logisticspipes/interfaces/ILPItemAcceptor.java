@@ -3,9 +3,9 @@ package logisticspipes.interfaces;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 public interface ILPItemAcceptor {
 
-	boolean accept(LogisticsTileGenericPipe pipe, Direction from, ItemStack stack);
+	boolean accept(LogisticsGenericPipeBlockEntity pipe, Direction from, ItemStack stack);
 }

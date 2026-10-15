@@ -21,7 +21,7 @@ import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeFluidUtil;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.order.LogisticsFluidOrderManager;
@@ -52,7 +52,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 	@Override
 	public boolean logisticsIsPipeConnected(BlockEntity tile, Direction dir) {
 		ITankUtil tank = PipeFluidUtil.getTankUtilForTE(tile, dir.getOpposite());
-		return (tank != null && tank.containsTanks()) || tile instanceof LogisticsTileGenericPipe;
+		return (tank != null && tank.containsTanks()) || tile instanceof LogisticsGenericPipeBlockEntity;
 	}
 
 	@Override
@@ -95,8 +95,8 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 		if (!this.canPipeConnect(tile, dir)) {
 			return false;
 		}
-		if (tile instanceof LogisticsTileGenericPipe) {
-			if (((LogisticsTileGenericPipe) tile).pipe instanceof FluidRoutedPipe) {
+		if (tile instanceof LogisticsGenericPipeBlockEntity) {
+			if (((LogisticsGenericPipeBlockEntity) tile).pipe instanceof FluidRoutedPipe) {
 				return false;
 			}
 			if (!flag) {
@@ -106,7 +106,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 			// the handler was an inner class of PipeFluidTransportLogistics, never the transport
 			// itself, so this always said "not a fluid pipe". Naming the transport type is what the
 			// check was reaching for, and lands on the same answer for every pipe that exists.
-			if (((LogisticsTileGenericPipe) tile).pipe == null || !(((LogisticsTileGenericPipe) tile).pipe.transport instanceof PipeFluidTransportLogistics)) {
+			if (((LogisticsGenericPipeBlockEntity) tile).pipe == null || !(((LogisticsGenericPipeBlockEntity) tile).pipe.transport instanceof PipeFluidTransportLogistics)) {
 				return false;
 			}
 		}
@@ -121,8 +121,8 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 			final List<Pair<NeighborBlockEntity<BlockEntity>, ITankUtil>> list =
 					PipeFluidUtil.getAdjacentTanks(this, true);
 			for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : list) {
-				if (pair.getValue2() instanceof LogisticsTileGenericPipe) {
-					if (((LogisticsTileGenericPipe) pair.getValue2()).pipe instanceof CoreRoutedPipe) {
+				if (pair.getValue2() instanceof LogisticsGenericPipeBlockEntity) {
+					if (((LogisticsGenericPipeBlockEntity) pair.getValue2()).pipe instanceof CoreRoutedPipe) {
 						continue;
 					}
 				}
@@ -152,7 +152,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 			}
 			for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : list) {
 				if (pair.getValue1().isLogisticsPipe()) {
-					if (((LogisticsTileGenericPipe) pair.getValue1().getBlockEntity()).pipe instanceof CoreRoutedPipe) {
+					if (((LogisticsGenericPipeBlockEntity) pair.getValue1().getBlockEntity()).pipe instanceof CoreRoutedPipe) {
 						continue;
 					}
 				}

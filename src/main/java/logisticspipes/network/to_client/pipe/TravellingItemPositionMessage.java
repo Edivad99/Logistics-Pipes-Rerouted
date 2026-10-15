@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * Where an item is inside a pipe, so the client can draw it moving.
@@ -44,8 +44,8 @@ public record TravellingItemPositionMessage(
             TravellingItemPositionMessage::new);
 
     public static void handle(TravellingItemPositionMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || be.pipe == null || be.pipe.transport == null) {
             return;
         }

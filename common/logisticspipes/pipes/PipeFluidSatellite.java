@@ -41,7 +41,7 @@ import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.ChestContentMessage;
 import logisticspipes.network.to_client.pipe.SatelliteNameMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.request.RequestTree;
 import logisticspipes.textures.Textures;
@@ -208,7 +208,7 @@ public class PipeFluidSatellite extends FluidRoutedPipe implements IRequestFluid
 	}
 
 	public void updateWatchers() {
-		final LogisticsTileGenericPipe container = Objects.requireNonNull(getContainer());
+		final LogisticsGenericPipeBlockEntity container = Objects.requireNonNull(getContainer());
 		final SatelliteNameMessage message = new SatelliteNameMessage(getPos(), satellitePipeName);
 		localModeWatchers.send(message);
 		TargetLookup.sendToChunkWatchers(container, message);

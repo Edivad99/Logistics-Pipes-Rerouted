@@ -12,7 +12,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The disk a request pipe currently holds, for the GUI that is about to show it.
@@ -28,8 +28,8 @@ public record DiskContentMessage(BlockPos pos, ItemStack disk) implements Custom
             DiskContentMessage::new);
 
     public static void handle(DiskContentMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe container =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (container == null) {
             return;
         }

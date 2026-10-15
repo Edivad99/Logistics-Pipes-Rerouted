@@ -13,7 +13,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.block.DiskContentMessage;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The player ejected the disk from a request pipe.
@@ -31,8 +31,8 @@ public record DropDiskMessage(BlockPos pos) implements CustomPacketPayload {
             DropDiskMessage::new);
 
     public static void handle(DropDiskMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || !(be.pipe instanceof PipeItemsRequestLogisticsMk2 requestPipe)
             || !(context.player() instanceof ServerPlayer player)) {
             return;

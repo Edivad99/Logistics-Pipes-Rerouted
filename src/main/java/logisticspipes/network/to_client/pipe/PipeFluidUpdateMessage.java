@@ -15,7 +15,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 
 /**
@@ -36,8 +36,8 @@ public record PipeFluidUpdateMessage(BlockPos pos, List<FluidStack> sides) imple
             PipeFluidUpdateMessage::new);
 
     public static void handle(PipeFluidUpdateMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || be.pipe == null
             || !(be.pipe.transport instanceof PipeFluidTransportLogistics transport)) {
             return;

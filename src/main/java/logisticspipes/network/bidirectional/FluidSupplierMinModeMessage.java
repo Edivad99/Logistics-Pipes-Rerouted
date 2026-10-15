@@ -12,7 +12,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The smallest amount a fluid supplier will request at a time.
@@ -32,8 +32,8 @@ public record FluidSupplierMinModeMessage(BlockPos pos, MinMode mode) implements
             FluidSupplierMinModeMessage::new);
 
     public static void handle(FluidSupplierMinModeMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof PipeFluidSupplierMk2 pipe) {
             pipe.setMinMode(message.mode);
         }

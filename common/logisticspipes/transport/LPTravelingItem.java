@@ -25,7 +25,7 @@ import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
@@ -367,9 +367,9 @@ public abstract class LPTravelingItem {
 			newItem.setDestination(getDestination());
 			newItem.clearDestination();
 
-			if (container instanceof LogisticsTileGenericPipe genericPipe && genericPipe.pipe != null
+			if (container instanceof LogisticsGenericPipeBlockEntity genericPipe && genericPipe.pipe != null
 					&& genericPipe.pipe.transport instanceof PipeTransportLogistics) {
-				((LogisticsTileGenericPipe) container).pipe.transport.injectItem((LPTravelingItem) newItem, orientation);
+				((LogisticsGenericPipeBlockEntity) container).pipe.transport.injectItem((LPTravelingItem) newItem, orientation);
 			}
 		}
 

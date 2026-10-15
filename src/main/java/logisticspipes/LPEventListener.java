@@ -65,7 +65,7 @@ import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.util.PipeConfigTools;
@@ -138,7 +138,7 @@ public class LPEventListener {
     public void onPlayerLeftClickBlock(final PlayerInteractEvent.LeftClickBlock event) {
         if (event.getLevel() instanceof ServerLevel level) {
             final BlockEntity be = level.getBlockEntity(event.getPos());
-            if (be instanceof LogisticsTileGenericPipe tileGenericPipe) {
+            if (be instanceof LogisticsGenericPipeBlockEntity tileGenericPipe) {
                 if (tileGenericPipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
                     if (!coreRoutedPipe.canBeDestroyedByPlayer(event.getEntity())) {
                         event.setCanceled(true);
@@ -171,7 +171,7 @@ public class LPEventListener {
         if (!event.getEntity().isSecondaryUseActive() || !event.getUseBlock().isDefault()) {
             return;
         }
-        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof LogisticsTileGenericPipe)) {
+        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof LogisticsGenericPipeBlockEntity)) {
             return;
         }
         if (PipeConfigTools.canConfigure(event.getItemStack())) {
@@ -199,7 +199,7 @@ public class LPEventListener {
             for (Direction dir : Direction.values()) {
                 BlockPos neighborPos = pos.relative(dir);
                 BlockEntity neighbor = level.getBlockEntity(neighborPos);
-                if (!(neighbor instanceof LogisticsTileGenericPipe pipeTile)) {
+                if (!(neighbor instanceof LogisticsGenericPipeBlockEntity pipeTile)) {
                     continue;
                 }
                 if (!(pipeTile.pipe instanceof PipeLogisticsChassis chassis)) {
@@ -360,7 +360,7 @@ public class LPEventListener {
         BlockPos changed = event.getPos();
         for (Direction dir : event.getNotifiedSides()) {
             BlockEntity neighbor = level.getBlockEntity(changed.relative(dir));
-            if (neighbor instanceof LogisticsTileGenericPipe pipe
+            if (neighbor instanceof LogisticsGenericPipeBlockEntity pipe
                 && pipe.pipe instanceof CoreRoutedPipe routedPipe
                 && !routedPipe.stillNeedReplace()) {
                 routedPipe.getRouter().update(false, routedPipe);

@@ -41,7 +41,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.api.connection.NeighborBlockEntity;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 public class LPNeighborBlockEntity<T extends BlockEntity> extends NeighborBlockEntity<T> {
 
@@ -51,7 +51,7 @@ public class LPNeighborBlockEntity<T extends BlockEntity> extends NeighborBlockE
 
     @Override
     public boolean isLogisticsPipe() {
-        return getBlockEntity() instanceof LogisticsTileGenericPipe;
+        return getBlockEntity() instanceof LogisticsGenericPipeBlockEntity;
     }
 
     @Override

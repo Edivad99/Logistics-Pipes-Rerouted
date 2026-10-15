@@ -14,7 +14,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * A pipe addressed from a GUI that may not be standing next to it.
@@ -46,8 +46,8 @@ public record RemotePipeTarget(Identifier dimension, BlockPos pos) {
         if (level == null) {
             return null;
         }
-        final LogisticsTileGenericPipe container =
-                TargetLookup.blockEntityAt(level, pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+                TargetLookup.blockEntityAt(level, pos, LogisticsGenericPipeBlockEntity.class);
         return container != null && container.pipe instanceof CoreRoutedPipe pipe ? pipe : null;
     }
 }

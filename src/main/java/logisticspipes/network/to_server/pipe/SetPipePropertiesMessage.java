@@ -20,7 +20,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The properties the player changed in a pipe's GUI.
@@ -50,8 +50,8 @@ public record SetPipePropertiesMessage(BlockPos pos, CompoundTag properties) imp
     }
 
     public static void handle(SetPipePropertiesMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || !(be.pipe instanceof PropertyHolder holder)
             || !(context.player() instanceof ServerPlayer player)) {
             return;

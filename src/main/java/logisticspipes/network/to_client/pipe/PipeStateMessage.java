@@ -12,7 +12,7 @@ import io.netty.buffer.Unpooled;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
 /**
@@ -47,7 +47,7 @@ public record PipeStateMessage(
     /**
      * Snapshots the pipe's current client state. Server side.
      */
-    public static PipeStateMessage of(LogisticsTileGenericPipe container) {
+    public static PipeStateMessage of(LogisticsGenericPipeBlockEntity container) {
         final FriendlyByteBuf pipeBuffer = new FriendlyByteBuf(Unpooled.buffer());
         if (container.pipe != null) {
             container.pipe.writeState(pipeBuffer);
@@ -63,8 +63,8 @@ public record PipeStateMessage(
     }
 
     public static void handle(PipeStateMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe container =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (container != null) {
             message.applyTo(container);
         }
@@ -78,7 +78,7 @@ public record PipeStateMessage(
     /**
      * Reads the state into a pipe, unless it already has a newer one.
      */
-    public void applyTo(LogisticsTileGenericPipe container) {
+    public void applyTo(LogisticsGenericPipeBlockEntity container) {
         if (container.statePacketId > stateId) {
             return;
         }

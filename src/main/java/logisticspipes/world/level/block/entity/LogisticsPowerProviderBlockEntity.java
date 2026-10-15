@@ -39,7 +39,7 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.network.to_client.block.PowerProviderLevelMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.proxy.computers.interfaces.CCType;
@@ -111,8 +111,8 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
         if (globalRequest > 0) {
             final double fullfillRatio = Math.min(1, Math.min(internalStorage, getMaxProvidePerTick()) / globalRequest);
             if (fullfillRatio > 0) {
-                final Function<NeighborBlockEntity<LogisticsTileGenericPipe>, @Nullable CoreRoutedPipe> getPipe =
-                    (NeighborBlockEntity<LogisticsTileGenericPipe> neighbor) -> (CoreRoutedPipe) neighbor.getBlockEntity().pipe;
+                final Function<NeighborBlockEntity<LogisticsGenericPipeBlockEntity>, @Nullable CoreRoutedPipe> getPipe =
+                    (NeighborBlockEntity<LogisticsGenericPipeBlockEntity> neighbor) -> (CoreRoutedPipe) neighbor.getBlockEntity().pipe;
                 orders.entrySet().stream()
                     .map(routerIdToOrderCount -> new Pair<>(
                         SimpleServiceLocator.routerManager.getRouter(routerIdToOrderCount.getKey()),
@@ -121,7 +121,7 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
                         && destinationToPower.getValue1().getPipe() != null)
                     .forEach(destinationToPower -> new WorldCoordinatesWrapper(this)
                         .allNeighborBlockEntities().stream()
-                        .flatMap(neighbor -> NeighborBlockEntityUtil.optionalIs(neighbor, LogisticsTileGenericPipe.class)
+                        .flatMap(neighbor -> NeighborBlockEntityUtil.optionalIs(neighbor, LogisticsGenericPipeBlockEntity.class)
                             .map(Stream::of).orElseGet(Stream::empty))
                         .filter(neighbor -> neighbor.getBlockEntity().pipe instanceof CoreRoutedPipe &&
                             !getPipe.apply(neighbor).stillNeedReplace())

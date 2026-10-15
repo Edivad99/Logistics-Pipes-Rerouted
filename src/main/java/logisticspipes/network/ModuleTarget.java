@@ -26,7 +26,7 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.inventory.ModuleMenu;
 import logisticspipes.world.item.ItemModule;
 
@@ -88,7 +88,7 @@ public record ModuleTarget(
         if (type == ModulePositionType.IN_HAND) {
             return inHand(player);
         }
-        final LogisticsTileGenericPipe pipe = TargetLookup.blockEntityAt(player, pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity pipe = TargetLookup.blockEntityAt(player, pos, LogisticsGenericPipeBlockEntity.class);
         if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe routed)) {
             return null;
         }

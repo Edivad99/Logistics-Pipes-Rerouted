@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeFluidSupplierMk2;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The player pressed one of the amount buttons in the fluid supplier's GUI.
@@ -33,8 +33,8 @@ public record ChangeFluidSupplierAmountMessage(BlockPos pos, int change) impleme
             ChangeFluidSupplierAmountMessage::new);
 
     public static void handle(ChangeFluidSupplierAmountMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof PipeFluidSupplierMk2 pipe) {
             pipe.changeFluidAmount(message.change, context.player());
         }

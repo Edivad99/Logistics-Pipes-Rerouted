@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * Which sign, if any, is stuck to each of a pipe's six sides.
@@ -32,8 +32,8 @@ public record PipeSignTypesMessage(BlockPos pos, List<Integer> types) implements
             PipeSignTypesMessage::new);
 
     public static void handle(PipeSignTypesMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.isInitialized() && be.pipe instanceof CoreRoutedPipe pipe) {
             pipe.handleSignPacket(message.types);
         }

@@ -33,7 +33,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Geometry depends on the pipe's connections and status rather than on the block state,
  * so it arrives through {@link ModelData} carrying a {@link PipeGeometryKey} that
- * {@code LogisticsTileGenericPipe.getModelData()} snapshots on the main thread. The key is
+ * {@code LogisticsGenericPipeBlockEntity.getModelData()} snapshots on the main thread. The key is
  * also the cache key: a whole base typically resolves to a handful of distinct
  * configurations, so the quads are built once and shared.</p>
  *

@@ -12,7 +12,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
 /**
@@ -72,7 +72,7 @@ public final class PipeGeometryKey {
      * Snapshots a placed pipe. Must be called on the main thread — it reads neighbouring
      * block states.
      */
-    public static PipeGeometryKey of(LogisticsTileGenericPipe tile, CoreUnroutedPipe pipe, PipeVisualState state) {
+    public static PipeGeometryKey of(LogisticsGenericPipeBlockEntity tile, CoreUnroutedPipe pipe, PipeVisualState state) {
         BlockGetter level = tile.getLevel();
         BlockPos pos = tile.getBlockPos();
 

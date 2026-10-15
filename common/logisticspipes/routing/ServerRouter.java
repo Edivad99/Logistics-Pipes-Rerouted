@@ -56,7 +56,7 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.FluidResource;
@@ -154,7 +154,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	};
 	private Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
-	private Set<LogisticsTileGenericPipe> oldTouchedPipes = new HashSet<>();
+	private Set<LogisticsGenericPipeBlockEntity> oldTouchedPipes = new HashSet<>();
 
 	public ServerRouter(@Nullable UUID globalID, Identifier dimension, BlockPos pos) {
 		if (globalID != null) {
@@ -318,7 +318,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			return null;
 		}
 
-        if (chunk.getBlockEntity(pos) instanceof LogisticsTileGenericPipe pipe) {
+        if (chunk.getBlockEntity(pos) instanceof LogisticsGenericPipeBlockEntity pipe) {
             if (pipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
                 myPipeCache = new WeakReference<>(coreRoutedPipe);
                 return coreRoutedPipe;
@@ -1075,8 +1075,8 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 	}
 
-	private static void clearRoutingCache(Set<LogisticsTileGenericPipe> pipes) {
-		for (LogisticsTileGenericPipe pipe : pipes) {
+	private static void clearRoutingCache(Set<LogisticsGenericPipeBlockEntity> pipes) {
+		for (LogisticsGenericPipeBlockEntity pipe : pipes) {
 			pipe.getCacheHolder().trigger(CacheTypes.Routing);
 		}
 	}

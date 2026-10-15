@@ -17,7 +17,7 @@ import logisticspipes.interfaces.SatellitePipe;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.SatelliteNameResultMessage;
 import logisticspipes.pipes.SatelliteNamingResult;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * A new name typed into a satellite pipe's GUI.
@@ -37,8 +37,8 @@ public record SetSatelliteNameMessage(BlockPos pos, String name) implements Cust
             SetSatelliteNameMessage::new);
 
     public static void handle(SetSatelliteNameMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe container =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (container == null) {
             return;
         }
@@ -53,7 +53,7 @@ public record SetSatelliteNameMessage(BlockPos pos, String name) implements Cust
     /**
      * The outcome to report back, or null when the target is not a satellite at all.
      */
-    private static @Nullable SatelliteNamingResult rename(LogisticsTileGenericPipe container, String name) {
+    private static @Nullable SatelliteNamingResult rename(LogisticsGenericPipeBlockEntity container, String name) {
         if (name.trim().isEmpty()) {
             return SatelliteNamingResult.BLANK_NAME;
         }

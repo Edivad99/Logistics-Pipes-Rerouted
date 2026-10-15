@@ -46,7 +46,7 @@ import logisticspipes.network.to_client.security.SecurityStationCCIdsMessage;
 import logisticspipes.network.to_client.security.SecurityStationFlagsMessage;
 import logisticspipes.network.to_client.security.SecurityStationIdMessage;
 import logisticspipes.network.to_client.security.SecurityStationSettingsMessage;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerCollectionList;
@@ -397,7 +397,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
                     return true;
                 }
             }
-            if (be instanceof LogisticsTileGenericPipe genericPipe) {
+            if (be instanceof LogisticsGenericPipeBlockEntity genericPipe) {
                 if (genericPipe.pipe instanceof IRoutedPowerProvider routedPowerProvider) {
                     if (routedPowerProvider.useEnergy(amount)) {
                         return true;

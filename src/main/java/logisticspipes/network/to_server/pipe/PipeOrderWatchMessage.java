@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The pipe controller's order list opened or closed, so the pipe knows whether to keep sending it.
@@ -27,8 +27,8 @@ public record PipeOrderWatchMessage(BlockPos pos, boolean watching) implements C
             PipeOrderWatchMessage::new);
 
     public static void handle(PipeOrderWatchMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || !(be.pipe instanceof CoreRoutedPipe pipe)) {
             return;
         }

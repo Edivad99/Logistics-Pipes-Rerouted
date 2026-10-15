@@ -131,8 +131,8 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 			return true;
 		}
-		if (tile instanceof LogisticsTileGenericPipe) {
-			if (((LogisticsTileGenericPipe) tile).pipe.isMultiBlock()) {
+		if (tile instanceof LogisticsGenericPipeBlockEntity) {
+			if (((LogisticsGenericPipeBlockEntity) tile).pipe.isMultiBlock()) {
 				return true;
 			}
 		}

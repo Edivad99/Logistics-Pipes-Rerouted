@@ -5,19 +5,19 @@ import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
 
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 @WailaPlugin
 public class LPJadePlugin implements IWailaPlugin {
 
     @Override
     public void register(IWailaCommonRegistration registration) {
-        registration.registerBlockDataProvider(PipeDataProvider.INSTANCE, LogisticsTileGenericPipe.class);
+        registration.registerBlockDataProvider(PipeDataProvider.INSTANCE, LogisticsGenericPipeBlockEntity.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        registration.registerBlockComponent(PipeComponentProvider.INSTANCE, LogisticsBlockGenericPipe.class);
+        registration.registerBlockComponent(PipeComponentProvider.INSTANCE, LogisticsGenericPipeBlock.class);
     }
 }

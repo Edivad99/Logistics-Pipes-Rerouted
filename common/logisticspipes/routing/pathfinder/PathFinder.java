@@ -33,7 +33,7 @@ import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IChannelRoutingConnection;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.specialconnection.SpecialPipeConnection.ConnectionInformation;
 import logisticspipes.routing.ExitRoute;
@@ -126,7 +126,7 @@ public class PathFinder {
 
 	public @Nullable ITileEntityChangeListener changeListener;
 	public Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
-	public Set<LogisticsTileGenericPipe> touchedPipes = new HashSet<>();
+	public Set<LogisticsGenericPipeBlockEntity> touchedPipes = new HashSet<>();
 
 	private HashMap<CoreRoutedPipe, ExitRoute> getConnectedRoutingPipes(IPipeInformationProvider startPipe, EnumSet<PipeRoutingConnectionType> connectionFlags, @Nullable Direction side) {
 		HashMap<CoreRoutedPipe, ExitRoute> foundPipes = new HashMap<>();
@@ -391,7 +391,7 @@ public class PathFinder {
 	}
 
 	private void listTileEntity(@Nullable BlockEntity tile) {
-		if (changeListener != null && tile instanceof LogisticsTileGenericPipe lpTile && lpTile.isChangeDetectionActive()) {
+		if (changeListener != null && tile instanceof LogisticsGenericPipeBlockEntity lpTile && lpTile.isChangeDetectionActive()) {
 			if (!lpTile.changeListeners.contains(changeListener)) {
 				lpTile.changeListeners.add(changeListener);
 			}
@@ -403,8 +403,8 @@ public class PathFinder {
 	public static int messureDistanceToNextRoutedPipe(BlockPos lpPosition, Direction exitOrientation, Level level) {
 		int dis = 1;
 		BlockEntity tile = level.getBlockEntity(lpPosition);
-		if (tile instanceof LogisticsTileGenericPipe) {
-			tile = ((LogisticsTileGenericPipe) tile).getNextConnectedTile(exitOrientation);
+		if (tile instanceof LogisticsGenericPipeBlockEntity) {
+			tile = ((LogisticsGenericPipeBlockEntity) tile).getNextConnectedTile(exitOrientation);
 		}
 		if (tile == null) {
 			return 0;

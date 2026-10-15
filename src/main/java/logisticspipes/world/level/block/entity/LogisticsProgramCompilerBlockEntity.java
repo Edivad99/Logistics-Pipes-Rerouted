@@ -34,7 +34,7 @@ import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.network.to_client.block.CompilerStatusMessage;
 import logisticspipes.pipes.PipeItemsBasicLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.world.inventory.ProgramCompilerMenu;
@@ -122,7 +122,7 @@ public class LogisticsProgramCompilerBlockEntity extends LogisticsSolidBlockEnti
             }
             BlockPos pos = getBlockPos().relative(dir);
             BlockEntity tile = this.level.getBlockEntity(pos);
-            if (!(tile instanceof LogisticsTileGenericPipe tPipe)) {
+            if (!(tile instanceof LogisticsGenericPipeBlockEntity tPipe)) {
                 continue;
             }
             if (!(tPipe.pipe.getClass() == PipeItemsBasicLogistics.class)) {

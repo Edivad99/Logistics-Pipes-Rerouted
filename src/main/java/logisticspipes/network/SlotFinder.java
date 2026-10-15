@@ -23,7 +23,7 @@ import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.utils.BlockMenus;
@@ -53,8 +53,8 @@ public final class SlotFinder {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        final LogisticsTileGenericPipe pipe =
-                TargetLookup.blockEntityAt(player, target.pos(), LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity pipe =
+                TargetLookup.blockEntityAt(player, target.pos(), LogisticsGenericPipeBlockEntity.class);
         if (pipe == null || !pipe.isRoutingPipe()) {
             LogisticsPipes.LOG.warn("Ignored slot finder request from {}: no routing pipe at {}", player,
                     target.pos());

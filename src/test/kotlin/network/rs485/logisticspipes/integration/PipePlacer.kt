@@ -40,7 +40,7 @@ import network.rs485.minecraft.Configurator
 import network.rs485.minecraft.Placer
 import network.rs485.minecraft.configurator
 import logisticspipes.pipes.basic.CoreRoutedPipe
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock
 import logisticspipes.world.level.block.LPBlocks
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
@@ -64,7 +64,7 @@ class PipePlacer<T : CoreRoutedPipe>(
         this.pos = pos
         this.level = level
         assertTrue(message = "Expected $pipe to be placed at $pos (${level})") {
-            LogisticsBlockGenericPipe.placePipe(pipe, level, pos, LPBlocks.PIPE.get())
+            LogisticsGenericPipeBlock.placePipe(pipe, level, pos, LPBlocks.PIPE.get())
         }
         return configurator(name = "$pipe at $pos") { pipePlacerConfigurator(this@PipePlacer) }
     }

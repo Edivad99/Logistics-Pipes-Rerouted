@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IChestContentReceiver;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 /**
@@ -32,8 +32,8 @@ public record ChestContentMessage(BlockPos pos, List<ItemIdentifierStack> conten
             ChestContentMessage::new);
 
     public static void handle(ChestContentMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof IChestContentReceiver receiver) {
             receiver.setReceivedChestContent(message.contents);
         }

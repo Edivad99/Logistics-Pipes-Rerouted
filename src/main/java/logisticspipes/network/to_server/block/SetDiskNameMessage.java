@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.item.LPItems;
 
 /**
@@ -31,8 +31,8 @@ public record SetDiskNameMessage(BlockPos pos, String name) implements CustomPac
             SetDiskNameMessage::new);
 
     public static void handle(SetDiskNameMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe container =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (container == null || !(container.pipe instanceof PipeItemsRequestLogisticsMk2 requestPipe)) {
             return;
         }

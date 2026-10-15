@@ -12,7 +12,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IWatchingHandler;
 import logisticspipes.interfaces.IWatchingHandler.WatchMode;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The client's HUD subscribes to a pipe, or lets go of it.
@@ -31,8 +31,8 @@ public record PipeHudWatchMessage(BlockPos pos, boolean watching) implements Cus
             PipeHudWatchMessage::new);
 
     public static void handle(PipeHudWatchMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be = TargetLookup.blockEntityAt(
-            context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be = TargetLookup.blockEntityAt(
+            context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || !(be.pipe instanceof IWatchingHandler handler)) {
             return;
         }

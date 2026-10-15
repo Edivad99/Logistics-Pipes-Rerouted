@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * An order the request GUI is watching has finished, so it can stop showing it.
@@ -30,8 +30,8 @@ public record OrdererWatchRemoveMessage(BlockPos pos, int watcherId) implements 
             OrdererWatchRemoveMessage::new);
 
     public static void handle(OrdererWatchRemoveMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof IRequestWatcher watcher) {
             watcher.handleClientSideRemove(message.watcherId);
         }

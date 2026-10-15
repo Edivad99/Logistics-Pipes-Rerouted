@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.DebugTarget;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * Turns the pipe log on or off for the client's own copy of the pipe the player is pointing at.
@@ -30,8 +30,8 @@ public record ToggleClientPipeDebugMessage() implements CustomPacketPayload {
         if (!(DebugTarget.lookedAt() instanceof DebugTarget.Block(net.minecraft.core.BlockPos pos))) {
             return;
         }
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || be.pipe == null) {
             return;
         }

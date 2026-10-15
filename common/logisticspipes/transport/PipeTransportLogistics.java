@@ -58,7 +58,7 @@ import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
@@ -97,7 +97,7 @@ public class PipeTransportLogistics {
 			@Nullable LPTravelingItemServer>> itemBuffer = new SyncList<>();
 	private @Nullable LevelChunk chunk;
 	public LPItemList items = new LPItemList(this);
-	public LogisticsTileGenericPipe container;
+	public LogisticsGenericPipeBlockEntity container;
 	public final boolean isRouted;
 	public final int MAX_DESTINATION_UNREACHABLE_BUFFER = 30;
 
@@ -126,7 +126,7 @@ public class PipeTransportLogistics {
 			// items are crossing a chunk boundary, mark both chunks modified
 			if (container.getBlockPos().getX() >> 4 != blockEntity.getBlockPos().getX() >> 4 || container.getBlockPos().getZ() >> 4 != blockEntity.getBlockPos().getZ() >> 4) {
 				chunk.markUnsaved();
-				if (blockEntity instanceof LogisticsTileGenericPipe genericPipe &&
+				if (blockEntity instanceof LogisticsGenericPipeBlockEntity genericPipe &&
                     genericPipe.pipe != null &&
                     genericPipe.pipe.transport != null &&
                     genericPipe.pipe.transport.chunk != null) {
@@ -336,7 +336,7 @@ public class PipeTransportLogistics {
 				iter.remove();
 			} else if (!canPipeConnect(tile, dir)) {
 				iter.remove();
-			} else if (tile instanceof LogisticsTileGenericPipe && !((LogisticsTileGenericPipe) tile).canConnect(container, dir.getOpposite(), false)) {
+			} else if (tile instanceof LogisticsGenericPipeBlockEntity && !((LogisticsGenericPipeBlockEntity) tile).canConnect(container, dir.getOpposite(), false)) {
 				iter.remove();
 			}
 		}
@@ -638,8 +638,8 @@ public class PipeTransportLogistics {
 	}
 
 	public final boolean canPipeConnect_internal(BlockEntity tile, Direction side) {
-		if (tile instanceof LogisticsTileGenericPipe) {
-			if (((LogisticsTileGenericPipe) tile).pipe != null && ((LogisticsTileGenericPipe) tile).pipe.isHSTube() && !((LogisticsTileGenericPipe) tile).pipe.actAsNormalPipe()) {
+		if (tile instanceof LogisticsGenericPipeBlockEntity) {
+			if (((LogisticsGenericPipeBlockEntity) tile).pipe != null && ((LogisticsGenericPipeBlockEntity) tile).pipe.isHSTube() && !((LogisticsGenericPipeBlockEntity) tile).pipe.actAsNormalPipe()) {
 				return false;
 			}
 		}
@@ -775,7 +775,7 @@ public class PipeTransportLogistics {
 			// Prevent double-move only for newly created items (they haven't been ticked yet).
 			item.lastTicked = LPTickHandler.getGlobalTick();
 		} else {
-			if (item.getContainer() instanceof LogisticsTileGenericPipe oldPipe) {
+			if (item.getContainer() instanceof LogisticsGenericPipeBlockEntity oldPipe) {
 				oldPipe.pipe.transport.items.scheduleRemoval(item);
 				oldPipe.pipe.transport.items.removeScheduledItems();
 				// Compute a continuous position rather than snapping to the server's stale value.
@@ -822,15 +822,15 @@ public class PipeTransportLogistics {
 
 	public void onBlockPlaced() {}
 
-	public void setTile(LogisticsTileGenericPipe tile) {
+	public void setTile(LogisticsGenericPipeBlockEntity tile) {
 		container = tile;
 	}
 
     @Nullable
 	public CoreUnroutedPipe getNextPipe(Direction output) {
 		BlockEntity tile = container.getTile(output);
-		if (tile instanceof LogisticsTileGenericPipe) {
-			return ((LogisticsTileGenericPipe) tile).pipe;
+		if (tile instanceof LogisticsGenericPipeBlockEntity) {
+			return ((LogisticsGenericPipeBlockEntity) tile).pipe;
 		}
 		return null;
 	}

@@ -14,7 +14,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.netty.buffer.ByteBuf;
 
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * How a pipe looks: its connections and textures. The server works it out and sends it to the client, which
@@ -70,7 +70,7 @@ public class PipeVisualState {
         }
         BlockPos pos = blockPos;
         BlockEntity tile = worldIn.getBlockEntity(pos);
-        if (tile instanceof LogisticsTileGenericPipe) {
+        if (tile instanceof LogisticsGenericPipeBlockEntity) {
             // MCMultiPart not available on 1.20.1 — hasParts is always false (former dummy behavior).
             boolean hasParts = false;
             if (savedStateHasMCMultiParts != hasParts) {

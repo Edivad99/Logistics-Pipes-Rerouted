@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * Which side a chassis pipe points its modules at.
@@ -35,8 +35,8 @@ public record ChassisOrientationMessage(BlockPos pos, Optional<Direction> direct
             ChassisOrientationMessage::new);
 
     public static void handle(ChassisOrientationMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof PipeLogisticsChassis chassis) {
             chassis.setPointedOrientation(message.direction.orElse(null));
         }

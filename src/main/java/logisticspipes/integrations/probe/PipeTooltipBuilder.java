@@ -38,7 +38,7 @@ import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.unrouted.PipeItemsBasicTransport;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -64,13 +64,13 @@ public final class PipeTooltipBuilder {
 
     public static PipeTooltip build(@Nullable BlockEntity blockEntity, boolean details) {
         PipeTooltipBuilder builder = new PipeTooltipBuilder();
-        if (blockEntity instanceof LogisticsTileGenericPipe tile && tile.pipe != null) {
+        if (blockEntity instanceof LogisticsGenericPipeBlockEntity tile && tile.pipe != null) {
             builder.addPipe(tile, tile.pipe, details);
         }
         return new PipeTooltip(builder.lines);
     }
 
-    private void addPipe(LogisticsTileGenericPipe tile, CoreUnroutedPipe pipe, boolean details) {
+    private void addPipe(LogisticsGenericPipeBlockEntity tile, CoreUnroutedPipe pipe, boolean details) {
         switch (pipe) {
             case PipeItemsFirewall firewall -> addFirewall(firewall);
             case PipeLogisticsChassis chassis -> addChassis(chassis, details);
@@ -117,7 +117,7 @@ public final class PipeTooltipBuilder {
         }
     }
 
-    private void addUnrouted(LogisticsTileGenericPipe tile) {
+    private void addUnrouted(LogisticsGenericPipeBlockEntity tile) {
         int connections = 0;
         for (boolean connected : tile.pipeConnectionsBuffer) {
             if (connected) {

@@ -19,7 +19,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.signs.CraftingPipeSign;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.signs.ItemAmountPipeSign;
@@ -65,7 +65,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
         if (itemStack.isEmpty() || itemStack.getDamageValue() > this.getMaxDamage(itemStack)) {
             return InteractionResult.FAIL;
         }
-        if (!(level.getBlockEntity(pos) instanceof LogisticsTileGenericPipe genericPipe)) {
+        if (!(level.getBlockEntity(pos) instanceof LogisticsGenericPipeBlockEntity genericPipe)) {
             return InteractionResult.FAIL;
         }
 

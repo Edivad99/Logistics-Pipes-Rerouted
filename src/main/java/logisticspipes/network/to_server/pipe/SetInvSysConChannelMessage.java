@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The channel picked for an inventory system connector.
@@ -33,8 +33,8 @@ public record SetInvSysConChannelMessage(BlockPos pos, UUID channel) implements 
             SetInvSysConChannelMessage::new);
 
     public static void handle(SetInvSysConChannelMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe container =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (container != null && container.pipe instanceof PipeItemsInvSysConnector connector) {
             connector.setChannelFromClient(message.channel);
         }

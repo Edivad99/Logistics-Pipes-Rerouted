@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The player changed an inventory system connector's routing resistance.
@@ -31,8 +31,8 @@ public record SetInvSysConResistanceMessage(BlockPos pos, int resistance) implem
             SetInvSysConResistanceMessage::new);
 
     public static void handle(SetInvSysConResistanceMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof PipeItemsInvSysConnector pipe) {
             pipe.resistance = message.resistance;
             pipe.markTileDirty();

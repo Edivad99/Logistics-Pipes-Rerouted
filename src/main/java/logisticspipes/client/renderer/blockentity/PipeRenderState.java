@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * Render state for {@link LogisticsRenderPipe}.
@@ -25,7 +25,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 public class PipeRenderState extends BlockEntityRenderState {
 
     @Nullable
-    public LogisticsTileGenericPipe blockEntity;
+    public LogisticsGenericPipeBlockEntity blockEntity;
 
     public float partialTicks;
 

@@ -50,7 +50,7 @@ import logisticspipes.pipes.PipeItemsFluidSupplier;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.pipes.PipeItemsRequestLogisticsMk2;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
 import logisticspipes.util.TrackingTask;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -110,7 +110,7 @@ public class LPMenuTypes {
             (IContainerFactory<FluidSupplierMenu>) (containerId, inventory, buffer) -> {
                 final BlockPos pos = buffer.readBlockPos();
                 final BlockEntity entity = inventory.player.level().getBlockEntity(pos);
-                if (!(entity instanceof LogisticsTileGenericPipe container)
+                if (!(entity instanceof LogisticsGenericPipeBlockEntity container)
                     || !(container.pipe instanceof PipeItemsFluidSupplier pipe)) {
                     throw new IllegalStateException("No fluid supplier at [%s]".formatted(pos));
                 }
@@ -134,7 +134,7 @@ public class LPMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<LogicControllerMenu>> LOGIC_CONTROLLER =
         deferredRegister.register("logic_controller",
-            () -> blockEntityMenu(LogisticsTileGenericPipe.class, LogicControllerMenu::new));
+            () -> blockEntityMenu(LogisticsGenericPipeBlockEntity.class, LogicControllerMenu::new));
 
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedExtractorMenu>> ADVANCED_EXTRACTOR =
         deferredRegister.register("advanced_extractor", () -> new MenuType<>(
@@ -217,7 +217,7 @@ public class LPMenuTypes {
             (IContainerFactory<ItemAmountSignMenu>) (containerId, inventory, buffer) -> {
                 final BlockPos pos = buffer.readBlockPos();
                 final BlockEntity entity = inventory.player.level().getBlockEntity(pos);
-                if (!(entity instanceof LogisticsTileGenericPipe container)
+                if (!(entity instanceof LogisticsGenericPipeBlockEntity container)
                     || !(container.pipe instanceof CoreRoutedPipe pipe)) {
                     throw new IllegalStateException("No routed pipe at [%s]".formatted(pos));
                 }
@@ -376,7 +376,7 @@ public class LPMenuTypes {
         IContainerFactory<T> containerFactory = (containerId, inventory, buffer) -> {
             final BlockPos pos = buffer.readBlockPos();
             final BlockEntity entity = inventory.player.level().getBlockEntity(pos);
-            if (entity instanceof LogisticsTileGenericPipe container && pipeType.isInstance(container.pipe)) {
+            if (entity instanceof LogisticsGenericPipeBlockEntity container && pipeType.isInstance(container.pipe)) {
                 return factory.create(containerId, inventory, pipeType.cast(container.pipe));
             }
             throw new IllegalStateException(

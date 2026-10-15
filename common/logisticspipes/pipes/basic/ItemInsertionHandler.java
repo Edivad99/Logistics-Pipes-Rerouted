@@ -40,10 +40,10 @@ public class ItemInsertionHandler extends VoidingResourceHandler<ItemResource> {
 
 	public static final List<ILPItemAcceptor> ACCEPTORS = new ArrayList<>();
 
-	private final LogisticsTileGenericPipe pipe;
+	private final LogisticsGenericPipeBlockEntity pipe;
 	private final @Nullable Direction dir;
 
-	public ItemInsertionHandler(LogisticsTileGenericPipe pipe, @Nullable Direction dir) {
+	public ItemInsertionHandler(LogisticsGenericPipeBlockEntity pipe, @Nullable Direction dir) {
 		super(ItemResource.EMPTY);
 		this.pipe = pipe;
 		this.dir = dir;
@@ -58,7 +58,7 @@ public class ItemInsertionHandler extends VoidingResourceHandler<ItemResource> {
 		return amount - leftover.getCount();
 	}
 
-	public static ItemStack handleItemInsetion(LogisticsTileGenericPipe pipe, Direction from, ItemStack stack) {
+	public static ItemStack handleItemInsetion(LogisticsGenericPipeBlockEntity pipe, Direction from, ItemStack stack) {
 		for (ILPItemAcceptor acceptor : ACCEPTORS) {
 			if (acceptor.accept(pipe, from, stack)) {
 				return ItemStack.EMPTY;

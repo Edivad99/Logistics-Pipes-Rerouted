@@ -25,7 +25,7 @@ import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.SatelliteEntry;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.routing.ExitRoute;
 
 /**
@@ -46,8 +46,8 @@ public record RequestSatellitePipeListMessage(BlockPos pos, boolean fluid) imple
             RequestSatellitePipeListMessage::new);
 
     public static void handle(RequestSatellitePipeListMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe container =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (container == null || !(container.pipe instanceof CoreRoutedPipe pipe)) {
             return;
         }

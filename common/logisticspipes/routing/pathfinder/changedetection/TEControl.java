@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.QueuedTasks;
@@ -15,12 +15,12 @@ import logisticspipes.ticks.QueuedTasks;
 public class TEControl {
 
     /**
-     * Called from {@link LogisticsTileGenericPipe#onLoad()}.
+     * Called from {@link LogisticsGenericPipeBlockEntity#onLoad()}.
      * <p>
      * Non-LP neighbour changes are handled by BlockChangeListener which
      * listens for BlockEvent.EntityPlaceEvent / BlockEvent.BreakEvent.
      */
-    public static void validate(final LogisticsTileGenericPipe tile) {
+    public static void validate(final LogisticsGenericPipeBlockEntity tile) {
         final Level level = tile.getLevel();
         if (level == null || level.isClientSide()) {
             return;
@@ -42,7 +42,7 @@ public class TEControl {
                     continue;
                 }
                 BlockEntity nextTile = level.getBlockEntity(newPos);
-                if (nextTile instanceof LogisticsTileGenericPipe nextPipe && nextPipe.isChangeDetectionActive()) {
+                if (nextTile instanceof LogisticsGenericPipeBlockEntity nextPipe && nextPipe.isChangeDetectionActive()) {
                     if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
                         SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile)
                             .refreshTileCacheOnSide(dir.getOpposite());
@@ -63,12 +63,12 @@ public class TEControl {
     }
 
     /**
-     * Called from {@link LogisticsTileGenericPipe#setRemoved()}.
+     * Called from {@link LogisticsGenericPipeBlockEntity#setRemoved()}.
      * <p>
      * Non-LP neighbours: covered by LogisticsEventListener.onNeighborNotify (BlockEvent.NeighborNotifyEvent)
      * which flags adjacent routers for recheck when any block changes.
      */
-    public static void invalidate(final LogisticsTileGenericPipe tile) {
+    public static void invalidate(final LogisticsGenericPipeBlockEntity tile) {
         final Level level = tile.getLevel();
         if (level == null || level.isClientSide()) {
             return;
@@ -84,7 +84,7 @@ public class TEControl {
                     continue;
                 }
                 BlockEntity nextTile = level.getBlockEntity(newPos);
-                if (nextTile instanceof LogisticsTileGenericPipe nextPipe && nextPipe.isChangeDetectionActive()) {
+                if (nextTile instanceof LogisticsGenericPipeBlockEntity nextPipe && nextPipe.isChangeDetectionActive()) {
                     if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
                         SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile)
                             .refreshTileCacheOnSide(dir.getOpposite());

@@ -15,7 +15,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.InvSysConContentMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The inventory system connector's screen wants to know what is still on its way, and which
@@ -32,8 +32,8 @@ public record RequestInvSysConContentMessage(BlockPos pos) implements CustomPack
             RequestInvSysConContentMessage::new);
 
     public static void handle(RequestInvSysConContentMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof PipeItemsInvSysConnector pipe
             && context.player() instanceof ServerPlayer player) {
             PacketDistributor.sendToPlayer(player,

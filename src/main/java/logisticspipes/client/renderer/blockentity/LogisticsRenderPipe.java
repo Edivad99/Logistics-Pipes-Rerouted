@@ -46,7 +46,7 @@ import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
@@ -54,7 +54,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.tuples.Pair;
 
-public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGenericPipe, PipeRenderState> {
+public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGenericPipeBlockEntity, PipeRenderState> {
 
     private static final int MAX_ITEMS_TO_RENDER = 10;
     /**
@@ -128,7 +128,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     }
 
     @Override
-    public void extractRenderState(LogisticsTileGenericPipe blockEntity, PipeRenderState state, float partialTicks,
+    public void extractRenderState(LogisticsGenericPipeBlockEntity blockEntity, PipeRenderState state, float partialTicks,
         Vec3 cameraPos, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPos, breakProgress);
         state.blockEntity = blockEntity.pipe == null ? null : blockEntity;
@@ -168,7 +168,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * to the table's facing. Texture is LP1's {@code blocks/requesttable/requesttexture}
      * (stitched into the block atlas by the {@code blocks/} directory source).
      */
-    private void submitRequestTableBlock(PipeBlockRequestTable table, LogisticsTileGenericPipe pipeTile,
+    private void submitRequestTableBlock(PipeBlockRequestTable table, LogisticsGenericPipeBlockEntity pipeTile,
         PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         submitRequestTableBaked(table, pipeTile, poseStack, collector, packedLight, packedOverlay);
     }
@@ -181,7 +181,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * {@code BakedQuad} can only reference an atlas sprite. So tubes keep immediate-mode
      * rendering — but on the mesh engine, with no shared render state.</p>
      */
-    private void submitTubeGeometry(LogisticsTileGenericPipe blockEntity, PoseStack poseStack,
+    private void submitTubeGeometry(LogisticsGenericPipeBlockEntity blockEntity, PoseStack poseStack,
         SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         TubeMeshes.TubeGeometry tube = TubeMeshes.forPipe(blockEntity.pipe);
         if (tube.isEmpty()) {
@@ -199,7 +199,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
      * What changes here is that nothing is read from or written to a shared render state —
      * buffer, matrices, light and sprite are all arguments.
      */
-    private void submitRequestTableBaked(PipeBlockRequestTable table, LogisticsTileGenericPipe pipeTile,
+    private void submitRequestTableBaked(PipeBlockRequestTable table, LogisticsGenericPipeBlockEntity pipeTile,
         PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         SolidBlockModelParts parts = PipeModelStore.solidBlock();
         if (parts.isEmpty()) {
@@ -231,7 +231,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
         });
     }
 
-    private void submitInternal(@Nullable LogisticsTileGenericPipe blockEntity, double x, double y, double z,
+    private void submitInternal(@Nullable LogisticsGenericPipeBlockEntity blockEntity, double x, double y, double z,
         float partialTicks, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay,
         boolean renderContent) {
         // In 1.20.1 the BER PoseStack is pre-translated, so we always pass (0,0,0).
@@ -549,7 +549,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsTileGen
     }
 
     @Override
-    public AABB getRenderBoundingBox(LogisticsTileGenericPipe blockEntity) {
+    public AABB getRenderBoundingBox(LogisticsGenericPipeBlockEntity blockEntity) {
         if (blockEntity.pipe == null) {
             return new AABB(blockEntity.getBlockPos()); // 1.20.1: AABB(BlockPos) creates the unit block cube
         }

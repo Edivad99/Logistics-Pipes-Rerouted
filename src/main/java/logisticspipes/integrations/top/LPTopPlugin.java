@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.integrations.probe.PipeTooltip;
 import logisticspipes.integrations.probe.PipeTooltipBuilder;
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 
 public class LPTopPlugin implements Function<ITheOneProbe, @Nullable Void> {
 
@@ -42,7 +42,7 @@ public class LPTopPlugin implements Function<ITheOneProbe, @Nullable Void> {
         @Override
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level level,
             BlockState blockState, IProbeHitData data) {
-            if (!(blockState.getBlock() instanceof LogisticsBlockGenericPipe)) {
+            if (!(blockState.getBlock() instanceof LogisticsGenericPipeBlock)) {
                 return;
             }
             PipeTooltip tooltip =

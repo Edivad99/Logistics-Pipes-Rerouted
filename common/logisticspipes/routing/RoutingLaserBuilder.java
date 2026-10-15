@@ -15,7 +15,7 @@ import net.minecraft.core.Direction;
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.routing.pathfinder.PathFinder;
 
 /**
@@ -26,8 +26,8 @@ import logisticspipes.routing.pathfinder.PathFinder;
  */
 public class RoutingLaserBuilder {
 
-    private record WorkItem(LogisticsTileGenericPipe pipe, Direction dir, List<ExitRoute> connectedRouters,
-            EnumSet<PipeRoutingConnectionType> connectionType, String logPrefix) {}
+    private record WorkItem(LogisticsGenericPipeBlockEntity pipe, Direction dir, List<ExitRoute> connectedRouters,
+                            EnumSet<PipeRoutingConnectionType> connectionType, String logPrefix) {}
 
     private final List<LaserData> lasers = new ArrayList<>();
     private boolean firstPipe = true;
@@ -64,13 +64,13 @@ public class RoutingLaserBuilder {
         return compress();
     }
 
-    private void walk(LogisticsTileGenericPipe startPipe, Direction startDir, List<ExitRoute> startRouters,
+    private void walk(LogisticsGenericPipeBlockEntity startPipe, Direction startDir, List<ExitRoute> startRouters,
             EnumSet<PipeRoutingConnectionType> startConnectionType, String startPrefix) {
         final List<WorkItem> worklist = new LinkedList<>();
         worklist.add(new WorkItem(startPipe, startDir, startRouters, startConnectionType, startPrefix));
         while (!worklist.isEmpty()) {
             final WorkItem item = worklist.remove(0);
-            final LogisticsTileGenericPipe pipe = item.pipe;
+            final LogisticsGenericPipeBlockEntity pipe = item.pipe;
             final List<ExitRoute> connectedRouters = item.connectedRouters;
             if (LogisticsPipes.isDEBUG()) {
                 System.out.println(item.logPrefix + ": Size: " + connectedRouters.size());

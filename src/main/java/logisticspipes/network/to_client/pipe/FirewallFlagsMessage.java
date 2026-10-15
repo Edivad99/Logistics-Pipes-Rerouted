@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.PipeItemsFirewall;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The firewall's current switches, sent to the player as their GUI opens.
@@ -27,8 +27,8 @@ public record FirewallFlagsMessage(BlockPos pos, PipeItemsFirewall.FirewallFlags
             FirewallFlagsMessage::new);
 
     public static void handle(FirewallFlagsMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe container =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity container =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (container != null && container.pipe instanceof PipeItemsFirewall firewall) {
             firewall.setFlags(message.flags);
         }

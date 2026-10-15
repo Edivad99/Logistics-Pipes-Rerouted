@@ -32,8 +32,8 @@ import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.DummyLevelProvider;
 import logisticspipes.utils.TextUtil;
 import logisticspipes.world.item.tooltip.ModuleInventoryTooltip;
@@ -109,11 +109,11 @@ public class ItemModule extends LogisticsItem {
         InteractionHand hand = context.getHand();
         if (player != null && !player.level().isClientSide()) {
             BlockEntity tile = level.getBlockEntity(pos);
-            if (tile instanceof LogisticsTileGenericPipe) {
+            if (tile instanceof LogisticsGenericPipeBlockEntity) {
                 if (player.getDisplayName().getString()
                     .equals("ComputerCraft")) { // Allow turtle to place modules in pipes.
-                    CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
-                    if (LogisticsBlockGenericPipe.isValid(pipe)) {
+                    CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
+                    if (LogisticsGenericPipeBlock.isValid(pipe)) {
                         pipe.blockActivated(player);
                     }
                 }

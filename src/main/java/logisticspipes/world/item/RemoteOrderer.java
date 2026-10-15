@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.PipeItemsRemoteOrdererLogistics;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.item.component.LPDataComponents;
 
@@ -48,7 +48,7 @@ public class RemoteOrderer extends LogisticsItem {
             return null;
         }
         BlockEntity be = level.getBlockEntity(connectedPipe.pos());
-        if (!(be instanceof LogisticsTileGenericPipe genericPipe)) {
+        if (!(be instanceof LogisticsGenericPipeBlockEntity genericPipe)) {
             return null;
         }
         if (genericPipe.pipe instanceof PipeItemsRemoteOrdererLogistics remoteOrdererLogistics) {

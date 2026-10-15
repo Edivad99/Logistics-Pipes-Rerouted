@@ -12,7 +12,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe.TrafficCounts;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * A pipe's traffic counters, for the pipe controller's statistics tab.
@@ -36,8 +36,8 @@ public record PipeStatsMessage(BlockPos pos, TrafficCounts session, TrafficCount
             PipeStatsMessage::new);
 
     public static void handle(PipeStatsMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof CoreRoutedPipe pipe) {
             pipe.applyStats(message.session, message.lifetime, message.routingTableSize);
         }

@@ -1,4 +1,4 @@
-package logisticspipes.pipes.basic;
+package logisticspipes.world.level.block;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +25,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.world.level.block.LPBlocks;
+import logisticspipes.pipes.basic.CoreMultiBlockPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
 public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityBlock {
@@ -50,9 +52,9 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
 		BlockEntity tile = world.getBlockEntity(pos);
 		if (tile instanceof LogisticsTileGenericSubMultiBlock) {
 			VoxelShape shape = Shapes.empty();
-			for (LogisticsTileGenericPipe mainPipe : ((LogisticsTileGenericSubMultiBlock) tile).getConnectedMainPipes()) {
+			for (LogisticsGenericPipeBlockEntity mainPipe : ((LogisticsTileGenericSubMultiBlock) tile).getConnectedMainPipes()) {
 				if (mainPipe.isMultiBlock() && mainPipe.pipe instanceof CoreMultiBlockPipe) {
-					shape = Shapes.or(shape, LogisticsBlockGenericPipe.getMultiBlockShape((CoreMultiBlockPipe) mainPipe.pipe, pos));
+					shape = Shapes.or(shape, LogisticsGenericPipeBlock.getMultiBlockShape((CoreMultiBlockPipe) mainPipe.pipe, pos));
 				}
 			}
 			if (!shape.isEmpty()) {
@@ -72,7 +74,7 @@ public class LogisticsBlockGenericSubMultiBlock extends Block implements EntityB
         Player player) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof LogisticsTileGenericSubMultiBlock multiBlock) {
-            for (LogisticsTileGenericPipe mainPipe : multiBlock.getConnectedMainPipes()) {
+            for (LogisticsGenericPipeBlockEntity mainPipe : multiBlock.getConnectedMainPipes()) {
                 if (mainPipe.isMultiBlock()) {
                     BlockState mainState = level.getBlockState(mainPipe.getBlockPos());
                     ItemStack pick = LPBlocks.PIPE.get()

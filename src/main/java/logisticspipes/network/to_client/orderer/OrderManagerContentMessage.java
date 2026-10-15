@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IOrderManagerContentReceiver;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 /**
@@ -33,8 +33,8 @@ public record OrderManagerContentMessage(BlockPos pos, List<ItemIdentifierStack>
             OrderManagerContentMessage::new);
 
     public static void handle(OrderManagerContentMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof IOrderManagerContentReceiver receiver) {
             receiver.setOrderManagerContent(message.orders);
         }

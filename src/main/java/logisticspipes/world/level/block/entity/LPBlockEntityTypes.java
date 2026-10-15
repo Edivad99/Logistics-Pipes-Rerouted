@@ -8,7 +8,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import logisticspipes.LPConstants;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.world.level.block.LPBlocks;
 
@@ -32,9 +32,9 @@ public class LPBlockEntityTypes {
         deferredRegister.register("logistics_crafting_table",
             () -> new BlockEntityType<>(LogisticsCraftingTableBlockEntity::new,
                 LPBlocks.CRAFTER.get(), LPBlocks.CRAFTER_FUZZY.get()));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsTileGenericPipe>> PIPE =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsGenericPipeBlockEntity>> PIPE =
         deferredRegister.register("pipe",
-            () -> new BlockEntityType<>(LogisticsTileGenericPipe::new, LPBlocks.PIPE.get()));
+            () -> new BlockEntityType<>(LogisticsGenericPipeBlockEntity::new, LPBlocks.PIPE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsTileGenericSubMultiBlock>> SUB_PIPE =
         deferredRegister.register("sub_pipe",
             () -> new BlockEntityType<>(LogisticsTileGenericSubMultiBlock::new, LPBlocks.SUB_MULTIBLOCK.get()));

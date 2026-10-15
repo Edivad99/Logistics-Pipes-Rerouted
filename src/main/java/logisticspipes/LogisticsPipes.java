@@ -51,7 +51,7 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.property.PropertyUpdaterEventListener;
 import logisticspipes.proxy.PowerProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -136,12 +136,12 @@ public class LogisticsPipes {
     // Mod Events
     private void handleRegisterCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Item.BLOCK,
-            LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getItemCap);
+            LPBlockEntityTypes.PIPE.get(), LogisticsGenericPipeBlockEntity::getItemCap);
         event.registerBlockEntity(Capabilities.Item.BLOCK,
             LPBlockEntityTypes.CRAFTING_TABLE.get(), LogisticsCraftingTableBlockEntity::getItemCap);
 
         event.registerBlockEntity(Capabilities.Fluid.BLOCK,
-            LPBlockEntityTypes.PIPE.get(), LogisticsTileGenericPipe::getFluidCap);
+            LPBlockEntityTypes.PIPE.get(), LogisticsGenericPipeBlockEntity::getFluidCap);
 
         event.registerBlockEntity(Capabilities.Energy.BLOCK,
             LPBlockEntityTypes.POWER_JUNCTION.get(), LogisticsPowerJunctionBlockEntity::getEnergyStorageCap);

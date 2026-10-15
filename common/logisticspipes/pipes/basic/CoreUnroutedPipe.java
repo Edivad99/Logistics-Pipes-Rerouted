@@ -31,6 +31,7 @@ import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 
 public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 
@@ -50,7 +51,7 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 	/** Set once by {@link #setTile}; null only on the dummy instance an item keeps for type queries. */
 	@Getter
 	@Nullable
-	private LogisticsTileGenericPipe container;
+	private LogisticsGenericPipeBlockEntity container;
 	public final PipeTransportLogistics transport;
 	public final Item item;
 	public DebugLogController debug = new DebugLogController(this);
@@ -63,8 +64,8 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 	}
 
 	public void setTile(BlockEntity tile) {
-		container = (LogisticsTileGenericPipe) tile;
-		transport.setTile((LogisticsTileGenericPipe) tile);
+		container = (LogisticsGenericPipeBlockEntity) tile;
+		transport.setTile((LogisticsGenericPipeBlockEntity) tile);
 	}
 
 	public boolean blockActivated(Player entityplayer) {
@@ -84,9 +85,9 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
 	public boolean canPipeConnect(BlockEntity tile, Direction side) {
 		CoreUnroutedPipe otherPipe;
 
-		if (tile instanceof LogisticsTileGenericPipe) {
-			otherPipe = ((LogisticsTileGenericPipe) tile).pipe;
-			if (!LogisticsBlockGenericPipe.isFullyDefined(otherPipe)) {
+		if (tile instanceof LogisticsGenericPipeBlockEntity) {
+			otherPipe = ((LogisticsGenericPipeBlockEntity) tile).pipe;
+			if (!LogisticsGenericPipeBlock.isFullyDefined(otherPipe)) {
 				return false;
 			}
 		}

@@ -13,7 +13,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.block.DiskContentMessage;
 import logisticspipes.pipes.PipeItemsRequestLogistics;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.item.ItemDisk;
 
 /**
@@ -33,8 +33,8 @@ public record RequestDiskContentMessage(BlockPos pos) implements CustomPacketPay
             RequestDiskContentMessage::new);
 
     public static void handle(RequestDiskContentMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || !(be.pipe instanceof PipeItemsRequestLogistics requester)
             || !(context.player() instanceof ServerPlayer player)) {
             return;

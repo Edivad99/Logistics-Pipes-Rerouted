@@ -58,7 +58,7 @@ import logisticspipes.pipes.PipeLogisticsChassisMk2;
 import logisticspipes.pipes.PipeLogisticsChassisMk3;
 import logisticspipes.pipes.PipeLogisticsChassisMk4;
 import logisticspipes.pipes.PipeLogisticsChassisMk5;
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.pipes.tubes.HSTubeCurve;
 import logisticspipes.pipes.tubes.HSTubeGain;
 import logisticspipes.pipes.tubes.HSTubeLine;
@@ -179,93 +179,93 @@ public class LPItems {
     // class loading; LPItems copies these RegistryObject refs at init time, so they must be
     // set in LPRegistries before the first registerModule/registerUpgrade call executes.)
     public static final DeferredItem<ItemLogisticsPipe> PIPE_BASIC =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "basic",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "basic",
             PipeItemsBasicLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_REQUEST =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "request",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "request",
             PipeItemsRequestLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_REQUEST_MK2 =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "request_mk2",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "request_mk2",
             PipeItemsRequestLogisticsMk2::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_PROVIDER =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "provider",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "provider",
             PipeItemsProviderLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CRAFTING =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "crafting",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "crafting",
             PipeItemsCraftingLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_SATELLITE =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "satellite",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "satellite",
             PipeItemsSatelliteLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_SUPPLIER =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "supplier",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "supplier",
             PipeItemsSupplierLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK1 =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "chassis_mk1",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk1",
             PipeLogisticsChassisMk1::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK2 =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "chassis_mk2",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk2",
             PipeLogisticsChassisMk2::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK3 =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "chassis_mk3",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk3",
             PipeLogisticsChassisMk3::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK4 =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "chassis_mk4",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk4",
             PipeLogisticsChassisMk4::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK5 =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "chassis_mk5",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk5",
             PipeLogisticsChassisMk5::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_REMOTE_ORDERER =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "remote_orderer",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "remote_orderer",
             PipeItemsRemoteOrdererLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_INV_SYS_CONNECTOR =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "inventory_system_connector",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "inventory_system_connector",
             PipeItemsInvSysConnector::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_SYSTEM_ENTRANCE =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "system_entrance",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "system_entrance",
             PipeItemsSystemEntranceLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_SYSTEM_DESTINATION =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "system_destination",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "system_destination",
             PipeItemsSystemDestinationLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FIREWALL =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "firewall", PipeItemsFirewall::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "firewall", PipeItemsFirewall::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_REQUEST_TABLE =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "request_table",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "request_table",
             PipeBlockRequestTable::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_UNROUTED =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "transport_basic",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "transport_basic",
             PipeItemsBasicTransport::new);
     // Fluid pipes
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_BASIC =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_basic", PipeFluidBasic::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_basic", PipeFluidBasic::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_SUPPLIER =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_supplier", PipeItemsFluidSupplier::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_supplier", PipeItemsFluidSupplier::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_INSERTION =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_insertion", PipeFluidInsertion::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_insertion", PipeFluidInsertion::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_PROVIDER =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_provider", PipeFluidProvider::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_provider", PipeFluidProvider::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_REQUEST =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_request",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_request",
             PipeFluidRequestLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_EXTRACTOR =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_extractor", PipeFluidExtractor::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_extractor", PipeFluidExtractor::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_SATELLITE =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_satellite", PipeFluidSatellite::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_satellite", PipeFluidSatellite::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_SUPPLIER_MK2 =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_supplier_mk2",
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_supplier_mk2",
             PipeFluidSupplierMk2::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_TERMINUS =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "fluid_terminus", PipeFluidTerminus::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_terminus", PipeFluidTerminus::new);
     // High-speed tubes
     public static final DeferredItem<ItemLogisticsPipe> PIPE_HS_CURVE =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "hs_curve", HSTubeCurve::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "hs_curve", HSTubeCurve::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_HS_SPEEDUP =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "hs_speedup", HSTubeSpeedup::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "hs_speedup", HSTubeSpeedup::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_HS_S_CURVE =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "hs_s_curve", HSTubeSCurve::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "hs_s_curve", HSTubeSCurve::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_HS_LINE =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "hs_line", HSTubeLine::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "hs_line", HSTubeLine::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_HS_GAIN =
-        LogisticsBlockGenericPipe.registerPipe(deferredRegister, "hs_gain", HSTubeGain::new);
+        LogisticsGenericPipeBlock.registerPipe(deferredRegister, "hs_gain", HSTubeGain::new);
 
     public static final DeferredItem<ItemModule> MODULE_ITEM_SINK =
         registerModule(ModuleItemSink.getName(), ModuleItemSink::new);

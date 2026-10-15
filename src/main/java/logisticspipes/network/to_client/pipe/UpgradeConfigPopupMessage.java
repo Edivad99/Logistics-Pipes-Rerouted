@@ -18,7 +18,7 @@ import logisticspipes.client.gui.popup.DisconnectionConfigurationPopup;
 import logisticspipes.client.gui.popup.SneakyConfigurationPopup;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.SubGuiScreen;
@@ -53,7 +53,7 @@ public record UpgradeConfigPopupMessage(Kind kind, BlockPos pipePos, int slotInd
      * The neighbours a sneaky upgrade can be pointed at: the inventories first, and if there are
      * none, every neighbour, so the popup is never empty.
      */
-    private static List<BlockPos> extractableSides(LogisticsTileGenericPipe container) {
+    private static List<BlockPos> extractableSides(LogisticsGenericPipeBlockEntity container) {
         final List<BlockPos> inventories = new WorldCoordinatesWrapper(container).connectedBlockEntities()
             .stream()
             .filter(neighbor -> SimpleServiceLocator.pipeInformationManager.isNotAPipe(neighbor.getBlockEntity()))
@@ -83,8 +83,8 @@ public record UpgradeConfigPopupMessage(Kind kind, BlockPos pipePos, int slotInd
     private static final class Client {
 
         static void handle(UpgradeConfigPopupMessage message, IPayloadContext context) {
-            final LogisticsTileGenericPipe container =
-                TargetLookup.blockEntityAt(context.player(), message.pipePos, LogisticsTileGenericPipe.class);
+            final LogisticsGenericPipeBlockEntity container =
+                TargetLookup.blockEntityAt(context.player(), message.pipePos, LogisticsGenericPipeBlockEntity.class);
             final UpgradeSlot slot = TargetLookup.slotIn(context.player(), message.slotIndex, UpgradeSlot.class);
             if (container == null || slot == null || !(container.pipe instanceof CoreRoutedPipe pipe)) {
                 return;
@@ -95,7 +95,7 @@ public record UpgradeConfigPopupMessage(Kind kind, BlockPos pipePos, int slotInd
             controller.pushSubGui(popupFor(message.kind, container, pipe, slot));
         }
 
-        private static SubGuiScreen popupFor(Kind kind, LogisticsTileGenericPipe container, CoreRoutedPipe pipe,
+        private static SubGuiScreen popupFor(Kind kind, LogisticsGenericPipeBlockEntity container, CoreRoutedPipe pipe,
             UpgradeSlot slot) {
             return kind == Kind.DISCONNECTION
                 ? new DisconnectionConfigurationPopup(pipe, slot)

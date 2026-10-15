@@ -1,4 +1,4 @@
-package logisticspipes.pipes.basic;
+package logisticspipes.world.level.block;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,16 +61,19 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.network.TargetLookup;
+import logisticspipes.pipes.basic.CoreMultiBlockPipe;
+import logisticspipes.pipes.basic.CoreUnroutedPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
+import logisticspipes.pipes.basic.LogisticsTileGenericSubMultiBlock;
 import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.world.item.ItemLogisticsPipe;
-import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
 // BlockStateContainer removed — use StateDefinition.Builder in createBlockStateDefinition()
 // Particle/ParticleEngine/TextureAtlasSprite imports removed — rendering deferred (see addHitEffects/addDestroyEffects TODOs)
 // ClientConfiguration import removed — used only in deferred rendering methods
 
-public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
+public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
 
 	public static boolean ignoreSideRayTrace = false;
 	public static Map<Item, Function<Item, ? extends CoreUnroutedPipe>> pipes = new HashMap<>();
@@ -123,7 +126,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 		}
 	}
 
-	public LogisticsBlockGenericPipe(Properties properties) {
+	public LogisticsGenericPipeBlock(Properties properties) {
 		super(properties.strength(1.5F).noOcclusion()
 				.isViewBlocking((state, world, pos) -> false)
 				.isSuffocating((state, world, pos) -> false)
@@ -143,7 +146,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
     @Nullable
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new LogisticsTileGenericPipe(pos, state);
+		return new LogisticsGenericPipeBlockEntity(pos, state);
 	}
 
 	@Nullable
@@ -151,7 +154,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
         BlockEntityType<T> type) {
         return BaseEntityBlock.createTickerHelper(type, LPBlockEntityTypes.PIPE.get(),
-            level.isClientSide() ? LogisticsTileGenericPipe::clientTick : LogisticsTileGenericPipe::serverTick);
+            level.isClientSide() ? LogisticsGenericPipeBlockEntity::clientTick : LogisticsGenericPipeBlockEntity::serverTick);
 	}
 
 	@Override
@@ -162,22 +165,22 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	}
 
 	public static void removePipe(CoreUnroutedPipe pipe) {
-		if (!LogisticsBlockGenericPipe.isValid(pipe)) {
+		if (!LogisticsGenericPipeBlock.isValid(pipe)) {
 			return;
 		}
 
 		if (pipe.canBeDestroyed() || pipe.destroyByPlayer()) {
 			pipe.onBlockRemoval();
 		} else if (pipe.preventRemove()) {
-			LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
+			LogisticsGenericPipeBlock.cacheTileToPreventRemoval(pipe);
 		}
 
 		Level level = pipe.getContainer().getLevel();
 
-		if (LogisticsBlockGenericPipe.lastRemovedDate != level.getGameTime()) {
-			LogisticsBlockGenericPipe.lastRemovedDate = level.getGameTime();
-			LogisticsBlockGenericPipe.pipeRemoved.clear();
-			LogisticsBlockGenericPipe.pipeSubMultiRemoved.clear();
+		if (LogisticsGenericPipeBlock.lastRemovedDate != level.getGameTime()) {
+			LogisticsGenericPipeBlock.lastRemovedDate = level.getGameTime();
+			LogisticsGenericPipeBlock.pipeRemoved.clear();
+			LogisticsGenericPipeBlock.pipeSubMultiRemoved.clear();
 		}
 
 		if (pipe.isMultiBlock()) {
@@ -199,7 +202,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = true;
 						level.removeBlock(pos, false);
 						LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe = false;
-						LogisticsBlockGenericPipe.pipeSubMultiRemoved.put(pos, pipe.getContainer().getBlockPos());
+						LogisticsGenericPipeBlock.pipeSubMultiRemoved.put(pos, pipe.getContainer().getBlockPos());
 					} else {
 						TargetLookup.sendToChunkWatchers(tile, ((LogisticsTileGenericSubMultiBlock) tile).getDescriptionMessage());
 					}
@@ -208,7 +211,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 		}
 
 		BlockPos pos = pipe.getContainer().getBlockPos();
-		LogisticsBlockGenericPipe.pipeRemoved.put(pos, pipe);
+		LogisticsGenericPipeBlock.pipeRemoved.put(pos, pipe);
 		level.removeBlockEntity(pos);
 	}
 
@@ -228,7 +231,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 			Function<Item, ? extends CoreUnroutedPipe> constructor) {
 		return registry.registerItem("pipe_" + name, properties -> {
 			ItemLogisticsPipe item = new ItemLogisticsPipe(properties);
-			LogisticsBlockGenericPipe.pipes.put(item, constructor);
+			LogisticsGenericPipeBlock.pipes.put(item, constructor);
 			// Create a dummy pipe instance for type/size queries (isMultiBlock, etc.)
 			// used by ItemLogisticsPipe.useOn before a real pipe is placed.
 			try {
@@ -242,7 +245,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 
     @Nullable
 	public static CoreUnroutedPipe createPipe(Item key) {
-		Function<Item, ? extends CoreUnroutedPipe> pipe = LogisticsBlockGenericPipe.pipes.get(key);
+		Function<Item, ? extends CoreUnroutedPipe> pipe = LogisticsGenericPipeBlock.pipes.get(key);
 		if (pipe != null) {
 			return pipe.apply(key);
 		} else {
@@ -253,7 +256,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	}
 
 	public static boolean placePipe(CoreUnroutedPipe pipe, Level level, BlockPos blockPos, Block block) {
-		return LogisticsBlockGenericPipe.placePipe(pipe, level, blockPos, block, null);
+		return LogisticsGenericPipeBlock.placePipe(pipe, level, blockPos, block, null);
 	}
 
 	public static boolean placePipe(CoreUnroutedPipe pipe, Level level, BlockPos blockPos, Block block, @Nullable ITubeOrientation orientation) {
@@ -266,8 +269,8 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 
 		if (placed) {
 			BlockEntity tile = level.getBlockEntity(blockPos);
-			if (tile instanceof LogisticsTileGenericPipe) {
-				LogisticsTileGenericPipe tilePipe = (LogisticsTileGenericPipe) tile;
+			if (tile instanceof LogisticsGenericPipeBlockEntity) {
+				LogisticsGenericPipeBlockEntity tilePipe = (LogisticsGenericPipeBlockEntity) tile;
 				if (pipe instanceof CoreMultiBlockPipe) {
 					if (orientation == null) {
 						throw new NullPointerException();
@@ -308,10 +311,10 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	public static CoreUnroutedPipe getPipe(BlockGetter blockAccess, BlockPos pos) {
 		BlockEntity tile = blockAccess.getBlockEntity(pos);
 
-		if (!(tile instanceof LogisticsTileGenericPipe) || tile.isRemoved()) {
+		if (!(tile instanceof LogisticsGenericPipeBlockEntity) || tile.isRemoved()) {
 			return null;
 		} else {
-			return ((LogisticsTileGenericPipe) tile).pipe;
+			return ((LogisticsGenericPipeBlockEntity) tile).pipe;
 		}
 	}
 
@@ -320,7 +323,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	}
 
 	public static boolean isValid(@Nullable CoreUnroutedPipe pipe) {
-		return LogisticsBlockGenericPipe.isFullyDefined(pipe);
+		return LogisticsGenericPipeBlock.isFullyDefined(pipe);
 	}
 
 	private static void cacheTileToPreventRemoval(CoreUnroutedPipe pipe) {
@@ -359,10 +362,10 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 
 		int count = 1; // quantityDropped removed in 1.20.1
 		for (int i = 0; i < count; i++) {
-			CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(world, pos);
+			CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(world, pos);
 
 			if (pipe == null) {
-				pipe = LogisticsBlockGenericPipe.pipeRemoved.get(pos);
+				pipe = LogisticsGenericPipeBlock.pipeRemoved.get(pos);
 			}
 
 			if (pipe != null) {
@@ -370,7 +373,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 					list.addAll(pipe.dropContents());
 					list.add(new ItemStack(pipe.item, 1));
 				} else if (pipe.item != null) {
-					LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
+					LogisticsGenericPipeBlock.cacheTileToPreventRemoval(pipe);
 				}
 			}
 		}
@@ -382,7 +385,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 		return null; // BlockFaceShape.UNDEFINED — removed in 1.20.1
 	}
 
-	public void addCollisionBoxToList(LogisticsTileGenericPipe pipe, AABB entityBox, List<AABB> collidingBoxes, Entity entityIn, boolean isActualState) {
+	public void addCollisionBoxToList(LogisticsGenericPipeBlockEntity pipe, AABB entityBox, List<AABB> collidingBoxes, Entity entityIn, boolean isActualState) {
 		addCollisionBoxToList(pipe.getLevel().getBlockState(pipe.getBlockPos()), pipe.getLevel(), pipe.getBlockPos(), entityBox, collidingBoxes, entityIn, isActualState);
 	}
 
@@ -397,8 +400,8 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	// Internal collision helper — addCollisionBoxToList is no longer an MC override in 1.20.1; called from the overload above
 	public void addCollisionBoxToList(BlockState state, Level level, BlockPos pos, AABB entityBox, List<AABB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
 		BlockEntity te = level.getBlockEntity(pos);
-		if (te instanceof LogisticsTileGenericPipe) {
-			LogisticsTileGenericPipe tile = (LogisticsTileGenericPipe) te;
+		if (te instanceof LogisticsGenericPipeBlockEntity) {
+			LogisticsGenericPipeBlockEntity tile = (LogisticsGenericPipeBlockEntity) te;
 			CoreUnroutedPipe pipe = tile.pipe;
 			if (pipe != null && pipe.isPipeBlock()) {
 				addCollisionBoxToList(pos, entityBox, collidingBoxes, new AABB(0, 0, 0, 1, 1, 1)); // Block.FULL_BLOCK_AABB removed in 1.20.1
@@ -420,7 +423,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	@Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		BlockEntity te = world.getBlockEntity(pos);
-		if (!(te instanceof LogisticsTileGenericPipe tile)) {
+		if (!(te instanceof LogisticsGenericPipeBlockEntity tile)) {
             return Shapes.block();
         }
         CoreUnroutedPipe pipe = tile.pipe;
@@ -507,10 +510,10 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	public InternalRayTraceResult doRayTrace(Level level, BlockPos pos, Vec3 start, Vec3 end) {
 		BlockEntity te = level.getBlockEntity(pos);
 
-		if (te instanceof LogisticsTileGenericPipe) {
-			LogisticsTileGenericPipe tileG = (LogisticsTileGenericPipe) te;
+		if (te instanceof LogisticsGenericPipeBlockEntity) {
+			LogisticsGenericPipeBlockEntity tileG = (LogisticsGenericPipeBlockEntity) te;
 			CoreUnroutedPipe pipe = tileG.pipe;
-			if (!LogisticsBlockGenericPipe.isValid(pipe)) return null;
+			if (!LogisticsGenericPipeBlock.isValid(pipe)) return null;
 
 			if (pipe.isMultiBlock()) {
 				InternalRayTraceResult result1 = doRayTraceMultiblock(tileG, (CoreMultiBlockPipe) pipe, start, end);
@@ -542,9 +545,9 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	}
 
     @Nullable
-	private InternalRayTraceResult doRayTrace(LogisticsTileGenericPipe tileG, CoreUnroutedPipe pipe, Vec3 start, Vec3 end) {
+	private InternalRayTraceResult doRayTrace(LogisticsGenericPipeBlockEntity tileG, CoreUnroutedPipe pipe, Vec3 start, Vec3 end) {
 		if (tileG == null) return null;
-		if (!LogisticsBlockGenericPipe.isValid(pipe)) return null;
+		if (!LogisticsGenericPipeBlock.isValid(pipe)) return null;
 
 		/*
 		 * pipe hits along x, y, and z axis, gate (all 6 sides) [and
@@ -553,7 +556,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 		ArrayList<Hit> list = new ArrayList<>();
 
 		// pipe
-		for (Direction side : LogisticsBlockGenericPipe.DIR_VALUES) {
+		for (Direction side : LogisticsGenericPipeBlock.DIR_VALUES) {
 			if (side == null || tileG.isPipeConnectedCached(side)) {
 				if (side != null && ignoreSideRayTrace) continue;
 				AABB bb = getPipeBoundingBox(side);
@@ -580,7 +583,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	 * {@code AABB.calculateIntercept} API is gone.
 	 */
 	@Nullable
-    private InternalRayTraceResult doRayTraceMultiblock(LogisticsTileGenericPipe tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 end) {
+    private InternalRayTraceResult doRayTraceMultiblock(LogisticsGenericPipeBlockEntity tileG, CoreMultiBlockPipe pipe, Vec3 start, Vec3 end) {
 		ArrayList<Hit> list = new ArrayList<>();
 		// Centre block — always test so the player can click the main pipe body itself.
 		BlockPos mainPos = tileG.getBlockPos();
@@ -666,8 +669,8 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	public boolean isSideSolid_DEAD(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
 		BlockEntity tile = world.getBlockEntity(pos);
 
-		if (tile instanceof LogisticsTileGenericPipe) {
-			if (((LogisticsTileGenericPipe) tile).isPipeBlock()) {
+		if (tile instanceof LogisticsGenericPipeBlockEntity) {
+			if (((LogisticsGenericPipeBlockEntity) tile).isPipeBlock()) {
 				return true;
 			}
 		}
@@ -675,7 +678,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 		return false; // super.isSideSolid removed
 	}
 
-	// removePipe moved to LogisticsTileGenericPipe#preRemoveSideEffects: 1.21.5 replaced onRemove
+	// removePipe moved to LogisticsGenericPipeBlockEntity#preRemoveSideEffects: 1.21.5 replaced onRemove
 	// with affectNeighborsAfterRemoval, which runs after the block entity has been detached and so
 	// could no longer reach the pipe.
 
@@ -691,10 +694,10 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 			return;
 		}
 
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
+		CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
 
 		if (pipe == null) {
-			pipe = LogisticsBlockGenericPipe.pipeRemoved.get(pos);
+			pipe = LogisticsGenericPipeBlock.pipeRemoved.get(pos);
 		}
 
 		if (pipe == null) return;
@@ -705,7 +708,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 			}
 			Block.popResource(level, pos, new ItemStack(pipe.item, 1));
 		} else if (pipe.item != null) {
-			LogisticsBlockGenericPipe.cacheTileToPreventRemoval(pipe);
+			LogisticsGenericPipeBlock.cacheTileToPreventRemoval(pipe);
 		}
 	}
 
@@ -719,7 +722,7 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 
 		if (rayTraceResult != null && rayTraceResult.boundingBox != null) {
 			if (rayTraceResult.hitPart == Part.PIPE) {
-				final CoreUnroutedPipe pipe = Objects.requireNonNull(LogisticsBlockGenericPipe.getPipe(level, pos));
+				final CoreUnroutedPipe pipe = Objects.requireNonNull(LogisticsGenericPipeBlock.getPipe(level, pos));
 				return new ItemStack(pipe.item);
 			}
 		}
@@ -733,8 +736,8 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData,
         Player player) {
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof LogisticsTileGenericPipe genericPipe
-            && LogisticsBlockGenericPipe.isValid(genericPipe.pipe)
+        if (be instanceof LogisticsGenericPipeBlockEntity genericPipe
+            && LogisticsGenericPipeBlock.isValid(genericPipe.pipe)
             && genericPipe.pipe.item != null) {
             return new ItemStack(genericPipe.pipe.item);
         }
@@ -747,9 +750,9 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 		@Nullable Orientation orientation, boolean movedByPiston) {
 		super.neighborChanged(state, worldIn, pos, blockIn, orientation, movedByPiston);
 
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(worldIn, pos);
+		CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(worldIn, pos);
 
-		if (LogisticsBlockGenericPipe.isValid(pipe)) {
+		if (LogisticsGenericPipeBlock.isValid(pipe)) {
 			pipe.getContainer().scheduleNeighborChange();
 		}
 	}
@@ -757,9 +760,9 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 	@Override
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
 		super.setPlacedBy(level, pos, state, placer, stack);
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
+		CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
 
-		if (LogisticsBlockGenericPipe.isValid(pipe)) {
+		if (LogisticsGenericPipeBlock.isValid(pipe)) {
 			pipe.onBlockPlaced();
 			pipe.onBlockPlacedBy(placer);
 			if (pipe instanceof IRotationProvider) {
@@ -775,9 +778,9 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 
 		ItemStack heldItem = player.getInventory().getItem(player.getInventory().getSelectedSlot());
 
-		CoreUnroutedPipe pipe = LogisticsBlockGenericPipe.getPipe(level, pos);
+		CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.getPipe(level, pos);
 
-		if (LogisticsBlockGenericPipe.isValid(pipe)) {
+		if (LogisticsGenericPipeBlock.isValid(pipe)) {
 
 			if (heldItem.isEmpty()) {
 				// Fall through the end of the test
@@ -810,8 +813,8 @@ public class LogisticsBlockGenericPipe extends Block implements EntityBlock {
 
 private void checkForRenderChanges(BlockGetter worldIn, BlockPos blockPos) {
 		BlockEntity tile = worldIn.getBlockEntity(blockPos);
-		if (!(tile instanceof LogisticsTileGenericPipe)) return;
-		((LogisticsTileGenericPipe) tile).visualState.checkForRenderUpdate(worldIn, blockPos);
+		if (!(tile instanceof LogisticsGenericPipeBlockEntity)) return;
+		((LogisticsGenericPipeBlockEntity) tile).visualState.checkForRenderUpdate(worldIn, blockPos);
 	}
 
 	// @Override removed — canRenderInLayer removed in 1.20.1

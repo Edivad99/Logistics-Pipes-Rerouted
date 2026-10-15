@@ -9,7 +9,7 @@ import net.minecraft.core.Direction;
 import logisticspipes.LPConfigs;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PowerLaserMessage;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * The power lasers a pipe shows. The server keeps each one alive for as long as power keeps flowing
@@ -20,7 +20,7 @@ public class PipePowerLasers {
 
     private static final int LASER_TIMEOUT_TICKS = 4;
 
-    private final LogisticsTileGenericPipe pipe;
+    private final LogisticsGenericPipeBlockEntity pipe;
     private final Map<LaserKey, Beam> beams = new HashMap<>();
     /** Ticks left for the ball of each colour. */
     private final Map<Integer, Integer> balls = new HashMap<>();
@@ -39,7 +39,7 @@ public class PipePowerLasers {
         }
     }
 
-    public PipePowerLasers(LogisticsTileGenericPipe pipe) {
+    public PipePowerLasers(LogisticsGenericPipeBlockEntity pipe) {
         this.pipe = pipe;
     }
 

@@ -30,12 +30,13 @@ import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.ISubMultiBlockPipeInformationProvider;
 import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.utils.TileBuffer;
+import logisticspipes.world.level.block.LogisticsBlockGenericSubMultiBlock;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 
 public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements ISubMultiBlockPipeInformationProvider {
 
 	private Set<BlockPos> mainPipePos = new HashSet<>();
-	private @Nullable List<LogisticsTileGenericPipe> mainPipe;
+	private @Nullable List<LogisticsGenericPipeBlockEntity> mainPipe;
 	private List<CoreMultiBlockPipe.SubBlockTypeForShare> subTypes = new ArrayList<>();
 	private TileBuffer @Nullable [] tileBuffer;
 
@@ -68,26 +69,26 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 		if (!LogisticsBlockGenericSubMultiBlock.redirectedToMainPipe && level != null) {
 			getMainPipe().stream()
 					.filter(Objects::nonNull)
-					.filter(LogisticsTileGenericPipe::isMultiBlock)
+					.filter(LogisticsGenericPipeBlockEntity::isMultiBlock)
 					.forEach(mainPipe -> level.removeBlock(mainPipe.getBlockPos(), false));
 		}
 		super.preRemoveSideEffects(pos, state);
 	}
 
-	public List<LogisticsTileGenericPipe> getMainPipe() {
+	public List<LogisticsGenericPipeBlockEntity> getMainPipe() {
 		if (mainPipe == null) {
 			mainPipe = new ArrayList<>();
 			for (BlockPos pos : mainPipePos) {
 				BlockEntity tile = getLevel().getBlockEntity(pos);
-				if (tile instanceof LogisticsTileGenericPipe) {
-					mainPipe.add((LogisticsTileGenericPipe) tile);
+				if (tile instanceof LogisticsGenericPipeBlockEntity) {
+					mainPipe.add((LogisticsGenericPipeBlockEntity) tile);
 				}
 			}
 			mainPipe = Collections.unmodifiableList(mainPipe);
 		}
 		if (!getLevel().isClientSide()) {
 			boolean allInvalid = true;
-			for (LogisticsTileGenericPipe pipe : mainPipe) {
+			for (LogisticsGenericPipeBlockEntity pipe : mainPipe) {
 				if (!pipe.isRemoved()) {
 					allInvalid = false;
 					break;
@@ -108,15 +109,15 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	 * and never mutates the world (getMainPipe may remove this block when all mains are gone,
 	 * which must not happen mid collision query).
 	 */
-	public List<LogisticsTileGenericPipe> getConnectedMainPipes() {
+	public List<LogisticsGenericPipeBlockEntity> getConnectedMainPipes() {
 		if (getLevel() == null) {
 			return Collections.emptyList();
 		}
-		List<LogisticsTileGenericPipe> result = new ArrayList<>(mainPipePos.size());
+		List<LogisticsGenericPipeBlockEntity> result = new ArrayList<>(mainPipePos.size());
 		for (BlockPos pos : mainPipePos) {
 			BlockEntity tile = getLevel().getBlockEntity(pos);
-			if (tile instanceof LogisticsTileGenericPipe) {
-				result.add((LogisticsTileGenericPipe) tile);
+			if (tile instanceof LogisticsGenericPipeBlockEntity) {
+				result.add((LogisticsGenericPipeBlockEntity) tile);
 			}
 		}
 		return result;
@@ -128,7 +129,7 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 
 	public static void serverTick(Level level, BlockPos pos, BlockState state,
         LogisticsTileGenericSubMultiBlock blockEntity) {
-		for (LogisticsTileGenericPipe pipe : blockEntity.getMainPipe()) {
+		for (LogisticsGenericPipeBlockEntity pipe : blockEntity.getMainPipe()) {
 			pipe.subMultiBlock.add(blockEntity.getBlockPos());
 		}
 	}
@@ -320,7 +321,7 @@ public class LogisticsTileGenericSubMultiBlock extends BlockEntity implements IS
 	@Override
 	@Nullable
 	public IPipeInformationProvider getMainTile() {
-		List<LogisticsTileGenericPipe> mainTiles = this.getMainPipe();
+		List<LogisticsGenericPipeBlockEntity> mainTiles = this.getMainPipe();
 		if (mainTiles.size() != 1) {
 			return null;
 		}

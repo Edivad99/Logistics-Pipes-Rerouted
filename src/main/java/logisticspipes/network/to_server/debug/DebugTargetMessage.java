@@ -1,6 +1,7 @@
 package logisticspipes.network.to_server.debug;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,7 +19,7 @@ import logisticspipes.debug.DebugGuiController;
 import logisticspipes.network.DebugTarget;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.debug.DebugController;
 
@@ -53,14 +54,14 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
     }
 
     private static void debugRoutingTable(ServerPlayer player, DebugTarget target) {
-        if (!(target instanceof DebugTarget.Block(net.minecraft.core.BlockPos pos))) {
+        if (!(target instanceof DebugTarget.Block(BlockPos pos))) {
             player.sendSystemMessage(Component.literal(
                 target instanceof DebugTarget.Entity ? "Entities cannot be debugged this way"
                     : "No target found").withStyle(ChatFormatting.RED));
             return;
         }
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(player, pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(player, pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || !(be.pipe instanceof CoreRoutedPipe pipe)
             || !(pipe.getRouter() instanceof ServerRouter router)) {
             player.sendSystemMessage(
@@ -76,12 +77,12 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
     }
 
     private static void openPipeLog(ServerPlayer player, DebugTarget target) {
-        if (!(target instanceof DebugTarget.Block(net.minecraft.core.BlockPos pos))) {
+        if (!(target instanceof DebugTarget.Block(BlockPos pos))) {
             player.sendSystemMessage(Component.literal("Point at a pipe").withStyle(ChatFormatting.RED));
             return;
         }
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(player, pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(player, pos, LogisticsGenericPipeBlockEntity.class);
         // The old packet cast the pipe to CoreRoutedPipe without asking first, so pointing at an
         // unrouted pipe was a ClassCastException in the handler.
         if (be == null || !(be.pipe instanceof CoreRoutedPipe pipe)) {
@@ -94,12 +95,12 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
     }
 
     private static void togglePipeDebug(ServerPlayer player, DebugTarget target) {
-        if (!(target instanceof DebugTarget.Block(net.minecraft.core.BlockPos pos))) {
+        if (!(target instanceof DebugTarget.Block(BlockPos pos))) {
             player.sendSystemMessage(Component.literal("Point at a pipe").withStyle(ChatFormatting.RED));
             return;
         }
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(player, pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(player, pos, LogisticsGenericPipeBlockEntity.class);
         if (be == null || !be.isInitialized()) {
             player.sendSystemMessage(
                 Component.literal("No pipe at " + pos).withStyle(ChatFormatting.RED));
@@ -111,7 +112,7 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
     }
 
     private static void inspect(ServerPlayer player, DebugTarget target) {
-        if (target instanceof DebugTarget.Block(net.minecraft.core.BlockPos pos)) {
+        if (target instanceof DebugTarget.Block(BlockPos pos)) {
             final BlockEntity be = TargetLookup.blockEntityAt(player, pos, BlockEntity.class);
             if (be == null) {
                 player.sendSystemMessage(

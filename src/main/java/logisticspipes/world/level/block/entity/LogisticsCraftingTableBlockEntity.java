@@ -46,7 +46,7 @@ import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.CraftingUtil;
@@ -89,8 +89,8 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
             return null;
         }
         for (Direction dir : Direction.values()) {
-            final LogisticsTileGenericPipe container =
-                TargetLookup.blockEntityAt(level, getBlockPos().relative(dir), LogisticsTileGenericPipe.class);
+            final LogisticsGenericPipeBlockEntity container =
+                TargetLookup.blockEntityAt(level, getBlockPos().relative(dir), LogisticsGenericPipeBlockEntity.class);
             if (container != null && container.pipe instanceof PipeItemsCraftingLogistics pipe) {
                 return pipe;
             }

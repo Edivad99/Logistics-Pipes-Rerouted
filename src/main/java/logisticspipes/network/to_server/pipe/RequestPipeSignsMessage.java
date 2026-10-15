@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * A pipe has finished loading on the client, which cannot tell from the block state what signs it
@@ -26,8 +26,8 @@ public record RequestPipeSignsMessage(BlockPos pos) implements CustomPacketPaylo
             RequestPipeSignsMessage::new);
 
     public static void handle(RequestPipeSignsMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null && be.pipe instanceof CoreRoutedPipe pipe) {
             pipe.sendSignData(context.player(), false);
         }

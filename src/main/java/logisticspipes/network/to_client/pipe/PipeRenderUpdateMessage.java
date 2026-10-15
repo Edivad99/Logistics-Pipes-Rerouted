@@ -9,7 +9,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.pipes.basic.LogisticsGenericPipeBlockEntity;
 
 /**
  * A pipe's connections changed in a way the client cannot see coming, so it should look again.
@@ -28,8 +28,8 @@ public record PipeRenderUpdateMessage(BlockPos pos) implements CustomPacketPaylo
             PipeRenderUpdateMessage::new);
 
     public static void handle(PipeRenderUpdateMessage message, IPayloadContext context) {
-        final LogisticsTileGenericPipe be =
-            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsTileGenericPipe.class);
+        final LogisticsGenericPipeBlockEntity be =
+            TargetLookup.blockEntityAt(context.player(), message.pos, LogisticsGenericPipeBlockEntity.class);
         if (be != null) {
             be.visualState.checkForRenderUpdate(context.player().level(), message.pos);
         }
