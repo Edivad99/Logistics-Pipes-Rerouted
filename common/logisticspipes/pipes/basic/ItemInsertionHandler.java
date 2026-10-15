@@ -10,8 +10,6 @@ import net.neoforged.neoforge.transfer.VoidingResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import org.jspecify.annotations.Nullable;
-
 import logisticspipes.interfaces.ILPItemAcceptor;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
@@ -42,9 +40,9 @@ public class ItemInsertionHandler extends VoidingResourceHandler<ItemResource> {
 	public static final List<ILPItemAcceptor> ACCEPTORS = new ArrayList<>();
 
 	private final LogisticsGenericPipeBlockEntity pipe;
-	private final @Nullable Direction dir;
+	private final Direction dir;
 
-	public ItemInsertionHandler(LogisticsGenericPipeBlockEntity pipe, @Nullable Direction dir) {
+	public ItemInsertionHandler(LogisticsGenericPipeBlockEntity pipe, Direction dir) {
 		super(ItemResource.EMPTY);
 		this.pipe = pipe;
 		this.dir = dir;
@@ -55,11 +53,11 @@ public class ItemInsertionHandler extends VoidingResourceHandler<ItemResource> {
 		if (index != 0 || resource.isEmpty() || amount <= 0) {
 			return 0;
 		}
-		ItemStack leftover = handleItemInsetion(pipe, dir, resource.toStack(amount));
+		ItemStack leftover = handleItemInsertion(pipe, dir, resource.toStack(amount));
 		return amount - leftover.getCount();
 	}
 
-	public static ItemStack handleItemInsetion(LogisticsGenericPipeBlockEntity pipe, Direction from, ItemStack stack) {
+	public static ItemStack handleItemInsertion(LogisticsGenericPipeBlockEntity pipe, Direction from, ItemStack stack) {
 		for (ILPItemAcceptor acceptor : ACCEPTORS) {
 			if (acceptor.accept(pipe, from, stack)) {
 				return ItemStack.EMPTY;

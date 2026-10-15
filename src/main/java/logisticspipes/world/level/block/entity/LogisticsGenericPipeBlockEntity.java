@@ -123,7 +123,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         itemInsertionHandlers = new EnumMap<>(Direction.class);
         Arrays.stream(Direction.values())
             .forEach(face -> itemInsertionHandlers.put(face, new ItemInsertionHandler(this, face)));
-        ItemInsertionHandler itemInsertionHandlerNull = new ItemInsertionHandler(this, null);
         visualState = new PipeVisualState();
     }
 
@@ -859,13 +858,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         }
     }
 
-    /**
-     * Used by RegisterCapabilitiesEvent wiring in LPRegistries.
-     */
-    public ItemInsertionHandler getItemHandlerForSide(@Nullable Direction side) {
-        return itemInsertionHandlers != null ? itemInsertionHandlers.get(side) : null;
-    }
-
     public void scheduleRenderUpdate() {
         refreshRenderState = true;
     }
@@ -941,11 +933,11 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         return this.subMultiBlock.stream().map(level::getBlockEntity);
     }
 
-    public ResourceHandler<ItemResource> getItemCap(@Nullable Direction side) {
-        if (side != null) {
-            return getItemHandlerForSide(side);
-        }
-        return null;
+    /**
+     * Registered in {@code LogisticsPipes.handleRegisterCapabilities}. Items can only be inserted from a side.
+     */
+    public @Nullable ResourceHandler<ItemResource> getItemCap(@Nullable Direction side) {
+        return side != null ? itemInsertionHandlers.get(side) : null;
     }
 
     public ResourceHandler<FluidResource> getFluidCap(@Nullable Direction side) {
