@@ -617,8 +617,8 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 	}
 
 	@Override
-	public void setTile(BlockEntity tile) {
-		super.setTile(tile);
+	public void setTile(BlockEntity blockEntity) {
+		super.setTile(blockEntity);
 		module.slottedModules().forEach(SlottedModule::registerPosition);
 	}
 

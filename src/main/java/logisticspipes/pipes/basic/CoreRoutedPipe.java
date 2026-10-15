@@ -999,7 +999,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         return false;
     }
 
-    public boolean logisticsIsPipeConnected(BlockEntity tile, Direction dir) {
+    public boolean logisticsIsPipeConnected(BlockEntity blockEntity, Direction dir) {
         return false;
     }
 

@@ -87,7 +87,7 @@ public final class PipeFluidUtil {
 	 * {@code InventoryUtilFactory} consults the special handlers before the item capability.</p>
 	 */
 	@Nullable
-	public static ITankUtil getTankUtilForTE(@Nullable BlockEntity tile, @Nullable Direction dirOnEntity) {
+	public static ITankUtil getTankUtilForBE(@Nullable BlockEntity tile, @Nullable Direction dirOnEntity) {
 		ITankUtil special = SimpleServiceLocator.specialTankHandler.getSpecialTankUtilFor(tile, dirOnEntity);
 		if (special != null) {
 			return special;
@@ -117,7 +117,7 @@ public final class PipeFluidUtil {
 			if (!pipe.isConnectableTank(adjacent.getBlockEntity(), adjacent.getDirection(), listNearbyPipes)) {
 				continue;
 			}
-			ITankUtil util = getTankUtilForTE(adjacent.getBlockEntity(), adjacent.getOurDirection());
+			ITankUtil util = getTankUtilForBE(adjacent.getBlockEntity(), adjacent.getOurDirection());
 			if (util != null) {
 				result.add(new Pair<>(adjacent, util));
 			}

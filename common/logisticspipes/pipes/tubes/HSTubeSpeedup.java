@@ -234,13 +234,13 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
 	}
 
 	@Override
-	public boolean canPipeConnect(BlockEntity tile, Direction side) {
-		if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
+	public boolean canPipeConnect(BlockEntity blockEntity, Direction side) {
+		if (blockEntity instanceof LogisticsGenericSubMultiBlockBlockEntity) {
 			if (this.getOrientation().getDir1() != side) {
 				return false;
 			}
 		}
-		return super.canPipeConnect(tile, side);
+		return super.canPipeConnect(blockEntity, side);
 	}
 
 	@Override

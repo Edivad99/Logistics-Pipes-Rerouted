@@ -93,8 +93,8 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
 	}
 
 	@Override
-	public void setTile(BlockEntity tile) {
-		super.setTile(tile);
+	public void setTile(BlockEntity blockEntity) {
+		super.setTile(blockEntity);
 		itemSinkModule.registerPosition(ModulePositionType.IN_PIPE, 0);
 	}
 

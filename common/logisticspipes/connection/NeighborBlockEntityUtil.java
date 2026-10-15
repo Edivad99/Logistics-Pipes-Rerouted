@@ -60,7 +60,7 @@ public final class NeighborBlockEntityUtil {
     }
 
     public static @Nullable ITankUtil getTankUtil(NeighborBlockEntity<?> neighbor) {
-        return PipeFluidUtil.getTankUtilForTE(neighbor.getBlockEntity(), neighbor.getOurDirection());
+        return PipeFluidUtil.getTankUtilForBE(neighbor.getBlockEntity(), neighbor.getOurDirection());
     }
 
     public static <T extends BlockEntity> LPNeighborBlockEntitySneakyInsertion<T> sneakyInsertion(

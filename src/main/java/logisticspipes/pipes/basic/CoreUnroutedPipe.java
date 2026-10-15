@@ -1,0 +1,387 @@
+package logisticspipes.pipes.basic;
+
+import java.util.List;
+import java.util.Objects;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
+
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LPConfigs;
+import logisticspipes.interfaces.IPipeUpgradeManager;
+import logisticspipes.pipes.basic.debug.DebugLogController;
+import logisticspipes.pipes.basic.debug.StatusEntry;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
+import logisticspipes.routing.pathfinder.IPipeInformationProvider;
+import logisticspipes.transport.LPTravelingItem;
+import logisticspipes.transport.PipeTransportLogistics;
+import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
+
+public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
+
+    public final PipeTransportLogistics transport;
+    public final Item item;
+    private final Object[] ccTypeHolder = new Object[1];
+    public DebugLogController debug = new DebugLogController(this);
+    /**
+     * Set once by {@link #setTile}; null only on the dummy instance an item keeps for type queries.
+     */
+    @Getter
+    @Nullable
+    private LogisticsGenericPipeBlockEntity container;
+    private boolean initialized = false;
+
+    public CoreUnroutedPipe(PipeTransportLogistics transport, Item item) {
+        this.transport = transport;
+        this.item = item;
+    }
+
+    /**
+     * What this pipe keeps client side, beyond what every pipe has.
+     *
+     * <p>Written straight into the state packet's own buffer: the shape is the pipe's business,
+     * and the reading side does not know which pipe it is until it has found the block entity.
+     */
+    public void writeState(FriendlyByteBuf buffer) {
+    }
+
+    public void readState(FriendlyByteBuf buffer) {
+    }
+
+    public void setTile(BlockEntity blockEntity) {
+        container = (LogisticsGenericPipeBlockEntity) blockEntity;
+        transport.setTile((LogisticsGenericPipeBlockEntity) blockEntity);
+    }
+
+    public boolean blockActivated(Player entityplayer) {
+        return false;
+    }
+
+    public void onBlockPlaced() {
+        transport.onBlockPlaced();
+    }
+
+    public void onBlockPlacedBy(@Nullable LivingEntity placer) {
+    }
+
+    public void onNeighborBlockChange() {
+        transport.onNeighborBlockChange();
+    }
+
+    public boolean canPipeConnect(BlockEntity tile, Direction side) {
+        CoreUnroutedPipe otherPipe;
+
+        if (tile instanceof LogisticsGenericPipeBlockEntity genericPipeBlockEntity) {
+            otherPipe = genericPipeBlockEntity.pipe;
+            if (!LogisticsGenericPipeBlock.isFullyDefined(otherPipe)) {
+                return false;
+            }
+        }
+
+        return transport.canPipeConnect(tile, side);
+    }
+
+    public void updateEntity() {
+        transport.updateEntity();
+    }
+
+    public void serialize(ValueOutput output) {
+        transport.serialize(output);
+    }
+
+    public void deserialize(ValueInput input) {
+        transport.deserialize(input);
+    }
+
+    public boolean needsInit() {
+        return !initialized;
+    }
+
+    public void initialize() {
+        transport.initialize();
+        initialized = true;
+    }
+
+    public void onBlockRemoval() {
+    }
+
+    public NonNullList<ItemStack> dropContents() {
+        return transport.dropContents();
+    }
+
+    /**
+     * Called when TileGenericPipe.invalidate() is called
+     */
+    public void invalidate() {
+    }
+
+    /**
+     * Called when TileGenericPipe.validate() is called
+     */
+    public void validate() {
+    }
+
+    /**
+     * Called when TileGenericPipe.onChunkUnload is called
+     */
+    public void onChunkUnload() {
+    }
+
+    @Nullable
+    public Level getLevel() {
+        if (container == null) {
+            return null;
+        }
+        return container.getLevel();
+    }
+
+    public boolean canPipeConnect(BlockEntity tile, Direction direction, boolean flag) {
+        return canPipeConnect(tile, direction);
+    }
+
+    public boolean isSideBlocked(Direction side, boolean ignoreSystemDisconnection) {
+        return false;
+    }
+
+    public final BlockPos getPos() {
+        return Objects.requireNonNull(container, "pipe has no container; setTile must run first")
+            .getBlockPos();
+    }
+
+    public boolean canBeDestroyed() {
+        return true;
+    }
+
+    public boolean destroyByPlayer() {
+        return false;
+    }
+
+    public void setPreventRemove(boolean flag) {
+    }
+
+    public boolean preventRemove() {
+        return false;
+    }
+
+    /**
+     * Whether this pipe takes part in routing, as opposed to only carrying what is pushed into it.
+     */
+    public boolean isRoutedPipe() {
+        return false;
+    }
+
+    public boolean isFluidPipe() {
+        return false;
+    }
+
+    public abstract int getTextureIndex();
+
+    public void triggerDebug() {
+    }
+
+    public void addStatusInformation(List<StatusEntry> status) {
+    }
+
+    public boolean isOpaque() {
+        return LPConfigs.COMMON.OPAQUE.getAsBoolean();
+    }
+
+    @Override
+    public String toString() {
+        if (container == null) {
+            return getClass().getName() + "(NO CONTAINER)";
+        } else {
+            return String.format("%s(%s)", getClass().getName(), container.getBlockPos());
+        }
+    }
+
+    public IPipeUpgradeManager getUpgradeManager() {
+        return new IPipeUpgradeManager() {
+
+            @Override
+            public boolean hasPowerPassUpgrade() {
+                return false;
+            }
+
+            @Override
+            public boolean hasFEPowerSupplierUpgrade() {
+                return false;
+            }
+
+            @Override
+            public int getSpeedUpgradeCount() {
+                return 0;
+            }
+
+            @Override
+            public boolean isSideDisconnected(Direction side) {
+                return false;
+            }
+
+            @Override
+            public boolean hasCCRemoteControlUpgrade() {
+                return false;
+            }
+
+            @Override
+            public boolean hasCraftingMonitoringUpgrade() {
+                return false;
+            }
+
+            @Override
+            public boolean isOpaque() {
+                return false;
+            }
+
+            @Override
+            public boolean hasUpgradeModuleUpgrade() {
+                return false;
+            }
+
+            @Override
+            public boolean hasCombinedSneakyUpgrade() {
+                return false;
+            }
+
+            @Override
+            public Direction @Nullable [] getCombinedSneakyOrientation() {
+                return null;
+            }
+        };
+    }
+
+    public double getDistanceTo(int destinationint, Direction ignore, ItemIdentifier ident, boolean isActive,
+        double traveled, double max, List<BlockPos> visited) {
+        double lowest = Integer.MAX_VALUE;
+        for (Direction dir : Direction.values()) {
+            if (ignore == dir) {
+                continue;
+            }
+            IPipeInformationProvider information = SimpleServiceLocator.pipeInformationManager
+                .getInformationProviderFor(container.getNextConnectedTile(dir));
+            if (information != null) {
+                BlockPos pos = information.getPos();
+                if (visited.contains(pos)) {
+                    continue;
+                }
+                visited.add(pos);
+
+                lowest = information.getDistanceTo(destinationint, dir.getOpposite(), ident, isActive, traveled,
+                    Math.min(max, lowest), visited);
+
+                visited.remove(pos);
+            }
+        }
+        return lowest;
+    }
+
+    public boolean isMultiBlock() {
+        return false;
+    }
+
+    public boolean actAsNormalPipe() {
+        return true;
+    }
+
+    public boolean isHSTube() {
+        return false;
+    }
+
+    public boolean hasSpecialPipeEndAt(Direction dir) {
+        return false;
+    }
+
+    @Nullable
+    public Vec3 getItemRenderPos(float fPos, LPTravelingItem travelItem) {
+        Vec3 pos = new Vec3(0.5, 0.5, 0.5);
+        if (fPos < 0.5) {
+            if (travelItem.input == null) {
+                return null;
+            }
+            if (!container.visualState.pipeConnectionMatrix.isConnected(travelItem.input.getOpposite())) {
+                return null;
+            }
+            pos = pos.relative(travelItem.input.getOpposite(), 0.5 - fPos);
+        } else {
+            if (travelItem.output == null) {
+                return null;
+            }
+            if (!container.visualState.pipeConnectionMatrix.isConnected(travelItem.output)) {
+                return null;
+            }
+            pos = pos.relative(travelItem.output, fPos - 0.5);
+        }
+        return pos;
+    }
+
+    public double getBoxRenderScale(float fPos, LPTravelingItem travelItem) {
+        return 1;
+    }
+
+    public double getItemRenderPitch(float fPos, LPTravelingItem travelItem) {
+        return 0;
+    }
+
+    public double getItemRenderYaw(float fPos, LPTravelingItem travelItem) {
+        return 0;
+    }
+
+    public boolean isInitialized() {
+        return container != null;
+    }
+
+    @Nullable
+    public Level getLevelForHUD() {
+        return getLevel();
+    }
+
+    @Override
+    public Object[] getTypeHolder() {
+        return ccTypeHolder;
+    }
+
+    protected void updateAdjacentCache() {
+    }
+
+    /**
+     * Triggers connection checks for routing.
+     */
+    public void triggerConnectionCheck() {
+    }
+
+    /**
+     * Called after reading data from NBT.
+     */
+    public void finishInit() {
+    }
+
+    public boolean isPipeBlock() {
+        return false;
+    }
+
+    /**
+     * Block-atlas sprite used for this pipe's break and hit particles, or null to use the
+     * pipe frame's. Only pipes that do not draw the frame need to override this.
+     */
+    @Nullable
+    public Identifier getParticleSprite() {
+        return null;
+    }
+}

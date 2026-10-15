@@ -1,0 +1,301 @@
+package logisticspipes.pipes.basic.fluid;
+
+import java.util.List;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LogisticsPipes;
+import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.api.util.ITankUtil;
+import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
+import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.pipes.PipeFluidUtil;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.IRouter;
+import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.routing.order.LogisticsFluidOrderManager;
+import logisticspipes.routing.order.LogisticsOrderManager;
+import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
+import logisticspipes.transport.PipeFluidTransportLogistics;
+import logisticspipes.utils.CacheHolder.CacheTypes;
+import logisticspipes.utils.FluidIdentifier;
+import logisticspipes.utils.FluidIdentifierStack;
+import logisticspipes.utils.FluidSinkReply;
+import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.utils.transfer.LPFluidTank;
+import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
+
+public abstract class FluidRoutedPipe extends CoreRoutedPipe {
+
+    private @Nullable LogisticsFluidOrderManager orderFluidManager;
+
+    public FluidRoutedPipe(Item item) {
+        super(new PipeFluidTransportLogistics(), item);
+    }
+
+    @Override
+    public void setTile(BlockEntity blockEntity) {
+        super.setTile(blockEntity);
+    }
+
+    @Override
+    public boolean logisticsIsPipeConnected(BlockEntity blockEntity, Direction dir) {
+        ITankUtil tank = PipeFluidUtil.getTankUtilForBE(blockEntity, dir.getOpposite());
+        return (tank != null && tank.containsTanks()) || blockEntity instanceof LogisticsGenericPipeBlockEntity;
+    }
+
+    @Override
+    public ItemSendMode getItemSendMode() {
+        return ItemSendMode.NORMAL;
+    }
+
+    @Override
+    public @Nullable LogisticsModule getLogisticsModule() {
+        return null;
+    }
+
+    /***
+     * @param blockEntity
+     *            The connected BlockEntity
+     * @param dir
+     *            The direction the BlockEntity is in relative to the current
+     *            pipe
+     * @param flag
+     *            Whether to list a Nearby Pipe or not
+     */
+
+    public final boolean isConnectableTank(BlockEntity blockEntity, Direction dir, boolean flag) {
+        if (SimpleServiceLocator.specialTankHandler.hasHandlerFor(blockEntity)) {
+            return true;
+        }
+        // dir points from this pipe to the blockEntity, so the blockEntity is asked about the side facing us -- the
+        // same side getTankUtil() uses when it builds the util we would end up filling.
+        boolean fluidTile = SimpleServiceLocator.specialTankHandler.hasSpecialTankUtilFor(blockEntity, dir.getOpposite());
+        Level level = blockEntity.getLevel();
+        if (level != null) {
+            var fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, blockEntity.getBlockPos(), dir);
+            if (fluidHandler != null) {
+                fluidTile = true;
+            }
+        }
+        if (!fluidTile) {
+            return false;
+        }
+        if (!this.canPipeConnect(blockEntity, dir)) {
+            return false;
+        }
+        if (blockEntity instanceof LogisticsGenericPipeBlockEntity genericPipeBlockEntity) {
+            if (genericPipeBlockEntity.pipe instanceof FluidRoutedPipe) {
+                return false;
+            }
+            if (!flag) {
+                return false;
+            }
+            // Was `transport instanceof IFluidHandler`, which no LP transport has ever satisfied --
+            // the handler was an inner class of PipeFluidTransportLogistics, never the transport
+            // itself, so this always said "not a fluid pipe". Naming the transport type is what the
+            // check was reaching for, and lands on the same answer for every pipe that exists.
+            return genericPipeBlockEntity.pipe != null
+                && genericPipeBlockEntity.pipe.transport instanceof PipeFluidTransportLogistics;
+        }
+        return true;
+    }
+
+    @Override
+    public void enabledUpdateEntity() {
+        super.enabledUpdateEntity();
+        if (canInsertFromSideToTanks()) {
+            int validDirections = 0;
+            final List<Pair<NeighborBlockEntity<BlockEntity>, ITankUtil>> list =
+                PipeFluidUtil.getAdjacentTanks(this, true);
+            for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : list) {
+                if (pair.getValue2() instanceof LogisticsGenericPipeBlockEntity genericPipeBlockEntity) {
+                    if (genericPipeBlockEntity.pipe instanceof CoreRoutedPipe) {
+                        continue;
+                    }
+                }
+                LPFluidTank internalTank = ((PipeFluidTransportLogistics) transport)
+                    .sideTanks[pair.getValue1().getDirection().ordinal()];
+                validDirections++;
+                if (internalTank.getFluid().isEmpty()) {
+                    continue;
+                }
+                int filled = pair.getValue2().fill(internalTank.getFluid(), true);
+                if (filled == 0) {
+                    continue;
+                }
+                FluidStack drain = internalTank.drain(filled, true);
+                if (drain == null || filled != drain.getAmount()) {
+                    if (LogisticsPipes.isDEBUG()) {
+                        throw new UnsupportedOperationException("Fluid Multiplication");
+                    }
+                }
+            }
+            if (validDirections == 0) {
+                return;
+            }
+            LPFluidTank tank = ((PipeFluidTransportLogistics) transport).internalTank;
+            FluidStack stack = tank.getFluid();
+            if (stack.isEmpty()) {
+                return;
+            }
+            for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : list) {
+                if (pair.getValue1().isLogisticsPipe()) {
+                    if (((LogisticsGenericPipeBlockEntity) pair.getValue1()
+                        .getBlockEntity()).pipe instanceof CoreRoutedPipe) {
+                        continue;
+                    }
+                }
+                LPFluidTank tankSide = ((PipeFluidTransportLogistics) transport)
+                    .sideTanks[pair.getValue1().getDirection().ordinal()];
+                stack = tank.getFluid();
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                stack = stack.copy();
+                int filled = tankSide.fill(stack, true);
+                if (filled == 0) {
+                    continue;
+                }
+                FluidStack drain = tank.drain(filled, true);
+                if (drain == null || filled != drain.getAmount()) {
+                    if (LogisticsPipes.isDEBUG()) {
+                        throw new UnsupportedOperationException("Fluid Multiplication");
+                    }
+                }
+            }
+        }
+    }
+
+    public int countOnRoute(FluidIdentifier ident) {
+        int amount = 0;
+        for (ItemRoutingInformation next : inTransitToMe) {
+            ItemIdentifierStack item = next.getItem();
+            if (item.getItem().isFluidContainer()) {
+                FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(item);
+                if (liquid.getFluid().equals(ident)) {
+                    amount += liquid.getAmount();
+                }
+            }
+        }
+        return amount;
+    }
+
+    public abstract boolean canInsertFromSideToTanks();
+
+    public abstract boolean canInsertToTanks();
+
+    public abstract boolean canReceiveFluid();
+
+    public boolean endReached(LPTravelingItemServer arrivingItem, BlockEntity tile) {
+        if (canInsertToTanks() && !getLevel().isClientSide()) {
+            getCacheHolder().trigger(CacheTypes.Inventory);
+            if (arrivingItem.getItemIdentifierStack() == null || !(arrivingItem.getItemIdentifierStack().getItem()
+                .isFluidContainer())) {
+                return false;
+            }
+            if (getRouter().getSimpleID() != arrivingItem.getDestination()) {
+                return false;
+            }
+            int filled;
+            FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
+                arrivingItem.getItemIdentifierStack());
+            if (isConnectableTank(tile, arrivingItem.output, false)) {
+                //Try to put liquid into all adjacent tanks.
+                for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> util : PipeFluidUtil.getAdjacentTanks(this,
+                    false)) {
+                    filled = util.getValue2().fill(liquid.makeFluidStack(), true);
+                    liquid.lowerAmount(filled);
+                    if (liquid.getAmount() != 0) {
+                        continue;
+                    }
+                    return true;
+                }
+                //Try inserting the liquid into the pipe side tank
+                filled = ((PipeFluidTransportLogistics) transport).sideTanks[arrivingItem.output.ordinal()].fill(
+                    liquid.makeFluidStack(), true);
+                if (filled == liquid.getAmount()) {
+                    return true;
+                }
+                liquid.lowerAmount(filled);
+            }
+            //Try inserting the liquid into the pipe internal tank
+            filled = ((PipeFluidTransportLogistics) transport).internalTank.fill(liquid.makeFluidStack(), true);
+            if (filled == liquid.getAmount()) {
+                return true;
+            }
+            //If liquids still exist,
+            liquid.lowerAmount(filled);
+
+            if (this instanceof IRequireReliableFluidTransport requireReliableFluidTransport) {
+                requireReliableFluidTransport.liquidNotInserted(liquid.getFluid(), liquid.getAmount());
+            }
+
+            IRoutedItem routedItem = SimpleServiceLocator.routedItemHelper.createNewTravelItem(
+                SimpleServiceLocator.logisticsFluidManager.getFluidContainer(liquid, getLevel().registryAccess()));
+            // Carry forward the arriving item's jam list so the rerouted remainder does
+            // not immediately pick the same (now-full) path again, and add this pipe's
+            // router to prevent looping back here on the very next hop.
+            for (int simpleId : arrivingItem.getJamList()) {
+                IRouter r = SimpleServiceLocator.routerManager.getRouter(simpleId);
+                if (r != null) {
+                    routedItem.addToJamList(r);
+                }
+            }
+            routedItem.addToJamList(getRouter());
+            Pair<Integer, FluidSinkReply> replies = SimpleServiceLocator.logisticsFluidManager.getBestReply(liquid,
+                getRouter(), routedItem.getJamList());
+            if (replies == null) {
+                // clear destination without marking item as lost
+                routedItem.setDestination(0);
+            } else {
+                int dest = replies.getValue1();
+                routedItem.setDestination(dest);
+            }
+            routedItem.setTransportMode(TransportMode.Passive);
+            this.queueRoutedItem(routedItem, arrivingItem.output.getOpposite());
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isFluidPipe() {
+        return true;
+    }
+
+    @Override
+    public boolean isOnSameContainer(CoreRoutedPipe other) {
+        if (other instanceof FluidRoutedPipe fluidRoutedPipe) {
+            List<BlockEntity> theirs = PipeFluidUtil.getAllTankTiles(fluidRoutedPipe);
+            for (BlockEntity blockEntity : PipeFluidUtil.getAllTankTiles(this)) {
+                if (theirs.contains(blockEntity)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public LogisticsFluidOrderManager getFluidOrderManager() {
+        orderFluidManager = orderFluidManager != null ? orderFluidManager : new LogisticsFluidOrderManager(this);
+        return orderFluidManager;
+    }
+
+    @Override
+    public LogisticsOrderManager<?, ?> getOrderManager() {
+        return getFluidOrderManager();
+    }
+}

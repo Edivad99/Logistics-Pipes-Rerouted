@@ -73,7 +73,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 				if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
 					return false;
 				}
-				ITankUtil tank = PipeFluidUtil.getTankUtilForTE(tile, dir.getOpposite());
+				ITankUtil tank = PipeFluidUtil.getTankUtilForBE(tile, dir.getOpposite());
 				return tank != null && tank.containsTanks();
 			}
 		}, item);
@@ -114,7 +114,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		if (getOriginalUpgradeManager().hasSneakyUpgrade()) {
 			orientation = getOriginalUpgradeManager().getSneakyOrientation();
 		}
-		ITankUtil util = PipeFluidUtil.getTankUtilForTE(tile, orientation);
+		ITankUtil util = PipeFluidUtil.getTankUtilForBE(tile, orientation);
 		if (util == null) {
 			return;
 		}

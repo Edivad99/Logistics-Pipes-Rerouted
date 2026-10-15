@@ -44,6 +44,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import lombok.Getter;
+
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -70,6 +72,7 @@ public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSin
 
     private final PlayerCollectionList guiOpenedBy = new PlayerCollectionList();
 
+    @Getter
     private final ItemIdentifierInventoryProperty sinkInv;
 
     private final List<Property<?>> properties;
@@ -79,10 +82,6 @@ public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSin
         sinkInv = new ItemIdentifierInventoryProperty(
                 new ItemIdentifierInventory(inventorySize, inventoryName, 1, true), "sinkInv");
         properties = List.of(sinkInv);
-    }
-
-    public ItemIdentifierInventoryProperty getSinkInv() {
-        return sinkInv;
     }
 
     @Override
