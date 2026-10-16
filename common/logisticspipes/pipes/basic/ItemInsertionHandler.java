@@ -1,8 +1,5 @@
 package logisticspipes.pipes.basic;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 
@@ -10,7 +7,6 @@ import net.neoforged.neoforge.transfer.VoidingResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import logisticspipes.interfaces.ILPItemAcceptor;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
@@ -37,8 +33,6 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
  */
 public class ItemInsertionHandler extends VoidingResourceHandler<ItemResource> {
 
-	public static final List<ILPItemAcceptor> ACCEPTORS = new ArrayList<>();
-
 	private final LogisticsGenericPipeBlockEntity pipe;
 	private final Direction dir;
 
@@ -53,16 +47,7 @@ public class ItemInsertionHandler extends VoidingResourceHandler<ItemResource> {
 		if (index != 0 || resource.isEmpty() || amount <= 0) {
 			return 0;
 		}
-		ItemStack leftover = handleItemInsertion(pipe, dir, resource.toStack(amount));
+		ItemStack leftover = pipe.insertItem(dir, resource.toStack(amount));
 		return amount - leftover.getCount();
-	}
-
-	public static ItemStack handleItemInsertion(LogisticsGenericPipeBlockEntity pipe, Direction from, ItemStack stack) {
-		for (ILPItemAcceptor acceptor : ACCEPTORS) {
-			if (acceptor.accept(pipe, from, stack)) {
-				return ItemStack.EMPTY;
-			}
-		}
-		return pipe.insertItem(from, stack);
 	}
 }
