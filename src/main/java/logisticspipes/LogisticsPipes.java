@@ -45,6 +45,7 @@ import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.entity.FakePlayers;
 import logisticspipes.integrations.progressprovider.FurnaceProgressProvider;
+import logisticspipes.integrations.tesseract.TesseractConnection;
 import logisticspipes.integrations.top.LPTopPlugin;
 import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logistics.LogisticsManager;
@@ -184,6 +185,9 @@ public class LogisticsPipes {
             SimpleServiceLocator.setSpecialTankHandler(SpecialTankHandler.from(tankHandlers));
 
             RegisterSpecialConnectionsEvent connections = new RegisterSpecialConnectionsEvent();
+            if (ModList.get().isLoaded(LPConstants.TESSERACT_MOD_ID)) {
+                connections.register(new TesseractConnection());
+            }
             ModLoader.postEvent(connections);
             SimpleServiceLocator.setSpecialConnectionHandler(SpecialPipeConnection.from(connections));
             SimpleServiceLocator.setSpecialConnectionHandler(SpecialBlockEntityConnection.from(connections));

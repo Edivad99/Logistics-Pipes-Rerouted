@@ -28,6 +28,7 @@ public class LPConstants {
 
     public static final String RS_MOD_ID = "refinedstorage";
     public static final String TOP_MOD_ID = "theoneprobe";
+    public static final String TESSERACT_MOD_ID = "tesseract";
 
     public static final String computerCraftModID = "computercraft";
     public static final String openComputersModID = "opencomputers";
