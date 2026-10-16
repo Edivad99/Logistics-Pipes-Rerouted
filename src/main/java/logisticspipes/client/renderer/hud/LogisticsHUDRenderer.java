@@ -437,9 +437,9 @@ public class LogisticsHUDRenderer {
 
     private int[] getLaserTypeColor(PipeRoutingConnectionType type) {
         switch (type) {
-            case canRouteTo:     return new int[]{255, 255,   0, 128};
-            case canRequestFrom: return new int[]{  0, 255,   0, 128};
-            case canPowerFrom:   return new int[]{  0,   0, 255, 128};
+            case CAN_ROUTE_TO:     return new int[]{255, 255,   0, 128};
+            case CAN_REQUEST_FROM: return new int[]{  0, 255,   0, 128};
+            case CAN_POWER_FROM:   return new int[]{  0,   0, 255, 128};
             default:             return new int[]{255, 255, 255, 128};
         }
     }

@@ -68,7 +68,7 @@ public class LogisticsManager implements ILogisticsManager {
 				continue;
 			}
 
-			if (!candidateRouter.containsFlag(PipeRoutingConnectionType.canRouteTo)) {
+			if (!candidateRouter.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
 				continue;
 			}
 
@@ -188,7 +188,7 @@ public class LogisticsManager implements ILogisticsManager {
 		for (int i = routersIndex.nextSetBit(0); i >= 0; i = routersIndex.nextSetBit(i + 1)) {
 			IRouter r = SimpleServiceLocator.routerManager.getServerRouter(i);
 			validDestinations.addAll(sourceRouter.getDistanceTo(r).stream()
-					.filter(e -> e.containsFlag(PipeRoutingConnectionType.canRouteTo))
+					.filter(e -> e.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO))
 					.collect(Collectors.toList()));
 		}
 		Collections.sort(validDestinations);
@@ -280,7 +280,7 @@ public class LogisticsManager implements ILogisticsManager {
 			if (r == null) {
 				continue;
 			}
-			if (!r.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+			if (!r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 				continue;
 			}
 			if (!(r.destination.getPipe() instanceof IProvideItems)) {
@@ -319,7 +319,7 @@ public class LogisticsManager implements ILogisticsManager {
 			if (r == null) {
 				continue;
 			}
-			if (!r.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+			if (!r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 				continue;
 			}
 			if (used.get(r.destination.getSimpleID())) {
@@ -366,7 +366,7 @@ public class LogisticsManager implements ILogisticsManager {
 			if (r == null) {
 				continue;
 			}
-			if (!r.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+			if (!r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 				continue;
 			}
 			if (!(r.destination.getPipe() instanceof IProvideItems)) {

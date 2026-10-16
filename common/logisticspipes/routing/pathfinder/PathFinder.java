@@ -174,7 +174,7 @@ public class PathFinder {
 			}
 
 			if (!rp.getUpgradeManager().hasPowerPassUpgrade()) {
-				connectionFlags.remove(PipeRoutingConnectionType.canPowerSubSystemFrom);
+				connectionFlags.remove(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM);
 			}
 
 			foundPipes.put(rp, new ExitRoute(null, rp.getRouter(), null, side.getOpposite(), Math.max(1, size), connectionFlags, distances.size()));
@@ -262,7 +262,7 @@ public class PathFinder {
 					continue;
 				}
 				if (!startPipe.getRoutingPipe().getUpgradeManager().hasPowerPassUpgrade()) {
-					nextConnectionFlags.remove(PipeRoutingConnectionType.canPowerSubSystemFrom);
+					nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM);
 				}
 			}
 
@@ -300,30 +300,30 @@ public class PathFinder {
 					continue;
 				}
 				if (side != direction && !root) { //Only straight connections for subsystem power
-					nextConnectionFlags.remove(PipeRoutingConnectionType.canPowerSubSystemFrom);
+					nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM);
 				}
 				if (isDirectConnection) { //ISC doesn't pass power
-					nextConnectionFlags.remove(PipeRoutingConnectionType.canPowerFrom);
-					nextConnectionFlags.remove(PipeRoutingConnectionType.canPowerSubSystemFrom);
+					nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_POWER_FROM);
+					nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM);
 				}
 				//Iron, obsidean and liquid pipes will separate networks
 				if (currentPipe.divideNetwork()) {
 					continue;
 				}
 				if (currentPipe.powerOnly()) {
-					nextConnectionFlags.remove(PipeRoutingConnectionType.canRouteTo);
-					nextConnectionFlags.remove(PipeRoutingConnectionType.canRequestFrom);
+					nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_ROUTE_TO);
+					nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_REQUEST_FROM);
 				}
 				if (startPipe.isOnewayPipe()) {
 					if (startPipe.isOutputClosed(direction)) {
-						nextConnectionFlags.remove(PipeRoutingConnectionType.canRouteTo);
+						nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_ROUTE_TO);
 					}
 				}
 				if (currentPipe.isOnewayPipe()) {
-					nextConnectionFlags.remove(PipeRoutingConnectionType.canPowerSubSystemFrom);
+					nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM);
 					if (currentPipe.isOutputClosed(direction.getOpposite())) {
-						nextConnectionFlags.remove(PipeRoutingConnectionType.canRequestFrom);
-						nextConnectionFlags.remove(PipeRoutingConnectionType.canPowerFrom);
+						nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_REQUEST_FROM);
+						nextConnectionFlags.remove(PipeRoutingConnectionType.CAN_POWER_FROM);
 					}
 				}
 

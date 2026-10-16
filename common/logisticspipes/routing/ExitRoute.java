@@ -48,12 +48,12 @@ public class ExitRoute implements Comparable<ExitRoute> {
 		this.exitOrientation = exitOrientation;
 		this.insertOrientation = insertOrientation;
 		this.connectionDetails = connectionDetails;
-		if (connectionDetails.contains(PipeRoutingConnectionType.canRouteTo)) {
+		if (connectionDetails.contains(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
 			distanceToDestination = metric;
 		} else {
 			distanceToDestination = Integer.MAX_VALUE;
 		}
-		if (connectionDetails.contains(PipeRoutingConnectionType.canRequestFrom)) {
+		if (connectionDetails.contains(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 			destinationDistanceToRoot = metric;
 		} else {
 			destinationDistanceToRoot = Integer.MAX_VALUE;

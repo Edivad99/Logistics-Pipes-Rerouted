@@ -108,7 +108,7 @@ public class RequestTreeNode {
 		validSources.sort(new workWeightedSorter(1.0));
 
 		List<Pair<IProvide, List<IFilter>>> providers = new LinkedList<>();
-		validSources.stream().filter(r -> r.containsFlag(PipeRoutingConnectionType.canRequestFrom)).forEach(r -> {
+		validSources.stream().filter(r -> r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)).forEach(r -> {
 			CoreRoutedPipe pipe = r.destination.getPipe();
 			if (pipe instanceof IProvide) {
 				List<IFilter> list = new LinkedList<>(r.filters);
@@ -123,7 +123,7 @@ public class RequestTreeNode {
 		outer:
 		for (ExitRoute r : validDestinations) {
 			CoreRoutedPipe pipe = r.destination.getPipe();
-			if (r.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+			if (r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 				if (pipe instanceof ICraft) {
 					ICraftingTemplate craftable = ((ICraft) pipe).addCrafting(iRequestType);
 					if (craftable != null) {
@@ -378,10 +378,10 @@ public class RequestTreeNode {
 			}
 			outer:
 			for (ExitRoute source : sources) {
-				if (source != null && source.containsFlag(PipeRoutingConnectionType.canRouteTo)) {
+				if (source != null && source.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
 					for (ExitRoute node : getRequestType().getRouter().getIRoutersByCost()) {
 						if (node.destination == extraPromise.getProvider().getRouter()) {
-							if (node.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+							if (node.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 								valid = true;
 								break outer;
 							}

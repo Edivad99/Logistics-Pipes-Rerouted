@@ -23,7 +23,7 @@ public class EntrencsTransport extends PipeTransportLogistics {
 			if (pipe.getLocalFreqUUID() != null) {
 				if (pipe.useEnergy(5)) {
 					for (ExitRoute router : pipe.getRouter().getIRoutersByCost()) {
-						if (!router.containsFlag(PipeRoutingConnectionType.canRouteTo)) {
+						if (!router.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
 							continue;
 						}
 						CoreRoutedPipe lPipe = router.destination.getPipe();

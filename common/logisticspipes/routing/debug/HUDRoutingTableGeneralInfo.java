@@ -130,13 +130,13 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 
 	private int getColorForFlag(PipeRoutingConnectionType type) {
 		switch (type) {
-			case canRouteTo:
+			case CAN_ROUTE_TO:
 				return 0xff0000;
-			case canRequestFrom:
+			case CAN_REQUEST_FROM:
 				return 0x00ff00;
-			case canPowerFrom:
+			case CAN_POWER_FROM:
 				return 0x00ffff;
-			case canPowerSubSystemFrom:
+			case CAN_POWER_SUB_SYSTEM_FROM:
 				return 0x0000ff;
 		}
 		return 0x000000;

@@ -128,7 +128,7 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
                             .getDistanceTo(destinationToPower.getValue1()).stream()
                             .map(exitRoute -> new Pair<>(neighbor, exitRoute)))
                         .filter(neighborToExit ->
-                            neighborToExit.getValue2().containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom) &&
+                            neighborToExit.getValue2().containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM) &&
                                 neighborToExit.getValue2().filters.stream().noneMatch(IFilter::blockPower))
                         .findFirst()
                         .ifPresent(neighborToSource -> {
@@ -166,7 +166,7 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
             List<ExitRoute> exits = part.getValue1().getRoutersOnSide(part.getValue2());
             for (ExitRoute exit : exits) {
                 if (exit.containsFlag(
-                    PipeRoutingConnectionType.canPowerSubSystemFrom)) { // Find only result (caused by only straight connections)
+                    PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) { // Find only result (caused by only straight connections)
                     int distance = part.getValue1().getDistanceToNextPowerPipe(exit.exitOrientation);
                     CoreRoutedPipe pipe = part.getValue1().getPipe();
                     if (pipe != null && pipe.isInitialized()) {
@@ -179,7 +179,7 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
                     }
                     outerRouters:
                     for (ExitRoute newExit : nextRouter.getDistanceTo(destinationRouter)) {
-                        if (newExit.containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom)) {
+                        if (newExit.containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
                             for (IFilter filter : newExit.filters) {
                                 if (filter.blockPower()) {
                                     continue outerRouters;

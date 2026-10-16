@@ -1,10 +1,15 @@
 package logisticspipes.routing;
 
 public enum PipeRoutingConnectionType {
-	canRouteTo,
-	canRequestFrom,
-	canPowerFrom,
-	canPowerSubSystemFrom;
+    CAN_ROUTE_TO,
+    CAN_REQUEST_FROM,
+    CAN_POWER_FROM,
+    CAN_POWER_SUB_SYSTEM_FROM;
 
-	public static PipeRoutingConnectionType[] values = new PipeRoutingConnectionType[] { canRouteTo, canRequestFrom, canPowerFrom, canPowerSubSystemFrom };
+    public static PipeRoutingConnectionType[] values = new PipeRoutingConnectionType[] {
+        CAN_ROUTE_TO,
+        CAN_REQUEST_FROM,
+        CAN_POWER_FROM,
+        CAN_POWER_SUB_SYSTEM_FROM
+    };
 }

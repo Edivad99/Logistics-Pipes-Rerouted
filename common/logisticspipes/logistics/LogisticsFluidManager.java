@@ -38,7 +38,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 	@Override
 	public @Nullable Pair<Integer, FluidSinkReply> getBestReply(FluidIdentifierStack stack, IRouter sourceRouter, List<Integer> jamList) {
 		Optional<Pair<Integer, FluidSinkReply>> bestReply = sourceRouter.getIRoutersByCost().stream()
-				.filter(it -> it.containsFlag(PipeRoutingConnectionType.canRouteTo) &&
+				.filter(it -> it.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO) &&
 						it.destination.getId() != sourceRouter.getId() &&
 						!jamList.contains(it.destination.getSimpleID()) &&
 						it.destination.getPipe() instanceof IFluidSink &&
@@ -92,7 +92,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 			if (r == null) {
 				continue;
 			}
-			if (!r.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+			if (!r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 				continue;
 			}
 			if (!(r.destination.getPipe() instanceof IProvideFluids provider)) {

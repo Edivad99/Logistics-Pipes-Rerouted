@@ -92,7 +92,7 @@ public final class PassiveSinkFinder {
                 List<ExitRoute> routes = AsyncRouting.getDistance(sourceRouter, router);
                 return routes == null
                     ? Stream.<ExitRoute>empty()
-                    : routes.stream().filter(exitRoute -> exitRoute.containsFlag(PipeRoutingConnectionType.canRouteTo));
+                    : routes.stream().filter(exitRoute -> exitRoute.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO));
             });
         return getBestReply(stack, itemid, sourceRouter, destinationStream, routersToExclude, canBeDefault);
     }
@@ -148,7 +148,7 @@ public final class PassiveSinkFinder {
         LogisticsModule module = destination.getLogisticsModule();
         return !destination.getId().equals(sourceRouter.getId())
             && !routersToExclude.contains(destination.getSimpleID())
-            && exitRoute.containsFlag(PipeRoutingConnectionType.canRouteTo)
+            && exitRoute.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)
             && exitRoute.filters.stream().noneMatch(filter ->
                 filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(itemid))
             && module != null && module.receivePassive()

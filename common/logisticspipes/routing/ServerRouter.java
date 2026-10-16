@@ -538,10 +538,10 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			EnumMap<Direction, Integer> subpowerexits = new EnumMap<>(Direction.class);
 			for (Entry<CoreRoutedPipe, ExitRoute> pipe : adjacent.entrySet()) {
 				adjacentRouter.put((ServerRouter) pipe.getKey().getRouter(), pipe.getValue());
-				if ((pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.canRouteTo) || pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.canRequestFrom) && !routedexits.contains(pipe.getValue().exitOrientation))) {
+				if ((pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_ROUTE_TO) || pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_REQUEST_FROM) && !routedexits.contains(pipe.getValue().exitOrientation))) {
 					routedexits.add(pipe.getValue().exitOrientation);
 				}
-				if (!subpowerexits.containsKey(pipe.getValue().exitOrientation) && pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.canPowerSubSystemFrom)) {
+				if (!subpowerexits.containsKey(pipe.getValue().exitOrientation) && pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
 					subpowerexits.put(pipe.getValue().exitOrientation, PathFinder.messureDistanceToNextRoutedPipe(getPos(), pipe.getValue().exitOrientation, pipe.getKey().getLevel()));
 				}
 			}
@@ -573,7 +573,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		UUID id = pipe.getSecurityID();
 		if (id != null) {
 			for (Entry<CoreRoutedPipe, ExitRoute> entry : adjacent.entrySet()) {
-				if (!entry.getValue().connectionDetails.contains(PipeRoutingConnectionType.canRouteTo) && !entry.getValue().connectionDetails.contains(PipeRoutingConnectionType.canRequestFrom)) {
+				if (!entry.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_ROUTE_TO) && !entry.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 					continue;
 				}
 				UUID thatId = entry.getKey().getSecurityID();
@@ -781,13 +781,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 				if (lsa == null) {
 					lowestCostNode.removeFlags(lowestCostClosedFlags);
 					lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
-					if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canRouteTo) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canRequestFrom)) {
+					if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO) || lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
 						routeCosts.add(lowestCostNode);
 					}
 					closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
 					continue;
 				}
-				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerFrom)) {
+				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_FROM)) {
 					if (lsa.power != null && !lsa.power.isEmpty()) {
 						for (Pair<ILogisticsPowerProvider, List<IFilter>> p : lsa.power) {
 							Pair<ILogisticsPowerProvider, List<IFilter>> entry = p.copy();
@@ -801,7 +801,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 						}
 					}
 				}
-				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom)) {
+				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
 					if (lsa.subSystemPower != null && !lsa.subSystemPower.isEmpty()) {
 						for (Pair<ISubSystemPowerProvider, List<IFilter>> p : lsa.subSystemPower) {
 							Pair<ISubSystemPowerProvider, List<IFilter>> entry = p.copy();
@@ -832,7 +832,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 				lowestCostNode.removeFlags(lowestCostClosedFlags);
 				lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
-				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.canRouteTo) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canRequestFrom) || lowestCostNode.containsFlag(PipeRoutingConnectionType.canPowerSubSystemFrom)) {
+				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO) || lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM) || lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
 					routeCosts.add(lowestCostNode);
 				}
 				EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> map = filterList.get(lowestCostNode.destination.getSimpleID());
@@ -1122,7 +1122,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 		outer:
 		for (ExitRoute exit : routes) {
-			if (exit.containsFlag(PipeRoutingConnectionType.canRouteTo)) {
+			if (exit.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
 				for (IFilter filter : exit.filters) {
 					if (!active) {
 						if (filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(type)) {
@@ -1155,7 +1155,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 		outer:
 		for (ExitRoute exit : source) {
-			if (exit.containsFlag(PipeRoutingConnectionType.canRouteTo)) {
+			if (exit.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
 				for (IFilter filter : exit.filters) {
 					if (!active) {
 						if (filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(type)) {
