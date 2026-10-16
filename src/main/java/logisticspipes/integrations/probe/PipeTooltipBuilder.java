@@ -38,7 +38,7 @@ import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.pipes.unrouted.PipeItemsBasicTransport;
+import logisticspipes.pipes.PipeItemsUnrouted;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.LPItems;
@@ -76,7 +76,7 @@ public final class PipeTooltipBuilder {
             case PipeLogisticsChassis chassis -> addChassis(chassis, details);
             case PipeItemsSatelliteLogistics satellite -> addSatellite(satellite.getSatellitePipeName());
             case PipeFluidSatellite satellite -> addSatellite(satellite.getSatellitePipeName());
-            case PipeItemsBasicTransport _ -> addUnrouted(tile);
+            case PipeItemsUnrouted _ -> addUnrouted(tile);
             case CoreRoutedPipe routed -> {
                 LogisticsModule module = routed.getLogisticsModule();
                 if (module != null) {

@@ -59,7 +59,7 @@ import logisticspipes.pipes.tubes.HSTubeGain;
 import logisticspipes.pipes.tubes.HSTubeLine;
 import logisticspipes.pipes.tubes.HSTubeSCurve;
 import logisticspipes.pipes.tubes.HSTubeSpeedup;
-import logisticspipes.pipes.unrouted.PipeItemsBasicTransport;
+import logisticspipes.pipes.PipeItemsUnrouted;
 import logisticspipes.pipes.upgrades.ActionSpeedUpgrade;
 import logisticspipes.pipes.upgrades.AdvancedSatelliteUpgrade;
 import logisticspipes.pipes.upgrades.CCRemoteControlUpgrade;
@@ -228,7 +228,7 @@ public class LPItems {
             PipeBlockRequestTable::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_UNROUTED =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "transport_basic",
-            PipeItemsBasicTransport::new);
+            PipeItemsUnrouted::new);
     // Fluid pipes
     public static final DeferredItem<ItemLogisticsPipe> PIPE_FLUID_BASIC =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "fluid_basic", PipeFluidBasic::new);
