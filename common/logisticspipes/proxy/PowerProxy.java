@@ -23,14 +23,6 @@ import logisticspipes.proxy.interfaces.IPowerProxy;
 public class PowerProxy implements IPowerProxy {
 
 	@Override
-	public boolean isEnergyReceiver(BlockEntity tile, Direction face) {
-		// Presence only. The callers follow this with getEnergyReceiver, which does the real test;
-		// probing here too would open two throwaway transactions per neighbour per tick.
-		return tile != null && tile.getLevel() != null
-				&& tile.getLevel().getCapability(Capabilities.Energy.BLOCK, tile.getBlockPos(), face) != null;
-	}
-
-	@Override
 	public @Nullable EnergyHandler getEnergyReceiver(BlockEntity blockEntity, Direction face) {
 		if (blockEntity == null || blockEntity.getLevel() == null) {
 			return null;
@@ -46,10 +38,5 @@ public class PowerProxy implements IPowerProxy {
 		try (Transaction transaction = Transaction.openRoot()) {
 			return handler.insert(1, transaction) > 0 ? handler : null;
 		}
-	}
-
-	@Override
-	public boolean isAvailable() {
-		return true;
 	}
 }
