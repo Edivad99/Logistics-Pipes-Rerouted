@@ -8,7 +8,7 @@ import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 
 import logisticspipes.interfaces.routing.ISpecialPipedConnection;
-import logisticspipes.interfaces.routing.ISpecialTileConnection;
+import logisticspipes.interfaces.routing.ISpecialBlockEntityConnection;
 
 /**
  * Fired on the mod event bus so addons can join two points of the network that are not neighbours --
@@ -20,12 +20,12 @@ import logisticspipes.interfaces.routing.ISpecialTileConnection;
  */
 public class RegisterSpecialConnectionsEvent extends Event implements IModBusEvent {
 
-    private final List<ISpecialTileConnection> tileConnections = new ArrayList<>();
+    private final List<ISpecialBlockEntityConnection> blockEntityConnections = new ArrayList<>();
     private final List<ISpecialPipedConnection> pipedConnections = new ArrayList<>();
 
     /** Adds a handler joining plain blocks. Handlers are asked in order, and the first match answers. */
-    public void register(ISpecialTileConnection connectionHandler) {
-        tileConnections.add(Objects.requireNonNull(connectionHandler, "connectionHandler"));
+    public void register(ISpecialBlockEntityConnection connectionHandler) {
+        blockEntityConnections.add(Objects.requireNonNull(connectionHandler, "connectionHandler"));
     }
 
     /** Adds a handler joining pipes. Handlers are asked in order, and the first match answers. */
@@ -33,8 +33,8 @@ public class RegisterSpecialConnectionsEvent extends Event implements IModBusEve
         pipedConnections.add(Objects.requireNonNull(connectionHandler, "connectionHandler"));
     }
 
-    List<ISpecialTileConnection> registeredTileConnections() {
-        return List.copyOf(tileConnections);
+    List<ISpecialBlockEntityConnection> registeredBlockEntityConnections() {
+        return List.copyOf(blockEntityConnections);
     }
 
     List<ISpecialPipedConnection> registeredPipedConnections() {

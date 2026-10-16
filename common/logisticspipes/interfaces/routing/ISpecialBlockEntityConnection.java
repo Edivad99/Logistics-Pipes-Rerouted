@@ -6,13 +6,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.logisticspipes.IRoutedItem;
 
-public interface ISpecialTileConnection {
+public interface ISpecialBlockEntityConnection {
 
-	boolean isType(BlockEntity tile);
+	boolean isType(BlockEntity blockEntity);
 
-	Collection<BlockEntity> getConnections(BlockEntity tile);
+	Collection<BlockEntity> getConnections(BlockEntity blockEntity);
 
 	boolean needsInformationTransition();
 
-	void transmit(BlockEntity tile, IRoutedItem arrivingItem);
+	void transmit(BlockEntity blockEntity, IRoutedItem arrivingItem);
 }

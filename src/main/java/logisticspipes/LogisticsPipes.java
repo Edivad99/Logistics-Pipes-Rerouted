@@ -61,7 +61,7 @@ import logisticspipes.proxy.progressprovider.MachineProgressProvider;
 import logisticspipes.proxy.recipeproviders.LogisticsCraftingTable;
 import logisticspipes.proxy.specialconnection.RegisterSpecialConnectionsEvent;
 import logisticspipes.proxy.specialconnection.SpecialPipeConnection;
-import logisticspipes.proxy.specialconnection.SpecialTileConnection;
+import logisticspipes.proxy.specialconnection.SpecialBlockEntityConnection;
 import logisticspipes.proxy.specialtankhandler.SpecialTankHandler;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
@@ -186,7 +186,7 @@ public class LogisticsPipes {
             RegisterSpecialConnectionsEvent connections = new RegisterSpecialConnectionsEvent();
             ModLoader.postEvent(connections);
             SimpleServiceLocator.setSpecialConnectionHandler(SpecialPipeConnection.from(connections));
-            SimpleServiceLocator.setSpecialConnectionHandler(SpecialTileConnection.from(connections));
+            SimpleServiceLocator.setSpecialConnectionHandler(SpecialBlockEntityConnection.from(connections));
         });
 
         SimpleServiceLocator.setRoutedItemHelper(new RoutedItemHelper());

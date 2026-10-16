@@ -18,7 +18,7 @@ import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.proxy.interfaces.IPowerProxy;
 import logisticspipes.proxy.progressprovider.MachineProgressProvider;
 import logisticspipes.proxy.specialconnection.SpecialPipeConnection;
-import logisticspipes.proxy.specialconnection.SpecialTileConnection;
+import logisticspipes.proxy.specialconnection.SpecialBlockEntityConnection;
 import logisticspipes.proxy.specialtankhandler.SpecialTankHandler;
 import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.RouterManager;
@@ -79,9 +79,9 @@ public final class SimpleServiceLocator {
 		SimpleServiceLocator.specialpipeconnection = special;
 	}
 
-	public static SpecialTileConnection specialtileconnection;
+	public static SpecialBlockEntityConnection specialtileconnection;
 
-	public static void setSpecialConnectionHandler(final SpecialTileConnection special) {
+	public static void setSpecialConnectionHandler(final SpecialBlockEntityConnection special) {
 		SimpleServiceLocator.specialtileconnection = special;
 	}
 
