@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -13,7 +12,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.StandingSignRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -22,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.util.Unit;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.PlainSignBlock;
@@ -57,10 +54,6 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGenericPipeBlockEntity, PipeRenderState> {
 
     private static final int MAX_ITEMS_TO_RENDER = 10;
-    /**
-     * Depth left to an item drawn on a sign, as a fraction of its width. See {@link #renderItemStackOnSign}.
-     */
-    private static final float FLAT_ITEM_DEPTH = 0.02F;
     private static final WoodType TYPE = WoodType.OAK;
     private static final ItemStackRenderer itemRenderer = new ItemStackRenderer(0, 0, 0, false, false);
     @Nullable
@@ -478,13 +471,13 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
                         break;
                     default:
                 }
-                submitSign(pipe, pair.getValue2(), poseStack, collector, packedLight);
+                submitSign(pair.getValue2(), poseStack, collector, packedLight);
                 poseStack.popPose();
             }
         }
     }
 
-    private void submitSign(CoreRoutedPipe pipe, IPipeSign type, PoseStack poseStack, SubmitNodeCollector collector,
+    private void submitSign(IPipeSign sign, PoseStack poseStack, SubmitNodeCollector collector,
         int packedLight) {
         final float signScale = 2 / 3.0F;
 
@@ -506,46 +499,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
         // Onto the front face of the board just drawn; the sign type positions its own text and
         // items from there.
         poseStack.translate(-0.32F, 0.5F * signScale + 0.08F, 0.07F * signScale);
-        type.render(pipe, this, poseStack, collector, packedLight);
-    }
-
-    public void renderItemStackOnSign(ItemStack itemstack, PoseStack poseStack, SubmitNodeCollector collector,
-        int packedLight) {
-        if (itemstack.isEmpty()) {
-            return;
-        }
-        poseStack.pushPose();
-        // Position the item onto the front face of the sign and scale it down to fit.
-        poseStack.translate(0.0F, 0.0F, 0.0F);
-        // Flattened along the sign's normal, which is what makes a block item read as a picture
-        // on the plank rather than a cube sticking out of it. The GUI display context has
-        // already put the model in its inventory pose by the time this scale applies, so
-        // collapsing depth here leaves exactly the inventory icon's silhouette, drawn in the
-        // plane of the sign. Not zero: the faces still need distinct depths to sort against
-        // each other, they just need a thickness nobody can see.
-        poseStack.scale(0.25F, 0.25F, 0.25F * FLAT_ITEM_DEPTH);
-        // renderStatic is gone: resolve the stack to a render state and submit it.
-        Minecraft minecraft = Minecraft.getInstance();
-        ItemStackRenderState renderState = new ItemStackRenderState();
-        minecraft.getItemModelResolver()
-            .updateForTopItem(renderState, itemstack, ItemDisplayContext.GUI, minecraft.level, null, 0);
-        renderState.submit(poseStack, collector, packedLight, OverlayTexture.NO_OVERLAY, 0);
-        poseStack.popPose();
-    }
-
-    public String cut(String name, Font renderer) {
-        if (renderer.width(name) < 90) {
-            return name;
-        }
-        StringBuilder sum = new StringBuilder();
-        for (int i = 0; i < name.length(); i++) {
-            if (renderer.width(sum.toString() + name.charAt(i) + "...") < 90) {
-                sum.append(name.charAt(i));
-            } else {
-                return sum + "...";
-            }
-        }
-        return sum.toString();
+        PipeSignRenderer.submit(sign, poseStack, collector, packedLight);
     }
 
     @Override

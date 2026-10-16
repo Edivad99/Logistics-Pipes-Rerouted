@@ -95,6 +95,7 @@ import logisticspipes.particle.PipeFXRenderHandler;
 import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.pipes.signs.IPipeSign;
+import logisticspipes.pipes.signs.PipeSignType;
 import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.CCConstants;
@@ -128,7 +129,6 @@ import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.item.ItemPipeController;
-import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
@@ -717,15 +717,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         for (int i = 0; i < 6; i++) {
             if (signItem[i] != null) {
                 output.putBoolean("PipeSign_" + i, true);
-                int signType = -1;
-                List<Class<? extends IPipeSign>> typeClasses = ItemPipeSignCreator.signTypes;
-                for (int j = 0; j < typeClasses.size(); j++) {
-                    if (typeClasses.get(j) == signItem[i].getClass()) {
-                        signType = j;
-                        break;
-                    }
-                }
-                output.putInt("PipeSign_" + i + "_type", signType);
+                output.putInt("PipeSign_" + i + "_type", signItem[i].type().ordinal());
                 output.putChild("PipeSign_" + i + "_tags", signItem[i]);
             } else {
                 output.putBoolean("PipeSign_" + i, false);
@@ -764,14 +756,10 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
         for (int i = 0; i < 6; i++) {
             if (input.getBooleanOr("PipeSign_" + i, false)) {
-                int type = input.getIntOr("PipeSign_" + i + "_type", 0);
-                Class<? extends IPipeSign> typeClass = ItemPipeSignCreator.signTypes.get(type);
-                try {
-                    signItem[i] = typeClass.newInstance();
-                    signItem[i].init(this, DirectionUtil.getOrientation(i));
+                PipeSignType type = PipeSignType.byId(input.getIntOr("PipeSign_" + i + "_type", 0));
+                if (type != null && type.isAllowedFor(this)) {
+                    signItem[i] = type.create(this, Direction.from3DDataValue(i));
                     signItem[i].deserialize(input.childOrEmpty("PipeSign_" + i + "_tags"));
-                } catch (InstantiationException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
@@ -1473,11 +1461,10 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         return getItemOrderManager();
     }
 
-    public void addPipeSign(Direction dir, IPipeSign type, Player player) {
+    public void addPipeSign(Direction dir, IPipeSign sign, Player player) {
         if (dir.ordinal() < 6) {
             if (signItem[dir.ordinal()] == null) {
-                signItem[dir.ordinal()] = type;
-                type.init(this, dir);
+                signItem[dir.ordinal()] = sign;
             }
             if (getContainer() != null) {
                 sendSignData(player, true);
@@ -1489,17 +1476,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     public void sendSignData(Player player, boolean sendToAll) {
         List<Integer> types = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
-            if (signItem[i] == null) {
-                types.add(-1);
-            } else {
-                List<Class<? extends IPipeSign>> typeClasses = ItemPipeSignCreator.signTypes;
-                for (int j = 0; j < typeClasses.size(); j++) {
-                    if (typeClasses.get(j) == signItem[i].getClass()) {
-                        types.add(j);
-                        break;
-                    }
-                }
-            }
+            types.add(signItem[i] == null ? -1 : signItem[i].type().ordinal());
         }
         final PipeSignTypesMessage message = new PipeSignTypesMessage(getPos(), types);
         if (sendToAll) {
@@ -1561,19 +1538,11 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
         for (int i = 0; i < 6; i++) {
             // A message that named fewer than six sides used to walk off the end of the list.
-            int integer = i < types.size() ? types.get(i) : -1;
-            if (integer >= 0) {
-                Class<? extends IPipeSign> type = ItemPipeSignCreator.signTypes.get(integer);
-                if (signItem[i] == null || signItem[i].getClass() != type) {
-                    try {
-                        signItem[i] = type.newInstance();
-                        signItem[i].init(this, DirectionUtil.getOrientation(i));
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            } else {
+            PipeSignType type = PipeSignType.byId(i < types.size() ? types.get(i) : -1);
+            if (type == null || !type.isAllowedFor(this)) {
                 signItem[i] = null;
+            } else if (signItem[i] == null || signItem[i].type() != type) {
+                signItem[i] = type.create(this, Direction.from3DDataValue(i));
             }
         }
     }

@@ -1,7 +1,5 @@
 package logisticspipes.world.item;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import net.minecraft.core.BlockPos;
@@ -19,14 +17,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.signs.CraftingPipeSign;
 import logisticspipes.pipes.signs.IPipeSign;
-import logisticspipes.pipes.signs.ItemAmountPipeSign;
+import logisticspipes.pipes.signs.PipeSignType;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class ItemPipeSignCreator extends LogisticsItem {
-
-    public static final List<Class<? extends IPipeSign>> signTypes = new ArrayList<>();
 
     public ItemPipeSignCreator(Properties properties) {
         super(properties.stacksTo(1).durability(250));
@@ -43,13 +38,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
         }
         var tag = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
         int mode = tag.getIntOr("CreatorMode", 0);
-        return Math.min(mode, ItemPipeSignCreator.signTypes.size() - 1);
-    }
-
-    public static void registerPipeSignTypes() {
-        // Never change this order. It defines the id each signType has.
-        ItemPipeSignCreator.signTypes.add(CraftingPipeSign.class);
-        ItemPipeSignCreator.signTypes.add(ItemAmountPipeSign.class);
+        return Math.min(mode, PipeSignType.values().length - 1);
     }
 
     @Override
@@ -79,24 +68,20 @@ public class ItemPipeSignCreator extends LogisticsItem {
             if (pipe.hasPipeSign(facing)) {
                 pipe.activatePipeSign(facing, player);
                 return InteractionResult.SUCCESS;
-            } else if (mode >= 0 && mode < ItemPipeSignCreator.signTypes.size()) {
-                Class<? extends IPipeSign> signClass = ItemPipeSignCreator.signTypes.get(mode);
-                try {
-                    IPipeSign sign = signClass.newInstance();
-                    if (sign.isAllowedFor(pipe)) {
-                        itemStack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
-                        sign.addSignTo(pipe, facing, player);
-                        return InteractionResult.SUCCESS;
-                    } else {
-                        player.sendOverlayMessage(Component.literal("This sign type can't be placed on this pipe."));
-                        return InteractionResult.FAIL;
-                    }
-                } catch (InstantiationException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
+            }
+            PipeSignType type = PipeSignType.byId(mode);
+            if (type == null) {
                 return InteractionResult.FAIL;
             }
+            if (!type.isAllowedFor(pipe)) {
+                player.sendOverlayMessage(Component.literal("This sign type can't be placed on this pipe."));
+                return InteractionResult.FAIL;
+            }
+            itemStack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+            IPipeSign sign = type.create(pipe, facing);
+            pipe.addPipeSign(facing, sign, player);
+            sign.activate(player);
+            return InteractionResult.SUCCESS;
         } else {
             if (pipe.hasPipeSign(facing)) {
                 pipe.removePipeSign(facing, player);
@@ -121,7 +106,7 @@ public class ItemPipeSignCreator extends LogisticsItem {
                     CompoundTag tag = customData.copyTag();
                     int mode = tag.getIntOr("CreatorMode", 0);
                     mode++;
-                    if (mode >= ItemPipeSignCreator.signTypes.size()) {
+                    if (mode >= PipeSignType.values().length) {
                         mode = 0;
                     }
                     tag.putInt("CreatorMode", mode);

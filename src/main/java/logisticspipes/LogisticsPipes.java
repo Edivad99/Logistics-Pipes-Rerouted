@@ -79,7 +79,6 @@ import logisticspipes.utils.InventoryUtilFactory;
 import logisticspipes.utils.RoutedItemHelper;
 import logisticspipes.utils.ServerTickExecutor;
 import logisticspipes.world.inventory.LPMenuTypes;
-import logisticspipes.world.item.ItemPipeSignCreator;
 import logisticspipes.world.item.LPCreativeModeTabs;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
@@ -154,7 +153,6 @@ public class LogisticsPipes {
     private void handleCommonSetup(FMLCommonSetupEvent event) {
 
         SimpleServiceLocator.setPowerProxy(new PowerProxy());
-        ItemPipeSignCreator.registerPipeSignTypes();
 
         SimpleServiceLocator.setPipeInformationManager(new PipeInformationManager());
         SimpleServiceLocator.setLogisticsFluidManager(new LogisticsFluidManager());
