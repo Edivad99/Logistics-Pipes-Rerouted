@@ -267,7 +267,7 @@ public class LogisticsPipes {
         PipeItemsSatelliteLogistics.cleanup();
         PipeFluidSatellite.cleanup();
         ServerRouter.cleanup();
-        if (FMLEnvironment.getDist() == Dist.CLIENT) {
+        if (FMLEnvironment.getDist().isClient()) {
             LogisticsHUDRenderer.instance().clear();
         }
         ServerTickExecutor.INSTANCE.cleanup();

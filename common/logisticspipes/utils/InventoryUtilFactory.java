@@ -52,7 +52,7 @@ public class InventoryUtilFactory {
 	}
 
 	@Nullable
-	public IInventoryUtil getInventoryUtil(BlockEntity inv, @Nullable Direction dir) {
+	public IInventoryUtil getInventoryUtil(@Nullable BlockEntity inv, @Nullable Direction dir) {
 		return getHidingInventoryUtil(inv, dir, ProviderMode.DEFAULT);
 	}
 

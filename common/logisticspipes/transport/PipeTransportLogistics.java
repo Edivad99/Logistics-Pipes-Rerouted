@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -121,7 +122,7 @@ public class PipeTransportLogistics {
 		}
 	}
 
-	public void markChunkModified(BlockEntity blockEntity) {
+	public void markChunkModified(@Nullable BlockEntity blockEntity) {
 		if (blockEntity != null && chunk != null) {
 			// items are crossing a chunk boundary, mark both chunks modified
 			if (container.getBlockPos().getX() >> 4 != blockEntity.getBlockPos().getX() >> 4 || container.getBlockPos().getZ() >> 4 != blockEntity.getBlockPos().getZ() >> 4) {
@@ -496,10 +497,10 @@ public class PipeTransportLogistics {
 		boolean isSpecialConnectionInformationTransition = false;
 		if (SimpleServiceLocator.specialtileconnection.needsInformationTransition(tile)) {
 			isSpecialConnectionInformationTransition = true;
-			SimpleServiceLocator.specialtileconnection.transmit(tile, arrivingItem);
+			SimpleServiceLocator.specialtileconnection.transmit(Objects.requireNonNull(tile), arrivingItem);
 		}
 		if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
-			if (passToNextPipe(arrivingItem, tile)) {
+			if (passToNextPipe(arrivingItem, Objects.requireNonNull(tile))) {
 				return;
 			}
 		} else {
