@@ -53,11 +53,7 @@ import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.PipeItemsSupplierLogistics;
 import logisticspipes.pipes.PipeItemsSystemDestinationLogistics;
 import logisticspipes.pipes.PipeItemsSystemEntranceLogistics;
-import logisticspipes.pipes.PipeLogisticsChassisMk1;
-import logisticspipes.pipes.PipeLogisticsChassisMk2;
-import logisticspipes.pipes.PipeLogisticsChassisMk3;
-import logisticspipes.pipes.PipeLogisticsChassisMk4;
-import logisticspipes.pipes.PipeLogisticsChassisMk5;
+import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.tubes.HSTubeCurve;
 import logisticspipes.pipes.tubes.HSTubeGain;
 import logisticspipes.pipes.tubes.HSTubeLine;
@@ -200,19 +196,19 @@ public class LPItems {
             PipeItemsSupplierLogistics::new);
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK1 =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk1",
-            PipeLogisticsChassisMk1::new);
+            item -> new PipeLogisticsChassis(item, PipeLogisticsChassis.Tier.MK1));
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK2 =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk2",
-            PipeLogisticsChassisMk2::new);
+            item -> new PipeLogisticsChassis(item, PipeLogisticsChassis.Tier.MK2));
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK3 =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk3",
-            PipeLogisticsChassisMk3::new);
+            item -> new PipeLogisticsChassis(item, PipeLogisticsChassis.Tier.MK3));
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK4 =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk4",
-            PipeLogisticsChassisMk4::new);
+            item -> new PipeLogisticsChassis(item, PipeLogisticsChassis.Tier.MK4));
     public static final DeferredItem<ItemLogisticsPipe> PIPE_CHASSIS_MK5 =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "chassis_mk5",
-            PipeLogisticsChassisMk5::new);
+            item -> new PipeLogisticsChassis(item, PipeLogisticsChassis.Tier.MK5));
     public static final DeferredItem<ItemLogisticsPipe> PIPE_REMOTE_ORDERER =
         LogisticsGenericPipeBlock.registerPipe(deferredRegister, "remote_orderer",
             PipeItemsRemoteOrdererLogistics::new);

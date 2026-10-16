@@ -114,25 +114,27 @@ import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
 
 @CCType(name = "LogisticsChassiePipe")
-public abstract class PipeLogisticsChassis extends CoreRoutedPipe
+public class PipeLogisticsChassis extends CoreRoutedPipe
 		implements ICraftItems, IBufferItems, ISimpleInventoryEventHandler, ISendRoutedItem, IProvideItems,
 		IHeadUpDisplayRendererProvider, ISendQueueContentReceiver, IChassisPipe, PropertyHolder {
 
+	private final Tier tier;
 	private final ChassisModule module;
 	private final ItemIdentifierInventory moduleInventory;
 	private boolean init = false;
 
 	// HUD
 	public final LinkedList<@Nullable ItemIdentifierStack> displayList = new LinkedList<>();
-	public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
+	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 	private final HudChassisPipe hud;
 
 	private final AdjacentProperty pointedAdjacentProperty = new AdjacentProperty(this, "pointedAdjacent");
 
 	private final List<Property<?>> properties = Collections.singletonList(pointedAdjacentProperty);
 
-	public PipeLogisticsChassis(Item item) {
+	public PipeLogisticsChassis(Item item, Tier tier) {
 		super(item);
+		this.tier = tier;
 		moduleInventory = new ItemIdentifierInventory(getChassisSize(), "Chassis pipe", 1);
 		moduleInventory.addListener(this);
 		module = new ChassisModule(getChassisSize(), this);
@@ -172,7 +174,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		if (adjacent instanceof SingleAdjacent) {
 			pointedAdjacentProperty.setValue(adjacent);
 		} else {
-			final @Nullable Direction oldPointedDirection = pointedAdjacentProperty.getDirectionOrNull();
+			final Direction oldPointedDirection = pointedAdjacentProperty.getDirectionOrNull();
 			SingleAdjacent newPointedAdjacent = null;
 			if (oldPointedDirection != null) {
 				// update pointed adjacent with connection type or reset it
@@ -185,14 +187,11 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 					.map(connectedNeighbor -> new SingleAdjacent(this, connectedNeighbor.getKey().getDirection(), connectedNeighbor.getValue()))
 					.orElse(null);
 			}
-			if (newPointedAdjacent == null) {
-				pointedAdjacentProperty.setValue(NoAdjacent.INSTANCE);
-			} else {
-				pointedAdjacentProperty.setValue(newPointedAdjacent);
-			}
+            pointedAdjacentProperty.setValue(Objects.requireNonNullElse(newPointedAdjacent, NoAdjacent.INSTANCE));
 		}
 	}
 
+    @Nullable
 	private Pair<NeighborBlockEntity<BlockEntity>, ConnectionType> nextPointedOrientation(@Nullable Direction previousDirection) {
 		final Map<NeighborBlockEntity<BlockEntity>, ConnectionType> neighbors = getAdjacent().neighbors();
 		final Stream<NeighborBlockEntity<BlockEntity>> sortedNeighborsStream = neighbors.keySet().stream()
@@ -200,13 +199,13 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		if (previousDirection == null) {
 			return sortedNeighborsStream.findFirst().map(neighbor -> new Pair<>(neighbor, neighbors.get(neighbor))).orElse(null);
 		} else {
-			final List<NeighborBlockEntity<BlockEntity>> sortedNeighbors = sortedNeighborsStream.collect(Collectors.toList());
-			if (sortedNeighbors.size() == 0) return null;
+			final List<NeighborBlockEntity<BlockEntity>> sortedNeighbors = sortedNeighborsStream.toList();
+			if (sortedNeighbors.isEmpty()) return null;
 			final Optional<NeighborBlockEntity<BlockEntity>> nextNeighbor = sortedNeighbors.stream()
 					.filter(neighbor -> neighbor.getDirection().ordinal() > previousDirection.ordinal())
 					.findFirst();
 			return nextNeighbor.map(neighbor -> new Pair<>(neighbor, neighbors.get(neighbor)))
-					.orElse(new Pair<>(sortedNeighbors.get(0), neighbors.get(sortedNeighbors.get(0))));
+					.orElse(new Pair<>(sortedNeighbors.getFirst(), neighbors.get(sortedNeighbors.getFirst())));
 		}
 	}
 
@@ -232,8 +231,7 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 		if (dir == null) {
 			pointedAdjacentProperty.setValue(NoAdjacent.INSTANCE);
 		} else {
-			pointedAdjacentProperty.setValue(
-				new SingleAdjacent(this, dir, ConnectionType.UNDEFINED));
+			pointedAdjacentProperty.setValue(new SingleAdjacent(this, dir, ConnectionType.UNDEFINED));
 		}
 	}
 
@@ -250,8 +248,10 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 				moduleStack = idStack.getItem().makeNormalStack(1);
 			} else {
 				Identifier resourceLocation = LPItems.modules.get(module.getLPName());
+                if (!BuiltInRegistries.ITEM.containsKey(resourceLocation)) {
+                    return;
+                }
 				Item item = BuiltInRegistries.ITEM.getValue(resourceLocation);
-				if (item == null) return;
 				moduleStack = new ItemStack(item);
 			}
 			ItemModuleInformationManager.saveInformation(getLevel(), moduleStack, module, provider);
@@ -271,7 +271,12 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 
 	@Override
 	public TextureType getCenterTexture() {
-		return Textures.LOGISTICSPIPE_TEXTURE;
+		return tier.texture;
+	}
+
+	@Override
+	public int getChassisSize() {
+		return tier.size;
 	}
 
 	@Override
@@ -776,6 +781,22 @@ public abstract class PipeLogisticsChassis extends CoreRoutedPipe
 
 		public ChassiTargetInformation(int slot) {
 			moduleSlot = slot;
+		}
+	}
+
+	public enum Tier {
+		MK1(1, Textures.LOGISTICSPIPE_CHASSI1_TEXTURE),
+		MK2(2, Textures.LOGISTICSPIPE_CHASSI2_TEXTURE),
+		MK3(3, Textures.LOGISTICSPIPE_CHASSI3_TEXTURE),
+		MK4(4, Textures.LOGISTICSPIPE_CHASSI4_TEXTURE),
+		MK5(8, Textures.LOGISTICSPIPE_CHASSI5_TEXTURE);
+
+		private final int size;
+		private final TextureType texture;
+
+		Tier(int size, TextureType texture) {
+			this.size = size;
+			this.texture = texture;
 		}
 	}
 }
