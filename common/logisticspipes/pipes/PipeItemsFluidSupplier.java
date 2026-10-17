@@ -55,7 +55,6 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 		return stack.isEmpty() ? null : stack;
 	}
 
-	private boolean lastRequestFailed = false;
 	private boolean requestPartials = false;
 
 	private ItemIdentifierInventory dummyInventory = new ItemIdentifierInventory(9, "Fluids to keep stocked", 127);
@@ -85,15 +84,6 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 	@Override
 	public TextureType getCenterTexture() {
 		return Textures.LOGISTICSPIPE_LIQUIDSUPPLIER_TEXTURE;
-	}
-
-	/* TRIGGER INTERFACE */
-	public boolean isRequestFailed() {
-		return lastRequestFailed;
-	}
-
-	public void setRequestFailed(boolean value) {
-		lastRequestFailed = value;
 	}
 
 	@Override
@@ -208,8 +198,6 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 				}
 			}
 
-			((PipeItemsFluidSupplier) Objects.requireNonNull(getContainer()).pipe).setRequestFailed(false);
-
 			//Make request
 
 			for (ItemIdentifier need : wantContainers.keySet()) {
@@ -247,8 +235,6 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 					} else {
 						requestedItems.put(need, currentRequest + countToRequest);
 					}
-				} else {
-					((PipeItemsFluidSupplier) getContainer().pipe).setRequestFailed(true);
 				}
 			}
 		}

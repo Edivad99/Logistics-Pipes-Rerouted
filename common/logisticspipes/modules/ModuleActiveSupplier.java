@@ -84,8 +84,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 			.add(isLimited)
 			.build();
 
-	private boolean lastRequestFailed = false;
-
 	public ModuleActiveSupplier() {
 		inventory.addListener(this);
 		slotAssignmentPattern.ensureSize(SUPPLIER_SLOTS);
@@ -170,15 +168,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 		return true;
 	}
 
-	/* TRIGGER INTERFACE */
-	public boolean isRequestFailed() {
-		return lastRequestFailed;
-	}
-
-	public void setRequestFailed(boolean value) {
-		lastRequestFailed = value;
-	}
-
 	@Override
 	public void tick() {
 		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
@@ -203,8 +192,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 	private void createPatternRequest(IInventoryUtil invUtil) {
 		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		service.getDebug().log("Supplier: Start calculating pattern request");
-		setRequestFailed(false);
-
 		for (int i = 0; i < SUPPLIER_SLOTS; i++) {
 			ItemIdentifierStack needed = inventory.getIDStackInSlot(i);
 			if (needed == null) {
@@ -223,7 +210,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 			if (have != null) {
 				if (!have.getItem().equals(needed.getItem())) {
 					service.getDebug().log("Supplier: Slot for " + i + ", " + needed + " already taken by " + have);
-					setRequestFailed(true);
 					continue;
 				}
 				haveCount = have.getStackSize();
@@ -280,8 +266,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 				} else {
 					requestedItems.put(toRequest.getItem(), currentRequest + neededCount);
 				}
-			} else {
-				setRequestFailed(true);
 			}
 		}
 	}
@@ -334,8 +318,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 
 		service.getDebug().log("Supplier: Missing:   " + needed);
 
-		setRequestFailed(false);
-
 		//Make request
 		for (Entry<ItemIdentifier, Integer> need : needed.entrySet()) {
 			Integer amountRequested = need.getValue();
@@ -379,8 +361,6 @@ public class ModuleActiveSupplier extends LogisticsModule
 							.log("Supplier: Raising Requested Items from: " + currentRequest + " to: " + currentRequest
 									+ neededCount);
 				}
-			} else {
-				setRequestFailed(true);
 			}
 
 		}

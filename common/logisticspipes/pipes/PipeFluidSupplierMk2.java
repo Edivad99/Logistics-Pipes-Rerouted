@@ -36,8 +36,6 @@ import logisticspipes.world.inventory.FluidSupplierMk2Menu;
 
 public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFluid, IRequireReliableFluidTransport, IPipeMenuProvider {
 
-	private boolean lastRequestFailed = false;
-
 	public enum MinMode {
 		NONE(0),
 		ONEBUCKET(1000),
@@ -76,15 +74,6 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 	@Override
 	public boolean canInsertToTanks() {
 		return true;
-	}
-
-	/* TRIGGER INTERFACE */
-	public boolean isRequestFailed() {
-		return lastRequestFailed;
-	}
-
-	public void setRequestFailed(boolean value) {
-		lastRequestFailed = value;
 	}
 
 	@Override
@@ -169,8 +158,6 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 						//@formatter:on
 			}
 
-			setRequestFailed(false);
-
 			//Make request
 
 			for (FluidIdentifier need : wantFluids.keySet()) {
@@ -204,8 +191,6 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe implements IRequestFlu
 					} else {
 						requestedItems.put(need, currentRequest + countToRequest);
 					}
-				} else {
-					setRequestFailed(true);
 				}
 			}
 		});
