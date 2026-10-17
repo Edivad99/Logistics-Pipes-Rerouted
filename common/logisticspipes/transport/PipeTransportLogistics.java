@@ -478,8 +478,8 @@ public class PipeTransportLogistics {
 	}
 
 	protected final void handleTileReachedServer_internal(LPTravelingItemServer arrivingItem, @Nullable BlockEntity tile, @Nullable Direction dir) {
-		if (getPipe() instanceof PipeItemsFluidSupplier) {
-			((PipeItemsFluidSupplier) getPipe()).endReached(arrivingItem, tile);
+		if (getPipe() instanceof PipeItemsFluidSupplier pipeItemsFluidSupplier) {
+			pipeItemsFluidSupplier.endReached(arrivingItem, tile);
 			if (arrivingItem.getItemIdentifierStack().getStackSize() <= 0) {
 				return;
 			}

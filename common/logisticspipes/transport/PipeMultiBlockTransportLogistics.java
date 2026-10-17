@@ -47,9 +47,8 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 
 	public @Nullable CoreMultiBlockPipe getMultiPipe() {
 		if (multiPipe == null) {
-			CoreUnroutedPipe uPipe = getPipe();
-			if (uPipe instanceof CoreMultiBlockPipe) {
-				multiPipe = (CoreMultiBlockPipe) uPipe;
+			if (getPipe() instanceof CoreMultiBlockPipe coreMultiBlockPipe) {
+				multiPipe = coreMultiBlockPipe;
 			}
 		}
 		return multiPipe;
