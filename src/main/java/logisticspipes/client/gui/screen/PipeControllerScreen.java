@@ -278,7 +278,7 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
         @Override
         public void checkButton(AbstractButton button, boolean isTabActive) {
             if (isTabActive) {
-                button.active = pipe.getContainer().logicController.diskInv.getItem(0) != null;
+                button.active = !pipe.getContainer().logicController.diskInv.getItem(0).isEmpty();
             }
             super.checkButton(button, isTabActive);
         }

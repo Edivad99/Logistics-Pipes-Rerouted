@@ -300,7 +300,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe implements IRequestIt
 	}
 
 	@Override
-	public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
+	public void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
 		decreaseRequested(item);
 		delayThrottle();
 	}

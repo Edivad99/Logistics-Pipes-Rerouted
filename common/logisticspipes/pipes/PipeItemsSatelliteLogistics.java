@@ -268,7 +268,7 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe implements IRequ
 	}
 
 	@Override
-	public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
+	public void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
 	}
 
 	@Override

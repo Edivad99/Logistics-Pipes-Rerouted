@@ -15,6 +15,6 @@ public interface IRequireReliableTransport {
 
 	void itemLost(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info);
 
-	void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info);
+	void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info);
 
 }

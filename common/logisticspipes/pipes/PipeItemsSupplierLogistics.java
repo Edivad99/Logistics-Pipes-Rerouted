@@ -61,7 +61,7 @@ public class PipeItemsSupplierLogistics extends CoreRoutedPipe implements IReque
 	}
 
 	@Override
-	public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
+	public void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
 		supplierModule.itemArrived(item, info);
 	}
 

@@ -270,7 +270,7 @@ public class ModuleCrafter extends LogisticsModule
 	}
 
 	@Override
-	public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
+	public void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
 	}
 
 	@Override

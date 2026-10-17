@@ -435,7 +435,7 @@ public class ModuleActiveSupplier extends LogisticsModule
 	}
 
 	@Override
-	public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
+	public void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
 		final IPipeServiceProvider service = Objects.requireNonNull(this.service);
 		service.getDebug().log("Supplier: Registered Item Arrived: " + item);
 		decreaseRequested(item);
