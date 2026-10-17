@@ -564,12 +564,14 @@ public class PipeTransportLogistics {
 					}
 					if (insertArrivingItem(arrivingItem, tile, insertion)) return;
 				} else {
-					Direction[] dirs = getRoutedPipe().getUpgradeManager().getCombinedSneakyOrientation();
-					for (Direction insertion : dirs) {
-						if (insertion == null) {
-							continue;
+					var dirs = getRoutedPipe().getUpgradeManager().getCombinedSneakyOrientation();
+					if (dirs != null) {
+						for (Direction insertion : dirs) {
+							if (insertion == null) {
+								continue;
+							}
+							if (insertArrivingItem(arrivingItem, tile, insertion)) return;
 						}
-						if (insertArrivingItem(arrivingItem, tile, insertion)) return;
 					}
 				}
 

@@ -31,6 +31,7 @@ import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class UpgradeManager
     implements ISimpleInventoryEventHandler, ISlotUpgradeManager, IPipeUpgradeManager, ValueIOSerializable {
@@ -45,7 +46,7 @@ public class UpgradeManager
     private int securityDelay = 0;
     /* cached attributes */
     private @Nullable Direction sneakyOrientation = null;
-    private final @Nullable Direction[] combinedSneakyOrientation = new Direction[9];
+    private final @Nullable Direction[] combinedSneakyOrientation = new @Nullable Direction[9];
     private int speedUpgradeCount = 0;
     private boolean isAdvancedCrafter = false;
     private boolean isFuzzyUpgrade = false;
@@ -61,8 +62,8 @@ public class UpgradeManager
     private boolean hasCraftingMonitoringUpgrade = false;
     private boolean hasOpaqueUpgrade = false;
     private int craftingCleanup = 0;
-    private boolean hasLogicControll = false;
-    private boolean hasUpgradeModuleUpgarde = false;
+    private boolean hasLogicControl = false;
+    private boolean hasUpgradeModuleUpgrade = false;
     private int actionSpeedUpgrade = 0;
     private int itemExtractionUpgrade = 0;
     private int itemStackExtractionUpgrade = 0;
@@ -102,23 +103,21 @@ public class UpgradeManager
 
     private boolean updateModule(int slot, @Nullable IPipeUpgrade[] upgrades, Container inv) {
         ItemStack stack = inv.getItem(slot);
-        if (stack.getItem() instanceof ItemUpgrade) {
-            upgrades[slot] = ((ItemUpgrade) stack.getItem()).getUpgradeForItem(stack, upgrades[slot]);
-        } else {
-            upgrades[slot] = null;
-        }
-        if (upgrades[slot] == null) {
+        final IPipeUpgrade upgrade = stack.getItem() instanceof ItemUpgrade itemUpgrade
+            ? itemUpgrade.getUpgradeForItem(stack, upgrades[slot])
+            : null;
+        upgrades[slot] = upgrade;
+        if (upgrade == null) {
             inv.setItem(slot, ItemStack.EMPTY);
             return false;
-        } else {
-            return upgrades[slot].needsUpdate();
         }
+        return upgrade.needsUpdate();
     }
 
     private boolean removeUpgrade(int slot, @Nullable IPipeUpgrade[] upgrades) {
-        boolean needUpdate = upgrades[slot].needsUpdate();
+        final IPipeUpgrade upgrade = upgrades[slot];
         upgrades[slot] = null;
-        return needUpdate;
+        return upgrade != null && upgrade.needsUpdate();
     }
 
     @Override
@@ -128,7 +127,7 @@ public class UpgradeManager
             ItemStack item = inv.getItem(i);
             if (!item.isEmpty()) {
                 needUpdate |= updateModule(i, upgrades, inv);
-            } else if (upgrades[i] != null) {
+            } else {
                 needUpdate |= removeUpgrade(i, upgrades);
             }
         }
@@ -149,8 +148,8 @@ public class UpgradeManager
         hasCraftingMonitoringUpgrade = false;
         hasOpaqueUpgrade = false;
         craftingCleanup = 0;
-        hasLogicControll = false;
-        hasUpgradeModuleUpgarde = false;
+        hasLogicControl = false;
+        hasUpgradeModuleUpgrade = false;
         actionSpeedUpgrade = 0;
         itemExtractionUpgrade = 0;
         itemStackExtractionUpgrade = 0;
@@ -189,9 +188,9 @@ public class UpgradeManager
             } else if (upgrade instanceof CraftingCleanupUpgrade) {
                 craftingCleanup += inv.getItem(i).getCount();
             } else if (upgrade instanceof LogicControllerUpgrade) {
-                hasLogicControll = true;
+                hasLogicControl = true;
             } else if (upgrade instanceof UpgradeModuleUpgrade) {
-                hasUpgradeModuleUpgarde = true;
+                hasUpgradeModuleUpgrade = true;
             } else if (upgrade instanceof ActionSpeedUpgrade) {
                 actionSpeedUpgrade += inv.getItem(i).getCount();
             } else if (upgrade instanceof ItemExtractionUpgrade) {
@@ -214,7 +213,7 @@ public class UpgradeManager
             ItemStack item = sneakyInv.getItem(i);
             if (!item.isEmpty()) {
                 needUpdate |= updateModule(i, sneakyUpgrades, sneakyInv);
-            } else if (sneakyUpgrades[i] != null) {
+            } else {
                 needUpdate |= removeUpgrade(i, sneakyUpgrades);
             }
         }
@@ -232,8 +231,9 @@ public class UpgradeManager
             final Level level = pipe.getLevel();
             if (level != null && !level.isClientSide()) {
                 pipe.connectionUpdate();
-                if (pipe.getContainer() != null) {
-                    pipe.getContainer().sendUpdateToClient();
+                final LogisticsGenericPipeBlockEntity container = pipe.getContainer();
+                if (container != null) {
+                    container.sendUpdateToClient();
                 }
             }
         }
@@ -279,7 +279,7 @@ public class UpgradeManager
     }
 
     @Override
-    public Direction @Nullable [] getCombinedSneakyOrientation() {
+    public @Nullable Direction @Nullable [] getCombinedSneakyOrientation() {
         return combinedSneakyOrientation;
     }
 
@@ -296,22 +296,21 @@ public class UpgradeManager
             @Override
             public void screenClosedByPlayer(Player player) {
                 players.remove(player);
-                if (players.isEmpty() && !isCombinedSneakyUpgrade) {
-                    sneakyInv.dropContents(pipe.getLevel(), pipe.getPos());
+                final Level level = pipe.getLevel();
+                if (players.isEmpty() && !isCombinedSneakyUpgrade && level != null) {
+                    sneakyInv.dropContents(level, pipe.getPos());
                 }
             }
         };
     }
 
-    public boolean isNeedingContainerUpdate() {
-        boolean tmp = needsContainerPositionUpdate;
-        needsContainerPositionUpdate = false;
-        return tmp;
-    }
-
     public void dropUpgrades() {
-        inv.dropContents(pipe.getLevel(), pipe.getPos());
-        sneakyInv.dropContents(pipe.getLevel(), pipe.getPos());
+        final Level level = pipe.getLevel();
+        if (level == null) {
+            return;
+        }
+        inv.dropContents(level, pipe.getPos());
+        sneakyInv.dropContents(level, pipe.getPos());
     }
 
     @Override
@@ -321,13 +320,12 @@ public class UpgradeManager
 
     public boolean tryIserting(Level level, Player entityplayer) {
         ItemStack itemStackInMainHand = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
-        if (!itemStackInMainHand.isEmpty() && itemStackInMainHand.getItem() instanceof ItemUpgrade) {
+        if (!itemStackInMainHand.isEmpty() && itemStackInMainHand.getItem() instanceof ItemUpgrade itemUpgrade) {
             if (level.isClientSide()) {
                 return true;
             }
-            IPipeUpgrade upgrade = ((ItemUpgrade) itemStackInMainHand.getItem()).getUpgradeForItem(itemStackInMainHand,
-                null);
-            if (upgrade.isAllowedForPipe(pipe)) {
+            IPipeUpgrade upgrade = itemUpgrade.getUpgradeForItem(itemStackInMainHand, null);
+            if (upgrade != null && upgrade.isAllowedForPipe(pipe)) {
                 if (isCombinedSneakyUpgrade) {
                     if (upgrade instanceof SneakyUpgradeConfig) {
                         if (insertIntInv(entityplayer, sneakyInv)) {
@@ -388,8 +386,9 @@ public class UpgradeManager
     }
 
     public void securityTick() {
-        if ((getSecurityID()) != null) {
-            if (!SimpleServiceLocator.securityStationManager.isAuthorized(uuidS)) {
+        final String securityId = uuidS;
+        if (securityId != null) {
+            if (!SimpleServiceLocator.securityStationManager.isAuthorized(securityId)) {
                 securityDelay++;
             } else {
                 securityDelay = 0;
@@ -456,13 +455,9 @@ public class UpgradeManager
         return craftingCleanup;
     }
 
-    public boolean hasLogicControll() {
-        return hasLogicControll;
-    }
-
     @Override
     public boolean hasUpgradeModuleUpgrade() {
-        return hasUpgradeModuleUpgarde;
+        return hasUpgradeModuleUpgrade;
     }
 
     @Override

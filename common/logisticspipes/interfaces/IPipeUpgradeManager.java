@@ -24,6 +24,6 @@ public interface IPipeUpgradeManager {
 
 	boolean hasCombinedSneakyUpgrade();
 
-	Direction @Nullable [] getCombinedSneakyOrientation();
+	@Nullable Direction @Nullable [] getCombinedSneakyOrientation();
 
 }

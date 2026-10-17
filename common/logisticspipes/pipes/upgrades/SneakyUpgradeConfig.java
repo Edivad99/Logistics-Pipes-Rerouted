@@ -67,16 +67,20 @@ public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
         WEST(Direction.WEST, "LPSNEAKY-WEST");
 
         @Getter
-        private Direction dir;
+        private final Direction dir;
         @Getter
-        private String lpName;
+        private final String lpName;
 
-        public static String getNameForDirection(Direction fd) {
+        public static String getNameForDirection(@Nullable Direction direction) {
+            final String directionUnknown = "LPSNEAKY-UNKNOWN";
+            if (direction == null) {
+                return directionUnknown;
+            }
             return Arrays.stream(values())
-                .filter(side -> side.getDir() == fd)
-                .map(Sides::getLpName)
+                .filter(side -> side.getDir() == direction)
                 .findFirst()
-                .orElse("LPSNEAKY-UNKNWON");
+                .map(Sides::getLpName)
+                .orElse(directionUnknown);
         }
     }
 }

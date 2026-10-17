@@ -2,7 +2,6 @@ package logisticspipes.pipes.upgrades;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import net.minecraft.core.Direction;
@@ -13,6 +12,7 @@ import net.minecraft.world.item.component.CustomData;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
 
@@ -27,7 +27,8 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
             return Stream.empty();
         }
         final CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        return Arrays.stream(Sides.values()).filter(side -> tag.getBooleanOr(side.getLpName(), false))
+        return Arrays.stream(Sides.values())
+            .filter(side -> tag.getBooleanOr(side.getLpName(), false))
             .map(Sides::getDir);
     }
 
@@ -59,17 +60,22 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
         SOUTH(Direction.SOUTH, "LPDIS-SOUTH"),
         EAST(Direction.EAST, "LPDIS-EAST"),
         WEST(Direction.WEST, "LPDIS-WEST");
-        @Getter
-        private Direction dir;
-        @Getter
-        private String lpName;
 
-        public static String getNameForDirection(Direction fd) {
-            Optional<Sides> opt = Arrays.stream(values()).filter(side -> side.getDir() == fd).findFirst();
-            if (opt.isPresent()) {
-                return opt.get().getLpName();
+        @Getter
+        private final Direction dir;
+        @Getter
+        private final String lpName;
+
+        public static String getNameForDirection(@Nullable Direction direction) {
+            final String directionUnknown = "LPDIS-UNKNOWN";
+            if (direction == null) {
+                return directionUnknown;
             }
-            return "LPDIS-UNKNWON";
+            return Arrays.stream(values())
+                .filter(side -> side.getDir() == direction)
+                .findFirst()
+                .map(Sides::getLpName)
+                .orElse(directionUnknown);
         }
     }
 }

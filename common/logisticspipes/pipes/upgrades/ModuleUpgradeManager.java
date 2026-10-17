@@ -17,6 +17,7 @@ import logisticspipes.property.SimpleInventoryProperty;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.SimpleStackInventory;
 import logisticspipes.world.item.ItemUpgrade;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgradeManager {
 
@@ -126,11 +127,9 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
         boolean needUpdate = false;
         for (int i = 0; i < inv.getContainerSize(); i++) {
             if (inv.isSlotEmpty(i)) {
-                if (upgrades[i] != null) {
-                    needUpdate |= removeUpgrade(i, upgrades);
-                }
+                needUpdate |= removeUpgrade(i);
             } else {
-                needUpdate |= updateModule(i, upgrades, inv);
+                needUpdate |= updateModule(i);
             }
         }
         //update sneaky direction, speed upgrade count and disconnection
@@ -181,8 +180,9 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
             final Level level = pipe.getLevel();
             if (level != null && !level.isClientSide()) {
                 pipe.connectionUpdate();
-                if (pipe.getContainer() != null) {
-                    pipe.getContainer().sendUpdateToClient();
+                final LogisticsGenericPipeBlockEntity container = pipe.getContainer();
+                if (container != null) {
+                    container.sendUpdateToClient();
                 }
             }
         }
@@ -197,25 +197,23 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
         InventoryChanged(inv);
     }
 
-    private boolean updateModule(int slot, IPipeUpgrade[] upgrades, Container inv) {
+    private boolean updateModule(int slot) {
         ItemStack stackInSlot = inv.getItem(slot);
-        if (stackInSlot.isEmpty() || !(stackInSlot.getItem() instanceof ItemUpgrade)) {
-            upgrades[slot] = null;
-        } else {
-            upgrades[slot] = ((ItemUpgrade) stackInSlot.getItem()).getUpgradeForItem(stackInSlot, upgrades[slot]);
-        }
-        if (upgrades[slot] == null) {
+        final IPipeUpgrade upgrade = stackInSlot.getItem() instanceof ItemUpgrade itemUpgrade
+            ? itemUpgrade.getUpgradeForItem(stackInSlot, upgrades[slot])
+            : null;
+        upgrades[slot] = upgrade;
+        if (upgrade == null) {
             inv.setItem(slot, ItemStack.EMPTY);
             return false;
-        } else {
-            return upgrades[slot].needsUpdate();
         }
+        return upgrade.needsUpdate();
     }
 
-    private boolean removeUpgrade(int slot, IPipeUpgrade[] upgrades) {
-        boolean needUpdate = upgrades[slot].needsUpdate();
+    private boolean removeUpgrade(int slot) {
+        final IPipeUpgrade upgrade = upgrades[slot];
         upgrades[slot] = null;
-        return needUpdate;
+        return upgrade != null && upgrade.needsUpdate();
     }
 
     public boolean hasGuiUpgrade(int i) {
@@ -238,6 +236,9 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
     }
 
     public void dropUpgrades() {
-        inv.dropContents(pipe.getLevel(), pipe.getPos());
+        final Level level = pipe.getLevel();
+        if (level != null) {
+            inv.dropContents(level, pipe.getPos());
+        }
     }
 }

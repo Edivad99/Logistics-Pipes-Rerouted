@@ -39,10 +39,10 @@ public record ToggleDisconnectionUpgradeSideMessage(int slot, Optional<Direction
             return;
         }
         final ItemStack stack = slot.getItem();
-        if (stack.isEmpty()) {
+        if (stack.isEmpty() || message.side.isEmpty()) {
             return;
         }
-        final String sideName = ConnectionUpgradeConfig.Sides.getNameForDirection(message.side.orElse(null));
+        final String sideName = ConnectionUpgradeConfig.Sides.getNameForDirection(message.side.get());
         stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, customData -> {
             final var tag = customData.copyTag();
             tag.putBoolean(sideName, !tag.getBooleanOr(sideName, false));
