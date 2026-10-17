@@ -68,6 +68,7 @@ import logisticspipes.pipes.upgrades.ConnectionUpgradeConfig;
 import logisticspipes.pipes.upgrades.CraftingByproductUpgrade;
 import logisticspipes.pipes.upgrades.CraftingCleanupUpgrade;
 import logisticspipes.pipes.upgrades.CraftingMonitoringUpgrade;
+import logisticspipes.pipes.upgrades.FEPowerSupplierUpgrade;
 import logisticspipes.pipes.upgrades.FluidCraftingUpgrade;
 import logisticspipes.pipes.upgrades.FuzzyUpgrade;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
@@ -80,7 +81,6 @@ import logisticspipes.pipes.upgrades.PowerTransportationUpgrade;
 import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.pipes.upgrades.SpeedUpgrade;
 import logisticspipes.pipes.upgrades.UpgradeModuleUpgrade;
-import logisticspipes.pipes.upgrades.power.FEPowerSupplierUpgrade;
 import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 

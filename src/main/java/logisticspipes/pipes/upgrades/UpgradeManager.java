@@ -22,7 +22,6 @@ import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.pipes.upgrades.power.FEPowerSupplierUpgrade;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;

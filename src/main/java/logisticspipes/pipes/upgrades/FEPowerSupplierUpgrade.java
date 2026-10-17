@@ -1,9 +1,6 @@
-package logisticspipes.pipes.upgrades.power;
+package logisticspipes.pipes.upgrades;
 
 import java.util.List;
-
-import logisticspipes.pipes.upgrades.IPipeUpgrade;
-import logisticspipes.pipes.upgrades.UpgradeTarget;
 
 public class FEPowerSupplierUpgrade implements IPipeUpgrade {
 
