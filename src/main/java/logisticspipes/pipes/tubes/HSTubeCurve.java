@@ -1,0 +1,379 @@
+package logisticspipes.pipes.tubes;
+
+import java.util.List;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LPConstants;
+import logisticspipes.client.model.tube.TubeCollision;
+import logisticspipes.client.model.tube.TubeModels;
+import logisticspipes.interfaces.ITubeOrientation;
+import logisticspipes.interfaces.ITubeRenderOrientation;
+import logisticspipes.pipes.basic.CoreMultiBlockPipe;
+import logisticspipes.transport.LPTravelingItem;
+import logisticspipes.transport.PipeMultiBlockTransportLogistics;
+import logisticspipes.utils.IPositionRotateble;
+import logisticspipes.utils.PositionRotation;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
+
+public class HSTubeCurve extends CoreMultiBlockPipe {
+
+    @Getter
+    private CurveOrientation orientation;
+
+    public HSTubeCurve(Item item) {
+        super(new PipeMultiBlockTransportLogistics(), item);
+    }
+
+    @Override
+    public void writeState(FriendlyByteBuf buffer) {
+        buffer.writeNullable(orientation, FriendlyByteBuf::writeEnum);
+    }
+
+    @Override
+    public void readState(FriendlyByteBuf buffer) {
+        final CurveOrientation read = buffer.readNullable(inner -> inner.readEnum(CurveOrientation.class));
+        if (read != null) {
+            orientation = read;
+        }
+    }
+
+    @Override
+    public int getTextureIndex() {
+        return 0;
+    }
+
+    @Override
+    public List<SubBlock> getSubBlocks() {
+        return List.of(
+            new SubBlock(new BlockPos(-1, 0, 0), SubBlockTypeForShare.CURVE_INNER_A),
+            new SubBlock(new BlockPos(0, 0, 1), SubBlockTypeForShare.CURVE_OUT_A),
+            new SubBlock(new BlockPos(-1, 0, 1), SubBlockTypeForShare.NON_SHARE),
+            new SubBlock(new BlockPos(-2, 0, 1), SubBlockTypeForShare.CURVE_INNER_B),
+            new SubBlock(new BlockPos(-1, 0, 2), SubBlockTypeForShare.CURVE_OUT_B),
+            new SubBlock(new BlockPos(-2, 0, 2), SubBlockTypeForShare.NON_SHARE)
+        );
+    }
+
+    @Override
+    public List<SubBlock> getRotatedSubBlocks() {
+        PositionRotation rotation = new PositionRotation();
+        orientation.rotatePositions(rotation);
+        return getSubBlocks().stream().map(block -> block.rotated(rotation)).toList();
+    }
+
+    @Override
+    public void addCollisionBoxesToList(List<AABB> arraylist, @Nullable AABB area) {
+        final BlockPos tubePos = getPos();
+        double x = tubePos.getX();
+        double y = tubePos.getY();
+        double z = tubePos.getZ();
+        double angle = 0;
+        double addOne = 0;
+        double addTwo = 0;
+        switch (orientation.getRenderOrientation()) {
+            case NORTH_EAST -> {
+                angle = 3 * Math.PI / 2;
+                addOne = LPConstants.PIPE_MAX_POS;
+                addTwo = LPConstants.PIPE_MIN_POS;
+                z -= 2;
+                x += 1;
+            }
+            case EAST_SOUTH -> {
+                angle = 2 * Math.PI / 2;
+                addOne = LPConstants.PIPE_MIN_POS;
+                addTwo = LPConstants.PIPE_MAX_POS;
+                x += 3;
+                z += 1;
+            }
+            case SOUTH_WEST -> {
+                angle = Math.PI / 2;
+                addOne = LPConstants.PIPE_MAX_POS;
+                addTwo = LPConstants.PIPE_MIN_POS;
+                z += 3;
+            }
+            case WEST_NORTH -> {
+                angle = 0;
+                addOne = LPConstants.PIPE_MIN_POS;
+                addTwo = LPConstants.PIPE_MAX_POS;
+                x -= 2;
+            }
+        }
+        for (int i = 0; i < 49; i++) {
+            double xOne = x;
+            double yMin = y + LPConstants.PIPE_MIN_POS;
+            double zOne = z;
+            double xTwo = x;
+            double yMax = y + LPConstants.PIPE_MAX_POS;
+            double zTwo = z;
+            xOne += (2 + addOne) * Math.sin(angle + (2 * Math.PI / 200 * (i)));
+            zOne += (2 + addOne) * Math.cos(angle + (2 * Math.PI / 200 * (i + 2)));
+            xTwo += (2 + addTwo) * Math.sin(angle + (2 * Math.PI / 200 * (i + 1)));
+            zTwo += (2 + addTwo) * Math.cos(angle + (2 * Math.PI / 200 * (i)));
+            AABB box = new AABB(Math.min(xOne, xTwo), yMin, Math.min(zOne, zTwo), Math.max(xOne, xTwo), yMax,
+                Math.max(zOne, zTwo));
+            if (area == null || area.intersects(box)) {
+                arraylist.add(box);
+            }
+        }
+    }
+
+    @Override
+    public AABB getCompleteBox() {
+        return TubeCollision.completeBox(TubeModels.Kind.CURVE, orientation);
+    }
+
+    @Override
+    @Nullable
+    public ITubeOrientation getTubeOrientation(Player player, int xPos, int zPos) {
+        double x = xPos + 0.5 - player.getX();
+        double z = zPos + 0.5 - player.getZ();
+        double w = Math.atan2(x, z);
+        double halfPI = Math.PI / 2;
+        double halfhalfPI = halfPI / 2;
+        w -= halfhalfPI;
+        if (w < 0) {
+            w += 2 * Math.PI;
+        }
+        Direction dir = null;
+        Direction dir1 = null;
+        Direction dir2 = null;
+        double addition = 0;
+        if (0 < w && w <= halfPI) {
+            dir = Direction.WEST;
+            dir1 = Direction.NORTH;
+            dir2 = Direction.SOUTH;
+            addition = halfPI;
+        } else if (halfPI < w && w <= 2 * halfPI) {
+            dir = Direction.SOUTH;
+            dir1 = Direction.EAST;
+            dir2 = Direction.WEST;
+        } else if (2 * halfPI < w && w <= 3 * halfPI) {
+            dir = Direction.EAST;
+            dir1 = Direction.NORTH;
+            dir2 = Direction.SOUTH;
+            addition = halfPI;
+        } else if (3 * halfPI < w && w <= 4 * halfPI) {
+            dir = Direction.NORTH;
+            dir1 = Direction.EAST;
+            dir2 = Direction.WEST;
+        }
+        w = Math.atan2(player.getLookAngle().x, player.getLookAngle().z);
+        w -= addition;
+        if (w < 0) {
+            w += 2 * Math.PI;
+        }
+        Direction dir3 = null;
+        if (0 < w && w <= 2 * halfPI) {
+            dir3 = dir1;
+        } else if (2 * halfPI < w && w <= 4 * halfPI) {
+            dir3 = dir2;
+        }
+        for (CurveOrientation curve : CurveOrientation.values()) {
+            if (curve.from.equals(dir)) {
+                if (curve.looking.equals(dir3)) {
+                    return curve;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void serialize(ValueOutput output) {
+        super.serialize(output);
+        output.putString("orientation", orientation.name());
+    }
+
+    @Override
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
+        orientation = CurveOrientation.valueOf(input.getStringOr("orientation", ""));
+    }
+
+    @Override
+    public float getPipeLength() {
+        return (float) (Math.PI / 2 * 2.5);
+    }
+
+    @Override
+    public @Nullable Direction getExitForInput(Direction comingFrom) {
+        TurnDirection ori = orientation.getRenderOrientation();
+        if (ori.dir1 == comingFrom) {
+            return ori.dir2;
+        }
+        if (ori.dir2 == comingFrom) {
+            return ori.dir1;
+        }
+        return null;
+    }
+
+    @Override
+    @Nullable
+    public BlockEntity getConnectedEndTile(Direction output) {
+        TurnDirection ori = orientation.getRenderOrientation();
+        if (ori.dir2 == output) {
+            return getContainer().getBlockEntity(output);
+        }
+        if (ori.dir1 == output) {
+            PositionRotation rotation = new PositionRotation();
+            orientation.rotatePositions(rotation);
+            BlockPos offset = rotation.apply(new BlockPos(-2, 0, 2));
+            BlockEntity subTile = getLevel().getBlockEntity(getPos().offset(offset));
+            if (subTile instanceof LogisticsGenericSubMultiBlockBlockEntity genericSubMultiBlockBlockEntity) {
+                return genericSubMultiBlockBlockEntity.getTile(output);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean actAsNormalPipe() {
+        return false;
+    }
+
+    @Override
+    public @Nullable Vec3 getItemRenderPos(float fPos, LPTravelingItem travelItem) {
+        if (orientation.getRenderOrientation().getDir1().getOpposite() != travelItem.input) {
+            fPos = transport.getPipeLength() - fPos;
+        }
+        double angle = 0;
+        int x = 0;
+        int y = 0;
+        int z = 0;
+        switch (orientation.getRenderOrientation()) {
+            case NORTH_EAST -> {
+                angle = 3 * Math.PI / 2;
+                z -= 2;
+                x += 1;
+            }
+            case EAST_SOUTH -> {
+                angle = 2 * Math.PI / 2;
+                x += 3;
+                z += 1;
+            }
+            case SOUTH_WEST -> {
+                angle = Math.PI / 2;
+                z += 3;
+            }
+            case WEST_NORTH -> {
+                angle = 0;
+                x -= 2;
+            }
+        }
+        double xOne = x;
+        double yMin = y + 0.5;
+        double zOne = z;
+        xOne += (2.5) * Math.sin(angle + (2 * Math.PI / 4 / transport.getPipeLength() * fPos));
+        zOne += (2.5) * Math.cos(angle + (2 * Math.PI / 4 / transport.getPipeLength() * fPos));
+        return new Vec3(xOne, yMin, zOne);
+    }
+
+    @Override
+    public double getItemRenderPitch(float fPos, LPTravelingItem travelItem) {
+        return super.getItemRenderPitch(fPos, travelItem);
+    }
+
+    @Override
+    public double getItemRenderYaw(float fPos, LPTravelingItem travelItem) {
+        if (orientation.getRenderOrientation().getDir1().getOpposite() != travelItem.input) {
+            fPos = transport.getPipeLength() - fPos;
+        }
+        double angle = switch (orientation.getRenderOrientation()) {
+            case NORTH_EAST -> 3 * Math.PI / 2;
+            case EAST_SOUTH -> 2 * Math.PI / 2;
+            case SOUTH_WEST -> Math.PI / 2;
+            case WEST_NORTH -> 0;
+        };
+        return 360 * (angle + 2 * Math.PI / 4 / transport.getPipeLength() * fPos) / (2 * Math.PI);
+    }
+
+    @Override
+    public double getBoxRenderScale(float fPos, LPTravelingItem travelItem) {
+        if (orientation.getRenderOrientation().getDir1().getOpposite() != travelItem.input) {
+            fPos = transport.getPipeLength() - fPos;
+        }
+        if (fPos > this.transport.getPipeLength() - 0.5) {
+            return 1 - (this.transport.getPipeLength() - fPos) * 0.1D;
+        } else if (fPos > 0.5) {
+            return 0.95D;
+        } else {
+            return 1 - fPos * 0.1D;
+        }
+    }
+
+    @Override
+    public boolean isHSTube() {
+        return true;
+    }
+
+    @AllArgsConstructor
+    public enum CurveOrientation implements ITubeOrientation {
+        // Name: Placement from  _ TurnDirection
+        NORTH_NORTH_EAST(TurnDirection.NORTH_EAST, new BlockPos(2, 0, 2), Direction.NORTH, Direction.EAST),
+        NORTH_WEST_NORTH(TurnDirection.WEST_NORTH, new BlockPos(0, 0, 0), Direction.NORTH, Direction.WEST),
+        WEST_WEST_NORTH(TurnDirection.WEST_NORTH, new BlockPos(2, 0, -2), Direction.WEST, Direction.NORTH),
+        WEST_SOUTH_WEST(TurnDirection.SOUTH_WEST, new BlockPos(0, 0, 0), Direction.WEST, Direction.SOUTH),
+        SOUTH_SOUTH_WEST(TurnDirection.SOUTH_WEST, new BlockPos(-2, 0, -2), Direction.SOUTH, Direction.WEST),
+        SOUTH_EAST_SOUTH(TurnDirection.EAST_SOUTH, new BlockPos(0, 0, 0), Direction.SOUTH, Direction.EAST),
+        EAST_EAST_SOUTH(TurnDirection.EAST_SOUTH, new BlockPos(-2, 0, 2), Direction.EAST, Direction.SOUTH),
+        EAST_NORTH_EAST(TurnDirection.NORTH_EAST, new BlockPos(0, 0, 0), Direction.EAST, Direction.NORTH);
+
+        @Getter
+        final TurnDirection renderOrientation;
+        @Getter
+        final BlockPos offset;
+        @Getter
+        final Direction from;
+        @Getter
+        final Direction looking;
+
+        @Override
+        public void rotatePositions(IPositionRotateble set) {
+            renderOrientation.rotatePositions(set);
+        }
+
+        @Override
+        public void setOnPipe(CoreMultiBlockPipe pipe) {
+            ((HSTubeCurve) pipe).orientation = this;
+        }
+    }
+
+    @AllArgsConstructor
+    public enum TurnDirection implements ITubeRenderOrientation {
+        NORTH_EAST(Direction.NORTH, Direction.EAST),
+        EAST_SOUTH(Direction.EAST, Direction.SOUTH),
+        SOUTH_WEST(Direction.SOUTH, Direction.WEST),
+        WEST_NORTH(Direction.WEST, Direction.NORTH);
+
+        @Getter
+        final Direction dir1;
+        final Direction dir2;
+
+        public void rotatePositions(IPositionRotateble set) {
+            switch (this) {
+                case WEST_NORTH -> {
+                }
+                case NORTH_EAST -> set.rotateRight();
+                case EAST_SOUTH -> {
+                    set.rotateLeft();
+                    set.rotateLeft();
+                }
+                case SOUTH_WEST -> set.rotateLeft();
+            }
+        }
+    }
+}

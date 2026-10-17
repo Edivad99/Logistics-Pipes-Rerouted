@@ -85,7 +85,7 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 
     public abstract List<SubBlock> getRotatedSubBlocks();
 
-    public abstract void addCollisionBoxesToList(List<AABB> arraylist, @Nullable AABB axisalignedbb);
+    public abstract void addCollisionBoxesToList(List<AABB> arraylist, @Nullable AABB area);
 
     public abstract AABB getCompleteBox();
 
