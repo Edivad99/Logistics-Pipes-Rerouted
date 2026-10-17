@@ -17,64 +17,66 @@ import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
 
 public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 
-	public static final String SIDE_KEY = "LPSNEAKY-SIDE";
+    public static final String SIDE_KEY = "LPSNEAKY-SIDE";
 
-	public static String getName() {
-		return "sneaky";
-	}
+    public static String getName() {
+        return "sneaky";
+    }
 
-	@AllArgsConstructor
-	public enum Sides {
-		UP(Direction.UP, "LPSNEAKY-UP"),
-		DOWN(Direction.DOWN, "LPSNEAKY-DOWN"),
-		NORTH(Direction.NORTH, "LPSNEAKY-NORTH"),
-		SOUTH(Direction.SOUTH, "LPSNEAKY-SOUTH"),
-		EAST(Direction.EAST, "LPSNEAKY-EAST"),
-		WEST(Direction.WEST, "LPSNEAKY-WEST");
+    @Nullable
+    public static Direction getSide(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return null;
+        }
+        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        String sideString = tag.getStringOr(SIDE_KEY, "");
+        return Arrays.stream(Sides.values())
+            .filter(side -> side.getLpName().equals(sideString))
+            .map(Sides::getDir)
+            .findFirst()
+            .orElse(null);
+    }
 
-		@Getter
-		private Direction dir;
-		@Getter
-		private String lpName;
+    @Override
+    public boolean needsUpdate() {
+        return false;
+    }
 
-		public static String getNameForDirection(Direction fd) {
-			return Arrays.stream(values())
-					.filter(side -> side.getDir() == fd)
-					.map(Sides::getLpName)
-					.findFirst()
-					.orElse("LPSNEAKY-UNKNWON");
-		}
-	}
+    @Override
+    public List<UpgradeTarget> getAllowedPipes() {
+        return List.of(UpgradeTarget.ALL);
+    }
 
-	@Override
-	public boolean needsUpdate() {
-		return false;
-	}
+    @Override
+    public List<UpgradeTarget> getAllowedModules() {
+        return List.of(UpgradeTarget.SINK);
+    }
 
-	@Override
-	public List<UpgradeTarget> getAllowedPipes() {
-		return List.of(UpgradeTarget.ALL);
-	}
+    @Override
+    public UpgradeConfigPopupMessage.Kind getConfigPopup() {
+        return UpgradeConfigPopupMessage.Kind.SNEAKY;
+    }
 
-	@Override
-	public List<UpgradeTarget> getAllowedModules() {
-		return List.of(UpgradeTarget.SINK);
-	}
+    @AllArgsConstructor
+    public enum Sides {
+        UP(Direction.UP, "LPSNEAKY-UP"),
+        DOWN(Direction.DOWN, "LPSNEAKY-DOWN"),
+        NORTH(Direction.NORTH, "LPSNEAKY-NORTH"),
+        SOUTH(Direction.SOUTH, "LPSNEAKY-SOUTH"),
+        EAST(Direction.EAST, "LPSNEAKY-EAST"),
+        WEST(Direction.WEST, "LPSNEAKY-WEST");
 
-	@Override
-	public UpgradeConfigPopupMessage.Kind getConfigPopup() {
-		return UpgradeConfigPopupMessage.Kind.SNEAKY;
-	}
+        @Getter
+        private Direction dir;
+        @Getter
+        private String lpName;
 
-	@Nullable
-	public static Direction getSide(ItemStack stack) {
-		if (stack.isEmpty()) return null;
-		CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-		String sideString = tag.getStringOr(SIDE_KEY, "");
-		return Arrays.stream(Sides.values())
-				.filter(side -> side.getLpName().equals(sideString))
-				.map(Sides::getDir)
-				.findFirst()
-				.orElse(null);
-	}
+        public static String getNameForDirection(Direction fd) {
+            return Arrays.stream(values())
+                .filter(side -> side.getDir() == fd)
+                .map(Sides::getLpName)
+                .findFirst()
+                .orElse("LPSNEAKY-UNKNWON");
+        }
+    }
 }

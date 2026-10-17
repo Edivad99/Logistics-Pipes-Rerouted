@@ -20,223 +20,224 @@ import logisticspipes.world.item.ItemUpgrade;
 
 public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgradeManager {
 
-	private final UpgradeManager parent;
-	private final SimpleStackInventory internalInv;
-	@Getter
-	private final SimpleInventoryProperty inv;
-	private final @Nullable IPipeUpgrade[] upgrades = new @Nullable IPipeUpgrade[2];
-	private final PipeLogisticsChassis pipe; // FIXME: get rid of this pipe reference
+    private final UpgradeManager parent;
+    private final SimpleStackInventory internalInv;
+    @Getter
+    private final SimpleInventoryProperty inv;
+    private final @Nullable IPipeUpgrade[] upgrades = new @Nullable IPipeUpgrade[2];
+    private final PipeLogisticsChassis pipe; // FIXME: get rid of this pipe reference
 
-	private @Nullable Direction sneakyOrientation = null;
-	private boolean isAdvancedCrafter = false;
-	private boolean isFuzzyUpgrade = false;
-	private int liquidCrafter = 0;
-	private boolean hasByproductExtractor = false;
-	private boolean hasPatternUpgrade = false;
-	private int craftingCleanup = 0;
-	private int actionSpeedUpgrade = 0;
-	private int itemExtractionUpgrade = 0;
-	private int itemStackExtractionUpgrade = 0;
+    private @Nullable Direction sneakyOrientation = null;
+    private boolean isAdvancedCrafter = false;
+    private boolean isFuzzyUpgrade = false;
+    private int liquidCrafter = 0;
+    private boolean hasByproductExtractor = false;
+    private boolean hasPatternUpgrade = false;
+    private int craftingCleanup = 0;
+    private int actionSpeedUpgrade = 0;
+    private int itemExtractionUpgrade = 0;
+    private int itemStackExtractionUpgrade = 0;
 
-	private boolean[] guiUpgrades = new boolean[2];
+    private boolean[] guiUpgrades = new boolean[2];
 
-	private ModuleUpgradeManager(PipeLogisticsChassis pipe, UpgradeManager parentUpgradeManager, SimpleStackInventory internalInv) {
-		this.internalInv = internalInv;
-		this.inv = new SimpleInventoryProperty(this.internalInv, "moduleUpgrades");
-		this.internalInv.addListener(this);
-		this.pipe = pipe;
-		this.parent = parentUpgradeManager;
-	}
+    private ModuleUpgradeManager(PipeLogisticsChassis pipe, UpgradeManager parentUpgradeManager,
+        SimpleStackInventory internalInv) {
+        this.internalInv = internalInv;
+        this.inv = new SimpleInventoryProperty(this.internalInv, "moduleUpgrades");
+        this.internalInv.addListener(this);
+        this.pipe = pipe;
+        this.parent = parentUpgradeManager;
+    }
 
-	public ModuleUpgradeManager(PipeLogisticsChassis pipe, UpgradeManager parentUpgradeManager) {
-		this(pipe, parentUpgradeManager, new SimpleStackInventory(2, "UpgradeInventory", 16));
-	}
+    public ModuleUpgradeManager(PipeLogisticsChassis pipe, UpgradeManager parentUpgradeManager) {
+        this(pipe, parentUpgradeManager, new SimpleStackInventory(2, "UpgradeInventory", 16));
+    }
 
-	public ModuleUpgradeManager(ModuleUpgradeManager copy) {
-		this(copy.pipe, copy.parent, new SimpleStackInventory(copy.internalInv));
-		InventoryChanged(internalInv);
-	}
+    public ModuleUpgradeManager(ModuleUpgradeManager copy) {
+        this(copy.pipe, copy.parent, new SimpleStackInventory(copy.internalInv));
+        InventoryChanged(internalInv);
+    }
 
-	@Override
-	public boolean hasPatternUpgrade() {
-		return hasPatternUpgrade || parent.hasPatternUpgrade();
-	}
+    @Override
+    public boolean hasPatternUpgrade() {
+        return hasPatternUpgrade || parent.hasPatternUpgrade();
+    }
 
-	@Override
-	public boolean isAdvancedSatelliteCrafter() {
-		return isAdvancedCrafter || parent.isAdvancedSatelliteCrafter();
-	}
+    @Override
+    public boolean isAdvancedSatelliteCrafter() {
+        return isAdvancedCrafter || parent.isAdvancedSatelliteCrafter();
+    }
 
-	@Override
-	public boolean hasByproductExtractor() {
-		return hasByproductExtractor || parent.hasByproductExtractor();
-	}
+    @Override
+    public boolean hasByproductExtractor() {
+        return hasByproductExtractor || parent.hasByproductExtractor();
+    }
 
-	@Override
-	public int getFluidCrafter() {
-		return Math.min(liquidCrafter + parent.getFluidCrafter(), ItemUpgrade.MAX_LIQUID_CRAFTER);
-	}
+    @Override
+    public int getFluidCrafter() {
+        return Math.min(liquidCrafter + parent.getFluidCrafter(), ItemUpgrade.MAX_LIQUID_CRAFTER);
+    }
 
-	@Override
-	public boolean isFuzzyUpgrade() {
-		return isFuzzyUpgrade || parent.isFuzzyUpgrade();
-	}
+    @Override
+    public boolean isFuzzyUpgrade() {
+        return isFuzzyUpgrade || parent.isFuzzyUpgrade();
+    }
 
-	@Override
-	public int getCrafterCleanup() {
-		return Math.min(craftingCleanup + parent.getCrafterCleanup(), ItemUpgrade.MAX_CRAFTING_CLEANUP);
-	}
+    @Override
+    public int getCrafterCleanup() {
+        return Math.min(craftingCleanup + parent.getCrafterCleanup(), ItemUpgrade.MAX_CRAFTING_CLEANUP);
+    }
 
-	@Override
-	public boolean hasSneakyUpgrade() {
-		if (sneakyOrientation != null) {
-			return true;
-		}
-		return parent.hasSneakyUpgrade();
-	}
+    @Override
+    public boolean hasSneakyUpgrade() {
+        if (sneakyOrientation != null) {
+            return true;
+        }
+        return parent.hasSneakyUpgrade();
+    }
 
-	@Override
-	@Nullable
-	public Direction getSneakyOrientation() {
-		if (sneakyOrientation != null) {
-			return sneakyOrientation;
-		}
-		return parent.getSneakyOrientation();
-	}
+    @Override
+    @Nullable
+    public Direction getSneakyOrientation() {
+        if (sneakyOrientation != null) {
+            return sneakyOrientation;
+        }
+        return parent.getSneakyOrientation();
+    }
 
-	@Override
-	public boolean hasOwnSneakyUpgrade() {
-		return sneakyOrientation != null;
-	}
+    @Override
+    public boolean hasOwnSneakyUpgrade() {
+        return sneakyOrientation != null;
+    }
 
-	@Override
-	@Nullable
-	public IPipeUpgrade getUpgrade(int slot) {
-		return upgrades[slot];
-	}
+    @Override
+    @Nullable
+    public IPipeUpgrade getUpgrade(int slot) {
+        return upgrades[slot];
+    }
 
-	@Override
-	public BlockPos getPipePosition() {
-		return pipe.getPos();
-	}
+    @Override
+    public BlockPos getPipePosition() {
+        return pipe.getPos();
+    }
 
-	@Override
-	public void InventoryChanged(Container inventory) {
-		boolean needUpdate = false;
-		for (int i = 0; i < inv.getContainerSize(); i++) {
-			if (inv.isSlotEmpty(i)) {
-				if (upgrades[i] != null) {
-					needUpdate |= removeUpgrade(i, upgrades);
-				}
-			} else {
-				needUpdate |= updateModule(i, upgrades, inv);
-			}
-		}
-		//update sneaky direction, speed upgrade count and disconnection
-		sneakyOrientation = null;
-		isAdvancedCrafter = false;
-		isFuzzyUpgrade = false;
-		liquidCrafter = 0;
-		hasByproductExtractor = false;
-		hasPatternUpgrade = false;
-		craftingCleanup = 0;
-		actionSpeedUpgrade = 0;
-		itemExtractionUpgrade = 0;
-		itemStackExtractionUpgrade = 0;
-		guiUpgrades = new boolean[2];
-		for (int i = 0; i < upgrades.length; i++) {
-			IPipeUpgrade upgrade = upgrades[i];
-			if (upgrade instanceof SneakyUpgradeConfig && sneakyOrientation == null) {
-				ItemStack stack = inv.getItem(i);
-				sneakyOrientation = SneakyUpgradeConfig.getSide(stack);
-			} else if (upgrade instanceof AdvancedSatelliteUpgrade) {
-				isAdvancedCrafter = true;
-			} else if (upgrade instanceof FuzzyUpgrade) {
-				isFuzzyUpgrade = true;
-			} else if (upgrade instanceof FluidCraftingUpgrade) {
-				liquidCrafter += inv.getItem(i).getCount();
-			} else if (upgrade instanceof CraftingByproductUpgrade) {
-				hasByproductExtractor = true;
-			} else if (upgrade instanceof PatternUpgrade) {
-				hasPatternUpgrade = true;
-			} else if (upgrade instanceof CraftingCleanupUpgrade) {
-				craftingCleanup += inv.getItem(i).getCount();
-			} else if (upgrade instanceof ActionSpeedUpgrade) {
-				actionSpeedUpgrade += inv.getItem(i).getCount();
-			} else if (upgrade instanceof ItemExtractionUpgrade) {
-				itemExtractionUpgrade += inv.getItem(i).getCount();
-			} else if (upgrade instanceof ItemStackExtractionUpgrade) {
-				itemStackExtractionUpgrade += inv.getItem(i).getCount();
-			}
-			if (upgrade instanceof IConfigPipeUpgrade) {
-				guiUpgrades[i] = true;
-			}
-		}
-		liquidCrafter = Math.min(liquidCrafter, ItemUpgrade.MAX_LIQUID_CRAFTER);
-		craftingCleanup = Math.min(craftingCleanup, ItemUpgrade.MAX_CRAFTING_CLEANUP);
-		itemExtractionUpgrade = Math.min(itemExtractionUpgrade, ItemUpgrade.MAX_ITEM_EXTRACTION);
-		itemStackExtractionUpgrade = Math.min(itemStackExtractionUpgrade, ItemUpgrade.MAX_ITEM_STACK_EXTRACTION);
-		if (needUpdate) {
-			final Level level = pipe.getLevel();
-			if (level != null && !level.isClientSide()) {
-				pipe.connectionUpdate();
-				if (pipe.getContainer() != null) {
-					pipe.getContainer().sendUpdateToClient();
-				}
-			}
-		}
-	}
+    @Override
+    public void InventoryChanged(Container inventory) {
+        boolean needUpdate = false;
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            if (inv.isSlotEmpty(i)) {
+                if (upgrades[i] != null) {
+                    needUpdate |= removeUpgrade(i, upgrades);
+                }
+            } else {
+                needUpdate |= updateModule(i, upgrades, inv);
+            }
+        }
+        //update sneaky direction, speed upgrade count and disconnection
+        sneakyOrientation = null;
+        isAdvancedCrafter = false;
+        isFuzzyUpgrade = false;
+        liquidCrafter = 0;
+        hasByproductExtractor = false;
+        hasPatternUpgrade = false;
+        craftingCleanup = 0;
+        actionSpeedUpgrade = 0;
+        itemExtractionUpgrade = 0;
+        itemStackExtractionUpgrade = 0;
+        guiUpgrades = new boolean[2];
+        for (int i = 0; i < upgrades.length; i++) {
+            IPipeUpgrade upgrade = upgrades[i];
+            if (upgrade instanceof SneakyUpgradeConfig && sneakyOrientation == null) {
+                ItemStack stack = inv.getItem(i);
+                sneakyOrientation = SneakyUpgradeConfig.getSide(stack);
+            } else if (upgrade instanceof AdvancedSatelliteUpgrade) {
+                isAdvancedCrafter = true;
+            } else if (upgrade instanceof FuzzyUpgrade) {
+                isFuzzyUpgrade = true;
+            } else if (upgrade instanceof FluidCraftingUpgrade) {
+                liquidCrafter += inv.getItem(i).getCount();
+            } else if (upgrade instanceof CraftingByproductUpgrade) {
+                hasByproductExtractor = true;
+            } else if (upgrade instanceof PatternUpgrade) {
+                hasPatternUpgrade = true;
+            } else if (upgrade instanceof CraftingCleanupUpgrade) {
+                craftingCleanup += inv.getItem(i).getCount();
+            } else if (upgrade instanceof ActionSpeedUpgrade) {
+                actionSpeedUpgrade += inv.getItem(i).getCount();
+            } else if (upgrade instanceof ItemExtractionUpgrade) {
+                itemExtractionUpgrade += inv.getItem(i).getCount();
+            } else if (upgrade instanceof ItemStackExtractionUpgrade) {
+                itemStackExtractionUpgrade += inv.getItem(i).getCount();
+            }
+            if (upgrade instanceof IConfigPipeUpgrade) {
+                guiUpgrades[i] = true;
+            }
+        }
+        liquidCrafter = Math.min(liquidCrafter, ItemUpgrade.MAX_LIQUID_CRAFTER);
+        craftingCleanup = Math.min(craftingCleanup, ItemUpgrade.MAX_CRAFTING_CLEANUP);
+        itemExtractionUpgrade = Math.min(itemExtractionUpgrade, ItemUpgrade.MAX_ITEM_EXTRACTION);
+        itemStackExtractionUpgrade = Math.min(itemStackExtractionUpgrade, ItemUpgrade.MAX_ITEM_STACK_EXTRACTION);
+        if (needUpdate) {
+            final Level level = pipe.getLevel();
+            if (level != null && !level.isClientSide()) {
+                pipe.connectionUpdate();
+                if (pipe.getContainer() != null) {
+                    pipe.getContainer().sendUpdateToClient();
+                }
+            }
+        }
+    }
 
-	public void deserialize(ValueInput input, String prefix) {
-		internalInv.deserialize(input, "ModuleUpgradeInventory_" + prefix);
-	}
+    public void deserialize(ValueInput input, String prefix) {
+        internalInv.deserialize(input, "ModuleUpgradeInventory_" + prefix);
+    }
 
-	public void serialize(ValueOutput output, String prefix) {
-		internalInv.serialize(output, "ModuleUpgradeInventory_" + prefix);
-		InventoryChanged(inv);
-	}
+    public void serialize(ValueOutput output, String prefix) {
+        internalInv.serialize(output, "ModuleUpgradeInventory_" + prefix);
+        InventoryChanged(inv);
+    }
 
-	private boolean updateModule(int slot, IPipeUpgrade[] upgrades, Container inv) {
-		ItemStack stackInSlot = inv.getItem(slot);
-		if (stackInSlot.isEmpty() || !(stackInSlot.getItem() instanceof ItemUpgrade)) {
-			upgrades[slot] = null;
-		} else {
-			upgrades[slot] = ((ItemUpgrade) stackInSlot.getItem()).getUpgradeForItem(stackInSlot, upgrades[slot]);
-		}
-		if (upgrades[slot] == null) {
-			inv.setItem(slot, ItemStack.EMPTY);
-			return false;
-		} else {
-			return upgrades[slot].needsUpdate();
-		}
-	}
+    private boolean updateModule(int slot, IPipeUpgrade[] upgrades, Container inv) {
+        ItemStack stackInSlot = inv.getItem(slot);
+        if (stackInSlot.isEmpty() || !(stackInSlot.getItem() instanceof ItemUpgrade)) {
+            upgrades[slot] = null;
+        } else {
+            upgrades[slot] = ((ItemUpgrade) stackInSlot.getItem()).getUpgradeForItem(stackInSlot, upgrades[slot]);
+        }
+        if (upgrades[slot] == null) {
+            inv.setItem(slot, ItemStack.EMPTY);
+            return false;
+        } else {
+            return upgrades[slot].needsUpdate();
+        }
+    }
 
-	private boolean removeUpgrade(int slot, IPipeUpgrade[] upgrades) {
-		boolean needUpdate = upgrades[slot].needsUpdate();
-		upgrades[slot] = null;
-		return needUpdate;
-	}
+    private boolean removeUpgrade(int slot, IPipeUpgrade[] upgrades) {
+        boolean needUpdate = upgrades[slot].needsUpdate();
+        upgrades[slot] = null;
+        return needUpdate;
+    }
 
-	public boolean hasGuiUpgrade(int i) {
-		return guiUpgrades[i];
-	}
+    public boolean hasGuiUpgrade(int i) {
+        return guiUpgrades[i];
+    }
 
-	@Override
-	public int getActionSpeedUpgrade() {
-		return actionSpeedUpgrade;
-	}
+    @Override
+    public int getActionSpeedUpgrade() {
+        return actionSpeedUpgrade;
+    }
 
-	@Override
-	public int getItemExtractionUpgrade() {
-		return itemExtractionUpgrade;
-	}
+    @Override
+    public int getItemExtractionUpgrade() {
+        return itemExtractionUpgrade;
+    }
 
-	@Override
-	public int getItemStackExtractionUpgrade() {
-		return itemStackExtractionUpgrade;
-	}
+    @Override
+    public int getItemStackExtractionUpgrade() {
+        return itemStackExtractionUpgrade;
+    }
 
-	public void dropUpgrades() {
-		inv.dropContents(pipe.getLevel(), pipe.getPos());
-	}
+    public void dropUpgrades() {
+        inv.dropContents(pipe.getLevel(), pipe.getPos());
+    }
 }
