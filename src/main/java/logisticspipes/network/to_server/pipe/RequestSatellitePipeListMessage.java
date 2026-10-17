@@ -53,7 +53,7 @@ public record RequestSatellitePipeListMessage(BlockPos pos, boolean fluid) imple
         }
         final List<SatelliteEntry> satellites = message.fluid
             ? reachableFrom(pipe, PipeFluidSatellite.AllSatellites)
-            : reachableFrom(pipe, PipeItemsSatelliteLogistics.AllSatellites);
+            : reachableFrom(pipe, PipeItemsSatelliteLogistics.ALL_SATELLITES);
         if (context.player() instanceof ServerPlayer player) {
             PacketDistributor.sendToPlayer(player, new SatellitePipeListMessage(satellites));
         }

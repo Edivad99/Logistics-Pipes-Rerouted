@@ -22,42 +22,42 @@ import logisticspipes.world.item.RemoteOrderer;
 
 public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements IRequestItems {
 
-	public PipeItemsRemoteOrdererLogistics(Item item) {
-		super(item);
-	}
+    public PipeItemsRemoteOrdererLogistics(Item item) {
+        super(item);
+    }
 
-	@Override
-	public TextureType getCenterTexture() {
-		return Textures.LOGISTICSPIPE_REMOTE_ORDERER_TEXTURE;
-	}
+    @Override
+    public TextureType getCenterTexture() {
+        return Textures.LOGISTICSPIPE_REMOTE_ORDERER_TEXTURE;
+    }
 
-	@Override
-	public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
-		if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
-			if (!entityplayer.level().isClientSide()) {
+    @Override
+    public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
+        if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
+            if (!entityplayer.level().isClientSide()) {
                 MutableComponent resp;
-				if (settings == null || settings.openRequest) {
-					ItemStack orderer = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
-					RemoteOrderer.connectToPipe(orderer, this);
+                if (settings == null || settings.openRequest) {
+                    ItemStack orderer = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
+                    RemoteOrderer.connectToPipe(orderer, this);
                     resp = Component.translatable(Translations.Chat.CONNECTED_TO_PIPE).withStyle(ChatFormatting.GREEN);
-				} else {
+                } else {
                     resp = Component.translatable(Translations.Chat.PERMISSION_DENIED).withStyle(ChatFormatting.RED);
-				}
+                }
                 entityplayer.sendOverlayMessage(resp);
             }
-			return true;
-		}
-		return false;
-	}
+            return true;
+        }
+        return false;
+    }
 
-	@Override
-	public @Nullable LogisticsModule getLogisticsModule() {
-		return null;
-	}
+    @Override
+    public @Nullable LogisticsModule getLogisticsModule() {
+        return null;
+    }
 
-	@Override
-	public ItemSendMode getItemSendMode() {
-		return ItemSendMode.NORMAL;
-	}
+    @Override
+    public ItemSendMode getItemSendMode() {
+        return ItemSendMode.NORMAL;
+    }
 
 }

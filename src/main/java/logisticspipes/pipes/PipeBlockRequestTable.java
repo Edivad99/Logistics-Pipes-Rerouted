@@ -1,0 +1,657 @@
+package logisticspipes.pipes;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ResultContainer;
+import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import org.jspecify.annotations.Nullable;
+
+import logisticspipes.LPConstants;
+import logisticspipes.Translations;
+import logisticspipes.entity.FakePlayers;
+import logisticspipes.interfaces.ICraftingRecipeGrid;
+import logisticspipes.interfaces.IPipeMenuProvider;
+import logisticspipes.interfaces.IRequestWatcher;
+import logisticspipes.interfaces.IRotationProvider;
+import logisticspipes.interfaces.IScreenOpenController;
+import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.logisticspipes.TransportLayer;
+import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
+import logisticspipes.network.to_client.orderer.OrderWatchMessage;
+import logisticspipes.network.to_client.orderer.OrdererWatchRemoveMessage;
+import logisticspipes.network.to_server.block.RequestBlockRotationMessage;
+import logisticspipes.particle.Particles;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.request.resources.IResource;
+import logisticspipes.routing.order.IOrderInfoProvider;
+import logisticspipes.routing.order.LinkedLogisticsOrderList;
+import logisticspipes.security.SecuritySettings;
+import logisticspipes.textures.Textures;
+import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.utils.CraftingUtil;
+import logisticspipes.utils.ISimpleInventoryEventHandler;
+import logisticspipes.utils.PlayerCollectionList;
+import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.utils.item.ItemIdentifierInventory;
+import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.utils.item.SimpleStackInventory;
+import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.inventory.RequestTableMenu;
+import logisticspipes.world.item.ItemPipeController;
+import logisticspipes.world.item.LPItems;
+import logisticspipes.world.level.block.entity.AutoCraftingContainer;
+
+public class PipeBlockRequestTable extends PipeItemsRequestLogistics
+    implements ISimpleInventoryEventHandler, IRequestWatcher,
+    IScreenOpenController, IRotationProvider, ICraftingRecipeGrid, IPipeMenuProvider {
+
+    public SimpleStackInventory diskInv = new SimpleStackInventory(1, "Disk Slot", 1);
+    public SimpleStackInventory inv = new SimpleStackInventory(27, "Crafting Resources", 64);
+    public ItemIdentifierInventory matrix = new ItemIdentifierInventory(9, "Crafting Matrix", 1);
+    public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
+    public SimpleStackInventory toSortInv = new SimpleStackInventory(1, "Sorting Slot", 64);
+    public Map<Integer, Pair<IResource, LinkedLogisticsOrderList>> watchedRequests = new HashMap<>();
+    public @Nullable ItemIdentifier targetType = null;
+    private final ResultContainer vanillaResult = new ResultContainer();
+    private @Nullable RecipeHolder<CraftingRecipe> cache;
+    private @Nullable ServerPlayer fake;
+    private int delay = 0;
+    private int tick = 0;
+    private int rotation;
+    private boolean init = false;
+    private final PlayerCollectionList localGuiWatcher = new PlayerCollectionList();
+    private int localLastUsedWatcherId = 0;
+
+    public PipeBlockRequestTable(Item item) {
+        super(item);
+        matrix.addListener(this);
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+        return new RequestTableMenu(containerId, inventory, this);
+    }
+
+    @Override
+    public CoreRoutedPipe getAttachedPipe() {
+        return this;
+    }
+
+    @Override
+    public ItemIdentifierInventory getMatrix() {
+        return matrix;
+    }
+
+    @Override
+    public @Nullable ItemIdentifier getTargetType() {
+        return targetType;
+    }
+
+    @Override
+    public void setTargetType(@Nullable ItemIdentifier targetType) {
+        this.targetType = targetType;
+    }
+
+    @Override
+    public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
+        //allow using upgrade manager
+        if (ItemPipeController.isHeldBy(entityplayer) && !(entityplayer.isCrouching())) {
+            return false;
+        }
+        if (!getLevel().isClientSide()) {
+            if (settings == null || settings.openGui) {
+                openGui(entityplayer);
+            } else {
+                entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void ignoreDisableUpdateEntity() {
+        super.ignoreDisableUpdateEntity();
+        if (tick++ == 5) {
+            if (getLevel() != null) {
+                BlockState state = getLevel().getBlockState(getPos());
+                getLevel().sendBlockUpdated(getPos(), state, state, 3);
+            }
+        }
+        if (getLevel().isClientSide()) {
+            if (!init) {
+                ClientPacketDistributor.sendToServer(new RequestBlockRotationMessage(getPos()));
+                init = true;
+            }
+            return;
+        }
+        if (getLevel().isClientSide()) {
+            return;
+        }
+        if (tick % 2 == 0 && !localGuiWatcher.isEmpty()) {
+            checkForExpired();
+            if (getUpgradeManager().hasCraftingMonitoringUpgrade()) {
+                for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
+                    localGuiWatcher.send(new OrderWatchMessage(getPos(), entry.getKey(),
+                        Optional.ofNullable(entry.getValue().getValue1()), entry.getValue().getValue2()));
+                }
+            }
+        } else if (tick % 20 == 0) {
+            checkForExpired();
+        }
+    }
+
+    private void checkForExpired() {
+        Iterator<Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>>> iter = watchedRequests.entrySet()
+            .iterator();
+        while (iter.hasNext()) {
+            Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry = iter.next();
+            if (isDone(entry.getValue().getValue2())) {
+                localGuiWatcher.send(new OrdererWatchRemoveMessage(getPos(), entry.getKey()));
+                iter.remove();
+            }
+        }
+    }
+
+    private boolean isDone(LinkedLogisticsOrderList orders) {
+        boolean isDone = true;
+        for (IOrderInfoProvider order : orders) {
+            if (!order.isFinished()) {
+                isDone = false;
+            }
+            if (!order.getProgresses().isEmpty()) {
+                isDone = false;
+            }
+        }
+        for (LinkedLogisticsOrderList orderList : orders.getSubOrders()) {
+            if (!isDone(orderList)) {
+                isDone = false;
+            }
+        }
+        return isDone;
+    }
+
+    @Override
+    public void enabledUpdateEntity() {
+        super.enabledUpdateEntity();
+        ItemStack stack = toSortInv.getItem(0);
+        if (!stack.isEmpty()) {
+            if (delay > 0) {
+                delay--;
+                return;
+            }
+            IRoutedItem itemToSend = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
+            SimpleServiceLocator.logisticsManager.assignDestinationFor(itemToSend, getRouter().getSimpleID(), false);
+            if (itemToSend.getDestinationUUID() != null) {
+                Direction dir = getRouteLayer().getOrientationForItem(itemToSend, null);
+                super.queueRoutedItem(itemToSend, dir.getOpposite());
+                spawnParticle(Particles.ORANGE_SPARKLE, 4);
+                toSortInv.clearInventorySlotContents(0);
+            } else {
+                delay = 100;
+            }
+        } else {
+            delay = 0;
+        }
+    }
+
+    @Override
+    public void openGui(Player entityplayer) {
+        boolean flag = true;
+        if (!diskInv.getItem(0).isEmpty()) {
+            if (!entityplayer.getMainHandItem().isEmpty() && entityplayer.getMainHandItem().getItem()
+                .equals(LPItems.DISK.get())) {
+                diskInv.setItem(0, entityplayer.getMainHandItem());
+                entityplayer.getInventory().setItem(entityplayer.getInventory().getSelectedSlot(), ItemStack.EMPTY);
+                flag = false;
+            }
+        }
+        if (flag && entityplayer instanceof ServerPlayer serverPlayer) {
+            serverPlayer.openMenu(this);
+        }
+
+    }
+
+    /**
+     * The table is drawn as a solid block rather than from the pipe model, so this is never shown.
+     */
+    @Override
+    public TextureType getCenterTexture() {
+        return Textures.LOGISTICSPIPE_TEXTURE;
+    }
+
+    @Override
+    public void onAllowedRemoval() {
+        if (!getLevel().isClientSide()) {
+            inv.dropContents(getLevel(), getPos());
+            toSortInv.dropContents(getLevel(), getPos());
+            diskInv.dropContents(getLevel(), getPos());
+        }
+    }
+
+    @Override
+    public void cacheRecipe() {
+        ItemIdentifier oldTargetType = targetType;
+        cache = null;
+        resultInv.clearInventorySlotContents(0);
+        AutoCraftingContainer craftInv = new AutoCraftingContainer(null);
+        for (int i = 0; i < 9; i++) {
+            craftInv.setItem(i, matrix.getItem(i));
+        }
+        CraftingInput craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
+        List<RecipeHolder<CraftingRecipe>> list = new ArrayList<>();
+        for (RecipeHolder<CraftingRecipe> r : CraftingUtil.getRecipeList()) {
+            if (r.value().matches(craftingInput, getLevel())) {
+                list.add(r);
+            }
+        }
+        if (list.size() == 1) {
+            cache = list.get(0);
+            resultInv.setItem(0, cache.value().assemble(craftingInput));
+            targetType = null;
+        } else if (list.size() > 1) {
+            if (targetType != null) {
+                for (RecipeHolder<CraftingRecipe> recipe : list) {
+                    craftInv = new AutoCraftingContainer(null);
+                    for (int i = 0; i < 9; i++) {
+                        craftInv.setItem(i, matrix.getItem(i));
+                    }
+                    craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
+                    ItemStack result = recipe.value().assemble(craftingInput);
+                    if (targetType == ItemIdentifier.get(result)) {
+                        resultInv.setItem(0, result);
+                        cache = recipe;
+                        break;
+                    }
+                }
+            }
+            if (cache == null) {
+                cache = list.get(0);
+                ItemStack result = cache.value().assemble(craftingInput);
+                resultInv.setItem(0, result);
+                targetType = ItemIdentifier.get(result);
+            }
+        } else {
+            targetType = null;
+        }
+        if (targetType != oldTargetType && !localGuiWatcher.isEmpty() && getLevel() != null
+            && !getLevel().isClientSide()) {
+            localGuiWatcher.send(new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
+        }
+    }
+
+    @Override
+    public void cycleRecipe(boolean down) {
+        cacheRecipe();
+        if (targetType == null) {
+            return;
+        }
+        cache = null;
+        AutoCraftingContainer craftInv = new AutoCraftingContainer(null);
+        for (int i = 0; i < 9; i++) {
+            craftInv.setItem(i, matrix.getItem(i));
+        }
+        CraftingInput craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
+        List<RecipeHolder<CraftingRecipe>> list = new ArrayList<>();
+        for (RecipeHolder<CraftingRecipe> r : CraftingUtil.getRecipeList()) {
+            if (r.value().matches(craftingInput, getLevel())) {
+                list.add(r);
+            }
+        }
+        if (list.size() > 1) {
+            boolean found = false;
+            RecipeHolder<CraftingRecipe> prev = null;
+            for (RecipeHolder<CraftingRecipe> recipe : list) {
+                if (found) {
+                    cache = recipe;
+                    break;
+                }
+                craftInv = new AutoCraftingContainer(null);
+                for (int i = 0; i < 9; i++) {
+                    craftInv.setItem(i, matrix.getItem(i));
+                }
+                craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
+                if (targetType == ItemIdentifier.get(recipe.value().assemble(craftingInput))) {
+                    if (down) {
+                        found = true;
+                    } else {
+                        cache = Objects.requireNonNullElseGet(prev, list::getLast);
+                        break;
+                    }
+                }
+                prev = recipe;
+            }
+            if (cache == null) {
+                cache = list.getFirst();
+            }
+            craftInv = new AutoCraftingContainer(null);
+            for (int i = 0; i < 9; i++) {
+                craftInv.setItem(i, matrix.getItem(i));
+            }
+            craftingInput = CraftingInput.of(3, 3, craftInv.getItems());
+            targetType = ItemIdentifier.get(cache.value().assemble(craftingInput));
+        }
+        if (!localGuiWatcher.isEmpty() && getLevel() != null && !getLevel().isClientSide()) {
+            localGuiWatcher.send(new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
+        }
+        cacheRecipe();
+    }
+
+    public ItemStack getOutput(boolean oreDict) {
+        if (cache == null) {
+            cacheRecipe();
+            if (cache == null) {
+                return ItemStack.EMPTY;
+            }
+        }
+        if (resultInv.getIDStackInSlot(0) == null) {
+            return ItemStack.EMPTY;
+        }
+
+        int[] toUse = new int[9];
+        int[] used = new int[inv.getContainerSize()];
+        outer:
+        for (int i = 0; i < 9; i++) {
+            ItemStack item = matrix.getItem(i);
+            if (item.isEmpty()) {
+                toUse[i] = -1;
+                continue;
+            }
+            ItemIdentifier ident = ItemIdentifier.get(item);
+            for (int j = 0; j < inv.getContainerSize(); j++) {
+                item = inv.getItem(j);
+                if (item.isEmpty()) {
+                    continue;
+                }
+                ItemIdentifier withIdent = ItemIdentifier.get(item);
+                if (ident.equalsForCrafting(withIdent)) {
+                    if (item.getCount() > used[j]) {
+                        used[j]++;
+                        toUse[i] = j;
+                        continue outer;
+                    }
+                }
+                if (oreDict) {
+                    if (ident.getDictIdentifiers() != null && withIdent.getDictIdentifiers() != null
+                        && ident.getDictIdentifiers().canMatch(withIdent.getDictIdentifiers(), true, false)) {
+                        if (item.getCount() > used[j]) {
+                            used[j]++;
+                            toUse[i] = j;
+                            continue outer;
+                        }
+                    }
+                }
+            }
+            //Not enough material
+            return ItemStack.EMPTY;
+        }
+        AutoCraftingContainer crafter = new AutoCraftingContainer(null);
+        for (int i = 0; i < 9; i++) {
+            int j = toUse[i];
+            if (j != -1) {
+                crafter.setItem(i, inv.getItem(j));
+            }
+        }
+        var craftingInput = CraftingInput.of(3, 3, crafter.getItems());
+        if (!cache.value().matches(craftingInput, getLevel())) {
+            return ItemStack.EMPTY; //Fix MystCraft
+        }
+        ItemStack result = cache.value().assemble(craftingInput);
+        if (result.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        if (!resultInv.getIDStackInSlot(0).getItem().equalsWithoutNBT(ItemIdentifier.get(result))) {
+            return ItemStack.EMPTY;
+        }
+        crafter = new AutoCraftingContainer(null);
+        for (int i = 0; i < 9; i++) {
+            int j = toUse[i];
+            if (j != -1) {
+                crafter.setItem(i, inv.removeItem(j, 1));
+            }
+        }
+        craftingInput = CraftingInput.of(3, 3, crafter.getItems());
+        result = cache.value().assemble(craftingInput);
+        if (fake == null) {
+            fake = FakePlayers.of(getLevel());
+        }
+        result = result.copy();
+
+        ResultSlot craftingSlot = new ResultSlot(fake, crafter, resultInv, 0, 0, 0);
+        vanillaResult.setRecipeUsed(cache);
+        craftingSlot.onTake(fake, result);
+        for (int i = 0; i < 9; i++) {
+            ItemStack left = crafter.getItem(i);
+            crafter.setItem(i, ItemStack.EMPTY);
+            if (!left.isEmpty()) {
+                left.setCount(inv.addCompressed(left, false));
+                if (left.getCount() > 0) {
+                    ItemIdentifierInventory.dropItems(getLevel(), left, getPos().getX(), getPos().getY(),
+                        getPos().getZ());
+                }
+            }
+        }
+        for (int i = 0; i < fake.getInventory().getContainerSize(); i++) {
+            ItemStack left = fake.getInventory().getItem(i);
+            fake.getInventory().setItem(i, ItemStack.EMPTY);
+            if (!left.isEmpty()) {
+                left.setCount(inv.addCompressed(left, false));
+                if (left.getCount() > 0) {
+                    ItemIdentifierInventory.dropItems(getLevel(), left, getPos().getX(), getPos().getY(),
+                        getPos().getZ());
+                }
+            }
+        }
+        return result;
+    }
+
+    public ItemStack getResultForClick() {
+        if (!getLevel().isClientSide()) {
+            ItemStack result = getOutput(true);
+            if (result.isEmpty()) {
+                result = getOutput(false);
+            }
+            if (result.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+            result.setCount(inv.addCompressed(result, false));
+            if (result.getCount() > 0) {
+                return result;
+            }
+            return ItemStack.EMPTY;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void InventoryChanged(Container inventory) {
+        if (inventory == matrix) {
+            cacheRecipe();
+            markTileDirty();
+        }
+    }
+
+    @Override
+    public void handleRecipeViewerImport(NonNullList<ItemStack> content) {
+        if (matrix.getContainerSize() != content.size()) {
+            throw new IllegalStateException("Different sizes of matrix and inventory from packet");
+        }
+        for (int i = 0; i < content.size(); i++) {
+            matrix.setItem(i, content.get(i));
+        }
+        matrix.setChanged();
+    }
+
+    @Override
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
+        inv.deserialize(input, "inv");
+        matrix.deserialize(input, "matrix");
+        toSortInv.deserialize(input, "toSortInv");
+        diskInv.deserialize(input, "diskInv");
+        rotation = input.getIntOr("blockRotation", 0);
+        // cacheRecipe() skipped here — world/registry not available during NBT load; cache is rebuilt lazily on first use
+        //cacheRecipe();
+    }
+
+    @Override
+    public void serialize(ValueOutput output) {
+        super.serialize(output);
+        inv.serialize(output, "inv");
+        matrix.serialize(output, "matrix");
+        toSortInv.serialize(output, "toSortInv");
+        diskInv.serialize(output, "diskInv");
+        output.putInt("blockRotation", rotation);
+    }
+
+    @Override
+    public boolean isOnSameContainer(CoreRoutedPipe other) {
+        return false;
+    }
+
+    @Override
+    public TransportLayer getTransportLayer() {
+        if (transportLayer == null) {
+            transportLayer = new TransportLayer() {
+
+                @Override
+                public void handleItem(IRoutedItem item) {
+                    PipeBlockRequestTable.this.notifyOfItemArrival(item.getInfo());
+                    if (item.getItemIdentifierStack() != null) {
+                        ItemIdentifierStack stack = item.getItemIdentifierStack();
+                        stack.setStackSize(inv.addCompressed(stack.makeNormalStack(), false));
+                    }
+                }
+
+                @Override
+                public @Nullable Direction itemArrived(IRoutedItem item, @Nullable Direction denied) {
+                    return null;
+                }
+
+                @Override
+                public boolean stillWantItem(IRoutedItem item) {
+                    return false;
+                }
+            };
+        }
+        return transportLayer;
+    }
+
+    @Override
+    public void handleOrderList(@Nullable IResource stack, LinkedLogisticsOrderList orders) {
+        if (!getUpgradeManager().hasCraftingMonitoringUpgrade()) {
+            return;
+        }
+        orders.setWatched();
+        watchedRequests.put(++localLastUsedWatcherId, new Pair<>(stack, orders));
+        localGuiWatcher.send(new OrderWatchMessage(getPos(), localLastUsedWatcherId,
+            Optional.ofNullable(stack), orders));
+    }
+
+    @Override
+    public void screenOpenedByPlayer(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, new OrdererWatchRemoveMessage(getPos(), -1));
+        }
+        if (player instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer,
+                new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
+        }
+        localGuiWatcher.add(player);
+        for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                PacketDistributor.sendToPlayer(serverPlayer, new OrderWatchMessage(getPos(), entry.getKey(),
+                    Optional.ofNullable(entry.getValue().getValue1()), entry.getValue().getValue2()));
+            }
+        }
+    }
+
+    @Override
+    public void screenClosedByPlayer(Player player) {
+        localGuiWatcher.remove(player);
+    }
+
+    @Override
+    public void handleClientSideListInfo(int id, IResource stack, LinkedLogisticsOrderList orders) {
+        if (getLevel().isClientSide()) {
+            watchedRequests.put(id, new Pair<>(stack, orders));
+        }
+    }
+
+    @Override
+    public void handleClientSideRemove(int id) {
+        if (getLevel().isClientSide()) {
+            if (id == -1) {
+                watchedRequests.clear();
+            } else {
+                watchedRequests.remove(id);
+            }
+        }
+    }
+
+    @Override
+    public ItemStack getDisk() {
+        return diskInv.getItem(0);
+    }
+
+    @Override
+    public int getRotation() {
+        return rotation;
+    }
+
+    @Override
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
+    }
+
+    @SubscribeEvent
+    public void onWorldUnload(LevelEvent.Unload worldEvent) {
+        if (fake != null && fake.level() == worldEvent.getLevel()) {
+            fake = null;
+        }
+    }
+
+    @Override
+    public boolean isPipeBlock() {
+        return true;
+    }
+
+    /**
+     * Break and hit particles come from the block body's texture, not the pipe frame's, since
+     * the frame is never drawn for this pipe.
+     */
+    @Override
+    public Identifier getParticleSprite() {
+        return LPConstants.rl("blocks/requesttable/requesttexture");
+    }
+}

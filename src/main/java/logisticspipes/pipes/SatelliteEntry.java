@@ -13,8 +13,8 @@ import net.minecraft.network.codec.StreamCodec;
 public record SatelliteEntry(String name, UUID routerId) {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SatelliteEntry> STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.STRING_UTF8, SatelliteEntry::name,
-                    UUIDUtil.STREAM_CODEC, SatelliteEntry::routerId,
-                    SatelliteEntry::new);
+        StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, SatelliteEntry::name,
+            UUIDUtil.STREAM_CODEC, SatelliteEntry::routerId,
+            SatelliteEntry::new);
 }
