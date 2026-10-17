@@ -322,9 +322,9 @@ public class LPLanguageProvider extends LanguageProvider {
         for (MinMode mode : MinMode.values()) {
             add(Screen.enumValue("fluid_supplier_mk2.min_amount", mode), switch (mode) {
                 case NONE -> "None";
-                case ONEBUCKET -> "1 Bucket";
-                case TWOBUCKET -> "2 Buckets";
-                case FIVEBUCKET -> "5 Buckets";
+                case ONE_BUCKET -> "1 Bucket";
+                case TWO_BUCKET -> "2 Buckets";
+                case FIVE_BUCKET -> "5 Buckets";
             });
         }
         for (SatelliteNamingResult result : SatelliteNamingResult.values()) {

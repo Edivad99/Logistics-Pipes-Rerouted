@@ -1,0 +1,76 @@
+package logisticspipes.pipes;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import logisticspipes.api.util.ITankUtil;
+import logisticspipes.textures.Textures;
+import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.transport.PipeFluidTransportLogistics;
+
+public class PipeFluidExtractor extends PipeFluidInsertion {
+
+    private static final int flowRate = 500;
+    private static final int energyPerFlow = 5;
+    private int[] liquidToExtract = new int[6];
+
+    public PipeFluidExtractor(Item item) {
+        super(item);
+    }
+
+    @Override
+    public void enabledUpdateEntity() {
+        super.enabledUpdateEntity();
+        if (!isNthTick(10)) {
+            return;
+        }
+        PipeFluidUtil.getAdjacentTanks(this, false)
+            .forEach(tankData -> extractFrom(tankData.getValue2(), tankData.getValue1().getDirection()));
+    }
+
+    private void extractFrom(ITankUtil container, Direction side) {
+        int sideID = side.ordinal();
+        FluidStack contained = ((PipeFluidTransportLogistics) transport).getFluidInSideTank(side);
+        int amountMissing =
+            ((PipeFluidTransportLogistics) transport).getSideCapacity() - (contained != null && !contained.isEmpty() ?
+                contained.getAmount() :
+                0);
+        if (liquidToExtract[sideID] < Math.min(PipeFluidExtractor.flowRate, amountMissing)) {
+            if (this.useEnergy(PipeFluidExtractor.energyPerFlow)) {
+                liquidToExtract[sideID] += Math.min(PipeFluidExtractor.flowRate, amountMissing);
+            }
+        }
+        FluidStack extracted = container.drain(Math.min(liquidToExtract[sideID], PipeFluidExtractor.flowRate), false);
+
+        int inserted = 0;
+        if (extracted != null) {
+            inserted = ((PipeFluidTransportLogistics) transport).fill(side, extracted, true);
+            container.drain(inserted, true);
+        }
+        liquidToExtract[sideID] -= inserted;
+    }
+
+    @Override
+    public void serialize(ValueOutput output) {
+        super.serialize(output);
+        output.putIntArray("liquidToExtract", liquidToExtract);
+    }
+
+    @Override
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
+        liquidToExtract = input.getIntArray("liquidToExtract").orElse(new int[0]);
+        if (liquidToExtract.length < 6) {
+            liquidToExtract = new int[6];
+        }
+    }
+
+    @Override
+    public TextureType getCenterTexture() {
+        return Textures.LOGISTICSPIPE_LIQUID_EXTRACTOR;
+    }
+}
