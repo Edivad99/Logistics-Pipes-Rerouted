@@ -1,6 +1,7 @@
 package logisticspipes.pipes.upgrades;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -13,9 +14,7 @@ import net.minecraft.world.item.component.CustomData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
 
 public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 
@@ -51,23 +50,13 @@ public class ConnectionUpgradeConfig implements IConfigPipeUpgrade {
 	}
 
 	@Override
-	public boolean isAllowedForPipe(CoreRoutedPipe pipe) {
-		return true;
+	public List<UpgradeTarget> getAllowedPipes() {
+		return List.of(UpgradeTarget.ALL);
 	}
 
 	@Override
-	public boolean isAllowedForModule(LogisticsModule pipe) {
-		return false;
-	}
-
-	@Override
-	public String[] getAllowedPipes() {
-		return new String[] { "all" };
-	}
-
-	@Override
-	public String[] getAllowedModules() {
-		return new String[] {};
+	public List<UpgradeTarget> getAllowedModules() {
+		return List.of();
 	}
 
 	@Override

@@ -1,9 +1,6 @@
 package logisticspipes.pipes.upgrades;
 
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.modules.ModuleCrafter;
-import logisticspipes.pipes.PipeItemsCraftingLogistics;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
+import java.util.List;
 
 public class CraftingCleanupUpgrade implements IPipeUpgrade {
 
@@ -17,22 +14,12 @@ public class CraftingCleanupUpgrade implements IPipeUpgrade {
 	}
 
 	@Override
-	public boolean isAllowedForPipe(CoreRoutedPipe pipe) {
-		return pipe instanceof PipeItemsCraftingLogistics;
+	public List<UpgradeTarget> getAllowedPipes() {
+		return List.of(UpgradeTarget.CRAFTING);
 	}
 
 	@Override
-	public boolean isAllowedForModule(LogisticsModule pipe) {
-		return pipe instanceof ModuleCrafter;
-	}
-
-	@Override
-	public String[] getAllowedPipes() {
-		return new String[] { "crafting" };
-	}
-
-	@Override
-	public String[] getAllowedModules() {
-		return new String[] { "crafting" };
+	public List<UpgradeTarget> getAllowedModules() {
+		return List.of(UpgradeTarget.CRAFTING);
 	}
 }

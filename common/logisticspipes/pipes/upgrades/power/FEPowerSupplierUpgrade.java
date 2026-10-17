@@ -1,8 +1,9 @@
 package logisticspipes.pipes.upgrades.power;
 
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
+import java.util.List;
+
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
+import logisticspipes.pipes.upgrades.UpgradeTarget;
 
 public class FEPowerSupplierUpgrade implements IPipeUpgrade {
 
@@ -16,22 +17,12 @@ public class FEPowerSupplierUpgrade implements IPipeUpgrade {
 	}
 
 	@Override
-	public boolean isAllowedForPipe(CoreRoutedPipe pipe) {
-		return true;
+	public List<UpgradeTarget> getAllowedPipes() {
+		return List.of(UpgradeTarget.ALL);
 	}
 
 	@Override
-	public boolean isAllowedForModule(LogisticsModule pipe) {
-		return false;
-	}
-
-	@Override
-	public String[] getAllowedPipes() {
-		return new String[] { "all" };
-	}
-
-	@Override
-	public String[] getAllowedModules() {
-		return new String[] {};
+	public List<UpgradeTarget> getAllowedModules() {
+		return List.of();
 	}
 }

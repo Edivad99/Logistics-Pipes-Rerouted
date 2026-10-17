@@ -24,6 +24,7 @@ import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
 import logisticspipes.network.to_server.config.SetHudSettingMessage.HudSetting;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
 import logisticspipes.pipes.SatelliteNamingResult;
+import logisticspipes.pipes.upgrades.UpgradeTarget;
 import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.world.item.LPItems;
@@ -237,16 +238,21 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Tooltip.UPGRADE_MODULES, "Can be applied to %s modules");
         add(Tooltip.UPGRADE_AND_MODULES, "and %s modules");
         add(Tooltip.UPGRADE_TARGETS_AND, "%s and %s");
-        add(Tooltip.upgradeTarget("all"), "All");
-        add(Tooltip.upgradeTarget("basic"), "Basic");
-        add(Tooltip.upgradeTarget("crafting"), "Crafting");
-        add(Tooltip.upgradeTarget("provider"), "Provider");
-        add(Tooltip.upgradeTarget("supplier"), "Supplier");
-        add(Tooltip.upgradeTarget("chassis"), "Chassis");
-        add(Tooltip.upgradeTarget("requestblock"), "Request Block");
-        add(Tooltip.upgradeTarget("itemsink"), "Item Sink");
-        add(Tooltip.upgradeTarget("extractor"), "Extractor");
-        add(Tooltip.upgradeTarget("aextractor"), "Advanced Extractor");
+        for (UpgradeTarget target : UpgradeTarget.values()) {
+            add(Tooltip.upgradeTarget(target), switch (target) {
+                case ALL -> "All";
+                case BASIC -> "Basic";
+                case CRAFTING -> "Crafting";
+                case PROVIDER -> "Provider";
+                case SUPPLIER -> "Supplier";
+                case CHASSIS -> "Chassis";
+                case REQUEST_BLOCK -> "Request Block";
+                case ITEM_SINK -> "Item Sink";
+                case SINK -> "Sink";
+                case EXTRACTOR -> "Extractor";
+                case ADVANCED_EXTRACTOR -> "Advanced Extractor";
+            });
+        }
         add(Tooltip.ROUTED_ITEM, "Item with stored LogisticsPipes routing information");
         add(Tooltip.ROUTED_ITEM_INFO, "Drop to remove routing information and get original items back");
         add(Tooltip.ROUTED_ITEM_STORED, "Stored item: %s");

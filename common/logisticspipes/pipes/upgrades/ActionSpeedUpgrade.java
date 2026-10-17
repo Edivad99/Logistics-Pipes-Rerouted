@@ -1,9 +1,6 @@
 package logisticspipes.pipes.upgrades;
 
-import logisticspipes.modules.AsyncAdvancedExtractor;
-import logisticspipes.modules.AsyncExtractorModule;
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
+import java.util.List;
 
 public class ActionSpeedUpgrade implements IPipeUpgrade {
 
@@ -17,22 +14,12 @@ public class ActionSpeedUpgrade implements IPipeUpgrade {
 	}
 
 	@Override
-	public boolean isAllowedForPipe(CoreRoutedPipe pipe) {
-		return false;
+	public List<UpgradeTarget> getAllowedPipes() {
+		return List.of();
 	}
 
 	@Override
-	public boolean isAllowedForModule(LogisticsModule module) {
-		return module instanceof AsyncExtractorModule || module instanceof AsyncAdvancedExtractor;
-	}
-
-	@Override
-	public String[] getAllowedPipes() {
-		return new String[] {};
-	}
-
-	@Override
-	public String[] getAllowedModules() {
-		return new String[] { "extractor", "aextractor" };
+	public List<UpgradeTarget> getAllowedModules() {
+		return List.of(UpgradeTarget.EXTRACTOR, UpgradeTarget.ADVANCED_EXTRACTOR);
 	}
 }

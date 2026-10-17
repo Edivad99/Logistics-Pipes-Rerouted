@@ -1,6 +1,5 @@
 package logisticspipes.world.item;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -21,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.Translations;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
+import logisticspipes.pipes.upgrades.UpgradeTarget;
 import logisticspipes.utils.TextUtil;
 
 public class ItemUpgrade extends LogisticsItem {
@@ -77,8 +77,8 @@ public class ItemUpgrade extends LogisticsItem {
         if (upgrade == null) {
             return;
         }
-        List<String> pipe = Arrays.asList(upgrade.getAllowedPipes());
-        List<String> module = Arrays.asList(upgrade.getAllowedModules());
+        List<UpgradeTarget> pipe = upgrade.getAllowedPipes();
+        List<UpgradeTarget> module = upgrade.getAllowedModules();
         if (pipe.isEmpty() && module.isEmpty()) {
             return;
         }
@@ -96,13 +96,13 @@ public class ItemUpgrade extends LogisticsItem {
         }
     }
 
-    private static Component targetLine(String key, List<String> targets) {
+    private static Component targetLine(String key, List<UpgradeTarget> targets) {
         return Component.translatable(key, join(targets).withStyle(ChatFormatting.YELLOW))
             .withStyle(ChatFormatting.GRAY);
     }
 
     /** "a", "a and b", "a, b and c". */
-    private static MutableComponent join(List<String> targets) {
+    private static MutableComponent join(List<UpgradeTarget> targets) {
         MutableComponent result = Component.empty();
         for (int i = 0; i < targets.size() - 2; i++) {
             result.append(Component.translatable(Translations.Tooltip.upgradeTarget(targets.get(i)))).append(", ");

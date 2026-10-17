@@ -1,6 +1,7 @@
 package logisticspipes.pipes.upgrades;
 
 import java.util.Arrays;
+import java.util.List;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -12,14 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.modules.ModuleCreativeTabBasedItemSink;
-import logisticspipes.modules.ModuleItemSink;
-import logisticspipes.modules.ModuleModBasedItemSink;
-import logisticspipes.modules.ModuleOreDictItemSink;
-import logisticspipes.modules.ModulePolymorphicItemSink;
 import logisticspipes.network.to_client.pipe.UpgradeConfigPopupMessage;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
 
 public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 
@@ -58,24 +52,13 @@ public class SneakyUpgradeConfig implements IConfigPipeUpgrade {
 	}
 
 	@Override
-	public boolean isAllowedForPipe(CoreRoutedPipe pipe) {
-		return true;
+	public List<UpgradeTarget> getAllowedPipes() {
+		return List.of(UpgradeTarget.ALL);
 	}
 
 	@Override
-	public boolean isAllowedForModule(LogisticsModule module) {
-		return module instanceof ModuleItemSink || module instanceof ModulePolymorphicItemSink || module instanceof ModuleModBasedItemSink
-				|| module instanceof ModuleOreDictItemSink || module instanceof ModuleCreativeTabBasedItemSink;
-	}
-
-	@Override
-	public String[] getAllowedPipes() {
-		return new String[] { "all" };
-	}
-
-	@Override
-	public String[] getAllowedModules() {
-		return new String[] { "itemsink" };
+	public List<UpgradeTarget> getAllowedModules() {
+		return List.of(UpgradeTarget.SINK);
 	}
 
 	@Override

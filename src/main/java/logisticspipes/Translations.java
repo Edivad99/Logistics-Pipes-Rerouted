@@ -44,9 +44,9 @@ public final class Translations {
         private Tooltip() {
         }
 
-        /** The name of what an upgrade applies to, as {@code IPipeUpgrade} lists it. */
-        public static String upgradeTarget(String target) {
-            return makeKey("tooltip", "upgrade.target." + target);
+        /** The name of what an upgrade applies to, an {@code UpgradeTarget}. */
+        public static String upgradeTarget(Enum<?> target) {
+            return makeKey("tooltip", "upgrade.target." + target.name().toLowerCase(Locale.ROOT));
         }
 
         /** Line {@code line} (from 1) of the extended tooltip of the item with this description id. */

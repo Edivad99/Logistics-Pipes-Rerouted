@@ -1,9 +1,6 @@
 package logisticspipes.pipes.upgrades;
 
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.modules.ModuleActiveSupplier;
-import logisticspipes.pipes.PipeItemsSupplierLogistics;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
+import java.util.List;
 
 public class PatternUpgrade implements IPipeUpgrade {
 
@@ -17,22 +14,12 @@ public class PatternUpgrade implements IPipeUpgrade {
 	}
 
 	@Override
-	public boolean isAllowedForPipe(CoreRoutedPipe pipe) {
-		return pipe instanceof PipeItemsSupplierLogistics;
+	public List<UpgradeTarget> getAllowedPipes() {
+		return List.of(UpgradeTarget.SUPPLIER);
 	}
 
 	@Override
-	public boolean isAllowedForModule(LogisticsModule pipe) {
-		return pipe instanceof ModuleActiveSupplier;
-	}
-
-	@Override
-	public String[] getAllowedPipes() {
-		return new String[] { "supplier" };
-	}
-
-	@Override
-	public String[] getAllowedModules() {
-		return new String[] {};
+	public List<UpgradeTarget> getAllowedModules() {
+		return List.of(UpgradeTarget.SUPPLIER);
 	}
 }

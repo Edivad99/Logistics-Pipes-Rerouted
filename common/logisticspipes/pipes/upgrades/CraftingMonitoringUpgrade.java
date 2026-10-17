@@ -1,8 +1,6 @@
 package logisticspipes.pipes.upgrades;
 
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.pipes.PipeBlockRequestTable;
-import logisticspipes.pipes.basic.CoreRoutedPipe;
+import java.util.List;
 
 public class CraftingMonitoringUpgrade implements IPipeUpgrade {
 
@@ -16,22 +14,12 @@ public class CraftingMonitoringUpgrade implements IPipeUpgrade {
 	}
 
 	@Override
-	public boolean isAllowedForPipe(CoreRoutedPipe pipe) {
-		return pipe instanceof PipeBlockRequestTable;
+	public List<UpgradeTarget> getAllowedPipes() {
+		return List.of(UpgradeTarget.REQUEST_BLOCK);
 	}
 
 	@Override
-	public boolean isAllowedForModule(LogisticsModule pipe) {
-		return false;
-	}
-
-	@Override
-	public String[] getAllowedPipes() {
-		return new String[] { "requestblock" };
-	}
-
-	@Override
-	public String[] getAllowedModules() {
-		return new String[] {};
+	public List<UpgradeTarget> getAllowedModules() {
+		return List.of();
 	}
 }
