@@ -292,8 +292,16 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
      * Block-local VoxelShape of a multiblock tube for one block cell, built from the pipe's
      * world-space collision boxes ({@link CoreMultiBlockPipe#addCollisionBoxesToList}).
      * Returns {@link Shapes#empty()} when no box touches the cell.
+     *
+     * <p>Entity collision asks for this every tick for every cell an entity overlaps, and an
+     * S-curve is about fifty boxes that {@link Shapes#or} folds together one at a time, so the
+     * shape is built once per cell and kept on the pipe.
      */
     public static VoxelShape getMultiBlockShape(CoreMultiBlockPipe pipe, BlockPos cell) {
+        return pipe.getCellShape(cell, LogisticsGenericPipeBlock::buildMultiBlockShape);
+    }
+
+    private static VoxelShape buildMultiBlockShape(CoreMultiBlockPipe pipe, BlockPos cell) {
         List<AABB> boxes = new ArrayList<>();
         pipe.addCollisionBoxesToList(boxes, new AABB(cell));
         VoxelShape shape = Shapes.empty();

@@ -32,7 +32,8 @@ public class HSTubeGain extends CoreMultiBlockPipe {
 
     @Getter
     private TubeGainOrientation orientation;
-    private final List<AABB> boxes = new ArrayList<>();
+    // Filled lazily and read from the chunk builder threads too, so it is built aside and swapped in whole.
+    private volatile List<AABB> boxes = List.of();
 
     public HSTubeGain(Item item) {
         super(new PipeMultiBlockTransportLogistics(), item);
@@ -82,7 +83,9 @@ public class HSTubeGain extends CoreMultiBlockPipe {
 
     @Override
     public void addCollisionBoxesToList(List<AABB> arraylist, @Nullable AABB area) {
-        if (boxes.isEmpty()) {
+        List<AABB> cached = boxes;
+        if (cached.isEmpty()) {
+            List<AABB> built = new ArrayList<>();
             final BlockPos tubePos = getPos();
             double x = tubePos.getX();
             double y = tubePos.getY();
@@ -141,11 +144,13 @@ public class HSTubeGain extends CoreMultiBlockPipe {
                     double maxX = Math.min(box.maxX, cBox.maxX);
                     double maxY = Math.min(box.maxY, cBox.maxY);
                     double maxZ = Math.min(box.maxZ, cBox.maxZ);
-                    boxes.add(new AABB(minX, minY, minZ, maxX, maxY, maxZ).move(x, y, z));
+                    built.add(new AABB(minX, minY, minZ, maxX, maxY, maxZ).move(x, y, z));
                 }
             }
+            cached = List.copyOf(built);
+            boxes = cached;
         }
-        arraylist.addAll(boxes.stream()
+        arraylist.addAll(cached.stream()
             .filter(box -> area == null || area.intersects(box))
             .toList());
     }

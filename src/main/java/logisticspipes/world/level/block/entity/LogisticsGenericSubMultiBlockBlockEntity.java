@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import com.mojang.serialization.Codec;
 import org.jspecify.annotations.Nullable;
@@ -39,6 +41,10 @@ public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
     private @Nullable List<LogisticsGenericPipeBlockEntity> mainPipe;
     private List<CoreMultiBlockPipe.SubBlockTypeForShare> subTypes = new ArrayList<>();
     private TileBuffer @Nullable [] tileBuffer;
+    private volatile @Nullable ShapeUnion shapeUnion;
+
+    /** A union {@link #unionOf} built, with the shapes it was built from. */
+    private record ShapeUnion(List<VoxelShape> parts, VoxelShape shape) {}
 
     public LogisticsGenericSubMultiBlockBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(LPBlockEntityTypes.SUB_PIPE.get(), blockPos, blockState);
@@ -154,6 +160,36 @@ public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
             }
         }
         return result;
+    }
+
+    /**
+     * Union of the cell shapes of the tubes sharing this block. Particles and entities ask for it
+     * every tick and {@link Shapes#or} re-optimizes the result each time, so the last union is
+     * kept for as long as the tubes hand back the same cached shapes.
+     */
+    public VoxelShape unionOf(List<VoxelShape> parts) {
+        ShapeUnion cached = shapeUnion;
+        if (cached != null && sameShapes(cached.parts(), parts)) {
+            return cached.shape();
+        }
+        VoxelShape shape = parts.getFirst();
+        for (int i = 1; i < parts.size(); i++) {
+            shape = Shapes.or(shape, parts.get(i));
+        }
+        shapeUnion = new ShapeUnion(List.copyOf(parts), shape);
+        return shape;
+    }
+
+    private static boolean sameShapes(List<VoxelShape> a, List<VoxelShape> b) {
+        if (a.size() != b.size()) {
+            return false;
+        }
+        for (int i = 0; i < a.size(); i++) {
+            if (a.get(i) != b.get(i)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public List<CoreMultiBlockPipe.SubBlockTypeForShare> getSubTypes() {

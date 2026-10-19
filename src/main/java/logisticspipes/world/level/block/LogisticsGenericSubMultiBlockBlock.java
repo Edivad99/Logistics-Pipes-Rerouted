@@ -1,5 +1,6 @@
 package logisticspipes.world.level.block;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,14 +54,17 @@ public class LogisticsGenericSubMultiBlockBlock extends Block implements EntityB
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         BlockEntity tile = world.getBlockEntity(pos);
         if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
-            VoxelShape shape = Shapes.empty();
+            List<VoxelShape> parts = new ArrayList<>(2);
             for (LogisticsGenericPipeBlockEntity mainPipe : multiBlock.getConnectedMainPipes()) {
                 if (mainPipe.isMultiBlock() && mainPipe.pipe instanceof CoreMultiBlockPipe multiBlockPipe) {
-                    shape = Shapes.or(shape, LogisticsGenericPipeBlock.getMultiBlockShape(multiBlockPipe, pos));
+                    VoxelShape cellShape = LogisticsGenericPipeBlock.getMultiBlockShape(multiBlockPipe, pos);
+                    if (!cellShape.isEmpty()) {
+                        parts.add(cellShape);
+                    }
                 }
             }
-            if (!shape.isEmpty()) {
-                return shape;
+            if (!parts.isEmpty()) {
+                return multiBlock.unionOf(parts);
             }
         }
         return FALLBACK_SHAPE;

@@ -2,6 +2,9 @@ package logisticspipes.pipes.basic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.Nullable;
 
@@ -35,8 +39,27 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
         allowedCombinations.add(new Pair<>(SubBlockTypeForShare.GAIN_A, SubBlockTypeForShare.GAIN_A));
     }
 
+    /**
+     * Block-local shapes of the cells this pipe covers. Like the collision boxes they are built
+     * from, they never change once the pipe is placed. Collision runs on worker threads too.
+     */
+    private final Map<BlockPos, VoxelShape> cellShapes = new ConcurrentHashMap<>();
+
     public CoreMultiBlockPipe(PipeMultiBlockTransportLogistics transport, Item item) {
         super(transport, item);
+    }
+
+    public VoxelShape getCellShape(BlockPos cell, BiFunction<CoreMultiBlockPipe, BlockPos, VoxelShape> builder) {
+        VoxelShape shape = cellShapes.get(cell);
+        if (shape == null) {
+            shape = builder.apply(this, cell);
+            // Empty can also mean the orientation has not arrived yet, so it is asked again.
+            if (!shape.isEmpty()) {
+                // Collision passes a mutable position.
+                cellShapes.put(cell.immutable(), shape);
+            }
+        }
+        return shape;
     }
 
     public static boolean canShare(List<SubBlockTypeForShare> list, @Nullable SubBlockTypeForShare toAdd) {
