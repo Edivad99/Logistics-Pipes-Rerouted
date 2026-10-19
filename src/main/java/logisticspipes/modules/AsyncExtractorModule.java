@@ -241,8 +241,12 @@ public class AsyncExtractorModule extends AsyncModule<ExtractorJob, @Nullable Vo
 
         @Override
         public void renderContent(HUDDrawContext context, boolean shifted) {
-            // TODO: deferred -- this panel has never drawn anything; the sneaky direction still
-            // needs a line of text through context.drawString.
+            // The font comes from the context rather than Minecraft, so the module (which the server
+            // loads too) does not reference a client-only class.
+            Direction d = module.getSneakyDirection();
+            context.drawString("Extract", -19, -22, 0xFF404040, false);
+            context.drawString("from:", -19, -9, 0xFF404040, false);
+            context.drawString(d == null ? "Default" : d.getName(), -19, 18, 0xFF404040, false);
         }
 
         @Override
