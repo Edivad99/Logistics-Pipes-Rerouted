@@ -28,93 +28,98 @@ import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
 
 public class ModuleFluidSupplier extends LogisticsModule
-		implements IClientInformationProvider, SimpleFilter, IModuleMenuProvider {
+    implements IClientInformationProvider, SimpleFilter, IModuleMenuProvider {
 
-	private final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(9, "Requested liquids", 1), "filterInv");
+    private final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
+        new ItemIdentifierInventory(9, "Requested liquids", 1), "filterInv");
 
-	/** Built in {@link #registerPosition}, which runs when the module is installed. */
-	private @Nullable SinkReply sinkReply;
+    /**
+     * Built in {@link #registerPosition}, which runs when the module is installed.
+     */
+    private @Nullable SinkReply sinkReply;
 
-	@Override
-	public String getLPName() {
-		throw new RuntimeException("Cannot get LP name for " + this);
-	}
+    @Override
+    public String getLPName() {
+        throw new RuntimeException("Cannot get LP name for " + this);
+    }
 
-	@Override
-	public List<Property<?>> getProperties() {
-		return Collections.singletonList(filterInventory);
-	}
+    @Override
+    public List<Property<?>> getProperties() {
+        return Collections.singletonList(filterInventory);
+    }
 
-	public Container getFilterInventory() {
-		return filterInventory;
-	}
+    public Container getFilterInventory() {
+        return filterInventory;
+    }
 
-	@Override
-	public void registerPosition(ModulePositionType slot, int positionInt) {
-		super.registerPosition(slot, positionInt);
-		sinkReply = new SinkReply(FixedPriority.ItemSink,
-				0,
-				true,
-				false,
-				0,
-				0,
-				new ChassiTargetInformation(getPositionInt()));
-	}
+    @Override
+    public void registerPosition(ModulePositionType slot, int positionInt) {
+        super.registerPosition(slot, positionInt);
+        sinkReply = new SinkReply(FixedPriority.ItemSink,
+            0,
+            true,
+            false,
+            0,
+            0,
+            new ChassiTargetInformation(getPositionInt()));
+    }
 
-	@Override
-	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
-			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
-		if (bestPriority > reply.fixedPriority.ordinal()
-				|| (bestPriority == reply.fixedPriority.ordinal()
-				&& bestCustomPriority >= reply.customPriority)) {
-			return null;
-		}
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return null;
-		if (filterInventory.containsItem(item)) {
-			service.spawnParticle(Particles.VIOLET_SPARKLE, 2);
-			return reply;
-		}
-		return null;
-	}
+    @Override
+    public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+        boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+        final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+        if (bestPriority > reply.fixedPriority.ordinal()
+            || (bestPriority == reply.fixedPriority.ordinal()
+            && bestCustomPriority >= reply.customPriority)) {
+            return null;
+        }
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return null;
+        }
+        if (filterInventory.containsItem(item)) {
+            service.spawnParticle(Particles.VIOLET_SPARKLE, 2);
+            return reply;
+        }
+        return null;
+    }
 
-	@Override
-	public void tick() {}
+    @Override
+    public void tick() {
+    }
 
-	@Override
-	public List<String> getClientInformation() {
-		List<String> list = new ArrayList<>();
-		list.add("Supplied: ");
-		list.add("<inventory>");
-		list.add("<that>" + filterInventory.getTagKey());
-		return list;
-	}
+    @Override
+    public List<String> getClientInformation() {
+        List<String> list = new ArrayList<>();
+        list.add("Supplied: ");
+        list.add("<inventory>");
+        list.add("<that>" + filterInventory.getTagKey());
+        return list;
+    }
 
-	@Override
-	public boolean hasGenericInterests() {
-		return true;
-	}
+    @Override
+    public boolean hasGenericInterests() {
+        return true;
+    }
 
-	@Override
-	public boolean interestedInAttachedInventory() {
-		return false;
-	}
+    @Override
+    public boolean interestedInAttachedInventory() {
+        return false;
+    }
 
-	@Override
-	public boolean interestedInUndamagedID() {
-		return false;
-	}
+    @Override
+    public boolean interestedInUndamagedID() {
+        return false;
+    }
 
-	@Override
-	public boolean receivePassive() {
-		return true;
-	}
+    @Override
+    public boolean receivePassive() {
+        return true;
+    }
 
-	@Override
-	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		return new SimpleFilterMenu(LPMenuTypes.FLUID_SUPPLIER_MODULE.get(), containerId, inventory, target, this);
-	}
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+        return new SimpleFilterMenu(LPMenuTypes.FLUID_SUPPLIER_MODULE.get(), containerId, inventory, target, this);
+    }
 
 }

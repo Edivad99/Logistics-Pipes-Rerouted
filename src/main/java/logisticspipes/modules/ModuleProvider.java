@@ -80,390 +80,412 @@ import logisticspipes.world.inventory.ProviderMenu;
 
 @CCType(name = "Provider Module")
 public class ModuleProvider extends LogisticsModule implements SneakyDirection, ILegacyActiveModule,
-		IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver, IModuleInventoryReceive,
-		IModuleMenuProvider {
+    IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver, IModuleInventoryReceive,
+    IModuleMenuProvider {
 
-	public final ArrayList<@Nullable ItemIdentifierStack> displayList = new ArrayList<>();
-	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(9, "Items to provide (or empty for all)", 1), "filterInv");
-	public final BooleanProperty isActive = new BooleanProperty(false, "isActive");
-	public final BooleanProperty isExclusionFilter = new BooleanProperty(false, "filterisexclude");
-	public final EnumProperty<ProviderMode> providerMode =
-			new EnumProperty<>(ProviderMode.DEFAULT, "extractionMode", ProviderMode.values());
-	public final NullableEnumProperty<Direction> sneakyDirection =
-			new NullableEnumProperty<>(null, "sneakydirection", Direction.values());
-	public final ImmutableList<Property<?>> propertyList = ImmutableList.<Property<?>>builder()
-			.add(filterInventory)
-			.add(isActive)
-			.add(isExclusionFilter)
-			.add(providerMode)
-			.add(sneakyDirection)
-			.build();
-	private final Map<ItemIdentifier, Integer> displayMap = new TreeMap<>();
-	private final ArrayList<ItemIdentifierStack> oldList = new ArrayList<>();
-	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-	private final IHUDModuleRenderer HUD = new HUDProviderModule(this);
+    public final ArrayList<@Nullable ItemIdentifierStack> displayList = new ArrayList<>();
+    public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
+        new ItemIdentifierInventory(9, "Items to provide (or empty for all)", 1), "filterInv");
+    public final BooleanProperty isActive = new BooleanProperty(false, "isActive");
+    public final BooleanProperty isExclusionFilter = new BooleanProperty(false, "filterisexclude");
+    public final EnumProperty<ProviderMode> providerMode =
+        new EnumProperty<>(ProviderMode.DEFAULT, "extractionMode", ProviderMode.values());
+    public final NullableEnumProperty<Direction> sneakyDirection =
+        new NullableEnumProperty<>(null, "sneakydirection", Direction.values());
+    public final ImmutableList<Property<?>> propertyList = ImmutableList.<Property<?>>builder()
+        .add(filterInventory)
+        .add(isActive)
+        .add(isExclusionFilter)
+        .add(providerMode)
+        .add(sneakyDirection)
+        .build();
+    private final Map<ItemIdentifier, Integer> displayMap = new TreeMap<>();
+    private final ArrayList<ItemIdentifierStack> oldList = new ArrayList<>();
+    private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
+    private final IHUDModuleRenderer HUD = new HUDProviderModule(this);
 
-	public ModuleProvider() {}
+    public ModuleProvider() {
+    }
 
-	public static String getName() {
-		return "provider";
-	}
+    public static String getName() {
+        return "provider";
+    }
 
-	@Override
-	public String getLPName() {
-		return getName();
-	}
+    @Override
+    public String getLPName() {
+        return getName();
+    }
 
-	/**
-	 * Returns a list of all the properties of this module.
-	 */
-	@Override
-	public List<Property<?>> getProperties() {
-		return propertyList;
-	}
+    /**
+     * Returns a list of all the properties of this module.
+     */
+    @Override
+    public List<Property<?>> getProperties() {
+        return propertyList;
+    }
 
-	@Override
-	public Direction getSneakyDirection() {
-		return sneakyDirection.getValue();
-	}
+    @Override
+    public Direction getSneakyDirection() {
+        return sneakyDirection.getValue();
+    }
 
-	@Override
-	public void setSneakyDirection(@Nullable Direction direction) {
-		sneakyDirection.setValue(direction);
-		final Level level = getWorld();
-		if (level != null && !level.isClientSide()) {
-			localModeWatchers.send(new SneakyDirectionMessage(ModuleTarget.of(this),
+    @Override
+    public void setSneakyDirection(@Nullable Direction direction) {
+        sneakyDirection.setValue(direction);
+        final Level level = getLevel();
+        if (level != null && !level.isClientSide()) {
+            localModeWatchers.send(new SneakyDirectionMessage(ModuleTarget.of(this),
                 Optional.ofNullable(sneakyDirection.getValue())));
-		}
-	}
+        }
+    }
 
-	protected int neededEnergy() {
-		return (int) (1 * Math.pow(1.1, getUpgradeManager().getItemExtractionUpgrade()) * Math
-				.pow(1.2, getUpgradeManager().getItemStackExtractionUpgrade()));
-	}
+    protected int neededEnergy() {
+        return (int) (1 * Math.pow(1.1, getUpgradeManager().getItemExtractionUpgrade()) * Math
+            .pow(1.2, getUpgradeManager().getItemStackExtractionUpgrade()));
+    }
 
-	protected int itemsToExtract() {
-		return 8 * (int) Math.pow(2, getUpgradeManager().getItemExtractionUpgrade());
-	}
+    protected int itemsToExtract() {
+        return 8 * (int) Math.pow(2, getUpgradeManager().getItemExtractionUpgrade());
+    }
 
-	protected int stacksToExtract() {
-		return 1 + getUpgradeManager().getItemStackExtractionUpgrade();
-	}
+    protected int stacksToExtract() {
+        return 1 + getUpgradeManager().getItemStackExtractionUpgrade();
+    }
 
-	public ItemSendMode itemSendMode() {
-		return getUpgradeManager().getItemExtractionUpgrade() > 0 ? ItemSendMode.FAST : ItemSendMode.NORMAL;
-	}
+    public ItemSendMode itemSendMode() {
+        return getUpgradeManager().getItemExtractionUpgrade() > 0 ? ItemSendMode.FAST : ItemSendMode.NORMAL;
+    }
 
-	@Override
-	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
-			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		return null;
-	}
+    @Override
+    public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+        boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+        return null;
+    }
 
-	@Override
-	public void tick() {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return;
-		if (service.isNthTick(6)) {
-			checkUpdate(null);
-		}
-		int itemsLeft = itemsToExtract();
-		int stacksLeft = stacksToExtract();
-		LogisticsItemOrder firstOrder = null;
-		LogisticsItemOrder order = null;
-		while (itemsLeft > 0 && stacksLeft > 0 && service.getItemOrderManager().hasOrders(ResourceType.PROVIDER) && (
-				firstOrder == null || firstOrder != order)) {
-			if (firstOrder == null) {
-				firstOrder = order;
-			}
-			order = service.getItemOrderManager().peekAtTopRequest(ResourceType.PROVIDER);
-			int sent = sendStack(order.getResource().stack, itemsLeft, order.getDestination().getRouter().getSimpleID(),
-					order.getInformation());
-			if (sent < 0) {
-				break;
-			}
-			service.spawnParticle(Particles.VIOLET_SPARKLE, 3);
-			stacksLeft -= 1;
-			itemsLeft -= sent;
-		}
-	}
+    @Override
+    public void tick() {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return;
+        }
+        if (service.isNthTick(6)) {
+            checkUpdate(null);
+        }
+        int itemsLeft = itemsToExtract();
+        int stacksLeft = stacksToExtract();
+        LogisticsItemOrder firstOrder = null;
+        LogisticsItemOrder order = null;
+        while (itemsLeft > 0 && stacksLeft > 0 && service.getItemOrderManager().hasOrders(ResourceType.PROVIDER) && (
+            firstOrder == null || firstOrder != order)) {
+            if (firstOrder == null) {
+                firstOrder = order;
+            }
+            order = service.getItemOrderManager().peekAtTopRequest(ResourceType.PROVIDER);
+            int sent = sendStack(order.getResource().stack, itemsLeft, order.getDestination().getRouter().getSimpleID(),
+                order.getInformation());
+            if (sent < 0) {
+                break;
+            }
+            service.spawnParticle(Particles.VIOLET_SPARKLE, 3);
+            stacksLeft -= 1;
+            itemsLeft -= sent;
+        }
+    }
 
-	public boolean filterBlocksItem(ItemIdentifier item) {
-		if (filterInventory.isEmpty()) {
-			return false;
-		}
-		boolean isFiltered = filterInventory.containsItem(item);
-		return isExclusionFilter.getValue() == isFiltered;
-	}
+    public boolean filterBlocksItem(ItemIdentifier item) {
+        if (filterInventory.isEmpty()) {
+            return false;
+        }
+        boolean isFiltered = filterInventory.containsItem(item);
+        return isExclusionFilter.getValue() == isFiltered;
+    }
 
-	@Override
-	public void onBlockRemoval() {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return;
-		while (service.getItemOrderManager().hasOrders(ResourceType.PROVIDER)) {
-			service.getItemOrderManager().sendFailed();
-		}
-	}
+    @Override
+    public void onBlockRemoval() {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return;
+        }
+        while (service.getItemOrderManager().hasOrders(ResourceType.PROVIDER)) {
+            service.getItemOrderManager().sendFailed();
+        }
+    }
 
-	public Stream<IInventoryUtil> inventoriesWithMode() {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return Stream.empty();
-		return service.getAvailableAdjacent().inventories().stream()
-				.map(this::getInventoryUtilWithMode)
-				.filter(Objects::nonNull);
-	}
+    public Stream<IInventoryUtil> inventoriesWithMode() {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return Stream.empty();
+        }
+        return service.getAvailableAdjacent().inventories().stream()
+            .map(this::getInventoryUtilWithMode)
+            .filter(Objects::nonNull);
+    }
 
-	@Override
-	public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
-		List<ItemIdentifier> possible = new ArrayList<>();
-		if (tree.getRequestType() instanceof ItemResource) {
-			possible.add(((ItemResource) tree.getRequestType()).getItem());
-		} else if (tree.getRequestType() instanceof DictResource) {
-			possible.addAll(
-					inventoriesWithMode()
-							.map(IInventoryUtil::getItemsAndCount)
-							.flatMap(inventory -> inventory.keySet().stream())
-							.filter(item -> tree.getRequestType().matches(item, IResource.MatchSettings.NORMAL))
-							.collect(Collectors.toList())
-			);
-		}
-		for (ItemIdentifier item : possible) {
-			int canProvide = getAvailableItemCount(item);
-			canProvide -= root.getAllPromissesFor((IProvideItems) service, item);
-			canProvide = Math.min(canProvide, tree.getMissingAmount());
-			if (canProvide < 1) {
-				continue;
-			}
-			LogisticsPromise promise = new LogisticsPromise(item, canProvide, (IProvideItems) service,
-					ResourceType.PROVIDER);
-			tree.addPromise(promise);
-		}
-	}
+    @Override
+    public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
+        List<ItemIdentifier> possible = new ArrayList<>();
+        if (tree.getRequestType() instanceof ItemResource) {
+            possible.add(((ItemResource) tree.getRequestType()).getItem());
+        } else if (tree.getRequestType() instanceof DictResource) {
+            possible.addAll(
+                inventoriesWithMode()
+                    .map(IInventoryUtil::getItemsAndCount)
+                    .flatMap(inventory -> inventory.keySet().stream())
+                    .filter(item -> tree.getRequestType().matches(item, IResource.MatchSettings.NORMAL))
+                    .collect(Collectors.toList())
+            );
+        }
+        for (ItemIdentifier item : possible) {
+            int canProvide = getAvailableItemCount(item);
+            canProvide -= root.getAllPromissesFor((IProvideItems) service, item);
+            canProvide = Math.min(canProvide, tree.getMissingAmount());
+            if (canProvide < 1) {
+                continue;
+            }
+            LogisticsPromise promise = new LogisticsPromise(item, canProvide, (IProvideItems) service,
+                ResourceType.PROVIDER);
+            tree.addPromise(promise);
+        }
+    }
 
-	@Override
-	public @Nullable LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination,
-			@Nullable IAdditionalTargetInformation info) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return null;
-		service.spawnParticle(Particles.WHITE_SPARKLE, 2);
-		return service.getItemOrderManager()
-				.addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
-						ResourceType.PROVIDER, info);
-	}
+    @Override
+    public @Nullable LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination,
+        @Nullable IAdditionalTargetInformation info) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return null;
+        }
+        service.spawnParticle(Particles.WHITE_SPARKLE, 2);
+        return service.getItemOrderManager()
+            .addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
+                ResourceType.PROVIDER, info);
+    }
 
-	private int getAvailableItemCount(ItemIdentifier item) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return 0;
-		return getTotalItemCount(item) - service.getItemOrderManager().totalItemsCountInOrders(item);
-	}
+    private int getAvailableItemCount(ItemIdentifier item) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return 0;
+        }
+        return getTotalItemCount(item) - service.getItemOrderManager().totalItemsCountInOrders(item);
+    }
 
-	@Override
-	public void getAllItems(Map<ItemIdentifier, Integer> items, List<IFilter> filters) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return;
-		items.putAll(
-				inventoriesWithMode()
-						.map(IInventoryUtil::getItemsAndCount)
-						.flatMap(inventory -> inventory.entrySet().stream())
-						.filter(item -> {
-							if (items.containsKey(item.getKey()))
-								return false; // already provided by any previous module. No comparison of the amount
-							if (filterBlocksItem(item.getKey())) return false; // skip provider-filtered items
-							final boolean blockedInFilters = filters.stream().anyMatch(
-									filter -> filter.isBlocked() == filter.isFilteredItem(item.getKey().getUndamaged())
-											|| filter.blockProvider()
-							);
-							return !blockedInFilters; // skip filters-parameter-filtered items
-						})
-						.map(item ->
-								new Pair<>(item.getKey(), item.getValue() - service.getItemOrderManager()
-										.totalItemsCountInOrders(item.getKey()))
-						)
-						.filter(itemIdentAndRemaining -> itemIdentAndRemaining.getValue2()
-								> 0) // reduce what has been reserved
-						.collect(Pair.toMap(Integer::sum)) // sum up the provided amount by the inventories
-		);
-	}
+    @Override
+    public void getAllItems(Map<ItemIdentifier, Integer> items, List<IFilter> filters) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return;
+        }
+        items.putAll(
+            inventoriesWithMode()
+                .map(IInventoryUtil::getItemsAndCount)
+                .flatMap(inventory -> inventory.entrySet().stream())
+                .filter(item -> {
+                    if (items.containsKey(item.getKey())) {
+                        return false; // already provided by any previous module. No comparison of the amount
+                    }
+                    if (filterBlocksItem(item.getKey())) {
+                        return false; // skip provider-filtered items
+                    }
+                    final boolean blockedInFilters = filters.stream().anyMatch(
+                        filter -> filter.isBlocked() == filter.isFilteredItem(item.getKey().getUndamaged())
+                            || filter.blockProvider()
+                    );
+                    return !blockedInFilters; // skip filters-parameter-filtered items
+                })
+                .map(item ->
+                    new Pair<>(item.getKey(), item.getValue() - service.getItemOrderManager()
+                        .totalItemsCountInOrders(item.getKey()))
+                )
+                .filter(itemIdentAndRemaining -> itemIdentAndRemaining.getValue2()
+                    > 0) // reduce what has been reserved
+                .collect(Pair.toMap(Integer::sum)) // sum up the provided amount by the inventories
+        );
+    }
 
-	// returns -1 on permanently failed, don't try another stack this tick
-	// returns 0 on "unable to do this delivery"
-	public int sendStack(ItemIdentifierStack stack, int maxCount, int destination, IAdditionalTargetInformation info) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return -1;
+    // returns -1 on permanently failed, don't try another stack this tick
+    // returns 0 on "unable to do this delivery"
+    public int sendStack(ItemIdentifierStack stack, int maxCount, int destination, IAdditionalTargetInformation info) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return -1;
+        }
 
-		ItemIdentifier item = stack.getItem();
+        ItemIdentifier item = stack.getItem();
 
-		Iterator<Pair<IInventoryUtil, Direction>> iterator = service.getAvailableAdjacent().inventories().stream()
-				.flatMap(neighbor -> {
-					final IInventoryUtil invUtil = getInventoryUtilWithMode(neighbor);
-					if (invUtil == null) return Stream.empty();
-					return Stream.of(new Pair<>(invUtil, neighbor.getDirection()));
-				}).iterator();
+        Iterator<Pair<IInventoryUtil, Direction>> iterator = service.getAvailableAdjacent().inventories().stream()
+            .flatMap(neighbor -> {
+                final IInventoryUtil invUtil = getInventoryUtilWithMode(neighbor);
+                if (invUtil == null) {
+                    return Stream.empty();
+                }
+                return Stream.of(new Pair<>(invUtil, neighbor.getDirection()));
+            }).iterator();
 
-		while (iterator.hasNext()) {
-			final Pair<IInventoryUtil, Direction> current = iterator.next();
-			int available = current.getValue1().itemCount(item);
-			if (available == 0) {
-				continue;
-			}
+        while (iterator.hasNext()) {
+            final Pair<IInventoryUtil, Direction> current = iterator.next();
+            int available = current.getValue1().itemCount(item);
+            if (available == 0) {
+                continue;
+            }
 
-			int wanted = Math.min(available, stack.getStackSize());
-			wanted = Math.min(wanted, maxCount);
-			wanted = Math.min(wanted, item.getMaxStackSize());
-			IRouter dRtr = SimpleServiceLocator.routerManager.getServerRouter(destination);
-			if (dRtr == null) {
-				service.getItemOrderManager().sendFailed();
-				return 0;
-			}
-			SinkReply reply = LogisticsManager
-					.canSink(stack.makeNormalStack(), dRtr, null, true, stack.getItem(), null, true, false);
-			boolean deferSend = false;
-			if (reply != null) {// some pipes are not aware of the space in the adjacent inventory, so they return null
-				if (reply.maxNumberOfItems < wanted) {
-					wanted = reply.maxNumberOfItems;
-					if (wanted <= 0) {
-						service.getItemOrderManager().deferSend();
-						return 0;
-					}
-					deferSend = true;
-				}
-			}
-			if (!service.canUseEnergy(wanted * neededEnergy())) {
-				return -1;
-			}
-			ItemStack removed = current.getValue1().getMultipleItems(item, wanted);
-			if (removed.isEmpty()) {
-				continue;
-			}
-			int sent = removed.getCount();
-			service.useEnergy(sent * neededEnergy());
+            int wanted = Math.min(available, stack.getStackSize());
+            wanted = Math.min(wanted, maxCount);
+            wanted = Math.min(wanted, item.getMaxStackSize());
+            IRouter dRtr = SimpleServiceLocator.routerManager.getServerRouter(destination);
+            if (dRtr == null) {
+                service.getItemOrderManager().sendFailed();
+                return 0;
+            }
+            SinkReply reply = LogisticsManager
+                .canSink(stack.makeNormalStack(), dRtr, null, true, stack.getItem(), null, true, false);
+            boolean deferSend = false;
+            if (reply != null) {// some pipes are not aware of the space in the adjacent inventory, so they return null
+                if (reply.maxNumberOfItems < wanted) {
+                    wanted = reply.maxNumberOfItems;
+                    if (wanted <= 0) {
+                        service.getItemOrderManager().deferSend();
+                        return 0;
+                    }
+                    deferSend = true;
+                }
+            }
+            if (!service.canUseEnergy(wanted * neededEnergy())) {
+                return -1;
+            }
+            ItemStack removed = current.getValue1().getMultipleItems(item, wanted);
+            if (removed.isEmpty()) {
+                continue;
+            }
+            int sent = removed.getCount();
+            service.useEnergy(sent * neededEnergy());
 
-			final IRoutedItem routedItem = service
-					.sendStack(removed, destination, itemSendMode(), info, current.getValue2());
-			service.getItemOrderManager().sendSuccessfull(sent, deferSend, routedItem);
-			return sent;
-		}
+            final IRoutedItem routedItem = service
+                .sendStack(removed, destination, itemSendMode(), info, current.getValue2());
+            service.getItemOrderManager().sendSuccessfull(sent, deferSend, routedItem);
+            return sent;
+        }
 
-		service.getItemOrderManager().sendFailed();
-		return 0;
-	}
+        service.getItemOrderManager().sendFailed();
+        return 0;
+    }
 
-	public int getTotalItemCount(final ItemIdentifier item) {
-		if (filterBlocksItem(item)) return 0;
-		return inventoriesWithMode().map(invUtil -> invUtil.itemCount(item)).reduce(Integer::sum).orElse(0);
-	}
+    public int getTotalItemCount(final ItemIdentifier item) {
+        if (filterBlocksItem(item)) {
+            return 0;
+        }
+        return inventoriesWithMode().map(invUtil -> invUtil.itemCount(item)).reduce(Integer::sum).orElse(0);
+    }
 
-	/*** GUI STUFF ***/
+    /*** GUI STUFF ***/
 
-	@CCCommand(description = "Returns the FilterInventory of this Module")
-	public IItemIdentifierInventory getFilterInventory() {
-		return filterInventory;
-	}
+    @CCCommand(description = "Returns the FilterInventory of this Module")
+    public IItemIdentifierInventory getFilterInventory() {
+        return filterInventory;
+    }
 
-	@Override
-	public List<String> getClientInformation() {
-		List<String> list = new ArrayList<>();
-		list.add(!(boolean) isExclusionFilter.getValue() ? "Included" : "Excluded");
-		list.add("Mode: " + providerMode.getValue().name());
-		list.add("<inventory>");
-		list.add("<that>" + filterInventory.getTagKey());
-		return list;
-	}
+    @Override
+    public List<String> getClientInformation() {
+        List<String> list = new ArrayList<>();
+        list.add(!(boolean) isExclusionFilter.getValue() ? "Included" : "Excluded");
+        list.add("Mode: " + providerMode.getValue().name());
+        list.add("<inventory>");
+        list.add("<that>" + filterInventory.getTagKey());
+        return list;
+    }
 
-	private void checkUpdate(@Nullable Player player) {
-		if (localModeWatchers.size() == 0 && player == null) {
-			return;
-		}
-		displayList.clear();
-		displayMap.clear();
-		getAllItems(displayMap, new ArrayList<>(0));
-		displayList.ensureCapacity(displayMap.size());
-		displayList.addAll(displayMap.entrySet().stream()
-				.map(item -> new ItemIdentifierStack(item.getKey(), item.getValue()))
-				.collect(Collectors.toList()));
-		if (!oldList.equals(displayList)) {
-			oldList.clear();
-			oldList.ensureCapacity(displayList.size());
-			oldList.addAll(displayList);
-			localModeWatchers.send(new ModuleInventoryMessage(ModuleTarget.of(this), List.copyOf(displayList)));
-		} else if (player != null) {
-			if (player instanceof ServerPlayer inventoryWatcher) {
-				PacketDistributor.sendToPlayer(inventoryWatcher,
-						new ModuleInventoryMessage(ModuleTarget.of(this), List.copyOf(displayList)));
-			}
-		}
-	}
+    private void checkUpdate(@Nullable Player player) {
+        if (localModeWatchers.size() == 0 && player == null) {
+            return;
+        }
+        displayList.clear();
+        displayMap.clear();
+        getAllItems(displayMap, new ArrayList<>(0));
+        displayList.ensureCapacity(displayMap.size());
+        displayList.addAll(displayMap.entrySet().stream()
+            .map(item -> new ItemIdentifierStack(item.getKey(), item.getValue()))
+            .collect(Collectors.toList()));
+        if (!oldList.equals(displayList)) {
+            oldList.clear();
+            oldList.ensureCapacity(displayList.size());
+            oldList.addAll(displayList);
+            localModeWatchers.send(new ModuleInventoryMessage(ModuleTarget.of(this), List.copyOf(displayList)));
+        } else if (player != null) {
+            if (player instanceof ServerPlayer inventoryWatcher) {
+                PacketDistributor.sendToPlayer(inventoryWatcher,
+                    new ModuleInventoryMessage(ModuleTarget.of(this), List.copyOf(displayList)));
+            }
+        }
+    }
 
-	@Override
-	public void startWatching(Player player) {
-		localModeWatchers.add(player);
-		checkUpdate(player);
-	}
+    @Override
+    public void startWatching(Player player) {
+        localModeWatchers.add(player);
+        checkUpdate(player);
+    }
 
-	@Override
-	public void stopWatching(Player player) {
-		localModeWatchers.remove(player);
-	}
+    @Override
+    public void stopWatching(Player player) {
+        localModeWatchers.remove(player);
+    }
 
-	@Override
-	public @Nullable IHUDModuleRenderer getHUDRenderer() {
-		return HUD;
-	}
+    @Override
+    public @Nullable IHUDModuleRenderer getHUDRenderer() {
+        return HUD;
+    }
 
-	@Override
-	public void handleInvContent(Collection<@Nullable ItemIdentifierStack> list) {
-		displayList.clear();
-		displayList.addAll(list);
-	}
+    @Override
+    public void handleInvContent(Collection<@Nullable ItemIdentifierStack> list) {
+        displayList.clear();
+        displayList.addAll(list);
+    }
 
-	@Override
-	public boolean hasGenericInterests() {
-		return false;
-	}
+    @Override
+    public boolean hasGenericInterests() {
+        return false;
+    }
 
-	@Override
-	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
-		//when filter is empty or in exclude mode, this is interested in attached inventory already
-		if (!isExclusionFilter.getValue() && !filterInventory.isEmpty()) {
-			// when items included this is only interested in items in the filter
-			itemIdentifiers.addAll(filterInventory.getItemsAndCount().keySet());
-		}
-	}
+    @Override
+    public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
+        //when filter is empty or in exclude mode, this is interested in attached inventory already
+        if (!isExclusionFilter.getValue() && !filterInventory.isEmpty()) {
+            // when items included this is only interested in items in the filter
+            itemIdentifiers.addAll(filterInventory.getItemsAndCount().keySet());
+        }
+    }
 
-	@Override
-	public boolean interestedInAttachedInventory() {
-		// when items included this is only interested in items in the filter
-		return isExclusionFilter.getValue() || filterInventory.isEmpty();
-		// when items not included, we can only serve those items in the filter.
-	}
+    @Override
+    public boolean interestedInAttachedInventory() {
+        // when items included this is only interested in items in the filter
+        return isExclusionFilter.getValue() || filterInventory.isEmpty();
+        // when items not included, we can only serve those items in the filter.
+    }
 
-	@Override
-	public boolean interestedInUndamagedID() {
-		return false;
-	}
+    @Override
+    public boolean interestedInUndamagedID() {
+        return false;
+    }
 
-	@Override
-	public boolean receivePassive() {
-		return false;
-	}
+    @Override
+    public boolean receivePassive() {
+        return false;
+    }
 
-	@Override
-	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		return new ProviderMenu(containerId, inventory, target, this);
-	}
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+        return new ProviderMenu(containerId, inventory, target, this);
+    }
 
-	@Override
-	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
-		TagValueOutput moduleOutput = TagValueOutput.createWithContext(
-				ProblemReporter.DISCARDING, buffer.registryAccess());
-		serialize(moduleOutput);
-		buffer.writeNbt(moduleOutput.buildResult());
-	}
+    @Override
+    public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+        TagValueOutput moduleOutput = TagValueOutput.createWithContext(
+            ProblemReporter.DISCARDING, buffer.registryAccess());
+        serialize(moduleOutput);
+        buffer.writeNbt(moduleOutput.buildResult());
+    }
 
-	private @Nullable IInventoryUtil getInventoryUtilWithMode(NeighborBlockEntity<BlockEntity> neighbor) {
-		return SimpleServiceLocator.inventoryUtilFactory
-				.getHidingInventoryUtil(neighbor.getBlockEntity(), neighbor.getOurDirection(), providerMode.getValue());
-	}
+    private @Nullable IInventoryUtil getInventoryUtilWithMode(NeighborBlockEntity<BlockEntity> neighbor) {
+        return SimpleServiceLocator.inventoryUtilFactory
+            .getHidingInventoryUtil(neighbor.getBlockEntity(), neighbor.getOurDirection(), providerMode.getValue());
+    }
 
 }

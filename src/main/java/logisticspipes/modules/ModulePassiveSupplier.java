@@ -44,154 +44,160 @@ import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
 
 public class ModulePassiveSupplier extends LogisticsModule
-		implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver,
-		IModuleInventoryReceive, ISimpleInventoryEventHandler, IModuleMenuProvider {
+    implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver,
+    IModuleInventoryReceive, ISimpleInventoryEventHandler, IModuleMenuProvider {
 
-	public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(9, "Requested items", 64), "filterInv");
+    public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
+        new ItemIdentifierInventory(9, "Requested items", 64), "filterInv");
 
-	private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-	private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
-	/** Built in {@link #registerPosition}, which runs when the module is installed. */
-	private @Nullable SinkReply sinkReply;
+    private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
+    private final IHUDModuleRenderer HUD = new HUDSimpleFilterModule(this);
+    /**
+     * Built in {@link #registerPosition}, which runs when the module is installed.
+     */
+    private @Nullable SinkReply sinkReply;
 
-	public ModulePassiveSupplier() {
-		filterInventory.addListener(this);
-	}
+    public ModulePassiveSupplier() {
+        filterInventory.addListener(this);
+    }
 
-	public static String getName() {
-		return "passive_supplier";
-	}
+    public static String getName() {
+        return "passive_supplier";
+    }
 
-	@Override
-	public String getLPName() {
-		return getName();
-	}
+    @Override
+    public String getLPName() {
+        return getName();
+    }
 
-	@Override
-	public List<Property<?>> getProperties() {
-		return Collections.singletonList(filterInventory);
-	}
+    @Override
+    public List<Property<?>> getProperties() {
+        return Collections.singletonList(filterInventory);
+    }
 
-	@Override
+    @Override
     public Container getFilterInventory() {
-		return filterInventory;
-	}
+        return filterInventory;
+    }
 
-	@Override
-	public void registerPosition(ModulePositionType slot, int positionInt) {
-		super.registerPosition(slot, positionInt);
-		sinkReply = new SinkReply(FixedPriority.PassiveSupplier, 0, true, false, 2, 0,
-				new ChassiTargetInformation(getPositionInt()));
-	}
+    @Override
+    public void registerPosition(ModulePositionType slot, int positionInt) {
+        super.registerPosition(slot, positionInt);
+        sinkReply = new SinkReply(FixedPriority.PassiveSupplier, 0, true, false, 2, 0,
+            new ChassiTargetInformation(getPositionInt()));
+    }
 
-	@Override
-	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
-			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
-		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
-				&& bestCustomPriority >= reply.customPriority)) {
-			return null;
-		}
+    @Override
+    public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+        boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+        final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+        if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+            && bestCustomPriority >= reply.customPriority)) {
+            return null;
+        }
 
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return null;
-		final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
-		IInventoryUtil targetUtil = PipeServiceProviderUtil.availableSneakyInventories(service, upgradeManager)
-				.stream().findFirst().orElse(null);
-		if (targetUtil == null) {
-			return null;
-		}
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return null;
+        }
+        final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
+        IInventoryUtil targetUtil = PipeServiceProviderUtil.availableSneakyInventories(service, upgradeManager)
+            .stream().findFirst().orElse(null);
+        if (targetUtil == null) {
+            return null;
+        }
 
-		if (!filterInventory.containsItem(item)) {
-			return null;
-		}
+        if (!filterInventory.containsItem(item)) {
+            return null;
+        }
 
-		int targetCount = filterInventory.itemCount(item);
-		int haveCount = targetUtil.itemCount(item);
-		if (targetCount <= haveCount) {
-			return null;
-		}
+        int targetCount = filterInventory.itemCount(item);
+        int haveCount = targetUtil.itemCount(item);
+        if (targetCount <= haveCount) {
+            return null;
+        }
 
-		if (service.canUseEnergy(2)) {
-			return new SinkReply(reply, targetCount - haveCount);
-		}
-		return null;
-	}
+        if (service.canUseEnergy(2)) {
+            return new SinkReply(reply, targetCount - haveCount);
+        }
+        return null;
+    }
 
-	@Override
-	public void tick() {}
+    @Override
+    public void tick() {
+    }
 
-	@Override
-	public List<String> getClientInformation() {
-		List<String> list = new ArrayList<>();
-		list.add("Supplied: ");
-		list.add("<inventory>");
-		list.add("<that>" + filterInventory.getTagKey());
-		return list;
-	}
+    @Override
+    public List<String> getClientInformation() {
+        List<String> list = new ArrayList<>();
+        list.add("Supplied: ");
+        list.add("<inventory>");
+        list.add("<that>" + filterInventory.getTagKey());
+        return list;
+    }
 
-	@Override
-	public void startWatching(Player player) {
-		localModeWatchers.add(player);
-		if (player instanceof ServerPlayer inventoryWatcher) {
-			PacketDistributor.sendToPlayer(inventoryWatcher,
-					new ModuleInventoryMessage(ModuleTarget.of(this), ItemIdentifierStack.getListFromInventory(filterInventory)));
-		}
-	}
+    @Override
+    public void startWatching(Player player) {
+        localModeWatchers.add(player);
+        if (player instanceof ServerPlayer inventoryWatcher) {
+            PacketDistributor.sendToPlayer(inventoryWatcher,
+                new ModuleInventoryMessage(ModuleTarget.of(this),
+                    ItemIdentifierStack.getListFromInventory(filterInventory)));
+        }
+    }
 
-	@Override
-	public void stopWatching(Player player) {
-		localModeWatchers.remove(player);
-	}
+    @Override
+    public void stopWatching(Player player) {
+        localModeWatchers.remove(player);
+    }
 
-	@Override
-	public @Nullable IHUDModuleRenderer getHUDRenderer() {
-		return HUD;
-	}
+    @Override
+    public @Nullable IHUDModuleRenderer getHUDRenderer() {
+        return HUD;
+    }
 
-	@Override
-	public void handleInvContent(Collection<@Nullable ItemIdentifierStack> list) {
-		filterInventory.handleItemIdentifierList(list);
-	}
+    @Override
+    public void handleInvContent(Collection<@Nullable ItemIdentifierStack> list) {
+        filterInventory.handleItemIdentifierList(list);
+    }
 
-	@Override
-	public void InventoryChanged(Container inventory) {
-		final Level level = getWorld();
-		if (level != null && !level.isClientSide()) {
+    @Override
+    public void InventoryChanged(Container inventory) {
+        final Level level = getLevel();
+        if (level != null && !level.isClientSide()) {
             localModeWatchers.send(new ModuleInventoryMessage(ModuleTarget.of(this),
                 ItemIdentifierStack.getListFromInventory(filterInventory)));
-		}
-	}
+        }
+    }
 
-	@Override
-	public boolean hasGenericInterests() {
-		return false;
-	}
+    @Override
+    public boolean hasGenericInterests() {
+        return false;
+    }
 
-	@Override
-	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
-		itemIdentifiers.addAll(filterInventory.getItemsAndCount().keySet());
-	}
+    @Override
+    public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
+        itemIdentifiers.addAll(filterInventory.getItemsAndCount().keySet());
+    }
 
-	@Override
-	public boolean interestedInAttachedInventory() {
-		return false;
-	}
+    @Override
+    public boolean interestedInAttachedInventory() {
+        return false;
+    }
 
-	@Override
-	public boolean interestedInUndamagedID() {
-		return false;
-	}
+    @Override
+    public boolean interestedInUndamagedID() {
+        return false;
+    }
 
-	@Override
-	public boolean receivePassive() {
-		return true;
-	}
+    @Override
+    public boolean receivePassive() {
+        return true;
+    }
 
-	@Override
-	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		return new SimpleFilterMenu(LPMenuTypes.SIMPLE_FILTER.get(), containerId, inventory, target, this);
-	}
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+        return new SimpleFilterMenu(LPMenuTypes.SIMPLE_FILTER.get(), containerId, inventory, target, this);
+    }
 
 }

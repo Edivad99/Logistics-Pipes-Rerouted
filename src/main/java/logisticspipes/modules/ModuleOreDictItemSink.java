@@ -64,7 +64,9 @@ public class ModuleOreDictItemSink extends LogisticsModule
      */
     private @Nullable Set<Item> oreItems;
     private @Nullable List<ItemIdentifierStack> oreHudList;
-    /** Built in {@link #registerPosition}, which runs when the module is installed. */
+    /**
+     * Built in {@link #registerPosition}, which runs when the module is installed.
+     */
     private @Nullable SinkReply sinkReply;
 
     public static String getName() {
@@ -222,17 +224,17 @@ public class ModuleOreDictItemSink extends LogisticsModule
         return true;
     }
 
-	@Override
-	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		return new ModuleAnalysisMenu(LPMenuTypes.ORE_DICT_ITEM_SINK.get(), containerId, inventory, target, this);
-	}
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+        return new ModuleAnalysisMenu(LPMenuTypes.ORE_DICT_ITEM_SINK.get(), containerId, inventory, target, this);
+    }
 
-	@Override
-	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
-		TagValueOutput moduleOutput = TagValueOutput.createWithContext(
-				ProblemReporter.DISCARDING, buffer.registryAccess());
-		serialize(moduleOutput);
-		buffer.writeNbt(moduleOutput.buildResult());
-	}
+    @Override
+    public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+        TagValueOutput moduleOutput = TagValueOutput.createWithContext(
+            ProblemReporter.DISCARDING, buffer.registryAccess());
+        serialize(moduleOutput);
+        buffer.writeNbt(moduleOutput.buildResult());
+    }
 
 }

@@ -135,12 +135,11 @@ public class AsyncExtractorModule extends AsyncModule<ExtractorJob, @Nullable Vo
     }
 
     private @Nullable IInventoryUtil getConnectedInventory() {
-        IPipeServiceProvider service = this.service;
-        if (service == null) {
+        if (this.service == null) {
             return null;
         }
         List<@Nullable IInventoryUtil> inventories =
-            PipeServiceProviderUtil.availableSneakyInventories(service, getSneakyDirection());
+            PipeServiceProviderUtil.availableSneakyInventories(this.service, getSneakyDirection());
         return inventories.isEmpty() ? null : inventories.getFirst();
     }
 

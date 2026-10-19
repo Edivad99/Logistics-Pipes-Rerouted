@@ -105,8 +105,8 @@ public abstract class AsyncModule<S extends @Nullable Object, C extends @Nullabl
 
     /** A paused single player game stops the server thread, so its jobs time out through no fault. */
     private boolean isGamePaused() {
-        Level world = getWorld();
-        if (world == null || world.isClientSide() || FMLEnvironment.getDist() != Dist.CLIENT) {
+        Level level = getLevel();
+        if (level == null || level.isClientSide() || FMLEnvironment.getDist() != Dist.CLIENT) {
             return false;
         }
         return Minecraft.getInstance().isPaused();

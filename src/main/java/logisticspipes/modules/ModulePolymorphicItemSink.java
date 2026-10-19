@@ -19,83 +19,88 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 public class ModulePolymorphicItemSink extends LogisticsModule {
 
-	/** Built in {@link #registerPosition}, which runs when the module is installed. */
-	private @Nullable SinkReply sinkReply;
+    /**
+     * Built in {@link #registerPosition}, which runs when the module is installed.
+     */
+    private @Nullable SinkReply sinkReply;
 
-	public static String getName() {
-		return "item_sink_polymorphic";
-	}
+    public static String getName() {
+        return "item_sink_polymorphic";
+    }
 
-	@Override
-	public String getLPName() {
-		return getName();
-	}
+    @Override
+    public String getLPName() {
+        return getName();
+    }
 
-	@Override
-	public List<Property<?>> getProperties() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<Property<?>> getProperties() {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public void registerPosition(ModulePositionType slot, int positionInt) {
-		super.registerPosition(slot, positionInt);
-		sinkReply = new SinkReply(FixedPriority.ItemSink,
-				0,
-				true,
-				false,
-				3,
-				0,
-				new ChassiTargetInformation(getPositionInt()));
-	}
+    @Override
+    public void registerPosition(ModulePositionType slot, int positionInt) {
+        super.registerPosition(slot, positionInt);
+        sinkReply = new SinkReply(FixedPriority.ItemSink,
+            0,
+            true,
+            false,
+            3,
+            0,
+            new ChassiTargetInformation(getPositionInt()));
+    }
 
-	@Override
-	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
-			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
-		if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
-				&& bestCustomPriority >= reply.customPriority)) {
-			return null;
-		}
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return null;
-		final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
-		IInventoryUtil targetInventory = PipeServiceProviderUtil.availableSneakyInventories(service, upgradeManager)
-				.stream().findFirst().orElse(null);
-		if (targetInventory == null) {
-			return null;
-		}
+    @Override
+    public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+        boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+        final SinkReply reply = Objects.requireNonNull(sinkReply, "module has not been registered");
+        if (bestPriority > reply.fixedPriority.ordinal() || (bestPriority == reply.fixedPriority.ordinal()
+            && bestCustomPriority >= reply.customPriority)) {
+            return null;
+        }
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return null;
+        }
+        final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
+        IInventoryUtil targetInventory = PipeServiceProviderUtil.availableSneakyInventories(service, upgradeManager)
+            .stream().findFirst().orElse(null);
+        if (targetInventory == null) {
+            return null;
+        }
 
-		if (!targetInventory.containsUndamagedItem(item.getUndamaged())) {
-			return null;
-		}
+        if (!targetInventory.containsUndamagedItem(item.getUndamaged())) {
+            return null;
+        }
 
-		if (service.canUseEnergy(3)) {
-			return reply;
-		}
-		return null;
-	}
+        if (service.canUseEnergy(3)) {
+            return reply;
+        }
+        return null;
+    }
 
-	@Override
-	public void tick() {}
+    @Override
+    public void tick() {
+    }
 
-	@Override
-	public boolean hasGenericInterests() {
-		return false;
-	}
+    @Override
+    public boolean hasGenericInterests() {
+        return false;
+    }
 
-	@Override
-	public boolean interestedInAttachedInventory() {
-		return true; // by definition :)
-	}
+    @Override
+    public boolean interestedInAttachedInventory() {
+        return true; // by definition :)
+    }
 
-	@Override
-	public boolean interestedInUndamagedID() {
-		return true;
-	}
+    @Override
+    public boolean interestedInUndamagedID() {
+        return true;
+    }
 
-	@Override
-	public boolean receivePassive() {
-		return true;
-	}
+    @Override
+    public boolean receivePassive() {
+        return true;
+    }
 
 }

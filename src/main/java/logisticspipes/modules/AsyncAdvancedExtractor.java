@@ -14,6 +14,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import lombok.Getter;
+
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
@@ -49,6 +51,7 @@ public class AsyncAdvancedExtractor extends AsyncModule<ExtractorJob, @Nullable 
 
     private final ItemIdentifierInventoryProperty filterInventory =
         new ItemIdentifierInventoryProperty(new ItemIdentifierInventory(9, "Item list", 1), "filterInv");
+    @Getter
     private final BooleanProperty itemsIncluded = new BooleanProperty(true, "itemsIncluded");
     private final IHUDModuleRenderer hud = new HUDAdvancedExtractor(this);
     private final AsyncExtractorModule extractor = new AsyncExtractorModule(this::isFilteredOut);
@@ -57,14 +60,10 @@ public class AsyncAdvancedExtractor extends AsyncModule<ExtractorJob, @Nullable 
         return NAME;
     }
 
-    public BooleanProperty getItemsIncluded() {
-        return itemsIncluded;
-    }
-
     /** Keeps what the filter list says to keep, which the "included" flag turns around. */
     private boolean isFilteredOut(ItemStack stack) {
         return stack.isEmpty()
-            || itemsIncluded.getValue() != ItemUtil.anyMatchesWithoutNBT(filterInventory, stack);
+            || Boolean.TRUE.equals(itemsIncluded.getValue()) != ItemUtil.anyMatchesWithoutNBT(filterInventory, stack);
     }
 
     @Override
@@ -185,8 +184,8 @@ public class AsyncAdvancedExtractor extends AsyncModule<ExtractorJob, @Nullable 
 
     @Override
     public void InventoryChanged(Container inventory) {
-        Level world = getWorld();
-        if (world != null && !world.isClientSide()) {
+        Level level = getLevel();
+        if (level != null && !level.isClientSide()) {
             extractor.getLocalModeWatchers().send(new ModuleInventoryMessage(ModuleTarget.of(this),
                 ItemIdentifierStack.getListFromInventory(inventory)));
         }

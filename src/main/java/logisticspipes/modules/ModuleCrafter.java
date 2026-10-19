@@ -115,645 +115,677 @@ import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
 
 public class ModuleCrafter extends LogisticsModule
-		implements ICraftItems, IHUDModuleHandler, IModuleWatchReceiver, IScreenOpenController, IModuleMenuProvider {
+    implements ICraftItems, IHUDModuleHandler, IModuleWatchReceiver, IScreenOpenController, IModuleMenuProvider {
 
-	public final ItemIdentifierInventoryProperty dummyInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(11, "Requested items", 127), "dummyInv");
-	public final ItemIdentifierInventoryProperty liquidInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(ItemUpgrade.MAX_LIQUID_CRAFTER, "Fluid items", 1, true), "FluidInv");
-	public final ItemIdentifierInventoryProperty cleanupInventory = new ItemIdentifierInventoryProperty(
-			new ItemIdentifierInventory(ItemUpgrade.MAX_CRAFTING_CLEANUP * 3, "Cleanup Filter Items", 1), "CleanupInv");
-	public final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
-	public final UUIDListProperty advancedSatelliteUUIDList = new UUIDListProperty("advancedSatelliteUUIDList");
-	public final UUIDProperty liquidSatelliteUUID = new UUIDProperty(null, "liquidSatelliteId");
-	public final UUIDListProperty liquidSatelliteUUIDList = new UUIDListProperty("liquidSatelliteUUIDList");
-	public final IntegerProperty priority = new IntegerProperty(0, "priority");
-	public final IntListProperty liquidAmounts = new IntListProperty("FluidAmount");
-	public final BooleanProperty cleanupModeIsExclude = new BooleanProperty(true, "cleanupModeIsExclude");
-	public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
-	private final List<Property<?>> properties = ImmutableList.<Property<?>>builder()
-			.add(dummyInventory)
-			.add(liquidInventory)
-			.add(cleanupInventory)
-			.add(satelliteUUID)
-			.add(advancedSatelliteUUIDList)
-			.add(liquidSatelliteUUID)
-			.add(liquidSatelliteUUIDList)
-			.add(priority)
-			.add(liquidAmounts)
-			.add(cleanupModeIsExclude)
-			.add(fuzzyFlags)
-			.build();
+    public final ItemIdentifierInventoryProperty dummyInventory = new ItemIdentifierInventoryProperty(
+        new ItemIdentifierInventory(11, "Requested items", 127), "dummyInv");
+    public final ItemIdentifierInventoryProperty liquidInventory = new ItemIdentifierInventoryProperty(
+        new ItemIdentifierInventory(ItemUpgrade.MAX_LIQUID_CRAFTER, "Fluid items", 1, true), "FluidInv");
+    public final ItemIdentifierInventoryProperty cleanupInventory = new ItemIdentifierInventoryProperty(
+        new ItemIdentifierInventory(ItemUpgrade.MAX_CRAFTING_CLEANUP * 3, "Cleanup Filter Items", 1), "CleanupInv");
+    public final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
+    public final UUIDListProperty advancedSatelliteUUIDList = new UUIDListProperty("advancedSatelliteUUIDList");
+    public final UUIDProperty liquidSatelliteUUID = new UUIDProperty(null, "liquidSatelliteId");
+    public final UUIDListProperty liquidSatelliteUUIDList = new UUIDListProperty("liquidSatelliteUUIDList");
+    public final IntegerProperty priority = new IntegerProperty(0, "priority");
+    public final IntListProperty liquidAmounts = new IntListProperty("FluidAmount");
+    public final BooleanProperty cleanupModeIsExclude = new BooleanProperty(true, "cleanupModeIsExclude");
+    public final BitSetProperty fuzzyFlags = new BitSetProperty(new BitSet(4 * (9 + 1)), "fuzzyBitSet");
+    private final List<Property<?>> properties = ImmutableList.<Property<?>>builder()
+        .add(dummyInventory)
+        .add(liquidInventory)
+        .add(cleanupInventory)
+        .add(satelliteUUID)
+        .add(advancedSatelliteUUIDList)
+        .add(liquidSatelliteUUID)
+        .add(liquidSatelliteUUIDList)
+        .add(priority)
+        .add(liquidAmounts)
+        .add(cleanupModeIsExclude)
+        .add(fuzzyFlags)
+        .build();
 
-	// for reliable transport
-	protected final DelayQueue<DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>>> lostItems = new DelayQueue<>();
-	protected final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-	protected final PlayerCollectionList guiWatcher = new PlayerCollectionList();
+    // for reliable transport
+    protected final DelayQueue<DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>>> lostItems = new DelayQueue<>();
+    protected final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
+    protected final PlayerCollectionList guiWatcher = new PlayerCollectionList();
 
-	public ClientSideSatelliteNames clientSideSatelliteNames = ClientSideSatelliteNames.EMPTY;
+    public ClientSideSatelliteNames clientSideSatelliteNames = ClientSideSatelliteNames.EMPTY;
 
-	protected @Nullable SinkReply sinkReply;
+    protected @Nullable SinkReply sinkReply;
 
-	@Nullable
-	private IRequestItems invRequester;
-	private WeakReference<@Nullable BlockEntity> lastAccessedCrafter = new WeakReference<>(null);
-	private boolean cachedAreAllOrderesToBuffer;
-	public ModuleCrafter() {
-		advancedSatelliteUUIDList.ensureSize(9);
-		liquidAmounts.ensureSize(ItemUpgrade.MAX_LIQUID_CRAFTER);
-		liquidSatelliteUUIDList.ensureSize(ItemUpgrade.MAX_LIQUID_CRAFTER);
-	}
+    @Nullable
+    private IRequestItems invRequester;
+    private WeakReference<@Nullable BlockEntity> lastAccessedCrafter = new WeakReference<>(null);
+    private boolean cachedAreAllOrderesToBuffer;
 
-	public static String getName() {
-		return "crafter";
-	}
+    public ModuleCrafter() {
+        advancedSatelliteUUIDList.ensureSize(9);
+        liquidAmounts.ensureSize(ItemUpgrade.MAX_LIQUID_CRAFTER);
+        liquidSatelliteUUIDList.ensureSize(ItemUpgrade.MAX_LIQUID_CRAFTER);
+    }
 
-	@Override
-	public String getLPName() {
-		return getName();
-	}
+    public static String getName() {
+        return "crafter";
+    }
 
-	@Override
-	public List<Property<?>> getProperties() {
-		return properties;
-	}
+    @Override
+    public String getLPName() {
+        return getName();
+    }
 
-	/**
-	 * assumes that the invProvider is also IRequest items.
-	 */
-	@Override
-	public void registerHandler(@Nullable ILevelProvider world, @Nullable IPipeServiceProvider service) {
-		super.registerHandler(world, service);
-		invRequester = (IRequestItems) service;
-	}
+    @Override
+    public List<Property<?>> getProperties() {
+        return properties;
+    }
 
-	@Override
-	public void registerPosition(ModulePositionType slot, int positionInt) {
-		super.registerPosition(slot, positionInt);
-		sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0,
-				new ChassiTargetInformation(getPositionInt()));
-	}
+    /**
+     * assumes that the invProvider is also IRequest items.
+     */
+    @Override
+    public void registerHandler(@Nullable ILevelProvider world, @Nullable IPipeServiceProvider service) {
+        super.registerHandler(world, service);
+        invRequester = (IRequestItems) service;
+    }
 
-	@Override
-	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
-			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
-				&& bestCustomPriority >= sinkReply.customPriority)) {
-			return null;
-		}
-		final int itemCount = spaceFor(stack, item, includeInTransit);
-		if (itemCount > 0) {
-			return new SinkReply(sinkReply, itemCount,
-					areAllOrderesToBuffer() ? BufferMode.DESTINATION_BUFFERED : BufferMode.NONE);
-		} else {
-			return null;
-		}
-	}
+    @Override
+    public void registerPosition(ModulePositionType slot, int positionInt) {
+        super.registerPosition(slot, positionInt);
+        sinkReply = new SinkReply(FixedPriority.ItemSink, 0, true, false, 1, 0,
+            new ChassiTargetInformation(getPositionInt()));
+    }
 
-	protected int spaceFor(ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
-		Pair<String, ItemIdentifier> key = new Pair<>("spaceFor", item);
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return 0;
-		Object cache = service.getCacheHolder().getCacheFor(CacheTypes.Inventory, key);
-		int onRoute = 0;
-		if (includeInTransit) {
-			onRoute = service.countOnRoute(item);
-		}
-		if (cache != null) {
-			return ((Integer) cache) - onRoute;
-		}
+    @Override
+    public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+        boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+        if (bestPriority > sinkReply.fixedPriority.ordinal() || (bestPriority == sinkReply.fixedPriority.ordinal()
+            && bestCustomPriority >= sinkReply.customPriority)) {
+            return null;
+        }
+        final int itemCount = spaceFor(stack, item, includeInTransit);
+        if (itemCount > 0) {
+            return new SinkReply(sinkReply, itemCount,
+                areAllOrderesToBuffer() ? BufferMode.DESTINATION_BUFFERED : BufferMode.NONE);
+        } else {
+            return null;
+        }
+    }
 
-		if (includeInTransit) {
-			stack = stack.copy();
-			stack.grow(onRoute);
-		}
-		final ISlotUpgradeManager upgradeManager = Objects.requireNonNull(getUpgradeManager());
-		final ItemStack finalStack = stack;
-		final Integer count = AdjacentUtil.sneakyInventoryUtils(service.getAvailableAdjacent(), upgradeManager)
-				.stream().map(invUtil -> invUtil.roomForItem(finalStack)).reduce(Integer::sum).orElse(0);
+    protected int spaceFor(ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
+        Pair<String, ItemIdentifier> key = new Pair<>("spaceFor", item);
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return 0;
+        }
+        Object cache = service.getCacheHolder().getCacheFor(CacheTypes.Inventory, key);
+        int onRoute = 0;
+        if (includeInTransit) {
+            onRoute = service.countOnRoute(item);
+        }
+        if (cache != null) {
+            return ((Integer) cache) - onRoute;
+        }
 
-		service.getCacheHolder().setCache(CacheTypes.Inventory, key, count);
-		return count - onRoute;
-	}
+        if (includeInTransit) {
+            stack = stack.copy();
+            stack.grow(onRoute);
+        }
+        final ISlotUpgradeManager upgradeManager = Objects.requireNonNull(getUpgradeManager());
+        final ItemStack finalStack = stack;
+        final Integer count = AdjacentUtil.sneakyInventoryUtils(service.getAvailableAdjacent(), upgradeManager)
+            .stream().map(invUtil -> invUtil.roomForItem(finalStack)).reduce(Integer::sum).orElse(0);
 
+        service.getCacheHolder().setCache(CacheTypes.Inventory, key, count);
+        return count - onRoute;
+    }
 
-	@Override
-	public void tick() {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return;
-		enabledUpdateEntity();
-		if (lostItems.isEmpty()) {
-			return;
-		}
-		// if(true) return;
-		DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>> lostItem = lostItems.poll();
-		int reRequested = 0;
-		while (lostItem != null && reRequested < 100) {
-			Pair<ItemIdentifierStack, IAdditionalTargetInformation> pair = lostItem.get();
-			if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING)) {
-				SinkReply reply = LogisticsManager.canSink(pair.getValue1().makeNormalStack(), getRouter(), null, true,
-						pair.getValue1().getItem(), null, true, true, false);
-				if (reply == null || reply.maxNumberOfItems < 1) {
-					lostItems.add(new DelayedGeneric<>(pair, 9000 + (int) (Math.random() * 2000)));
-					lostItem = lostItems.poll();
-					continue;
-				}
-			}
-			int received = RequestTree.requestPartial(pair.getValue1(), (CoreRoutedPipe) service, pair.getValue2());
-			reRequested++;
-			if (received < pair.getValue1().getStackSize()) {
-				pair.getValue1().setStackSize(pair.getValue1().getStackSize() - received);
-				lostItems.add(new DelayedGeneric<>(pair, 4500 + (int) (Math.random() * 1000)));
-			}
-			lostItem = lostItems.poll();
-		}
-	}
+    @Override
+    public void tick() {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return;
+        }
+        enabledUpdateEntity();
+        if (lostItems.isEmpty()) {
+            return;
+        }
+        // if(true) return;
+        DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>> lostItem = lostItems.poll();
+        int reRequested = 0;
+        while (lostItem != null && reRequested < 100) {
+            Pair<ItemIdentifierStack, IAdditionalTargetInformation> pair = lostItem.get();
+            if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING)) {
+                SinkReply reply = LogisticsManager.canSink(pair.getValue1().makeNormalStack(), getRouter(), null, true,
+                    pair.getValue1().getItem(), null, true, true, false);
+                if (reply == null || reply.maxNumberOfItems < 1) {
+                    lostItems.add(new DelayedGeneric<>(pair, 9000 + (int) (Math.random() * 2000)));
+                    lostItem = lostItems.poll();
+                    continue;
+                }
+            }
+            int received = RequestTree.requestPartial(pair.getValue1(), (CoreRoutedPipe) service, pair.getValue2());
+            reRequested++;
+            if (received < pair.getValue1().getStackSize()) {
+                pair.getValue1().setStackSize(pair.getValue1().getStackSize() - received);
+                lostItems.add(new DelayedGeneric<>(pair, 4500 + (int) (Math.random() * 1000)));
+            }
+            lostItem = lostItems.poll();
+        }
+    }
 
-	@Override
-	public void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
-	}
+    @Override
+    public void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
+    }
 
-	@Override
-	public void itemLost(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
-		lostItems.add(new DelayedGeneric<>(new Pair<>(item, info), 5000));
-	}
+    @Override
+    public void itemLost(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
+        lostItems.add(new DelayedGeneric<>(new Pair<>(item, info), 5000));
+    }
 
-	@Override
-	public boolean hasGenericInterests() {
-		return false;
-	}
+    @Override
+    public boolean hasGenericInterests() {
+        return false;
+    }
 
-	@Override
-	public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
-		List<ItemIdentifierStack> result = getCraftedItems();
-		if (result == null) {
-			return;
-		}
+    @Override
+    public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
+        List<ItemIdentifierStack> result = getCraftedItems();
+        if (result == null) {
+            return;
+        }
 
-		result.stream().map(ItemIdentifierStack::getItem).forEach(itemIdentifiers::add);
-		/*
-		for(int i=0; i<9;i++) {
-			ItemIdentifierStack stack = getMaterials(i);
-			if(stack != null) {
-				itemIdentifiers.add(stack.getItem()); // needed to be interested in things for a chassi to report reliableDelivery failure.
-			}
-		}
-		 */
-	}
+        result.stream().map(ItemIdentifierStack::getItem).forEach(itemIdentifiers::add);
+        /*
+        for(int i=0; i<9;i++) {
+            ItemIdentifierStack stack = getMaterials(i);
+            if(stack != null) {
+                itemIdentifiers.add(stack.getItem()); // needed to be interested in things for a chassi to report reliableDelivery failure.
+            }
+        }
+         */
+    }
 
-	@Override
-	public boolean interestedInAttachedInventory() {
-		return false;
-		// when we are default we are interested in everything anyway, otherwise we're only interested in our filter.
-	}
+    @Override
+    public boolean interestedInAttachedInventory() {
+        return false;
+        // when we are default we are interested in everything anyway, otherwise we're only interested in our filter.
+    }
 
-	@Override
-	public boolean interestedInUndamagedID() {
-		return false;
-	}
+    @Override
+    public boolean interestedInUndamagedID() {
+        return false;
+    }
 
-	@Override
-	public boolean receivePassive() {
-		return false;
-	}
+    @Override
+    public boolean receivePassive() {
+        return false;
+    }
 
-	@Override
-	public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return;
-		if (!service.getItemOrderManager().hasExtras() || tree.hasBeenQueried(service.getItemOrderManager())) {
-			return;
-		}
+    @Override
+    public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return;
+        }
+        if (!service.getItemOrderManager().hasExtras() || tree.hasBeenQueried(service.getItemOrderManager())) {
+            return;
+        }
 
-		IResource requestedItem = tree.getRequestType();
+        IResource requestedItem = tree.getRequestType();
 
-		if (!canCraft(requestedItem)) {
-			return;
-		}
+        if (!canCraft(requestedItem)) {
+            return;
+        }
 
-		for (IFilter filter : filters) {
-			if (filter.isBlocked() == filter.isFilteredItem(requestedItem) || filter.blockProvider()) {
-				return;
-			}
-		}
-		int remaining = 0;
-		for (LogisticsItemOrder extra : service.getItemOrderManager()) {
-			if (extra.getType() == ResourceType.EXTRA) {
-				if (extra.getResource().getItem().equals(requestedItem.getAsItem())) {
-					remaining += extra.getResource().stack.getStackSize();
-				}
-			}
-		}
-		final ItemIdentifierStack craftedItem = getCraftedItem();
-		if (craftedItem == null) return;
-		remaining -= root.getAllPromissesFor(this, craftedItem.getItem());
-		if (remaining < 1) {
-			return;
-		}
-		if (getUpgradeManager().isFuzzyUpgrade() && outputFuzzy().nextSetBit(0) != -1) {
-			DictResource dict = new DictResource(craftedItem, null).loadFromBitSet(outputFuzzy().copyValue());
-			LogisticsExtraDictPromise promise = new LogisticsExtraDictPromise(dict,
-					Math.min(remaining, tree.getMissingAmount()), this, true);
-			tree.addPromise(promise);
-		} else {
-			LogisticsExtraPromise promise = new LogisticsExtraPromise(craftedItem.getItem(),
-					Math.min(remaining, tree.getMissingAmount()), this, true);
-			tree.addPromise(promise);
-		}
-		tree.setQueried(service.getItemOrderManager());
-	}
+        for (IFilter filter : filters) {
+            if (filter.isBlocked() == filter.isFilteredItem(requestedItem) || filter.blockProvider()) {
+                return;
+            }
+        }
+        int remaining = 0;
+        for (LogisticsItemOrder extra : service.getItemOrderManager()) {
+            if (extra.getType() == ResourceType.EXTRA) {
+                if (extra.getResource().getItem().equals(requestedItem.getAsItem())) {
+                    remaining += extra.getResource().stack.getStackSize();
+                }
+            }
+        }
+        final ItemIdentifierStack craftedItem = getCraftedItem();
+        if (craftedItem == null) {
+            return;
+        }
+        remaining -= root.getAllPromissesFor(this, craftedItem.getItem());
+        if (remaining < 1) {
+            return;
+        }
+        if (getUpgradeManager().isFuzzyUpgrade() && outputFuzzy().nextSetBit(0) != -1) {
+            DictResource dict = new DictResource(craftedItem, null).loadFromBitSet(outputFuzzy().copyValue());
+            LogisticsExtraDictPromise promise = new LogisticsExtraDictPromise(dict,
+                Math.min(remaining, tree.getMissingAmount()), this, true);
+            tree.addPromise(promise);
+        } else {
+            LogisticsExtraPromise promise = new LogisticsExtraPromise(craftedItem.getItem(),
+                Math.min(remaining, tree.getMissingAmount()), this, true);
+            tree.addPromise(promise);
+        }
+        tree.setQueried(service.getItemOrderManager());
+    }
 
-	@Override
-	public @Nullable LogisticsItemOrder fullFill(LogisticsPromise promise, IRequestItems destination,
-			@Nullable IAdditionalTargetInformation info) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return null;
-		if (promise instanceof LogisticsExtraDictPromise) {
-			service.getItemOrderManager().removeExtras(((LogisticsExtraDictPromise) promise).getResource());
-		}
-		if (promise instanceof LogisticsExtraPromise) {
-			service.getItemOrderManager()
-					.removeExtras(new DictResource(new ItemIdentifierStack(promise.item, promise.numberOfItems), null));
-		}
-		if (promise instanceof LogisticsDictPromise) {
-			service.spawnParticle(Particles.WHITE_SPARKLE, 2);
-			return service.getItemOrderManager()
-					.addOrder(((LogisticsDictPromise) promise).getResource(), destination, ResourceType.CRAFTING, info);
-		}
-		service.spawnParticle(Particles.WHITE_SPARKLE, 2);
-		return service.getItemOrderManager()
-				.addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
-						ResourceType.CRAFTING, info);
-	}
+    @Override
+    public @Nullable LogisticsItemOrder fullFill(LogisticsPromise promise, IRequestItems destination,
+        @Nullable IAdditionalTargetInformation info) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return null;
+        }
+        if (promise instanceof LogisticsExtraDictPromise) {
+            service.getItemOrderManager().removeExtras(((LogisticsExtraDictPromise) promise).getResource());
+        }
+        if (promise instanceof LogisticsExtraPromise) {
+            service.getItemOrderManager()
+                .removeExtras(new DictResource(new ItemIdentifierStack(promise.item, promise.numberOfItems), null));
+        }
+        if (promise instanceof LogisticsDictPromise) {
+            service.spawnParticle(Particles.WHITE_SPARKLE, 2);
+            return service.getItemOrderManager()
+                .addOrder(((LogisticsDictPromise) promise).getResource(), destination, ResourceType.CRAFTING, info);
+        }
+        service.spawnParticle(Particles.WHITE_SPARKLE, 2);
+        return service.getItemOrderManager()
+            .addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
+                ResourceType.CRAFTING, info);
+    }
 
-	@Override
-	public void getAllItems(Map<ItemIdentifier, Integer> list, List<IFilter> filter) {
-	}
+    @Override
+    public void getAllItems(Map<ItemIdentifier, Integer> list, List<IFilter> filter) {
+    }
 
-	@Override
+    @Override
     public IRouter getRouter() {
-		return Objects.requireNonNull(service, "service was null").getRouter();
-	}
+        return Objects.requireNonNull(service, "service was null").getRouter();
+    }
 
-	@Override
-	public void itemCouldNotBeSend(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
-		Objects.requireNonNull(invRequester).itemCouldNotBeSend(item, info);
-	}
+    @Override
+    public void itemCouldNotBeSend(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
+        Objects.requireNonNull(invRequester).itemCouldNotBeSend(item, info);
+    }
 
-	@Override
-	public int compareTo(IRequestItems other) {
-		return Integer.compare(getID(), other.getID());
-	}
+    @Override
+    public int compareTo(IRequestItems other) {
+        return Integer.compare(getID(), other.getID());
+    }
 
-	@Override
-	public int getID() {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return -1;
-		return service.getRouter().getSimpleID();
-	}
+    @Override
+    public int getID() {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return -1;
+        }
+        return service.getRouter().getSimpleID();
+    }
 
-	@Override
-	public void registerExtras(IPromise promise) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return;
-		if (promise instanceof LogisticsDictPromise) {
-			service.getItemOrderManager().addExtra(((LogisticsDictPromise) promise).getResource());
-		} else {
-			ItemIdentifierStack stack = new ItemIdentifierStack(promise.getItemType(), promise.getAmount());
-			service.getItemOrderManager().addExtra(new DictResource(stack, null));
-		}
-	}
+    @Override
+    public void registerExtras(IPromise promise) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return;
+        }
+        if (promise instanceof LogisticsDictPromise) {
+            service.getItemOrderManager().addExtra(((LogisticsDictPromise) promise).getResource());
+        } else {
+            ItemIdentifierStack stack = new ItemIdentifierStack(promise.getItemType(), promise.getAmount());
+            service.getItemOrderManager().addExtra(new DictResource(stack, null));
+        }
+    }
 
-	@Override
-	public @Nullable ICraftingTemplate addCrafting(IResource toCraft) {
+    @Override
+    public @Nullable ICraftingTemplate addCrafting(IResource toCraft) {
 
-		List<ItemIdentifierStack> stack = getCraftedItems();
-		if (stack == null) {
-			return null;
-		}
-		IReqCraftingTemplate template = null;
-		if (getUpgradeManager().isFuzzyUpgrade() && outputFuzzy().nextSetBit(0) != -1) {
-			for (ItemIdentifierStack craftable : stack) {
-				DictResource dict = new DictResource(craftable, null);
-				dict.loadFromBitSet(outputFuzzy().copyValue());
-				if (toCraft.matches(dict, IResource.MatchSettings.NORMAL)) {
-					template = new DictCraftingTemplate(dict, this, priority.getValue());
-					break;
-				}
-			}
-		} else {
-			for (ItemIdentifierStack craftable : stack) {
-				if (toCraft.matches(craftable.getItem(), IResource.MatchSettings.NORMAL)) {
-					template = new ItemCraftingTemplate(craftable, this, priority.getValue());
-					break;
-				}
-			}
-		}
-		if (template == null) {
-			return null;
-		}
+        List<ItemIdentifierStack> stack = getCraftedItems();
+        if (stack == null) {
+            return null;
+        }
+        IReqCraftingTemplate template = null;
+        if (getUpgradeManager().isFuzzyUpgrade() && outputFuzzy().nextSetBit(0) != -1) {
+            for (ItemIdentifierStack craftable : stack) {
+                DictResource dict = new DictResource(craftable, null);
+                dict.loadFromBitSet(outputFuzzy().copyValue());
+                if (toCraft.matches(dict, IResource.MatchSettings.NORMAL)) {
+                    template = new DictCraftingTemplate(dict, this, priority.getValue());
+                    break;
+                }
+            }
+        } else {
+            for (ItemIdentifierStack craftable : stack) {
+                if (toCraft.matches(craftable.getItem(), IResource.MatchSettings.NORMAL)) {
+                    template = new ItemCraftingTemplate(craftable, this, priority.getValue());
+                    break;
+                }
+            }
+        }
+        if (template == null) {
+            return null;
+        }
 
-		IRequestItems[] target = new IRequestItems[9];
-		for (int i = 0; i < 9; i++) {
-			target[i] = this;
-		}
+        IRequestItems[] target = new IRequestItems[9];
+        for (int i = 0; i < 9; i++) {
+            target[i] = this;
+        }
 
-		if (!isSatelliteConnected()) {
-			// has a satellite configured and that one is unreachable
-			return null;
-		}
-		// A satellite whose pipe is not loaded counts as unreachable, same as one with no route:
-		// isSatelliteConnected() only checks that a route exists, and a router outlives its chunk.
-		// Letting the null through would build a template whose requirements are addressed to
-		// nobody, and the request would fail much later with nothing to say which slot was at fault.
-		if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-			IRouter r = getSatelliteRouter(-1);
-			if (r != null) {
-				IRequestItems sat = r.getPipe();
-				if (sat == null) {
-					return null;
-				}
-				for (int i = 6; i < 9; i++) {
-					target[i] = sat;
-				}
-			}
-		} else {
-			for (int i = 0; i < 9; i++) {
-				IRouter r = getSatelliteRouter(i);
-				if (r != null) {
-					IRequestItems sat = r.getPipe();
-					if (sat == null) {
-						return null;
-					}
-					target[i] = sat;
-				}
-			}
-		}
+        if (!isSatelliteConnected()) {
+            // has a satellite configured and that one is unreachable
+            return null;
+        }
+        // A satellite whose pipe is not loaded counts as unreachable, same as one with no route:
+        // isSatelliteConnected() only checks that a route exists, and a router outlives its chunk.
+        // Letting the null through would build a template whose requirements are addressed to
+        // nobody, and the request would fail much later with nothing to say which slot was at fault.
+        if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
+            IRouter r = getSatelliteRouter(-1);
+            if (r != null) {
+                IRequestItems sat = r.getPipe();
+                if (sat == null) {
+                    return null;
+                }
+                for (int i = 6; i < 9; i++) {
+                    target[i] = sat;
+                }
+            }
+        } else {
+            for (int i = 0; i < 9; i++) {
+                IRouter r = getSatelliteRouter(i);
+                if (r != null) {
+                    IRequestItems sat = r.getPipe();
+                    if (sat == null) {
+                        return null;
+                    }
+                    target[i] = sat;
+                }
+            }
+        }
 
-		//Check all materials
-		for (int i = 0; i < 9; i++) {
-			ItemIdentifierStack resourceStack = dummyInventory.getIDStackInSlot(i);
-			if (resourceStack == null || resourceStack.getStackSize() == 0) {
-				continue;
-			}
-			IResource req;
-			if (getUpgradeManager().isFuzzyUpgrade() && inputFuzzy(i).nextSetBit(0) != -1) {
-				DictResource dict;
-				req = dict = new DictResource(resourceStack, target[i]);
-				dict.loadFromBitSet(inputFuzzy(i).copyValue());
-			} else {
-				req = new ItemResource(resourceStack, target[i]);
-			}
-			template.addRequirement(req, new CraftingChassisInformation(i, getPositionInt()));
-		}
+        //Check all materials
+        for (int i = 0; i < 9; i++) {
+            ItemIdentifierStack resourceStack = dummyInventory.getIDStackInSlot(i);
+            if (resourceStack == null || resourceStack.getStackSize() == 0) {
+                continue;
+            }
+            IResource req;
+            if (getUpgradeManager().isFuzzyUpgrade() && inputFuzzy(i).nextSetBit(0) != -1) {
+                DictResource dict;
+                req = dict = new DictResource(resourceStack, target[i]);
+                dict.loadFromBitSet(inputFuzzy(i).copyValue());
+            } else {
+                req = new ItemResource(resourceStack, target[i]);
+            }
+            template.addRequirement(req, new CraftingChassisInformation(i, getPositionInt()));
+        }
 
-		int liquidCrafter = getUpgradeManager().getFluidCrafter();
-		@Nullable IRequestFluid[] liquidTarget = new @Nullable IRequestFluid[liquidCrafter];
+        int liquidCrafter = getUpgradeManager().getFluidCrafter();
+        @Nullable IRequestFluid[] liquidTarget = new @Nullable IRequestFluid[liquidCrafter];
 
-		if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-			IRouter r = getFluidSatelliteRouter(-1);
-			if (r != null) {
-				IRequestFluid sat = (IRequestFluid) r.getPipe();
-				for (int i = 0; i < liquidCrafter; i++) {
-					liquidTarget[i] = sat;
-				}
-			}
-		} else {
-			for (int i = 0; i < liquidCrafter; i++) {
-				IRouter r = getFluidSatelliteRouter(i);
-				if (r != null) {
-					liquidTarget[i] = (IRequestFluid) r.getPipe();
-				}
-			}
-		}
+        if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
+            IRouter r = getFluidSatelliteRouter(-1);
+            if (r != null) {
+                IRequestFluid sat = (IRequestFluid) r.getPipe();
+                for (int i = 0; i < liquidCrafter; i++) {
+                    liquidTarget[i] = sat;
+                }
+            }
+        } else {
+            for (int i = 0; i < liquidCrafter; i++) {
+                IRouter r = getFluidSatelliteRouter(i);
+                if (r != null) {
+                    liquidTarget[i] = (IRequestFluid) r.getPipe();
+                }
+            }
+        }
 
-		for (int i = 0; i < liquidCrafter; i++) {
-			FluidIdentifier liquid = getFluidMaterial(i);
-			int amount = liquidAmounts.get(i);
-			if (liquid == null || amount <= 0 || liquidTarget[i] == null) {
-				continue;
-			}
-			template.addRequirement(new FluidResource(liquid, amount, liquidTarget[i]), null);
-		}
+        for (int i = 0; i < liquidCrafter; i++) {
+            FluidIdentifier liquid = getFluidMaterial(i);
+            int amount = liquidAmounts.get(i);
+            if (liquid == null || amount <= 0 || liquidTarget[i] == null) {
+                continue;
+            }
+            template.addRequirement(new FluidResource(liquid, amount, liquidTarget[i]), null);
+        }
 
-		if (getUpgradeManager().hasByproductExtractor() && getByproductItem() != null) {
-			template.addByproduct(getByproductItem());
-		}
+        if (getUpgradeManager().hasByproductExtractor() && getByproductItem() != null) {
+            template.addByproduct(getByproductItem());
+        }
 
-		return template;
-	}
+        return template;
+    }
 
-	public boolean isSatelliteConnected() {
-		// Check item-satellite connectivity.
-		if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-			if (!satelliteUUID.isZero()) {
-				int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID.getValue());
-				if (satelliteRouterId == -1) return false;
-				List<ExitRoute> rt = getRouter().getRouteTable().get(satelliteRouterId);
-				if (rt == null || rt.isEmpty()) return false;
-			}
-		} else {
-			for (int i = 0; i < 9; i++) {
-				if (advancedSatelliteUUIDList.isZero(i)) continue;
-				int satelliteRouterId = SimpleServiceLocator.routerManager
-						.getIDforUUID(advancedSatelliteUUIDList.get(i));
-				if (satelliteRouterId == -1) return false;
-				List<ExitRoute> rt = getRouter().getRouteTable().get(satelliteRouterId);
-				if (rt == null || rt.isEmpty()) return false;
-			}
-		}
+    public boolean isSatelliteConnected() {
+        // Check item-satellite connectivity.
+        if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
+            if (!satelliteUUID.isZero()) {
+                int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID.getValue());
+                if (satelliteRouterId == -1) {
+                    return false;
+                }
+                List<ExitRoute> rt = getRouter().getRouteTable().get(satelliteRouterId);
+                if (rt == null || rt.isEmpty()) {
+                    return false;
+                }
+            }
+        } else {
+            for (int i = 0; i < 9; i++) {
+                if (advancedSatelliteUUIDList.isZero(i)) {
+                    continue;
+                }
+                int satelliteRouterId = SimpleServiceLocator.routerManager
+                    .getIDforUUID(advancedSatelliteUUIDList.get(i));
+                if (satelliteRouterId == -1) {
+                    return false;
+                }
+                List<ExitRoute> rt = getRouter().getRouteTable().get(satelliteRouterId);
+                if (rt == null || rt.isEmpty()) {
+                    return false;
+                }
+            }
+        }
 
-		// Check fluid-satellite connectivity (if any liquid crafter upgrades are installed).
-		int liquidCrafter = getUpgradeManager().getFluidCrafter();
-		if (liquidCrafter > 0) {
-			if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-				if (!liquidSatelliteUUID.isZero() && getFluidSatelliteRouter(-1) == null) {
-					return false;
-				}
-			} else {
-				for (int i = 0; i < liquidCrafter; i++) {
-					if (!liquidSatelliteUUIDList.isZero(i) && getFluidSatelliteRouter(i) == null) {
-						return false;
-					}
-				}
-			}
-		}
+        // Check fluid-satellite connectivity (if any liquid crafter upgrades are installed).
+        int liquidCrafter = getUpgradeManager().getFluidCrafter();
+        if (liquidCrafter > 0) {
+            if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
+                if (!liquidSatelliteUUID.isZero() && getFluidSatelliteRouter(-1) == null) {
+                    return false;
+                }
+            } else {
+                for (int i = 0; i < liquidCrafter; i++) {
+                    if (!liquidSatelliteUUIDList.isZero(i) && getFluidSatelliteRouter(i) == null) {
+                        return false;
+                    }
+                }
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public boolean canCraft(IResource toCraft) {
-		if (getCraftedItem() == null) {
-			return false;
-		}
-		if (toCraft instanceof ItemResource || toCraft instanceof DictResource) {
-			return toCraft.matches(getCraftedItem().getItem(), IResource.MatchSettings.NORMAL);
-		}
-		return false;
-	}
+    @Override
+    public boolean canCraft(IResource toCraft) {
+        if (getCraftedItem() == null) {
+            return false;
+        }
+        if (toCraft instanceof ItemResource || toCraft instanceof DictResource) {
+            return toCraft.matches(getCraftedItem().getItem(), IResource.MatchSettings.NORMAL);
+        }
+        return false;
+    }
 
-	@Deprecated
-	@Override
-	public List<ItemIdentifierStack> getCraftedItems() {
-		List<ItemIdentifierStack> list = new ArrayList<>(1);
-		if (getCraftedItem() != null) {
-			list.add(getCraftedItem());
-		}
-		return list;
-	}
+    @Deprecated
+    @Override
+    public List<ItemIdentifierStack> getCraftedItems() {
+        List<ItemIdentifierStack> list = new ArrayList<>(1);
+        if (getCraftedItem() != null) {
+            list.add(getCraftedItem());
+        }
+        return list;
+    }
 
-	@Nullable
-	public ItemIdentifierStack getCraftedItem() {
-		return dummyInventory.getIDStackInSlot(9);
-	}
+    @Nullable
+    public ItemIdentifierStack getCraftedItem() {
+        return dummyInventory.getIDStackInSlot(9);
+    }
 
-	@Override
-	public int getTodo() {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return 0;
-		return service.getItemOrderManager().totalAmountCountInAllOrders();
-	}
+    @Override
+    public int getTodo() {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return 0;
+        }
+        return service.getItemOrderManager().totalAmountCountInAllOrders();
+    }
 
-	private @Nullable IRouter getSatelliteRouter(int x) {
-		final UUID satelliteUUID = x == -1 ? this.satelliteUUID.getValue() : advancedSatelliteUUIDList.get(x);
-		final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
-		return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
-	}
+    private @Nullable IRouter getSatelliteRouter(int x) {
+        final UUID satelliteUUID = x == -1 ? this.satelliteUUID.getValue() : advancedSatelliteUUIDList.get(x);
+        final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
+        return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+    }
 
-	@Override
-	public void deserialize(ValueInput input) {
-		super.deserialize(input);
+    @Override
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
 
-	}
+    }
 
-	public IBitSet outputFuzzy() {
-		final int startIdx = 4 * 9; // after the 9th slot
-		return fuzzyFlags.get(startIdx, startIdx + 3);
-	}
+    public IBitSet outputFuzzy() {
+        final int startIdx = 4 * 9; // after the 9th slot
+        return fuzzyFlags.get(startIdx, startIdx + 3);
+    }
 
-	public IBitSet inputFuzzy(int slot) {
-		final int startIdx = 4 * slot;
-		return fuzzyFlags.get(startIdx, startIdx + 3);
-	}
+    public IBitSet inputFuzzy(int slot) {
+        final int startIdx = 4 * slot;
+        return fuzzyFlags.get(startIdx, startIdx + 3);
+    }
 
-	/** Everything about this crafter the client cannot work out for itself. */
-	public CraftingModuleUpdateMessage getUpdateMessage() {
-		return new CraftingModuleUpdateMessage(
-				ModuleTarget.of(this),
-				List.of(Arrays.stream(liquidAmounts.getArray()).boxed().toArray(Integer[]::new)),
-				new ClientSideSatelliteNames(
-						getSatelliteNameForUUID(satelliteUUID.getValue()),
-						getSatelliteNamesForUUIDs(advancedSatelliteUUIDList),
-						getSatelliteNameForUUID(liquidSatelliteUUID.getValue()),
-						getSatelliteNamesForUUIDs(liquidSatelliteUUIDList)),
-				priority.getValue());
-	}
+    /**
+     * Everything about this crafter the client cannot work out for itself.
+     */
+    public CraftingModuleUpdateMessage getUpdateMessage() {
+        return new CraftingModuleUpdateMessage(
+            ModuleTarget.of(this),
+            List.of(Arrays.stream(liquidAmounts.getArray()).boxed().toArray(Integer[]::new)),
+            new ClientSideSatelliteNames(
+                getSatelliteNameForUUID(satelliteUUID.getValue()),
+                getSatelliteNamesForUUIDs(advancedSatelliteUUIDList),
+                getSatelliteNameForUUID(liquidSatelliteUUID.getValue()),
+                getSatelliteNamesForUUIDs(liquidSatelliteUUIDList)),
+            priority.getValue());
+    }
 
-	private String getSatelliteNameForUUID(UUID uuid) {
-		if (UUIDProperty.isZero(uuid)) {
-			return "";
-		}
-		int simpleId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
-		IRouter router = SimpleServiceLocator.routerManager.getRouter(simpleId);
-		if (router != null) {
-			CoreRoutedPipe pipe = router.getPipe();
-			if (pipe instanceof PipeItemsSatelliteLogistics) {
-				return ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
-			} else if (pipe instanceof PipeFluidSatellite) {
-				return ((PipeFluidSatellite) pipe).getSatellitePipeName();
-			}
-		}
-		return "UNKNOWN NAME";
-	}
+    private String getSatelliteNameForUUID(UUID uuid) {
+        if (UUIDProperty.isZero(uuid)) {
+            return "";
+        }
+        int simpleId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
+        IRouter router = SimpleServiceLocator.routerManager.getRouter(simpleId);
+        if (router != null) {
+            CoreRoutedPipe pipe = router.getPipe();
+            if (pipe instanceof PipeItemsSatelliteLogistics) {
+                return ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
+            } else if (pipe instanceof PipeFluidSatellite) {
+                return ((PipeFluidSatellite) pipe).getSatellitePipeName();
+            }
+        }
+        return "UNKNOWN NAME";
+    }
 
-	private List<String> getSatelliteNamesForUUIDs(UUIDListProperty list) {
-		return list.stream().map(this::getSatelliteNameForUUID).toList();
-	}
+    private List<String> getSatelliteNamesForUUIDs(UUIDListProperty list) {
+        return list.stream().map(this::getSatelliteNameForUUID).toList();
+    }
 
-	/** Applies an update from the server. */
-	public void applyUpdate(List<Integer> liquidAmountList, ClientSideSatelliteNames names, int newPriority) {
-		liquidAmounts.replaceContent(liquidAmountList);
-		clientSideSatelliteNames = names;
-		priority.setValue(newPriority);
-	}
+    /**
+     * Applies an update from the server.
+     */
+    public void applyUpdate(List<Integer> liquidAmountList, ClientSideSatelliteNames names, int newPriority) {
+        liquidAmounts.replaceContent(liquidAmountList);
+        clientSideSatelliteNames = names;
+        priority.setValue(newPriority);
+    }
 
-	@Override
-	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		if (inventory.player instanceof ServerPlayer serverPlayer) {
-			// What the screen shows besides the slots: satellites, priority, the fluid amounts.
-			PacketDistributor.sendToPlayer(serverPlayer, getUpdateMessage());
-		}
-		return new CraftingModuleMenu(containerId, inventory, target, this, screenLayout());
-	}
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+        if (inventory.player instanceof ServerPlayer serverPlayer) {
+            // What the screen shows besides the slots: satellites, priority, the fluid amounts.
+            PacketDistributor.sendToPlayer(serverPlayer, getUpdateMessage());
+        }
+        return new CraftingModuleMenu(containerId, inventory, target, this, screenLayout());
+    }
 
-	@Override
-	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
-		CraftingModuleMenu.Layout.STREAM_CODEC.encode(buffer, screenLayout());
-	}
+    @Override
+    public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+        CraftingModuleMenu.Layout.STREAM_CODEC.encode(buffer, screenLayout());
+    }
 
-	/**
-	 * What the module's upgrades make of its screen. A module held in hand has no upgrades, so it
-	 * gets the plain grid.
-	 */
-	private CraftingModuleMenu.Layout screenLayout() {
-		final boolean inWorld = getSlot() != ModulePositionType.IN_HAND;
-		return new CraftingModuleMenu.Layout(
-				inWorld && getUpgradeManager().isAdvancedSatelliteCrafter(),
-				inWorld ? getUpgradeManager().getFluidCrafter() : 0,
-				inWorld && getUpgradeManager().hasByproductExtractor(),
-				inWorld && getUpgradeManager().isFuzzyUpgrade(),
-				inWorld ? getUpgradeManager().getCrafterCleanup() : 0,
-				cleanupModeIsExclude.getValue(),
-				liquidAmounts.getArray());
-	}
+    /**
+     * What the module's upgrades make of its screen. A module held in hand has no upgrades, so it
+     * gets the plain grid.
+     */
+    private CraftingModuleMenu.Layout screenLayout() {
+        final boolean inWorld = getSlot() != ModulePositionType.IN_HAND;
+        return new CraftingModuleMenu.Layout(
+            inWorld && getUpgradeManager().isAdvancedSatelliteCrafter(),
+            inWorld ? getUpgradeManager().getFluidCrafter() : 0,
+            inWorld && getUpgradeManager().hasByproductExtractor(),
+            inWorld && getUpgradeManager().isFuzzyUpgrade(),
+            inWorld ? getUpgradeManager().getCrafterCleanup() : 0,
+            cleanupModeIsExclude.getValue(),
+            liquidAmounts.getArray());
+    }
 
-	public void importFromCraftingTable(@Nullable Player player) {
-		if (getWorld().isClientSide()) {
-			// Send packet asking for import
-			ClientPacketDistributor.sendToServer(new CrafterImportRecipeMessage(ModuleTarget.of(this)));
-		} else {
-			final IPipeServiceProvider service = this.service;
-			if (service == null) return;
-			service.getAvailableAdjacent().neighbors().keySet().stream().flatMap(
-					neighbor -> SimpleServiceLocator.craftingRecipeProviders.stream()
-							.filter(provider -> provider.importRecipe(neighbor.getBlockEntity(), dummyInventory))
-							.map(provider1 -> new Pair<>(neighbor, provider1))).findFirst()
-					.ifPresent(neighborProviderPair -> {
-						if (neighborProviderPair.getValue2() instanceof IFuzzyRecipeProvider) {
-							((IFuzzyRecipeProvider) neighborProviderPair.getValue2())
-									.importFuzzyFlags(neighborProviderPair.getValue1().getBlockEntity(),
-											dummyInventory.getSlotAccess(), fuzzyFlags);
-						}
-					});
+    public void importFromCraftingTable(@Nullable Player player) {
+        if (getLevel().isClientSide()) {
+            // Send packet asking for import
+            ClientPacketDistributor.sendToServer(new CrafterImportRecipeMessage(ModuleTarget.of(this)));
+        } else {
+            final IPipeServiceProvider service = this.service;
+            if (service == null) {
+                return;
+            }
+            service.getAvailableAdjacent().neighbors().keySet().stream().flatMap(
+                    neighbor -> SimpleServiceLocator.craftingRecipeProviders.stream()
+                        .filter(provider -> provider.importRecipe(neighbor.getBlockEntity(), dummyInventory))
+                        .map(provider1 -> new Pair<>(neighbor, provider1))).findFirst()
+                .ifPresent(neighborProviderPair -> {
+                    if (neighborProviderPair.getValue2() instanceof IFuzzyRecipeProvider) {
+                        ((IFuzzyRecipeProvider) neighborProviderPair.getValue2())
+                            .importFuzzyFlags(neighborProviderPair.getValue1().getBlockEntity(),
+                                dummyInventory.getSlotAccess(), fuzzyFlags);
+                    }
+                });
 
-			// Send inventory as message
-			final List<ItemStack> slots = new ArrayList<>(dummyInventory.getContainerSize());
-			for (int slot = 0; slot < dummyInventory.getContainerSize(); slot++) {
-				slots.add(dummyInventory.getItem(slot));
-			}
-			final CraftingDummyInventoryMessage message =
-					new CraftingDummyInventoryMessage(ModuleTarget.of(this), slots);
-			if (player instanceof ServerPlayer serverPlayer) {
-				PacketDistributor.sendToPlayer(serverPlayer, message);
-			}
-			TargetLookup.sendToChunkWatchers(getWorld(), getBlockPos(), message);
-		}
-	}
+            // Send inventory as message
+            final List<ItemStack> slots = new ArrayList<>(dummyInventory.getContainerSize());
+            for (int slot = 0; slot < dummyInventory.getContainerSize(); slot++) {
+                slots.add(dummyInventory.getItem(slot));
+            }
+            final CraftingDummyInventoryMessage message =
+                new CraftingDummyInventoryMessage(ModuleTarget.of(this), slots);
+            if (player instanceof ServerPlayer serverPlayer) {
+                PacketDistributor.sendToPlayer(serverPlayer, message);
+            }
+            TargetLookup.sendToChunkWatchers(getLevel(), getBlockPos(), message);
+        }
+    }
 
-	public @Nullable ItemIdentifierStack getByproductItem() {
-		return dummyInventory.getIDStackInSlot(10);
-	}
+    public @Nullable ItemIdentifierStack getByproductItem() {
+        return dummyInventory.getIDStackInSlot(10);
+    }
 
-	public @Nullable FluidIdentifier getFluidMaterial(int slotnr) {
-		ItemIdentifierStack stack = liquidInventory.getIDStackInSlot(slotnr);
-		if (stack == null) {
-			return null;
-		}
-		return FluidIdentifier.get(stack.getItem());
-	}
+    public @Nullable FluidIdentifier getFluidMaterial(int slotnr) {
+        ItemIdentifierStack stack = liquidInventory.getIDStackInSlot(slotnr);
+        if (stack == null) {
+            return null;
+        }
+        return FluidIdentifier.get(stack.getItem());
+    }
 
-	public void changeFluidAmount(int change, int slot, Player player) {
+    public void changeFluidAmount(int change, int slot, Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             liquidAmounts.increase(slot, change);
             if (liquidAmounts.get(slot) <= 0) {
@@ -765,499 +797,520 @@ public class ModuleCrafter extends LogisticsModule
             ClientPacketDistributor.sendToServer(
                 new ChangeFluidCraftingAmountMessage(ModuleTarget.of(this), slot, change));
         }
-	}
+    }
 
-	private @Nullable IRouter getFluidSatelliteRouter(int x) {
-		final UUID liquidSatelliteUUID = x == -1 ? this.liquidSatelliteUUID.getValue() : liquidSatelliteUUIDList.get(x);
-		final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(liquidSatelliteUUID);
-		return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
-	}
+    private @Nullable IRouter getFluidSatelliteRouter(int x) {
+        final UUID liquidSatelliteUUID = x == -1 ? this.liquidSatelliteUUID.getValue() : liquidSatelliteUUIDList.get(x);
+        final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(liquidSatelliteUUID);
+        return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+    }
 
-	/**
-	 * Triggers opening the first possible crafting provider or inventory GUI by using onBlockActivated.
-	 *
-	 * @return true, if a GUI was opened (server-side only)
-	 */
-	public boolean openAttachedGui(Player player) {
-		if (player.level().isClientSide()) {
-			player.closeContainer();
-			ClientPacketDistributor.sendToServer(new OpenAttachedCrafterGuiMessage(ModuleTarget.of(this)));
-			return false;
-		}
+    /**
+     * Triggers opening the first possible crafting provider or inventory GUI by using onBlockActivated.
+     *
+     * @return true, if a GUI was opened (server-side only)
+     */
+    public boolean openAttachedGui(Player player) {
+        if (player.level().isClientSide()) {
+            player.closeContainer();
+            ClientPacketDistributor.sendToServer(new OpenAttachedCrafterGuiMessage(ModuleTarget.of(this)));
+            return false;
+        }
 
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return false;
-		if (!(player instanceof ServerPlayer serverPlayer)) return false;
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return false;
+        }
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
 
-		final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream()
-				.filter(neighbor -> neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
-						.anyMatch(provider -> provider.canOpenGui(neighbor.getBlockEntity())))
-				.anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getBlockEntity().getBlockPos()));
-		if (!guiOpened) {
-			LogisticsPipes.LOG.warn("Ignored open attached GUI request at {} @ {}", player.level(), getBlockPos());
-		}
-		return guiOpened;
-	}
+        final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream()
+            .filter(neighbor -> neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
+                .anyMatch(provider -> provider.canOpenGui(neighbor.getBlockEntity())))
+            .anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getBlockEntity().getBlockPos()));
+        if (!guiOpened) {
+            LogisticsPipes.LOG.warn("Ignored open attached GUI request at {} @ {}", player.level(), getBlockPos());
+        }
+        return guiOpened;
+    }
 
-	public void enabledUpdateEntity() {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return;
+    public void enabledUpdateEntity() {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return;
+        }
 
-		if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
-			if (service.isNthTick(6)) {
-				cacheAreAllOrderesToBuffer();
-			}
-			if (service.getItemOrderManager().isFirstOrderWatched()) {
-				BlockEntity tile = lastAccessedCrafter.get();
-				if (tile != null) {
-					service.getItemOrderManager()
-							.setMachineProgress(SimpleServiceLocator.machineProgressProvider.getProgressForBlockEntity(tile));
-				} else {
-					service.getItemOrderManager().setMachineProgress((byte) 0);
-				}
-			}
-		} else {
-			cachedAreAllOrderesToBuffer = false;
-		}
+        if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
+            if (service.isNthTick(6)) {
+                cacheAreAllOrderesToBuffer();
+            }
+            if (service.getItemOrderManager().isFirstOrderWatched()) {
+                BlockEntity tile = lastAccessedCrafter.get();
+                if (tile != null) {
+                    service.getItemOrderManager()
+                        .setMachineProgress(
+                            SimpleServiceLocator.machineProgressProvider.getProgressForBlockEntity(tile));
+                } else {
+                    service.getItemOrderManager().setMachineProgress((byte) 0);
+                }
+            }
+        } else {
+            cachedAreAllOrderesToBuffer = false;
+        }
 
-		if (!service.isNthTick(6)) {
-			return;
-		}
+        if (!service.isNthTick(6)) {
+            return;
+        }
 
-		final List<NeighborBlockEntity<BlockEntity>> adjacentInventories = service.getAvailableAdjacent().inventories();
+        final List<NeighborBlockEntity<BlockEntity>> adjacentInventories = service.getAvailableAdjacent().inventories();
 
-		if (!service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
-			final ISlotUpgradeManager upgradeManager = Objects.requireNonNull(getUpgradeManager());
-			if (upgradeManager.getCrafterCleanup() > 0) {
-				adjacentInventories.stream()
-						.map(neighbor -> extractFiltered(neighbor, cleanupInventory, cleanupModeIsExclude.getValue(),
-								upgradeManager.getCrafterCleanup() * 3)).filter(stack -> !stack.isEmpty()).findFirst()
-						.ifPresent(extracted -> {
-							service.queueRoutedItem(
-									SimpleServiceLocator.routedItemHelper.createNewTravelItem(extracted),
-									Direction.UP);
-							service.getCacheHolder().trigger(CacheTypes.Inventory);
-						});
-			}
-			return;
-		}
+        if (!service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
+            final ISlotUpgradeManager upgradeManager = Objects.requireNonNull(getUpgradeManager());
+            if (upgradeManager.getCrafterCleanup() > 0) {
+                adjacentInventories.stream()
+                    .map(neighbor -> extractFiltered(neighbor, cleanupInventory, cleanupModeIsExclude.getValue(),
+                        upgradeManager.getCrafterCleanup() * 3)).filter(stack -> !stack.isEmpty()).findFirst()
+                    .ifPresent(extracted -> {
+                        service.queueRoutedItem(
+                            SimpleServiceLocator.routedItemHelper.createNewTravelItem(extracted),
+                            Direction.UP);
+                        service.getCacheHolder().trigger(CacheTypes.Inventory);
+                    });
+            }
+            return;
+        }
 
-		if (adjacentInventories.size() < 1) {
-			if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
-				service.getItemOrderManager().sendFailed();
-			}
-			return;
-		}
+        if (adjacentInventories.size() < 1) {
+            if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
+                service.getItemOrderManager().sendFailed();
+            }
+            return;
+        }
 
-		List<ItemIdentifierStack> wantedItem = getCraftedItems();
-		if (wantedItem == null || wantedItem.isEmpty()) {
-			return;
-		}
+        List<ItemIdentifierStack> wantedItem = getCraftedItems();
+        if (wantedItem == null || wantedItem.isEmpty()) {
+            return;
+        }
 
-		service.spawnParticle(Particles.VIOLET_SPARKLE, 2);
+        service.spawnParticle(Particles.VIOLET_SPARKLE, 2);
 
-		int itemsLeft = itemsToExtract();
-		int stacksLeft = stacksToExtract();
-		while (itemsLeft > 0 && stacksLeft > 0 && (service.getItemOrderManager()
-				.hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA))) {
-			LogisticsItemOrder nextOrder = service.getItemOrderManager()
-					.peekAtTopRequest(ResourceType.CRAFTING, ResourceType.EXTRA); // fetch but not remove.
-			int maxToSend = Math.min(itemsLeft, nextOrder.getResource().stack.getStackSize());
-			maxToSend = Math.min(nextOrder.getResource().getItem().getMaxStackSize(), maxToSend);
-			// retrieve the new crafted items
-			ItemStack extracted = ItemStack.EMPTY;
-			NeighborBlockEntity<BlockEntity> adjacent = null; // there has to be at least one adjacentCrafter at this point; adjacent wont stay null
-			for (NeighborBlockEntity<BlockEntity> adjacentCrafter : adjacentInventories) {
-				adjacent = adjacentCrafter;
-				extracted = extract(adjacent, nextOrder.getResource(), maxToSend);
-				if (!extracted.isEmpty()) {
-					break;
-				}
-			}
-			if (extracted.isEmpty()) {
-				service.getItemOrderManager().deferSend();
-				break;
-			}
-			service.getCacheHolder().trigger(CacheTypes.Inventory);
-			Objects.requireNonNull(adjacent);
-			lastAccessedCrafter = new WeakReference<>(adjacent.getBlockEntity());
-			// send the new crafted items to the destination
-			ItemIdentifier extractedID = ItemIdentifier.get(extracted);
-			while (!extracted.isEmpty()) {
-				if (isExtractedMismatch(nextOrder, extractedID)) {
-					LogisticsItemOrder startOrder = nextOrder;
-					if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
-						do {
-							service.getItemOrderManager().deferSend();
-							nextOrder = service.getItemOrderManager()
-									.peekAtTopRequest(ResourceType.CRAFTING, ResourceType.EXTRA);
-						} while (isExtractedMismatch(nextOrder, extractedID) && startOrder != nextOrder);
-					}
-					if (startOrder == nextOrder) {
-						int numToSend = Math.min(extracted.getCount(), extractedID.getMaxStackSize());
-						if (numToSend == 0) {
-							break;
-						}
-						stacksLeft -= 1;
-						itemsLeft -= numToSend;
-						ItemStack stackToSend = extracted.split(numToSend);
-						//Route the unhandled item
+        int itemsLeft = itemsToExtract();
+        int stacksLeft = stacksToExtract();
+        while (itemsLeft > 0 && stacksLeft > 0 && (service.getItemOrderManager()
+            .hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA))) {
+            LogisticsItemOrder nextOrder = service.getItemOrderManager()
+                .peekAtTopRequest(ResourceType.CRAFTING, ResourceType.EXTRA); // fetch but not remove.
+            int maxToSend = Math.min(itemsLeft, nextOrder.getResource().stack.getStackSize());
+            maxToSend = Math.min(nextOrder.getResource().getItem().getMaxStackSize(), maxToSend);
+            // retrieve the new crafted items
+            ItemStack extracted = ItemStack.EMPTY;
+            NeighborBlockEntity<BlockEntity> adjacent = null; // there has to be at least one adjacentCrafter at this point; adjacent wont stay null
+            for (NeighborBlockEntity<BlockEntity> adjacentCrafter : adjacentInventories) {
+                adjacent = adjacentCrafter;
+                extracted = extract(adjacent, nextOrder.getResource(), maxToSend);
+                if (!extracted.isEmpty()) {
+                    break;
+                }
+            }
+            if (extracted.isEmpty()) {
+                service.getItemOrderManager().deferSend();
+                break;
+            }
+            service.getCacheHolder().trigger(CacheTypes.Inventory);
+            Objects.requireNonNull(adjacent);
+            lastAccessedCrafter = new WeakReference<>(adjacent.getBlockEntity());
+            // send the new crafted items to the destination
+            ItemIdentifier extractedID = ItemIdentifier.get(extracted);
+            while (!extracted.isEmpty()) {
+                if (isExtractedMismatch(nextOrder, extractedID)) {
+                    LogisticsItemOrder startOrder = nextOrder;
+                    if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
+                        do {
+                            service.getItemOrderManager().deferSend();
+                            nextOrder = service.getItemOrderManager()
+                                .peekAtTopRequest(ResourceType.CRAFTING, ResourceType.EXTRA);
+                        } while (isExtractedMismatch(nextOrder, extractedID) && startOrder != nextOrder);
+                    }
+                    if (startOrder == nextOrder) {
+                        int numToSend = Math.min(extracted.getCount(), extractedID.getMaxStackSize());
+                        if (numToSend == 0) {
+                            break;
+                        }
+                        stacksLeft -= 1;
+                        itemsLeft -= numToSend;
+                        ItemStack stackToSend = extracted.split(numToSend);
+                        //Route the unhandled item
 
-						service.sendStack(stackToSend, -1, ItemSendMode.NORMAL, null, adjacent.getDirection());
-						continue;
-					}
-				}
-				int numToSend = Math.min(extracted.getCount(), extractedID.getMaxStackSize());
-				numToSend = Math.min(numToSend, nextOrder.getResource().stack.getStackSize());
-				if (numToSend == 0) {
-					break;
-				}
-				stacksLeft -= 1;
-				itemsLeft -= numToSend;
-				ItemStack stackToSend = extracted.split(numToSend);
-				if (nextOrder.getDestination() != null) {
-					SinkReply reply = LogisticsManager
-							.canSink(stackToSend, nextOrder.getDestination().getRouter(), null, true,
-									ItemIdentifier.get(stackToSend), null, true, false);
-					boolean deferSend = (reply == null || reply.bufferMode != BufferMode.NONE
-							|| reply.maxNumberOfItems < 1);
-					IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend);
-					item.setDestination(nextOrder.getDestination().getRouter().getSimpleID());
-					item.setTransportMode(TransportMode.Active);
-					item.setAdditionalTargetInformation(nextOrder.getInformation());
-					service.queueRoutedItem(item, adjacent.getDirection());
-					service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), deferSend, item);
-				} else {
-					service.sendStack(stackToSend, -1, ItemSendMode.NORMAL, nextOrder.getInformation(),
-							adjacent.getDirection());
-					service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), false, null);
-				}
-				if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
-					nextOrder = service.getItemOrderManager()
-							.peekAtTopRequest(ResourceType.CRAFTING, ResourceType.EXTRA); // fetch but not remove.
-				}
-			}
-		}
+                        service.sendStack(stackToSend, -1, ItemSendMode.NORMAL, null, adjacent.getDirection());
+                        continue;
+                    }
+                }
+                int numToSend = Math.min(extracted.getCount(), extractedID.getMaxStackSize());
+                numToSend = Math.min(numToSend, nextOrder.getResource().stack.getStackSize());
+                if (numToSend == 0) {
+                    break;
+                }
+                stacksLeft -= 1;
+                itemsLeft -= numToSend;
+                ItemStack stackToSend = extracted.split(numToSend);
+                if (nextOrder.getDestination() != null) {
+                    SinkReply reply = LogisticsManager
+                        .canSink(stackToSend, nextOrder.getDestination().getRouter(), null, true,
+                            ItemIdentifier.get(stackToSend), null, true, false);
+                    boolean deferSend = (reply == null || reply.bufferMode != BufferMode.NONE
+                        || reply.maxNumberOfItems < 1);
+                    IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend);
+                    item.setDestination(nextOrder.getDestination().getRouter().getSimpleID());
+                    item.setTransportMode(TransportMode.Active);
+                    item.setAdditionalTargetInformation(nextOrder.getInformation());
+                    service.queueRoutedItem(item, adjacent.getDirection());
+                    service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), deferSend, item);
+                } else {
+                    service.sendStack(stackToSend, -1, ItemSendMode.NORMAL, nextOrder.getInformation(),
+                        adjacent.getDirection());
+                    service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), false, null);
+                }
+                if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
+                    nextOrder = service.getItemOrderManager()
+                        .peekAtTopRequest(ResourceType.CRAFTING, ResourceType.EXTRA); // fetch but not remove.
+                }
+            }
+        }
 
-	}
+    }
 
-	private boolean isExtractedMismatch(LogisticsItemOrder nextOrder, ItemIdentifier extractedID) {
-		return !nextOrder.getResource().getItem().equals(extractedID) && (!getUpgradeManager().isFuzzyUpgrade() || (
-				nextOrder.getResource().getBitSet().nextSetBit(0) == -1) || !nextOrder.getResource()
-				.matches(extractedID, IResource.MatchSettings.NORMAL));
-	}
+    private boolean isExtractedMismatch(LogisticsItemOrder nextOrder, ItemIdentifier extractedID) {
+        return !nextOrder.getResource().getItem().equals(extractedID) && (!getUpgradeManager().isFuzzyUpgrade() || (
+            nextOrder.getResource().getBitSet().nextSetBit(0) == -1) || !nextOrder.getResource()
+            .matches(extractedID, IResource.MatchSettings.NORMAL));
+    }
 
-	public boolean areAllOrderesToBuffer() {
-		return cachedAreAllOrderesToBuffer;
-	}
+    public boolean areAllOrderesToBuffer() {
+        return cachedAreAllOrderesToBuffer;
+    }
 
-	public void cacheAreAllOrderesToBuffer() {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return;
-		boolean result = true;
-		for (LogisticsItemOrder order : service.getItemOrderManager()) {
-			if (order.getDestination() instanceof IItemSpaceControl) {
-				SinkReply reply = LogisticsManager
-						.canSink(order.getResource().stack.makeNormalStack(), order.getDestination().getRouter(), null,
-								true, order.getResource().getItem(), null, true, false);
-				if (reply != null && reply.bufferMode == BufferMode.NONE && reply.maxNumberOfItems >= 1) {
-					result = false;
-					break;
-				}
-			} else { // No Space control
-				result = false;
-				break;
-			}
-		}
-		cachedAreAllOrderesToBuffer = result;
-	}
+    public void cacheAreAllOrderesToBuffer() {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return;
+        }
+        boolean result = true;
+        for (LogisticsItemOrder order : service.getItemOrderManager()) {
+            if (order.getDestination() instanceof IItemSpaceControl) {
+                SinkReply reply = LogisticsManager
+                    .canSink(order.getResource().stack.makeNormalStack(), order.getDestination().getRouter(), null,
+                        true, order.getResource().getItem(), null, true, false);
+                if (reply != null && reply.bufferMode == BufferMode.NONE && reply.maxNumberOfItems >= 1) {
+                    result = false;
+                    break;
+                }
+            } else { // No Space control
+                result = false;
+                break;
+            }
+        }
+        cachedAreAllOrderesToBuffer = result;
+    }
 
-	private ItemStack extract(NeighborBlockEntity<BlockEntity> adjacent, IResource item, int amount) {
-		return NeighborBlockEntityUtil.optionalIs(adjacent, LogisticsCraftingTableBlockEntity.class)
-				.map(adjacentCraftingTable -> extractFromLogisticsCraftingTable(adjacentCraftingTable, item, amount))
-				.orElseGet(() -> {
-					final IInventoryUtil invUtil = NeighborBlockEntityUtil.getInventoryUtil(adjacent);
-					if (invUtil == null) return ItemStack.EMPTY;
-					return extractFromInventory(invUtil, item, amount);
-				});
-	}
+    private ItemStack extract(NeighborBlockEntity<BlockEntity> adjacent, IResource item, int amount) {
+        return NeighborBlockEntityUtil.optionalIs(adjacent, LogisticsCraftingTableBlockEntity.class)
+            .map(adjacentCraftingTable -> extractFromLogisticsCraftingTable(adjacentCraftingTable, item, amount))
+            .orElseGet(() -> {
+                final IInventoryUtil invUtil = NeighborBlockEntityUtil.getInventoryUtil(adjacent);
+                if (invUtil == null) {
+                    return ItemStack.EMPTY;
+                }
+                return extractFromInventory(invUtil, item, amount);
+            });
+    }
 
-	private ItemStack extractFiltered(NeighborBlockEntity<BlockEntity> neighbor, IItemIdentifierInventory inv,
-			boolean isExcluded, int filterInvLimit) {
-		final IInventoryUtil invUtil = NeighborBlockEntityUtil.getInventoryUtil(neighbor);
-		if (invUtil == null) return ItemStack.EMPTY;
-		return extractFromInventoryFiltered(invUtil, inv, isExcluded, filterInvLimit);
-	}
+    private ItemStack extractFiltered(NeighborBlockEntity<BlockEntity> neighbor, IItemIdentifierInventory inv,
+        boolean isExcluded, int filterInvLimit) {
+        final IInventoryUtil invUtil = NeighborBlockEntityUtil.getInventoryUtil(neighbor);
+        if (invUtil == null) {
+            return ItemStack.EMPTY;
+        }
+        return extractFromInventoryFiltered(invUtil, inv, isExcluded, filterInvLimit);
+    }
 
-	private ItemStack extractFromInventory(IInventoryUtil invUtil, IResource wantedItem, int count) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return ItemStack.EMPTY;
-		ItemIdentifier itemToExtract = null;
-		if (wantedItem instanceof ItemResource) {
-			itemToExtract = ((ItemResource) wantedItem).getItem();
-		} else if (wantedItem instanceof DictResource) {
-			int max = Integer.MIN_VALUE;
-			ItemIdentifier toExtract = null;
-			for (Map.Entry<ItemIdentifier, Integer> content : invUtil.getItemsAndCount().entrySet()) {
-				if (wantedItem.matches(content.getKey(), IResource.MatchSettings.NORMAL)) {
-					if (content.getValue() > max) {
-						max = content.getValue();
-						toExtract = content.getKey();
-					}
-				}
-			}
-			if (toExtract == null) {
-				return ItemStack.EMPTY;
-			}
-			itemToExtract = toExtract;
-		}
-		if (itemToExtract == null) return ItemStack.EMPTY;
-		int available = invUtil.itemCount(itemToExtract);
-		if (available == 0 || !service.canUseEnergy(neededEnergy() * Math.min(count, available))) {
-			return ItemStack.EMPTY;
-		}
-		ItemStack extracted = invUtil.getMultipleItems(itemToExtract, Math.min(count, available));
-		service.useEnergy(neededEnergy() * extracted.getCount());
-		return extracted;
-	}
+    private ItemStack extractFromInventory(IInventoryUtil invUtil, IResource wantedItem, int count) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return ItemStack.EMPTY;
+        }
+        ItemIdentifier itemToExtract = null;
+        if (wantedItem instanceof ItemResource) {
+            itemToExtract = ((ItemResource) wantedItem).getItem();
+        } else if (wantedItem instanceof DictResource) {
+            int max = Integer.MIN_VALUE;
+            ItemIdentifier toExtract = null;
+            for (Map.Entry<ItemIdentifier, Integer> content : invUtil.getItemsAndCount().entrySet()) {
+                if (wantedItem.matches(content.getKey(), IResource.MatchSettings.NORMAL)) {
+                    if (content.getValue() > max) {
+                        max = content.getValue();
+                        toExtract = content.getKey();
+                    }
+                }
+            }
+            if (toExtract == null) {
+                return ItemStack.EMPTY;
+            }
+            itemToExtract = toExtract;
+        }
+        if (itemToExtract == null) {
+            return ItemStack.EMPTY;
+        }
+        int available = invUtil.itemCount(itemToExtract);
+        if (available == 0 || !service.canUseEnergy(neededEnergy() * Math.min(count, available))) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack extracted = invUtil.getMultipleItems(itemToExtract, Math.min(count, available));
+        service.useEnergy(neededEnergy() * extracted.getCount());
+        return extracted;
+    }
 
-	private ItemStack extractFromInventoryFiltered(IInventoryUtil invUtil, IItemIdentifierInventory filter,
-			boolean isExcluded, int filterInvLimit) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return ItemStack.EMPTY;
+    private ItemStack extractFromInventoryFiltered(IInventoryUtil invUtil, IItemIdentifierInventory filter,
+        boolean isExcluded, int filterInvLimit) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return ItemStack.EMPTY;
+        }
 
-		ItemIdentifier wantedItem = null;
-		boolean found = false;
-		for (ItemIdentifier item : invUtil.getItemsAndCount().keySet()) {
-			found = isFiltered(filter, filterInvLimit, item, found);
-			if (isExcluded != found) {
-				wantedItem = item;
-				break;
-			}
-		}
-		if (wantedItem == null) {
-			return ItemStack.EMPTY;
-		}
-		int available = invUtil.itemCount(wantedItem);
-		if (available == 0 || !service.canUseEnergy(neededEnergy() * Math.min(64, available))) {
-			return ItemStack.EMPTY;
-		}
-		ItemStack extracted = invUtil.getMultipleItems(wantedItem, Math.min(64, available));
-		service.useEnergy(neededEnergy() * extracted.getCount());
-		return extracted;
-	}
+        ItemIdentifier wantedItem = null;
+        boolean found = false;
+        for (ItemIdentifier item : invUtil.getItemsAndCount().keySet()) {
+            found = isFiltered(filter, filterInvLimit, item, found);
+            if (isExcluded != found) {
+                wantedItem = item;
+                break;
+            }
+        }
+        if (wantedItem == null) {
+            return ItemStack.EMPTY;
+        }
+        int available = invUtil.itemCount(wantedItem);
+        if (available == 0 || !service.canUseEnergy(neededEnergy() * Math.min(64, available))) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack extracted = invUtil.getMultipleItems(wantedItem, Math.min(64, available));
+        service.useEnergy(neededEnergy() * extracted.getCount());
+        return extracted;
+    }
 
-	private boolean isFiltered(IItemIdentifierInventory filter, int filterInvLimit, ItemIdentifier item,
-			boolean found) {
-		for (int i = 0; i < filter.getContainerSize() && i < filterInvLimit; i++) {
-			ItemIdentifierStack identStack = filter.getIDStackInSlot(i);
-			if (identStack == null) {
-				continue;
-			}
-			if (identStack.getItem().equalsWithoutNBT(item)) {
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
+    private boolean isFiltered(IItemIdentifierInventory filter, int filterInvLimit, ItemIdentifier item,
+        boolean found) {
+        for (int i = 0; i < filter.getContainerSize() && i < filterInvLimit; i++) {
+            ItemIdentifierStack identStack = filter.getIDStackInSlot(i);
+            if (identStack == null) {
+                continue;
+            }
+            if (identStack.getItem().equalsWithoutNBT(item)) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
 
-	private ItemStack extractFromLogisticsCraftingTable(
-			NeighborBlockEntity<LogisticsCraftingTableBlockEntity> adjacentCraftingTable, IResource wantedItem,
-			int count) {
-		final IPipeServiceProvider service = this.service;
-		if (service == null) return ItemStack.EMPTY;
-		ItemStack extracted = extractFromInventory(
-				Objects.requireNonNull(NeighborBlockEntityUtil.getInventoryUtil(adjacentCraftingTable)), wantedItem,
-				count);
-		if (!extracted.isEmpty()) {
-			return extracted;
-		}
-		ItemStack retStack = ItemStack.EMPTY;
-		while (count > 0) {
-			ItemStack stack = adjacentCraftingTable.getBlockEntity().getOutput(wantedItem, service);
-			if (stack.isEmpty()) {
-				break;
-			}
-			if (retStack.isEmpty()) {
-				if (!wantedItem.matches(ItemIdentifier.get(stack), wantedItem instanceof ItemResource ?
-						IResource.MatchSettings.WITHOUT_NBT :
-						IResource.MatchSettings.NORMAL)) {
-					break;
-				}
-			} else {
-				if (!ItemStack.isSameItem(retStack, stack)) {
-					break;
-				}
-				if (!ItemStack.isSameItemSameComponents(retStack, stack)) {
-					break;
-				}
-			}
-			if (!service.useEnergy(neededEnergy() * stack.getCount())) {
-				break;
-			}
+    private ItemStack extractFromLogisticsCraftingTable(
+        NeighborBlockEntity<LogisticsCraftingTableBlockEntity> adjacentCraftingTable, IResource wantedItem,
+        int count) {
+        final IPipeServiceProvider service = this.service;
+        if (service == null) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack extracted = extractFromInventory(
+            Objects.requireNonNull(NeighborBlockEntityUtil.getInventoryUtil(adjacentCraftingTable)), wantedItem,
+            count);
+        if (!extracted.isEmpty()) {
+            return extracted;
+        }
+        ItemStack retStack = ItemStack.EMPTY;
+        while (count > 0) {
+            ItemStack stack = adjacentCraftingTable.getBlockEntity().getOutput(wantedItem, service);
+            if (stack.isEmpty()) {
+                break;
+            }
+            if (retStack.isEmpty()) {
+                if (!wantedItem.matches(ItemIdentifier.get(stack), wantedItem instanceof ItemResource ?
+                    IResource.MatchSettings.WITHOUT_NBT :
+                    IResource.MatchSettings.NORMAL)) {
+                    break;
+                }
+            } else {
+                if (!ItemStack.isSameItem(retStack, stack)) {
+                    break;
+                }
+                if (!ItemStack.isSameItemSameComponents(retStack, stack)) {
+                    break;
+                }
+            }
+            if (!service.useEnergy(neededEnergy() * stack.getCount())) {
+                break;
+            }
 
-			if (retStack.isEmpty()) {
-				retStack = stack;
-			} else {
-				retStack.grow(stack.getCount());
-			}
-			count -= stack.getCount();
-			if (Objects.requireNonNull(getUpgradeManager()).isFuzzyUpgrade()) {
-				break;
-			}
-		}
-		return retStack;
-	}
+            if (retStack.isEmpty()) {
+                retStack = stack;
+            } else {
+                retStack.grow(stack.getCount());
+            }
+            count -= stack.getCount();
+            if (Objects.requireNonNull(getUpgradeManager()).isFuzzyUpgrade()) {
+                break;
+            }
+        }
+        return retStack;
+    }
 
-	protected int neededEnergy() {
-		return (int) (10 * Math.pow(1.1, getUpgradeManager().getItemExtractionUpgrade()) * Math
-				.pow(1.2, getUpgradeManager().getItemStackExtractionUpgrade()));
-	}
+    protected int neededEnergy() {
+        return (int) (10 * Math.pow(1.1, getUpgradeManager().getItemExtractionUpgrade()) * Math
+            .pow(1.2, getUpgradeManager().getItemStackExtractionUpgrade()));
+    }
 
-	protected int itemsToExtract() {
-		return (int) Math.pow(2, getUpgradeManager().getItemExtractionUpgrade());
-	}
+    protected int itemsToExtract() {
+        return (int) Math.pow(2, getUpgradeManager().getItemExtractionUpgrade());
+    }
 
-	protected int stacksToExtract() {
-		return 1 + getUpgradeManager().getItemStackExtractionUpgrade();
-	}
+    protected int stacksToExtract() {
+        return 1 + getUpgradeManager().getItemStackExtractionUpgrade();
+    }
 
-	public void importCleanup() {
-		for (int i = 0; i < 10; i++) {
-			final ItemIdentifierStack identStack = dummyInventory.getIDStackInSlot(i);
-			if (identStack == null) {
-				cleanupInventory.clearInventorySlotContents(i);
-			} else {
-				cleanupInventory.setItem(i, new ItemIdentifierStack(identStack));
-			}
-		}
-		for (int i = 10; i < cleanupInventory.getContainerSize(); i++) {
-			cleanupInventory.clearInventorySlotContents(i);
-		}
-		cleanupInventory.getSlotAccess().compactFirst(10);
-		cleanupInventory.recheckStackLimit();
-		cleanupModeIsExclude.setValue(false);
-	}
+    public void importCleanup() {
+        for (int i = 0; i < 10; i++) {
+            final ItemIdentifierStack identStack = dummyInventory.getIDStackInSlot(i);
+            if (identStack == null) {
+                cleanupInventory.clearInventorySlotContents(i);
+            } else {
+                cleanupInventory.setItem(i, new ItemIdentifierStack(identStack));
+            }
+        }
+        for (int i = 10; i < cleanupInventory.getContainerSize(); i++) {
+            cleanupInventory.clearInventorySlotContents(i);
+        }
+        cleanupInventory.getSlotAccess().compactFirst(10);
+        cleanupInventory.recheckStackLimit();
+        cleanupModeIsExclude.setValue(false);
+    }
 
+    @Override
+    public void startWatching(Player player) {
+        localModeWatchers.add(player);
+    }
 
+    @Override
+    public void stopWatching(Player player) {
+        localModeWatchers.remove(player);
+    }
 
-	@Override
-	public void startWatching(Player player) {
-		localModeWatchers.add(player);
-	}
+    @Override
+    public @Nullable IHUDModuleRenderer getHUDRenderer() {
+        return null;
+    }
 
-	@Override
-	public void stopWatching(Player player) {
-		localModeWatchers.remove(player);
-	}
+    private void updateSatellitesOnClient() {
+        guiWatcher.send(getUpdateMessage());
+    }
 
-	@Override
-	public @Nullable IHUDModuleRenderer getHUDRenderer() {
-		return null;
-	}
+    public void setSatelliteUUID(@Nullable UUID pipeID) {
+        if (pipeID == null) {
+            satelliteUUID.zero();
+        } else {
+            satelliteUUID.setValue(pipeID);
+        }
+        updateSatellitesOnClient();
 
-	private void updateSatellitesOnClient() {
-		guiWatcher.send(getUpdateMessage());
-	}
+    }
 
-	public void setSatelliteUUID(@Nullable UUID pipeID) {
-		if (pipeID == null) {
-			satelliteUUID.zero();
-		} else {
-			satelliteUUID.setValue(pipeID);
-		}
-		updateSatellitesOnClient();
+    public void setAdvancedSatelliteUUID(int i, @Nullable UUID pipeID) {
+        if (pipeID == null) {
+            advancedSatelliteUUIDList.zero(i);
+        } else {
+            advancedSatelliteUUIDList.set(i, pipeID);
+        }
+        updateSatellitesOnClient();
 
-	}
+    }
 
-	public void setAdvancedSatelliteUUID(int i, @Nullable UUID pipeID) {
-		if (pipeID == null) {
-			advancedSatelliteUUIDList.zero(i);
-		} else {
-			advancedSatelliteUUIDList.set(i, pipeID);
-		}
-		updateSatellitesOnClient();
+    public void setFluidSatelliteUUID(@Nullable UUID pipeID) {
+        if (pipeID == null) {
+            liquidSatelliteUUID.zero();
+        } else {
+            liquidSatelliteUUID.setValue(pipeID);
+        }
+        updateSatellitesOnClient();
 
-	}
+    }
 
-	public void setFluidSatelliteUUID(@Nullable UUID pipeID) {
-		if (pipeID == null) {
-			liquidSatelliteUUID.zero();
-		} else {
-			liquidSatelliteUUID.setValue(pipeID);
-		}
-		updateSatellitesOnClient();
+    public void setAdvancedFluidSatelliteUUID(int i, @Nullable UUID pipeID) {
+        if (pipeID == null) {
+            liquidSatelliteUUIDList.zero(i);
+        } else {
+            liquidSatelliteUUIDList.set(i, pipeID);
+        }
+        updateSatellitesOnClient();
 
-	}
+    }
 
-	public void setAdvancedFluidSatelliteUUID(int i, @Nullable UUID pipeID) {
-		if (pipeID == null) {
-			liquidSatelliteUUIDList.zero(i);
-		} else {
-			liquidSatelliteUUIDList.set(i, pipeID);
-		}
-		updateSatellitesOnClient();
+    @Override
+    public void screenOpenedByPlayer(Player player) {
+        guiWatcher.add(player);
+    }
 
-	}
+    @Override
+    public void screenClosedByPlayer(Player player) {
+        guiWatcher.remove(player);
+    }
 
-	@Override
-	public void screenOpenedByPlayer(Player player) {
-		guiWatcher.add(player);
-	}
+    public static class CraftingChassisInformation extends ChassiTargetInformation {
 
-	@Override
-	public void screenClosedByPlayer(Player player) {
-		guiWatcher.remove(player);
-	}
+        @Getter
+        private final int craftingSlot;
 
-	public static class CraftingChassisInformation extends ChassiTargetInformation {
+        public CraftingChassisInformation(int craftingSlot, int moduleSlot) {
+            super(moduleSlot);
+            this.craftingSlot = craftingSlot;
+        }
+    }
 
-		@Getter
-		private final int craftingSlot;
+    /**
+     * The satellite names the client shows, resolved by the server.
+     *
+     * <p>A satellite is referenced by UUID, and only the server can turn one into the name the
+     * player typed, so the client is told the names outright and keeps them here.
+     */
+    public record ClientSideSatelliteNames(
+        String satelliteName,
+        List<String> advancedSatelliteNames,
+        String liquidSatelliteName,
+        List<String> liquidSatelliteNames
+    ) {
 
-		public CraftingChassisInformation(int craftingSlot, int moduleSlot) {
-			super(moduleSlot);
-			this.craftingSlot = craftingSlot;
-		}
-	}
+        /**
+         * What the client holds before the first update arrives.
+         *
+         * <p>The lists are full-length and blank rather than empty: the GUI indexes them by slot
+         * while it builds its labels, which it does before any update can have arrived.
+         */
+        public static final ClientSideSatelliteNames EMPTY = new ClientSideSatelliteNames(
+            "", Collections.nCopies(9, ""), "", Collections.nCopies(ItemUpgrade.MAX_LIQUID_CRAFTER, ""));
 
-	/**
-	 * The satellite names the client shows, resolved by the server.
-	 *
-	 * <p>A satellite is referenced by UUID, and only the server can turn one into the name the
-	 * player typed, so the client is told the names outright and keeps them here.
-	 */
-	public record ClientSideSatelliteNames(
-			String satelliteName,
-			List<String> advancedSatelliteNames,
-			String liquidSatelliteName,
-			List<String> liquidSatelliteNames
-	) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, ClientSideSatelliteNames> STREAM_CODEC =
+            StreamCodec.composite(
+                ByteBufCodecs.STRING_UTF8, ClientSideSatelliteNames::satelliteName,
+                ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
+                ClientSideSatelliteNames::advancedSatelliteNames,
+                ByteBufCodecs.STRING_UTF8, ClientSideSatelliteNames::liquidSatelliteName,
+                ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
+                ClientSideSatelliteNames::liquidSatelliteNames,
+                ClientSideSatelliteNames::new);
+    }
 
-		/**
-		 * What the client holds before the first update arrives.
-		 *
-		 * <p>The lists are full-length and blank rather than empty: the GUI indexes them by slot
-		 * while it builds its labels, which it does before any update can have arrived.
-		 */
-		public static final ClientSideSatelliteNames EMPTY = new ClientSideSatelliteNames(
-				"", Collections.nCopies(9, ""), "", Collections.nCopies(ItemUpgrade.MAX_LIQUID_CRAFTER, ""));
+    public boolean hasByproductUpgrade() {
+        return getUpgradeManager().hasByproductExtractor();
+    }
 
-		public static final StreamCodec<RegistryFriendlyByteBuf, ClientSideSatelliteNames> STREAM_CODEC =
-				StreamCodec.composite(
-						ByteBufCodecs.STRING_UTF8, ClientSideSatelliteNames::satelliteName,
-						ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
-						ClientSideSatelliteNames::advancedSatelliteNames,
-						ByteBufCodecs.STRING_UTF8, ClientSideSatelliteNames::liquidSatelliteName,
-						ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
-						ClientSideSatelliteNames::liquidSatelliteNames,
-						ClientSideSatelliteNames::new);
-	}
-
-	public boolean hasByproductUpgrade() {
-		return getUpgradeManager().hasByproductExtractor();
-	}
-
-	public boolean hasFuzzyUpgrade() { return getUpgradeManager().isFuzzyUpgrade(); }
+    public boolean hasFuzzyUpgrade() {
+        return getUpgradeManager().isFuzzyUpgrade();
+    }
 }

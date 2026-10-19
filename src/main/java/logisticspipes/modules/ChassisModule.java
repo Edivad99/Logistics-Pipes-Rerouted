@@ -32,179 +32,179 @@ import logisticspipes.world.inventory.ChassisMenu;
 
 public class ChassisModule extends LogisticsModule implements IModuleMenuProvider {
 
-	@Getter
-	private final PipeLogisticsChassis parentChassis;
-	private final SlottedModuleListProperty modules;
-	private final UpgradeManagerListProperty slotUpgradeManagers;
+    @Getter
+    private final PipeLogisticsChassis parentChassis;
+    private final SlottedModuleListProperty modules;
+    private final UpgradeManagerListProperty slotUpgradeManagers;
 
-	public ChassisModule(int moduleCount, PipeLogisticsChassis parentChassis) {
-		this.parentChassis = parentChassis;
-		modules = new SlottedModuleListProperty(moduleCount, "modules");
-		slotUpgradeManagers = new UpgradeManagerListProperty(moduleCount, parentChassis, "chassisUpgradeManagers");
-		registerPosition(ModulePositionType.IN_PIPE, 0);
-	}
+    public ChassisModule(int moduleCount, PipeLogisticsChassis parentChassis) {
+        this.parentChassis = parentChassis;
+        modules = new SlottedModuleListProperty(moduleCount, "modules");
+        slotUpgradeManagers = new UpgradeManagerListProperty(moduleCount, parentChassis, "chassisUpgradeManagers");
+        registerPosition(ModulePositionType.IN_PIPE, 0);
+    }
 
-	@Override
-	public String getLPName() {
-		throw new RuntimeException("Cannot get LP name for " + this);
-	}
+    @Override
+    public String getLPName() {
+        throw new RuntimeException("Cannot get LP name for " + this);
+    }
 
-	@Override
-	public List<Property<?>> getProperties() {
-		return ImmutableList.<Property<?>>builder()
-			.add(modules)
-			.add(slotUpgradeManagers)
-			.build();
-	}
+    @Override
+    public List<Property<?>> getProperties() {
+        return ImmutableList.<Property<?>>builder()
+            .add(modules)
+            .add(slotUpgradeManagers)
+            .build();
+    }
 
-	public void installModule(int slot, LogisticsModule module) {
-		modules.set(slot, module);
-	}
+    public void installModule(int slot, LogisticsModule module) {
+        modules.set(slot, module);
+    }
 
-	public void removeModule(int slot) {
-		modules.clear(slot);
-	}
+    public void removeModule(int slot) {
+        modules.clear(slot);
+    }
 
-	@Nullable
-	public LogisticsModule getModule(int slot) {
-		return modules.get(slot).module();
-	}
+    @Nullable
+    public LogisticsModule getModule(int slot) {
+        return modules.get(slot).module();
+    }
 
-	public boolean hasModule(int slot) {
-		return !modules.get(slot).isEmpty();
-	}
+    public boolean hasModule(int slot) {
+        return !modules.get(slot).isEmpty();
+    }
 
-	public Stream<LogisticsModule> getModules() {
-		return modules.stream()
-				.filter(slottedModule -> !slottedModule.isEmpty())
-				.map(SlottedModule::module);
-	}
+    public Stream<LogisticsModule> getModules() {
+        return modules.stream()
+            .filter(slottedModule -> !slottedModule.isEmpty())
+            .map(SlottedModule::module);
+    }
 
-	public Stream<SlottedModule> slottedModules() {
-		return modules.stream();
-	}
+    public Stream<SlottedModule> slottedModules() {
+        return modules.stream();
+    }
 
-	@Override
-	public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
-			boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-		SinkReply bestresult = null;
-		for (SlottedModule slottedModule : modules) {
-			final LogisticsModule module = slottedModule.module();
-			if (module != null) {
-				if (!forcePassive || module.receivePassive()) {
-					SinkReply result = module
-							.sinksItem(stack, item, bestPriority, bestCustomPriority, allowDefault, includeInTransit,
-									forcePassive);
-					if (result != null && result.maxNumberOfItems >= 0) {
-						bestresult = result;
-						bestPriority = result.fixedPriority.ordinal();
-						bestCustomPriority = result.customPriority;
-					}
-				}
-			}
-		}
+    @Override
+    public @Nullable SinkReply sinksItem(ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
+        boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
+        SinkReply bestresult = null;
+        for (SlottedModule slottedModule : modules) {
+            final LogisticsModule module = slottedModule.module();
+            if (module != null) {
+                if (!forcePassive || module.receivePassive()) {
+                    SinkReply result = module
+                        .sinksItem(stack, item, bestPriority, bestCustomPriority, allowDefault, includeInTransit,
+                            forcePassive);
+                    if (result != null && result.maxNumberOfItems >= 0) {
+                        bestresult = result;
+                        bestPriority = result.fixedPriority.ordinal();
+                        bestCustomPriority = result.customPriority;
+                    }
+                }
+            }
+        }
 
-		if (bestresult == null) {
-			return null;
-		}
-		//Always deny items when we can't put the item anywhere
-		final ISlotUpgradeManager upgradeManager = parentChassis.getUpgradeManager(ModulePositionType.SLOT,
-				((ChassiTargetInformation) bestresult.addInfo).getModuleSlot());
-		IInventoryUtil invUtil = PipeServiceProviderUtil.availableSneakyInventories(parentChassis, upgradeManager)
-				.stream().findFirst().orElse(null);
-		if (invUtil == null) {
-			return null;
-		}
-		int roomForItem;
-		if (includeInTransit) {
-			int onRoute = parentChassis.countOnRoute(item);
-			final ItemStack copy = stack.copy();
-			copy.setCount(onRoute + item.getMaxStackSize());
-			roomForItem = invUtil.roomForItem(copy);
-			roomForItem -= onRoute;
-		} else {
-			roomForItem = invUtil.roomForItem(stack);
-		}
-		if (roomForItem < 1) {
-			return null;
-		}
+        if (bestresult == null) {
+            return null;
+        }
+        //Always deny items when we can't put the item anywhere
+        final ISlotUpgradeManager upgradeManager = parentChassis.getUpgradeManager(ModulePositionType.SLOT,
+            ((ChassiTargetInformation) bestresult.addInfo).getModuleSlot());
+        IInventoryUtil invUtil = PipeServiceProviderUtil.availableSneakyInventories(parentChassis, upgradeManager)
+            .stream().findFirst().orElse(null);
+        if (invUtil == null) {
+            return null;
+        }
+        int roomForItem;
+        if (includeInTransit) {
+            int onRoute = parentChassis.countOnRoute(item);
+            final ItemStack copy = stack.copy();
+            copy.setCount(onRoute + item.getMaxStackSize());
+            roomForItem = invUtil.roomForItem(copy);
+            roomForItem -= onRoute;
+        } else {
+            roomForItem = invUtil.roomForItem(stack);
+        }
+        if (roomForItem < 1) {
+            return null;
+        }
 
-		if (bestresult.maxNumberOfItems == 0) {
-			return new SinkReply(bestresult, roomForItem);
-		}
-		return new SinkReply(bestresult, Math.min(bestresult.maxNumberOfItems, roomForItem));
-	}
+        if (bestresult.maxNumberOfItems == 0) {
+            return new SinkReply(bestresult, roomForItem);
+        }
+        return new SinkReply(bestresult, Math.min(bestresult.maxNumberOfItems, roomForItem));
+    }
 
-	@Override
-	public void tick() {
-		for (SlottedModule slottedModule : modules) {
-			final LogisticsModule module = slottedModule.module();
-			if (module == null) {
-				continue;
-			}
-			module.tick();
-		}
-	}
+    @Override
+    public void tick() {
+        for (SlottedModule slottedModule : modules) {
+            final LogisticsModule module = slottedModule.module();
+            if (module == null) {
+                continue;
+            }
+            module.tick();
+        }
+    }
 
-	@Override
-	public void finishInit() {
-		super.finishInit();
-		getModules().forEach(LogisticsModule::finishInit);
-	}
+    @Override
+    public void finishInit() {
+        super.finishInit();
+        getModules().forEach(LogisticsModule::finishInit);
+    }
 
-	@Override
-	public boolean hasGenericInterests() {
-		return false;
-	}
+    @Override
+    public boolean hasGenericInterests() {
+        return false;
+    }
 
-	@Override
-	public boolean interestedInAttachedInventory() {
-		return false;
-	}
+    @Override
+    public boolean interestedInAttachedInventory() {
+        return false;
+    }
 
-	@Override
-	public boolean interestedInUndamagedID() {
-		return false;
-	}
+    @Override
+    public boolean interestedInUndamagedID() {
+        return false;
+    }
 
-	@Override
-	public boolean receivePassive() {
-		for (SlottedModule slottedModule : modules) {
-			final LogisticsModule module = slottedModule.module();
-			if (module != null && module.receivePassive()) {
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public boolean receivePassive() {
+        for (SlottedModule slottedModule : modules) {
+            final LogisticsModule module = slottedModule.module();
+            if (module != null && module.receivePassive()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public List<CCSinkResponder> queueCCSinkEvent(ItemIdentifierStack item) {
-		List<CCSinkResponder> list = new ArrayList<>();
-		for (SlottedModule slottedModule : modules) {
-			final LogisticsModule module = slottedModule.module();
-			if (module != null) {
-				list.addAll(module.queueCCSinkEvent(item));
-			}
-		}
-		return list;
-	}
+    @Override
+    public List<CCSinkResponder> queueCCSinkEvent(ItemIdentifierStack item) {
+        List<CCSinkResponder> list = new ArrayList<>();
+        for (SlottedModule slottedModule : modules) {
+            final LogisticsModule module = slottedModule.module();
+            if (module != null) {
+                list.addAll(module.queueCCSinkEvent(item));
+            }
+        }
+        return list;
+    }
 
-	@Override
-	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
-		return new ChassisMenu(containerId, inventory, parentChassis, hasUpgradeModuleUpgrade());
-	}
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, ModuleTarget target) {
+        return new ChassisMenu(containerId, inventory, parentChassis, hasUpgradeModuleUpgrade());
+    }
 
-	@Override
-	public void writeMenuData(RegistryFriendlyByteBuf buffer) {
-		buffer.writeBoolean(hasUpgradeModuleUpgrade());
-	}
+    @Override
+    public void writeMenuData(RegistryFriendlyByteBuf buffer) {
+        buffer.writeBoolean(hasUpgradeModuleUpgrade());
+    }
 
-	private boolean hasUpgradeModuleUpgrade() {
-		return parentChassis.getUpgradeManager().hasUpgradeModuleUpgrade();
-	}
+    private boolean hasUpgradeModuleUpgrade() {
+        return parentChassis.getUpgradeManager().hasUpgradeModuleUpgrade();
+    }
 
-	public ModuleUpgradeManager getModuleUpgradeManager(int slot) {
-		return slotUpgradeManagers.get(slot);
-	}
+    public ModuleUpgradeManager getModuleUpgradeManager(int slot) {
+        return slotUpgradeManagers.get(slot);
+    }
 }
