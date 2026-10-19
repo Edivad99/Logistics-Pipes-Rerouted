@@ -190,8 +190,7 @@ public class LogisticsHUDRenderer {
     private final MultiBufferSource.BufferSource hudBufferSource =
         MultiBufferSource.immediate(new ByteBufferBuilder(1536));
 
-    //TODO: only load this once, rather than twice
-    private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/icons.png");
+    private static final Identifier CROSSHAIR_SPRITE = Identifier.withDefaultNamespace("hud/crosshair");
 
     public void renderPlayerDisplay(long renderTicks, GuiGraphicsExtractor guiGraphics) {
         if (!displayRenderer()) {
@@ -201,12 +200,8 @@ public class LogisticsHUDRenderer {
         if (displayHUD() && displayCross) {
             int width = mc.getWindow().getGuiScaledWidth();
             int height = mc.getWindow().getGuiScaledHeight();
-            if (mc.gui != null && guiGraphics != null) {
-                // LP1 redrew the vanilla crosshair tinted black to mark a HUD target lock.
-                // GuiGraphicsExtractor.setColor is gone in 1.21.3 -- the tint is an ARGB blit argument now.
-                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, width / 2 - 7, height / 2 - 7, 0.0f, 0.0f,
-                    16, 16, 256, 256, 0xFF000000);
-            }
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, CROSSHAIR_SPRITE, (width - 15) / 2,
+                (height - 15) / 2, 15, 15, 0xFF000000);
         }
     }
 
@@ -217,7 +212,7 @@ public class LogisticsHUDRenderer {
         }
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
-        if (list.size() == 0
+        if (list.isEmpty()
             || Math.hypot(lastXPos - player.getX(),
                 Math.hypot(lastYPos - player.getY(), lastZPos - player.getZ())) > 0.5
             || (renderTicks % 10 == 0
