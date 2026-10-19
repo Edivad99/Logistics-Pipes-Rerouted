@@ -11,7 +11,6 @@ public class HUDConfig implements IHUDConfig {
 	private final ItemStack itemStack;
 
 	public HUDConfig(ItemStack stack) {
-		stack.set(LPDataComponents.HUD, HUDComponent.DEFAULT);
 		this.itemStack = stack;
 	}
 

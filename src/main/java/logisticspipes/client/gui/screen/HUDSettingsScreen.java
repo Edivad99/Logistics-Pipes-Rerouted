@@ -50,7 +50,7 @@ public class HUDSettingsScreen extends LogisticsBaseGuiScreen<HudSettingsMenu> {
 
     private GuiCheckBox wire(GuiCheckBox cb) {
         cb.setPressListener(b -> ClientPacketDistributor.sendToServer(
-            new SetHudSettingMessage(slot, HudSetting.values()[b.id], b.getState())));
+            new SetHudSettingMessage(slot, HudSetting.values()[b.id], b.change())));
         return cb;
     }
 

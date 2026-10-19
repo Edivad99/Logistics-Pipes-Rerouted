@@ -18,7 +18,7 @@ public class HudSettingsMenu extends DummyMenu {
     public HudSettingsMenu(int containerId, Inventory inventory, int slot) {
         super(LPMenuTypes.HUD_SETTINGS.get(), containerId, inventory.player, null);
         this.slot = slot;
-        addRestrictedHotbarForPlayerInventory(inventory, 10, 134);
-        addRestrictedArmorForPlayerInventory(inventory, 10, 65);
+        addRestrictedHotbarForPlayerInventory(inventory, 11, 135);
+        addRestrictedArmorForPlayerInventory(inventory, 11, 66);
     }
 }
